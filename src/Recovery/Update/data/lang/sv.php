@@ -56,4 +56,5 @@ return [
     'deleted_files' => '&nbsp;borttagna filer från %d kataloger',
     'cache_clear_error' => 'Det uppstod ett fel. Ta bort cachen manuellt efter uppdateringen.',
     'finish_update' => 'Slutför uppdateringen',
+    'version' => 'Version',
 ];

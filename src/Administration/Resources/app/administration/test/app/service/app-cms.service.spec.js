@@ -13,7 +13,7 @@ describe('src/app/service/app-cms.service', () => {
     let vueAdapter;
     let service;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         global.console.warn = jest.fn();
 
         vueAdapter = new VueAdapter({
@@ -23,9 +23,9 @@ describe('src/app/service/app-cms.service', () => {
             })
         });
 
-        service = new AppCmsService({
+        service = await new AppCmsService({
             fetchAppBlocks() {
-                return Promise.resolve(fixtures);
+                return Promise.resolve(fixtures.blocks);
             }
         }, vueAdapter);
     });
@@ -107,15 +107,9 @@ describe('src/app/service/app-cms.service', () => {
         const cssFixtures = '#foo { color: #f00 }';
 
         service.registerStyles({
-            styles: ''
-        });
-        expect(service.blockStyles).toBe('');
-        expect(service.injectStyleTag()).toBeFalsy();
-
-        service.registerStyles({
             styles: cssFixtures
         });
-        expect(service.blockStyles).toBe(cssFixtures);
+        expect(service.blockStyles).toContain(cssFixtures);
         expect(service.injectStyleTag()).toBeTruthy();
     });
 

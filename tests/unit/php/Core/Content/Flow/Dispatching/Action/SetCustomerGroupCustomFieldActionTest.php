@@ -11,13 +11,12 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction
+ * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction
  */
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
@@ -57,7 +56,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [CustomerGroupAware::class, DelayAware::class],
+            [CustomerGroupAware::class],
             $this->action->requirements()
         );
     }

@@ -5,12 +5,6 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 Shopware.State.registerModule('swShippingDetail', state);
 
 const createWrapper = () => {
-    beforeEach(() => {
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
-            taxType: null,
-        });
-    });
-
     return shallowMount(Shopware.Component.build('sw-settings-shipping-tax-cost'), {
         stubs: {
             'sw-card': true,
@@ -23,6 +17,12 @@ const createWrapper = () => {
 };
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-tax-cost', () => {
+    beforeEach(() => {
+        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+            taxType: null,
+        });
+    });
+
     it('should put tax type to auto for new shipping methods', async () => {
         const wrapper = createWrapper();
 

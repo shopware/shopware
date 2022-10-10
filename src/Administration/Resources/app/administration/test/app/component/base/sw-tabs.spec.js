@@ -2,6 +2,7 @@ import { config, mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import flushPromises from 'flush-promises';
 
 const componentWithTabs = {
     name: 'componentWithTabs',
@@ -39,7 +40,8 @@ function mountSwTabs(routes) {
         stubs: {
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
-        }
+        },
+        attachTo: document.body,
     });
 }
 
@@ -54,7 +56,7 @@ describe('sw-tabs', () => {
         }];
 
         const wrapper = await mountSwTabs(routes);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.$router.push({ name: 'product.base' });
         await wrapper.vm.$nextTick();
@@ -89,6 +91,7 @@ describe('sw-tabs', () => {
         }];
 
         const wrapper = mountSwTabs(routes);
+        await flushPromises();
 
         wrapper.vm.$router.push({ name: 'first.route' });
         await wrapper.vm.$nextTick();
@@ -120,12 +123,13 @@ describe('sw-tabs', () => {
         }];
 
         const wrapper = mountSwTabs(routes);
+        await flushPromises();
 
         const activeTabs = wrapper.findAll('.sw-tabs-item--active');
         expect(activeTabs.length).toBe(0);
 
         wrapper.vm.$router.push({ name: 'first.route', query: { a: 'a', c: 'c' } });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const activeTab = wrapper.find('.sw-tabs-item--active');
         expect(activeTab.text()).toEqual('first.route');

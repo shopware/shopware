@@ -110,6 +110,7 @@ function createWrapper() {
 
 describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(() => {
+        Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
     });
 

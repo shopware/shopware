@@ -51,7 +51,9 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                         ]
                     }
                 }
-            }
+            },
+
+            attachTo: document.body,
         });
     }
 

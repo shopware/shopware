@@ -60,7 +60,7 @@ const createWrapper = (privileges = []) => {
                     page: 1,
                     limit: 25
                 }
-            }
+            },
         },
         stubs: {
             'sw-card': {
@@ -88,7 +88,11 @@ const createWrapper = (privileges = []) => {
                                 </slot>
                             </slot>
                         </template>
-                    </div>`
+                    </div>`,
+                methods: {
+                    resetSelection() {},
+                    doSearch() {},
+                }
             },
             'sw-context-menu-item': true
         }
@@ -173,7 +177,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        wrapper.vm.onDelete(mailHeaderFooterMock[0]);
+        await expect(wrapper.vm.onDelete(mailHeaderFooterMock[0])).rejects.toEqual();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();

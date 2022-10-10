@@ -12,11 +12,12 @@ function createWrapper() {
                     clone: jest.fn(() => Promise.resolve({
                         id: '1a2b3c'
                     })),
-                    save: () => Promise.resolve()
+                    save: () => Promise.resolve(),
+                    searchIds: () => Promise.resolve({ data: { length: 0 } })
                 })
             },
             numberRangeService: {
-                reserve: () => Promise.resolve()
+                reserve: () => Promise.resolve({ number: 1337 })
             }
         }
     });

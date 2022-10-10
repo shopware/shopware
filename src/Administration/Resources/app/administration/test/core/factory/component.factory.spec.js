@@ -3,9 +3,6 @@ import ComponentFactory from 'src/core/factory/component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 
-// Disable developer hints in jest output
-jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 beforeEach(() => {
     ComponentFactory.getComponentRegistry().clear();
     ComponentFactory.getOverrideRegistry().clear();
@@ -34,6 +31,7 @@ describe('core/factory/component.factory.ts', () => {
     it(
         'should not be possible to register a component with the same name twice',
         async () => {
+            const spy = jest.spyOn(global.console, 'warn').mockImplementation();
             const compDefinition = {
                 template: '<div>This is a test template.</div>'
             };
@@ -42,23 +40,47 @@ describe('core/factory/component.factory.ts', () => {
             const component = ComponentFactory.register('test-component', compDefinition);
 
             expect(component).toBe(false);
+            expect(spy).toHaveBeenCalledWith(
+                '[ComponentFactory]',
+                'The component "test-component" is already registered. Please select a unique name for your component.',
+                expect.objectContaining({
+                    name: 'test-component',
+                })
+            );
         }
     );
 
     it('should not be possible to register a component without a name', async () => {
+        const spy = jest.spyOn(global.console, 'warn').mockImplementation();
         const component = ComponentFactory.register('', {
             template: '<div>This is a test template.</div>'
         });
 
         expect(component).toBe(false);
+        expect(spy).toHaveBeenCalledWith(
+            '[ComponentFactory]',
+            'A component always needs a name.',
+            expect.objectContaining({
+                template: '<div>This is a test template.</div>',
+            })
+        );
     });
 
     it(
         'should not be possible to register a component without a template',
         async () => {
+            const spy = jest.spyOn(global.console, 'warn').mockImplementation();
             const component = ComponentFactory.register('test-component', {});
 
             expect(component).toBe(false);
+            expect(spy).toHaveBeenCalledWith(
+                '[ComponentFactory]',
+                'The component "test-component" needs a template to be functional.',
+                'Please add a "template" property to your component definition',
+                expect.objectContaining({
+                    name: 'test-component',
+                })
+            );
         }
     );
 

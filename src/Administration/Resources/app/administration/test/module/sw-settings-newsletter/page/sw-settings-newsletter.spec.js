@@ -12,6 +12,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-help-text';
+import flushPromises from 'flush-promises';
 
 const classes = {
     root: 'sw-page__main-content',
@@ -31,12 +32,21 @@ function createWrapper() {
                 meta: {}
             }
         },
-        provide: { systemConfigApiService: {
-            getConfig: () => Promise.resolve(createConfig()),
-            getValues: () => Promise.resolve(getValues())
+        provide: {
+            systemConfigApiService: {
+                getConfig: () => Promise.resolve(createConfig()),
+                getValues: () => Promise.resolve(getValues())
+            },
+            validationService: {},
+            currentValue: 'test',
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        get: () => Promise.resolve({})
+                    };
+                },
+            }
         },
-        validationService: {},
-        currentValue: 'test' },
         stubs: {
             'sw-page': {
                 template: `
@@ -117,12 +127,9 @@ function createConfig() {
 describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     let wrapper;
 
-    beforeAll(() => {
-        global.repositoryFactoryMock.showError = false;
-    });
-
-    beforeEach(() => {
+    beforeEach(async () => {
         wrapper = createWrapper();
+        await flushPromises();
     });
 
     afterEach(() => {

@@ -33,20 +33,21 @@ export default class AppCmsService {
      * @constructor
      * @param {AppCmsBlocksService} appCmsBlocksService
      * @param {VueAdapter} vueAdapter
+     * @return Promise<AppCmsService>
      */
     constructor(appCmsBlocksService, vueAdapter) {
         this.appCmsBlocksService = appCmsBlocksService;
         this.vueAdapter = vueAdapter;
 
-        this.requestAppSystemBlocks().then((blocks) => {
+        return this.requestAppSystemBlocks().then((blocks) => {
             if (!blocks) {
-                return false;
+                return this;
             }
 
             this.iterateCmsBlocks(blocks);
             this.injectStyleTag();
 
-            return true;
+            return this;
         });
     }
 

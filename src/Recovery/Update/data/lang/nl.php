@@ -56,4 +56,5 @@ return [
     'deleted_files' => '&nbsp;verwijderde bestanden van %d mappen',
     'cache_clear_error' => 'Er is een fout opgetreden. Verwijder de cache na de update handmatig.',
     'finish_update' => 'Update voltooien',
+    'version' => 'Version',
 ];

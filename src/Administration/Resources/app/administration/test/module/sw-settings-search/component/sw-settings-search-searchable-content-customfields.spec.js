@@ -74,6 +74,7 @@ function createWrapper() {
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-customfields', () => {
     beforeEach(() => {
+        Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
     });
 

@@ -16,7 +16,8 @@ function createWrapper(privileges = [], category = {}) {
                     id: Shopware.Utils.createId(),
                     attributes: {
                         id: Shopware.Utils.createId()
-                    }
+                    },
+                    relationships: [],
                 }
             ]
         }
@@ -165,24 +166,6 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         });
 
         expect(wrapper.vm.category.internalLink).toBeNull();
-    });
-
-    it('should remain on internal on removal of entity', async () => {
-        const wrapper = createWrapper([
-            'category.editor'
-        ], {
-            linkType: 'product',
-            internalLink: 'someUuid'
-        });
-
-        await wrapper.setData({
-            category: {
-                linkType: ''
-            }
-        });
-        await wrapper.findAll('sw-single-select-stub').at(1).vm.$emit('change');
-
-        expect(wrapper.vm.category.linkType).toBe('internal');
     });
 
     it('should have disabled fields with no rights', async () => {

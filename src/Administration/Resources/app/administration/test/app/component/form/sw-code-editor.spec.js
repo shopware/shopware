@@ -59,7 +59,7 @@ describe('components/form/sw-code-editor', () => {
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
 
         // set sanitizeInput attribute to true, but without Feature Flag still no purification
-        wrapper.setProps({
+        await wrapper.setProps({
             sanitizeInput: true
         });
 
@@ -88,7 +88,7 @@ describe('components/form/sw-code-editor', () => {
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
 
         // now switch `sanitize-input` off
-        wrapper.setProps({
+        await wrapper.setProps({
             sanitizeInput: false
         });
 

@@ -4,10 +4,6 @@ describe('core/factory/cache-adapter.factory.js', () => {
     let requestCaches = {};
     let mockAdapter;
 
-    beforeAll(() => {
-        jest.spyOn(console, 'warn').mockImplementation();
-    });
-
     beforeEach(() => {
         // use fake timers to simulate timeouts
         jest.useFakeTimers();
@@ -17,10 +13,11 @@ describe('core/factory/cache-adapter.factory.js', () => {
             request: config,
             response: 'success'
         }));
-        console.warn.mockClear();
     });
 
     it('should cache the second request when its identical and happen shortly afterwards', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const productSearchRequest = {
@@ -66,6 +63,8 @@ describe('core/factory/cache-adapter.factory.js', () => {
     });
 
     it('should not cache the second request when its identical and happen a bit later', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const productSearchRequest = {
@@ -111,6 +110,8 @@ describe('core/factory/cache-adapter.factory.js', () => {
     });
 
     it('should not cache the second request when its different and happen shortly afterwards', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const productSearchRequest = {
@@ -174,6 +175,8 @@ describe('core/factory/cache-adapter.factory.js', () => {
     });
 
     it('should also send a second request when only the token changes (for token refreshing)', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const productSearchRequest = {
@@ -226,6 +229,8 @@ describe('core/factory/cache-adapter.factory.js', () => {
     });
 
     it('should cache the second request when its identical and happen shortly afterwards. Mutating value in the first response should not be happening on the second request', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const productSearchRequest = {
@@ -277,6 +282,8 @@ describe('core/factory/cache-adapter.factory.js', () => {
     });
 
     it('should clear the requestCaches when delete request is happening', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const productSearchRequest = {
@@ -430,6 +437,8 @@ describe('core/factory/cache-adapter.factory.js', () => {
     });
 
     it('should not cache requests which are not in the allowUrlList', async () => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
         const nonCachedSearchRequest = {

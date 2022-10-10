@@ -77,7 +77,8 @@ function createWrapper(router, resultData = actionResultData) {
                 create: () => ({
                     search: jest.fn(() => {
                         return Promise.resolve([]);
-                    })
+                    }),
+                    create: () => ({})
                 })
             }
         }

@@ -546,7 +546,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).not.toBe('');
     });
 
-    test('get the first plugin menu entry', () => {
+    test('get the first plugin menu entry', async () => {
         const wrapper = createWrapper({
             privileges: [],
             propsData: {
@@ -565,7 +565,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             entry: {
                 path: 'sw.bar.index',
                 label: 'sw-bar.general.mainMenuItemList',
@@ -582,7 +582,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     test('should match route', () => {
-        const entries = catalogues.children;
+        const entries = [...catalogues.children];
         entries.unshift({
             id: 'sw-catalogue',
             moduleType: 'core',

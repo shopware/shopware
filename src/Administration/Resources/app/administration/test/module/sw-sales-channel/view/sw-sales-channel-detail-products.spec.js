@@ -1,6 +1,7 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
+import flushPromises from 'flush-promises';
 
 function mockCriteria() {
     return {
@@ -133,15 +134,17 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         }
     } };
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get products successful', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve(productsMock));
 
         await wrapper.setProps({ salesChannel: { id: 'apiSalesChannelTypeId' } });
@@ -152,7 +155,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should get products failed', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.productRepository.search = jest.fn(() => Promise.reject());
 
         await wrapper.setProps({ salesChannel: { id: 'storefrontSalesChannelTypeId' } });
@@ -163,7 +167,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should delete product successful', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         await wrapper.setData({ $refs: $refsMock });
 
         wrapper.vm.productVisibilityRepository.delete = jest.fn(() => Promise.resolve());
@@ -181,7 +186,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should delete product failed', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.productVisibilityRepository.delete = jest.fn(() => Promise.reject({ message: 'Error' }));
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -198,7 +204,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should delete products successful', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setData({ $refs: $refsMock });
 
         wrapper.vm.productVisibilityRepository.syncDeleted = jest.fn(() => Promise.resolve());
@@ -215,7 +221,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should delete products failed', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.productVisibilityRepository.syncDeleted = jest.fn(() => Promise.reject({ message: 'Error' }));
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -231,7 +238,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should get delete id correctly', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setProps({ salesChannel: { id: 'apiSalesChannelTypeId' } });
 
@@ -242,7 +249,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should get products when changing search term', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.getProducts = jest.fn();
 
         await wrapper.setData({
@@ -262,7 +270,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should get products when changing page', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.getProducts = jest.fn();
         expect(wrapper.vm.productCriteria.sortings).toEqual([]);
         wrapper.vm.products.criteria = mockCriteria();
@@ -282,7 +291,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: [], searchTerm: null });
 
@@ -292,7 +301,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to add products in empty state', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: [], searchTerm: null });
 
@@ -304,7 +313,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: productsMock, searchTerm: 'Awesome Product' });
 
@@ -314,7 +323,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to add products in filled state', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: productsMock, searchTerm: 'Awesome Product' });
 
@@ -326,7 +335,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = createWrapper([
             'sales_channel.deleter'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
@@ -336,7 +345,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to delete product', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
@@ -348,7 +357,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = createWrapper([
             'product.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
@@ -358,7 +367,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to edit product', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: productsMock });
 
@@ -368,7 +377,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should turn on add products modal', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.openAddProductsModal();
 
@@ -380,7 +389,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should add products successful', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({ products: productsMock });
@@ -399,10 +408,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should add products failed', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
-        wrapper.vm.onAddProducts([]);
+        await expect(wrapper.vm.onAddProducts([])).rejects.toEqual();
 
         expect(wrapper.vm.showProductsModal).toBe(false);
         expect(wrapper.vm.saveProductVisibilities).not.toBeCalled();
@@ -412,7 +421,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should save product visibilities successful', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.productVisibilityRepository.saveAll = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.saveProductVisibilities([]);
@@ -424,7 +433,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should save product visibilities failed', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.productVisibilityRepository.saveAll = jest.fn(() => {
             return Promise.reject(new Error('Whoops!'));
         });
@@ -446,7 +455,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to delete variants which have inherit visibility', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ products: [...productsMock, ...variantProductMocks] });
 

@@ -1,5 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list';
 import 'src/app/component/structure/sw-page';
@@ -95,7 +96,14 @@ function createWrapper(additionalOptions = {}, privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve()
+                    search: () => Promise.resolve(new EntityCollection(
+                        '',
+                        '',
+                        Shopware.Context.api,
+                        new Criteria(1, 1),
+                        [],
+                        0
+                    ))
                 })
             },
             validationService: {},

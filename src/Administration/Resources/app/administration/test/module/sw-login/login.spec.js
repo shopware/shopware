@@ -86,6 +86,7 @@ describe('module/sw-login/login.spec.js', () => {
 
     it('should show a warning if the login is rate limited', async () => {
         jest.useFakeTimers();
+        jest.spyOn(global, 'setTimeout');
 
         wrapper.get('#username').setValue('Username');
         wrapper.get('#password').setValue('Password');

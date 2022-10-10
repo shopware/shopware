@@ -67,11 +67,13 @@ function createWrapper(privileges = []) {
                     },
                     search: () => {
                         return Promise.resolve({
-                            userConfigs: {
-                                first: () => ({})
-                            }
+                            first: () => ({}),
+                            length: 0,
                         });
-                    }
+                    },
+                    create: () => {
+                        return {};
+                    },
                 })
             },
             acl: {

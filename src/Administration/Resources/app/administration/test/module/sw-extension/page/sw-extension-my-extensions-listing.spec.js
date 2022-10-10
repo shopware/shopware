@@ -59,7 +59,9 @@ function createWrapper() {
                 }
             },
             shopwareExtensionService: shopwareService
-        }
+        },
+
+        attachTo: document.body,
     });
 }
 

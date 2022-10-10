@@ -7,6 +7,7 @@ import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const orderFixture = {
     id: '1234',
@@ -54,7 +55,9 @@ function createWrapper() {
             numberRangeService: {
                 reserve: () => Promise.resolve({ number: 1000 })
             },
-            mediaService: {},
+            mediaService: {
+                addListener: () => {},
+            },
             repositoryFactory: {
                 create: () => ({
                     get: (id) => {
@@ -65,11 +68,25 @@ function createWrapper() {
                                 mimeType: 'application/pdf',
                             }
                         );
+                    },
+                    search: () => {
+                        return Promise.resolve(new EntityCollection(
+                            '',
+                            '',
+                            Shopware.Context.api,
+                            null,
+                            [{}],
+                            1
+                        ));
                     }
                 }),
             },
             configService: {
-                getConfig: () => Promise.resolve({})
+                getConfig: () => Promise.resolve({
+                    settings: {
+                        enableUrlFeature: false
+                    },
+                })
             }
         },
         propsData: {

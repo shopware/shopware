@@ -4188,46 +4188,6 @@ parameters:
 			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionCollector.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getRequirements\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionCollector\\:\\:__construct\\(\\) has parameter \\$actions with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionCollector.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionCollector\\:\\:\\$actions type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionDefinition\\:\\:__construct\\(\\) has parameter \\$requirements with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionDefinition\\:\\:getRequirements\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionDefinition\\:\\:setRequirements\\(\\) has parameter \\$requirements with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionDefinition.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionDefinition\\:\\:\\$requirements type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Api/FlowActionDefinition.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\AbstractFlowLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/AbstractFlowLoader.php
@@ -12994,66 +12954,6 @@ parameters:
 			path: src/Core/Framework/App/Aggregate/CmsBlock/AppCmsBlockEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:getHeaders\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:getParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:getRequirements\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:setHeaders\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:setParameters\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:setRequirements\\(\\) has parameter \\$requirements with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:\\$headers type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\FlowAction\\\\AppFlowActionEntity\\:\\:\\$requirements type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Aggregate/FlowAction/AppFlowActionEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Api\\\\AppCmsController\\:\\:formatBlocks\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Api/AppCmsController.php
@@ -13314,31 +13214,6 @@ parameters:
 			path: src/Core/Framework/App/Event/ManifestChangedEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Action\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Action.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Action\\:\\:normalizeParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Action.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Action\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Action.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Action\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Action.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$parameters has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Action.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Actions\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/FlowAction/Xml/Actions.php
@@ -13427,61 +13302,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\InputField\\:\\:\\$placeHolder type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/FlowAction/Xml/InputField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:getDescription\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:getHeadline\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:getLabel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:getRequirements\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:\\$description type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:\\$headline type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:\\$label type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Metadata\\:\\:\\$requirements type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Metadata.php
 
 		-
 			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -31032,21 +30852,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Cache/CacheStateValidatorTest.php
 
 		-
-			message: "#^Cannot access property \\$headers on Symfony\\\\Component\\\\HttpFoundation\\\\Response\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/CacheStoreTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheStoreTest\\:\\:maintenanceRequest\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/CacheStoreTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheStoreTest\\:\\:testMaintenanceRequest\\(\\) has parameter \\$whitelist with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/CacheStoreTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\HttpCacheIntegrationTest\\:\\:createRequest\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Cache/HttpCacheIntegrationTest.php
@@ -31240,36 +31045,6 @@ parameters:
 			message: "#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Media/StorefrontMediaUploaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:errorControllerRequestProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:getRequest\\(\\) has parameter \\$allowedIpAddresses with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:maintenanceModeActiveProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:maintenanceModeInactiveProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:maintenancePageRequestProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:xmlHttpRequestProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundSubscriberTest\\:\\:providerSystemConfigKeys\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -32545,116 +32320,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:compileThemeById\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:fieldIsInherited\\(\\) has parameter \\$configuration with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getBlock\\(\\) has parameter \\$fieldConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getBlockLabel\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getConfigInheritance\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getParentThemeIds\\(\\) has parameter \\$parentThemes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getParentThemeIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getSection\\(\\) has parameter \\$fieldConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getSectionLabel\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getTab\\(\\) has parameter \\$fieldConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getTabLabel\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getThemeConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getThemeConfigurationStructuredFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getTranslations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:mergeStaticConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateHelpTexts\\(\\) has parameter \\$themeConfiguration with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateHelpTexts\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateHelpTexts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateLabels\\(\\) has parameter \\$themeConfiguration with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateLabels\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:updateTheme\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"

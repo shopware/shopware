@@ -29,7 +29,8 @@ const createWrapper = () => {
             'sw-field-error': {
                 template: '<div></div>'
             }
-        }
+        },
+        attachTo: document.body,
     });
 };
 
@@ -90,7 +91,7 @@ describe('app/component/form/sw-switch-field', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkOne).toBeFalsy();
-        await wrapper.find('input[name="sw-field--checkOne"]').trigger('click');
+        await wrapper.find('input[name="sw-field--checkOne"]').setChecked();
         expect(wrapper.vm.checkOne).toBeTruthy();
     });
 
@@ -106,7 +107,7 @@ describe('app/component/form/sw-switch-field', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkTwo).toBeFalsy();
-        await wrapper.find('input[name="sw-field--checkTwo"]').trigger('click');
+        await wrapper.find('input[name="sw-field--checkTwo"]').setChecked();
         expect(wrapper.vm.checkTwo).toBeTruthy();
     });
 
@@ -122,7 +123,7 @@ describe('app/component/form/sw-switch-field', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkThree).toBeFalsy();
-        await wrapper.find('input[name="sw-field--checkThree"]').trigger('click');
+        await wrapper.find('input[name="sw-field--checkThree"]').setChecked();
         expect(wrapper.vm.checkThree).toBeTruthy();
     });
 

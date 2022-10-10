@@ -138,14 +138,14 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
         const firstProductRow = wrapper.find('.sw-data-grid__cell--price');
 
         expect(priceColumn.text()).toContain('sw-order.createBase.columnPriceGross');
-        expect(firstProductRow.text()).toContain(10);
+        expect(firstProductRow.text()).toContain('10');
 
         await wrapper.setProps({
             taxStatus: 'net'
         });
 
         expect(priceColumn.text()).toContain('sw-order.createBase.columnPriceNet');
-        expect(firstProductRow.text()).toContain(8);
+        expect(firstProductRow.text()).toContain('8');
     });
 
     it('should emit selection-change event', async () => {

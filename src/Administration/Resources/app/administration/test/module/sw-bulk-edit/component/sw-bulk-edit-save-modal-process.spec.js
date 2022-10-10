@@ -14,6 +14,7 @@ function createWrapper() {
                 create: () => {
                     return Promise.resolve();
                 },
+                generate: () => null,
             },
         }
     });

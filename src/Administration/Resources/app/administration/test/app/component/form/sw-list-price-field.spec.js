@@ -106,7 +106,7 @@ describe('components/form/sw-list-price-field', () => {
 
     it('should set the correct inherited state when inherited', async () => {
         const wrapper = setup();
-        wrapper.setProps({
+        await wrapper.setProps({
             price: [euroPrice]
         });
 
@@ -116,7 +116,7 @@ describe('components/form/sw-list-price-field', () => {
     it('should set the correct inherited state when not inherited', async () => {
         const wrapper = setup();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             price: [dollarPrice]
         });
 

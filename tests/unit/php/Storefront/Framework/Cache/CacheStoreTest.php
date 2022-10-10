@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Cache;
+namespace Shopware\Tests\Unit\Storefront\Framework\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\CacheStateValidator;
@@ -16,28 +15,31 @@ use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- * @group cache
+ *
+ * @covers \Shopware\Storefront\Framework\Cache\CacheStore
  */
 class CacheStoreTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private const IP = '127.0.0.1';
 
     /**
      * @dataProvider maintenanceRequest
+     *
+     * @param string[] $whitelist
      */
     public function testMaintenanceRequest(bool $active, array $whitelist, bool $shouldBeCached): void
     {
         $request = new Request();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $active);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, json_encode($whitelist));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist));
         $request->server->set('REMOTE_ADDR', self::IP);
         static::assertSame(self::IP, $request->getClientIp());
 
@@ -51,24 +53,29 @@ class CacheStoreTest extends TestCase
             ->willReturn($item);
 
         // ensure empty request stack
-        while ($this->getContainer()->get('request_stack')->pop()) {
-        }
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+        $maintenanceModeResolver = new MaintenanceModeResolver($requestStack);
 
-        $this->getContainer()->get('request_stack')->push($request);
+        $cacheKeyGenerator = $this->createMock(HttpCacheKeyGenerator::class);
+        $cacheKeyGenerator->method('generate')->willReturn('key');
 
         $store = new CacheStore(
             $cache,
-            $this->getContainer()->get(CacheStateValidator::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(CacheTracer::class),
-            $this->getContainer()->get(HttpCacheKeyGenerator::class),
-            $this->getContainer()->get(MaintenanceModeResolver::class),
+            new CacheStateValidator([]),
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CacheTracer::class),
+            $cacheKeyGenerator,
+            $maintenanceModeResolver,
             []
         );
 
         $store->lookup($request);
     }
 
+    /**
+     * @return array<string, array{0: boolean, 1: string[], 2: boolean}>
+     */
     public function maintenanceRequest(): iterable
     {
         yield 'Always cache requests when maintenance is inactive' => [false, [], true];
@@ -79,13 +86,18 @@ class CacheStoreTest extends TestCase
 
     public function testSessionIsNotCached(): void
     {
+        $cacheKeyGenerator = $this->createMock(HttpCacheKeyGenerator::class);
+        $cacheKeyGenerator->method('generate')->willReturn('key');
+        $requestStack = new RequestStack();
+        $maintenanceModeResolver = new MaintenanceModeResolver($requestStack);
+
         $store = new CacheStore(
             new TagAwareAdapter(new ArrayAdapter()),
-            $this->getContainer()->get(CacheStateValidator::class),
-            $this->getContainer()->get('event_dispatcher'),
+            new CacheStateValidator([]),
+            $this->createMock(EventDispatcher::class),
             new CacheTracer($this->createMock(SystemConfigService::class), $this->createMock(Translator::class), new CacheTagCollection()),
-            $this->getContainer()->get(HttpCacheKeyGenerator::class),
-            $this->getContainer()->get(MaintenanceModeResolver::class),
+            $cacheKeyGenerator,
+            $maintenanceModeResolver,
             []
         );
 
@@ -98,6 +110,7 @@ class CacheStoreTest extends TestCase
         $store->write($request, $response);
 
         $cachedResponse = $store->lookup($request);
+        static::assertNotNull($cachedResponse);
 
         static::assertCount(1, $cachedResponse->headers->getCookies());
         $cookie = $cachedResponse->headers->getCookies()[0];

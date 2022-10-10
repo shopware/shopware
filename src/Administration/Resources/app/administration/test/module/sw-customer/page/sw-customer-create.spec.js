@@ -3,6 +3,9 @@ import 'src/module/sw-customer/page/sw-customer-create';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
+const { Context } = Shopware;
+const { EntityCollection } = Shopware.Data;
+
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-customer-create'), {
         stubs: {
@@ -18,8 +21,28 @@ function createWrapper() {
         },
         provide: {
             numberRangeService: {},
-            systemConfigApiService: {},
+            systemConfigApiService: {
+                getValues: () => Promise.resolve({ 'core.register.minPasswordLength': 8 })
+            },
             customerValidationService: {},
+            repositoryFactory: {
+                create: (entity) => {
+                    if (entity === 'customer') {
+                        return {
+                            create: () => {
+                                return {
+                                    id: '63e27affb5804538b5b06cb4e344b130',
+                                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                                };
+                            }
+                        };
+                    }
+
+                    return {
+                        create: () => Promise.resolve()
+                    };
+                }
+            }
         }
     });
 }
@@ -52,7 +75,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             customer: {
                 id: '1',
                 email: 'user@domain.com',
-                accountType: 'business'
+                accountType: 'business',
+                password: 'shopware',
             },
             address: {
                 company: ''
@@ -60,10 +84,37 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         });
         const saveButton = wrapper.find('.sw-customer-create__save-action');
         await saveButton.trigger('click');
+        await wrapper.vm.$nextTick();
 
         expect(notificationMock).toBeCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should show an error notification when entered password is invalid', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        await wrapper.setData({
+            customer: {
+                id: '1',
+                email: 'test@shopware.com',
+                accountType: 'business',
+                password: '1234567',
+            },
+        });
+
+        const saveButton = wrapper.find('.sw-customer-create__save-action');
+        await saveButton.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
+            message: 'sw-customer.detail.notificationPasswordLengthErrorMessage'
         });
 
         wrapper.vm.createNotificationError.mockRestore();

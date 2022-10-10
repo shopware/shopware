@@ -433,9 +433,9 @@ class InfoControllerTest extends TestCase
                 'name' => 'action.add.order.tag',
                 'requirements' => [
                     'orderAware',
-                    'delayAware',
                 ],
                 'extensions' => [],
+                'delayable' => true,
             ],
         ];
 
@@ -443,8 +443,6 @@ class InfoControllerTest extends TestCase
             $expected[0]['requirements'] = [
                 "Shopware\Core\Framework\Event\OrderAware",
                 'orderAware',
-                "Shopware\Core\Framework\Event\DelayAware",
-                'delayAware',
             ];
         }
 
@@ -486,6 +484,7 @@ class InfoControllerTest extends TestCase
                     'orderaware',
                 ],
                 'extensions' => [],
+                'delayable' => true,
             ],
         ];
 
@@ -550,6 +549,7 @@ class InfoControllerTest extends TestCase
             'name' => 'telegram.send.message',
             'badge' => 'Telegram',
             'url' => 'https://example.xyz',
+            'delayable' => true,
             'requirements' => json_encode(['orderaware']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);

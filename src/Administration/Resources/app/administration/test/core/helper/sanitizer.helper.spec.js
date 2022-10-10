@@ -4,9 +4,6 @@ import Sanitizer from 'src/core/helper/sanitizer.helper';
 import 'src/app/component/base/sw-empty-state';
 import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
 
-// Disable developer hints in jest output
-jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 describe('core/helper/sanitizer.helper.js', () => {
     // See for payload list: https://github.com/s0md3v/AwesomeXSS
     it('should sanitize the html', async () => {
@@ -110,9 +107,17 @@ describe('core/helper/sanitizer.helper.js', () => {
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
     });
 
-    it('should remove a middleware with a valid name only', async () => {
+    it.only('should remove a middleware with a valid name only', async () => {
+        const warnSpy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
+
         expect(Sanitizer.removeMiddleware('foo')).toBe(false);
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
+
+        expect(warnSpy).toBeCalledWith(
+            '[Sanitizer]',
+            expect.stringContaining('No middleware found for name')
+        );
     });
 
     it('should sanitize untrusted HTML in a component', async () => {

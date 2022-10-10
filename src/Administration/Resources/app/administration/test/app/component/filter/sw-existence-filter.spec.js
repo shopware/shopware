@@ -162,7 +162,7 @@ describe('components/sw-existence-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
-            [Criteria.not('AND', [Criteria.equals('media', null)])],
+            [Criteria.not('AND', [Criteria.equals('media.id', null)])],
             'true'
         ]);
     });

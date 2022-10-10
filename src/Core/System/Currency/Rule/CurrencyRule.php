@@ -11,6 +11,8 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyRule extends Rule
 {
+    private const NAME = 'currency';
+
     /**
      * @var array<string>|null
      */
@@ -49,7 +51,7 @@ class CurrencyRule extends Rule
 
     public function getName(): string
     {
-        return 'currency';
+        return self::NAME;
     }
 
     public function getConfig(): RuleConfig

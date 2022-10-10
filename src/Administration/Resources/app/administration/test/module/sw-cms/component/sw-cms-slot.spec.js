@@ -1,4 +1,4 @@
-import {shallowMount, createLocalVue} from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-slot';
 
@@ -28,7 +28,6 @@ function createWrapper() {
         }
     });
 }
-
 describe('module/sw-cms/component/sw-cms-slot', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
@@ -145,6 +144,4 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             locked: false,
         });
     });
-
-
 });

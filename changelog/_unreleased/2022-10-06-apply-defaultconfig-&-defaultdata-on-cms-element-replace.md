@@ -1,5 +1,6 @@
 ---
 title: Apply defaultConfig & defaultData on CMS element replace
+issue: NEXT-23596
 author: Florian Kasper
 author_email: fk@bitsandlikes.de
 author_github: fk-bitsandlikes

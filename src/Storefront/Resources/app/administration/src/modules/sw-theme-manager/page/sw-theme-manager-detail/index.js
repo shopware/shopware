@@ -354,23 +354,27 @@ Component.register('sw-theme-manager-detail', {
             }).catch((error) => {
                 this.isLoading = false;
 
-                const actions = [];
-
                 const errorObject = error.response.data.errors[0];
                 if (errorObject.code === 'THEME__COMPILING_ERROR') {
-                    actions.push({
-                        label: this.$tc('sw-theme-manager.detail.showFullError'),
-                        method: function showFullError() {
-                            this.errorModalMessage = errorObject.detail;
-                        }.bind(this)
+                    this.createNotificationError({
+                        title: this.$tc('sw-theme-manager.detail.error.themeCompile.title'),
+                        message: this.$tc('sw-theme-manager.detail.error.themeCompile.message'),
+                        autoClose: false,
+                        actions: [{
+                            label: this.$tc('sw-theme-manager.detail.showFullError'),
+                            method: function showFullError() {
+                                this.errorModalMessage = errorObject.detail;
+                            }.bind(this),
+                        }],
                     });
+
+                    return;
                 }
 
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: error.toString(),
-                    autoClose: false,
-                    actions: [...actions]
+                    autoClose: true,
                 });
             });
         },

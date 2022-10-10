@@ -370,6 +370,7 @@ class TestBootstrapper
 
         $application = new Application($kernel);
         $installCommand = $application->find('plugin:install');
+        $definition = $installCommand->getDefinition();
 
         foreach ($this->activePlugins as $activePlugin) {
             $args = [
@@ -379,7 +380,7 @@ class TestBootstrapper
             ];
 
             $returnCode = $installCommand->run(
-                new ArrayInput($args, $installCommand->getDefinition()),
+                new ArrayInput($args, $definition),
                 $this->getOutput()
             );
 

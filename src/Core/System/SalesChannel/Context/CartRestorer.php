@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -92,6 +93,13 @@ class CartRestorer
         $mergeableLineItems = $guestCart->getLineItems()->filter(function (LineItem $item) use ($customerCart) {
             return ($item->getQuantity() > 0 && $item->isStackable()) || !$customerCart->has($item->getId());
         });
+
+        $this->eventDispatcher->dispatch(new BeforeCartMergeEvent(
+            $customerCart,
+            $guestCart,
+            $mergeableLineItems,
+            $customerContext
+        ));
 
         $errors = $customerCart->getErrors();
         $customerCart->setErrors(new ErrorCollection());

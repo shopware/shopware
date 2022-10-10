@@ -1,5 +1,6 @@
 ---
 title: Fix casing for module mentioning in global admin search
+issue: NEXT-23605
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

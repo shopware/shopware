@@ -378,6 +378,10 @@ class TestBootstrapper
                 'plugins' => [$activePlugin],
             ];
 
+            if (array_key_exists('command', $installCommand->getDefinition()->getArguments())) {
+                $args['command'] = 'plugin:install';
+            }
+
             $returnCode = $installCommand->run(
                 new ArrayInput($args, $installCommand->getDefinition()),
                 $this->getOutput()

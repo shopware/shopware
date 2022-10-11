@@ -93,7 +93,7 @@ class SalesChannelFavoritesService {
 
     private async getUserConfig(): Promise<UserConfigObject> {
         if (!this.aclService.can(USER_CONFIG_PERMISSIONS.READ)) {
-            void Promise.resolve(this.userConfig);
+            return Promise.resolve(this.userConfig);
         }
 
         const response = await this.userConfigRepository.search(this.getCriteria(), Context.api);

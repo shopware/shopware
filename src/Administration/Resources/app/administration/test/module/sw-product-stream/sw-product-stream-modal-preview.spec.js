@@ -19,7 +19,8 @@ function createWrapper() {
             'sw-label': true,
             'sw-simple-search-field': true,
             'sw-container': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
+            'sw-empty-state': true,
         },
         provide: {
             productStreamPreviewService: {}

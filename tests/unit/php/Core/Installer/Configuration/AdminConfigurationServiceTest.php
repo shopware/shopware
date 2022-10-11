@@ -37,7 +37,7 @@ class AdminConfigurationServiceTest extends TestCase
 
         $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
-            new FakeQueryBuilder($connection, [$localeId])
+            new FakeQueryBuilder($connection, [[$localeId]])
         );
 
         $user = [

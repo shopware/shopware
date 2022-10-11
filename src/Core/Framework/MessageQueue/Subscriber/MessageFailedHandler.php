@@ -9,6 +9,9 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class MessageFailedHandler implements EventSubscriberInterface
 {
     private string $defaultTransportName;

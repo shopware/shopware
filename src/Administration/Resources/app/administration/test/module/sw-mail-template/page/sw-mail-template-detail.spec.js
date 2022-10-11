@@ -6,10 +6,14 @@ import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
 import 'src/app/component/tree/sw-tree-input-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import flushPromises from 'flush-promises';
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
     media: [],
+    mailTemplateType: {
+        id: '6666673yd1ssd299si1d837dy1ud628'
+    },
     isNew: () => false
 };
 
@@ -155,7 +159,8 @@ const createWrapper = (privileges = []) => {
                 template: '<div><slot name="context-menu-items"></slot></div>'
             },
             'sw-skeleton': true,
-        }
+        },
+        attachTo: document.body,
     });
 };
 
@@ -248,6 +253,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be disabled without edit permission', async () => {
         wrapper = createWrapper();
+        await flushPromises();
         await wrapper.setData({
             isLoading: false,
             mailTemplateMedia: [mailTemplateMediaMock],
@@ -285,6 +291,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be enabled with edit permission', async () => {
         wrapper = createWrapper(['mail_templates.editor']);
+        await flushPromises();
         await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock],
             isLoading: false,
@@ -371,7 +378,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
             'foo@bar.com',
             wrapper.vm.mailTemplate,
-            null,
+            expect.anything(),
             '1a2b3c'
         );
     });
@@ -409,7 +416,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
             'foo@bar.com',
             wrapper.vm.mailTemplate,
-            null,
+            expect.anything(),
             '1a2b3c'
         );
     });
@@ -514,7 +521,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
             'foo@bar.com',
             mailTemplate,
-            null,
+            expect.anything(),
             '1a2b3c'
         );
     });

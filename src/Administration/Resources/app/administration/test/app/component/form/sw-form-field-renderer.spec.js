@@ -18,7 +18,16 @@ function createWrapper(additionalOptions = {}) {
             value: 'data value'
         },
         provide: {
-            validationService: {}
+            validationService: {},
+            repositoryFactory: {
+                create() {
+                    return {
+                        get() {
+                            return Promise.resolve({});
+                        }
+                    };
+                },
+            },
         },
         ...additionalOptions
     });

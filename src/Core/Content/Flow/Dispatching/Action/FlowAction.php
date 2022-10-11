@@ -8,7 +8,8 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 implements EventSubscriberInterface will be removed, the FlowAction will be not implements anymore
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
+ * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
 abstract class FlowAction implements EventSubscriberInterface
 {
@@ -18,7 +19,7 @@ abstract class FlowAction implements EventSubscriberInterface
     abstract public function requirements(): array;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed, made an abstract function handleFlow instead
+     * @deprecated tag:v6.5.0 - Will be removed, implement abstract function handleFlow instead
      */
     abstract public function handle(FlowEvent $event): void;
 

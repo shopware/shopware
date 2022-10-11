@@ -76,11 +76,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                     }
                 },
                 userService: {
-                    getUser: () => Promise.resolve()
+                    getUser: () => Promise.resolve({ data: { username: 'admin' } })
                 },
                 snippetSetService: {
                     getAuthors: () => {
-                        return Promise.resolve();
+                        return Promise.resolve({ data: [] });
                     },
                     getCustomList: () => {
                         return Promise.resolve(getSnippets());
@@ -89,9 +89,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 snippetService: {
                     save: () => Promise.resolve(),
                     delete: () => Promise.resolve(),
-                    getFilter: () => Promise.resolve()
+                    getFilter: () => Promise.resolve({ data: [] })
                 },
-                searchRankingService: {}
+                searchRankingService: {},
+                userConfigService: {
+                    search: () => ({ data: [] }),
+                },
             },
             mocks: {
                 $route: {

@@ -53,6 +53,12 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
         wrapper = await createWrapper();
     });
 
+    afterEach(async () => {
+        if (wrapper) {
+            await wrapper.destroy();
+        }
+    });
+
     it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -61,8 +67,8 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
         expect(wrapper.vm.isInstalled).toBe(false);
     });
 
-    it('isInstalled should return true when installedAt set', () => {
-        wrapper.setProps({
+    it('isInstalled should return true when installedAt set', async () => {
+        await wrapper.setProps({
             extension: {
                 icon: null,
                 installedAt: 'a',
@@ -109,7 +115,7 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
     });
 
     it('changeExtensionStatus should call activateExtension when activated', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             extension: {
                 icon: null,
                 installedAt: 'a',
@@ -126,7 +132,7 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
     });
 
     it('changeExtensionStatus should call activateExtension when activated', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             extension: {
                 icon: null,
                 installedAt: 'a',

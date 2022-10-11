@@ -19,8 +19,14 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
     private EntityRepositoryInterface $promoRepository;
 
+    /**
+     * @var array<string, string|null>
+     */
     private array $cachePromoIds = [];
 
+    /**
+     * @var array<string, string|null>
+     */
     private array $cachePromoCodeIds = [];
 
     /**

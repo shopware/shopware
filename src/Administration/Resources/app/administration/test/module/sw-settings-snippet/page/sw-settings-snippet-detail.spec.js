@@ -157,6 +157,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         });
     }
 
+    beforeEach(() => {
+        Shopware.State.commit('setCurrentUser', { username: 'admin' });
+    });
+
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
 

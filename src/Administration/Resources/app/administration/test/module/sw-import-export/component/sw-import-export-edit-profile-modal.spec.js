@@ -167,8 +167,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.vm.missingRequiredFields).toEqual([]);
     });
 
-    it('should be have mapping length data when run mappingLength', () => {
-        wrapper.setProps({
+    it('should be have mapping length data when run mappingLength', async () => {
+        await wrapper.setProps({
             profile: { mapping: { length: 4 } }
         });
 
@@ -183,7 +183,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
 
     it('should be isNew for profile when profile data is empty', async () => {
-        wrapper.setProps({ profile: { isNew: () => {} } });
+        await wrapper.setProps({ profile: { isNew: () => {} } });
 
         expect(wrapper.vm.profile.isNew).toBeTruthy();
     });

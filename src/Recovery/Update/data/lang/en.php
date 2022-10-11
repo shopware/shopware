@@ -62,6 +62,6 @@ return [
     'done_backend' => 'Open Administration',
     'deleted_files' => '&nbsp;deleted files from %d directories',
     'cache_clear_error' => 'An error occurred. Please delete the cache manually after finishing the update.',
-
     'finish_update' => 'Finish update',
+    'version' => 'Version',
 ];

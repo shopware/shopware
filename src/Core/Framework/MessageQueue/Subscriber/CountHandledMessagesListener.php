@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 use Symfony\Component\Messenger\Event\WorkerRunningEvent;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CountHandledMessagesListener extends StopWorkerOnTimeLimitListener
 {
     private int $handledMessages = 0;

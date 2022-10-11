@@ -238,13 +238,7 @@ parameters:
             count: 1
             path: src/Storefront/Theme/ThemeCompiler.php
 
-        -
-            message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompilerInterface\\:\\:compileTheme\\(\\) invoked with 6 parameters, 4\\-5 required\\.$#"
-            count: 2
-            path: src/Storefront/Theme/ThemeService.php
-
         # can be removed with 6.5
-
         -
         	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no type specified\\.$#"
         	count: 1
@@ -254,6 +248,11 @@ parameters:
         	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$type with no type specified\\.$#"
         	count: 1
         	path: src/Core/HttpKernel.php
+
+        -
+        	message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ResponseExceptionListener\\:\\:onKernelException\\(\\) has no return type specified\\.$#"
+        	count: 1
+        	path: src/Core/Framework/Api/EventListener/ResponseExceptionListener.php
 
         # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
         - '#Trait .* is used zero times and is not analysed.#'
@@ -270,6 +269,9 @@ parameters:
             paths:
                 - tests/unit/php
 
+        -
+            message: "#^Return type of call to method PHPUnit\\\\Framework\\\\TestCase\\:\\:createPartialMock\\(\\) contains unresolvable type.$#"
+            path: tests/unit/php/Core/Content/Mail/Service/MailerTransportLoaderTest.php
 
 services:
     -

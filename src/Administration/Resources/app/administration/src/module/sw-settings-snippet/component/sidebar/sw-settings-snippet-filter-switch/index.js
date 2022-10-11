@@ -48,6 +48,12 @@ Component.register('sw-settings-snippet-filter-switch', {
                 return ['small', 'large'].includes(value);
             },
         },
+
+        value: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

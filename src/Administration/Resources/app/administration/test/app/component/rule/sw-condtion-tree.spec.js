@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-tree';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import flushPromises from 'flush-promises';
 
 function createInitialConditionsCollection() {
     return new EntityCollection(null, 'rule_condition', null, new Criteria(1, 25), [
@@ -33,7 +34,8 @@ function createWrapper(customProps = {}) {
                 getConditions: () => [],
                 getOrContainerData: () => {},
                 getGroups: () => [],
-                getRestrictedConditions: () => []
+                getRestrictedConditions: () => [],
+                isOrContainer: () => true,
             },
             conditionRepository: {
                 create: () => {
@@ -91,7 +93,7 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             initialConditions: createInitialConditionsCollection()
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.initialConditions).toEqual(
             expect.arrayContaining([

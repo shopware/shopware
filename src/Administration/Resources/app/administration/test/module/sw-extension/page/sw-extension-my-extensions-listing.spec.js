@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/page/sw-extension-my-extensions-listing';
 import 'src/app/component/grid/sw-pagination';
+import 'src/app/component/base/sw-alert';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
@@ -48,7 +49,8 @@ function createWrapper() {
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-field': Shopware.Component.build('sw-select-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field')
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-alert': Shopware.Component.build('sw-alert')
         },
         provide: {
             repositoryFactory: {
@@ -57,7 +59,9 @@ function createWrapper() {
                 }
             },
             shopwareExtensionService: shopwareService
-        }
+        },
+
+        attachTo: document.body,
     });
 }
 
@@ -83,6 +87,19 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                     state.myExtensions.data = extensions;
                 }
             }
+        });
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            appUrlReachable: true
+                        },
+                    },
+                },
+            },
         });
     });
 
@@ -378,5 +395,19 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
             expect(currentWrapperLabel).toBe(correctOrder[i]);
         });
+    });
+
+    it('should not show a warning if the APP_URL is setup correctly', async () => {
+        const alert = wrapper.find('.sw-extension-my-extensions-listing__app-url-warning');
+        expect(alert.exists()).toBe(false);
+    });
+
+    it('should show a warning if the APP_URL is not setup correctly', async () => {
+        Shopware.State.get('context').app.config.settings.appUrlReachable = false;
+
+        await wrapper.vm.$nextTick();
+
+        const alert = wrapper.find('.sw-extension-my-extensions-listing__app-url-warning');
+        expect(alert.isVisible()).toBe(true);
     });
 });

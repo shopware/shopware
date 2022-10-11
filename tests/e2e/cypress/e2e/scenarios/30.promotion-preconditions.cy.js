@@ -82,7 +82,7 @@ describe('Promotions: pre-conditions', () => {
 
         cy.get('.sw-promotion-discount-component').should('not.exist');
         cy.contains('Korting toevoegen').should('exist');
-        cy.get('.sw-card--hero button').click();
+        cy.get('.promotion-detail-discounts__action_add button').click();
         cy.get('.sw-promotion-discount-component').should('be.visible');
         cy.get('#sw-field--discount-scope').select('Winkelmandje');
         cy.get('#sw-field--discount-type').select('Procentueel');
@@ -137,7 +137,7 @@ describe('Promotions: pre-conditions', () => {
         cy.get('.sw-tabs-item[title="Kortingen"]').click();
         cy.get('.sw-promotion-discount-component').should('not.exist');
         cy.contains('Korting toevoegen').should('exist');
-        cy.get('.sw-card--hero button').click();
+        cy.get('.promotion-detail-discounts__action_add button').click();
         cy.get('.sw-promotion-discount-component').should('be.visible');
         cy.get('#sw-field--discount-scope').select('Winkelmandje');
         cy.get('#sw-field--discount-type').select('Procentueel');

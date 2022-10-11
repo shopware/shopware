@@ -146,7 +146,7 @@ Component.register('sw-mail-header-footer-list', {
                 this.showDeleteErrorNotification(item);
             }
 
-            this.mailHeaderFooterRepository.delete(item.id)
+            return this.mailHeaderFooterRepository.delete(item.id)
                 .then(() => {
                     this.$refs.listing.resetSelection();
                     this.$refs.listing.doSearch();

@@ -47,16 +47,16 @@ describe('module/sw-settings-currency/component/sw-settings-currency-country-mod
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId2' })).toBe(false);
     });
 
-    it('should not disable country if it is already assigned(edit)', () => {
+    it('should not disable country if it is already assigned(edit)', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({
-            assignedCountryIds: ['countryId1']
-        });
-        wrapper.setProps({
+        await wrapper.setProps({
             currencyCountryRounding: {
                 currencyId: 'currencyId1',
                 countryId: 'countryId1'
             }
+        });
+        await wrapper.setData({
+            assignedCountryIds: ['countryId1']
         });
 
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId1' })).toBe(false);

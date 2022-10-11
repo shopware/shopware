@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
     private const MAX_WEBHOOK_ERROR_COUNT = 10;

@@ -2,8 +2,6 @@ import AdminWorker from 'src/core/worker/admin-worker.worker';
 import Axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';
 
-jest.useFakeTimers();
-
 const axiosMock = new AxiosMockAdapter(Axios);
 
 function getConsumeRequests(history) {
@@ -13,9 +11,15 @@ function getConsumeRequests(history) {
 describe('core/worker/admin-worker.worker.js', () => {
     beforeEach(async () => {
         await AdminWorker.onMessage({ data: { type: 'logout' } });
-        await jest.runAllTimers();
         axiosMock.reset();
         axiosMock.onAny().reply(200);
+        jest.useFakeTimers();
+    });
+
+    afterEach(async () => {
+        await jest.runAllTimers();
+        axiosMock.reset();
+        jest.useRealTimers();
     });
 
     it('should call the consume call at the beginning', async () => {
@@ -85,9 +89,9 @@ describe('core/worker/admin-worker.worker.js', () => {
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
 
         // should retry after 20 seconds
-        await jest.runTimersToTime(19999);
+        await jest.advanceTimersByTime(19999);
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
-        await jest.runTimersToTime(1);
+        await jest.advanceTimersByTime(1);
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
     });
 
@@ -114,7 +118,7 @@ describe('core/worker/admin-worker.worker.js', () => {
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
 
         // should retry after 20 seconds
-        await jest.runTimersToTime(0);
+        await jest.advanceTimersByTime(0);
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
     });
 
@@ -142,7 +146,7 @@ describe('core/worker/admin-worker.worker.js', () => {
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
 
-        await jest.runTimersToTime(500);
+        await jest.advanceTimersByTime(500);
 
         await AdminWorker.onMessage({ data: { ...message, ...{ type: 'consumeReset' } } }); // reset consume cycle
         await jest.runAllTimers(); // start consumeMessages
@@ -151,11 +155,11 @@ describe('core/worker/admin-worker.worker.js', () => {
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
 
         // there should not have been a request since timeout should have been cleared earlier
-        await jest.runTimersToTime(19500);
+        await jest.advanceTimersByTime(19500);
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
 
         // should be the first request by the new timeout after the earlier one has been reset
-        await jest.runTimersToTime(500);
+        await jest.advanceTimersByTime(500);
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(3);
     });
 

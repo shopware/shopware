@@ -143,6 +143,7 @@ function createEntitySingleSelect(customOptions) {
 describe('components/sw-entity-single-select', () => {
     it('should be a Vue.js component', async () => {
         const swEntitySingleSelect = createEntitySingleSelect();
+        await flushPromises();
 
         expect(swEntitySingleSelect.vm).toBeTruthy();
     });
@@ -154,6 +155,7 @@ describe('components/sw-entity-single-select', () => {
                 entity: 'test'
             }
         });
+        await flushPromises();
 
         const { singleSelection } = swEntitySingleSelect.vm;
 
@@ -177,6 +179,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -202,6 +205,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -230,6 +234,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -259,6 +264,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -309,6 +315,7 @@ describe('components/sw-entity-single-select', () => {
                 resetOption: 'reset'
             }
         });
+        await flushPromises();
 
         const { singleSelection } = swEntitySingleSelect.vm;
 
@@ -325,6 +332,7 @@ describe('components/sw-entity-single-select', () => {
                 resetOption: 'reset'
             }
         });
+        await flushPromises();
 
         await swEntitySingleSelect.vm.$nextTick();
 
@@ -352,6 +360,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         swEntitySingleSelect.vm.loadData();
         await swEntitySingleSelect.vm.$nextTick();
@@ -388,6 +397,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -415,6 +425,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -448,6 +459,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await wrapper.find('input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -482,6 +494,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         swEntitySingleSelect.vm.loadData();
         await swEntitySingleSelect.vm.$nextTick();
@@ -495,8 +508,9 @@ describe('components/sw-entity-single-select', () => {
         expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
-    it('should not display variations', () => {
+    it('should not display variations', async () => {
         const swEntitySingleSelect = createEntitySingleSelect();
+        await flushPromises();
         const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
 
         expect(productVariantInfo.exists()).toBeFalsy();
@@ -520,6 +534,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await swEntitySingleSelect.vm.loadSelected();
 
@@ -557,6 +572,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         await swEntitySingleSelect.vm.$nextTick();
         expect(swEntitySingleSelect.find('.sw-entity-single-select__selection-text').text())
@@ -601,6 +617,7 @@ describe('components/sw-entity-single-select', () => {
                 showClearableButton: true
             }
         });
+        await flushPromises();
 
         // wait until fetched data gets rendered
         await wrapper.vm.$nextTick();
@@ -655,6 +672,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         swEntitySingleSelect.vm.loadData();
         await flushPromises();
@@ -671,15 +689,27 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should recognize non-existing entity and offer entity creation', async () => {
-        const nonExistingEntityMock = [];
-        nonExistingEntityMock.total = 0;
+        const nonExistingEntityMock = new EntityCollection(
+            '',
+            '',
+            Shopware.Context.api,
+            null,
+            [],
+            0
+        );
 
-        const existingEntityMock = [
-            {
-                id: '12345asd'
-            }
-        ];
-        existingEntityMock.total = 1;
+        const existingEntityMock = new EntityCollection(
+            '',
+            '',
+            Shopware.Context.api,
+            null,
+            [
+                {
+                    id: '12345asd'
+                }
+            ],
+            1
+        );
 
         const createableWrapper = shallowMount(swOriginEntitySingleSelect, {
             stubs: {
@@ -713,7 +743,14 @@ describe('components/sw-entity-single-select', () => {
                                 return Promise.resolve(existingEntityMock);
                             }
 
-                            return Promise.resolve([]);
+                            return Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [],
+                                0
+                            ));
                         },
                         get: () => Promise.resolve({
                             id: 'manufacturerId',
@@ -730,6 +767,7 @@ describe('components/sw-entity-single-select', () => {
                 }
             }
         });
+        await flushPromises();
 
         const displaySearchSpy = jest.spyOn(createableWrapper.vm, 'displaySearch');
         const input = createableWrapper.find('.sw-entity-single-select__selection-input');

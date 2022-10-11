@@ -14,6 +14,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - EntityIndexerRegistry will not implement EventSubscriberInterface anymore
+ */
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
     public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
@@ -29,7 +32,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     public const DISABLE_INDEXING = 'disable-indexing';
 
     /**
-     * @var EntityIndexer[]
+     * @var iterable<EntityIndexer>
      */
     private iterable $indexer;
 
@@ -42,7 +45,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     /**
      * @internal
      *
-     * @param EntityIndexer[] $indexer
+     * @param iterable<EntityIndexer> $indexer
      */
     public function __construct(iterable $indexer, MessageBusInterface $messageBus, EventDispatcherInterface $dispatcher)
     {
@@ -51,13 +54,12 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $this->dispatcher = $dispatcher;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed in v6.5.0, event handling is done in `EntityIndexingSubscriber`
+     */
     public static function getSubscribedEvents(): array
     {
-        return [
-            EntityWrittenContainerEvent::class => [
-                ['refresh', 1000],
-            ],
-        ];
+        return [];
     }
 
     public static function getHandledMessages(): iterable
@@ -69,8 +71,8 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     }
 
     /**
-     * @param array<string> $skip
-     * @param array<string> $only
+     * @param list<string> $skip
+     * @param list<string> $only
      */
     public function index(bool $useQueue, array $skip = [], array $only = []): void
     {
@@ -176,6 +178,10 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
     }
 
+    /**
+     * @param list<string> $indexer
+     * @param list<string> $skip
+     */
     public function sendIndexingMessage(array $indexer = [], array $skip = []): void
     {
         if (empty($indexer)) {
@@ -234,6 +240,10 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $this->handle($message);
     }
 
+    /**
+     * @param array<string, string>|null $offset
+     * @param list<string> $skip
+     */
     private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
     {
         $indexer = $this->getIndexer($name);

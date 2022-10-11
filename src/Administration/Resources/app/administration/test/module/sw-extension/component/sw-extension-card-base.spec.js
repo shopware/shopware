@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-card-base';
+import flushPromises from 'flush-promises';
 
 function createWrapper(propsData = {}, provide = {}) {
     return shallowMount(Shopware.Component.build('sw-extension-card-base'), {
@@ -37,7 +38,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
+        wrapper = createWrapper();
+        await flushPromises();
     });
 
     afterEach(async () => {
@@ -213,6 +215,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         },
         {
             shopwareExtensionService: {
+                getOpenLink: () => null,
                 updateExtension: async () => {
                     const error = new Error();
                     error.response = {

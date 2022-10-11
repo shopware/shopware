@@ -27,6 +27,7 @@ Component.register('sw-customer-create', {
             salesChannels: null,
             isLoading: false,
             errorEmailCustomer: null,
+            defaultMinPasswordLength: null,
         };
     },
 
@@ -38,6 +39,10 @@ Component.register('sw-customer-create', {
         validCompanyField() {
             return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
                 this.address.company?.trim().length : true;
+        },
+
+        validPasswordField() {
+            return this.customer.password?.trim().length >= this.defaultMinPasswordLength;
         },
     },
 
@@ -75,6 +80,8 @@ Component.register('sw-customer-create', {
             this.customer.defaultShippingAddressId = this.address.id;
             this.customer.password = '';
             this.customer.vatIds = [];
+
+            this.getDefaultRegistrationConfig();
         },
 
         saveFinish() {
@@ -114,6 +121,15 @@ Component.register('sw-customer-create', {
 
         onSave() {
             this.isLoading = true;
+
+            if (!this.validPasswordField) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
+                });
+
+                this.isLoading = false;
+                return false;
+            }
 
             return this.validateEmail().then((res) => {
                 if (!res || !res.isValid) {
@@ -175,6 +191,12 @@ Component.register('sw-customer-create', {
 
             this.createNotificationError({
                 message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
+            });
+        },
+
+        getDefaultRegistrationConfig() {
+            this.systemConfigApiService.getValues('core.register').then((response) => {
+                this.defaultMinPasswordLength = response['core.register.minPasswordLength'];
             });
         },
     },

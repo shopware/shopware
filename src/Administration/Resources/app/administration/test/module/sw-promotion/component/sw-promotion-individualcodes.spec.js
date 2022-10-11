@@ -173,13 +173,14 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
         global.activeAclRoles = ['promotion.editor'];
         wrapper = createWrapper();
         wrapper.vm.createNotificationWarning = jest.fn();
-        wrapper.setProps({
+        await wrapper.setProps({
             promotion: {
                 ...wrapper.props().promotion,
                 individualCodePattern: null
             }
         });
 
+        expect(wrapper.vm.promotion.individualCodePattern).toBe(null);
         expect(wrapper.vm.shouldStartGenerate).toEqual(false);
 
         const individualCodePattern = wrapper.findAll('.sw-field').at(0).find('input');

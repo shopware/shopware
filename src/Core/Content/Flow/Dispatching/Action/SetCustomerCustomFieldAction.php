@@ -4,16 +4,20 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
 
-class SetCustomerCustomFieldAction extends FlowAction
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
+ * therefore the actions won't implement the EventSubscriberInterface anymore.
+ */
+class SetCustomerCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
@@ -38,18 +42,13 @@ class SetCustomerCustomFieldAction extends FlowAction
     }
 
     /**
-     *  @deprecated tag:v6.5.0 Will be removed
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed
      */
     public static function getSubscribedEvents(): array
     {
         if (Feature::isActive('v6.5.0.0')) {
             return [];
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
 
         return [
             self::getName() => 'handle',
@@ -61,7 +60,7 @@ class SetCustomerCustomFieldAction extends FlowAction
      */
     public function requirements(): array
     {
-        return [CustomerAware::class, DelayAware::class];
+        return [CustomerAware::class];
     }
 
     /**

@@ -1,0 +1,70 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - name: Shopware
+    before: |
+      echo 'alias admin-watch="APP_URL=http://localhost:8000 composer run watch:admin"' >> ~/.bashrc
+    init: |
+      docker run --restart always -d --name=mysql -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql:8
+      docker run --restart always -d --name=adminer --link mysql:mysql -p 5000:8080 -e ADMINER_DESIGN=pepa-linha -e ADMINER_DEFAULT_SERVER=mysql -e ADMINER_PLUGINS="tables-filter table-structure json-column version-noverify" ghcr.io/shyim/shopware-docker/adminer
+      # PHP Settings
+      echo "memory_limit=512M" > php.ini
+      echo "assert.active=0" >> php.ini
+      echo "opcache.interned_strings_buffer=20" >> php.ini
+      echo "zend.detect_unicode=0" >> php.ini
+      echo "realpath_cache_ttl=3600" >> php.ini
+      composer install
+      ./bin/console system:setup -n --database-url "mysql://root:root@127.0.0.1:3306/shopware" --app-url "$(gp url 8000)" --app-env dev
+      # Setup Trusted Proxies
+      echo "TRUSTED_PROXIES=192.168.0.0/16" >> .env
+      composer run setup
+      
+      ./bin/console framework:demodata --products 300 -e prod
+      ./bin/console dal:refresh:index -e prod
+    command: docker ps && sleep 2 && ./bin/console sales-channel:update:domain $(gp url 8000 | awk -F[/:] '{print $4}') && symfony server:start --port 8000
+  - name: Getting Started
+    command: |
+      echo 'Hey!. Your environment is starting soon. You can see the progress in the Shopware Terminal'
+      echo 'If you want to run the Admin Watch, just use the Terminal alias: admin-watch'
+      echo 'Happy Coding!'
+ports:
+  - name: Shopware
+    port: 8000
+    onOpen: notify
+    description: Symfony Server
+  - name: Admin-Watcher
+    port: 8080
+    onOpen: notify
+    description: "Use Forward Proxy to localhost to access this service"
+
+jetbrains:
+  plugins:
+    - com.jetbrains.php
+    - com.intellij.php.tools.quality.phpstan
+    - com.intellij.php.psalm
+    - org.jetbrains.plugins.yaml
+    - com.jetbrains.twig
+    - de.espend.idea.php.annotation
+    - fr.adrienbrault.idea.symfony2plugin
+    - de.shyim.shopware6
+    - de.shyim.ideaphpstantoolbox
+  phpstorm:
+    vmoptions: "-Xmx4g"
+    prebuilds:
+      version: stable
+
+vscode:
+  extensions:
+    - bmewburn.vscode-intelephense-client
+    - redhat.vscode-yaml
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true
+    pullRequestsFromForks: true
+    addCheck: true
+    addComment: false
+    addBadge: true

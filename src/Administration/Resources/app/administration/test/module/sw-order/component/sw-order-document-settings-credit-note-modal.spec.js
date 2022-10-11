@@ -4,6 +4,7 @@ import 'src/module/sw-order/component/sw-order-document-settings-credit-note-mod
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/field-base/sw-base-field';
+import flushPromises from 'flush-promises';
 
 const orderFixture = {
     id: 'order1',
@@ -127,7 +128,7 @@ function createWrapper() {
         },
         provide: {
             numberRangeService: {
-                reserve: () => {},
+                reserve: () => Promise.resolve({ number: 1337 }),
             },
         },
         propsData: {
@@ -142,9 +143,10 @@ function createWrapper() {
 describe('sw-order-document-settings-credit-note-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = createWrapper();
+        await flushPromises();
     });
 
     afterEach(() => {

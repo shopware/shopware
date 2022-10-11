@@ -9,17 +9,14 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var TaskRegistry
-     */
-    private $registry;
+    private TaskRegistry $registry;
 
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $restartSignalCachePool;
+    private CacheItemPoolInterface $restartSignalCachePool;
 
     /**
      * @internal

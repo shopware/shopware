@@ -30,7 +30,7 @@ describe('core/factory/worker-notification.factory.js', () => {
         expect(sameHelper).toBe(helper);
     });
 
-    it('should fire the registered worker notification middleware', async done => {
+    it('should fire the registered worker notification middleware', done => {
         const callback = jest.fn((next) => {
             expect(callback).toHaveBeenCalled();
             next();

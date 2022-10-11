@@ -5,9 +5,6 @@ import { cloneDeep } from 'src/core/service/utils/object.utils';
 
 global.activeFeatureFlags = ['FEATURE_NEXT_19822'];
 
-// Disable developer hints in jest output
-jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 beforeEach(() => {
     ComponentFactory.getComponentRegistry().clear();
     ComponentFactory.getOverrideRegistry().clear();
@@ -233,10 +230,16 @@ describe('core/factory/async-component.factory.ts', () => {
             A: () => ({ template: '<div>This is a test template.</div>' })
         }).forEach(({ testCase, components }) => {
             it(testCase, async () => {
+                const spy = jest.spyOn(console, 'warn').mockImplementation();
                 const compDefinition = ComponentFactory.register('test-component', components.A());
                 const component = ComponentFactory.register('test-component', compDefinition);
 
                 expect(component).toBe(false);
+                expect(spy).toHaveBeenCalledWith(
+                    '[ComponentFactory]',
+                    'The component "test-component" is already registered. Please select a unique name for your component.',
+                    expect.any(Function)
+                );
             });
         });
     });
@@ -246,9 +249,15 @@ describe('core/factory/async-component.factory.ts', () => {
             A: () => ({ template: '<div>This is a test template.</div>' })
         }).forEach(({ testCase, components }) => {
             it(testCase, async () => {
+                const spy = jest.spyOn(console, 'warn').mockImplementation();
                 const component = ComponentFactory.register('', components.A());
 
                 expect(component).toBe(false);
+                expect(spy).toHaveBeenCalledWith(
+                    '[ComponentFactory]',
+                    'A component always needs a name.',
+                    expect.anything(),
+                );
             });
         });
     });
@@ -258,9 +267,16 @@ describe('core/factory/async-component.factory.ts', () => {
             A: () => ({})
         }).forEach(({ testCase, components }) => {
             it(testCase, async () => {
+                const spy = jest.spyOn(console, 'warn').mockImplementation();
                 const component = await ComponentFactory.register('test-component', components.A())();
 
                 expect(component).toBe(false);
+                expect(spy).toHaveBeenCalledWith(
+                    '[ComponentFactory]',
+                    'The component "test-component" needs a template to be functional.',
+                    'Please add a "template" property to your component definition',
+                    expect.anything(),
+                );
             });
         });
     });
@@ -2400,17 +2416,29 @@ describe('core/factory/async-component.factory.ts', () => {
     });
 
     it('should not register a component helper when a name is missing', async () => {
+        const spy = jest.spyOn(console, 'warn').mockImplementation();
         const success = ComponentFactory.registerComponentHelper('', () => {});
 
         expect(success).toBe(false);
+        expect(spy).toHaveBeenCalledWith(
+            '[ComponentFactory/ComponentHelper]',
+            'A ComponentHelper always needs a name.',
+            expect.any(Function),
+        );
     });
 
     it('should not register a component helper when a helper with the same name exists before', async () => {
+        const spy = jest.spyOn(console, 'warn').mockImplementation();
         const success = ComponentFactory.registerComponentHelper('test', () => {});
         expect(success).toBe(true);
 
         const secondSuccess = ComponentFactory.registerComponentHelper('test', () => {});
         expect(secondSuccess).toBe(false);
+        expect(spy).toHaveBeenCalledWith(
+            '[ComponentFactory/ComponentHelper]',
+            'A ComponentHelper with the name test already exists.',
+            expect.any(Function),
+        );
     });
 
     it('should return the same input config as output config', async () => {

@@ -56,4 +56,5 @@ return [
     'deleted_files' => '&nbsp;archivos remotos de %d directorios',
     'cache_clear_error' => 'Se ha producido un error. Tras la actualización, borre la memoria caché manualmente.',
     'finish_update' => 'Finalizar actualización',
+    'version' => 'Version',
 ];

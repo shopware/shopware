@@ -33,21 +33,16 @@ describe('core/service/login.service.js', () => {
                 return cookieStorageMock;
             }
         });
+
+        const mockDate = new Date(1577881800000);
+        jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+
+        Date.now = jest.fn(() => 1577876400);
     });
 
     beforeEach(() => {
-        const mockDate = new Date(1577881800000);
-        jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
-        Date.now = jest.fn(() => 1577876400);
-
-        jest.useFakeTimers();
-
         window.localStorage.removeItem('redirectFromLogin');
         document.cookie = '';
-    });
-
-    afterEach(async () => {
-        await jest.runAllTimers();
     });
 
     it('should contain all public functions', async () => {
@@ -335,6 +330,8 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should start auto refresh the token after login', async () => {
+        jest.useFakeTimers();
+
         const { loginService, clientMock } = loginServiceFactory();
 
         clientMock.onPost('/oauth/token')

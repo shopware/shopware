@@ -6,9 +6,6 @@ import { DiscountTypes } from 'src/module/sw-promotion/helper/promotion.helper';
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 
-// Disable developer hints in jest output
-jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 describe('module/sw-promotion/component/sw-promotion-discount-component/handler.js', () => {
     it('should have a min-value function that returns 0.00', async () => {
         const cmp = new DiscountComponentHandler();

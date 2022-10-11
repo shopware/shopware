@@ -15,12 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class ProductLineItemCommandValidator implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -100,7 +100,12 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         }
     }
 
-    private function findProducts(array $commands)
+    /**
+     * @param list<WriteCommand> $commands
+     *
+     * @return array<string, int>
+     */
+    private function findProducts(array $commands): array
     {
         $ids = array_map(function (WriteCommand $command) {
             if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
@@ -117,18 +122,23 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         $ids = array_values(array_filter($ids));
 
         if (empty($ids)) {
-            return $ids;
+            return [];
         }
 
-        $products = $this->connection->fetchAll(
-            'SELECT LOWER(HEX(id)) as id FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
+        /** @var array<string, int> $products */
+        $products = \array_flip($this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(id)) FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],
             ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        ));
 
-        return array_flip(array_column($products, 'id'));
+        return $products;
     }
 
+    /**
+     * @param array<string, mixed> $products
+     * @param array<string, mixed> $payload
+     */
     private function isProduct(array $products, array $payload, string $lineItemId): bool
     {
         if (isset($payload['type'])) {

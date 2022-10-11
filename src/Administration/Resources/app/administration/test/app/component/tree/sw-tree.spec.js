@@ -54,7 +54,8 @@ function createWrapper() {
         },
         propsData: {
             items: getTreeItems()
-        }
+        },
+        attachTo: document.body,
     });
 }
 

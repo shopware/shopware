@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\CustomField;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -15,18 +14,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CustomFieldService implements EventSubscriberInterface
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
+class CustomFieldService implements EventSubscriberInterface, ResetInterface
 {
     /**
      * @var array<string>|null
      */
-    private $customFields;
+    private ?array $customFields = null;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -71,18 +71,18 @@ class CustomFieldService implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getSubscribedEvents(): array
     {
         return [
-            CustomFieldEvents::CUSTOM_FIELD_DELETED_EVENT => 'invalidateCache',
-            CustomFieldEvents::CUSTOM_FIELD_WRITTEN_EVENT => 'invalidateCache',
+            CustomFieldEvents::CUSTOM_FIELD_DELETED_EVENT => 'reset',
+            CustomFieldEvents::CUSTOM_FIELD_WRITTEN_EVENT => 'reset',
         ];
     }
 
-    /**
-     * @internal
-     */
-    public function invalidateCache(): void
+    public function reset(): void
     {
         $this->customFields = null;
     }
@@ -96,9 +96,7 @@ class CustomFieldService implements EventSubscriberInterface
             return $this->customFields;
         }
 
-        $fields = $this->connection->fetchAll('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
-
-        $this->customFields = FetchModeHelper::keyPair($fields);
+        $this->customFields = $this->connection->fetchAllKeyValue('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
 
         return $this->customFields;
     }

@@ -114,7 +114,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         };
 
                         return Promise.reject(error);
-                    }
+                    },
+                    pluginCompatibility: () => Promise.resolve([]),
                 }
             },
             mocks: {

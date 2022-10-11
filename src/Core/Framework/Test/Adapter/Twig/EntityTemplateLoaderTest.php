@@ -155,7 +155,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())
-            ->method('fetchAll')
+            ->method('fetchAllAssociative')
             ->willReturn([]);
 
         $templateLoader = new EntityTemplateLoader($connection, 'prod');

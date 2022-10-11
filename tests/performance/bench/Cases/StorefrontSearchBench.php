@@ -45,7 +45,7 @@ class StorefrontSearchBench extends BenchCase
         $this->getContainer()->get(CartRuleLoader::class)->loadByToken($this->context, 'bench');
     }
 
-    #[Bench\Assert('mode(variant.time.avg) < 75ms')]
+    #[Bench\Assert('mode(variant.time.avg) < 90ms')]
     public function bench_searching_with_1500_active_rules(): void
     {
         $request = Request::create('/search?search=Simple', 'GET', ['search' => 'Simple']);

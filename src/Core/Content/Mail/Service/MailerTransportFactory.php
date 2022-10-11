@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use MailerTransportLoader instead.
+ */
 class MailerTransportFactory extends Transport
 {
     private SystemConfigService $configService;
@@ -32,6 +36,11 @@ class MailerTransportFactory extends Transport
 
     public function create(?SystemConfigService $configService = null): TransportInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         if ($configService === null) {
             $configService = $this->configService;
         }
@@ -59,6 +68,11 @@ class MailerTransportFactory extends Transport
 
     protected function createSmtpTransport(SystemConfigService $configService): TransportInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $dsn = new Dsn(
             $this->getEncryption($configService) === 'ssl' ? 'smtps' : 'smtp',
             $configService->getString('core.mailerSettings.host'),

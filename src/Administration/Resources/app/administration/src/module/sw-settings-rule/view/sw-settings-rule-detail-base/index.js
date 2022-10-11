@@ -1,4 +1,3 @@
-import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-rule-detail-base.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -29,6 +28,16 @@ Shopware.Component.register('sw-settings-rule-detail-base', {
             type: Boolean,
             required: true,
         },
+        ruleNameError: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+        rulePriorityError: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -58,8 +67,6 @@ Shopware.Component.register('sw-settings-rule-detail-base', {
                 this.rule.moduleTypes = { types: value };
             },
         },
-
-        ...mapPropertyErrors('rule', ['name', 'priority']),
 
         showCustomFields() {
             return this.rule && this.customFieldSets && this.customFieldSets.length > 0;

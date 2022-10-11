@@ -147,7 +147,7 @@ PHP lint:
     variables:
         GIT_DEPTH: 0
     stage: lint
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

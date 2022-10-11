@@ -60,7 +60,9 @@ class EntitySerializerTest extends TestCase
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        static::assertSame($expectedData, iterator_to_array($return));
+        $return = \is_array($return) ? $return : iterator_to_array($return);
+
+        static::assertSame($expectedData, $return);
     }
 
     public function testEnsureIdFieldsWithInvalidCharacter(): void
@@ -77,7 +79,9 @@ class EntitySerializerTest extends TestCase
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        static::assertSame($expectedData, iterator_to_array($return));
+        $return = \is_array($return) ? $return : iterator_to_array($return);
+
+        static::assertSame($expectedData, $return);
     }
 
     public function testEnsureIdFieldsWithMixedContent(): void
@@ -107,7 +111,9 @@ class EntitySerializerTest extends TestCase
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
         $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        static::assertSame($expectedData, iterator_to_array($return));
+        $return = \is_array($return) ? $return : iterator_to_array($return);
+
+        static::assertSame($expectedData, $return);
     }
 
     public function testEntityExtensionSerialization(): void

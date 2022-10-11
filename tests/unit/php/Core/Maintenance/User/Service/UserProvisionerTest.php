@@ -37,7 +37,7 @@ class UserProvisionerTest extends TestCase
 
         $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
-            new FakeQueryBuilder($connection, [$localeId])
+            new FakeQueryBuilder($connection, [[$localeId]])
         );
 
         $user = [
@@ -58,7 +58,7 @@ class UserProvisionerTest extends TestCase
             ->method('insert');
 
         $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
-            new FakeQueryBuilder($connection, [Uuid::randomBytes()]),
+            new FakeQueryBuilder($connection, [[Uuid::randomBytes()]]),
         );
 
         $user = [

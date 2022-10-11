@@ -1,6 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-nested-line-items-modal';
 import 'src/module/sw-order/component/sw-order-nested-line-items-row';
+import flushPromises from 'flush-promises';
 
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');
@@ -57,10 +58,6 @@ const mockChildrenCollection = [
     getMockChild('2.1', '2')
 ];
 
-function asyncTimeout(milliseconds = 500) {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-}
-
 function createWrapper() {
     const localVue = createLocalVue();
 
@@ -108,10 +105,6 @@ function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () => {
-    beforeAll(() => {
-
-    });
-
     it('should show the loading indicator, when loading', () => {
         const wrapper = createWrapper();
         const loader = wrapper.find('.sw-order-nested-line-items-modal__loader');
@@ -121,7 +114,7 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
     it('should not show the loading indicator, when loading is done', async () => {
         const wrapper = await createWrapper();
-        await asyncTimeout();
+        await flushPromises();
 
         const loader = wrapper.find('.sw-order-nested-line-items-modal__loader');
 
@@ -130,7 +123,7 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
     it('should render the correct amount of total nested line items', async () => {
         const wrapper = await createWrapper();
-        await asyncTimeout();
+        await flushPromises();
 
         const content = wrapper.findAll('.sw-order-nested-line-items-row__content');
         expect(content.length).toBe(10);
@@ -138,7 +131,7 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
     it('should render the items in the correct order with correct indentation class and properties', async () => {
         const wrapper = await createWrapper();
-        await asyncTimeout();
+        await flushPromises();
 
         const content = wrapper.findAll('.sw-order-nested-line-items-row__content');
 
@@ -228,9 +221,9 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
             expect(currentNestingLevels).toHaveLength(data.nestingLevel - 1);
             expect(currentLabel.text()).toContain(data.label);
-            expect(currentUnitPrice.text()).toContain(data.unitPrice);
-            expect(currentQuantity.text()).toContain(data.quantity);
-            expect(currentTotalPrice.text()).toContain(data.totalPrice);
+            expect(currentUnitPrice.text()).toContain(`${data.unitPrice}`);
+            expect(currentQuantity.text()).toContain(`${data.quantity}`);
+            expect(currentTotalPrice.text()).toContain(`${data.totalPrice}`);
             expect(currentTax.text()).toContain(`${data.taxRate} %`);
         });
     });

@@ -239,7 +239,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        await productViewer.find('.sw-field--checkbox input').trigger('click');
+        await productViewer.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges.length).toBe(1);
         expect(wrapper.vm.role.privileges[0]).toBe('product.viewer');
@@ -318,7 +318,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges.length).toBeGreaterThan(0);
         expect(wrapper.vm.role.privileges).toContain('product.creator');
@@ -364,7 +364,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges.length).toBe(3);
 
@@ -418,7 +418,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditor.props().value).toBe(false);
         expect(productViewer.props().value).toBe(false);
 
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').setChecked();
 
         wrapper.vm.$forceUpdate();
 
@@ -490,7 +490,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        await categoryCreator.find('.sw-field--checkbox input').trigger('click');
+        await categoryCreator.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges.length).toBe(3);
 
@@ -535,7 +535,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
     });
@@ -575,7 +575,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -619,7 +619,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
-        await productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').setChecked();
 
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -668,7 +668,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(false);
         expect(productDeleter.props().value).toBe(false);
 
-        await productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').setChecked();
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -752,7 +752,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(categoryCreator.props().value).toBe(false);
         expect(categoryDeleter.props().value).toBe(false);
 
-        await productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').setChecked();
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -803,8 +803,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
-        await productViewer.find('.sw-field--checkbox input').trigger('click');
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productViewer.find('.sw-field--checkbox input').setChecked();
+        await productCreator.find('.sw-field--checkbox input').setChecked();
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -812,7 +812,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(false);
 
-        await productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').setChecked();
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -859,10 +859,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(productAll.props().value).toBe(false);
 
-        await productViewer.find('.sw-field--checkbox input').trigger('click');
-        await productEditor.find('.sw-field--checkbox input').trigger('click');
-        await productCreator.find('.sw-field--checkbox input').trigger('click');
-        await productDeleter.find('.sw-field--checkbox input').trigger('click');
+        await productViewer.find('.sw-field--checkbox input').setChecked();
+        await productEditor.find('.sw-field--checkbox input').setChecked();
+        await productCreator.find('.sw-field--checkbox input').setChecked();
+        await productDeleter.find('.sw-field--checkbox input').setChecked();
         wrapper.vm.$forceUpdate();
 
         expect(productAll.props().value).toBe(true);
@@ -952,10 +952,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
-        await productViewer.find('input').trigger('click');
-        await productEditor.find('input').trigger('click');
-        await productCreator.find('input').trigger('click');
-        await productDeleter.find('input').trigger('click');
+        await productViewer.find('input').setChecked();
+        await productEditor.find('input').setChecked();
+        await productCreator.find('input').setChecked();
+        await productDeleter.find('input').setChecked();
 
         wrapper.vm.$forceUpdate();
 
@@ -964,7 +964,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(true);
 
-        await productAll.find('input').trigger('click');
+        await productAll.find('input').setChecked(false);
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(false);
@@ -1015,7 +1015,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        await productViewer.find('input').trigger('click');
+        await productViewer.find('input').setChecked();
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(false);
@@ -1072,7 +1072,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        await productEditor.find('input').trigger('click');
+        await productEditor.find('input').setChecked();
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(true);
@@ -1129,7 +1129,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        await productCreator.find('input').trigger('click');
+        await productCreator.find('input').setChecked();
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(true);
@@ -1186,7 +1186,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        await productDeleter.find('input').trigger('click');
+        await productDeleter.find('input').setChecked();
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(true);
@@ -1627,7 +1627,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productEditorCheckbox = productRow
             .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        await productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').setChecked();
 
         expect(catalogueViewerCheckbox.props().ghostValue).toBe(true);
         expect(catalogueEditorCheckbox.props().ghostValue).toBe(true);
@@ -1748,7 +1748,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productAllCheckbox = productRow
             .find('.sw-users-permissions-permissions-grid__role_all .sw-field--checkbox');
 
-        await productAllCheckbox.find('input').trigger('click');
+        await productAllCheckbox.find('input').setChecked();
 
         expect(catalogueAllCheckbox.props().ghostValue).toBe(true);
     });
@@ -1873,11 +1873,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditorCheckbox.props().value).toBe(false);
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
-        await productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
 
-        await categoryEditorCheckbox.find('input').trigger('click');
+        await categoryEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
@@ -2003,11 +2003,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(false);
 
-        await productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').setChecked();
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(false);
 
-        await categoryEditorCheckbox.find('input').trigger('click');
+        await categoryEditorCheckbox.find('input').setChecked();
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(true);
     });
@@ -2132,7 +2132,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditorCheckbox.props().value).toBe(false);
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
-        await catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
@@ -2256,7 +2256,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditorCheckbox.props().value).toBe(false);
         expect(categoryEditorCheckbox.exists()).toBeFalsy();
 
-        await catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
@@ -2382,13 +2382,13 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const categoryEditorCheckbox = categoryRow
             .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        await productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(true);
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
-        await catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
@@ -2511,14 +2511,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const categoryEditorCheckbox = categoryRow
             .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        await productEditorCheckbox.find('input').trigger('click');
-        await categoryEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').setChecked();
+        await categoryEditorCheckbox.find('input').setChecked();
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
         expect(categoryEditorCheckbox.props().value).toBe(true);
 
-        await catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').setChecked(false);
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(false);
@@ -2646,7 +2646,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
             .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         // check product.editor
-        await productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').setChecked();
 
         expect(catalogueViewerCheckbox.props().value).toBe(false);
         expect(productViewerCheckbox.props().value).toBe(true);
@@ -2655,14 +2655,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
         // check all catalogues viewer children
-        await categoryViewerCheckbox.find('input').trigger('click');
+        await categoryViewerCheckbox.find('input').setChecked();
 
         expect(catalogueViewerCheckbox.props().value).toBe(true);
         expect(productViewerCheckbox.props().value).toBe(true);
         expect(categoryViewerCheckbox.props().value).toBe(true);
 
         // uncheck all catalogues viewer children
-        await catalogueViewerCheckbox.find('input').trigger('click');
+        await catalogueViewerCheckbox.find('input').setChecked(false);
 
         expect(productViewerCheckbox.props().value).toBe(true);
         expect(categoryViewerCheckbox.props().value).toBe(false);
@@ -2967,7 +2967,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props('value')).toBe(false);
         expect(productAll.props('value')).toBe(false);
 
-        await productAll.find('input[type="checkbox"]').trigger('click');
+        await productAll.find('input[type="checkbox"]').setChecked();
 
         expect(productEditor.props('value')).toBe(true);
         expect(productCreator.props('value')).toBe(true);

@@ -11,6 +11,7 @@
             <sw-icon>default-communication-speech-bubbles</sw-icon>
             <requirements>orderAware</requirements>
             <requirements>customerAware</requirements>
+            <delayable>true</delayable>
         </meta>
         <headers>
             <parameter type="string" name="content-type" value="application/json"/>

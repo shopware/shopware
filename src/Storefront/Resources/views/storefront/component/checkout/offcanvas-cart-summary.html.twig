@@ -30,7 +30,7 @@
                         </span>
 
                         <span class="col-5 pb-2 shipping-value shipping-cost">
-                            <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
+                            <strong>{{ activeShipping.shippingCosts.totalPrice < 0 ? '-' : '+' }} {{ activeShipping.shippingCosts.totalPrice|abs|currency }}{{ "general.star"|trans|sw_sanitize }}</strong>
                         </span>
                     </div>
                 {% endblock %}

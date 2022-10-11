@@ -80,20 +80,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $newsletterRecipientRepository;
+    private EntityRepositoryInterface $newsletterRecipientRepository;
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
+    private DataValidator $validator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     private SystemConfigService $systemConfigService;
 

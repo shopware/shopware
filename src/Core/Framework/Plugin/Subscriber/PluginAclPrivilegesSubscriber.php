@@ -9,12 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var KernelPluginCollection
-     */
-    private $plugins;
+    private KernelPluginCollection $plugins;
 
     /**
      * @internal
@@ -58,6 +58,8 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
 
     /**
      * returns a unique, merged array of all role privileges to be added by plugins
+     *
+     * @return array<string, list<string>>
      */
     private function getAdditionalRolePrivileges(): array
     {

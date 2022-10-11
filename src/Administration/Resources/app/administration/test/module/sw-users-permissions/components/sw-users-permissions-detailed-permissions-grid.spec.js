@@ -334,8 +334,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const orderUpdateInput = orderRow.find('.sw-users-permissions-detailed-permissions-grid__role_update input');
         const orderCreateInput = orderRow.find('.sw-users-permissions-detailed-permissions-grid__role_create input');
 
-        await orderUpdateInput.trigger('click');
-        await orderCreateInput.trigger('click');
+        await orderUpdateInput.setChecked();
+        await orderCreateInput.setChecked();
 
         expect(privileges).toEqual(['product.viewer', 'product.editor']);
         expect(detailedPrivileges).toEqual(['order:update', 'order:create']);
@@ -379,7 +379,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const orderRow = wrapper.find('.sw-users-permissions-detailed-permissions-grid__entry_order');
         const orderUpdateInput = orderRow.find('.sw-users-permissions-detailed-permissions-grid__role_update input');
 
-        await orderUpdateInput.trigger('click');
+        await orderUpdateInput.setChecked(false);
 
         expect(privileges).toEqual(['product.viewer', 'product.editor']);
         expect(detailedPrivileges).toEqual(['order:create']);

@@ -14,6 +14,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class ShippingMethodValidator implements EventSubscriberInterface
 {
     public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';
@@ -101,6 +104,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function findShippingMethod(string $shippingMethodId): array
     {
         $shippingMethod = $this->connection->executeQuery(
@@ -108,9 +114,12 @@ class ShippingMethodValidator implements EventSubscriberInterface
             ['id' => $shippingMethodId]
         );
 
-        return $shippingMethod->fetchAll();
+        return $shippingMethod->fetchAssociative() ?: [];
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
@@ -134,9 +143,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
      * Gets a value from an array. It also does clean checks if
      * the key is set, and also provides the option for default values.
      *
-     * @param array  $data  the data array
-     * @param string $key   the requested key in the array
-     * @param array  $dbRow the db row of from the database
+     * @param array<string, mixed> $data  the data array
+     * @param string               $key   the requested key in the array
+     * @param array<string, mixed> $dbRow the db row of from the database
      *
      * @return mixed the object found in the key, or the default value
      */

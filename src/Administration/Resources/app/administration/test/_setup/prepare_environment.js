@@ -86,7 +86,13 @@ config.mocks = {
         replace: jest.fn(),
         push: jest.fn(),
         go: jest.fn(),
-        resolve: jest.fn(),
+        resolve: jest.fn(() => {
+            return {
+                resolved: {
+                    matched: [],
+                },
+            };
+        }),
     },
     $route: {
         params: {},

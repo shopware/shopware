@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
     private Connection $connection;

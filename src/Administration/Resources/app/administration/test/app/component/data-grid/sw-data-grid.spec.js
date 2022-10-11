@@ -89,7 +89,8 @@ function createWrapper(props, userConfig, overrideProps) {
                     },
                     save: () => {
                         return Promise.resolve();
-                    }
+                    },
+                    get: () => Promise.resolve({})
                 })
             },
             acl: { can: () => true }
@@ -516,6 +517,7 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         it(`should render different columns dynamically with ${key}`, async () => {
+            const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
             const wrapper = createWrapper();
             const grid = wrapper.vm;
 
@@ -549,6 +551,12 @@ describe('components/data-grid/sw-data-grid', () => {
             const result = grid.renderColumn(entity, column);
 
             expect(result).toBe(testCase.expected);
+
+            if (typeof testCase.errorMsg === 'string') {
+                expect(warningSpy).toHaveBeenCalledWith(testCase.errorMsg);
+            } else {
+                expect(warningSpy).not.toHaveBeenCalled();
+            }
         });
     });
 

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailerTransportFactory;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\ConfigService;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
@@ -150,29 +150,5 @@ class MailerTransportFactoryTest extends TestCase
             'sendmail' => new SendmailTransportFactory(),
             'null' => new NullTransportFactory(),
         ];
-    }
-}
-
-/**
- * @internal
- */
-class ConfigService extends SystemConfigService
-{
-    /**
-     * @var array<string, string|null>
-     */
-    private $config;
-
-    /**
-     * @param array<string, string|null> $config
-     */
-    public function __construct($config)
-    {
-        $this->config = $config;
-    }
-
-    public function get(string $key, ?string $salesChannelId = null)
-    {
-        return $this->config[$key];
     }
 }

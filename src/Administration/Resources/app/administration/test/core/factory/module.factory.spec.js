@@ -2,9 +2,6 @@ const { Module, Application } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
 
-// Disable developer hints in jest output
-const spy = jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 // We're clearing the modules registry to register the same module multiple times throughout the test suite
 beforeEach(() => {
     const modules = ModuleFactory.getModuleRegistry();
@@ -15,13 +12,24 @@ describe('core/factory/module.factory.js', () => {
     test(
         'should not register a module when no unique identifier is specified',
         () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
             const module = register('', {});
 
             expect(module).toBe(false);
+            expect(spy).toBeCalledWith(
+                '[ModuleFactory]',
+                'Module has no unique identifier "id". Abort registration.',
+                expect.any(Object),
+            );
         }
     );
 
     test('should not register a module with same name twice', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
         const moduleDefinition = {
             routes: {
                 index: {
@@ -36,11 +44,19 @@ describe('core/factory/module.factory.js', () => {
 
         expect(typeof moduleOne).toBe('object');
         expect(moduleTwo).toBe(false);
+        expect(spy).toBeCalledWith(
+            '[ModuleFactory]',
+            'A module with the identifier "sw-foo" is registered already. Abort registration.',
+            expect.any(Object),
+        );
     });
 
     test(
         'should not register a module when the unique identifier does not have a namespace',
         () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
             const module = register('foo', {
                 routes: {
                     index: {
@@ -51,15 +67,33 @@ describe('core/factory/module.factory.js', () => {
             });
 
             expect(module).toBe(false);
+            expect(spy).toBeCalledWith(
+                '[ModuleFactory]',
+                'Module identifier does not match the necessary format "[namespace]-[name]":',
+                'foo',
+                'Abort registration.',
+            );
         }
     );
 
     test('should not register a module without a route definition', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
         const module = register('sw-foo', {
             name: 'Test'
         });
 
         expect(module).toBe(false);
+        expect(spy).toBeCalledWith(
+            '[ModuleFactory]',
+            'Module "sw-foo" has no configured routes or a routeMiddleware.',
+            'The module will not be accessible in the administration UI.',
+            'Abort registration.',
+            expect.objectContaining({
+                display: true,
+            })
+        );
     });
 
     xit('should not register a module without a component in the route definition', () => {
@@ -151,6 +185,9 @@ describe('core/factory/module.factory.js', () => {
     test(
         'should be possible to register a module with multiple navigation entries',
         () => {
+            const spy = jest.fn();
+            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
             const module = register('sw-foo', {
                 routes: {
                     index: {
@@ -416,6 +453,9 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should not allow plugin modules to create menu entries on first level', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
         const pluginModule = register('sw-foo', {
             type: 'plugin',
             routes: {
@@ -446,6 +486,9 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should allow core modules to create menu entries on first level', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
+
         // Check a core module without a "parent" in the navigation object
         const coreModule = register('sw-foobar', {
             type: 'core',

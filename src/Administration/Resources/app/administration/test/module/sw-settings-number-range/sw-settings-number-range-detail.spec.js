@@ -16,7 +16,7 @@ function createWrapper(privileges = []) {
         },
         provide: {
             numberRangeService: {
-                previewPattern: () => Promise.resolve()
+                previewPattern: () => Promise.resolve({ number: 1337 })
             },
             repositoryFactory: {
                 create: () => ({

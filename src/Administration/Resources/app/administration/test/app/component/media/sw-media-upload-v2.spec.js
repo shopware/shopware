@@ -19,9 +19,14 @@ function createWrapper(customOptions = {}) {
             'sw-media-url-form': true
         },
         provide: {
-            repositoryFactory: {},
+            repositoryFactory: {
+                create: () => ({
+                    saveAll: () => {}
+                })
+            },
             mediaService: {
-                addListener: () => {}
+                addListener: () => {},
+                addUploads: () => null,
             },
             configService: {
                 getConfig: () => Promise.resolve({

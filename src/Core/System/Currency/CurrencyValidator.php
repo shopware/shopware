@@ -11,10 +11,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CurrencyValidator implements EventSubscriberInterface
 {
     public const VIOLATION_DELETE_DEFAULT_CURRENCY = 'delete_default_currency_violation';
 
+    /**
+     * @deprecated tag:v6.5.0 - const will be removed in v6.5.0
+     */
     public const DEFAULT_CURRENCIES = [Defaults::CURRENCY];
 
     public static function getSubscribedEvents(): array

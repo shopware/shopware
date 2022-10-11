@@ -108,7 +108,9 @@
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig'
+                with { 'requiresTermsOfService': false }
+            %}
         {% endblock %}
 
         {% block cms_form_contact_submit %}

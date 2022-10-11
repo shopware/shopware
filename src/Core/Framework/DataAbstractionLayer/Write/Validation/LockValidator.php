@@ -11,14 +11,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class LockValidator implements EventSubscriberInterface
 {
     public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -68,6 +68,8 @@ class LockValidator implements EventSubscriberInterface
 
     /**
      * @param WriteCommand[] $writeCommands
+     *
+     * @return array<string, bool>
      */
     private function containsLockedEntities(array $writeCommands): array
     {
@@ -86,6 +88,7 @@ class LockValidator implements EventSubscriberInterface
             $ids[$command->getDefinition()->getEntityName()][] = $command->getPrimaryKey()['id'];
         }
 
+        /** @var string $entityName */
         foreach ($ids as $entityName => $primaryKeys) {
             $locked[$entityName] = $this->connection->createQueryBuilder()
                 ->select('1')

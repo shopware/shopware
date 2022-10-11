@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 use Shopware\Storefront\Controller\StorefrontController;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @implements Rule<InClassNode>
@@ -48,6 +49,18 @@ class InternalClassRule implements Rule
 
         if ($this->isBundle($node)) {
             return ['Bundles must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($this->isEventSubscriber($node)) {
+            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
+            /**
+             * @deprecated tag:v6.5.0 - remove deprecation check, as all listener should become internal in v6.5.0
+             */
+            if (\str_contains($classDeprecation, 'reason:becomes-internal') || \str_contains($classDeprecation, 'reason:remove-subscriber')) {
+                return [];
+            }
+
+            return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -111,5 +124,18 @@ class InternalClassRule implements Rule
         }
 
         return $class->getParentClass()->getName() === Bundle::class && $class->getName() !== Plugin::class;
+    }
+
+    private function isEventSubscriber(InClassNode $node): bool
+    {
+        $class = $node->getClassReflection();
+
+        foreach ($class->getInterfaces() as $interface) {
+            if ($interface->getName() === EventSubscriberInterface::class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

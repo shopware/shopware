@@ -10,6 +10,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     private ElasticsearchOutdatedIndexDetector $indexDetector;
@@ -95,6 +98,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
                     'format' => 'yyyy-MM-dd HH:mm:ss.000',
                     'ignore_malformed' => true,
                 ];
+            case CustomFieldTypes::PRICE:
             case CustomFieldTypes::JSON:
                 return [
                     'type' => 'object',

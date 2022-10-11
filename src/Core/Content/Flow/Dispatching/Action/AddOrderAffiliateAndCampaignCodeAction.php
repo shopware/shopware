@@ -3,16 +3,20 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
+ * therefore the actions won't implement the EventSubscriberInterface anymore.
+ */
+class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
     private Connection $connection;
 
@@ -35,18 +39,13 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
     }
 
     /**
-     *  @deprecated tag:v6.5.0 Will be removed
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed
      */
     public static function getSubscribedEvents(): array
     {
         if (Feature::isActive('v6.5.0.0')) {
             return [];
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
 
         return [
             self::getName() => 'handle',
@@ -58,7 +57,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
      */
     public function requirements(): array
     {
-        return [OrderAware::class, DelayAware::class];
+        return [OrderAware::class];
     }
 
     /**

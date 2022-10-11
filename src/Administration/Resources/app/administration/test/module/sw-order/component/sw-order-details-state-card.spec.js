@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-details-state-card';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const orderMock = {
     orderNumber: 10000,
@@ -94,7 +95,14 @@ function createWrapper() {
                                 });
                             }
 
-                            return Promise.resolve();
+                            return Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [],
+                                0
+                            ));
                         }
                     };
                 }

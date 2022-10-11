@@ -16,13 +16,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class ProductCategoryPathsSubscriber implements EventSubscriberInterface
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
+class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private EntityRepositoryInterface $categoryRepository;
 
     private SyncServiceInterface $syncService;
 
+    /**
+     * @var array<string, string>
+     */
     private array $categoryIdCache = [];
 
     /**
@@ -117,6 +124,14 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface
         $event->setRecord($record);
     }
 
+    public function reset(): void
+    {
+        $this->categoryIdCache = [];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $payload
+     */
     private function createNewCategories(array $payload, string $categoryPaths): void
     {
         if (Feature::isActive('FEATURE_NEXT_15815')) {

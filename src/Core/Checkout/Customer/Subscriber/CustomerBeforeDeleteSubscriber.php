@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -14,6 +15,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
     private EntityRepositoryInterface $customerRepository;
@@ -62,6 +66,7 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
             $salesChannelId = $source->getSalesChannelId();
         }
 
+        /** @var CustomerCollection $customers */
         $customers = $this->customerRepository->search(new Criteria($ids), $context);
 
         $event->addSuccess(function () use ($customers, $context, $salesChannelId): void {

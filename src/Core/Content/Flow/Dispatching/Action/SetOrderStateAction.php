@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\FlowEvent;
@@ -183,14 +184,13 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     private function getMachineId(string $machine, string $orderId): ?string
     {
-        $id = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id',
+        return $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM ' . $machine . ' WHERE order_id = :id AND version_id = :version ORDER BY created_at DESC',
             [
                 'id' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]
-        );
-
-        return $id ?: null;
+        ) ?: null;
     }
 
     private function getAvailableActionName(string $machine, string $machineId, string $toPlace): ?string

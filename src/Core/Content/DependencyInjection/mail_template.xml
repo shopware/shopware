@@ -87,6 +87,17 @@
         <service id="mailer.transport_factory" class="Shopware\Core\Content\Mail\Service\MailerTransportFactory">
             <argument type="tagged_iterator" tag="mailer.transport_factory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Mail\Service\MailerTransportLoader">
+            <argument type="service" id="mailer.transport_factory"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="mailer.default_transport" class="Symfony\Component\Mailer\Transport\TransportInterface">
+            <argument type="string">%env(MAILER_URL)%</argument>
+            <factory service="Shopware\Core\Content\Mail\Service\MailerTransportLoader" method="fromString"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader">

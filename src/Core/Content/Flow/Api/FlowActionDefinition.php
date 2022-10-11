@@ -11,7 +11,7 @@ class FlowActionDefinition extends Struct
     /**
      * @var array<string>
      */
-    protected $requirements;
+    protected array $requirements;
 
     protected bool $delayable;
 

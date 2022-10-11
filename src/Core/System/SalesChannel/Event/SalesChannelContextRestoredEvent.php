@@ -8,8 +8,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelContextRestoredEvent extends NestedEvent
 {
-    protected SalesChannelContext $restoredContext;
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - will become private and natively typed to SalesChannelContext, use the getter instead
+     *
+     * @var SalesChannelContext
+     */
+    protected $restoredContext;
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - will become private, use the getter instead
+     */
     protected ?SalesChannelContext $currentContext;
 
     /**

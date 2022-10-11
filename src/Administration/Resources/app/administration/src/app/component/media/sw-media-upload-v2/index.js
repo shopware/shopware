@@ -454,14 +454,18 @@ Component.register('sw-media-upload-v2', {
 
             // eslint-disable-next-line no-restricted-syntax
             for (const fileType of fileTypes) {
-                const currentFileType = file?.type?.split('/') || file?.mimeType?.split('/');
+                const currentFileType = file?.type || file?.mimeType || '';
 
-                if (fileType.substring(0, 1) === '.') {
-                    this.isCorrectFileType = file.name.endsWith(fileType) || currentFileType[1] === fileType.substr(1);
+                if (fileType.substring(0, 1) === '.' || currentFileType.length === 0) {
+                    const fileInfo = fileReader.getNameAndExtensionFromFile(file);
+                    const fileExtension = `.${fileInfo?.extension || ''}`;
+
+                    this.isCorrectFileType = (fileType === fileExtension);
                 } else {
+                    const currentFileTypeParts = currentFileType.split('/');
                     const fileAcceptType = fileType.split('/');
 
-                    if (fileAcceptType[0] !== currentFileType[0]) {
+                    if (fileAcceptType[0] !== currentFileTypeParts[0]) {
                         this.isCorrectFileType = false;
                         // eslint-disable-next-line no-continue
                         continue;
@@ -472,7 +476,7 @@ Component.register('sw-media-upload-v2', {
                         break;
                     }
 
-                    this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+                    this.isCorrectFileType = fileAcceptType[1] === currentFileTypeParts[1];
                 }
                 if (this.isCorrectFileType) {
                     break;
@@ -498,6 +502,9 @@ Component.register('sw-media-upload-v2', {
                 return this.checkFileSize(file) && this.checkFileType(file);
             });
 
+            if (checkedFiles.length === 0) {
+                return;
+            }
 
             if (this.useFileData) {
                 this.preview = !this.multiSelect ? checkedFiles[0] : null;

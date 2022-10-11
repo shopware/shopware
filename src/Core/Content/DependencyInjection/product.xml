@@ -367,13 +367,17 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
-
             <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider">
+            <argument type="tagged_iterator" tag="shopware.product.stock_filter"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

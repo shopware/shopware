@@ -10059,46 +10059,6 @@ parameters:
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/ProductRatingAverageIndexerTest.php
 
 		-
-			message: "#^Cannot call method getAvailable\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getAvailable\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getAvailableStock\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getAvailableStock\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getSales\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getStock\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getStock\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\Indexing\\\\StockUpdaterTest\\:\\:createProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/StockUpdaterTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\Indexing\\\\Listing\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/VariantListingIndexerTest.php

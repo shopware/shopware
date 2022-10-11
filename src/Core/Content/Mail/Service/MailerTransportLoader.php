@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -10,69 +9,48 @@ use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use MailerTransportLoader instead.
+ * @internal
  */
-class MailerTransportFactory extends Transport
+class MailerTransportLoader
 {
+    private Transport $envBasedTransport;
+
     private SystemConfigService $configService;
 
     /**
      * @internal
      */
-    public function __construct(iterable $factories, SystemConfigService $configService)
+    public function __construct(Transport $envBasedTransport, SystemConfigService $configService)
     {
-        parent::__construct($factories);
+        $this->envBasedTransport = $envBasedTransport;
         $this->configService = $configService;
     }
 
     public function fromString(string $dsn): TransportInterface
     {
         if (trim($this->configService->getString('core.mailerSettings.emailAgent')) === '') {
-            return parent::fromString($dsn);
+            return $this->envBasedTransport->fromString($dsn);
         }
 
         return $this->create();
     }
 
-    public function create(?SystemConfigService $configService = null): TransportInterface
+    private function create(): TransportInterface
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
-        );
-
-        if ($configService === null) {
-            $configService = $this->configService;
-        }
-
-        $emailAgent = $configService->getString('core.mailerSettings.emailAgent');
-
-        if ($emailAgent === '') {
-            $dsn = new Dsn(
-                'sendmail',
-                'default'
-            );
-
-            return $this->fromDsnObject($dsn);
-        }
+        $emailAgent = $this->configService->getString('core.mailerSettings.emailAgent');
 
         switch ($emailAgent) {
             case 'smtp':
-                return $this->createSmtpTransport($configService);
+                return $this->createSmtpTransport($this->configService);
             case 'local':
-                return new SendmailTransport($this->getSendMailCommandLineArgument($configService));
+                return new SendmailTransport($this->getSendMailCommandLineArgument($this->configService));
             default:
                 throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent));
         }
     }
 
-    protected function createSmtpTransport(SystemConfigService $configService): TransportInterface
+    private function createSmtpTransport(SystemConfigService $configService): TransportInterface
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
-        );
-
         $dsn = new Dsn(
             $this->getEncryption($configService) === 'ssl' ? 'smtps' : 'smtp',
             $configService->getString('core.mailerSettings.host'),
@@ -82,7 +60,7 @@ class MailerTransportFactory extends Transport
             $this->getEncryption($configService) !== null ? [] : ['verify_peer' => 0]
         );
 
-        return $this->fromDsnObject($dsn);
+        return $this->envBasedTransport->fromDsnObject($dsn);
     }
 
     private function getEncryption(SystemConfigService $configService): ?string

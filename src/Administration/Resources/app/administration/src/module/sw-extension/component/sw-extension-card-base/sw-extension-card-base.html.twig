@@ -65,7 +65,10 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_info_description %}
-        <section class="sw-extension-card-base__info-description">
+        <section
+            class="sw-extension-card-base__info-description"
+            :title="description"
+        >
             {{ description }}
         </section>
         {% endblock %}

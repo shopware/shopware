@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Service;
+namespace Shopware\Tests\Unit\Core\Framework\Test\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware
  */
 class VerifyResponseSignatureMiddlewareTest extends TestCase
 {

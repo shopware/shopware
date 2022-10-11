@@ -24587,11 +24587,6 @@ parameters:
 			path: src/Core/Framework/Test/Store/Service/ExtensionStoreLicensesServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\ShopSecretInvalidMiddlewareTest\\:\\:fetchAllUserStoreTokens\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ShopSecretInvalidMiddlewareTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\StoreClientFactoryTest\\:\\:getConfigFromClient\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Service/StoreClientFactoryTest.php
@@ -24615,11 +24610,6 @@ parameters:
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreService constructor invoked with 5 parameters, 3 required\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Service/StoreServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\StoreSessionExpiredMiddlewareTest\\:\\:provideRequestStacks\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/StoreSessionExpiredMiddlewareTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Struct\\\\ExtensionStructTest\\:\\:badValuesProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"

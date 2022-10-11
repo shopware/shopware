@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Service;
+namespace Shopware\Tests\Integration\Framework\Test\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,16 +24,11 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
     public function testReturnsResponseIfStatusCodeIsNotUnauthorized(): void
     {
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"payload":"data"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(200);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(200, [], '{"payload":"data"}');
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get('request_stack')
+            new RequestStack()
         );
 
         $handledResponse = $middleware($response);
@@ -44,16 +38,11 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
     public function testReturnsResponseWithRewoundBodyIfCodeIsNotMatched(): void
     {
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"payload":"data"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(401);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(401, [], '{"payload":"data"}');
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get('request_stack')
+            new RequestStack()
         );
 
         $handledResponse = $middleware($response);
@@ -66,12 +55,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
      */
     public function testThrowsIfApiRespondsWithTokenExpiredException(RequestStack $requestStack): void
     {
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"code":"ShopwarePlatformException-1"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(401);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->getContainer()->get(Connection::class),
@@ -84,12 +68,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
     public function testLogsOutUserAndThrowsIfApiRespondsWithTokenExpiredException(): void
     {
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"code":"ShopwarePlatformException-1"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(401);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
 
         $userRepository = $this->getContainer()->get('user.repository');
         /** @var UserEntity $adminUser */
@@ -109,8 +88,8 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
             ]
         );
 
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
 
         $middleware = new StoreSessionExpiredMiddleware(
             $this->getContainer()->get(Connection::class),
@@ -124,24 +103,23 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         static::assertNull($adminUser->getStoreToken());
     }
 
-    public function provideRequestStacks(): array
+    public function provideRequestStacks(): \Generator
     {
-        $requestStackWithoutRequest = new RequestStack();
+        yield 'request stack without request' => [new RequestStack()];
 
         $requestStackWithoutContext = new RequestStack();
         $requestStackWithoutContext->push(new Request());
 
+        yield 'request stack without context' => [$requestStackWithoutContext];
+
         $requestStackWithWrongSource = new RequestStack();
         $requestStackWithWrongSource->push(new Request([], [], ['sw-context' => Context::createDefaultContext()]));
+
+        yield 'request stack with wrong source' => [$requestStackWithWrongSource];
 
         $requestStackWithMissingUserId = new RequestStack();
         $requestStackWithMissingUserId->push(new Request([], [], ['sw-context' => new Context(new AdminApiSource(null))]));
 
-        return [
-            [$requestStackWithoutRequest],
-            [$requestStackWithoutContext],
-            [$requestStackWithWrongSource],
-            [$requestStackWithMissingUserId],
-        ];
+        yield 'request stack with missing user id' => [$requestStackWithMissingUserId];
     }
 }

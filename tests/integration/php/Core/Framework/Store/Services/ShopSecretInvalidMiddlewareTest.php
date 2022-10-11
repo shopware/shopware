@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Service;
+namespace Shopware\Tests\Integration\Framework\Test\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -33,12 +32,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->setAllUserStoreTokens('secret_token');
         $this->systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t-token');
 
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"payload":"data"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(200);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(200, [], '{"payload":"data"}');
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
@@ -58,12 +52,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->setAllUserStoreTokens('secret_token');
         $this->systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t-token');
 
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"payload":"data"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(401);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(401, [], '{"payload":"data"}');
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
@@ -82,12 +71,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     {
         $this->setAllUserStoreTokens('secret_token');
 
-        $body = $this->createMock(StreamInterface::class);
-        $body->method('getContents')->willReturn('{"code":"ShopwarePlatformException-68"}');
-
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(401);
-        $response->method('getBody')->willReturn($body);
+        $response = new Response(401, [], '{"code":"ShopwarePlatformException-68"}');
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
@@ -95,7 +79,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $middleware($response);
 
         foreach ($this->fetchAllUserStoreTokens() as $token) {
-            static::assertNull($token);
+            static::assertNull($token['store_token']);
         }
 
         static::assertNull($this->systemConfigService->get('core.store.shopSecret'));
@@ -106,6 +90,9 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->connection->executeStatement('UPDATE user SET store_token = :storeToken', ['storeToken' => $storeToken]);
     }
 
+    /**
+     * @return array<int, array<string|null>>
+     */
     private function fetchAllUserStoreTokens(): array
     {
         return $this->connection->executeQuery('SELECT store_token FROM user')->fetchAllAssociative();

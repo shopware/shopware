@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Exception;
+namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException
  */
 class StoreSessionExpiredExceptionTest extends TestCase
 {

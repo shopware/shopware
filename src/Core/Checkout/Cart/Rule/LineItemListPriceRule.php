@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\EqualTo;
 
 class LineItemListPriceRule extends Rule
 {
@@ -61,6 +62,9 @@ class LineItemListPriceRule extends Rule
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
+          $constraints['amount'] = new EqualTo([
+                'value' => 0
+            ]);
             return $constraints;
         }
 
@@ -98,6 +102,6 @@ class LineItemListPriceRule extends Rule
             $listPriceAmount = $listPrice->getPrice();
         }
 
-        return RuleComparison::numeric($listPriceAmount, (float) $this->amount, $this->operator);
+        return RuleComparison::numeric($listPriceAmount, (float)$this->amount, $this->operator);
     }
 }

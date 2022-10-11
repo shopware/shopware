@@ -58,6 +58,15 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
+    public function testGetEmptyOperatorConstraints(): void
+    {
+        $this->rule->assign(['operator' => Rule::OPERATOR_EMPTY]);
+
+        $ruleConstraints = $this->rule->getConstraints();
+
+        static::assertArrayHasKey('amount', $ruleConstraints, 'Rule Constraint amount is not defined when checking for empty listPrice');
+    }
+
     /**
      * @dataProvider getMatchingRuleTestData
      */

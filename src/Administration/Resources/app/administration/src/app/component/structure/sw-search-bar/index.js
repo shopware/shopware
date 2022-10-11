@@ -1,7 +1,7 @@
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Component, Application } = Shopware;
+const { Component, Application, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
@@ -162,6 +162,15 @@ Component.register('sw-search-bar', {
 
         currentUser() {
             return Shopware.State.get('session').currentUser;
+        },
+
+        showSearchTipForEsSearch() {
+            if (!Context.app.adminEsEnable) {
+                return false;
+            }
+
+            // This Regex matches the first word and space in the search term
+            return this.searchTerm.match(/^[\w]+\s/);
         },
     },
 

@@ -241,6 +241,16 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_results_footer %}
             <div
+                v-if="showSearchTipForEsSearch"
+                class="sw-search-bar__footer"
+            >
+                <p
+                    class="sw-search-bar__shortcut-tip"
+                    v-html="$tc('global.sw-search-bar.placeholderESSearchShortcutInfo')"
+                ></p>
+            </div>
+            <div
+                v-else
                 class="sw-search-bar__footer"
             >
                 <p

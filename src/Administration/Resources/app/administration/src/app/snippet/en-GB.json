@@ -563,6 +563,7 @@
       "placeholderTypeSearchField": "Search \"{entity}\"...",
       "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
       "placeholderSearchShortcutInfo": "<strong>Tip:</strong> Press <span>f</span> to open the search from anywhere.",
+      "placeholderESSearchShortcutInfo": "<strong>Tip:</strong> You can use Elasticsearch's <a href=\"https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax\" target=\"_blank\">simple query string</a> to get a more precise result.",
       "moduleFiltersHeadline": "Module filters",
       "placeholderFilterShortcutInfo": "Type <span>#products</span> in the search to set the module filter.",
       "searchTypeAll": "All",

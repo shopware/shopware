@@ -5,11 +5,17 @@ declare(strict_types=1);
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DbalException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1665267882RenameCountryVat;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
+/**
+ * @internal
+ *
+ * @covers \Shopware\Core\Migration\V6_4\Migration1665267882RenameCountryVat
+ */
 class Migration1665267882RenameCountryVatTest extends TestCase
 {
     use MigrationTestTrait;
@@ -125,6 +131,10 @@ class Migration1665267882RenameCountryVatTest extends TestCase
         $this->prepareCurrentName('de-DE', self::NAME_DE);
     }
 
+    /**
+     * @return array<string, string>
+     * @throws DbalException
+     */
     private function fetchCurrentTranslations(): array
     {
         $sql = 'SELECT locale.code, country_translation.name FROM country_translation

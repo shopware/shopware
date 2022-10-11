@@ -98,6 +98,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
                     'format' => 'yyyy-MM-dd HH:mm:ss.000',
                     'ignore_malformed' => true,
                 ];
+            case CustomFieldTypes::PRICE:
             case CustomFieldTypes::JSON:
                 return [
                     'type' => 'object',

@@ -269,6 +269,9 @@ parameters:
             paths:
                 - tests/unit/php
 
+        -
+            message: "#^Return type of call to method PHPUnit\\\\Framework\\\\TestCase\\:\\:createPartialMock\\(\\) contains unresolvable type.$#"
+            path: tests/unit/php/Core/Content/Mail/Service/MailerTransportLoaderTest.php
 
 services:
     -

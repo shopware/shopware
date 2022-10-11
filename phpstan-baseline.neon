@@ -11293,10 +11293,7 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Service/SitemapExporterTest.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\DevOps\\\\Environment\\\\EnvironmentHelper\\:\\:\\$transformers type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/DevOps/Environment/EnvironmentHelper.php
+
 
 		-
 			message: "#^PHPDoc tag @var for variable \\$salesChannel has no value type specified in iterable type array\\.$#"

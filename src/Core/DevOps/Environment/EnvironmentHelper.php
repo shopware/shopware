@@ -4,6 +4,9 @@ namespace Shopware\Core\DevOps\Environment;
 
 class EnvironmentHelper
 {
+    /**
+     * @var list<array<string, class-string<EnvironmentHelperTransformerInterface>>>
+     */
     private static array $transformers = [];
 
     /**

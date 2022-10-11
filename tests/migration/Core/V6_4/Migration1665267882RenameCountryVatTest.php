@@ -23,25 +23,17 @@ class Migration1665267882RenameCountryVatTest extends TestCase
     {
         parent::setUp();
         $this->connection = KernelLifecycleManager::getConnection();
+        $this->connection->beginTransaction();
         $this->prepare();
     }
 
-    public function testCountryVaticanCityExist(): void
+    protected function tearDown(): void
     {
-        $countryId = $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA', 'iso3' => 'VAT']);
-
-        static::assertIsNotBool($countryId, 'Country \'Vatican City\' not found');
+        $this->connection->rollBack();
+        parent::tearDown();
     }
 
-    public function testFetchOfNonExistingCountryId(): void
-    {
-        $countryId = $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA3', 'iso3' => 'VAT3']);
-
-        static::assertIsBool($countryId);
-        static::assertEquals($countryId, false);
-    }
-
-    public function testPrepare(): void
+    public function testExpectCurrentNamesInDefaultInstallation(): void
     {
         $expected = [
             'en-GB' => 'Holy See',
@@ -50,9 +42,38 @@ class Migration1665267882RenameCountryVatTest extends TestCase
         static::assertEquals($expected, $this->fetchCurrentTranslations());
     }
 
+    public function testMigrationCanBeExecutedMultipleTimes(): void
+    {
+        $migration = new Migration1665267882RenameCountryVat();
+        $expected = [
+            'en-GB' => 'Vatican City',
+            'de-DE' => 'Staat Vatikanstadt',
+        ];
+        $migration->update($this->connection);
+
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+
+        $migration->update($this->connection);
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+
+        $manuelEditedName = 'Vatikanstadt';
+        $this->prepareCurrentName('de-DE', $manuelEditedName);
+        $expected = [
+            'en-GB' => 'Vatican City',
+            'de-DE' => $manuelEditedName,
+        ];
+
+        $migration->update($this->connection);
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+
+        $migration->update($this->connection);
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+    }
+
     public function testUpdateCountryName(): void
     {
-        $this->testPrepare();
+        $this->testExpectCurrentNamesInDefaultInstallation();
+
         $migration = new Migration1665267882RenameCountryVat();
         $migration->update($this->connection);
 
@@ -63,9 +84,26 @@ class Migration1665267882RenameCountryVatTest extends TestCase
         static::assertEquals($expected, $this->fetchCurrentTranslations());
     }
 
+    public function testUpdateIfCountryNotExist(): void
+    {
+        $this->connection->executeStatement("DELETE FROM country WHERE iso3 = 'VAT';");
+
+        $existCountry = (bool) $this->connection->fetchOne("SELECT 1 FROM country WHERE iso3 = 'VAT'");
+        static::assertFalse($existCountry);
+
+        $currentTranslations = $this->fetchCurrentTranslations();
+        static::assertEmpty($currentTranslations);
+
+        $migration = new Migration1665267882RenameCountryVat();
+        $migration->update($this->connection);
+
+        $currentTranslations = $this->fetchCurrentTranslations();
+        static::assertEmpty($currentTranslations);
+    }
+
     public function testSkipUpdateIfManuelEdited(): void
     {
-        $this->testPrepare();
+        $this->testExpectCurrentNamesInDefaultInstallation();
 
         $manuelEditedName = 'Vatikanstadt';
 
@@ -81,13 +119,13 @@ class Migration1665267882RenameCountryVatTest extends TestCase
         static::assertEquals($expected, $this->fetchCurrentTranslations());
     }
 
-    protected function prepare(): void
+    private function prepare(): void
     {
         $this->prepareCurrentName('en-GB', self::NAME_EN);
         $this->prepareCurrentName('de-DE', self::NAME_DE);
     }
 
-    protected function fetchCurrentTranslations(): array
+    private function fetchCurrentTranslations(): array
     {
         $sql = 'SELECT locale.code, country_translation.name FROM country_translation
                 LEFT JOIN country ON country.id = country_translation.country_id
@@ -98,7 +136,7 @@ class Migration1665267882RenameCountryVatTest extends TestCase
         return $this->connection->fetchAllKeyValue($sql, ['iso' => 'VA', 'iso3' => 'VAT']);
     }
 
-    protected function prepareCurrentName(string $languageCode, string $countryName): void
+    private function prepareCurrentName(string $languageCode, string $countryName): void
     {
         $sql = 'UPDATE `country_translation`
                 LEFT JOIN country ON country.id = country_translation.country_id

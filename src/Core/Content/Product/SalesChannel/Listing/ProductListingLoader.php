@@ -269,11 +269,6 @@ class ProductListingLoader
             /** @var Entity $entity */
             $entity = $entities->get($mapping[$id]);
 
-            // Ensure that extension of first mapping is not overwritten
-            if ($entity->hasExtension('search')) {
-                continue;
-            }
-
             // get access to the data of the search result
             $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
         }

@@ -17,7 +17,23 @@ tasks:
       
       ./bin/console framework:demodata --products 300 -e prod
       ./bin/console dal:refresh:index -e prod
-    command: docker ps && gp ports await 3306 && sleep 2 && ./bin/console sales-channel:update:domain $(gp url 8000 | awk -F[/:] '{print $4}') && symfony server:start --port 8000
+    command: |
+      # Gitpod registers the ports on first docker command
+      docker ps
+      
+      # Wait for port open
+      gp ports await 3306
+      
+      # Wait until MySQL is reachable
+      until mysqladmin ping; do
+          sleep 1
+      done
+      
+      # Update domain url
+      ./bin/console sales-channel:update:domain $(gp url 8000 | awk -F[/:] '{print $4}')
+      
+      # Start Webserver
+      symfony server:start --port 8000 -d{print $4}') && symfony server:start --port 8000
   - name: Getting Started
     command: |
       echo 'Hey!. Your environment is starting soon. You can see the progress in the Shopware Terminal'

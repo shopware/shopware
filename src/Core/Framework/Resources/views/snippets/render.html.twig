@@ -1,27 +1,27 @@
 {% apply spaceless %}
+    {% set concatLineSymbol = ['-', '~'] %}
     {% for line in format %}
-        {% set lineString = '' %}
-        {# determine if this line only contains plain snippets #}
-        {% set onlyPlain = true %}
+        {% set lineElements = [] %}
+
         {% for element in line %}
             {% set elementValue %}
-                    {% if element.type == 'plain' %}
-                        {% sw_include '@Framework/snippets/plain.html.twig' %}
-                    {% else %}
-                        {% sw_include '@Framework/snippets/' ~ element.value ~ '.html.twig' ignore missing %}
-                    {% endif %}
+                {% if element.type == 'plain' %}
+                    {% sw_include '@Framework/snippets/plain.html.twig' %}
+                {% else %}
+                    {% sw_include '@Framework/snippets/' ~ element.value ~ '.html.twig' ignore missing %}
+                {% endif %}
             {% endset %}
 
             {% set elementValue = elementValue|trim %}
 
-            {% if elementValue|length > 0 %}
-                {% if element.type != 'plain' %}
-                    {% set onlyPlain = false %}
-                {% endif %}
-                {% set lineString = lineString ~ ' ' ~ elementValue %}
+            {% if elementValue|length > 0 and not (loop.last and elementValue in concatLineSymbol) %}
+                {% set lineElements = lineElements|merge([elementValue]) %}
+            {% endif %}
+            {# if the element value is empty and the previous element is a concat symbol, we can remove the previous symbol as well #}
+            {% if elementValue|length == 0 and lineElements|last in concatLineSymbol %}
+                {% set lineElements = lineElements|slice(0, -1) %}
             {% endif %}
         {% endfor %}
-        {# render the line if there is at least one non-empty snippet otherwise skip that line #}
-        {% if not onlyPlain and lineString|trim|length %}{{ lineString|trim }}<br/>{% endif %}
-    {% endfor %}<br/>
+        {% if lineElements|length > 0 %}{{ lineElements|join(' ')|trim }}{% if not loop.last %}<br/>{% endif %}{% endif %}
+    {% endfor %}
 {% endapply %}

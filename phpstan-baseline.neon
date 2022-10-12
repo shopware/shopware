@@ -1601,21 +1601,6 @@ parameters:
 			path: src/Core/Checkout/Payment/PaymentService.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\SalesChannel\\\\CachedPaymentMethodRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/SalesChannel/CachedPaymentMethodRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\SalesChannel\\\\CachedPaymentMethodRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/SalesChannel/CachedPaymentMethodRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Payment\\\\SalesChannel\\\\CachedPaymentMethodRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/SalesChannel/CachedPaymentMethodRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeCollection\\:\\:getCodeArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Aggregate/PromotionIndividualCode/PromotionIndividualCodeCollection.php
@@ -2014,21 +1999,6 @@ parameters:
 			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesRemover\" is marked as deprecated, but method \"removeIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Util/PromotionCodesRemover.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\SalesChannel\\\\CachedShippingMethodRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Shipping/SalesChannel/CachedShippingMethodRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\SalesChannel\\\\CachedShippingMethodRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Shipping/SalesChannel/CachedShippingMethodRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\SalesChannel\\\\CachedShippingMethodRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Shipping/SalesChannel/CachedShippingMethodRoute.php
 
 		-
 			message: "#^Parameter \\#1 \\$arr1 of function array_merge expects array, array\\|Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceCollection given\\.$#"
@@ -3781,69 +3751,14 @@ parameters:
 			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryRouteCacheKeyEvent\\:\\:__construct\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryRouteCacheKeyEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Event/CategoryRouteCacheTagsEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\NavigationRouteCacheKeyEvent\\:\\:__construct\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/NavigationRouteCacheKeyEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\NavigationRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Event/NavigationRouteCacheTagsEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedCategoryRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedCategoryRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedCategoryRoute\\:\\:extractProductIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedCategoryRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedCategoryRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedCategoryRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedCategoryRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedCategoryRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedNavigationRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedNavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedNavigationRoute\\:\\:generateTags\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedNavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedNavigationRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedNavigationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedNavigationRoute\\:\\:loadNavigation\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedNavigationRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CachedNavigationRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/SalesChannel/CachedNavigationRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\CategoryRoute\\:\\:loadCategory\\(\\) should return Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
@@ -4960,14 +4875,6 @@ parameters:
 			count: 1
 			path: src/Core/Content/ImportExport/Event/ImportExportExceptionImportRecordEvent.php
 
-
-
-
-
-
-
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Exception\\\\DeleteDefaultProfileException\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
@@ -5599,11 +5506,6 @@ parameters:
 			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageRouteCacheKeyEvent\\:\\:__construct\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/Event/LandingPageRouteCacheKeyEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/Event/LandingPageRouteCacheTagsEvent.php
@@ -5622,26 +5524,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\LandingPage\\\\LandingPageEntity\\:\\:\\$slotConfig type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/LandingPageEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\CachedLandingPageRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/CachedLandingPageRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\CachedLandingPageRoute\\:\\:extractIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/CachedLandingPageRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\CachedLandingPageRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/CachedLandingPageRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\CachedLandingPageRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/CachedLandingPageRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\LandingPageRoute\\:\\:loadLandingPage\\(\\) should return Shopware\\\\Core\\\\Content\\\\LandingPage\\\\LandingPageEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
@@ -6558,8 +6440,6 @@ parameters:
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductGatewayInterface.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductLineItemFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
@@ -6711,11 +6591,6 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\CrossSellingRouteCacheKeyEvent\\:\\:__construct\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/CrossSellingRouteCacheKeyEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\CrossSellingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/CrossSellingRouteCacheTagsEvent.php
@@ -6811,11 +6686,6 @@ parameters:
 			path: src/Core/Content/Product/Events/ProductListingResolvePreviewEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductListingRouteCacheKeyEvent\\:\\:__construct\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Events/ProductListingRouteCacheKeyEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Events\\\\ProductListingRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Events/ProductListingRouteCacheTagsEvent.php
@@ -6844,31 +6714,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\)\\: mixed\\)\\|null, Closure\\(Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\)\\: array\\{\\}\\|array\\{group\\: mixed, option\\: mixed\\} given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CachedProductCrossSellingRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/CachedProductCrossSellingRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CachedProductCrossSellingRoute\\:\\:extractProductIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/CachedProductCrossSellingRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CachedProductCrossSellingRoute\\:\\:extractStreamTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/CachedProductCrossSellingRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CachedProductCrossSellingRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/CachedProductCrossSellingRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\CrossSelling\\\\CachedProductCrossSellingRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/CachedProductCrossSellingRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationResult\\:\\:getCombinations\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -6901,21 +6746,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Detail/AvailableCombinationResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\CachedProductDetailRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/CachedProductDetailRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\CachedProductDetailRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/CachedProductDetailRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\CachedProductDetailRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/CachedProductDetailRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FindProductVariantRoute\\:\\:searchForOptions\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRoute.php
@@ -6934,21 +6764,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination\\:\\:getOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/FindVariant/FoundCombination.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/CachedProductListingRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/CachedProductListingRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/CachedProductListingRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\Filter\\:\\:__construct\\(\\) has parameter \\$aggregations with no value type specified in iterable type array\\.$#"
@@ -7026,21 +6841,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Review/RatingMatrix.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Search\\\\CachedProductSearchRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Search/CachedProductSearchRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Search\\\\CachedProductSearchRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Search/CachedProductSearchRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Search\\\\CachedProductSearchRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Search/CachedProductSearchRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingCollection\\:\\:sortByKeyArray\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingCollection.php
@@ -7064,21 +6864,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:\\$fields type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Suggest\\\\CachedProductSuggestRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Suggest/CachedProductSuggestRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Suggest\\\\CachedProductSuggestRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Suggest/CachedProductSuggestRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Suggest\\\\CachedProductSuggestRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Suggest/CachedProductSuggestRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Util\\\\VariantCombinationLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -7704,21 +7489,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Provider\\\\ProductUrlProvider\\:\\:getProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Provider/ProductUrlProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\SalesChannel\\\\CachedSitemapRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/SalesChannel/CachedSitemapRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\SalesChannel\\\\CachedSitemapRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/SalesChannel/CachedSitemapRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\SalesChannel\\\\CachedSitemapRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/SalesChannel/CachedSitemapRoute.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ScheduledTask\\\\SitemapMessage\\:\\:\\$lastLanguageId \\(string\\) does not accept string\\|null\\.$#"
@@ -11240,8 +11010,6 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Service/SitemapExporterTest.php
 
-
-
 		-
 			message: "#^PHPDoc tag @var for variable \\$salesChannel has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -11456,26 +11224,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\Script\\\\Facade\\\\WrittenEventIdCollection\\:\\:getIterator\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/Script/Facade/WrittenEventIdCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheKeyEvent\\:\\:__construct\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheKeyEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheKeyEvent\\:\\:getParts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheKeyEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheKeyEvent\\:\\:setParts\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheKeyEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheKeyEvent\\:\\:\\$parts type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheKeyEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
@@ -14292,8 +14040,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Changelog/Processor/ChangelogReleaseExporter.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Command\\\\CreateHydratorCommand\\:\\:renderClass\\(\\) has parameter \\$calls with no value type specified in iterable type array\\.$#"
 			count: 1
@@ -15624,8 +15370,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/Flag/WriteProtected.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\PasswordField\\:\\:__construct\\(\\) has parameter \\$hashOptions with no value type specified in iterable type array\\.$#"
 			count: 1
@@ -16665,8 +16409,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\AbstractTokenFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
-
-
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern\\:\\:getAllTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -21503,10 +21245,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Cache/CacheIdLoaderTest.php
 
-
-
-
-
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int, string\\>\\|false given\\.$#"
 			count: 2
@@ -22451,8 +22189,6 @@ parameters:
 			message: "#^Negated boolean expression is always false\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/EntityScoreBuilderTest.php
-
-
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\TokenizerTest\\:\\:cases\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -26240,36 +25976,6 @@ parameters:
 			path: src/Core/System/Country/CountryTaxFreeDeprecationUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/SalesChannel/CachedCountryRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/SalesChannel/CachedCountryRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/SalesChannel/CachedCountryRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryStateRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/SalesChannel/CachedCountryStateRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryStateRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/SalesChannel/CachedCountryStateRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryStateRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/SalesChannel/CachedCountryStateRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\Aggregate\\\\CurrencyTranslation\\\\CurrencyTranslationCollection\\:\\:getCurrencyIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Currency/Aggregate/CurrencyTranslation/CurrencyTranslationCollection.php
@@ -26278,21 +25984,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\Aggregate\\\\CurrencyTranslation\\\\CurrencyTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Currency/Aggregate/CurrencyTranslation/CurrencyTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\SalesChannel\\\\CachedCurrencyRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Currency/SalesChannel/CachedCurrencyRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\SalesChannel\\\\CachedCurrencyRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Currency/SalesChannel/CachedCurrencyRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Currency\\\\SalesChannel\\\\CachedCurrencyRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Currency/SalesChannel/CachedCurrencyRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\CustomEntityEntity\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -26448,21 +26139,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\Exception\\\\LanguageForeignKeyDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\SalesChannel\\\\CachedLanguageRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/SalesChannel/CachedLanguageRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\SalesChannel\\\\CachedLanguageRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/SalesChannel/CachedLanguageRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Language\\\\SalesChannel\\\\CachedLanguageRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/SalesChannel/CachedLanguageRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\Aggregate\\\\LocaleTranslation\\\\LocaleTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -27048,21 +26724,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse\\:\\:getVars\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/StoreApiResponse.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Salutation\\\\SalesChannel\\\\CachedSalutationRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalesChannel/CachedSalutationRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Salutation\\\\SalesChannel\\\\CachedSalutationRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalesChannel/CachedSalutationRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Salutation\\\\SalesChannel\\\\CachedSalutationRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalesChannel/CachedSalutationRoute.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Command\\\\ValidateSnippetsCommand\\:\\:hydrateMissingSnippets\\(\\) has parameter \\$missingSnippetsArray with no value type specified in iterable type array\\.$#"
@@ -29523,8 +29184,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:\\$variables type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Event/ThemeCompilerEnrichScssVariablesEvent.php
-
-
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Annotation\\\\HttpCache\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"

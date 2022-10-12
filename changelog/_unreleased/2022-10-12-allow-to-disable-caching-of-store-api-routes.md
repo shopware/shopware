@@ -28,4 +28,3 @@ ___
 # Upgrade Information
 ## Disabling caching of store-api-routes
 The Cache for Store-API-Routes can now be disabled by implementing the `Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent` and calling `disableCache()` method on the event.
-

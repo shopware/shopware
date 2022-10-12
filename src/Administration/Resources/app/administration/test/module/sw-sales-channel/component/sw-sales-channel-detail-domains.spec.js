@@ -207,6 +207,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.value).toBe(languages[0].id);
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toBe(languages);
     });
 
@@ -229,6 +230,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.value).toBe(currencies[0].id);
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toBe(currencies);
     });
 

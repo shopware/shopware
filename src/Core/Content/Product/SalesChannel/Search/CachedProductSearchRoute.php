@@ -34,6 +34,9 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -42,6 +45,7 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
      * @internal
      *
      * @param AbstractCacheTracer<ProductSearchRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractProductSearchRoute $decorated,
@@ -77,6 +81,10 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $response = $this->tracer->trace(self::NAME, function () use ($request, $context, $criteria) {
                 return $this->getDecorated()->load($request, $context, $criteria);
@@ -90,7 +98,7 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -101,9 +109,16 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
         $event = new ProductSearchRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::NAME . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

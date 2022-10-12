@@ -35,6 +35,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -43,6 +46,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      * @internal
      *
      * @param AbstractCacheTracer<ProductCrossSellingRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractProductCrossSellingRoute $decorated,
@@ -83,6 +87,10 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $key = $this->generateKey($productId, $request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($productId, $request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
             $name = self::buildName($productId);
 
@@ -98,7 +106,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -108,9 +116,16 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $event = new CrossSellingRouteCacheKeyEvent($productId, $parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($productId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(string $productId, Request $request, ProductCrossSellingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(
@@ -126,6 +141,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return array_unique(array_filter($event->getTags()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractStreamTags(ProductCrossSellingRouteResponse $response): array
     {
         $ids = [];
@@ -139,6 +157,9 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids);
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractProductIds(ProductCrossSellingRouteResponse $response): array
     {
         $ids = [];

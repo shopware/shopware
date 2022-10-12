@@ -38,6 +38,9 @@ class CachedSalutationRoute extends AbstractSalutationRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +49,7 @@ class CachedSalutationRoute extends AbstractSalutationRoute
      * @internal
      *
      * @param AbstractCacheTracer<SalutationRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractSalutationRoute $decorated,
@@ -86,6 +90,10 @@ class CachedSalutationRoute extends AbstractSalutationRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName();
 
@@ -101,7 +109,7 @@ class CachedSalutationRoute extends AbstractSalutationRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -111,9 +119,16 @@ class CachedSalutationRoute extends AbstractSalutationRoute
         $event = new SalutationRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName() . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

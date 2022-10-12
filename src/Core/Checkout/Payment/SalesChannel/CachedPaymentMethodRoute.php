@@ -38,6 +38,9 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +49,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
      * @internal
      *
      * @param AbstractCacheTracer<PaymentMethodRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractPaymentMethodRoute $decorated,
@@ -81,6 +85,10 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
 
@@ -101,7 +109,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
         return 'payment-method-route-' . $salesChannelId;
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -112,9 +120,16 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
         $event = new PaymentMethodRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

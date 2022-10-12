@@ -38,6 +38,9 @@ class CachedCountryRoute extends AbstractCountryRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +49,7 @@ class CachedCountryRoute extends AbstractCountryRoute
      * @internal
      *
      * @param AbstractCacheTracer<CountryRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractCountryRoute $decorated,
@@ -87,6 +91,10 @@ class CachedCountryRoute extends AbstractCountryRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $criteria, $context);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
 
@@ -102,7 +110,7 @@ class CachedCountryRoute extends AbstractCountryRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -112,9 +120,16 @@ class CachedCountryRoute extends AbstractCountryRoute
         $event = new CountryRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

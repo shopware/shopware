@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1554199340AddImportExportProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +19,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `import_export_profile` (
               `id` binary(16) NOT NULL,
               `name` varchar(255) NOT NULL,
@@ -39,6 +42,9 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
     {
     }
 
+    /**
+     * @return array{id: string, name: string, system_default: int, source_entity: string, file_type: string, delimiter: string, enclosure: string, mapping: string, created_at: string}
+     */
     private function getDefaultCustomerProfile(Connection $connection): array
     {
         $mapping = [];
@@ -88,45 +94,60 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
             'file_type' => 'text/csv',
             'delimiter' => ';',
             'enclosure' => '"',
-            'mapping' => json_encode($mapping),
+            'mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getSalutationMap(Connection $connection): array
     {
         $result = [];
-        foreach ($connection->fetchAll('SELECT * FROM salutation') as $row) {
-            $result[$row['salutation_key']] = Uuid::fromBytesToHex($row['id']);
+        foreach ($connection->fetchAllAssociative('SELECT * FROM salutation') as $row) {
+            $result[(string) $row['salutation_key']] = Uuid::fromBytesToHex($row['id']);
         }
 
         return $result;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getCustomerGroupMap(): array
     {
         return ['default' => 'cfbd5018d38d41d8adca10d94fc8bdd6'];
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getCountryMap(Connection $connection): array
     {
         $result = [];
-        foreach ($connection->fetchAll('SELECT * FROM country') as $row) {
-            $result[$row['iso']] = Uuid::fromBytesToHex($row['id']);
+        foreach ($connection->fetchAllAssociative('SELECT * FROM country') as $row) {
+            $result[(string) $row['iso']] = Uuid::fromBytesToHex($row['id']);
         }
 
         return $result;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getSalesChannelMap(): array
     {
         return ['default' => '98432def39fc4624b33213a56b8c944d'];
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getPaymentMethodMap(Connection $connection): array
     {
         $result = [];
-        foreach ($connection->fetchAll('SELECT * FROM payment_method') as $row) {
+        foreach ($connection->fetchAllAssociative('SELECT * FROM payment_method') as $row) {
             $key = mb_substr((string) mb_strrchr($row['handler_identifier'], '\\'), 1);
             $key = str_replace('payment', '', mb_strtolower($key));
             $result[$key] = Uuid::fromBytesToHex($row['id']);
@@ -135,6 +156,9 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
         return $result;
     }
 
+    /**
+     * @return array<string|int, string|bool>
+     */
     private function getValueSubstitutions(Connection $connection, string $propertyName): array
     {
         switch ($propertyName) {
@@ -158,6 +182,9 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
         return [];
     }
 
+    /**
+     * @return array<int, bool>
+     */
     private function getBooleanMap(): array
     {
         return ['0' => false, '1' => true];

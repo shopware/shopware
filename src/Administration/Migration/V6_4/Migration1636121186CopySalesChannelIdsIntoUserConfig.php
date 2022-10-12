@@ -10,6 +10,9 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
 {
     private const CONFIG_KEY = 'sales-channel-favorites';
@@ -48,6 +51,11 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @param list<array{userId: string, salesChannelId: string, name: string}> $data
+     *
+     * @return array<string, list<string>>
+     */
     private function getMappedData(array $data): array
     {
         $mapping = [];
@@ -58,9 +66,13 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
         return $mapping;
     }
 
+    /**
+     * @return list<array{userId: string, salesChannelId: string, name: string}>
+     */
     private function fetchUserSalesChannelIds(Connection $connection): array
     {
-        return $connection->createQueryBuilder()
+        /** @var list<array{userId: string, salesChannelId: string, name: string}> $result */
+        $result = $connection->createQueryBuilder()
             ->select('user.id AS userId')
             ->addSelect('LOWER(HEX(translation.sales_channel_id)) AS salesChannelId')
             ->addSelect('translation.name')
@@ -70,5 +82,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
             ->orderBy('translation.name', 'ASC')
             ->execute()
             ->fetchAllAssociative();
+
+        return $result;
     }
 }

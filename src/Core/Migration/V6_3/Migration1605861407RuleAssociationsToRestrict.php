@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1605861407RuleAssociationsToRestrict extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,24 +17,24 @@ class Migration1605861407RuleAssociationsToRestrict extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_price`
                 DROP FOREIGN KEY `fk.product_price.rule_id`;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE product_price
             ADD CONSTRAINT `fk.product_price.rule_id` FOREIGN KEY (`rule_id`)
                 REFERENCES `rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `shipping_method_price`
             DROP FOREIGN KEY `fk.shipping_method_price.rule_id`,
               DROP FOREIGN KEY `fk.shipping_method_price.calculation_rule_id`;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE shipping_method_price
                 ADD CONSTRAINT `fk.shipping_method_price.rule_id` FOREIGN KEY (`rule_id`)
                 REFERENCES `rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -39,12 +42,12 @@ class Migration1605861407RuleAssociationsToRestrict extends MigrationStep
                 REFERENCES `rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `payment_method`
               DROP FOREIGN KEY `fk.payment_method.availability_rule_id`;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE payment_method
             ADD CONSTRAINT `fk.payment_method.availability_rule_id` FOREIGN KEY (`availability_rule_id`)
                 REFERENCES `rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -25,13 +28,13 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
 
     private function updateDefaultPdpLayout(Connection $connection): void
     {
-        $sectionId = $connection->fetchColumn('
+        $sectionId = $connection->fetchOne('
             SELECT id
             FROM cms_section
             WHERE cms_page_id = :cmsPageId
         ', ['cmsPageId' => Uuid::fromHexToBytes(Defaults::CMS_PRODUCT_DETAIL_PAGE)]);
 
-        $blockIds = $connection->fetchAll('
+        $blockIds = $connection->fetchAllAssociative('
             SELECT id
             FROM cms_block
             WHERE cms_section_id = :cmsSectionId
@@ -39,7 +42,7 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
 
         $blockIds = array_column($blockIds, 'id');
 
-        $slots = $connection->fetchAll('
+        $slots = $connection->fetchAllAssociative('
             SELECT id, type
             FROM cms_slot
             WHERE cms_block_id IN (:cmsBlockId)
@@ -104,7 +107,7 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
                 return;
             }
 
-            $connection->executeUpdate('
+            $connection->executeStatement('
                 UPDATE cms_slot_translation
                 SET config = :config
                 WHERE cms_slot_id = :slotId

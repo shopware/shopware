@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1592978289ProductCustomFieldSets extends MigrationStep
 {
     use InheritanceUpdaterTrait;
@@ -43,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `product_custom_field_set` (
         REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $this->updateInheritance($connection, 'product', 'customFieldSets');
     }
@@ -57,6 +60,6 @@ SQL;
 ALTER TABLE `custom_field_set`
 ADD `global` tinyint(1) NOT NULL DEFAULT 0 AFTER `active`;
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 }

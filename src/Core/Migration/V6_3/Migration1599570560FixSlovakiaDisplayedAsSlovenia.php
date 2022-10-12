@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -20,21 +23,21 @@ class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
         $countryIdSlovakia = null;
 
         try {
-            $languageEN = $connection->fetchColumn('SELECT language.id FROM language INNER JOIN locale
+            $languageEN = $connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
             ON language.translation_code_id = locale.id AND locale.code = \'en-GB\'');
         } catch (\Exception $e) {
             //English language not found, no need to update the snippet
         }
 
         try {
-            $languageDE = $connection->fetchColumn('SELECT language.id FROM language INNER JOIN locale
+            $languageDE = $connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
             ON language.translation_code_id = locale.id AND locale.code = \'de-DE\'');
         } catch (\Exception $e) {
             //German language not found, no need to update the snippet
         }
 
         try {
-            $countryIdSlovakia = $connection->fetchColumn('SELECT id from country WHERE iso3 = \'SVK\'');
+            $countryIdSlovakia = $connection->fetchOne('SELECT id from country WHERE iso3 = \'SVK\'');
         } catch (\Exception $e) {
             //country got deleted, no need to update
         }

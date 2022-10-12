@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1607514878AddOrderDeliveryRetourTransition extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,24 +19,24 @@ class Migration1607514878AddOrderDeliveryRetourTransition extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $stateMachine = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        $stateMachine = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
         if (!$stateMachine) {
             return;
         }
 
-        $returnedPartially = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'returned_partially', 'id' => $stateMachine]);
+        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'returned_partially', 'id' => $stateMachine]);
 
         if (!$returnedPartially) {
             return;
         }
 
-        $returned = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'returned', 'id' => $stateMachine]);
+        $returned = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'returned', 'id' => $stateMachine]);
 
         if (!$returned) {
             return;
         }
 
-        $existedRetourTransition = $connection->fetchColumn('
+        $existedRetourTransition = $connection->fetchOne('
             SELECT `id` FROM `state_machine_transition`
             WHERE `action_name` = :actionName
             AND `state_machine_id` = :stateMachineId

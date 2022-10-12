@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -64,12 +67,15 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @param array<string, mixed> $state
+     */
     private function insertState(Connection $connection, array $state, string $machineId): void
     {
         $stateId = Uuid::randomHex();
 
         try {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'INSERT INTO state_machine_state (id, technical_name, state_machine_id, created_at)
              VALUES (:id, :technical_name, :state_machine_id, :created_at)',
                 [
@@ -115,7 +121,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function insertTransition(string $action, string $machineId, string $from, string $to, Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'REPLACE INTO state_machine_transition (id, action_name, state_machine_id, from_state_id, to_state_id, created_at)
             VALUES (:id, :action_name, :state_machine_id, :from_state_id, :to_state_id, :created_at)',
             [
@@ -131,7 +137,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function insertTranslation(string $stateId, string $name, string $languageId, Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'REPLACE INTO state_machine_state_translation
              (`language_id`, `state_machine_state_id`, `name`, `created_at`)
              VALUES
@@ -147,7 +153,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function getLanguageId(string $locale, Connection $connection): ?string
     {
-        $column = $connection->fetchColumn('
+        $column = $connection->fetchOne('
             SELECT LOWER(HEX(`language`.id))
             FROM `language`
             INNER JOIN locale
@@ -160,7 +166,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function getMachineId(Connection $connection, string $name): string
     {
-        return $connection->fetchColumn(
+        return $connection->fetchOne(
             'SELECT LOWER(HEX(id)) FROM state_machine WHERE technical_name = :name',
             ['name' => $name]
         );
@@ -168,20 +174,23 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function getStateId(Connection $connection, string $machineId, string $name): string
     {
-        return $connection->fetchColumn(
+        return $connection->fetchOne(
             'SELECT LOWER(HEX(id)) as id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id',
             ['name' => $name, 'id' => Uuid::fromHexToBytes($machineId)]
         );
     }
 
+    /**
+     * @param list<string> $names
+     *
+     * @return list<string>
+     */
     private function getStateIds(Connection $connection, string $machineId, array $names): array
     {
-        $ids = $connection->fetchAll(
+        return $connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) as id FROM state_machine_state WHERE technical_name IN (:name) AND state_machine_id = :id',
             ['name' => $names, 'id' => Uuid::fromHexToBytes($machineId)],
             ['name' => Connection::PARAM_STR_ARRAY]
         );
-
-        return array_column($ids, 'id');
     }
 }

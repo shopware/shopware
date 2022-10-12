@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1575036586FixProductConfiguratorSettingsConstraint extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,11 +17,11 @@ class Migration1575036586FixProductConfiguratorSettingsConstraint extends Migrat
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_configurator_setting` DROP FOREIGN KEY `fk.product_configurator_setting.property_group_option_id`
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_configurator_setting`
             ADD CONSTRAINT `fk.product_configurator_setting.property_group_option_id`
             FOREIGN KEY (`property_group_option_id`)

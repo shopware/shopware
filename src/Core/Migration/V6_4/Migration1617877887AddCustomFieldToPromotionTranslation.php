@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1617877887AddCustomFieldToPromotionTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,13 +17,13 @@ class Migration1617877887AddCustomFieldToPromotionTranslation extends MigrationS
 
     public function update(Connection $connection): void
     {
-        $featureColumn = $connection->fetchColumn(
+        $featureColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `promotion_translation` WHERE `Field` LIKE :column;',
             ['column' => 'custom_fields']
         );
 
         if ($featureColumn === false) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'ALTER TABLE `promotion_translation`
                 ADD COLUMN `custom_fields` JSON NULL AFTER `language_id`,
                 ADD CONSTRAINT `json.promotion_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`));'

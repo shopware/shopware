@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1597930227CustomerGroupRegistrationSalesChannel extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1597930227CustomerGroupRegistrationSalesChannel extends Migration
 
     public function update(Connection $connection): void
     {
-        $connection->exec('CREATE TABLE IF NOT EXISTS `customer_group_registration_sales_channels` (
+        $connection->executeStatement('CREATE TABLE IF NOT EXISTS `customer_group_registration_sales_channels` (
     `customer_group_id` BINARY(16) NOT NULL,
     `sales_channel_id` BINARY(16) NOT NULL,
     `created_at` DATETIME(3) NOT NULL,

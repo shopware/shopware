@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,7 +30,7 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
             ->from('system_config')
             ->where('configuration_key = "core.loginRegistration.passwordMinLength"');
 
-        $configId = $builder->execute()->fetchColumn();
+        $configId = $builder->execute()->fetchOne();
         if (!$configId) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
@@ -41,7 +44,7 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
             ->from('system_config')
             ->where('configuration_key = "core.address.showZipcodeInFrontOfCity"');
 
-        $configId = $builder->execute()->fetchColumn();
+        $configId = $builder->execute()->fetchOne();
         if (!$configId) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),

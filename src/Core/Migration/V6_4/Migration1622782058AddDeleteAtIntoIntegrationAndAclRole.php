@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1622782058AddDeleteAtIntoIntegrationAndAclRole extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,22 +17,22 @@ class Migration1622782058AddDeleteAtIntoIntegrationAndAclRole extends MigrationS
 
     public function update(Connection $connection): void
     {
-        $deletedAtColumnIntegration = $connection->fetchColumn(
+        $deletedAtColumnIntegration = $connection->fetchOne(
             'SHOW COLUMNS FROM `integration` WHERE `Field` LIKE :column;',
             ['column' => 'deleted_at']
         );
 
         if ($deletedAtColumnIntegration === false) {
-            $connection->executeUpdate('ALTER TABLE `integration` ADD COLUMN `deleted_at` DATETIME(3) NULL');
+            $connection->executeStatement('ALTER TABLE `integration` ADD COLUMN `deleted_at` DATETIME(3) NULL');
         }
 
-        $deletedAtColumnAclRole = $connection->fetchColumn(
+        $deletedAtColumnAclRole = $connection->fetchOne(
             'SHOW COLUMNS FROM `acl_role` WHERE `Field` LIKE :column;',
             ['column' => 'deleted_at']
         );
 
         if ($deletedAtColumnAclRole === false) {
-            $connection->executeUpdate('ALTER TABLE `acl_role` ADD COLUMN `deleted_at` DATETIME(3) NULL');
+            $connection->executeStatement('ALTER TABLE `acl_role` ADD COLUMN `deleted_at` DATETIME(3) NULL');
         }
     }
 

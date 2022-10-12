@@ -19,9 +19,9 @@ class Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTableTest
 {
     use IntegrationTestBehaviour;
 
-    private ?EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    private ?EntityRepositoryInterface $systemConfigRepository;
+    private EntityRepositoryInterface $systemConfigRepository;
 
     protected function setUp(): void
     {

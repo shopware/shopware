@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,17 +22,18 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
         $thumbnailSizes = $this->upsertThumbnailSizes($connection);
 
         $foldersWithDefaultThumbnails = ['Product Media', 'Category Media', 'Cms Page Media'];
-        $stmt = $connection->prepare('SELECT media_folder_configuration_id FROM media_folder WHERE name = :name');
 
         foreach ($foldersWithDefaultThumbnails as $folderName) {
-            $stmt->execute(['name' => $folderName]);
-            $configurationId = $stmt->fetchColumn();
+            $configurationId = $connection->fetchOne(
+                'SELECT media_folder_configuration_id FROM media_folder WHERE name = :name',
+                ['name' => $folderName]
+            );
             if (!$configurationId) {
                 continue;
             }
 
             foreach ($thumbnailSizes as $thumbnailSize) {
-                $connection->executeUpdate('
+                $connection->executeStatement('
                     REPLACE INTO `media_folder_configuration_media_thumbnail_size` (`media_folder_configuration_id`, `media_thumbnail_size_id`)
                     VALUES (:folderConfigurationId, :thumbnailSizeId)
                 ', [
@@ -44,6 +48,9 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
     {
     }
 
+    /**
+     * @return list<array{id: string, width: int, height: int}>
+     */
     private function upsertThumbnailSizes(Connection $connection): array
     {
         $thumbnailSizes = [
@@ -52,17 +59,18 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
             ['width' => 1920, 'height' => 1920],
         ];
 
-        $stmt = $connection->prepare('SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height');
+        $sizes = [];
         foreach ($thumbnailSizes as $i => $thumbnailSize) {
-            $stmt->execute(['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]);
-            $id = $stmt->fetchColumn();
+            /** @var string|false $id */
+            $id = $connection->fetchOne(
+                'SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height',
+                ['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]
+            );
             if ($id) {
-                $thumbnailSizes[$i]['id'] = $id;
-
                 continue;
             }
             $id = Uuid::randomBytes();
-            $connection->executeUpdate('
+            $connection->executeStatement('
                 INSERT INTO `media_thumbnail_size` (`id`, `width`, `height`, created_at)
                 VALUES (:id, :width, :height, :createdAt)
             ', [
@@ -72,9 +80,10 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
-            $thumbnailSizes[$i]['id'] = $id;
+            $thumbnailSize['id'] = $id;
+            $sizes[] = $thumbnailSize;
         }
 
-        return $thumbnailSizes;
+        return $sizes;
     }
 }

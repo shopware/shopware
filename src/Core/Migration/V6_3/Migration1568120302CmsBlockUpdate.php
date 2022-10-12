@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1568120302CmsBlockUpdate extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,13 +19,13 @@ class Migration1568120302CmsBlockUpdate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `cms_block`
             ADD `cms_section_id` BINARY(16) NULL AFTER `id`,
             ADD `section_position` VARCHAR(50) DEFAULT "main" AFTER `position`
         ');
 
-        $pages = $connection->fetchAll('SELECT * FROM `cms_page`');
+        $pages = $connection->fetchAllAssociative('SELECT * FROM `cms_page`');
 
         foreach ($pages as $page) {
             $section = [
@@ -38,23 +41,23 @@ class Migration1568120302CmsBlockUpdate extends MigrationStep
 
             $connection->insert('cms_section', $section);
 
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE `cms_block` SET cms_section_id = :sectionId WHERE `cms_page_id` = :pageId',
                 ['sectionId' => $section['id'], 'pageId' => $page['id']]
             );
         }
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `cms_block`
             MODIFY COLUMN `cms_page_id` BINARY(16) NULL;
         ');
 
-        $connection->executeUpdate('ALTER TABLE `cms_block` DROP FOREIGN KEY `fk.cms_block.cms_page_id`');
-        $connection->executeUpdate('ALTER TABLE `cms_block` ADD CONSTRAINT `fk.cms_block.cms_section_id` FOREIGN KEY (`cms_section_id`) REFERENCES `cms_section` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $connection->executeStatement('ALTER TABLE `cms_block` DROP FOREIGN KEY `fk.cms_block.cms_page_id`');
+        $connection->executeStatement('ALTER TABLE `cms_block` ADD CONSTRAINT `fk.cms_block.cms_section_id` FOREIGN KEY (`cms_section_id`) REFERENCES `cms_section` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `cms_block` DROP COLUMN `cms_page_id`, DROP COLUMN `sizing_mode`');
+        $connection->executeStatement('ALTER TABLE `cms_block` DROP COLUMN `cms_page_id`, DROP COLUMN `sizing_mode`');
     }
 }

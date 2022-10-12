@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1574063550AddCurrencyToProductExport extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1574063550AddCurrencyToProductExport extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE product_export ADD COLUMN currency_id BINARY(16) NOT NULL');
+        $connection->executeStatement('ALTER TABLE product_export ADD COLUMN currency_id BINARY(16) NOT NULL');
     }
 
     public function updateDestructive(Connection $connection): void

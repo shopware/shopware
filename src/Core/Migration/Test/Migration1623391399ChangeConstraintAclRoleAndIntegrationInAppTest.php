@@ -24,13 +24,13 @@ class Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest extends 
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `app`
             DROP FOREIGN KEY `fk.app.integration_id`,
             DROP FOREIGN KEY `fk.app.acl_role_id`;
         ');
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `app`
             ADD CONSTRAINT `fk.app.integration_id` FOREIGN KEY (`integration_id`) REFERENCES `integration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
             ADD CONSTRAINT `fk.app.acl_role_id` FOREIGN KEY (`acl_role_id`) REFERENCES `acl_role` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

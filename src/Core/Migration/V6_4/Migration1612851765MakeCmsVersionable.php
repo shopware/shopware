@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1612851765MakeCmsVersionable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -29,7 +32,7 @@ class Migration1612851765MakeCmsVersionable extends MigrationStep
             $playbook = $playbookGenerator->createSql($hydratedData, $table, 'version_id', Defaults::LIVE_VERSION);
 
             foreach ($playbook as $query) {
-                $connection->exec($query);
+                $connection->executeStatement($query);
             }
         }
     }

@@ -18,10 +18,7 @@ class Migration1594104496CashRoundingTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -31,6 +28,9 @@ class Migration1594104496CashRoundingTest extends TestCase
 
     /**
      * @dataProvider currencyInsertTriggerProvider
+     *
+     * @param array{decimals: int, roundForNet: bool, interval: float} $expected
+     * @param array{decimals: int, roundForNet: bool, interval: float}|null $initial
      */
     public function testCurrencyInsertTrigger(int $decimals, array $expected, ?array $initial = null): void
     {
@@ -55,17 +55,21 @@ class Migration1594104496CashRoundingTest extends TestCase
 
         $this->connection->insert('currency', $data);
 
-        $record = $this->connection->fetchAssoc(
+        $record = $this->connection->fetchAssociative(
             'SELECT item_rounding, total_rounding FROM currency WHERE id = :id',
             ['id' => $id]
         );
 
+        static::assertIsArray($record);
         static::assertEquals($expected, json_decode($record['item_rounding'], true));
         static::assertEquals($expected, json_decode($record['total_rounding'], true));
     }
 
     /**
      * @dataProvider currencyUpdateTriggerProvider
+     *
+     * @param array{decimals: int, roundForNet: bool, interval: float}|null  $rounding
+     * @param array{decimals: int, roundForNet: bool, interval: float} $expected
      */
     public function testCurrencyUpdateTrigger(?int $decimals, ?array $rounding, array $expected): void
     {
@@ -88,15 +92,17 @@ class Migration1594104496CashRoundingTest extends TestCase
         $this->connection->insert('currency', $data);
 
         if ($decimals) {
-            $this->connection->executeUpdate('UPDATE currency SET decimal_precision = :decimals', ['decimals' => $decimals]);
+            $this->connection->executeStatement('UPDATE currency SET decimal_precision = :decimals', ['decimals' => $decimals]);
         } else {
-            $this->connection->executeUpdate('UPDATE currency SET item_rounding = :rounding', ['rounding' => json_encode($rounding)]);
+            $this->connection->executeStatement('UPDATE currency SET item_rounding = :rounding', ['rounding' => json_encode($rounding)]);
         }
 
-        $record = $this->connection->fetchAssoc(
+        $record = $this->connection->fetchAssociative(
             'SELECT item_rounding, total_rounding FROM currency WHERE id = :id',
             ['id' => $id]
         );
+
+        static::assertIsArray($record);
         static::assertEquals($expected, json_decode($record['item_rounding'], true));
 
         if ($decimals) {
@@ -131,18 +137,19 @@ class Migration1594104496CashRoundingTest extends TestCase
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => json_encode([]),
             'shipping_costs' => json_encode([]),
-            'state_id' => $this->connection->fetchColumn('SELECT id FROM state_machine_state LIMIT 1'),
+            'state_id' => $this->connection->fetchOne('SELECT id FROM state_machine_state LIMIT 1'),
             'currency_factor' => 1,
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ];
 
         $this->connection->insert('`order`', $data);
 
-        $order = $this->connection->fetchAssoc(
+        $order = $this->connection->fetchAssociative(
             'SELECT item_rounding, total_rounding FROM `order` WHERE id = :id',
             ['id' => $id]
         );
 
+        static::assertIsArray($order);
         $expected = ['decimals' => 3, 'roundForNet' => true, 'interval' => 0.01];
 
         $rounding = json_decode($order['item_rounding'], true);
@@ -152,7 +159,10 @@ class Migration1594104496CashRoundingTest extends TestCase
         static::assertEquals($expected, $rounding);
     }
 
-    public function currencyUpdateTriggerProvider()
+    /**
+     * @return array<string, array{0: int|null, 1: array{decimals: int, roundForNet: bool, interval: float}|null, 2: array{decimals: int, roundForNet: bool, interval: float}}>
+     */
+    public function currencyUpdateTriggerProvider(): array
     {
         return [
             'Update with old value' => [
@@ -168,7 +178,10 @@ class Migration1594104496CashRoundingTest extends TestCase
         ];
     }
 
-    public function currencyInsertTriggerProvider()
+    /**
+     * @return array<string, array{0: int, 1: array{decimals: int, roundForNet: bool, interval: float}, 2?: array{decimals: int, roundForNet: bool, interval: float}}>
+     */
+    public function currencyInsertTriggerProvider(): array
     {
         return [
             'Writing old value 2' => [
@@ -187,11 +200,14 @@ class Migration1594104496CashRoundingTest extends TestCase
         ];
     }
 
+    /**
+     * @return false|mixed[]
+     */
     private function getTriggerInfo(string $triggerName)
     {
-        $database = $this->connection->fetchColumn('SELECT DATABASE();');
+        $database = $this->connection->fetchOne('SELECT DATABASE();');
 
-        return $this->connection->fetchAssoc(
+        return $this->connection->fetchAssociative(
             '
                 SELECT * FROM information_schema.`TRIGGERS`
                 WHERE TRIGGER_SCHEMA = :database

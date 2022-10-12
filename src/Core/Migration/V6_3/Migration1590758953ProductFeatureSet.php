@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1590758953ProductFeatureSet extends MigrationStep
 {
     use InheritanceUpdaterTrait;
@@ -72,16 +75,16 @@ CREATE TABLE IF NOT EXISTS `product_feature_set_translation` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     private function updateTables(Connection $connection): void
     {
-        $featureSetColumn = $connection->fetchColumn(
+        $featureSetColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `product` WHERE `Field` LIKE :column;',
             ['column' => 'product_feature_set_id']
         );
-        $featureSetInheritanceColumn = $connection->fetchColumn(
+        $featureSetInheritanceColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `product` WHERE `Field` LIKE :column;',
             ['column' => 'featureSet']
         );
@@ -95,7 +98,7 @@ ALTER TABLE `product`
         REFERENCES `product_feature_set` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 SQL;
 
-            $connection->executeUpdate($sql);
+            $connection->executeStatement($sql);
         }
 
         if ($featureSetInheritanceColumn === false) {
@@ -114,7 +117,7 @@ SQL;
     private function insertDefaultFeatureSetTranslations(Connection $connection, string $featureSetId): void
     {
         $languages = $this->fetchLanguageIds($connection, ['en-GB']);
-        $languages[] = hex2bin(Defaults::LANGUAGE_SYSTEM);
+        $languages[] = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languages = array_unique($languages);
 
         $sql = <<<'SQL'
@@ -123,7 +126,7 @@ VALUES (:product_feature_set_id, :language_id, :name, :description, :created_at)
 SQL;
 
         foreach ($languages as $language) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 $sql,
                 $this->getDefaultFeatureSetTranslation(
                     $featureSetId,
@@ -136,7 +139,7 @@ SQL;
         $languages = $this->fetchLanguageIds($connection, ['de-DE']);
 
         foreach ($languages as $language) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 $sql,
                 $this->getDefaultFeatureSetTranslation(
                     $featureSetId,
@@ -153,7 +156,7 @@ SQL;
 UPDATE `product` SET `product_feature_set_id` = :feature_set_id WHERE `product_feature_set_id` IS NULL;
 SQL;
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             $sql,
             [
                 'feature_set_id' => $featureSetId,
@@ -161,6 +164,9 @@ SQL;
         );
     }
 
+    /**
+     * @return array{id: string, features: string, created_at: string}
+     */
     private function getDefaultFeatureSet(string $featureSetId): array
     {
         return [
@@ -172,11 +178,16 @@ SQL;
                     'id' => 'd45b40f6a99c4c2abe66c410369b9d3c',
                     'position' => 1,
                 ],
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
 
+    /**
+     * @param array{name: string, description: string} $translation
+     *
+     * @return array{product_feature_set_id: string, language_id: string, name: string, description: string, created_at: string}
+     */
     private function getDefaultFeatureSetTranslation(string $featureSetId, string $languageId, array $translation): array
     {
         return [
@@ -188,6 +199,11 @@ SQL;
         ];
     }
 
+    /**
+     * @param list<string> $localeCodes
+     *
+     * @return array{0?: string}
+     */
     private function fetchLanguageIds(Connection $connection, array $localeCodes): array
     {
         $sql = <<<'SQL'
@@ -197,11 +213,10 @@ INNER JOIN locale loc
 ON lang.translation_code_id = loc.id AND loc.code IN (:locale_codes);
 SQL;
 
-        $languageId = $connection->fetchColumn(
+        $languageId = $connection->fetchOne(
             $sql,
-            [
-                'locale_codes' => implode(', ', $localeCodes),
-            ]
+            ['locale_codes' => $localeCodes],
+            ['locale_codes' => Connection::PARAM_STR_ARRAY]
         );
 
         if (\is_array($languageId)) {

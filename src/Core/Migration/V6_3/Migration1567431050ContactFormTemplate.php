@@ -10,6 +10,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1567431050ContactFormTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -91,7 +94,7 @@ SQL;
                 'event_name' => ContactFormEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $contactEventConfig;
     }
@@ -109,7 +112,7 @@ SQL;
             [
                 'technical_name' => MailTemplateTypes::MAILTYPE_CONTACT_FORM,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         if ($templateTypeId) {
             return $templateTypeId;

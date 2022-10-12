@@ -7,6 +7,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -28,7 +31,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
             return;
         }
 
-        $germanTranslation = $connection->fetchColumn(
+        $germanTranslation = $connection->fetchOne(
             'SELECT `mail_template_id` FROM `mail_template_translation` WHERE `mail_template_id` = :mail_template_id AND `language_id` = :language_id LIMIT 1',
             [
                 'mail_template_id' => $contactTemplateId,
@@ -62,7 +65,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
 
     private function getGermanLanguageId(Connection $connection): ?string
     {
-        $result = $connection->fetchColumn('
+        $result = $connection->fetchOne('
             SELECT `id` FROM `language` WHERE LOWER(`name`) = \'deutsch\'
         ');
 
@@ -81,7 +84,7 @@ SQL;
         $result = $connection->executeQuery(
             $sql,
             ['technical_name' => MailTemplateTypes::MAILTYPE_CONTACT_FORM]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result === false ? null : (string) $result;
     }

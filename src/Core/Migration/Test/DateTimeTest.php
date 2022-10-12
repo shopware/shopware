@@ -27,11 +27,12 @@ EOF;
         $migrationLoader = $this->getContainer()->get(MigrationCollectionLoader::class);
         foreach ($migrationLoader->collectAll() as $collection) {
             foreach (array_keys($collection->getMigrationSteps()) as $className) {
+                /** @var string $file */
                 $file = $classLoader->findFile($className);
 
                 $result = preg_match_all(
                     '/date\(Defaults::(STORAGE_DATE_TIME_FORMAT|STORAGE_DATE_FORMAT).*\);/',
-                    file_get_contents($file),
+                    (string) file_get_contents($file),
                     $matches
                 );
 

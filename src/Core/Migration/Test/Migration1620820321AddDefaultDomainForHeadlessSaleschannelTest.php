@@ -43,7 +43,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->execute();
+        $statement->executeQuery();
         static::assertEquals(1, $statement->fetchOne());
     }
 
@@ -57,16 +57,16 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
+        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
         static::assertEquals(1, $statement->fetchOne());
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
+        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
         static::assertEquals(1, $statement->fetchOne());
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($secondApiSalesChannelId)]);
+        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($secondApiSalesChannelId)]);
         static::assertEquals(1, $statement->fetchOne());
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($firstStorefrontSalesChannelId)]);
+        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstStorefrontSalesChannelId)]);
         static::assertEquals(0, $statement->fetchOne());
     }
 

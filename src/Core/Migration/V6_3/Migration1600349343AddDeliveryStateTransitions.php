@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -42,21 +45,24 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
 
     private function fetchOrderDeliveryStateId(Connection $connection): string
     {
-        return $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :technical_name', [
+        return $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :technical_name', [
             'technical_name' => 'order_delivery.state',
         ]);
     }
 
     private function fetchOpenOrderDeliveryStateId(Connection $connection): string
     {
-        return $connection->fetchColumn('SELECT initial_state_id FROM state_machine WHERE technical_name = :technical_name', [
+        return $connection->fetchOne('SELECT initial_state_id FROM state_machine WHERE technical_name = :technical_name', [
             'technical_name' => 'order_delivery.state',
         ]);
     }
 
+    /**
+     * @return list<string>
+     */
     private function fetchMissingOrderDeliveryStates(Connection $connection, string $stateMachineId): array
     {
-        $allStates = $connection->fetchAll('SELECT action_name, from_state_id, to_state_id FROM state_machine_transition WHERE state_machine_id = :id', [
+        $allStates = $connection->fetchAllAssociative('SELECT action_name, from_state_id, to_state_id FROM state_machine_transition WHERE state_machine_id = :id', [
             'id' => $stateMachineId,
         ]);
 

@@ -11,7 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1664894872AddDelayableColumnToAppFlowA
 /**
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_4\Migration1664894872AddDelayableColumnToAppFlowActionTableTest
+ * @covers \Shopware\Core\Migration\V6_4\Migration1664894872AddDelayableColumnToAppFlowActionTable
  */
 class Migration1664894872AddDelayableColumnToAppFlowActionTableTest extends TestCase
 {

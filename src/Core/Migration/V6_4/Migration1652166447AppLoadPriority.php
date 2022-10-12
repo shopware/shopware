@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1652166447AppLoadPriority extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1652166447AppLoadPriority extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAll('SHOW COLUMNS FROM app'), 'Field');
+        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM app'), 'Field');
 
         if (\in_array('template_load_priority', $columns, true)) {
             return;

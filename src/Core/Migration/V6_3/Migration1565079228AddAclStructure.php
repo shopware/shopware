@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1565079228AddAclStructure extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1565079228AddAclStructure extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE `acl_role` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
@@ -23,7 +26,7 @@ class Migration1565079228AddAclStructure extends MigrationStep
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE `acl_resource` (
                 `resource` VARCHAR(255) NOT NULL,
                 `privilege` VARCHAR(255) NOT NULL,
@@ -35,7 +38,7 @@ class Migration1565079228AddAclStructure extends MigrationStep
                     REFERENCES `acl_role` (`id`) on DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE `acl_user_role` (
                 `user_id` BINARY(16) NOT NULL,
                 `acl_role_id` BINARY(16) NOT NULL,
@@ -48,9 +51,9 @@ class Migration1565079228AddAclStructure extends MigrationStep
                     REFERENCES `acl_role` (`id`) on DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
-        $connection->exec('ALTER TABLE `user` ADD `admin` tinyint(1) NULL AFTER `active`');
+        $connection->executeStatement('ALTER TABLE `user` ADD `admin` tinyint(1) NULL AFTER `active`');
 
-        $connection->exec('UPDATE `user` SET `admin` = 1');
+        $connection->executeStatement('UPDATE `user` SET `admin` = 1');
     }
 
     public function updateDestructive(Connection $connection): void

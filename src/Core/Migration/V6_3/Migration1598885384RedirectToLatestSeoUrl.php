@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1598885384RedirectToLatestSeoUrl extends MigrationStep
 {
     public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
@@ -40,7 +43,7 @@ class Migration1598885384RedirectToLatestSeoUrl extends MigrationStep
 
     private function configPresent(Connection $connection): bool
     {
-        return $connection->fetchColumn(
+        return $connection->fetchOne(
             'SELECT `id` FROM `system_config` WHERE `configuration_key` = :config_key LIMIT 1;',
             ['config_key' => self::CONFIG_KEY]
         ) !== false;
@@ -58,6 +61,6 @@ class Migration1598885384RedirectToLatestSeoUrl extends MigrationStep
 
     private function seoUrlPresent(Connection $connection): bool
     {
-        return $connection->fetchColumn('SELECT `id` FROM `seo_url` LIMIT 1;') !== false;
+        return $connection->fetchOne('SELECT `id` FROM `seo_url` LIMIT 1;') !== false;
     }
 }

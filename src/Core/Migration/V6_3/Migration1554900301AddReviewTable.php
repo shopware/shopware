@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1554900301AddReviewTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,10 +19,10 @@ class Migration1554900301AddReviewTable extends MigrationStep
     {
         // implement update
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             DROP TABLE IF EXISTS `product_review`;
         ');
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `product_review` (
                 `id` BINARY(16) NOT NULL,
                 `product_id` BINARY(16) NOT NULL,

@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1565705280ProductExport extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +19,7 @@ class Migration1565705280ProductExport extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `product_export` (
                 `id` BINARY(16) NOT NULL,
                 `product_stream_id` BINARY(16) NOT NULL,
@@ -98,7 +101,7 @@ class Migration1565705280ProductExport extends MigrationStep
 
     private function getDeDeLanguageId(Connection $connection): string
     {
-        return (string) $connection->fetchColumn(
+        return (string) $connection->fetchOne(
             'SELECT id FROM language WHERE id != :default',
             ['default' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
         );

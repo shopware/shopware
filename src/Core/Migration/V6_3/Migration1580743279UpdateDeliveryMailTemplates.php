@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -124,11 +127,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         $templateTypeId = $connection->executeQuery('
         SELECT `id` from `mail_template_type` WHERE `technical_name` = :type
-        ', ['type' => $mailTemplateType])->fetchColumn();
+        ', ['type' => $mailTemplateType])->fetchOne();
 
         $templateId = $connection->executeQuery('
         SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
-        ', ['typeId' => $templateTypeId])->fetchColumn();
+        ', ['typeId' => $templateTypeId])->fetchOne();
 
         if ($templateId === false || !\is_string($templateId)) {
             return null;
@@ -140,7 +143,7 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         /** @var string|null $langId */
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 
@@ -186,7 +189,7 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
 
         $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId AND `updated_at` IS NULL';
 
-        $connection->executeUpdate($sqlString, $sqlParams);
+        $connection->executeStatement($sqlString, $sqlParams);
     }
 
     private function getDeliveryCancellationHtmlTemplateEn(): string

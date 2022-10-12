@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1585816139FixMediaMapping extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,7 +20,7 @@ class Migration1585816139FixMediaMapping extends MigrationStep
         $categoryProfileId = $connection->executeQuery(
             'SELECT `id` FROM `import_export_profile` WHERE `name` = :name AND `system_default` = 1 AND source_entity = "category"',
             ['name' => 'Default category']
-        )->fetchColumn();
+        )->fetchOne();
 
         if ($categoryProfileId) {
             $mapping = $this->getCategoryMapping();
@@ -27,7 +30,7 @@ class Migration1585816139FixMediaMapping extends MigrationStep
         $mediaProfileId = $connection->executeQuery(
             'SELECT `id` FROM `import_export_profile` WHERE `name` = :name AND `system_default` = 1 AND source_entity = "media"',
             ['name' => 'Default media']
-        )->fetchColumn();
+        )->fetchOne();
 
         if ($mediaProfileId) {
             $mapping = $this->getMediaMapping();
@@ -40,6 +43,9 @@ class Migration1585816139FixMediaMapping extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @return list<array{key: string, mappedKey: string}>
+     */
     private function getCategoryMapping(): array
     {
         return [
@@ -66,6 +72,9 @@ class Migration1585816139FixMediaMapping extends MigrationStep
         ];
     }
 
+    /**
+     * @return list<array{key: string, mappedKey: string}>
+     */
     private function getMediaMapping(): array
     {
         return [

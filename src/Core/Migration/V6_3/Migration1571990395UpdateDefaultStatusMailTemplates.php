@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 {
     /**
@@ -259,7 +262,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 
     private function changeMailTemplateNameForType(Connection $connection, string $mailTemplateType): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\')
             WHERE `technical_name` = :type',
             ['type' => $mailTemplateType]
@@ -268,7 +271,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = (string) $connection->fetchColumn(
+        $langId = (string) $connection->fetchOne(
             'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`
             WHERE `code` = :code LIMIT 1',
             ['code' => $code]
@@ -306,14 +309,14 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
         $templateTypeId = $connection->executeQuery(
             'SELECT `id` from `mail_template_type` WHERE `technical_name` = :type',
             ['type' => 'state_enter.' . $mailTemplateType]
-        )->fetchColumn();
+        )->fetchOne();
 
         $this->changeMailTemplateNameForType($connection, 'state_enter.' . $mailTemplateType);
 
         $templateId = $connection->executeQuery(
             'SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `updated_at` = null',
             ['typeId' => $templateTypeId]
-        )->fetchColumn();
+        )->fetchOne();
 
         $descriptionEn = 'Shopware Default Template';
         $descriptionDe = 'Shopware Basis Template';
@@ -321,7 +324,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
         $newTemplateId = false;
 
         if ($templateId) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE `mail_template` SET `system_default` = 1 WHERE `id`= :templateId',
                 ['templateId' => $templateId]
             );
@@ -377,7 +380,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             } else {
                 $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
                     . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
-                $connection->executeUpdate($sqlString, $sqlParams);
+                $connection->executeStatement($sqlString, $sqlParams);
             }
         }
 
@@ -410,7 +413,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                     'templateId' => $templateId,
                     'languageId' => $this->deLangId,
                 ]
-            )->fetchColumn();
+            )->fetchOne();
 
             if ($newTemplateId || !$templateTranslationDeId) {
                 $connection->insert(
@@ -429,7 +432,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             } else {
                 $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
                     . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
-                $connection->executeUpdate($sqlString, $sqlParams);
+                $connection->executeStatement($sqlString, $sqlParams);
             }
         }
     }

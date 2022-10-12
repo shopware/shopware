@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,7 +20,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $orderTotalAmountColumn = $connection->fetchColumn(
+        $orderTotalAmountColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `customer` WHERE `Field` LIKE :column;',
             ['column' => 'order_total_amount']
         );
@@ -26,7 +29,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
             return;
         }
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `customer` ADD COLUMN order_total_amount DOUBLE DEFAULT 0 AFTER order_count;
         ');
 

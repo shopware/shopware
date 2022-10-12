@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -220,7 +223,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         /** @var string|null $langId */
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 
@@ -253,7 +256,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
             if (!isset($availableEntities['editOrderUrl'])) {
                 $availableEntities['editOrderUrl'] = null;
                 $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
-                $connection->executeUpdate($sqlStatement, ['availableEntities' => json_encode($availableEntities), 'mailTemplateType' => $mailTemplateType]);
+                $connection->executeStatement($sqlStatement, ['availableEntities' => json_encode($availableEntities), 'mailTemplateType' => $mailTemplateType]);
             }
 
             if ($enLangId !== $deLangId) {
@@ -282,11 +285,11 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
     {
         $templateTypeId = $connection->executeQuery('
         SELECT `id` from `mail_template_type` WHERE `technical_name` = :type
-        ', ['type' => $mailTemplateType])->fetchColumn();
+        ', ['type' => $mailTemplateType])->fetchOne();
 
         $templateId = $connection->executeQuery('
         SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
-        ', ['typeId' => $templateTypeId])->fetchColumn();
+        ', ['typeId' => $templateTypeId])->fetchOne();
 
         if ($templateId === false || !\is_string($templateId)) {
             return null;
@@ -295,17 +298,20 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         return $templateId;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): array
     {
         $availableEntities = $connection->executeQuery('
         SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;
-        ', ['mailTemplateType' => $mailTemplateType])->fetchColumn();
+        ', ['mailTemplateType' => $mailTemplateType])->fetchOne();
 
         if ($availableEntities === false || !\is_string($availableEntities) || json_decode($availableEntities, true) === null) {
             return [];
         }
 
-        return json_decode($availableEntities, true);
+        return json_decode($availableEntities, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function updateMailTemplateTranslation(
@@ -343,7 +349,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
 
         $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId AND `updated_at` IS NULL';
 
-        $connection->executeUpdate($sqlString, $sqlParams);
+        $connection->executeStatement($sqlString, $sqlParams);
     }
 
     private function getOrderConfirmationHtmlTemplateEn(): string

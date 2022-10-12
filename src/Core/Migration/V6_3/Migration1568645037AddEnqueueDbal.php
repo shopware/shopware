@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1568645037AddEnqueueDbal extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1568645037AddEnqueueDbal extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec(
+        $connection->executeStatement(
             'CREATE TABLE `enqueue` (
                `id` char(36) COLLATE utf8_unicode_ci NOT NULL COMMENT \'(DC2Type:guid)\',
                `published_at` bigint(20) NOT NULL,

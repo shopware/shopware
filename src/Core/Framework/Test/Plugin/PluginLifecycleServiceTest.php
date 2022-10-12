@@ -55,10 +55,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private EntityRepositoryInterface $pluginRepo;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
     private KernelPluginCollection $pluginCollection;
 
@@ -475,6 +472,9 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
     }
 
+    /**
+     * @return array<string, array{bool}>
+     */
     public function themeProvideData(): array
     {
         return [
@@ -490,7 +490,6 @@ class PluginLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $result = $pluginRepository->search($criteria, $this->context);
-        /** @var PluginEntity $result */
         $result = $result->getEntities()->first();
         $date = new \DateTime();
         $result->setInstalledAt($date);
@@ -724,11 +723,10 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($exception, 'Expected exception to be thrown');
     }
 
-    private function addLanguage(string $iso, $id = 0): string
+    private function addLanguage(string $iso): string
     {
-        if ($id === 0) {
-            $id = Uuid::randomHex();
-        }
+        $id = Uuid::randomHex();
+
         $languageRepository = $this->getContainer()->get('language.repository');
         $localeId = $this->getIsoId($iso);
         $languageRepository->create(
@@ -775,11 +773,11 @@ class PluginLifecycleServiceTest extends TestCase
         $this->setNewSystemLanguage('en-GB');
     }
 
-    private function getIsoId(string $iso)
+    private function getIsoId(string $iso): string
     {
         $result = $this->connection->executeQuery('SELECT LOWER(HEX(id)) FROM locale WHERE code = ?', [$iso]);
 
-        return $result->fetchColumn();
+        return (string) $result->fetchOne();
     }
 
     private function getMigrationCount(string $namespacePrefix): int
@@ -788,7 +786,7 @@ class PluginLifecycleServiceTest extends TestCase
             'SELECT COUNT(*) FROM migration WHERE class LIKE :class',
             ['class' => addcslashes($namespacePrefix, '\\_%') . '%']
         )
-            ->fetchColumn();
+            ->fetchOne();
 
         return (int) $result;
     }
@@ -824,7 +822,7 @@ class PluginLifecycleServiceTest extends TestCase
             [Migration1536761533Test::TEST_SYSTEM_CONFIG_KEY]
         );
 
-        return (int) $result->fetchColumn();
+        return (int) $result->fetchOne();
     }
 
     private function installPlugin(Context $context): PluginEntity

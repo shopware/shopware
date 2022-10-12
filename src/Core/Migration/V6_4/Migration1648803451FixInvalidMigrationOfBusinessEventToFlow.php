@@ -10,12 +10,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ *
+ * @phpstan-type SequenceData array{id: string, parent_id: string|null, true_case: int|null, flow_id: string|null, rule_id: string|null, action_name: string|null, position: int, created_at: string|null, config: string|null}
+ */
 class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends MigrationStep
 {
+    /**
+     * @var list<SequenceData>
+     */
     private array $sequenceActions = [];
 
+    /**
+     * @var list<SequenceData>
+     */
     private array $sequenceDelete = [];
 
+    /**
+     * @var list<SequenceData>
+     */
     private array $sequenceUpdate = [];
 
     public function getCreationTimestamp(): int
@@ -151,6 +165,9 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
         // implement update destructive
     }
 
+    /**
+     * @return SequenceData
+     */
     private function buildSequenceData(
         string $id,
         ?string $parentId = null,

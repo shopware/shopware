@@ -22,11 +22,9 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     private TestDataCollection $ids;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $eventActionRepository;
-
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $eventActionRepository;
 
     public function setUp(): void
     {
@@ -35,8 +33,6 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->eventActionRepository = $this->getContainer()->get('event_action.repository');
-
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection->executeStatement('DELETE FROM `event_action`');
         $this->connection->executeStatement('DELETE FROM `flow`');

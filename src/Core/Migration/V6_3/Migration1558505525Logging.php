@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1558505525Logging extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +19,7 @@ class Migration1558505525Logging extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `log_entry` (
               `id` BINARY(16) NOT NULL,
               `message` VARCHAR(255) NOT NULL,

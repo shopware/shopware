@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1602146868AddTaxTypeToShippingMethod extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1602146868AddTaxTypeToShippingMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `shipping_method`
             ADD `tax_type` varchar(50) NULL DEFAULT \'auto\' AFTER `delivery_time_id`,
             ADD `tax_id` BINARY(16) NULL AFTER `tax_type`,

@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -28,7 +31,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
 
     public function updateSchema(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `shipping_method_price` MODIFY `currency_id` binary(16) NULL;
             ALTER TABLE `shipping_method_price` MODIFY `price` double NULL;
             ALTER TABLE `shipping_method_price` ADD COLUMN `currency_price` json NULL AFTER `price`;'
@@ -109,7 +112,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
 
     private function migrateData(Connection $connection): void
     {
-        $shippingPrices = $connection->fetchAll('SELECT * FROM `shipping_method_price`');
+        $shippingPrices = $connection->fetchAllAssociative('SELECT * FROM `shipping_method_price`');
 
         foreach ($shippingPrices as $shippingPrice) {
             $id = Uuid::fromBytesToHex($shippingPrice['currency_id']);
@@ -124,7 +127,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
             ];
             $currencyPrice = json_encode($currencyPrice);
 
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE `shipping_method_price` SET `currency_price` = :currencyPrice WHERE `id` = :id',
                 ['currencyPrice' => $currencyPrice, 'id' => $shippingPrice['id']]
             );

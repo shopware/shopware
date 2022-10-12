@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1562228335SetConfigDefaults extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,14 +25,14 @@ class Migration1562228335SetConfigDefaults extends MigrationStep
                     configuration_key = :configKey,
                     created_at = :createdAt;';
 
-        $connection->executeUpdate($query, [
+        $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.basicInformation.shopName',
             'configValue' => '{"_value": "Demostore"}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->executeUpdate($query, [
+        $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.listing.allowBuyInListing',
             'configValue' => '{"_value": true}',

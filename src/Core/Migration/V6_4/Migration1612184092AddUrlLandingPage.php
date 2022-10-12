@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1612184092AddUrlLandingPage extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,12 +19,12 @@ class Migration1612184092AddUrlLandingPage extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `landing_page_translation`
             ADD COLUMN `url` varchar(255) NULL AFTER `name`
         ');
 
-        $seoUrlTemplate = $connection->fetchAll(
+        $seoUrlTemplate = $connection->fetchAllAssociative(
             'SELECT id
             FROM `seo_url_template`
             WHERE `seo_url_template`.`route_name` = :routeName',

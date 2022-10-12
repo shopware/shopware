@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1601451838ChangeSearchKeywordColumnToProductTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,9 +17,9 @@ class Migration1601451838ChangeSearchKeywordColumnToProductTranslation extends M
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `product_translation` DROP COLUMN `search_keywords`;');
+        $connection->executeStatement('ALTER TABLE `product_translation` DROP COLUMN `search_keywords`;');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_translation`
             ADD COLUMN `custom_search_keywords` JSON NULL,
             ADD CONSTRAINT `json.product_translation.custom_search_keywords` CHECK (JSON_VALID(`custom_search_keywords`));

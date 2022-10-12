@@ -19,22 +19,16 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $importExportProfileRepository;
+    private EntityRepositoryInterface $importExportProfileRepository;
 
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->importExportProfileRepository = $this->getContainer()->get('import_export_profile.repository');
 
-        $this->connection->exec('DELETE FROM import_export_profile');
+        $this->connection->executeStatement('DELETE FROM import_export_profile');
         parent::setUp();
     }
 
@@ -48,7 +42,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $this->setDefaultLanguageToLocale('de-DE');
         $this->executeMigration();
 
-        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        $translations = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation');
         static::assertCount(12, $translations);
 
         $labels = array_column($translations, 'label');
@@ -62,7 +56,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         $this->executeMigration();
 
-        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        $translations = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation');
         static::assertCount(12, $translations);
 
         $labels = array_column($translations, 'label');
@@ -81,7 +75,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         $this->executeMigration();
 
-        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        $translations = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation');
         static::assertCount(18, $translations);
 
         $labels = array_column($translations, 'label');
@@ -98,7 +92,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         $this->executeMigration();
 
-        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        $translations = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation');
         static::assertCount(12, $translations);
 
         $labels = array_column($translations, 'label');
@@ -124,7 +118,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         $this->executeMigration();
 
-        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        $translations = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation');
         static::assertCount(13, $translations);
 
         $labels = array_column($translations, 'label');
@@ -140,7 +134,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         $this->executeMigration();
 
-        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        $translations = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation');
         static::assertCount(6, $translations);
 
         $labels = array_column($translations, 'label');
@@ -155,7 +149,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
     private function setDefaultLanguageToLocale(string $localeCode): void
     {
-        $this->connection->exec('SET FOREIGN_KEY_CHECKS = 0;');
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
 
         $localeId = $this->getLocaleIdForCode($localeCode);
 
@@ -166,7 +160,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         // Sets new default
         $stmt = $this->connection->prepare('UPDATE `language` SET locale_id = :localeId, translation_code_id = :tempId WHERE id = :defaultLanguageId');
-        $stmt->execute([
+        $stmt->executeStatement([
             'localeId' => Uuid::fromHexToBytes($localeId),
             'defaultLanguageId' => Uuid::fromHexToBytes($defaultLanguageId),
             'tempId' => Uuid::randomBytes(),
@@ -174,22 +168,19 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         // Sets old default to the previous locale ID of the new default
         $stmt = $this->connection->prepare('UPDATE `language` SET locale_id = :localeId, translation_code_id = :localeId WHERE id = :languageId');
-        $stmt->execute([
+        $stmt->executeStatement([
             'localeId' => Uuid::fromHexToBytes($defaultLocaleId),
             'languageId' => Uuid::fromHexToBytes($languageId),
         ]);
 
-        $this->connection->exec('SET FOREIGN_KEY_CHECKS = 1;');
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     private function getLanguageIdForLocale(string $localeId): string
     {
-        $stmt = $this->connection->prepare('SELECT id FROM `language` WHERE locale_id = :localeId');
-        $stmt->execute([
+        $languageId = $this->connection->fetchOne('SELECT id FROM `language` WHERE locale_id = :localeId', [
             'localeId' => Uuid::fromHexToBytes($localeId),
         ]);
-
-        $languageId = $stmt->fetchColumn(0);
 
         static::assertNotFalse($languageId);
 
@@ -198,12 +189,9 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
     private function getLocaleFromDefaultLanguage(string $defaultLanguageId): string
     {
-        $stmt = $this->connection->prepare('SELECT locale_id FROM `language` WHERE id = :id');
-        $stmt->execute([
+        $localeId = $this->connection->fetchOne('SELECT locale_id FROM `language` WHERE id = :id', [
             'id' => Uuid::fromHexToBytes($defaultLanguageId),
         ]);
-
-        $localeId = $stmt->fetchColumn(0);
 
         static::assertNotFalse($localeId);
 
@@ -212,18 +200,18 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
     private function getLocaleIdForCode(string $localeCode): string
     {
-        $stmt = $this->connection->prepare('SELECT id FROM `locale` WHERE `code` = :code');
-        $stmt->execute([
+        $localeId = $this->connection->fetchOne('SELECT id FROM `locale` WHERE `code` = :code', [
             'code' => $localeCode,
         ]);
-
-        $localeId = $stmt->fetchColumn(0);
 
         static::assertNotFalse($localeId);
 
         return Uuid::fromBytesToHex((string) $localeId);
     }
 
+    /**
+     * @return list<array{id: string, name: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
+     */
     private function getEnglishData(): array
     {
         return [
@@ -290,6 +278,9 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         ];
     }
 
+    /**
+     * @return list<array{id: string, name: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
+     */
     private function getGermanData(): array
     {
         $germanData = [
@@ -312,9 +303,9 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
     private function simulateThirdLanguagePolishIsDefault(string $englishId): void
     {
-        $this->connection->exec('SET FOREIGN_KEY_CHECKS = 0;');
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
 
-        $this->connection->exec('DELETE FROM `language`');
+        $this->connection->executeStatement('DELETE FROM `language`');
 
         $insertSql = <<<'SQL'
             INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
@@ -346,12 +337,15 @@ SQL;
         ];
 
         foreach ($languageData as $data) {
-            $stmt->execute($data);
+            $stmt->executeStatement($data);
         }
 
-        $this->connection->exec('SET FOREIGN_KEY_CHECKS = 1;');
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
+    /**
+     * @return list<array{id: string, name: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
+     */
     private function getPolishAndEnglishData(string $polishId, string $englishId): array
     {
         $englishData = $this->getEnglishData();
@@ -372,7 +366,7 @@ SQL;
 
     private function removeLanguageByIsoCode(string $iso): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE `language`
             FROM `language`
             INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`

@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1612442786ChangeVersionOfDocuments extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -55,13 +58,16 @@ class Migration1612442786ChangeVersionOfDocuments extends MigrationStep
      */
     private function getWrongVersionedDocuments(Connection $connection): array
     {
-        return $connection->fetchAll(
+        return $connection->fetchAllAssociative(
             'SELECT * FROM `document`
             WHERE `document`.`order_version_id` = :liveVersion',
             ['liveVersion' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
         );
     }
 
+    /**
+     * @return list<array{version_id: string}>
+     */
     private function getOrders(Connection $connection, string $orderId, ?string $createdAt = null): array
     {
         $orderQuery = 'SELECT version_id FROM `order`
@@ -81,12 +87,15 @@ class Migration1612442786ChangeVersionOfDocuments extends MigrationStep
         $orderQuery .= ' ORDER BY created_at DESC
                 LIMIT 1';
 
-        return $connection->fetchAll($orderQuery, $params);
+        /** @var list<array{version_id: string}> $orders */
+        $orders = $connection->fetchAllAssociative($orderQuery, $params);
+
+        return $orders;
     }
 
     private function updateDocument(Connection $connection, string $versionId, string $wrongVersionedDocumentId): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE document SET `order_version_id` = :orderVersionId WHERE `id` = :documentId',
             [
                 'orderVersionId' => $versionId,

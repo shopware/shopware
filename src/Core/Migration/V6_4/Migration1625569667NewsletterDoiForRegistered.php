@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1625569667NewsletterDoiForRegistered extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,7 +25,7 @@ class Migration1625569667NewsletterDoiForRegistered extends MigrationStep
                     configuration_key = :configKey,
                     created_at = :createdAt;';
 
-        $connection->executeUpdate($query, [
+        $connection->executeStatement($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.newsletter.doubleOptInRegistered',
             'configValue' => '{"_value": false}',

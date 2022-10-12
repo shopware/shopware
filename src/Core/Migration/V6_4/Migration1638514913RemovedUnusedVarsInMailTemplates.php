@@ -9,6 +9,9 @@ use Shopware\Core\Migration\Traits\MailSubjectUpdate;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;

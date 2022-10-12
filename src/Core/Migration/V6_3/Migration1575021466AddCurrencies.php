@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1575021466AddCurrencies extends MigrationStep
 {
     /**
@@ -37,7 +40,7 @@ class Migration1575021466AddCurrencies extends MigrationStep
 
     private function createCurrencyUniqueConstraint(Connection $connection): void
     {
-        $connection->exec('ALTER TABLE `currency` ADD  CONSTRAINT `uniq.currency.iso_code` UNIQUE (`iso_code`)');
+        $connection->executeStatement('ALTER TABLE `currency` ADD  CONSTRAINT `uniq.currency.iso_code` UNIQUE (`iso_code`)');
     }
 
     private function createCurrencies(Connection $connection): void
@@ -63,7 +66,7 @@ class Migration1575021466AddCurrencies extends MigrationStep
         $languageEN = $this->getEnLanguageId($connection);
         $languageDE = $this->getDeLanguageId($connection);
 
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `currency`.`id` FROM `currency` WHERE `iso_code` = :code LIMIT 1
         ', ['code' => $isoCode]);
 
@@ -99,7 +102,7 @@ class Migration1575021466AddCurrencies extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = $connection->fetchColumn('
+        $langId = $connection->fetchOne('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 

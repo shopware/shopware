@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1569403146ProductVisibilityUnique extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,9 +27,9 @@ WHERE
     t1.sales_channel_id = t2.sales_channel_id;
 SQL;
 
-        $connection->exec($removeDuplicatesSql);
+        $connection->executeStatement($removeDuplicatesSql);
 
-        $connection->exec('
+        $connection->executeStatement('
             ALTER TABLE `product_visibility`
                 ADD UNIQUE KEY `uniq.product_id__sales_channel_id` (`product_id`, `product_version_id`, `sales_channel_id`)
         ');

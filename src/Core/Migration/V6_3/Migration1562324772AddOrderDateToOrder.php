@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1562324772AddOrderDateToOrder extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,12 +17,12 @@ class Migration1562324772AddOrderDateToOrder extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `order`
             CHANGE `order_date` `order_date_time` DATETIME(3) NOT NULL;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `order`
             ADD COLUMN `order_date` DATE GENERATED ALWAYS AS (CONVERT(`order_date_time`, DATE)) STORED AFTER `order_date_time`;
         ');

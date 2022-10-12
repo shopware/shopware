@@ -13,7 +13,7 @@ ___
 
 ## Changed icon.html.twig
 
-We changed the base pathes to the icons in the template `Storefront/Resources/views/storefront/utilities/icon.html.twig`
+We changed the base paths to the icons in the template `Storefront/Resources/views/storefront/utilities/icon.html.twig`
 If you have overwritten the block `utilities_icon` please change it as follows:
 
 Before:

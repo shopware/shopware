@@ -143,6 +143,14 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
             return $this->databaseTemplateCache[$path][$namespace];
         }
 
+        /** @deprecated tag:v6.5.0 - only for intermediate backwards compatibility */
+        if (
+            \array_key_exists('../' . $path, $this->databaseTemplateCache)
+            && \array_key_exists($namespace, $this->databaseTemplateCache['../' . $path])
+        ) {
+            return $this->databaseTemplateCache['../' . $path][$namespace];
+        }
+
         // we have already loaded all DB templates
         // if the namespace is not included return null
         return $this->databaseTemplateCache[$path][$namespace] = null;

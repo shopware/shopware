@@ -1,6 +1,6 @@
 ---
-title: NEXT-23583: Fix Vatican City coutnry name
-issue: NEXT-23583
+title: Fix Vatican City country name
+issue: NEXT-23642
 author: Florian Kasper
 author_email: fk@bitsandlikes.de
 author_github: fk-bitsandlikes

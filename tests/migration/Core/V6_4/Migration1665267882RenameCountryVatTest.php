@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DbalException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1665267882RenameCountryVat;
@@ -132,8 +131,7 @@ class Migration1665267882RenameCountryVatTest extends TestCase
     }
 
     /**
-     * @return array<string, string>
-     * @throws DbalException
+     * @return array<mixed>
      */
     private function fetchCurrentTranslations(): array
     {

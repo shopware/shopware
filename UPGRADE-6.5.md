@@ -1,4 +1,13 @@
 # 6.5.0.0
+## Introduced in 6.4.16.0
+## Removal of `/api/_action/database`
+The `/api/_action/database` endpoint was removed, this means the following routes are not available anymore:
+* `POST /api/_action/database/sync-migration`
+* `POST /api/_action/database/migrate`
+* `POST /api/_action/database/migrate-destructive`
+
+The migrations can not be executed over the API anymore. Database migrations should be only executed over the CLI.
+
 ## Introduced in 6.4.15.0
 ## Deprecated the `OpenApiPathsEvent`:
 * Move the schema described by your `@OpenApi` / `@OA` annotations to json files.

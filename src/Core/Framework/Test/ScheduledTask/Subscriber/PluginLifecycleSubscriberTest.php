@@ -8,6 +8,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
@@ -19,11 +20,13 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         $events = PluginLifecycleSubscriber::getSubscribedEvents();
 
-        static::assertCount(2, $events);
+        static::assertCount(3, $events);
         static::assertArrayHasKey(PluginPostActivateEvent::class, $events);
         static::assertEquals('afterPluginStateChange', $events[PluginPostActivateEvent::class]);
         static::assertArrayHasKey(PluginPostDeactivateEvent::class, $events);
         static::assertEquals('afterPluginStateChange', $events[PluginPostDeactivateEvent::class]);
+        static::assertArrayHasKey(PluginPostUpdateEvent::class, $events);
+        static::assertEquals('afterPluginStateChange', $events[PluginPostUpdateEvent::class]);
     }
 
     public function testRegisterScheduledTasks(): void

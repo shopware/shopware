@@ -222,8 +222,33 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         onClickOpenCreateDomainModal() {
-            this.currentDomain = this.domainRepository.create(Context.api);
-            this.setCurrentDomainBackup(this.currentDomain);
+            const possiblyUnassignedUrl = window.location.origin;
+
+            this.verifyUrl({ url: possiblyUnassignedUrl })
+                .then(() => possiblyUnassignedUrl)
+                .catch(() => null)
+                .then((predictedUrl) => {
+                    const domain = this.domainRepository.create(Context.api);
+
+                    this.setCurrentDomainBackup(domain);
+
+                    domain.url = predictedUrl;
+
+                    if (this.salesChannel.currencies.length === 1) {
+                        const currency = this.salesChannel.currencies.first();
+
+                        domain.currency = currency;
+                        domain.currencyId = currency.id;
+                    }
+
+                    if (this.salesChannel.languages.length === 1) {
+                        const language = this.salesChannel.languages.first();
+                        domain.language = language;
+                        domain.languageId = language.id;
+                    }
+
+                    this.currentDomain = domain;
+                });
         },
 
         async onClickAddNewDomain() {

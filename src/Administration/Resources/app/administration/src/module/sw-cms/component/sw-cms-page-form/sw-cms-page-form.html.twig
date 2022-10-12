@@ -36,6 +36,23 @@
                         {{ getSectionName(section) }}
                     </span>
                     {% endblock %}
+
+                    <div class="sw-cms-page-form__device-actions">
+                        <sw-icon
+                            name="regular-mobile"
+                            size="20"
+                        />
+
+                        <sw-icon
+                            name="regular-tablet"
+                            size="20"
+                        />
+
+                        <sw-icon
+                            name="regular-desktop"
+                            size="20"
+                        />
+                    </div>
                 </div>
                 {% endblock %}
             </div>
@@ -112,6 +129,27 @@
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
+                    <template #header-right>
+                        <div class="sw-cms-page-form__block-device-actions">
+                            <sw-icon
+                                name="regular-mobile"
+                                size="20"
+                                :class="`sw-cms-page-form__device-action-icon ${getDeviceActive(block, 'mobile')}`"
+                            />
+
+                            <sw-icon
+                                name="regular-tablet"
+                                size="20"
+                                :class="`sw-cms-page-form__device-action-icon ${getDeviceActive(block, 'tablet')}`"
+                            />
+
+                            <sw-icon
+                                name="regular-desktop"
+                                size="20"
+                                :class="`sw-cms-page-form__device-action-icon ${getDeviceActive(block, 'desktop')}`"
+                            />
+                        </div>
+                    </template>
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_card_content %}

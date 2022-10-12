@@ -97,5 +97,13 @@ Component.register('sw-cms-page-form', {
                 this.$tc('sw-cms.section.positionRight') :
                 this.$tc('sw-cms.section.positionLeft');
         },
+
+        getDeviceActive(block, viewport) {
+            if (!block.visibility) {
+                block.visibility = { mobile: true, tablet: true, desktop: true };
+            }
+
+            return block?.visibility?.[viewport] ? 'is__active' : 'is__inactive';
+        },
     },
 });

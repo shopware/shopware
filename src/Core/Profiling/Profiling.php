@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Profiling;
 
+use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
  * @internal
@@ -46,8 +48,21 @@ class Profiling extends Bundle
         $this->container->get(Profiler::class);
     }
 
+    public function configureRoutes(RoutingConfigurator $routes, string $environment): void
+    {
+        if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
+            return;
+        }
+
+        parent::configureRoutes($routes, $environment);
+    }
+
     private function buildConfig(ContainerBuilder $container, string $environment): void
     {
+        if (!InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
+            return;
+        }
+
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([

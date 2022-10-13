@@ -78,6 +78,8 @@ class DemodataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->ensureAllDependenciesArePresent();
+
         if ($this->kernelEnv !== 'prod') {
             $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
 
@@ -154,5 +156,23 @@ class DemodataCommand extends Command
         }
 
         return $this->defaults[$name] ?? 0;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    private function ensureAllDependenciesArePresent(): void
+    {
+        if (!class_exists(\Faker\Factory::class)) {
+            throw new \RuntimeException('Please install composer package "fakerphp/faker" to use the demo-data command.');
+        }
+
+        if (!class_exists(\Bezhanov\Faker\Provider\Commerce::class)) {
+            throw new \RuntimeException('Please install composer package "mbezhanov/faker-provider-collection" to use the demo-data command.');
+        }
+
+        if (!class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
+            throw new \RuntimeException('Please install composer package "maltyxx/images-generator" to use the demo-data command.');
+        }
     }
 }

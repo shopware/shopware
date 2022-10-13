@@ -53,7 +53,7 @@ Component.register('sw-flow-list', {
                     property: 'active',
                     label: this.$tc('sw-flow.list.labelColumnActive'),
                     width: '80px',
-                    sortable: false,
+                    sortable: true,
                 },
                 {
                     property: 'name',

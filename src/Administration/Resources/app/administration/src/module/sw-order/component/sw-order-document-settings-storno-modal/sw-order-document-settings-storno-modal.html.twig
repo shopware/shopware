@@ -16,7 +16,6 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_select_invoice %}
     <sw-select-field
-        v-model="documentConfig.custom.invoiceNumber"
         class="sw-order-document-settings-storno-modal__invoice-select"
         :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
         :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
@@ -24,8 +23,8 @@
     >
         <option
             v-for="invoice in invoices"
-            :key="invoice.config.custom.invoiceNumber"
-            :value="invoice.config.custom.invoiceNumber"
+            :key="invoice.id"
+            :value="invoice.id"
         >
             {{ invoice.config.custom.invoiceNumber }}
         </option>
@@ -58,7 +57,6 @@
 {% block sw_sales_channel_detail_base_general_input_type %}
 <sw-select-field
     v-if="!feature.isActive('FEATURE_NEXT_7530')"
-    v-model="documentConfig.custom.invoiceNumber"
     class="sw-order-document-settings-storno-modal__invoice-select"
     :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
     :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
@@ -66,8 +64,8 @@
 >
     <option
         v-for="invoice in invoices"
-        :key="invoice.config.custom.invoiceNumber"
-        :value="invoice.config.custom.invoiceNumber"
+        :key="invoice.id"
+        :value="invoice.id"
     >
         {{ invoice.config.custom.invoiceNumber }}
     </option>

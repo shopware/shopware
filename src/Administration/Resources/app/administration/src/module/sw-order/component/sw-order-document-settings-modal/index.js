@@ -3,6 +3,7 @@ import './sw-order-document-settings-modal.scss';
 
 const { Component, Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
+const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-document-settings-modal', {
@@ -52,6 +53,7 @@ Component.register('sw-order-document-settings-modal', {
                 fileAcceptTypes: 'application/pdf',
             },
             showMediaModal: false,
+            deepLinkCode: null,
         };
     },
 
@@ -70,8 +72,27 @@ Component.register('sw-order-document-settings-modal', {
             return this.$tc('sw-order.documentModal.modalTitle');
         },
 
+        orderRepository() {
+            return this.repositoryFactory.create('order');
+        },
+
+        orderCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAssociation('lineItems');
+
+            return criteria;
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
+        },
+
+        invoices() {
+            return this.order.documents
+                .filter(document => {
+                    return document.documentType.technicalName === 'invoice';
+                });
         },
     },
 
@@ -130,7 +151,7 @@ Component.register('sw-order-document-settings-modal', {
         },
 
         onPreview() {
-            this.$emit('preview-show', this.documentConfig);
+            this.$emit('preview-show', this.documentConfig, this.deepLinkCode);
         },
 
         onConfirm() {
@@ -178,6 +199,16 @@ Component.register('sw-order-document-settings-modal', {
 
         onAddDocument(data) {
             this.selectedDocumentFile = data[0];
+        },
+
+        updateDeepLinkCodeByVersionContext(versionContext) {
+            return this.orderRepository
+                .get(this.order.id, versionContext, this.orderCriteria)
+                .then(response => {
+                    this.deepLinkCode = response.deepLinkCode;
+
+                    return response;
+                });
         },
     },
 });

@@ -79,6 +79,7 @@ function createWrapper(privileges = []) {
                 template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>'
             },
             'sw-skeleton': true,
+            'sw-error-summary': true,
         },
         provide: {
             acl: {

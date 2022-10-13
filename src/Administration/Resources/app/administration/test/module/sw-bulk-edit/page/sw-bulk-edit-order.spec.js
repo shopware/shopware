@@ -169,6 +169,7 @@ function createWrapper(isResponseError = false) {
             'sw-bulk-edit-order-documents-download-documents': true,
             'sw-entity-tag-select': true,
             'sw-inherit-wrapper': true,
+            'sw-error-summary': true,
         },
         props: {
             title: 'Foo bar'

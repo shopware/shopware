@@ -577,6 +577,12 @@ Component.register('sw-category-detail', {
         },
 
         onLeaveModalConfirm(destination) {
+            // Discard all category related errors that may have occurred
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                { expression: 'category' },
+            );
+
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
 

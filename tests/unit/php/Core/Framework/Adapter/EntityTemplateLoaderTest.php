@@ -60,7 +60,7 @@ class EntityTemplateLoaderTest extends TestCase
 
             $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-            $this->connectionMock->expects(static::never())->method('fetchAllAssociative');
+            $this->connectionMock->expects(static::never())->method('fetchAll');
 
             $result = $entityTemplateLoader->exists('@test/test');
 
@@ -83,7 +83,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
+        $this->connectionMock->expects(static::once())->method('fetchAll')->willReturn([]);
 
         $result = $entityTemplateLoader->exists('@test/test');
 
@@ -103,7 +103,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects(static::once())->method('fetchAll')->willReturn(
             [
                 [
                     'template' => '<html></html>',
@@ -132,7 +132,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects(static::once())->method('fetchAll')->willReturn(
             [
                 [
                     'template' => '<html></html>',
@@ -160,7 +160,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::exactly(2))->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects(static::exactly(2))->method('fetchAll')->willReturn(
             [
                 [
                     'template' => '<html></html>',
@@ -186,7 +186,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $this->connectionMock->expects(static::once())->method('fetchAll')->willReturn(
             [
                 [
                     'template' => '<html></html>',

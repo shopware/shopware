@@ -552,6 +552,12 @@
             <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway">
+            <argument>%storefront.reverse_proxy.hosts%</argument>
+            <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
+            <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway">
             <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
             <argument>%storefront.reverse_proxy.fastly.service_id%</argument>

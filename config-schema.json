@@ -707,6 +707,11 @@
                             "default": 2,
                             "title": "Max parallel requests to the external server"
                         },
+                        "use_varnish_xkey": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Use the XKey Varnish feature"
+                        },
                         "redis_url": {
                             "type": "string",
                             "title": "Redis URL"

@@ -43,6 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('reverse_proxy')
                     ->children()
                         ->booleanNode('enabled')->end()
+                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
                         ->arrayNode('hosts')->performNoDeepMerging()->scalarPrototype()->end()->end()
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
                         ->scalarNode('redis_url')->end()

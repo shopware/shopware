@@ -1,5 +1,6 @@
 ---
 title: Auto-fill domain settings for new sales channel domains created in the admin
+issue: NEXT-23666
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

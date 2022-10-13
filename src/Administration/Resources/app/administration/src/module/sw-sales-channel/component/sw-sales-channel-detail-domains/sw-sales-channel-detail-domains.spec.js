@@ -1,8 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
+import flushPromises from 'flush-promises';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/form/select/base/sw-single-select';
+
+const { Context } = Shopware;
+const { EntityCollection } = Shopware.Data;
 
 
 function createWrapper(customProps = {}, domains = []) {
@@ -189,12 +193,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should only display available languages', async () => {
-        const languages = [
-            {
+        const languages = new EntityCollection('/languages', 'languages', Context.api, null,
+            [{
                 id: 'test1',
                 name: 'language1'
-            }
-        ];
+            }]);
 
         const wrapper = createWrapper({
             salesChannel: {
@@ -205,19 +208,18 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         }, getExampleDomains());
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.value).toBe(languages[0].id);
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(languages.first().id);
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toBe(languages);
     });
 
     it('should only display available currencies', async () => {
-        const currencies = [
-            {
+        const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null,
+            [{
                 id: 'test1',
                 name: 'currency1'
-            }
-        ];
+            }]);
 
         const wrapper = createWrapper({
             salesChannel: {
@@ -228,9 +230,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         }, getExampleDomains());
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.value).toBe(currencies[0].id);
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(currencies.first().id);
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toBe(currencies);
     });
 

@@ -1,12 +1,18 @@
 import '@babel/polyfill';
 import bootstrap from 'bootstrap5';
 
+/** @deprecated tag:v6.5.0 - jQuery will be removed. */
+import $ from 'jquery';
+
 // log rejections so that they are not printed to stderr as a fallback
 process.on('unhandledRejection', (reason) => {
     console.log('REJECTION', reason);
 });
 
 global.bootstrap = bootstrap;
+global.$ = global.jQuery = $;
+global.$.fn.tooltip = jest.fn();
+global.$.fn.popover = jest.fn();
 
 // Global mocks for common window properties
 global.csrf = {

@@ -1,6 +1,3 @@
-/** @deprecated tag:v6.5.0 - jQuery import will be removed. */
-import $ from 'jquery';
-
 /** @deprecated tag:v6.5.0 - Unnamed import of bootstrap will be removed. */
 import '../../../node_modules/bootstrap';
 
@@ -10,9 +7,6 @@ import { Collapse } from 'bootstrap5';
 import Fading from 'src/plugin/fading/fading.plugin.js';
 import Feature from 'src/helper/feature.helper';
 import template from './fading.template.html';
-
-/* eslint-disable-next-line */
-global.$ = global.jQuery = $;
 
 describe('Fading plugin test', () => {
     let fadingPlugin;

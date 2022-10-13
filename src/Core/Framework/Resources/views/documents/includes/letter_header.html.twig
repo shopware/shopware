@@ -13,6 +13,8 @@ All blocks of this template are available in the template which renders this tem
     <div class="letter-header">
         <div class="recipient-address-container">
             {% block document_recipient %}
+                {% set notSpecified = billingAddress.salutation.salutationKey is same as('not_specified') %}
+
                 {# @deprecated tag:v6.5.0 - Will be removed #}
                 {% block document_recipient_sender %}{% endblock %}
 
@@ -22,7 +24,7 @@ All blocks of this template are available in the template which renders this tem
                 {% if customer.customer.vatIds and billingAddress.country.companyTax.getEnabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries %}
                     {{ 'document.vatId'|trans({'%vatId%': customer.customer.vatIds|first})|sw_sanitize }}<br>
                 {% endif %}
-                {% if billingAddress.salutation and billingAddress.salutation.id is not same as(constant('Shopware\\Core\\Defaults::SALUTATION')) %}{{ billingAddress.salutation.letterName ~ ' ' }}{% endif %}{{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
+                {% if not notSpecified and billingAddress.salutation and billingAddress.salutation.id is not same as(constant('Shopware\\Core\\Defaults::SALUTATION')) %}{{ billingAddress.salutation.displayName ~ ' ' }}{% endif %}{{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
                 {{ billingAddress.street }}<br>
                 {% if billingAddress.additionalAddressLine1 %}
                     {{ billingAddress.additionalAddressLine1 }}<br>

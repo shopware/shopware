@@ -1,7 +1,6 @@
 ---
 title:              _TITLE_
-issue:              NEXT-1111
-flag:               _FLAG_
+issue:              NEXT-FOO
 author:             _AUTHOR_
 author_email:       _MAIL_
 author_github:      _GITHUB_

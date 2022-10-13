@@ -9,11 +9,18 @@ use Symfony\Component\Finder\Finder;
  */
 class ChangelogValidator extends ChangelogProcessor
 {
+    /**
+     * @return array<string, list<string|\Stringable>>
+     */
     public function check(string $path = ''): array
     {
         $errors = [];
         $entries = !empty($path) ? [$path] : $this->getUnreleasedChangelogFiles();
         foreach ($entries as $entry) {
+            if (preg_match('/^([-\.\w\/]+)$/', $entry) === 0) {
+                $errors[$entry][] = 'Changelog has invalid filename, please use only alphanumeric characters, dots, dashes and underscores.';
+            }
+
             $changelog = $this->parser->parse((string) file_get_contents($entry));
             $violations = $this->validator->validate($changelog);
             if (\count($violations)) {
@@ -27,6 +34,9 @@ class ChangelogValidator extends ChangelogProcessor
         return $errors;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getUnreleasedChangelogFiles(): array
     {
         $entries = [];

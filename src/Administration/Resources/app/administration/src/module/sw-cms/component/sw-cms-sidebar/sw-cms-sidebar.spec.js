@@ -102,7 +102,8 @@ function createWrapper() {
             'sw-cms-sidebar-nav-element': true,
             'sw-entity-single-select': true,
             'sw-modal': true,
-            'sw-checkbox-field': true
+            'sw-checkbox-field': true,
+            'sw-cms-visibility-config': true
         },
         provide: {
             repositoryFactory: {
@@ -160,7 +161,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
-                isSystemDefaultLanguage: true
+                isSystemDefaultLanguage: true,
+                selectedBlock: {},
             }
         });
     });

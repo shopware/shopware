@@ -29,6 +29,26 @@
         {% set sidebarClasses = 'has--sidebar' %}
     {% endif %}
 
+    {% if block.visibility is null %}
+        {% set visibility = {
+            mobile: true,
+            tablet: true,
+            desktop: true
+        } %}
+    {% else %}
+        {% set visibility = block.visibility %}
+    {% endif %}
+
+    {% if not visibility.mobile %}
+        {% set blockClasses = ['hidden-mobile']|merge(blockClasses) %}
+    {% endif %}
+    {% if not visibility.tablet %}
+        {% set blockClasses = ['hidden-tablet']|merge(blockClasses) %}
+    {% endif %}
+    {% if not visibility.desktop %}
+        {% set blockClasses = ['hidden-desktop']|merge(blockClasses) %}
+    {% endif %}
+
     <div class="cms-block {{ blockClasses|join(' ') }}"
          style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}">
         {% block section_content_block_background_image %}

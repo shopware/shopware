@@ -281,6 +281,16 @@
                     {% endblock %}
                 </sw-sidebar-collapse>
                 {% endblock %}
+
+                <sw-sidebar-collapse :expand-on-loading="false">
+                    <template #header>
+                        <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
+                    </template>
+                    <sw-cms-visibility-config
+                        slot="content"
+                        :visibility="selectedBlock.visibility"
+                    />
+                </sw-sidebar-collapse>
             </template>
         </div>
         {% endblock %}
@@ -398,7 +408,7 @@
                             :disabled="!sectionIsDuplicable(section)"
                             @click="onSectionDuplicate(section)"
                         >
-                            {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
+                            {{ $tc('global.default.duplicate') }}
                         </sw-context-menu-item>
                         {% endblock %}
 

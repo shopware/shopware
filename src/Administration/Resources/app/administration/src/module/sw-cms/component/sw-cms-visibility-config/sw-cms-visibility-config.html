@@ -1,0 +1,33 @@
+<div class="sw-cms-visibility-config">
+    <div class="sw-cms-visibility-config__checkbox-group-label">
+        {{ $tc('sw-cms.sidebar.contentMenu.visibilityLabelCheckboxGroup') }}
+    </div>
+    <div
+        class="sw-cms-visibility-config__checkbox-group"
+    >
+        <label class="sw-cms-visibility-config__checkbox">
+            {{ $tc('sw-cms.sidebar.contentMenu.visibilityMobile') }}
+            <input class="sw-cms-visibility-config__checkbox-input" type="checkbox" v-model="visibility.mobile">
+            <sw-icon
+                :name="visibility.mobile ? 'regular-mobile' : 'custom-hide-device-mobile'"
+                size="24"
+            />
+        </label>
+        <label class="sw-cms-visibility-config__checkbox">
+            {{ $tc('sw-cms.sidebar.contentMenu.visibilityTablet') }}
+            <input class="sw-cms-visibility-config__checkbox-input" type="checkbox" v-model="visibility.tablet">
+            <sw-icon
+                :name="visibility.tablet ? 'regular-tablet' : 'custom-hide-device-tablet'"
+                size="24"
+            />
+        </label>
+        <label class="sw-cms-visibility-config__checkbox">
+            {{ $tc('sw-cms.sidebar.contentMenu.visibilityDesktop') }}
+            <input class="sw-cms-visibility-config__checkbox-input" type="checkbox" v-model="visibility.desktop">
+            <sw-icon
+                :name="visibility.desktop ? 'regular-desktop' : 'custom-hide-device-desktop'"
+                size="24"
+            />
+        </label>
+    </div>
+</div>

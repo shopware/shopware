@@ -51,7 +51,12 @@
         "generalSettings": "General",
         "settings": "Settings",
         "layoutSettings": "Layout",
-        "duplicate": "Duplicate"
+        "visibilitySettings": "Visibility",
+        "visibilityMobile": "Mobile",
+        "visibilityTablet": "Tablet",
+        "visibilityDesktop": "Desktop",
+        "visibilityTextButton": "Collapse block | Expand block",
+        "visibilityLabelCheckboxGroup": "Devices"
       },
       "layoutAssignment": {
         "headline": "Manage where this layout is visible",
@@ -132,7 +137,8 @@
         "lockedNotification": "This is a locked default layout you may use for your content from the get-go. Note that you cannot edit this template! If you want to adapt the layout to your needs, just duplicate the layout and alter the duplicate.",
         "headlineEmptyState": "Space for creativity",
         "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
-        "defaultLayout": "Default layout"
+        "defaultLayout": "Default layout",
+        "visibilityParagraph": "Invisible on selected devices"
       },
       "notification": {
         "pageInvalid": "Errors occured. Please check the error list in the editor.",

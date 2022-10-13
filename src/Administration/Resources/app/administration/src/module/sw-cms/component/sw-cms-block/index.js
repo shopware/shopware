@@ -1,7 +1,7 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
-const { Component, Filter } = Shopware;
+const { Component, Filter, State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-block', {
@@ -46,6 +46,7 @@ Component.register('sw-cms-block', {
     data() {
         return {
             backgroundUrl: null,
+            isCollapsed: true,
         };
     },
 
@@ -109,6 +110,24 @@ Component.register('sw-cms-block', {
         assetFilter() {
             return Filter.getByName('asset');
         },
+
+        invisibleBlock() {
+            const view = State.get('cmsPageState').currentCmsDeviceView;
+
+            return (view === 'desktop' && !this.block.visibility.desktop) ||
+                (view === 'tablet-landscape' && !this.block.visibility.tablet) ||
+                (view === 'mobile' && !this.block.visibility.mobile);
+        },
+
+        toggleTextButton() {
+            return this.isCollapsed ?
+                this.$tc('sw-cms.sidebar.contentMenu.visibilityTextButton', 0)
+                : this.$tc('sw-cms.sidebar.contentMenu.visibilityTextButton', 1);
+        },
+
+        expandedClass() {
+            return !this.isCollapsed ? 'is--expanded' : '';
+        },
     },
 
     created() {
@@ -120,12 +139,24 @@ Component.register('sw-cms-block', {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
             }
+
+            if (!this.block.visibility) {
+                this.block.visibility = {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                };
+            }
         },
 
         onBlockOverlayClick() {
             if (!this.block.locked) {
                 this.$emit('block-overlay-click');
             }
+        },
+
+        toggleVisibility() {
+            this.isCollapsed = !this.isCollapsed;
         },
     },
 });

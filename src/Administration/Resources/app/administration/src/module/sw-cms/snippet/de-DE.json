@@ -51,7 +51,12 @@
         "generalSettings": "Allgemein",
         "settings": "Einstellungen",
         "layoutSettings": "Layout",
-        "duplicate": "Duplizieren"
+        "visibilitySettings": "Sichtbarkeit",
+        "visibilityMobile": "Mobil",
+        "visibilityTablet": "Tablet",
+        "visibilityDesktop": "Desktop",
+        "visibilityTextButton": "Block einklappen | Block ausklappen",
+        "visibilityLabelCheckboxGroup": "Anzeigegeräte"
       },
       "layoutAssignment": {
         "headline": "Verwalte wo dieses Layout zu sehen ist",
@@ -132,7 +137,8 @@
         "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
-        "defaultLayout": "Standardlayout"
+        "defaultLayout": "Standardlayout",
+        "visibilityParagraph": "Auf ausgewählten Geräten unsichtbar"
       },
       "notification": {
         "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",

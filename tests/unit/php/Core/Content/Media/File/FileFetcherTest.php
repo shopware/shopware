@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\IllegalUrlException;
@@ -13,10 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Content\Media\File\FileFetcher
  */
 class FileFetcherTest extends TestCase
 {
-    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../../../../../../../src/Core/Content/Test/Media/fixtures/shopware-logo.png';
 
     /**
      * @var FileFetcher
@@ -233,5 +234,99 @@ class FileFetcherTest extends TestCase
             $request,
             'not used in this test'
         );
+    }
+
+    public function testFetchFileFromUrlWithoutLimit(): void
+    {
+        $url = 'http://assets.shopware.com/sw_logo_white.png';
+
+        $tempFile = (string) tempnam(sys_get_temp_dir(), '');
+
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
+        $request->request->set('url', $url);
+
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 0);
+
+        try {
+            $mediaFile = $fileFetcher->fetchFileFromURL(
+                $request,
+                $tempFile
+            );
+            static::assertGreaterThan(0, $mediaFile->getFileSize());
+            static::assertFileExists($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testFetchFileFromUrlWithLimitInRange(): void
+    {
+        $url = 'http://assets.shopware.com/sw_logo_white.png';
+
+        $tempFile = (string) tempnam(sys_get_temp_dir(), '');
+
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
+        $request->request->set('url', $url);
+
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 100000);
+
+        try {
+            $mediaFile = $fileFetcher->fetchFileFromURL(
+                $request,
+                $tempFile
+            );
+            static::assertGreaterThan(0, $mediaFile->getFileSize());
+            static::assertFileExists($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testFetchFileFromUrlWithExceedingLimit(): void
+    {
+        $this->expectException(UploadException::class);
+
+        $url = 'http://assets.shopware.com/sw_logo_white.png';
+
+        $tempFile = (string) tempnam(sys_get_temp_dir(), '');
+
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
+        $request->request->set('url', $url);
+
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 5000);
+
+        $mediaFile = $fileFetcher->fetchFileFromURL($request, $tempFile);
+        static::assertEquals(0, $mediaFile->getFileSize());
+        static::assertFileDoesNotExist($tempFile);
+    }
+
+    public function testUrlUploadLimitDoesNotAffectRequestUpload(): void
+    {
+        $tempFile = (string) tempnam(sys_get_temp_dir(), '');
+
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
+
+        $fileSize = filesize(self::TEST_IMAGE);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', (string) $fileSize);
+
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 10);
+        $fileFetcher->fetchRequestData($request, $tempFile);
+
+        static::assertFileExists($tempFile);
+        unlink($tempFile);
     }
 }

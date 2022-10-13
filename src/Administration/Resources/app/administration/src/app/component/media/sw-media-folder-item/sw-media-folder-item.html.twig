@@ -182,7 +182,7 @@
         <sw-media-modal-folder-settings
             v-if="showSettings"
             :disabled="!allowEdit"
-            :folder="item"
+            :media-folder-id="item.id"
             @media-settings-modal-save="refreshIconConfig"
             @media-settings-modal-close="closeSettings"
         />

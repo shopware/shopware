@@ -8,7 +8,13 @@ Shopware.Component.register('sw-media-quickinfo-metadata-item', {
         const title = createElement(
             'dt',
             {
-                class: 'sw-media-quickinfo-metadata-item__term',
+                class: [
+                    context.data.staticClass,
+                    {
+                        'sw-media-quickinfo-metadata-item__term': true,
+                        ...context.data.class,
+                    },
+                ],
             },
             [
                 `${context.props.labelName}:`,

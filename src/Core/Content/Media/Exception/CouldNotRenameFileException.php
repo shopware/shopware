@@ -9,7 +9,7 @@ class CouldNotRenameFileException extends ShopwareHttpException
     public function __construct(string $mediaId, string $oldFileName)
     {
         parent::__construct(
-            'Could not rename File for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
+            'Could not rename file for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
             ['mediaId' => $mediaId, 'oldFileName' => $oldFileName]
         );
     }

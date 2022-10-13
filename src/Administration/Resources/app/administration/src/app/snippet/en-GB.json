@@ -1,8 +1,8 @@
 {
   "global": {
     "error-codes": {
-      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions",
-      "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed",
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
+      "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This field must not be empty.",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
@@ -11,7 +11,8 @@
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
-      "DUPLICATED_URL": "This URL is already in use. Please choose another URL."
+      "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
+      "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided."
     },
     "default": {
       "add": "Add",

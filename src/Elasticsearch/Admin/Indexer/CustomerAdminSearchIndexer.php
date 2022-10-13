@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
@@ -23,13 +25,20 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
 
     private IteratorFactory $factory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    public function __construct(Connection $connection, IteratorFactory $factory, EntityRepositoryInterface $repository)
-    {
+    private int $indexingBatchSize;
+
+    public function __construct(
+        Connection $connection,
+        IteratorFactory $factory,
+        EntityRepository $repository,
+        int $indexingBatchSize
+    ) {
         $this->connection = $connection;
         $this->factory = $factory;
         $this->repository = $repository;
+        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -49,7 +58,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, 150);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
     /**
@@ -76,33 +85,39 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(customer.id)) as id',
-            'GROUP_CONCAT(tag.name) as tags',
-            'GROUP_CONCAT(country_translation.name) as country',
-            'GROUP_CONCAT(customer_address.city) as city',
-            'GROUP_CONCAT(customer_address.zipcode) as zipcode',
-            'GROUP_CONCAT(customer_address.street) as street',
-            'customer.first_name',
-            'customer.last_name',
-            'customer.email',
-            'customer.company',
-            'customer.customer_number',
-        ]);
-
-        $query->from('customer');
-        $query->leftJoin('customer', 'customer_address', 'customer_address', 'customer.id = customer_address.customer_id');
-        $query->leftJoin('customer_address', 'country', 'country', 'customer_address.country_id = country.id');
-        $query->leftJoin('country', 'country_translation', 'country_translation', 'country.id = country_translation.country_id');
-        $query->leftJoin('customer', 'customer_tag', 'customer_tag', 'customer.id = customer_tag.customer_id');
-        $query->leftJoin('customer_tag', 'tag', 'tag', 'customer_tag.tag_id = tag.id');
-        $query->groupBy('customer.id');
-
-        $query->where('customer.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-
-        $data = $query->execute()->fetchAll();
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(customer.id)) as id,
+                   GROUP_CONCAT(tag.name) as tags,
+                   GROUP_CONCAT(country_translation.name) as country,
+                   GROUP_CONCAT(customer_address.city) as city,
+                   GROUP_CONCAT(customer_address.street) as street,
+                   customer.first_name,
+                   customer.last_name,
+                   customer.email,
+                   customer.company,
+                   customer.customer_number
+            FROM customer
+                LEFT JOIN customer_address
+                    ON customer_address.customer_id = customer.id
+                LEFT JOIN country
+                    ON customer_address.country_id = country.id
+                LEFT JOIN country_translation
+                    ON country.id = country_translation.country_id
+                LEFT JOIN customer_tag
+                    ON customer.id = customer_tag.customer_id
+                LEFT JOIN tag
+                    ON customer_tag.tag_id = tag.id
+            WHERE customer.id IN (:ids)
+            GROUP BY customer.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
         $mapped = [];
         foreach ($data as $row) {

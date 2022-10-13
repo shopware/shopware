@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -14,22 +14,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Admin\Indexer\ManufacturerAdminSearchIndexer;
+use Shopware\Elasticsearch\Admin\Indexer\NewsletterRecipientAdminSearchIndexer;
 
 /**
  * @package system-settings
  *
  * @internal
  *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\ManufacturerAdminSearchIndexer
+ * @covers \Shopware\Elasticsearch\Admin\Indexer\NewsletterRecipientAdminSearchIndexer
  */
-class ManufacturerAdminSearchIndexerTest extends TestCase
+class NewsletterRecipientAdminSearchIndexerTest extends TestCase
 {
-    private ManufacturerAdminSearchIndexer $searchIndexer;
+    private NewsletterRecipientAdminSearchIndexer $searchIndexer;
 
     public function setUp(): void
     {
-        $this->searchIndexer = new ManufacturerAdminSearchIndexer(
+        $this->searchIndexer = new NewsletterRecipientAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
@@ -39,12 +39,12 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
 
     public function testGetEntity(): void
     {
-        static::assertSame(ProductManufacturerDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
+        static::assertSame(NewsletterRecipientDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
     }
 
     public function testGetName(): void
     {
-        static::assertSame('manufacturer-listing', $this->searchIndexer->getName());
+        static::assertSame('newsletter-recipient-listing', $this->searchIndexer->getName());
     }
 
     public function testGetDecoratedShouldThrowException(): void
@@ -57,20 +57,20 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $repository = $this->createMock(EntityRepository::class);
-        $productManufacturer = new ProductManufacturerEntity();
-        $productManufacturer->setUniqueIdentifier(Uuid::randomHex());
+        $newsletterRecipient = new NewsletterRecipientEntity();
+        $newsletterRecipient->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
             new EntitySearchResult(
-                'product_manufacturer',
+                'newsletter_recipient',
                 1,
-                new EntityCollection([$productManufacturer]),
+                new EntityCollection([$newsletterRecipient]),
                 null,
                 new Criteria(),
                 $context
             )
         );
 
-        $indexer = new ManufacturerAdminSearchIndexer(
+        $indexer = new NewsletterRecipientAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $repository,
@@ -93,7 +93,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
     {
         $connection = $this->getConnection();
 
-        $indexer = new ManufacturerAdminSearchIndexer(
+        $indexer = new NewsletterRecipientAdminSearchIndexer(
             $connection,
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
@@ -108,7 +108,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 manufacturer', $document['text']);
+        static::assertSame('809c1844f4734243b6aa04aba860cd45 newsletter recipient', $document['text']);
     }
 
     private function getConnection(): Connection
@@ -119,7 +119,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
-                    'name' => 'Manufacturer',
+                    'name' => 'Newsletter recipient',
                 ],
             ],
         );

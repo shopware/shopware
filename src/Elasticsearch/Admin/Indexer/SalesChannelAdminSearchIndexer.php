@@ -8,13 +8,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
@@ -23,13 +25,20 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
 
     private IteratorFactory $factory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    public function __construct(Connection $connection, IteratorFactory $factory, EntityRepositoryInterface $repository)
-    {
+    private int $indexingBatchSize;
+
+    public function __construct(
+        Connection $connection,
+        IteratorFactory $factory,
+        EntityRepository $repository,
+        int $indexingBatchSize
+    ) {
         $this->connection = $connection;
         $this->factory = $factory;
         $this->repository = $repository;
+        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -49,7 +58,7 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, 150);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
     /**
@@ -76,19 +85,23 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(sales_channel.id)) as id',
-            'GROUP_CONCAT(sales_channel_translation.name) as name',
-        ]);
-
-        $query->from('sales_channel');
-        $query->innerJoin('sales_channel', 'sales_channel_translation', 'sales_channel_translation', 'sales_channel.id = sales_channel_translation.sales_channel_id');
-        $query->where('sales_channel.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-        $query->groupBy('sales_channel.id');
-
-        $data = $query->execute()->fetchAll();
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(sales_channel.id)) as id,
+                   GROUP_CONCAT(sales_channel_translation.name) as name
+            FROM sales_channel
+                INNER JOIN sales_channel_translation
+                    ON sales_channel.id = sales_channel_translation.sales_channel_id
+            WHERE sales_channel.id IN (:ids)
+            GROUP BY sales_channel.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
         $mapped = [];
         foreach ($data as $row) {

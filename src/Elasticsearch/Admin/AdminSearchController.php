@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class AdminSearchController
@@ -25,17 +27,18 @@ final class AdminSearchController
 
     private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @internal
-     */
+    private AdminElasticsearchHelper $adminEsHelper;
+
     public function __construct(
         AdminSearcher $searcher,
         DefinitionInstanceRegistry $definitionRegistry,
-        JsonEntityEncoder $entityEncoder
+        JsonEntityEncoder $entityEncoder,
+        AdminElasticsearchHelper $adminEsHelper
     ) {
         $this->searcher = $searcher;
         $this->definitionRegistry = $definitionRegistry;
         $this->entityEncoder = $entityEncoder;
+        $this->adminEsHelper = $adminEsHelper;
     }
 
     /**
@@ -44,6 +47,10 @@ final class AdminSearchController
      */
     public function elastic(Request $request, Context $context): Response
     {
+        if ($this->adminEsHelper->getEnabled() === false) {
+            throw new \RuntimeException('Admin elasticsearch is not enabled');
+        }
+
         $term = trim($request->get('term', ''));
         $entities = $request->request->all('entities');
 

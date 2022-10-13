@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -14,22 +14,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Admin\Indexer\ManufacturerAdminSearchIndexer;
+use Shopware\Elasticsearch\Admin\Indexer\ProductStreamAdminSearchIndexer;
 
 /**
  * @package system-settings
  *
  * @internal
  *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\ManufacturerAdminSearchIndexer
+ * @covers \Shopware\Elasticsearch\Admin\Indexer\ProductStreamAdminSearchIndexer
  */
-class ManufacturerAdminSearchIndexerTest extends TestCase
+class ProductStreamAdminSearchIndexerTest extends TestCase
 {
-    private ManufacturerAdminSearchIndexer $searchIndexer;
+    private ProductStreamAdminSearchIndexer $searchIndexer;
 
     public function setUp(): void
     {
-        $this->searchIndexer = new ManufacturerAdminSearchIndexer(
+        $this->searchIndexer = new ProductStreamAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
@@ -39,12 +39,12 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
 
     public function testGetEntity(): void
     {
-        static::assertSame(ProductManufacturerDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
+        static::assertSame(ProductStreamDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
     }
 
     public function testGetName(): void
     {
-        static::assertSame('manufacturer-listing', $this->searchIndexer->getName());
+        static::assertSame('product-stream-listing', $this->searchIndexer->getName());
     }
 
     public function testGetDecoratedShouldThrowException(): void
@@ -57,20 +57,20 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $repository = $this->createMock(EntityRepository::class);
-        $productManufacturer = new ProductManufacturerEntity();
-        $productManufacturer->setUniqueIdentifier(Uuid::randomHex());
+        $productStream = new ProductStreamEntity();
+        $productStream->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
             new EntitySearchResult(
-                'product_manufacturer',
+                'product_stream',
                 1,
-                new EntityCollection([$productManufacturer]),
+                new EntityCollection([$productStream]),
                 null,
                 new Criteria(),
                 $context
             )
         );
 
-        $indexer = new ManufacturerAdminSearchIndexer(
+        $indexer = new ProductStreamAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $repository,
@@ -93,7 +93,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
     {
         $connection = $this->getConnection();
 
-        $indexer = new ManufacturerAdminSearchIndexer(
+        $indexer = new ProductStreamAdminSearchIndexer(
             $connection,
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
@@ -108,7 +108,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 manufacturer', $document['text']);
+        static::assertSame('809c1844f4734243b6aa04aba860cd45 product stream', $document['text']);
     }
 
     private function getConnection(): Connection
@@ -119,7 +119,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
-                    'name' => 'Manufacturer',
+                    'name' => 'Product stream',
                 ],
             ],
         );

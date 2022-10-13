@@ -3,53 +3,60 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer;
 
 /**
+ * @package system-settings
+ *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer
  */
 class MediaAdminSearchIndexerTest extends TestCase
 {
-    public function testGetEntity(): void
+    private MediaAdminSearchIndexer $searchIndexer;
+
+    public function setUp(): void
     {
-        $indexer = new MediaAdminSearchIndexer(
+        $this->searchIndexer = new MediaAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
+            $this->createMock(EntityRepository::class),
+            100
         );
+    }
 
-        static::assertSame(MediaDefinition::ENTITY_NAME, $indexer->getEntity());
+    public function testGetEntity(): void
+    {
+        static::assertSame(MediaDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
     }
 
     public function testGetName(): void
     {
-        $indexer = new MediaAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
-        );
+        static::assertSame('media-listing', $this->searchIndexer->getName());
+    }
 
-        static::assertSame('media-listing', $indexer->getName());
+    public function testGetDecoratedShouldThrowException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->searchIndexer->getDecorated();
     }
 
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
         $media = new MediaEntity();
         $media->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -66,7 +73,8 @@ class MediaAdminSearchIndexerTest extends TestCase
         $indexer = new MediaAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $repository
+            $repository,
+            100
         );
 
         $result = [
@@ -88,7 +96,8 @@ class MediaAdminSearchIndexerTest extends TestCase
         $indexer = new MediaAdminSearchIndexer(
             $connection,
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
+            $this->createMock(EntityRepository::class),
+            100
         );
 
         $id = '809c1844f4734243b6aa04aba860cd45';
@@ -106,10 +115,7 @@ class MediaAdminSearchIndexerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-
-        $statement = $this->createMock(Statement::class);
-        $statement->method('fetchAll')->willReturnOnConsecutiveCalls(
+        $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
@@ -121,12 +127,6 @@ class MediaAdminSearchIndexerTest extends TestCase
                 ],
             ],
         );
-
-        $queryBuilder->method('execute')->willReturn($statement);
-
-        $connection
-            ->method('createQueryBuilder')
-            ->willReturn($queryBuilder);
 
         return $connection;
     }

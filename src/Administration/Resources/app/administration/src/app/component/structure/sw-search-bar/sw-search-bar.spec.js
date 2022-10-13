@@ -1383,12 +1383,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.setValue('shorts');
         await flushPromises();
 
-        const debouncedDoGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        const debouncedDoGlobalSearch = swSearchBarComponent.methods.doGlobalSearchWithElasticSearch;
         await debouncedDoGlobalSearch.flush();
 
         await flushPromises();
 
-        expect(spyLoadResults).toHaveBeenCalledTimes(1);
+        expect(spyLoadResults).toHaveBeenCalled();
 
         expect(wrapper.vm.results).toEqual(
             expect.arrayContaining([

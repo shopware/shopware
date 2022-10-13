@@ -2,30 +2,34 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
-use Elasticsearch\Client;
-use ONGR\ElasticsearchDSL\Query\FullText\QueryStringQuery;
-use ONGR\ElasticsearchDSL\Search;
+use OpenSearch\Client;
+use OpenSearchDSL\Query\FullText\QueryStringQuery;
+use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package system-settings
+ *
  * @internal
+ *
+ * @final
  */
-final class AdminSearcher
+class AdminSearcher
 {
     private Client $client;
 
     private AdminSearchRegistry $registry;
 
-    /**
-     * @internal
-     */
-    public function __construct(Client $client, AdminSearchRegistry $registry)
+    private AdminElasticsearchHelper $adminEsHelper;
+
+    public function __construct(Client $client, AdminSearchRegistry $registry, AdminElasticsearchHelper $adminEsHelper)
     {
         $this->client = $client;
         $this->registry = $registry;
+        $this->adminEsHelper = $adminEsHelper;
     }
 
     /**
@@ -41,7 +45,8 @@ final class AdminSearcher
                 continue;
             }
 
-            $index[] = ['index' => $indexer->getIndex()];
+            $alias = $this->adminEsHelper->getIndex($indexer->getName());
+            $index[] = ['index' => $alias];
 
             $index[] = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
         }
@@ -83,7 +88,7 @@ final class AdminSearcher
 
             $data = $indexer->globalData($values, $context);
             $data['indexer'] = $indexer->getName();
-            $data['index'] = $indexer->getIndex();
+            $data['index'] = (string) $index;
 
             $mapped[$indexer->getEntity()] = $data;
         }
@@ -93,10 +98,10 @@ final class AdminSearcher
 
     private function buildSearch(string $term, int $limit): Search
     {
-        $term = str_replace(' or ', ' OR ', $term);
-        $term = str_replace(' and ', ' AND ', $term);
+        $term = mb_ereg_replace(' or ', ' OR ', $term);
+        $term = mb_ereg_replace(' and ', ' AND ', (string) $term);
         $search = new Search();
-        $query = new QueryStringQuery($term);
+        $query = new QueryStringQuery((string) $term);
 
         $search->addQuery($query);
         $search->setSize($limit);

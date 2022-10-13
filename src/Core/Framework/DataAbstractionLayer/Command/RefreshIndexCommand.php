@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,13 +25,16 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     private EntityIndexerRegistry $registry;
 
+    private ?AdminSearchRegistry $adminRegistry;
+
     /**
      * @internal
      */
-    public function __construct(EntityIndexerRegistry $registry)
+    public function __construct(EntityIndexerRegistry $registry, ?AdminSearchRegistry $adminRegistry = null)
     {
         parent::__construct();
         $this->registry = $registry;
+        $this->adminRegistry = $adminRegistry;
     }
 
     /**
@@ -54,6 +58,10 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         $only = \is_string($input->getOption('only')) ? explode(',', $input->getOption('only')) : [];
 
         $this->registry->index($input->getOption('use-queue'), $skip, $only);
+
+        if ($this->adminRegistry) {
+            $this->adminRegistry->iterate($input->getOption('use-queue'));
+        }
 
         return self::SUCCESS;
     }

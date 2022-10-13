@@ -871,16 +871,6 @@
                     "description": "Elasticsearch Index Prefix",
                     "default": "sw"
                 },
-                "admin_enabled": {
-                    "type": "boolean",
-                    "description": "Admin Elasticsearch Enabled",
-                    "default": false
-                },
-                "admin_refresh_indices": {
-                    "type": "boolean",
-                    "description": "Admin Elasticsearch Refresh Indices",
-                    "default": false
-                },
                 "throw_exception": {
                     "type": ["string", "boolean"],
                     "description": "Throw exception when Elasticsearch queries failing",
@@ -893,6 +883,28 @@
                         "custom_fields_mapping": {
                             "type": ["object", "null"],
                             "title": "Custom Field Mapping of Product"
+                        }
+                    }
+                },
+                "administration": {
+                    "title": "Admin elasticsearch",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Admin Elasticsearch Enabled",
+                            "default": false
+                        },
+                        "refresh_indices": {
+                            "type": "boolean",
+                            "description": "Admin Elasticsearch Refresh Indices",
+                            "default": false
+                        },
+                        "index_prefix": {
+                            "type": "string",
+                            "description": "Admin Elasticsearch Index Prefix",
+                            "default": "sw-admin"
                         }
                     }
                 },

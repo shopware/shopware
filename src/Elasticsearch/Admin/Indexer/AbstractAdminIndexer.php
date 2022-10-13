@@ -2,14 +2,15 @@
 
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
-use ONGR\ElasticsearchDSL\Search;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 abstract class AbstractAdminIndexer
@@ -28,11 +29,6 @@ abstract class AbstractAdminIndexer
     public function mapping(array $mapping): array
     {
         return $mapping;
-    }
-
-    final public function getIndex(): string
-    {
-        return EnvironmentHelper::getVariable('SHOPWARE_ADMIN_ES_INDEX_PREFIX', 'sw-admin') . '-' . \strtolower(\str_replace(['_', ' '], '-', $this->getName()));
     }
 
     abstract public function getIterator(): IterableQuery;

@@ -3,22 +3,19 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
-use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
-use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @package system-settings
+ *
  * @internal
  * @group skip-paratest
  */
@@ -26,47 +23,33 @@ class AdminSearchControllerTest extends TestCase
 {
     use KernelTestBehaviour;
     use AdminApiTestBehaviour;
+    use AdminElasticsearchTestBehaviour;
+    use QueueTestBehaviour;
 
-    private AdminSearchRegistry $registry;
+    private Connection $connection;
 
-    private PromotionAdminSearchIndexer $indexer;
+    private EntityRepository $promotionRepo;
 
     public function setUp(): void
     {
-        $this->indexer = new PromotionAdminSearchIndexer(
-            $this->getContainer()->get(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->getContainer()->get('promotion.repository')
-        );
+        $this->connection = $this->getContainer()->get(Connection::class);
 
-        $this->registry = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->getContainer()->get(Client::class),
-            $this->createMock(SystemConfigService::class),
-            false,
-            [],
-            []
-        );
+        $this->promotionRepo = $this->getContainer()->get('promotion.repository');
     }
 
     public function testElasticSearch(): void
     {
+        $this->connection->executeStatement('DELETE FROM promotion');
+
         $id = 'c1a28776116d4431a2208eb2960ec340';
         $this->createPromotion([
             'id' => $id,
             'name' => 'elasticsearch',
         ]);
 
-        $indices = ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing'];
-        $this->registry->handle(
-            new AdminSearchIndexingMessage(
-                $this->indexer->getName(),
-                $indices,
-                [$id]
-            )
-        );
+        $this->clearElasticsearch();
+
+        $this->indexElasticSearch(['--entities' => ['promotion']]);
 
         $data = [
             'term' => 'elasticsearch',
@@ -93,6 +76,11 @@ class AdminSearchControllerTest extends TestCase
         static::assertEquals('elasticsearch', $data['data'][$id]['name']);
     }
 
+    protected function getDiContainer(): ContainerInterface
+    {
+        return $this->getContainer();
+    }
+
     /**
      * @param array<string, mixed> $promotionOverride
      *
@@ -100,9 +88,6 @@ class AdminSearchControllerTest extends TestCase
      */
     private function createPromotion(array $promotionOverride = []): array
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
-        $promotionRepository = $this->getContainer()->get('promotion.repository');
-
         $promotion = array_merge([
             'id' => $promotionOverride['id'] ?? Uuid::randomHex(),
             'name' => 'Test case promotion',
@@ -110,7 +95,7 @@ class AdminSearchControllerTest extends TestCase
             'useIndividualCodes' => true,
         ], $promotionOverride);
 
-        $promotionRepository->upsert([$promotion], Context::createDefaultContext());
+        $this->promotionRepo->upsert([$promotion], Context::createDefaultContext());
 
         return $promotion;
     }

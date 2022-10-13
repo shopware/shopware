@@ -3,53 +3,60 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 
 /**
+ * @package system-settings
+ *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer
  */
 class SalesChannelAdminSearchIndexerTest extends TestCase
 {
-    public function testGetEntity(): void
+    private SalesChannelAdminSearchIndexer $searchIndexer;
+
+    public function setUp(): void
     {
-        $indexer = new SalesChannelAdminSearchIndexer(
+        $this->searchIndexer = new SalesChannelAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
+            $this->createMock(EntityRepository::class),
+            100
         );
+    }
 
-        static::assertSame(SalesChannelDefinition::ENTITY_NAME, $indexer->getEntity());
+    public function testGetEntity(): void
+    {
+        static::assertSame(SalesChannelDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
     }
 
     public function testGetName(): void
     {
-        $indexer = new SalesChannelAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
-        );
+        static::assertSame('sales-channel-listing', $this->searchIndexer->getName());
+    }
 
-        static::assertSame('sales-channel-listing', $indexer->getName());
+    public function testGetDecoratedShouldThrowException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->searchIndexer->getDecorated();
     }
 
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -66,7 +73,8 @@ class SalesChannelAdminSearchIndexerTest extends TestCase
         $indexer = new SalesChannelAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $repository
+            $repository,
+            100
         );
 
         $result = [
@@ -88,7 +96,8 @@ class SalesChannelAdminSearchIndexerTest extends TestCase
         $indexer = new SalesChannelAdminSearchIndexer(
             $connection,
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
+            $this->createMock(EntityRepository::class),
+            100
         );
 
         $id = '809c1844f4734243b6aa04aba860cd45';
@@ -106,10 +115,7 @@ class SalesChannelAdminSearchIndexerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-
-        $statement = $this->createMock(Statement::class);
-        $statement->method('fetchAll')->willReturnOnConsecutiveCalls(
+        $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
@@ -117,12 +123,6 @@ class SalesChannelAdminSearchIndexerTest extends TestCase
                 ],
             ],
         );
-
-        $queryBuilder->method('execute')->willReturn($statement);
-
-        $connection
-            ->method('createQueryBuilder')
-            ->willReturn($queryBuilder);
 
         return $connection;
     }

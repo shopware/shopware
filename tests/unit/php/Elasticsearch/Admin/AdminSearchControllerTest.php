@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
+namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -9,27 +9,30 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearchController;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package system-settings
+ *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\AdminSearchController
  */
 class AdminSearchControllerTest extends TestCase
 {
-    private AdminSearchController $controller;
+    private AdminSearcher $searcher;
 
     public function setUp(): void
     {
-        $searcher = $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock();
+        $this->searcher = $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock();
 
         $promotion = new PromotionEntity();
         $promotion->setUniqueIdentifier(Uuid::randomHex());
-        $searcher->method('search')->willReturn([
+        $this->searcher->method('search')->willReturn([
             'promotion' => [
                 'total' => 1,
                 'data' => new EntityCollection([$promotion]),
@@ -37,19 +40,56 @@ class AdminSearchControllerTest extends TestCase
                 'index' => 'sw-admin-promotion-listing',
             ],
         ]);
+    }
 
-        $this->controller = new AdminSearchController(
-            $searcher,
+    public function testElasticSearchWithElasticSearchNotEnable(): void
+    {
+        $controller = new AdminSearchController(
+            $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
             $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(JsonEntityEncoder::class)
+            $this->createMock(JsonEntityEncoder::class),
+            new AdminElasticsearchHelper(false, false, 'sw-admin')
         );
+
+        $request = new Request();
+        $request->attributes->set('term', 'test');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Admin elasticsearch is not enabled');
+
+        $controller->elastic($request, Context::createDefaultContext());
+    }
+
+    public function testElasticSearchWithEmptySearchTerm(): void
+    {
+        $controller = new AdminSearchController(
+            $this->getMockBuilder(AdminSearcher::class)->disableOriginalConstructor()->getMock(),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(JsonEntityEncoder::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin')
+        );
+
+        $request = new Request();
+        $request->attributes->set('term', '   ');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Search term is empty');
+
+        $controller->elastic($request, Context::createDefaultContext());
     }
 
     public function testElasticSearch(): void
     {
+        $controller = new AdminSearchController(
+            $this->searcher,
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(JsonEntityEncoder::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin')
+        );
+
         $request = new Request();
         $request->attributes->set('term', 'test');
-        $response = $this->controller->elastic($request, Context::createDefaultContext());
+        $response = $controller->elastic($request, Context::createDefaultContext());
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 

@@ -20,10 +20,10 @@ class DataCollector extends BaseDataCollector
     /**
      * @internal
      */
-    public function __construct(bool $enabled, ClientProfiler $client)
+    public function __construct(bool $enabled, bool $adminEnabled, ClientProfiler $client)
     {
         $this->client = $client;
-        $this->enabled = $enabled;
+        $this->enabled = $enabled || $adminEnabled;
     }
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
@@ -95,5 +95,10 @@ class DataCollector extends BaseDataCollector
     public function getIndices(): array
     {
         return $this->data['indices'];
+    }
+
+    public function isEnabled(): bool
+    {
+        return (bool) $this->data['enabled'];
     }
 }

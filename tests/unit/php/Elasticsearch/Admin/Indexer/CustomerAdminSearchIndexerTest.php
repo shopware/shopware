@@ -3,53 +3,60 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\CustomerAdminSearchIndexer;
 
 /**
+ * @package system-settings
+ *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Admin\Indexer\CustomerAdminSearchIndexer
  */
 class CustomerAdminSearchIndexerTest extends TestCase
 {
-    public function testGetEntity(): void
+    private CustomerAdminSearchIndexer $searchIndexer;
+
+    public function setUp(): void
     {
-        $indexer = new CustomerAdminSearchIndexer(
+        $this->searchIndexer = new CustomerAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
+            $this->createMock(EntityRepository::class),
+            100
         );
+    }
 
-        static::assertSame(CustomerDefinition::ENTITY_NAME, $indexer->getEntity());
+    public function testGetEntity(): void
+    {
+        static::assertSame(CustomerDefinition::ENTITY_NAME, $this->searchIndexer->getEntity());
     }
 
     public function testGetName(): void
     {
-        $indexer = new CustomerAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
-        );
+        static::assertSame('customer-listing', $this->searchIndexer->getName());
+    }
 
-        static::assertSame('customer-listing', $indexer->getName());
+    public function testGetDecoratedShouldThrowException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->searchIndexer->getDecorated();
     }
 
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
         $customer = new CustomerEntity();
         $customer->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -66,7 +73,8 @@ class CustomerAdminSearchIndexerTest extends TestCase
         $indexer = new CustomerAdminSearchIndexer(
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
-            $repository
+            $repository,
+            100
         );
 
         $result = [
@@ -88,7 +96,8 @@ class CustomerAdminSearchIndexerTest extends TestCase
         $indexer = new CustomerAdminSearchIndexer(
             $connection,
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class)
+            $this->createMock(EntityRepository::class),
+            100
         );
 
         $id = '809c1844f4734243b6aa04aba860cd45';
@@ -106,10 +115,7 @@ class CustomerAdminSearchIndexerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-
-        $statement = $this->createMock(Statement::class);
-        $statement->method('fetchAll')->willReturnOnConsecutiveCalls(
+        $connection->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
@@ -126,12 +132,6 @@ class CustomerAdminSearchIndexerTest extends TestCase
                 ],
             ],
         );
-
-        $queryBuilder->method('execute')->willReturn($statement);
-
-        $connection
-            ->method('createQueryBuilder')
-            ->willReturn($queryBuilder);
 
         return $connection;
     }

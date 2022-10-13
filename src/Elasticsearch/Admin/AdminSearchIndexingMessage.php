@@ -3,6 +3,8 @@
 namespace Shopware\Elasticsearch\Admin;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class AdminSearchIndexingMessage

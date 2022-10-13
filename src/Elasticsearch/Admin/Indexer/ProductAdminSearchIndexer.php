@@ -10,12 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class ProductAdminSearchIndexer extends AbstractAdminIndexer
@@ -24,13 +26,20 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
     private IteratorFactory $factory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    public function __construct(Connection $connection, IteratorFactory $factory, EntityRepositoryInterface $repository)
-    {
+    private int $indexingBatchSize;
+
+    public function __construct(
+        Connection $connection,
+        IteratorFactory $factory,
+        EntityRepository $repository,
+        int $indexingBatchSize
+    ) {
         $this->connection = $connection;
         $this->factory = $factory;
         $this->repository = $repository;
+        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -50,7 +59,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, 150);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
     /**
@@ -77,27 +86,33 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(product.id)) as id',
-            'GROUP_CONCAT(translation.name) as name',
-            'GROUP_CONCAT(tag.name) as tags',
-            'product.product_number',
-            'product.ean',
-            'product.manufacturer_number',
-        ]);
-
-        $query->from('product');
-        $query->innerJoin('product', 'product_translation', 'translation', 'product.id = translation.product_id AND product.version_id = translation.product_version_id');
-        $query->leftJoin('product', 'product_tag', 'product_tag', 'product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id');
-        $query->leftJoin('product_tag', 'tag', 'tag', 'product_tag.tag_id = tag.id');
-        $query->where('product.id IN (:ids)');
-        $query->andWhere('product.version_id = :versionId');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-        $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
-        $query->groupBy('product.id');
-
-        $data = $query->execute()->fetchAll();
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(product.id)) as id,
+                   GROUP_CONCAT(translation.name) as name,
+                   GROUP_CONCAT(tag.name) as tags,
+                   product.product_number,
+                   product.ean,
+                   product.manufacturer_number
+            FROM product
+                INNER JOIN product_translation AS translation
+                    ON product.id = translation.product_id AND product.version_id = translation.product_version_id
+                LEFT JOIN product_tag
+                    ON product.id = product_tag.product_id AND product.version_id = product_tag.product_version_id
+                LEFT JOIN tag
+                    ON product_tag.tag_id = tag.id
+            WHERE product.id IN (:ids)
+            AND product.version_id = :versionId
+            GROUP BY product.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
         $mapped = [];
         foreach ($data as $row) {

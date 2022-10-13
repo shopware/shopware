@@ -48,6 +48,7 @@ class DataCollectorTest extends TestCase
 
         $collector = new DataCollector(
             true,
+            true,
             $client
         );
 
@@ -78,6 +79,7 @@ class DataCollectorTest extends TestCase
 
         $collector = new DataCollector(
             true,
+            true,
             $client
         );
 
@@ -101,6 +103,7 @@ class DataCollectorTest extends TestCase
             ->method('cluster');
 
         $collector = new DataCollector(
+            false,
             false,
             $client
         );

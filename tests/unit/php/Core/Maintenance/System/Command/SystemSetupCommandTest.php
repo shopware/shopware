@@ -72,7 +72,7 @@ class SystemSetupCommandTest extends TestCase
             'SHOPWARE_ES_INDEXING_ENABLED' => '1',
             'SHOPWARE_ES_INDEX_PREFIX' => 'shopware',
             'SHOPWARE_ADMIN_ES_INDEX_PREFIX' => 'shopware-admin',
-            'SHOPWARE_ADMIN_ES_ENABLED' => '1',
+            'SHOPWARE_ADMIN_ES_INDEXING_ENABLED' => '1',
             'SHOPWARE_ADMIN_ES_REFRESH_INDICES' => '1',
             'SHOPWARE_HTTP_CACHE_ENABLED' => '1',
             'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',

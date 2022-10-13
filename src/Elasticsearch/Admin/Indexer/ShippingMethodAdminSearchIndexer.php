@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class ShippingMethodAdminSearchIndexer extends AbstractAdminIndexer
@@ -23,13 +25,20 @@ final class ShippingMethodAdminSearchIndexer extends AbstractAdminIndexer
 
     private IteratorFactory $factory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    public function __construct(Connection $connection, IteratorFactory $factory, EntityRepositoryInterface $repository)
-    {
+    private int $indexingBatchSize;
+
+    public function __construct(
+        Connection $connection,
+        IteratorFactory $factory,
+        EntityRepository $repository,
+        int $indexingBatchSize
+    ) {
         $this->connection = $connection;
         $this->factory = $factory;
         $this->repository = $repository;
+        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -49,7 +58,7 @@ final class ShippingMethodAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, 150);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
     /**
@@ -76,19 +85,23 @@ final class ShippingMethodAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(shipping_method.id)) as id',
-            'GROUP_CONCAT(shipping_method_translation.name) as name',
-        ]);
-
-        $query->from('shipping_method');
-        $query->innerJoin('shipping_method', 'shipping_method_translation', 'shipping_method_translation', 'shipping_method.id = shipping_method_translation.shipping_method_id');
-        $query->where('shipping_method.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-        $query->groupBy('shipping_method.id');
-
-        $data = $query->execute()->fetchAll();
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(shipping_method.id)) as id,
+                   GROUP_CONCAT(shipping_method_translation.name) as name
+            FROM shipping_method
+                INNER JOIN shipping_method_translation
+                    ON shipping_method.id = shipping_method_translation.shipping_method_id
+            WHERE shipping_method.id IN (:ids)
+            GROUP BY shipping_method.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
         $mapped = [];
         foreach ($data as $row) {

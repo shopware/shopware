@@ -49,6 +49,31 @@ class ClientProfiler extends Client
         return $response;
     }
 
+    /**
+     * @param array<mixed> $params
+     *
+     * @return array<mixed>
+     */
+    public function msearch(array $params = [])
+    {
+        $time = microtime(true);
+        $response = parent::msearch($params);
+
+        $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+        $connection = $this->transport->getConnection();
+
+        $this->requests[] = [
+            'url' => sprintf('%s://%s:%d/_msearch', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'request' => $params,
+            'response' => $response,
+            'time' => microtime(true) - $time,
+            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+        ];
+
+        return $response;
+    }
+
     public function resetRequests(): void
     {
         $this->requests = [];

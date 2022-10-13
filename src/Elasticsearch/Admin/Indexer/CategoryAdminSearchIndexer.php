@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
-final class MediaAdminSearchIndexer extends AbstractAdminIndexer
+final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
 {
     private Connection $connection;
 
@@ -48,12 +48,12 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getEntity(): string
     {
-        return MediaDefinition::ENTITY_NAME;
+        return CategoryDefinition::ENTITY_NAME;
     }
 
     public function getName(): string
     {
-        return 'media-listing';
+        return 'category-listing';
     }
 
     public function getIterator(): IterableQuery
@@ -87,24 +87,19 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
     {
         $data = $this->connection->fetchAllAssociative(
             '
-            SELECT LOWER(HEX(media.id)) as id,
-                   media.file_name,
-                   GROUP_CONCAT(media_translation.alt) as alt,
-                   GROUP_CONCAT(media_translation.title) as title,
-                   media_folder.name,
+            SELECT LOWER(HEX(category.id)) as id,
+                   GROUP_CONCAT(category_translation.name) as name,
                    GROUP_CONCAT(tag.name) as tags
-            FROM media
-                INNER JOIN media_translation
-                    ON media.id = media_translation.media_id
-                LEFT JOIN media_folder
-                    ON media.media_folder_id = media_folder.id
-                LEFT JOIN media_tag
-                    ON media.id = media_tag.media_id
+            FROM category
+                INNER JOIN category_translation
+                    ON category_translation.category_id = category.id
+                LEFT JOIN category_tag
+                    ON category_tag.category_id = category.id
                 LEFT JOIN tag
-                    ON media_tag.tag_id = tag.id
-            WHERE media.id IN (:ids)
-            GROUP BY media.id
-        ',
+                    ON category_tag.tag_id = tag.id
+            WHERE category.id IN (:ids)
+            GROUP BY category.id
+            ',
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],

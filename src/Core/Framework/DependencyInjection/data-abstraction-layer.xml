@@ -269,6 +269,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry" on-invalid="null"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>

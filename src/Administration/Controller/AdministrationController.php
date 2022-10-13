@@ -69,7 +69,7 @@ class AdministrationController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    private bool $esEnable;
+    private bool $esAdministrationEnabled;
 
     /**
      * @internal
@@ -87,7 +87,7 @@ class AdministrationController extends AbstractController
         EntityRepositoryInterface $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
-        bool $esEnable
+        bool $esAdministrationEnabled
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
@@ -101,7 +101,7 @@ class AdministrationController extends AbstractController
         $this->currencyRepository = $currencyRepository;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->esEnable = $esEnable;
+        $this->esAdministrationEnabled = $esAdministrationEnabled;
     }
 
     /**
@@ -126,7 +126,7 @@ class AdministrationController extends AbstractController
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
-            'adminEsEnable' => $this->esEnable,
+            'adminEsEnable' => $this->esAdministrationEnabled,
         ]);
     }
 

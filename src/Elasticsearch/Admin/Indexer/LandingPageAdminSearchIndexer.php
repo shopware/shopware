@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package system-settings
+ *
  * @internal
  */
 final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
@@ -23,13 +25,20 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
 
     private IteratorFactory $factory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
-    public function __construct(Connection $connection, IteratorFactory $factory, EntityRepositoryInterface $repository)
-    {
+    private int $indexingBatchSize;
+
+    public function __construct(
+        Connection $connection,
+        IteratorFactory $factory,
+        EntityRepository $repository,
+        int $indexingBatchSize
+    ) {
         $this->connection = $connection;
         $this->factory = $factory;
         $this->repository = $repository;
+        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -49,7 +58,7 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getIterator(): IterableQuery
     {
-        return $this->factory->createIterator($this->getEntity(), null, 150);
+        return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
     /**
@@ -76,22 +85,28 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
      */
     public function fetch(array $ids): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(landing_page.id)) as id',
-            'GROUP_CONCAT(landing_page_translation.name) as name',
-            'GROUP_CONCAT(tag.name) as tags',
-        ]);
-
-        $query->from('landing_page');
-        $query->innerJoin('landing_page', 'landing_page_translation', 'landing_page_translation', 'landing_page.id = landing_page_translation.landing_page_id');
-        $query->leftJoin('landing_page', 'landing_page_tag', 'landing_page_tag', 'landing_page.id = landing_page_tag.landing_page_id');
-        $query->leftJoin('landing_page_tag', 'tag', 'tag', 'landing_page_tag.tag_id = tag.id');
-        $query->where('landing_page.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-        $query->groupBy('landing_page.id');
-
-        $data = $query->execute()->fetchAll();
+        $data = $this->connection->fetchAllAssociative(
+            '
+            SELECT LOWER(HEX(landing_page.id)) as id,
+                   GROUP_CONCAT(landing_page_translation.name) as name,
+                   GROUP_CONCAT(tag.name) as tags
+            FROM landing_page
+                INNER JOIN landing_page_translation
+                    ON landing_page.id = landing_page_translation.landing_page_id
+                LEFT JOIN landing_page_tag
+                    ON landing_page.id = landing_page_tag.landing_page_id
+                LEFT JOIN tag
+                    ON landing_page_tag.tag_id = tag.id
+            WHERE landing_page.id IN (:ids)
+            GROUP BY landing_page.id
+        ',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
         $mapped = [];
         foreach ($data as $row) {

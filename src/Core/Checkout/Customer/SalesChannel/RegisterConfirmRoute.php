@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\IsNull;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -105,7 +106,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
         );
 
-        if ($customer->getActive()) {
+        if ($customer->getActive() || $customer->getDoubleOptInConfirmDate() !== null) {
             throw new CustomerAlreadyConfirmedException($customer->getId());
         }
 

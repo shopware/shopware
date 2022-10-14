@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -101,11 +102,14 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         }
 
         $this->validator->validate(
-            ['em' => $dataBag->get('em')],
+            [
+                'em' => $dataBag->get('em'),
+                'doubleOptInRegistration' => $customer->getDoubleOptInRegistration(),
+            ],
             $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
         );
 
-        if ($customer->getActive()) {
+        if ($customer->getActive() || $customer->getDoubleOptInConfirmDate() !== null) {
             throw new CustomerAlreadyConfirmedException($customer->getId());
         }
 
@@ -178,6 +182,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     {
         $definition = new DataValidationDefinition('registration.opt_in_before');
         $definition->add('em', new EqualTo(['value' => $emHash]));
+        $definition->add('doubleOptInRegistration', new IsTrue());
 
         return $definition;
     }

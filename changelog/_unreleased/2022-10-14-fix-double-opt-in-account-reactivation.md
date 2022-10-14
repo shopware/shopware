@@ -6,4 +6,4 @@ author_email: development@silvio-kennecke.de
 author_github: @silviokennecke
 ---
 # Core
-* Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute::confirm` to verify if the customer already confirmed the account
+* Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute::confirm` to verify if the customer has to double-opt-in and whether the account is already confirmed

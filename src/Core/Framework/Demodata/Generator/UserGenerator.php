@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class UserGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;

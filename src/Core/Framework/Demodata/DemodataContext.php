@@ -11,44 +11,32 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class DemodataContext
 {
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * List of created entities for definition
      *
-     * @var string[][]
+     * @var array<string, list<string>>
      */
-    private $entities = [];
+    private array $entities = [];
+
+    private SymfonyStyle $console;
+
+    private Generator $faker;
 
     /**
-     * @var SymfonyStyle
+     * @var array<string, array{definition: string, items: int, time: float}>
      */
-    private $console;
+    private array $timings;
 
-    /**
-     * @var Generator
-     */
-    private $faker;
+    private string $projectDir;
 
-    /**
-     * @var array[]
-     */
-    private $timings;
-
-    /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
     public function __construct(
         Context $context,
@@ -64,6 +52,9 @@ class DemodataContext
         $this->registry = $registry;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(string $entity): array
     {
         if (!empty($this->entities[$entity])) {
@@ -78,13 +69,11 @@ class DemodataContext
         }
         $criteria->setLimit(500);
 
-        /** @var array<string> $ids */
+        /** @var list<string> $ids */
         $ids = $repository->searchIds($criteria, Context::createDefaultContext())
             ->getIds();
 
-        $this->entities[$entity] = $ids;
-
-        return $this->entities[$entity];
+        return $this->entities[$entity] = $ids;
     }
 
     public function getRandomId(string $entity): ?string
@@ -118,6 +107,9 @@ class DemodataContext
         ];
     }
 
+    /**
+     * @return array<string, array{definition: string, items: int, time: float}>
+     */
     public function getTimings(): array
     {
         return $this->timings;

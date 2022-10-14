@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class MediaGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;

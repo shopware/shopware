@@ -25,6 +25,11 @@ class InternalClassRule implements Rule
         StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
     ];
 
+    private const INTERNAL_NAMESPACES = [
+        '\\DevOps\\StaticAnalysis',
+        '\\Framework\\Demodata',
+    ];
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -65,16 +70,16 @@ class InternalClassRule implements Rule
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
         }
 
-        if ($this->isInStaticAnalysisNamespace($node)) {
+        if ($namespace = $this->isInInternalNamespace($node)) {
             $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
             /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all static analysis should become internal in v6.5.0
+             * @deprecated tag:v6.5.0 - remove deprecation check, as all classes in internal namespaces should become internal in v6.5.0
              */
             if (\str_contains($classDeprecation, 'reason:becomes-internal')) {
                 return [];
             }
 
-            return ['Classes in `/DevOps/StaticAnalysis` namespace must be flagged @internal to not be captured by the BC checker.'];
+            return ['Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -153,10 +158,16 @@ class InternalClassRule implements Rule
         return false;
     }
 
-    private function isInStaticAnalysisNamespace(InClassNode $node): bool
+    private function isInInternalNamespace(InClassNode $node): ?string
     {
         $namespace = $node->getClassReflection()->getName();
 
-        return \str_contains($namespace, '\\DevOps\\StaticAnalysis\\');
+        foreach (self::INTERNAL_NAMESPACES as $internalNamespace) {
+            if (\str_contains($namespace, $internalNamespace)) {
+                return $internalNamespace;
+            }
+        }
+
+        return null;
     }
 }

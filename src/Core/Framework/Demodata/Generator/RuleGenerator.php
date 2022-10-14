@@ -26,32 +26,20 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class RuleGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
+    private EntityWriterInterface $writer;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $shippingMethodRepository;
+    private EntityRepositoryInterface $shippingMethodRepository;
 
-    /**
-     * @var RuleDefinition
-     */
-    private $ruleDefinition;
+    private RuleDefinition $ruleDefinition;
 
     private Generator $faker;
 
@@ -163,6 +151,9 @@ class RuleGenerator implements DemodataGeneratorInterface
         $this->writer->insert($this->ruleDefinition, $payload, $writeContext);
     }
 
+    /**
+     * @param list<array{rule: Rule, name: string}> $pool
+     */
     private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule
     {
         if ($currentDepth === $depth) {
@@ -184,6 +175,9 @@ class RuleGenerator implements DemodataGeneratorInterface
         return $rule;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildChildRule(?string $parentId, Rule $rule): array
     {
         $data = [];

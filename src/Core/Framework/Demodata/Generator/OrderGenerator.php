@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class OrderGenerator implements DemodataGeneratorInterface
 {
     private Connection $connection;
@@ -35,6 +38,9 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     private OrderDefinition $orderDefinition;
 
+    /**
+     * @var array<string, SalesChannelContext>
+     */
     private array $contexts = [];
 
     private CartCalculator $cartCalculator;
@@ -73,8 +79,7 @@ class OrderGenerator implements DemodataGeneratorInterface
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
         $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM `product` ORDER BY RAND() LIMIT 1000');
         $promotionCodes = $this->connection->fetchFirstColumn('SELECT `code` FROM `promotion` ORDER BY RAND() LIMIT 1000');
-        $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
-        $customerIds = array_column($customerIds, 'id');
+        $customerIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
         $tags = $this->getIds('tag');
         $writeContext = WriteContext::createFromContext($context->getContext());
 
@@ -138,6 +143,11 @@ class OrderGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return list<array{id: string}>
+     */
     private function getTags(array $tags): array
     {
         $tagAssignments = [];
@@ -147,7 +157,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
+                    function (string $id) {
                         return ['id' => $id];
                     },
                     $chosenTags
@@ -158,11 +168,12 @@ class OrderGenerator implements DemodataGeneratorInterface
         return $tagAssignments;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
-
-        return array_column($ids, 'id');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
     }
 
     /**

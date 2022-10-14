@@ -13,22 +13,16 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class MailTemplateGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
+    private EntityWriterInterface $writer;
 
-    /**
-     * @var MailTemplateDefinition
-     */
-    private $mailTemplateDefinition;
+    private MailTemplateDefinition $mailTemplateDefinition;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mailTemplateTypeRepository;
+    private EntityRepositoryInterface $mailTemplateTypeRepository;
 
     /**
      * @internal
@@ -68,7 +62,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
 
         $payload = [];
-        foreach ($mailTypeIds as $mailTypeId => $_id) {
+        foreach ($mailTypeIds as $mailTypeId) {
             $payload[] = $this->createSimpleMailTemplate($context, $mailTypeId);
 
             if (\count($payload) >= 10) {
@@ -85,6 +79,9 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param list<array<string, mixed>> $payload
+     */
     private function write(array $payload, DemodataContext $context): void
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
@@ -92,10 +89,14 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $this->writer->upsert($this->mailTemplateDefinition, $payload, $writeContext);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function createSimpleMailTemplate(DemodataContext $context, string $mailTypeId): array
     {
         $faker = $context->getFaker();
-        $mailTemplate = [
+
+        return [
             'id' => Uuid::randomHex(),
             'description' => $faker->text(),
             'isSystemDefault' => false,
@@ -109,10 +110,11 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
             'contentPlain' => $faker->text(),
             'mailTemplateTypeId' => $mailTypeId,
         ];
-
-        return $mailTemplate;
     }
 
+    /**
+     * @param list<string> $tags
+     */
     private function generateRandomHTML(int $count, array $tags, DemodataContext $context): string
     {
         $output = '';

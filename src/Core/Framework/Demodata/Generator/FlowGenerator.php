@@ -29,12 +29,24 @@ use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class FlowGenerator implements DemodataGeneratorInterface
 {
+    /**
+     * @var array<string, list<string>>
+     */
     private array $ids = [];
 
+    /**
+     * @var array<string, FlowActionDefinition>
+     */
     private array $actions = [];
 
+    /**
+     * @var array<string, array{id: string}>
+     */
     private array $tags = [];
 
     private Connection $connection;
@@ -271,6 +283,9 @@ class FlowGenerator implements DemodataGeneratorInterface
         return $sequence;
     }
 
+    /**
+     * @return array<string, FlowActionDefinition>
+     */
     private function getActions(): array
     {
         if (!empty($this->actions)) {
@@ -302,29 +317,41 @@ class FlowGenerator implements DemodataGeneratorInterface
         $tagRepository->create($payload, $context);
     }
 
+    /**
+     * @param list<array<string, mixed>> $payload
+     */
     private function write(array $payload, Context $context): void
     {
         $this->registry->getRepository('flow')->create($payload, $context);
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
         if (!empty($this->ids[$table])) {
             return $this->ids[$table];
         }
 
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
 
-        return $this->ids[$table] = array_column($ids, 'id');
+        return $this->ids[$table] = $ids;
     }
 
+    /**
+     * @return array<string, array{id: string}>
+     */
     private function getTags(): array
     {
         if (!empty($this->tags)) {
             return $this->tags;
         }
 
-        return $this->tags = $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), name as id FROM tag LIMIT 500');
+        /** @var array<string, array{id: string}> $result */
+        $result = $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), name as id FROM tag LIMIT 500');
+
+        return $this->tags = $result;
     }
 
     private function generateFlowName(string $event, int $num): string
@@ -332,6 +359,9 @@ class FlowGenerator implements DemodataGeneratorInterface
         return str_replace(['.', '_'], ' ', ucfirst($event) . ' #' . (string) $num);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function generateActionConfig(string $action): array
     {
         $tagIds = $this->getTags();

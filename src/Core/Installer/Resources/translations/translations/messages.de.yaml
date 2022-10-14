@@ -156,7 +156,7 @@ shopware.installer:
     select_country_guy: Guyana
     select_country_hti: Haiti
     select_country_hmd: 'Heard und die McDonaldinseln'
-    select_country_vat: 'Heiliger Stuhl'
+    select_country_vat: 'Staat Vatikanstadt'
     select_country_hnd: Honduras
     select_country_hkg: 'Hong Kong'
     select_country_ind: Indien

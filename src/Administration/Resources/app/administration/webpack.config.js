@@ -251,7 +251,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                                   replace: '',
                               },
                               {
-                                  search: /\{#[\s\S]*?#\}/gm,
+                                  search: /^(?!\{#-)\{#[\s\S]*?#\}/gm,
                                   replace: '',
                               }
                           ],

@@ -22,6 +22,8 @@ class ScheduledTaskDefinition extends EntityDefinition
 
     public const STATUS_QUEUED = 'queued';
 
+    public const STATUS_SKIPPED = 'skipped';
+
     public const STATUS_RUNNING = 'running';
 
     public const STATUS_FAILED = 'failed';

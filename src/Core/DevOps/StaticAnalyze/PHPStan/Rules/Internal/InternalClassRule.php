@@ -26,7 +26,7 @@ class InternalClassRule implements Rule
     ];
 
     private const INTERNAL_NAMESPACES = [
-        '\\DevOps\\StaticAnalysis',
+        '\\DevOps\\StaticAnalyze',
         '\\Framework\\Demodata',
     ];
 

@@ -105,6 +105,14 @@ $sw-field--radio-color-border: $color-gray-300;
         }
     }
 
+    &.is--disabled {
+        .sw-field__radio-input {
+            input[type="radio"] {
+                cursor: not-allowed;
+            }
+        }
+    }
+
     .sw-field__radio-option-label {
         &.error--selection {
             color: $color-crimson-500;

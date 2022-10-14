@@ -8,6 +8,7 @@ use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway
 use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
+use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -91,12 +92,26 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertFalse($container->has(FastlyReverseProxyGateway::class));
     }
 
+    public function testReverseProxyUseXKeyVarnish(): void
+    {
+        $container = $this->getContainer();
+        $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
+        $container->setParameter('storefront.reverse_proxy.use_varnish_xkey', true);
+
+        $container->compile();
+
+        /** @var DummyService $dummy */
+        $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(VarnishService::class, $dummy->get());
+    }
+
     public function getContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
 
         $container->setParameter('storefront.reverse_proxy.enabled', true);
         $container->setParameter('storefront.reverse_proxy.fastly.enabled', true);
+        $container->setParameter('storefront.reverse_proxy.use_varnish_xkey', false);
 
         $container
             ->register('shopware.cache.reverse_proxy.redis', \stdClass::class)
@@ -111,6 +126,10 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         $container
             ->register(FastlyReverseProxyGateway::class, FastlyReverseProxyGateway::class)
+            ->setPublic(true);
+
+        $container
+            ->register(VarnishReverseProxyGateway::class, VarnishService::class)
             ->setPublic(true);
 
         $container
@@ -136,6 +155,13 @@ class ReverseProxyCompilerPassTest extends TestCase
  * @internal
  */
 class OriginalService
+{
+}
+
+/**
+ * @internal
+ */
+class VarnishService
 {
 }
 

@@ -7,6 +7,7 @@ use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway
 use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
+use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -32,6 +33,8 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
 
         if ($container->getParameter('storefront.reverse_proxy.fastly.enabled')) {
             $container->setAlias(AbstractReverseProxyGateway::class, FastlyReverseProxyGateway::class);
+        } elseif ($container->getParameter('storefront.reverse_proxy.use_varnish_xkey')) {
+            $container->setAlias(AbstractReverseProxyGateway::class, VarnishReverseProxyGateway::class);
         }
     }
 }

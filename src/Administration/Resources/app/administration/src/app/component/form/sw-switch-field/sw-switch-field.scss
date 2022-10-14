@@ -63,7 +63,7 @@ $sw-field--switch-color-error: $color-crimson-500;
             cursor: pointer;
 
             &:disabled {
-                cursor: auto;
+                cursor: not-allowed;
             }
 
             &:disabled ~ .sw-field__switch-state {
@@ -166,6 +166,14 @@ $sw-field--switch-color-error: $color-crimson-500;
 
             &:checked:disabled ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-error;
+            }
+        }
+    }
+
+    &.is--disabled {
+        .sw-field__label {
+            label {
+                cursor: not-allowed;
             }
         }
     }

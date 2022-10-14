@@ -13,6 +13,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
  * @implements Rule<ClassMethod>
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
 class ScheduledTaskTooLowIntervalRule implements Rule
 {

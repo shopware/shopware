@@ -6,6 +6,9 @@ use PHPStan\Type\Type;
 use staabm\PHPStanDba\Error;
 use staabm\PHPStanDba\QueryReflection\QueryReflector;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class NullReflector implements QueryReflector
 {
     public function validateQueryString(string $queryString): ?Error

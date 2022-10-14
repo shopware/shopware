@@ -16,6 +16,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @implements Rule<InClassNode>
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
 class InternalClassRule implements Rule
 {
@@ -61,6 +63,18 @@ class InternalClassRule implements Rule
             }
 
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($this->isInStaticAnalysisNamespace($node)) {
+            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
+            /**
+             * @deprecated tag:v6.5.0 - remove deprecation check, as all static analysis should become internal in v6.5.0
+             */
+            if (\str_contains($classDeprecation, 'reason:becomes-internal')) {
+                return [];
+            }
+
+            return ['Classes in `/DevOps/StaticAnalysis` namespace must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -137,5 +151,12 @@ class InternalClassRule implements Rule
         }
 
         return false;
+    }
+
+    private function isInStaticAnalysisNamespace(InClassNode $node): bool
+    {
+        $namespace = $node->getClassReflection()->getName();
+
+        return \str_contains($namespace, '\\DevOps\\StaticAnalysis\\');
     }
 }

@@ -12,6 +12,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @implements Rule<ClassMethod>
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
 class InternalMethodRule implements Rule
 {

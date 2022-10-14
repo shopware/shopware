@@ -1,6 +1,8 @@
+import type Repository from 'src/core/data/repository.data';
+import type { Cart, Customer, PaymentMethod, PromotionCodeTag } from '../../order.types';
+import swOrderState from '../../state/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
-import swOrderState from '../../state/order.store';
 
 const { Context, Component, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -15,7 +17,16 @@ Component.register('sw-order-create', {
         Mixin.getByName('notification'),
     ],
 
-    data() {
+    data(): {
+        isLoading: boolean,
+        isSaveSuccessful: boolean,
+        showInvalidCodeModal: boolean,
+        showRemindPaymentModal: boolean,
+        remindPaymentModalLoading: boolean,
+        orderId: string | null,
+        orderTransaction: { id: string, paymentMethodId: string } | null,
+        paymentMethodName: string,
+        } {
         return {
             isLoading: false,
             isSaveSuccessful: false,
@@ -29,91 +40,107 @@ Component.register('sw-order-create', {
     },
 
     computed: {
-        customer() {
+        customer(): Customer | null {
             return State.get('swOrder').customer;
         },
 
-        cart() {
+        cart(): Cart {
             return State.get('swOrder').cart;
         },
 
-        invalidPromotionCodes() {
-            return State.getters['swOrder/invalidPromotionCodes'];
+        invalidPromotionCodes(): PromotionCodeTag[] {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            return State.getters['swOrder/invalidPromotionCodes'] as PromotionCodeTag[];
         },
 
-        isSaveOrderValid() {
-            return this.customer &&
+        isSaveOrderValid(): boolean {
+            return (this.customer &&
                 this.cart.token &&
                 this.cart.lineItems.length &&
-                !this.invalidPromotionCodes.length;
+                !this.invalidPromotionCodes.length) as boolean;
         },
 
-        paymentMethodRepository() {
+        paymentMethodRepository(): Repository {
             return this.repositoryFactory.create('payment_method');
         },
 
-        showInitialModal() {
+        showInitialModal(): boolean {
             return this.$route.name === 'sw.order.create.initial';
         },
     },
 
-    beforeCreate() {
+    beforeCreate(): void {
         State.registerModule('swOrder', swOrderState);
     },
 
-    created() {
+    created(): void {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.unregisterModule();
     },
 
     methods: {
-        createdComponent() {
+        createdComponent(): void {
             // set language to system language
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (!State.getters['context/isSystemDefaultLanguage']) {
+                State.commit('context/resetLanguageToDefault');
             }
         },
 
-        unregisterModule() {
+        unregisterModule(): void {
             State.unregisterModule('swOrder');
         },
 
-        redirectToOrderList() {
+        redirectToOrderList(): void {
             this.$router.push({ name: 'sw.order.index' });
         },
 
-        saveFinish() {
+        saveFinish(): void {
+            if (!this.orderId) {
+                return;
+            }
+
             this.isSaveSuccessful = false;
             this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
         },
 
-        onSaveOrder() {
+        onSaveOrder(): Promise<void> {
             if (this.isSaveOrderValid) {
                 this.isLoading = true;
                 this.isSaveSuccessful = false;
 
                 return State
                     .dispatch('swOrder/saveOrder', {
-                        salesChannelId: this.customer.salesChannelId,
+                        salesChannelId: this.customer?.salesChannelId,
                         contextToken: this.cart.token,
                     })
                     .then((response) => {
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                         this.orderId = response?.data?.id;
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                         this.orderTransaction = response?.data?.transactions?.[0];
 
-                        this.paymentMethodRepository.get(
+                        if (!this.orderTransaction) {
+                            return;
+                        }
+
+                        void this.paymentMethodRepository.get(
                             this.orderTransaction.paymentMethodId,
                             Context.api,
                             new Criteria(1, 1),
-                        ).then((paymentMethod) => {
-                            this.paymentMethodName = paymentMethod.name;
+                            // @ts-expect-error
+                        ).then((paymentMethod: PaymentMethod | null) => {
+                            this.paymentMethodName = paymentMethod?.translated.distinguishableName ?? '';
                         });
 
                         this.showRemindPaymentModal = true;
                     })
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     .catch((error) => this.showError(error))
                     .finally(() => {
                         this.isLoading = false;
@@ -135,7 +162,7 @@ Component.register('sw-order-create', {
                 return;
             }
 
-            State
+            void State
                 .dispatch('swOrder/cancelCart', {
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -143,10 +170,14 @@ Component.register('sw-order-create', {
                 .then(() => this.redirectToOrderList());
         },
 
-        showError(error) {
+        showError(error: unknown = null) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
             const errorMessage = error?.response?.data?.errors?.[0]?.detail || null;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.createNotificationError({
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 message: errorMessage || this.$tc('sw-order.create.messageSaveError'),
             });
         },
@@ -173,7 +204,7 @@ Component.register('sw-order-create', {
         onRemindCustomer() {
             this.remindPaymentModalLoading = true;
 
-            State.dispatch('swOrder/remindPayment', {
+            void State.dispatch('swOrder/remindPayment', {
                 orderTransactionId: this.orderTransaction?.id,
             }).then(() => {
                 this.remindPaymentModalLoading = false;

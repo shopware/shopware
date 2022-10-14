@@ -27,7 +27,7 @@ const orderMock = {
             },
             paymentMethod: {
                 translated: {
-                    name: ''
+                    distinguishableName: 'Payment Method',
                 }
             }
         }
@@ -61,7 +61,7 @@ orderMock.transactions.last = () => ({
     },
     paymentMethod: {
         translated: {
-            name: ''
+            distinguishableName: 'Payment Method',
         }
     }
 });
@@ -160,7 +160,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     it('should show correct summary header', () => {
-        const summary = wrapper.find('.sw-order-detail-base__general-info__summary-main-header');
+        const summary = wrapper.find('.sw-order-general-info__summary-main-header');
 
         expect(summary.exists()).toBeTruthy();
         expect(summary.text()).toEqual('10000 - John Doe (john@doe.dev)');

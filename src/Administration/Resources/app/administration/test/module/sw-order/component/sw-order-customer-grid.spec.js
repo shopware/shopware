@@ -28,7 +28,7 @@ function generateCustomers() {
         items.push({
             id: i,
             firstName: `Quynh ${i}`,
-            lasName: 'Nguyen',
+            lastName: 'Nguyen',
             email: `quynh${i}@example.com`
         });
     }
@@ -113,7 +113,10 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
             state: {
                 flow: {
                     id: '1234'
-                }
+                },
+                context: {
+                    customer: {},
+                },
             }
         });
     });

@@ -1,4 +1,6 @@
+import type { AxiosInstance } from 'axios';
 import ApiService from '../api.service';
+import type { LoginService } from '../login.service';
 
 /**
  * Gateway for the API end point "order"
@@ -7,19 +9,19 @@ import ApiService from '../api.service';
  * @extends ApiService
  */
 class CheckoutStoreService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'checkout') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'checkout') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'checkoutStoreService';
     }
 
-    checkout(salesChannelId, contextToken, additionalParams = {}, additionalHeaders = {}) {
+    checkout(salesChannelId: string, contextToken: string, additionalParams = {}, additionalHeaders = {}) {
         const route = `_proxy-order/${salesChannelId}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken,
         };
         return this.httpClient
-            .post(route, {}, { additionalParams, headers });
+            .post(route, {}, { ...additionalParams, headers });
     }
 }
 

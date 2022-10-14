@@ -71,7 +71,7 @@ Component.register('sw-order-create-details-body', {
         },
 
         isAddressIdentical() {
-            return this.shippingAddress.id === this.billingAddress.id;
+            return this.shippingAddress?.id === this.billingAddress?.id;
         },
     },
 

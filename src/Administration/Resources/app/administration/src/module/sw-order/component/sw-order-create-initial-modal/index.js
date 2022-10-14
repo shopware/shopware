@@ -2,7 +2,6 @@ import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
 const { Component, State, Service, Mixin } = Shopware;
-const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create-initial-modal', {
@@ -21,6 +20,14 @@ Component.register('sw-order-create-initial-modal', {
             promotionCodes: [],
             isLoading: false,
             disabledAutoPromotions: false,
+            context: {
+                currencyId: '',
+                paymentMethodId: '',
+                shippingMethodId: '',
+                languageId: '',
+                billingAddressId: '',
+                shippingAddressId: '',
+            },
         };
     },
 
@@ -45,17 +52,27 @@ Component.register('sw-order-create-initial-modal', {
             return this.customer?.salesChannelId || '';
         },
 
-        context: {
-            get() {
-                return this.customer ? this.customer.salesChannel : {};
-            },
-
-            set(context) {
-                if (this.customer) this.customer.salesChannel = context;
-            },
+        salesChannelContext() {
+            return State.get('swOrder').context;
         },
 
-        ...mapState('swOrder', ['customer', 'cart', 'currency']),
+        cart() {
+            return State.get('swOrder').cart;
+        },
+
+        currency() {
+            return this.salesChannelContext.currency;
+        },
+
+        customer() {
+            return State.get('swOrder').customer;
+        },
+    },
+
+    watch: {
+        salesChannelContext() {
+            State.dispatch('swOrder/updateContextParameters', this.context);
+        },
     },
 
     methods: {

@@ -142,6 +142,7 @@ function createWrapper() {
         localVue,
         propsData: {
             cart: {
+                token: '6d3960ff30c9413f8dde62ccda81eefd',
                 lineItems: [],
                 price: {
                     taxStatus: 'net'
@@ -194,6 +195,13 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
                 },
                 getCart: () => {
                     return Promise.resolve({ data: { lineItems: [] } });
+                },
+            };
+        });
+        Shopware.Service().register('contextStoreService', () => {
+            return {
+                getSalesChannelContext: () => {
+                    return Promise.resolve({ data: {} });
                 },
             };
         });

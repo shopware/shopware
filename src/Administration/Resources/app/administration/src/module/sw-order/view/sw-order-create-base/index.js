@@ -112,7 +112,7 @@ Component.register('sw-order-create-base', {
         },
 
         currency() {
-            return State.get('swOrder').currency;
+            return State.get('swOrder').context.currency;
         },
 
         cartDelivery() {

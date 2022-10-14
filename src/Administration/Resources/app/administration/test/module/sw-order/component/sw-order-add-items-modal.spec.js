@@ -82,16 +82,6 @@ describe('sw-order-add-items-modal', () => {
 
     it('should be a Vue.js component', () => {
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.lineItemTypes).toEqual({
-            PRODUCT: 'product',
-            CREDIT: 'credit',
-            CUSTOM: 'custom',
-            PROMOTION: 'promotion',
-        });
-        expect(wrapper.vm.lineItemPriceTypes).toEqual({
-            ABSOLUTE: 'absolute',
-            QUANTITY: 'quantity',
-        });
         expect(wrapper.vm.taxStatus).toBe('gross');
     });
 

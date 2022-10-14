@@ -9,7 +9,7 @@ Component.register('sw-order-state-select-v2', {
     props: {
         transitionOptions: {
             type: Array,
-            required: true,
+            required: false,
             default() {
                 return [];
             },

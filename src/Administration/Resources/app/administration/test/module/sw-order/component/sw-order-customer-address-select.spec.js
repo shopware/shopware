@@ -2,8 +2,6 @@ import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils
 import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-import 'src/module/sw-order/mixin/cart-notification.mixin';
-import 'src/module/sw-order/component/sw-order-create-options';
 import 'src/module/sw-order/component/sw-order-customer-address-select';
 
 import 'src/app/component/form/select/base/sw-single-select';
@@ -13,7 +11,6 @@ import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-result-list';
 
 import Vuex from 'vuex';
-import orderStore from 'src/module/sw-order/state/order.store';
 
 const addresses = [
     {
@@ -70,21 +67,15 @@ function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-order-create-options'), {
+    return shallowMount(Shopware.Component.build('sw-order-customer-address-select'), {
         localVue,
         propsData: {
-            promotionCodes: [],
-            disabledAutoPromotions: false,
-            context: {
-                languageId: 'english',
-                billingAddressId: '1',
-                shippingAddressId: '2',
-            },
+            customer: { ...customerData },
+            value: '1',
+            sameAddressLabel: 'Same address',
+            sameAddressValue: '2',
         },
         stubs: {
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
-            },
             'sw-popover': {
                 template: '<div class="sw-popover"><slot></slot></div>'
             },
@@ -93,11 +84,6 @@ function createWrapper() {
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-order-customer-address-select': Shopware.Component.build('sw-order-customer-address-select'),
-            'sw-switch-field': true,
-            'sw-text-field': true,
-            'sw-entity-single-select': true,
-            'sw-multi-tag-select': true,
             'sw-highlight-text': true,
             'sw-loader': true,
             'sw-icon': true,
@@ -118,8 +104,18 @@ function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(addresses),
-                        get: () => Promise.resolve({})
+                        search: (criteria) => {
+                            const collection = new EntityCollection(
+                                '/customer-address',
+                                'customer-address',
+                                null,
+                                null,
+                                criteria.term !== null ? [addresses[0]] : addresses,
+                            );
+
+                            return Promise.resolve(collection);
+                        },
+                        get: () => Promise.resolve()
                     };
                 }
             }
@@ -129,32 +125,15 @@ function createWrapper() {
 
 enableAutoDestroy(afterEach);
 
-describe('src/module/sw-order/view/sw-order-create-options', () => {
+describe('src/module/sw-order/component/sw-order-customer-address-select', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('swOrder', {
-            ...orderStore,
-            state: {
-                ...orderStore.state,
-                customer: {
-                    ...customerData
-                },
-                context: {
-                    salesChannel: {
-                        id: '1',
-                    },
-                    customer: {
-                        ...customerData
-                    },
-                },
-            },
-        });
     });
 
     it('should show address option correctly', async () => {
         const wrapper = createWrapper();
         await flushPromises();
 
-        const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
+        const billingAddressSelect = wrapper.find('.sw-select__selection');
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
@@ -166,7 +145,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = createWrapper();
         await flushPromises();
 
-        const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
+        const billingAddressSelect = wrapper.find('.sw-select__selection');
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
@@ -174,26 +153,18 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await sameShippingAddressOption.trigger('click');
 
         await wrapper.vm.$nextTick();
-        await flushPromises();
 
-        expect(wrapper.vm.context.billingAddressId).toBe('2');
+        expect(wrapper.emitted('change')[0]).toEqual(['2']);
     });
 
-    it('should able to set shipping address same as billing address', async () => {
-        Shopware.State.commit('swOrder/setCustomer', { ...customerData });
-
+    it('should filter entries correctly', async () => {
         const wrapper = createWrapper();
         await flushPromises();
 
-        const shippingAddressSelect = wrapper.find('.sw-order-create-options__shipping-address .sw-select__selection');
-        // Click to open result list
-        await shippingAddressSelect.trigger('click');
+        await wrapper.vm.searchAddress('test');
 
-        const sameBillingAddressOption = wrapper.find('.sw-select-result__option-same-address');
-        await sameBillingAddressOption.trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.context.shippingAddressId).toBe('1');
+        expect(wrapper.vm.addressCriteria.term).toBe('test');
+        expect(addresses[0].hidden).toBe(false);
+        expect(addresses[1].hidden).toBe(true);
     });
 });

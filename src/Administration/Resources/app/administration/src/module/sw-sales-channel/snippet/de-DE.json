@@ -83,6 +83,7 @@
       "warningDisabledPaymentMethod": "Einige der Zahlungsmethoden, die diesem Vertriebskanal zugeordnet sind, sind derzeit nicht verfügbar. Bitte überprüfen Sie Ihre <a href=\"{paymentSettingsLink}\">Einstellungen</a> für diese Zahlungsarten:<br /><b>{separatedList}</b>",
       "warningDisabledShippingMethod": "Die Versandart <b>{name}</b> ist nicht aktiv. | Die Versandarten <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
       "warningDisabledAddition": "{amount} weitere",
+      "warningUnservedLanguage": "Die Sprache {list} ist keiner Domain zugewiesen. Um den vollen Funktionsumfang der Sprache zu nutzen, muss eine Domain mit dieser Sprache angelegt werden. | Diese Sprachen {list} sind keiner Domain zugewiesen. Um den vollen Funktionsumfang aller Sprache zu nutzen, muss eine Domain je Sprache angelegt werden.",
       "textDeleteInfo": "Achtung: Hiermit löschst Du diesen Verkaufskanal vollständig! Der Verkaufskanal wird danach nicht mehr in der Shopware Administration verfügbar sein und kann auch nicht wiederhergestellt werden. Alle vorhandenen Bestellungen bleiben jedoch erhalten. Auch ausgespielte Kataloge werden durch diese Aktion nicht verändert.",
       "buttonDelete": "Verkaufskanal löschen",
       "deleteModalTitle": "Verkaufskanal löschen",

@@ -83,6 +83,7 @@
       "warningDisabledPaymentMethod": "Some of the payment methods assigned to this Sales Channel are currently not available. Please check your <a href=\"{paymentSettingsLink}\">settings</a> for these payment methods:<br/> <b>{separatedList}</b>",
       "warningDisabledShippingMethod": "The shipping method <b>{name}</b> is not active. | The shipping methods <b>{name}</b> and <b>{addition}</b> are not active.",
       "warningDisabledAddition": "{amount} others",
+      "warningUnservedLanguage": "The language {list} is not assigned to a domain. Create a domain with this language to use its full potential. | The languages {list} are not assigned to any domain. Create a domain for each language to use their full potential.",
       "textDeleteInfo": "Careful, you are about to delete this Sales Channel permanently! If you proceed, the Sales Channel and all its settings will no longer be available. However, deleting the Sales Channel will not affect existing orders and categories.",
       "buttonDelete": "Delete Sales Channel",
       "deleteModalTitle": "Delete Sales Channel",

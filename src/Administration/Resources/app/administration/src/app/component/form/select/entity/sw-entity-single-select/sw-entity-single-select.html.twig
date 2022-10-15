@@ -137,19 +137,18 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_preview %}
-                        <template
-                            v-if="shouldShowActiveState"
-                            #preview
-                        >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_entity_multi_select_base_results_list_result_active %}
-                            <sw-icon
-                                class="sw-entity-single-select__selection-active"
-                                size="6"
-                                :color="getActiveIconColor(item)"
-                                name="default-basic-shape-circle-filled"
-                            />
-                            {% endblock %}
+                        <template v-if="shouldShowActiveState">
+                            <slot name="preview">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_entity_multi_select_base_results_list_result_active %}
+                                <sw-icon
+                                    class="sw-entity-single-select__selection-active"
+                                    size="6"
+                                    :color="getActiveIconColor(item)"
+                                    name="default-basic-shape-circle-filled"
+                                />
+                                {% endblock %}
+                            </slot>
                         </template>
                         {% endblock %}
 

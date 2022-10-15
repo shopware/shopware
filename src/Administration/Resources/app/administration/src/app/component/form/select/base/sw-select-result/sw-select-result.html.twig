@@ -9,7 +9,10 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_result_item_preview %}
-    <span class="sw-select-result__result-item-preview">
+    <span
+        v-if="hasPreviewSlot"
+        class="sw-select-result__result-item-preview"
+    >
         <slot name="preview"></slot>
     </span>
     {% endblock %}

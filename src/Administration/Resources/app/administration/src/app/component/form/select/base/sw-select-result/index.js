@@ -64,8 +64,12 @@ Component.register('sw-select-result', {
             ];
         },
 
+        hasPreviewSlot() {
+            return !!this.$slots.preview || (this.$scopedSlots.preview && !!this.$scopedSlots.preview());
+        },
+
         hasDescriptionSlot() {
-            return !!this.$slots.description || !!this.$scopedSlots.description;
+            return !!this.$slots.description || (this.$scopedSlots.description && !!this.$scopedSlots.description());
         },
     },
 

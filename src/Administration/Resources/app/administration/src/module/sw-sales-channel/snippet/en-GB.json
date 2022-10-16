@@ -69,6 +69,7 @@
       "labelOptionTaxHorizontal": "Horizontal",
       "labelInputCurrencies": "Currencies",
       "labelInputLanguages": "Languages",
+      "labelInputUrl": "URL",
       "labelInputCategories": "Categories",
       "titleOptionsCard": "Options",
       "labelInputDefaultShippingMethod": "Default shipping method",

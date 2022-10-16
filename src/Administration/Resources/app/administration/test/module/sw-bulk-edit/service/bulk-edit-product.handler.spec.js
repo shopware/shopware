@@ -3,6 +3,8 @@ import BulkEditProductHandler from 'src/module/sw-bulk-edit/service/handler/bulk
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 
+const highAssociationCount = 750;
+
 function getBulkEditApiFactory() {
     return new BulkEditApiFactory();
 }
@@ -19,6 +21,10 @@ function getBulkEditProductHandler() {
     };
 
     return handler;
+}
+
+function paginate(data, criteria) {
+    return data.slice((criteria.page - 1) * criteria.limit, criteria.page * criteria.limit);
 }
 
 describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => {
@@ -771,6 +777,43 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         }
                     ]
                 }
+            ],
+            [
+                'add more than 500 oneToMany association',
+                [{
+                    type: 'add',
+                    field: 'media',
+                    mappingReferenceField: 'mediaId',
+                    value: Array(highAssociationCount).fill(0).map((v, k) => ({ mediaId: `media_${k}` }))
+                }],
+                {
+                    'upsert-product_media': {
+                        action: 'upsert',
+                        entity: 'product_media',
+                        payload: Array(highAssociationCount).fill(0).map((v, k) => ({ productId: 'product_1', mediaId: `media_${k}` }))
+                    }
+                },
+                {
+                    product_media: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `product_media_${k}`, productId: 'product_2', mediaId: `media_${k}` }))
+                }
+            ],
+            [
+                'add more than 500 manyToMany association',
+                [{
+                    type: 'add',
+                    field: 'categories',
+                    value: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `category_${k}` }))
+                }],
+                {
+                    'upsert-product_category': {
+                        action: 'upsert',
+                        entity: 'product_category',
+                        payload: Array(highAssociationCount).fill(0).map((v, k) => ({ productId: 'product_1', categoryId: `category_${k}` }))
+                    }
+                },
+                {
+                    product_category: Array(highAssociationCount).fill(0).map((v, k) => ({ id: `product_category_${k}`, productId: 'product_2', categoryId: `category_${k}` }))
+                }
             ]
         ];
 
@@ -919,8 +962,20 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
 
             const spyRepository = jest.spyOn(handler.repositoryFactory, 'create').mockImplementation((entity) => {
                 return {
-                    search: async () => Promise.resolve(existAssociations[entity]),
-                    searchIds: async () => Promise.resolve({ data: existAssociations[entity] })
+                    search: async (criteria) => {
+                        const response = paginate(existAssociations[entity], criteria);
+                        response.total = existAssociations[entity].length;
+
+                        return Promise.resolve(response);
+                    },
+                    searchIds: async (criteria) => {
+                        const response = {
+                            data: paginate(existAssociations[entity], criteria),
+                            total: existAssociations[entity].length
+                        };
+
+                        return Promise.resolve(response);
+                    }
                 };
             });
 

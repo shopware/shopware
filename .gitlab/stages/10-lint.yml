@@ -153,10 +153,9 @@ PHP lint:
         - !reference [.rules, run]
         - changes:
               - composer.json
-              - .bc-exclude.php
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
-              - '**/*.php'
+              - '**.php'
     before_script:
         - composer update --no-interaction
     script:

@@ -5,6 +5,11 @@ on:
       branches:
           - trunk
     pull_request:
+      paths:
+        - composer.json
+        - 'changelog/**/*.md'
+        - 'src/**/snippet/**/*.json'
+        - '**.php'
 
 jobs:
   build:

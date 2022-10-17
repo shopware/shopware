@@ -28,6 +28,7 @@ export default function conditionService() {
         ],
         property_group_option: [
             'id',
+            'group',
         ],
         property_group: [
             'id',

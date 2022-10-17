@@ -25,6 +25,9 @@ class ChangelogCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use ChangelogTestBehaviour;
 
+    /**
+     * @return list<array{0: string, 1: list<string>}>
+     */
     public function provideCheckCommandFixtures(): array
     {
         return [
@@ -32,6 +35,20 @@ class ChangelogCommandTest extends TestCase
                 __DIR__ . '/_fixture/stage/command-invalid',
                 [
                     '* Unknown flag _FLAG_ is assigned',
+                    '[ERROR] You have some syntax errors in changelog files.',
+                ],
+            ],
+            [
+                __DIR__ . '/_fixture/stage/command-invalid-name',
+                [
+                    '* Changelog has invalid filename, please use only alphanumeric characters, dots, dashes and underscores.',
+                    '[ERROR] You have some syntax errors in changelog files.',
+                ],
+            ],
+            [
+                __DIR__ . '/_fixture/stage/command-invalid-issue-number',
+                [
+                    '* The Jira ticket has an invalid format',
                     '[ERROR] You have some syntax errors in changelog files.',
                 ],
             ],
@@ -44,6 +61,9 @@ class ChangelogCommandTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: string, 1: string|null, 2: list<string>}>
+     */
     public function provideChangeCommandFixtures(): array
     {
         return [
@@ -75,6 +95,9 @@ class ChangelogCommandTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array{0: string, 1: string, 2: string|null, 3: array<string, list<string>>}>
+     */
     public function provideReleaseCommandFixtures(): array
     {
         return [
@@ -99,7 +122,7 @@ class ChangelogCommandTest extends TestCase
                 [
                     __DIR__ . '/_fixture/stage/command-valid/CHANGELOG.md' => [
                         '## 12.13.14.15',
-                        '*  [_ISSUE_ - _TITLE_](/changelog/release-12-13-14-15/1977-12-10-a-full-change.md) ([_AUTHOR_](https://github.com/_GITHUB_))',
+                        '*  [NEXT-1111 - _TITLE_](/changelog/release-12-13-14-15/1977-12-10-a-full-change.md) ([_AUTHOR_](https://github.com/_GITHUB_))',
                     ],
                     __DIR__ . '/_fixture/stage/command-valid/UPGRADE-12.13.md' => [
                         '# 12.13.14.15',
@@ -147,6 +170,8 @@ class ChangelogCommandTest extends TestCase
 
     /**
      * @dataProvider provideCheckCommandFixtures
+     *
+     * @param list<string> $expectedOutputSnippets
      */
     public function testChangelogCheckCommand(string $path, array $expectedOutputSnippets): void
     {
@@ -167,6 +192,7 @@ class ChangelogCommandTest extends TestCase
      * @dataProvider provideChangeCommandFixtures
      *
      * @param class-string<\Throwable>|null $expectedException
+     * @param list<string> $expectedOutputSnippets
      */
     public function testChangelogChangeCommand(string $path, ?string $expectedException, array $expectedOutputSnippets): void
     {
@@ -192,6 +218,7 @@ class ChangelogCommandTest extends TestCase
      * @dataProvider provideReleaseCommandFixtures
      *
      * @param class-string<\Throwable>|null $expectedException
+     * @param array<string, list<string>> $expectedFileContents
      */
     public function testChangelogReleaseCommand(string $path, string $version, ?string $expectedException, array $expectedFileContents): void
     {

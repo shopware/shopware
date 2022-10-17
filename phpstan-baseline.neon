@@ -14305,15 +14305,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Changelog/Processor/ChangelogReleaseExporter.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogValidator\\:\\:check\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogValidator.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogValidator\\:\\:getUnreleasedChangelogFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Command\\\\CreateHydratorCommand\\:\\:renderClass\\(\\) has parameter \\$calls with no value type specified in iterable type array\\.$#"
@@ -21968,60 +21960,9 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Cache/CacheIdLoaderTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogCommandTest\\:\\:provideChangeCommandFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogCommandTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogCommandTest\\:\\:provideCheckCommandFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogCommandTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogCommandTest\\:\\:provideReleaseCommandFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogCommandTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogCommandTest\\:\\:testChangelogChangeCommand\\(\\) has parameter \\$expectedOutputSnippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogCommandTest\\:\\:testChangelogCheckCommand\\(\\) has parameter \\$expectedOutputSnippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogCommandTest\\:\\:testChangelogReleaseCommand\\(\\) has parameter \\$expectedFileContents with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogCommandTest.php
-
-		-
-			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogParserTest\\:\\:provide\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Changelog\\\\ChangelogParserTest\\:\\:testData\\(\\) has parameter \\$expectedData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogParserTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$content of method Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogParser\\:\\:parse\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogParserTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Changelog/ChangelogParserTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int, string\\>\\|false given\\.$#"

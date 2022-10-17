@@ -15,6 +15,9 @@ class ChangelogParserTest extends TestCase
     use IntegrationTestBehaviour;
     use ChangelogTestBehaviour;
 
+    /**
+     * @return list<array{0: string, 1: array<string, string|null>,2: string, 3: int}>
+     */
     public function provide(): array
     {
         return [
@@ -41,7 +44,7 @@ class ChangelogParserTest extends TestCase
                 __DIR__ . '/_fixture/stage/full-template.txt',
                 [
                     'title' => '_TITLE_',
-                    'issue' => '_ISSUE_',
+                    'issue' => 'NEXT-1111',
                     'flag' => '_FLAG_',
                     'author' => '_AUTHOR_',
                     'authorEmail' => '_MAIL_',
@@ -61,6 +64,8 @@ class ChangelogParserTest extends TestCase
 
     /**
      * @dataProvider provide
+     *
+     * @param array<string, string|null> $expectedData
      */
     public function testData(string $inFile, array $expectedData, string $outFile, int $expectedExceptions): void
     {
@@ -68,7 +73,7 @@ class ChangelogParserTest extends TestCase
             ->getContainer()
             ->get(ChangelogParser::class);
 
-        $logEntry = $parser->parse(file_get_contents($inFile));
+        $logEntry = $parser->parse((string) file_get_contents($inFile));
 
         static::assertSame($expectedData['title'], $logEntry->getTitle());
         static::assertSame($expectedData['issue'], $logEntry->getIssue());
@@ -83,6 +88,7 @@ class ChangelogParserTest extends TestCase
         static::assertSame($expectedData['upgrade'], $logEntry->getUpgradeInformation());
         static::assertSame($expectedData['major'], $logEntry->getNextMajorVersionChanges());
         $lines = file($outFile);
+        static::assertIsArray($lines);
 
         /** @var array<string> $templateLines */
         $templateLines = explode(\PHP_EOL, $logEntry->toTemplate());
@@ -93,6 +99,6 @@ class ChangelogParserTest extends TestCase
 
         $result = $this->getContainer()->get(ValidatorInterface::class)->validate($logEntry);
 
-        static::assertSame($expectedExceptions, $result->count());
+        static::assertCount($expectedExceptions, $result);
     }
 }

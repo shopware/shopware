@@ -16,10 +16,7 @@ class ChangelogCheckCommand extends Command
 {
     protected static $defaultName = 'changelog:check';
 
-    /**
-     * @var ChangelogValidator
-     */
-    private $validator;
+    private ChangelogValidator $validator;
 
     /**
      * @internal

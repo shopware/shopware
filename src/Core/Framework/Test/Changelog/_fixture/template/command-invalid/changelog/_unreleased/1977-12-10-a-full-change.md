@@ -1,6 +1,6 @@
 ---
 title:              _TITLE_
-issue:              _ISSUE_
+issue:              NEXT-1111
 flag:               _FLAG_
 author:             _AUTHOR_
 author_email:       _MAIL_

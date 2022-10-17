@@ -177,7 +177,7 @@ EOL;
 
             case $field instanceof BoolField:
                 $type = 'TINYINT(1)';
-                $default = "DEFAULT '0'";
+                $default = 'DEFAULT \'0\'';
 
                 break;
 

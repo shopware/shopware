@@ -74,7 +74,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
             try {
                 $this->repository->create([$entry], $this->context);
-                static::fail(sprintf("Create without required property '%s'", $property));
+                static::fail(sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
             }

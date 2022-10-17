@@ -14,7 +14,7 @@ class Migration1536233160ProductConfigurator extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate("
+        $connection->executeUpdate('
             CREATE TABLE `product_configurator_setting` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
@@ -22,7 +22,7 @@ class Migration1536233160ProductConfigurator extends MigrationStep
               `product_version_id` BINARY(16) NOT NULL,
               `property_group_option_id` BINARY(16) NOT NULL,
               `price` JSON NULL,
-              `position` INT(11) NOT NULL DEFAULT '0',
+              `position` INT(11) NOT NULL DEFAULT \'0\',
               `media_id` BINARY(16) NULL,
               `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
@@ -36,7 +36,7 @@ class Migration1536233160ProductConfigurator extends MigrationStep
                 REFERENCES `property_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_configurator_setting.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
+        ');
     }
 
     public function updateDestructive(Connection $connection): void

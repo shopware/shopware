@@ -91,9 +91,9 @@ class Migration1665267882RenameCountryVatTest extends TestCase
 
     public function testUpdateIfCountryNotExist(): void
     {
-        $this->connection->executeStatement("DELETE FROM country WHERE iso3 = 'VAT';");
+        $this->connection->executeStatement('DELETE FROM country WHERE iso3 = \'VAT\';');
 
-        $existCountry = (bool) $this->connection->fetchOne("SELECT 1 FROM country WHERE iso3 = 'VAT'");
+        $existCountry = (bool) $this->connection->fetchOne('SELECT 1 FROM country WHERE iso3 = \'VAT\'');
         static::assertFalse($existCountry);
 
         $currentTranslations = $this->fetchCurrentTranslations();

@@ -71,7 +71,7 @@ class CustomEntitySchemaUpdater
             } catch (Exception $e) {
                 // there seems to be a timing issue in sql when dropping a foreign key which relates to an index.
                 // Sometimes the index exists no more when doctrine tries to drop it after dropping the foreign key.
-                if (!\str_contains($e->getMessage(), "An exception occurred while executing 'DROP INDEX IDX_")) {
+                if (!\str_contains($e->getMessage(), 'An exception occurred while executing \'DROP INDEX IDX_')) {
                     throw $e;
                 }
             }

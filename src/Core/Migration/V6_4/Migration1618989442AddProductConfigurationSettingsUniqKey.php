@@ -14,10 +14,10 @@ class Migration1618989442AddProductConfigurationSettingsUniqKey extends Migratio
 
     public function update(Connection $connection): void
     {
-        $index = $connection->fetchOne("
+        $index = $connection->fetchOne('
             SHOW INDEXES IN `product_configurator_setting`
-            WHERE `Key_name` = 'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id'
-        ");
+            WHERE `Key_name` = \'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id\'
+        ');
 
         if (!$index) {
             // remove existing duplicates

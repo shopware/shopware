@@ -1114,7 +1114,7 @@ class ThemeFixtures
                     ],
 
                     'type' => 'fontFamily',
-                    'value' => "'Inter', sans-serif",
+                    'value' => '\'Inter\', sans-serif',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 100,
@@ -1140,7 +1140,7 @@ class ThemeFixtures
                     ],
 
                     'type' => 'fontFamily',
-                    'value' => "'Inter', sans-serif",
+                    'value' => '\'Inter\', sans-serif',
                     'editable' => true,
                     'block' => 'typography',
                     'order' => 300,

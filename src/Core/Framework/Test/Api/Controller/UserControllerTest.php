@@ -65,7 +65,7 @@ class UserControllerTest extends TestCase
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate("DELETE FROM user WHERE email = 'admin@example.com'");
+            ->executeUpdate('DELETE FROM user WHERE email = \'admin@example.com\'');
 
         $this->kernelBrowser = null;
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
@@ -186,7 +186,7 @@ class UserControllerTest extends TestCase
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate("DELETE FROM user WHERE email = 'admin@example.com'");
+            ->executeUpdate('DELETE FROM user WHERE email = \'admin@example.com\'');
 
         $this->kernelBrowser = null;
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);

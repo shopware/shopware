@@ -379,9 +379,9 @@ EOF;
 
     private function renderField(Field $field): string
     {
-        $template = "if (isset(\$row[\$root . '.#property#'])) {
+        $template = 'if (isset($row[$root . \'.#property#\'])) {
             #inner#
-        }";
+        }';
         $arrayKeyExists = "if (\array_key_exists(\$root . '.#property#', \$row)) {
             #inner#
         }";
@@ -390,19 +390,19 @@ EOF;
             case $field instanceof FkField:
             case $field instanceof VersionField:
             case $field instanceof ReferenceVersionField:
-                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = Uuid::fromBytesToHex(\$row[\$root . '.#property#']);");
+                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = Uuid::fromBytesToHex($row[$root . \'.#property#\']);');
 
                 break;
             case $field instanceof StringField:
-                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = \$row[\$root . '.#property#'];");
+                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = $row[$root . \'.#property#\'];');
 
                 break;
             case $field instanceof FloatField:
-                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = (float) \$row[\$root . '.#property#'];");
+                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = (float) $row[$root . \'.#property#\'];');
 
                 break;
             case $field instanceof IntField:
-                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = (int) \$row[\$root . '.#property#'];");
+                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = (int) $row[$root . \'.#property#\'];');
 
                 break;
             case $field instanceof DateField:
@@ -411,12 +411,12 @@ EOF;
 
                 break;
             case $field instanceof BoolField:
-                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = (bool) \$row[\$root . '.#property#'];");
+                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = (bool) $row[$root . \'.#property#\'];');
 
                 break;
             default:
                 $template = $arrayKeyExists;
-                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = \$definition->decode('#property#', self::value(\$row, \$root, '#property#'));");
+                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = $definition->decode(\'#property#\', self::value($row, $root, \'#property#\'));');
 
                 return str_replace(['#property#', '#inner#'], [$field->getPropertyName(), $inner], $template);
         }

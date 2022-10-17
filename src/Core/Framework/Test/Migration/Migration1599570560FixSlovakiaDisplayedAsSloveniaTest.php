@@ -44,21 +44,21 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
 
         $this->migration = new Migration1599570560FixSlovakiaDisplayedAsSlovenia();
 
-        $this->languageEN = $this->connection->fetchColumn("SELECT language.id FROM language INNER JOIN locale
-            ON language.translation_code_id = locale.id AND locale.code = 'en-GB'");
+        $this->languageEN = $this->connection->fetchColumn('SELECT language.id FROM language INNER JOIN locale
+            ON language.translation_code_id = locale.id AND locale.code = \'en-GB\'');
         $this->languageENTranslationCode = $this->connection->fetchColumn(
             'SELECT translation_code_id FROM language WHERE id = ?',
             [$this->languageEN]
         );
 
-        $this->languageDE = $this->connection->fetchColumn("SELECT language.id FROM language INNER JOIN locale
-            ON language.translation_code_id = locale.id AND locale.code = 'de-DE'");
+        $this->languageDE = $this->connection->fetchColumn('SELECT language.id FROM language INNER JOIN locale
+            ON language.translation_code_id = locale.id AND locale.code = \'de-DE\'');
         $this->languageDETranslationCode = $this->connection->fetchColumn(
             'SELECT translation_code_id FROM language WHERE id = ?',
             [$this->languageDE]
         );
 
-        $this->countryIdSlovakia = $this->connection->fetchColumn("SELECT id from country WHERE iso3 = 'SVK'");
+        $this->countryIdSlovakia = $this->connection->fetchColumn('SELECT id from country WHERE iso3 = \'SVK\'');
     }
 
     protected function tearDown(): void

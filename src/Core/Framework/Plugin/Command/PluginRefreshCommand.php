@@ -40,7 +40,7 @@ class PluginRefreshCommand extends Command
     {
         $this
             ->setDescription('Refreshes the plugins list in the storage from the file system')
-            ->addOption('skipPluginList', 's', InputOption::VALUE_NONE, "Don't display plugin list after refresh");
+            ->addOption('skipPluginList', 's', InputOption::VALUE_NONE, 'Don\'t display plugin list after refresh');
     }
 
     /**

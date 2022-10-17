@@ -54,11 +54,11 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         $aclRoleId = Uuid::randomBytes();
         $this->createAclRole($aclRoleId);
 
-        $connection->executeStatement("
+        $connection->executeStatement('
             UPDATE `acl_role`
-            SET `privileges` = '{\"0\": \"users_and_permissions.viewer\"}'
+            SET `privileges` = \'{"0": "users_and_permissions.viewer"}\'
             WHERE id = :id
-        ", ['id' => $aclRoleId]);
+        ', ['id' => $aclRoleId]);
 
         $this->createAclUserRole($userId, $aclRoleId);
 

@@ -98,7 +98,7 @@ class DoctrineExtension extends AbstractExtension
                 break;
 
             case \is_string($result):
-                $result = "'" . addslashes($result) . "'";
+                $result = '\'' . addslashes($result) . '\'';
 
                 break;
 

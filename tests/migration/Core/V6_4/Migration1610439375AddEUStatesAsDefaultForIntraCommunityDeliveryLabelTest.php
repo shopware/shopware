@@ -49,9 +49,9 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         $listInvoiceData = $this->getListInvoiceData();
 
         $euStates = $this->connection->executeQuery(
-            "SELECT `id` FROM `country` WHERE `iso`
-                IN ('AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'GR', 'ES', 'FI', 'FR', 'GB', 'HU', 'IE', 'IT',
-                'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'HR')"
+            'SELECT `id` FROM `country` WHERE `iso`
+                IN (\'AT\', \'BE\', \'BG\', \'CY\', \'CZ\', \'DE\', \'DK\', \'EE\', \'GR\', \'ES\', \'FI\', \'FR\', \'GB\', \'HU\', \'IE\', \'IT\',
+                \'LT\', \'LU\', \'LV\', \'MT\', \'NL\', \'PL\', \'PT\', \'RO\', \'SE\', \'SI\', \'SK\', \'HR\')'
         )->fetchFirstColumn();
 
         foreach ($listInvoiceData as $invoiceData) {

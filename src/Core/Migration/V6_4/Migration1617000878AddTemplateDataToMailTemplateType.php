@@ -4214,36 +4214,36 @@ class Migration1617000878AddTemplateDataToMailTemplateType extends MigrationStep
             ],
         ];
 
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'guest_order.double_opt_in'", [json_encode($guestOrder)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer.recovery.request'", [json_encode($customerRecoveryRequest)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order.state.completed'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order.state.in_progress'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer.group.registration.accepted'", [json_encode($customerGroupRegistration)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_delivery.state.shipped_partially'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer.group.registration.declined'", [json_encode($customerGroupRegistration)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_delivery.state.returned'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.open'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_confirmation_mail'", [json_encode($orderConfirmation)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'contact_form'", [json_encode($contactForm)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.refunded'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.paid_partially'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_delivery.state.shipped'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'newsletterRegister'", [json_encode($newsletterRegister)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_delivery.state.returned_partially'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'user.recovery.request'", [json_encode($userRecoveryRequest)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.cancelled'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order.state.cancelled'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_delivery.state.cancelled'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.reminded'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.refunded_partially'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order_transaction.state.paid'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer_register'", [json_encode($customerRegistration)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'sepa_confirmation'", [json_encode($orderConfirmation)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'order.state.open'", [json_encode($orderDeliverState)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer_group_change_accept'", [json_encode($customerGroupChange)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer_register.double_opt_in'", [json_encode($customerRegistration)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'customer_group_change_reject'", [json_encode($customerGroupChange)]);
-        $connection->executeStatement("UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = 'newsletterDoubleOptIn'", [json_encode($newsletterRegister)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'guest_order.double_opt_in\'', [json_encode($guestOrder)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer.recovery.request\'', [json_encode($customerRecoveryRequest)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order.state.completed\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order.state.in_progress\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer.group.registration.accepted\'', [json_encode($customerGroupRegistration)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_delivery.state.shipped_partially\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer.group.registration.declined\'', [json_encode($customerGroupRegistration)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_delivery.state.returned\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.open\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_confirmation_mail\'', [json_encode($orderConfirmation)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'contact_form\'', [json_encode($contactForm)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.refunded\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.paid_partially\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_delivery.state.shipped\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'newsletterRegister\'', [json_encode($newsletterRegister)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_delivery.state.returned_partially\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'user.recovery.request\'', [json_encode($userRecoveryRequest)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.cancelled\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order.state.cancelled\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_delivery.state.cancelled\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.reminded\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.refunded_partially\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order_transaction.state.paid\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer_register\'', [json_encode($customerRegistration)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'sepa_confirmation\'', [json_encode($orderConfirmation)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'order.state.open\'', [json_encode($orderDeliverState)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer_group_change_accept\'', [json_encode($customerGroupChange)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer_register.double_opt_in\'', [json_encode($customerRegistration)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'customer_group_change_reject\'', [json_encode($customerGroupChange)]);
+        $connection->executeStatement('UPDATE `mail_template_type` SET `template_data` = ? WHERE `mail_template_type`.`technical_name` = \'newsletterDoubleOptIn\'', [json_encode($newsletterRegister)]);
     }
 
     public function updateDestructive(Connection $connection): void

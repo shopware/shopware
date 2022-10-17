@@ -146,7 +146,7 @@ class PaymentService
         $transactionId = $token->getTransactionId();
 
         if ($transactionId === null || !Uuid::isValid($transactionId)) {
-            throw new AsyncPaymentProcessException((string) $transactionId, "Payment JWT didn't contain a valid orderTransactionId");
+            throw new AsyncPaymentProcessException((string) $transactionId, 'Payment JWT didn\'t contain a valid orderTransactionId');
         }
 
         $transaction = $this->getPaymentTransactionStruct($transactionId, $context->getContext());

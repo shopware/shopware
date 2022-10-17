@@ -31,7 +31,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTable extends Migra
             $oldField = 'product.' . $customField . '",';
             $updateField = 'product.customFields.' . $customField . '",';
             $connection->executeStatement('UPDATE product_stream_filter SET `field` = ? WHERE `field` = ?', ['customFields.' . $customField, $customField]);
-            $connection->executeStatement("UPDATE product_stream SET `api_filter` = REPLACE(`api_filter`, '" . $oldField . "', '" . $updateField . "') WHERE `api_filter` LIKE '%" . $customField . "%'");
+            $connection->executeStatement('UPDATE product_stream SET `api_filter` = REPLACE(`api_filter`, \'' . $oldField . '\', \'' . $updateField . '\') WHERE `api_filter` LIKE \'%' . $customField . '%\'');
         }
     }
 

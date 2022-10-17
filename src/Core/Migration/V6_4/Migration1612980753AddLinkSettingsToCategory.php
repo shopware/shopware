@@ -26,7 +26,7 @@ SQL;
             ->update('category_translation', 'translation')
             ->set('link_type', ':linkType')
             ->where('translation.external_link IS NOT NULL')
-            ->orWhere("translation.category_id IN (SELECT id FROM category WHERE translation.category_id = category.id AND category.type = 'link')")
+            ->orWhere('translation.category_id IN (SELECT id FROM category WHERE translation.category_id = category.id AND category.type = \'link\')')
             ->setParameter('linkType', 'external')
             ->execute();
     }

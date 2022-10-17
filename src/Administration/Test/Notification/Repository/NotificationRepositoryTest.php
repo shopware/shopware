@@ -46,7 +46,7 @@ class NotificationRepositoryTest extends TestCase
                 $this->context->scope($scope, function (Context $context) use ($data): void {
                     $this->notificationRepository->create([$data], $context);
                 });
-                static::fail(sprintf("Create within wrong scope '%s'", $scope));
+                static::fail(sprintf('Create within wrong scope \'%s\'', $scope));
             } catch (\Exception $e) {
                 static::assertInstanceOf(AccessDeniedHttpException::class, $e);
             }
@@ -61,7 +61,7 @@ class NotificationRepositoryTest extends TestCase
                 $this->context->scope($scope, function (Context $context) use ($id): void {
                     $this->notificationRepository->search(new Criteria([$id]), $context);
                 });
-                static::fail(sprintf("Read within wrong scope '%s'", $scope));
+                static::fail(sprintf('Read within wrong scope \'%s\'', $scope));
             } catch (\Exception $e) {
                 static::assertInstanceOf(AccessDeniedHttpException::class, $e);
             }

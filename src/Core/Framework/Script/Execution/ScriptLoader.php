@@ -71,7 +71,7 @@ class ScriptLoader implements EventSubscriberInterface
             $this->scriptPersister->refresh();
         }
 
-        $scripts = $this->connection->fetchAllAssociative("
+        $scripts = $this->connection->fetchAllAssociative('
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS scriptName,
                    `script`.`script` AS script,
@@ -83,11 +83,11 @@ class ScriptLoader implements EventSubscriberInterface
                    `script`.`active` AS active
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` != 'include'
+            WHERE `script`.`hook` != \'include\'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
-        ");
+        ');
 
-        $includes = $this->connection->fetchAllAssociative("
+        $includes = $this->connection->fetchAllAssociative('
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS name,
                    `script`.`script` AS script,
@@ -96,9 +96,9 @@ class ScriptLoader implements EventSubscriberInterface
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` = 'include'
+            WHERE `script`.`hook` = \'include\'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
-        ");
+        ');
 
         $allIncludes = FetchModeHelper::group($includes);
 

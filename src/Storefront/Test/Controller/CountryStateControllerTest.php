@@ -42,7 +42,7 @@ class CountryStateControllerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->countryIdDE = Uuid::fromBytesToHex(
-            $this->connection->fetchAllAssociative("SELECT id FROM country WHERE iso = 'DE'")[0]['id']
+            $this->connection->fetchAllAssociative('SELECT id FROM country WHERE iso = \'DE\'')[0]['id']
         );
 
         $this->countryStateController = $this->getContainer()->get(CountryStateController::class);

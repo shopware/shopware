@@ -1,5 +1,6 @@
 ---
 title: Fix cursor for disabled switch-field and radio-field
+issue: NEXT-23693
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

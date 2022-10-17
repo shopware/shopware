@@ -135,6 +135,14 @@ $sw-field-color-inherited: $color-module-purple-900;
         border: 1px solid $color-gray-300;
         padding: 16px;
     }
+
+    &.is--disabled {
+        .sw-field__label {
+            label {
+                cursor: not-allowed;
+            }
+        }
+    }
 }
 
 .sw-field--checkbox.sw-field__checkbox--ghost {

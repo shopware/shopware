@@ -194,4 +194,31 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
             expect(['Order', 'Customer']).toContain(option.label);
         });
     });
+
+    it('should display the title of tag correctly', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            action: 'action.add.order.tag',
+        });
+
+        const titleElement = wrapper.find('.sw-flow-tag-modal');
+        expect(titleElement.attributes().title).toBe('sw-flow.modals.tag.labelAddTag');
+
+        await wrapper.setProps({
+            action: 'action.remove.order.tag',
+        });
+        expect(titleElement.attributes().title).toBe('sw-flow.modals.tag.labelRemoveTag');
+    });
+
+    it('should display empty title of tag', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            action: 'action.delete.order.tag',
+        });
+
+        const titleElement = wrapper.find('.sw-flow-tag-modal');
+        expect(titleElement.attributes().title).toBe('');
+    });
 });

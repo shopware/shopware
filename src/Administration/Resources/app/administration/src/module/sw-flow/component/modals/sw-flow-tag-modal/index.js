@@ -64,6 +64,20 @@ Component.register('sw-flow-tag-modal', {
             return this.repositoryFactory.create('tag');
         },
 
+        tagTitle() {
+            if (!this.action) return '';
+
+            if (this.action.match(/add.*tag/)) {
+                return this.$tc('sw-flow.modals.tag.labelAddTag');
+            }
+
+            if (this.action.match(/remove.*tag/)) {
+                return this.$tc('sw-flow.modals.tag.labelRemoveTag');
+            }
+
+            return '';
+        },
+
         ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
     },
 

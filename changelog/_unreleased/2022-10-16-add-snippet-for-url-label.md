@@ -1,5 +1,6 @@
 ---
 title: Normalized capitalization of URL in administration
+issue: NEXT-23699
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

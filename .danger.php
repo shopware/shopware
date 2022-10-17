@@ -307,6 +307,24 @@ return (new Config())
             );
         }
     })
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $invalidFiles = [];
+
+        foreach ($files as $file) {
+            if ($file->status !== File::STATUS_REMOVED && preg_match('/^([-\.\w\/]+)$/', $file->name) === 0) {
+                $invalidFiles[] =  $file->name;
+            }
+        }
+
+        if (count($invalidFiles) > 0) {
+            $context->failure(
+                'The following filenames contain invalid special characters, please use only alphanumeric characters, dots, dashes and underscores: <br/>' .
+                print_r($invalidFiles, true)
+            );
+        }
+    })
     ->after(function (Context $context) {
         if ($context->platform instanceof Github && $context->hasFailures()) {
             $context->platform->addLabels('Incomplete');

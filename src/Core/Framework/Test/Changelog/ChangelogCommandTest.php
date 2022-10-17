@@ -39,13 +39,6 @@ class ChangelogCommandTest extends TestCase
                 ],
             ],
             [
-                __DIR__ . '/_fixture/stage/command-invalid-name',
-                [
-                    '* Changelog has invalid filename, please use only alphanumeric characters, dots, dashes and underscores.',
-                    '[ERROR] You have some syntax errors in changelog files.',
-                ],
-            ],
-            [
                 __DIR__ . '/_fixture/stage/command-invalid-issue-number',
                 [
                     '* The Jira ticket has an invalid format',

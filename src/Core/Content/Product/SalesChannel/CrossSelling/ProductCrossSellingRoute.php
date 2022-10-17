@@ -13,7 +13,7 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,6 +46,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private ProductListingLoader $listingLoader;
 
+    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+
     /**
      * @internal
      */
@@ -55,7 +57,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository,
         SystemConfigService $systemConfigService,
-        ProductListingLoader $listingLoader
+        ProductListingLoader $listingLoader,
+        ProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->crossSellingRepository = $crossSellingRepository;
@@ -63,6 +66,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $this->productRepository = $productRepository;
         $this->systemConfigService = $systemConfigService;
         $this->listingLoader = $listingLoader;
+        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute
@@ -121,8 +125,11 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private function loadByStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): CrossSellingElement
     {
+        /** @var string $productStreamId */
+        $productStreamId = $crossSelling->getProductStreamId();
+
         $filters = $this->productStreamBuilder->buildFilters(
-            $crossSelling->getProductStreamId(),
+            $productStreamId,
             $context->getContext()
         );
 
@@ -209,7 +216,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             return $criteria;
         }
 
-        $criteria->addFilter(new ProductCloseoutFilter());
+        $closeoutFilter = $this->productCloseoutFilterFactory->create();
+        $criteria->addFilter($closeoutFilter);
 
         return $criteria;
     }

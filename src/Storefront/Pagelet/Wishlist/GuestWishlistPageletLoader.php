@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Pagelet\Wishlist;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -24,17 +24,21 @@ class GuestWishlistPageletLoader
 
     private SystemConfigService $systemConfigService;
 
+    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+
     /**
      * @internal
      */
     public function __construct(
         AbstractProductListRoute $productListRoute,
         SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->productListRoute = $productListRoute;
         $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPagelet
@@ -89,7 +93,8 @@ class GuestWishlistPageletLoader
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         )) {
-            $criteria->addFilter(new ProductCloseoutFilter());
+            $closeoutFilter = $this->productCloseoutFilterFactory->create();
+            $criteria->addFilter($closeoutFilter);
         }
 
         return $criteria;

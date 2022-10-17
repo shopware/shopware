@@ -294,6 +294,7 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute" public="true">

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -17,8 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,25 +30,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $wishlistRepository;
+    private EntityRepositoryInterface $wishlistRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
+
+    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     /**
      * @internal
@@ -59,12 +47,14 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         EntityRepositoryInterface $wishlistRepository,
         SalesChannelRepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        ProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->wishlistRepository = $wishlistRepository;
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfigService = $systemConfigService;
+        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
     public function getDecorated(): AbstractLoadWishlistRoute
@@ -145,7 +135,8 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             return $criteria;
         }
 
-        $criteria->addFilter(new ProductCloseoutFilter());
+        $closeoutFilter = $this->productCloseoutFilterFactory->create();
+        $criteria->addFilter($closeoutFilter);
 
         return $criteria;
     }

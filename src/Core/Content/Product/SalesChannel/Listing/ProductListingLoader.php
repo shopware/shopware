@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,6 +35,8 @@ class ProductListingLoader
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+
     /**
      * @internal
      */
@@ -42,12 +44,14 @@ class ProductListingLoader
         SalesChannelRepositoryInterface $repository,
         SystemConfigService $systemConfigService,
         Connection $connection,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->repository = $repository;
         $this->systemConfigService = $systemConfigService;
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
@@ -149,7 +153,8 @@ class ProductListingLoader
             return;
         }
 
-        $criteria->addFilter(new ProductCloseoutFilter());
+        $closeoutFilter = $this->productCloseoutFilterFactory->create();
+        $criteria->addFilter($closeoutFilter);
     }
 
     /**

@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -45,6 +44,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private ProductDefinition $productDefinition;
 
+    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+
     /**
      * @internal
      */
@@ -54,7 +55,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         ProductConfiguratorLoader $configuratorLoader,
         CategoryBreadcrumbBuilder $breadcrumbBuilder,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        SalesChannelProductDefinition $productDefinition
+        SalesChannelProductDefinition $productDefinition,
+        ProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->productRepository = $productRepository;
         $this->config = $config;
@@ -62,6 +64,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $this->breadcrumbBuilder = $breadcrumbBuilder;
         $this->cmsPageLoader = $cmsPageLoader;
         $this->productDefinition = $productDefinition;
+        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -134,7 +137,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 
         if ($hideCloseoutProductsWhenOutOfStock) {
-            $filter = new ProductCloseoutFilter();
+            $filter = $this->productCloseoutFilterFactory->create();
             $filter->addQuery(new EqualsFilter('product.parentId', null));
             $criteria->addFilter($filter);
         }

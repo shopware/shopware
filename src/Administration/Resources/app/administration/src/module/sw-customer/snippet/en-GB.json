@@ -223,6 +223,7 @@
       "buttonEdit": "Edit",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
+      "messageSaveInfoNumberChange": "Due to simultaneous registration, the customer got a newly generated customer number. The customer received the following newly generated number '{newCustomerNumber}'. Previous: '{oldCustomerNumber}'.",
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",

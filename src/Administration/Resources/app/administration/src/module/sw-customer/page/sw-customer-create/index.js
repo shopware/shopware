@@ -143,6 +143,8 @@ Component.register('sw-customer-create', {
 
                 this.isSaveSuccessful = false;
                 let numberRangePromise = Promise.resolve();
+                const oldCustomerNumber = this.customer.customerNumber;
+
                 if (this.customerNumberPreview === this.customer.customerNumber) {
                     numberRangePromise = this.numberRangeService
                         .reserve('customer', this.customer.salesChannelId).then((response) => {
@@ -160,6 +162,17 @@ Component.register('sw-customer-create', {
                     this.customerRepository.save(this.customer).then(() => {
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
+
+                        const newCustomerNumber = this.customer.customerNumber;
+
+                        if (oldCustomerNumber !== newCustomerNumber) {
+                            this.createNotificationInfo({
+                                message: this.$tc('sw-customer.detail.messageSaveInfoNumberChange', 1, {
+                                    oldCustomerNumber,
+                                    newCustomerNumber,
+                                }),
+                            });
+                        }
                     }).catch(() => {
                         this.createNotificationError({
                             message: this.$tc('sw-customer.detail.messageSaveError'),

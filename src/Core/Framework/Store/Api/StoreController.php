@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -138,6 +139,11 @@ class StoreController extends AbstractController
      */
     public function getLicenseList(Context $context): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         try {
             $licenseList = $this->storeClient->getLicenseList($context);
         } catch (ClientException $exception) {
@@ -177,6 +183,11 @@ class StoreController extends AbstractController
      */
     public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ExtensionStoreActionsController::downloadExtension()')
+        );
+
         $pluginName = (string) $queryDataBag->get('pluginName');
 
         $criteria = new Criteria();

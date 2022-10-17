@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
@@ -57,6 +58,9 @@ class StoreClient
 
     private InstanceService $instanceService;
 
+    /**
+     * @param array<string, string> $endpoints
+     */
     public function __construct(
         array $endpoints,
         StoreService $storeService,
@@ -116,6 +120,9 @@ class StoreClient
         $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function userInfo(Context $context): array
     {
         $response = $this->client->get(
@@ -126,7 +133,7 @@ class StoreClient
             ]
         );
 
-        return \json_decode($response->getBody()->getContents(), true);
+        return \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -233,6 +240,11 @@ class StoreClient
         }
     }
 
+    /**
+     * @param array<string, array{name: string, version: ?string, active: bool}> $extensions
+     *
+     * @return StoreLicenseViolationStruct[]
+     */
     public function getLicenseViolations(
         Context $context,
         array $extensions,
@@ -272,6 +284,9 @@ class StoreClient
         return $dataStruct;
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getPluginCompatibilities(Context $context, string $futureVersion, PluginCollection $pluginCollection): array
     {
         $pluginArray = [];
@@ -295,9 +310,12 @@ class StoreClient
             ]
         );
 
-        return json_decode($response->getBody()->getContents(), true);
+        return json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getExtensionCompatibilities(Context $context, string $futureVersion, ExtensionCollection $extensionCollection): array
     {
         $pluginArray = [];
@@ -321,7 +339,7 @@ class StoreClient
             ]
         );
 
-        return \json_decode($response->getBody()->getContents(), true);
+        return json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     public function isShopUpgradeable(): bool
@@ -429,10 +447,17 @@ class StoreClient
     }
 
     /**
+     * @return array<string, mixed>
+     *
      * @deprecated tag:v6.5.0 Unused method will be removed
      */
     public function getLicenses(Context $context): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__METHOD__, __CLASS__, 'v6.5.0.0')
+        );
+
         try {
             $response = $this->client->get(
                 $this->endpoints['my_licenses'],
@@ -453,6 +478,9 @@ class StoreClient
         ];
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     protected function fetchLicenses(array $payload, Context $context): ResponseInterface
     {
         return $this->client->post($this->endpoints['my_extensions'], [
@@ -462,11 +490,17 @@ class StoreClient
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getHeaders(Context $context): array
     {
         return $this->optionsProvider->getAuthenticationHeader($context);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getQueries(Context $context): array
     {
         return $this->optionsProvider->getDefaultQueryParameters($context);
@@ -478,6 +512,8 @@ class StoreClient
     }
 
     /**
+     * @param list<array<string, mixed>> $violationsData
+     *
      * @return StoreLicenseViolationStruct[]
      */
     private function getViolations(array $violationsData): array
@@ -495,6 +531,8 @@ class StoreClient
     }
 
     /**
+     * @param list<array<string, mixed>> $actionsData
+     *
      * @return StoreActionStruct[]
      */
     private function getActions(array $actionsData): array
@@ -510,6 +548,8 @@ class StoreClient
     }
 
     /**
+     * @param list<array{name: string, version: ?string}> $extensionList
+     *
      * @return StoreUpdateStruct[]
      */
     private function getUpdateListFromStore(array $extensionList, Context $context, ?string $hostName = null): array

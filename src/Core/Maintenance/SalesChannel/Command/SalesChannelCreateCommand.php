@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
@@ -56,15 +57,13 @@ class SalesChannelCreateCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Option `snippetSetId` will be removed as it had no effect, use `sales-channel:create:storefront` instead
-     */
     protected function configure(): void
     {
         $this
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
+            /** @deprecated tag:v6.5.0 - Option `snippetSetId` will be removed as it had no effect, use `sales-channel:create:storefront` instead */
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Deprecated: will be removed in 6.5.0 as it had no effect')
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
@@ -135,6 +134,9 @@ class SalesChannelCreateCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
         return [];
@@ -150,6 +152,11 @@ class SalesChannelCreateCommand extends Command
      */
     protected function getFirstActiveShippingMethodId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
+        );
+
         $criteria = (new Criteria())
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
@@ -165,6 +172,11 @@ class SalesChannelCreateCommand extends Command
      */
     protected function getFirstActivePaymentMethodId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
+        );
+
         $criteria = (new Criteria())
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true))
@@ -181,6 +193,11 @@ class SalesChannelCreateCommand extends Command
      */
     protected function getFirstActiveCountryId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
+        );
+
         $criteria = (new Criteria())
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true))
@@ -197,6 +214,11 @@ class SalesChannelCreateCommand extends Command
      */
     protected function getSnippetSetId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
+        );
+
         $criteria = (new Criteria())
             ->setLimit(1)
             ->addFilter(new EqualsFilter('iso', 'en-GB'));
@@ -216,6 +238,11 @@ class SalesChannelCreateCommand extends Command
      */
     protected function getRootCategoryId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
+        );
+
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('category.parentId', null));

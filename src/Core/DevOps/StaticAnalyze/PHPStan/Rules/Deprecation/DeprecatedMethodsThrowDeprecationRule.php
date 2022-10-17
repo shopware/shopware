@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @implements Rule<ClassMethod>
@@ -58,7 +59,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
         $class = $scope->getClassReflection();
 
-        if ($class === null || $class->isInternal() || $class->isInterface()) {
+        if ($class === null || $class->isInterface() || $this->isTestClass($class)) {
             return [];
         }
 
@@ -132,5 +133,24 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return \str_contains($method, 'Feature::triggerDeprecationOrThrow(');
+    }
+
+    private function isTestClass(ClassReflection $class): bool
+    {
+        $namespace = $class->getName();
+
+        if (\str_contains($namespace, '\\Test\\')) {
+            return true;
+        }
+
+        if (\str_contains($namespace, '\\Tests\\')) {
+            return true;
+        }
+
+        if ($class->getParentClass() === null) {
+            return false;
+        }
+
+        return $class->getParentClass()->getName() === TestCase::class;
     }
 }

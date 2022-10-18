@@ -33,10 +33,10 @@ tasks:
       ./bin/console sales-channel:update:domain $(gp url 8000 | awk -F[/:] '{print $4}')
       
       # Start Webserver
-      symfony server:start --port 8000 -d{print $4}') && symfony server:start --port 8000
+      symfony server:start --port 8000
   - name: Getting Started
     command: |
-      echo 'Hey!. Your environment is starting soon. You can see the progress in the Shopware Terminal'
+      echo 'Hey. Your environment is starting soon. You can see the progress in the Shopware Terminal'
       echo 'If you want to run the Admin Watch, just use the Terminal alias: admin-watch'
       echo 'Happy Coding!'
       echo "Shop URL: $(gp url 8000)"
@@ -65,10 +65,10 @@ jetbrains:
     - com.intellij.php.psalm
     - org.jetbrains.plugins.yaml
     - com.jetbrains.twig
-    - de.espend.idea.php.annotation
     - fr.adrienbrault.idea.symfony2plugin
     - de.shyim.shopware6
     - de.shyim.ideaphpstantoolbox
+    - de.espend.idea.php.annotation
   phpstorm:
     vmoptions: "-Xmx4g"
     prebuilds:

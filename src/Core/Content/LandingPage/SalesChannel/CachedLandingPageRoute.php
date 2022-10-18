@@ -36,6 +36,9 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -44,6 +47,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
      * @internal
      *
      * @param AbstractCacheTracer<LandingPageRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractLandingPageRoute $decorated,
@@ -83,6 +87,10 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
         $key = $this->generateKey($landingPageId, $request, $context);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($landingPageId, $request, $context);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $landingPageId) {
             $name = self::buildName($landingPageId);
             $response = $this->tracer->trace($name, function () use ($landingPageId, $request, $context) {
@@ -97,7 +105,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(string $landingPageId, Request $request, SalesChannelContext $context): string
+    private function generateKey(string $landingPageId, Request $request, SalesChannelContext $context): ?string
     {
         $parts = array_merge(
             $request->query->all(),
@@ -108,9 +116,16 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
         $event = new LandingPageRouteCacheKeyEvent($landingPageId, $parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($landingPageId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(string $landingPageId, LandingPageRouteResponse $response, Request $request, SalesChannelContext $context): array
     {
         $tags = array_merge(
@@ -125,6 +140,9 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
         return array_unique(array_filter($event->getTags()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractIds(LandingPageRouteResponse $response): array
     {
         $page = $response->getLandingPage()->getCmsPage();

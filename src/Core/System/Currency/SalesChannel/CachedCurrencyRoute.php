@@ -38,6 +38,9 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var array<string>
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +49,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
      * @internal
      *
      * @param AbstractCacheTracer<CurrencyRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         AbstractCurrencyRoute $decorated,
@@ -86,6 +90,10 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
+        if ($key === null) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
             $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
@@ -100,7 +108,7 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -110,9 +118,16 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
         $event = new CurrencyRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
+        if (!$event->shouldCache()) {
+            return null;
+        }
+
         return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return array<string>
+     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

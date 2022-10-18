@@ -1,3 +1,5 @@
+import CMS from '../../../constant/sw-cms.constant';
+
 import './component';
 import './preview';
 
@@ -10,6 +12,7 @@ Shopware.Service('cmsService').registerCmsBlock({
     category: 'commerce',
     component: 'sw-cms-block-product-heading',
     previewComponent: 'sw-cms-preview-product-heading',
+    allowedPageTypes: [CMS.PAGE_TYPES.PRODUCT_DETAIL],
     defaultConfig: {
         marginTop: '20px',
         marginLeft: '20px',

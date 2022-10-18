@@ -51,8 +51,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_sidebar_page_settings_type_field %}
                 <sw-select-field
-                    v-model="page.type"
                     v-tooltip.bottom="tooltipDisabled"
+                    :value="page.type"
                     :label="$tc('sw-cms.detail.label.pageType')"
                     :disabled="!isSystemDefaultLanguage || page.type === 'product_detail'"
                     @change="onPageTypeChange"
@@ -189,10 +189,8 @@
             <div
                 class="sw-cms-sidebar__block-selection"
             >
-                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <div
                     v-for="block in cmsBlocks"
-                    v-if="block.category === currentBlockCategory && block.hidden !== true"
                     :key="block.name"
                 >
 

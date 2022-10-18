@@ -1,5 +1,6 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+
+import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
@@ -20,7 +21,10 @@ const defaultRepository = {
         1
     )),
     get: () => Promise.resolve({
-        sections: [{}]
+        sections: [{
+            blocks: []
+        }],
+        type: CMS.PAGE_TYPES.LANDING,
     }),
     save: jest.fn(() => Promise.resolve()),
     clone: jest.fn(() => Promise.resolve())
@@ -41,11 +45,7 @@ const mediaRepository = {
 
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
     return shallowMount(await Shopware.Component.build('sw-cms-detail'), {
-        localVue,
         stubs: {
             'sw-page': true,
             'sw-cms-toolbar': true,
@@ -146,7 +146,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable all fields when acl rights are missing', async () => {
+    it('should disable all fields when ACL rights are missing', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
@@ -173,7 +173,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(cmsSidebar.attributes().disabled).toBe('true');
     });
 
-    it('should enable all fields when acl rights are missing', async () => {
+    it('should enable all fields when ACL rights are missing', async () => {
         global.activeAclRoles = [
             'cms.editor',
         ];
@@ -567,5 +567,20 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         ['categories', 'landingPages', 'products', 'products.manufacturer'].forEach((association) => {
             expect(criteria.getAssociation(association).getLimit()).toBe(25);
         });
+    });
+
+    it('should set the currentPageType in the cmsPageState', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        let State = Shopware.State._store.state.cmsPageState;
+        expect(State.currentPageType).toBe(CMS.PAGE_TYPES.LANDING);
+
+        wrapper.get('sw-cms-sidebar-stub').vm.$emit('page-type-change', CMS.PAGE_TYPES.SHOP);
+        await flushPromises();
+
+        State = Shopware.State._store.state.cmsPageState;
+        expect(State.currentPageType).toBe(CMS.PAGE_TYPES.SHOP);
+        expect(wrapper.vm.page.type).toBe(CMS.PAGE_TYPES.SHOP);
     });
 });

@@ -38,12 +38,12 @@
         <div class="sw-cms-slot__actions">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_settings %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-tooltip.bottom="tooltipDisabled"
                 class="sw-cms-slot__settings-action"
                 :class="cmsSlotSettingsClasses"
                 @click="onSettingsButtonClick"
+                @keydown.enter="onSelectElement(element.name)"
             >
                 <sw-icon
                     name="regular-cog"
@@ -54,11 +54,11 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_swap %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-if="elementConfig.removable !== false"
                 class="sw-cms-slot__element-action"
                 @click="onElementButtonClick"
+                @keydown.enter="onSelectElement(element.name)"
             >
                 <sw-icon
                     name="regular-repeat"
@@ -118,40 +118,42 @@
         <div class="sw-cms-slot__element-selection">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_element_modal_selection_element %}
-            <!-- eslint-disable vue/no-use-v-if-with-v-for vuejs-accessibility/click-events-have-key-events -->
-            <div
-                v-for="(element, index) in cmsElements"
-                v-if="!element.hidden && element.previewComponent"
-                :key="index"
-                class="element-selection__element-wrapper"
-                @click="onSelectElement(element)"
-            >
-                <div class="element-selection__element">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_slot_content_element_modal_selection_element_component %}
-                    <component
-                        :is="element.previewComponent"
-                        class="sw-cms-slot__element-preview"
-                        :element-data="element"
-                    />
-                    {% endblock %}
+            <template v-for="(element, index) in cmsElements">
+                <div
+                    v-if="!element.hidden && element.previewComponent"
+                    :key="index"
+                    class="element-selection__element-wrapper"
+                    @click="onSelectElement(element)"
+                    @keydown.enter="onSelectElement(element)"
+                >
+                    <div class="element-selection__element">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_slot_content_element_modal_selection_element_component %}
+                        <component
+                            :is="element.previewComponent"
+                            class="sw-cms-slot__element-preview"
+                            :element-data="element"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
+                        <div class="element-selection__overlay">
+                            <sw-icon
+                                name="regular-repeat"
+                                size="28"
+                            />
+                        </div>
+                        {% endblock %}
+                    </div>
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
-                    <div class="element-selection__overlay">
-                        <sw-icon
-                            name="regular-repeat"
-                            size="28"
-                        />
-                    </div>
+                    {% block sw_cms_slot_content_element_modal_selection_element_label %}
+                    <span class="element-selection__label">{{ $tc(element.label) }}</span>
+
                     {% endblock %}
                 </div>
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_slot_content_element_modal_selection_element_label %}
-                <span class="element-selection__label">{{ $tc(element.label) }}</span>
-                {% endblock %}
-            </div>
+            </template>
             {% endblock %}
         </div>
         {% endblock %}

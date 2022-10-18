@@ -1,6 +1,7 @@
 import 'src/module/sw-cms/service/cms.service';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import Entity from 'src/core/data/entity.data';
+import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 
 describe('module/sw-cms/service/cms.service.spec.js', () => {
     const cmsService = Shopware.Service('cmsService');
@@ -970,6 +971,116 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     context,
                 }
             });
+        });
+    });
+
+    describe('elements and blocks by pageType', () => {
+        it('should restrict blocks to pageTypes', () => {
+            const blockName0 = 'block_0';
+            const OnlyOnShopPage = {
+                name: blockName0,
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP],
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            expect(cmsService.registerCmsBlock(OnlyOnShopPage)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName0, CMS.PAGE_TYPES.SHOP)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName0, CMS.PAGE_TYPES.LANDING)).toBe(false);
+            expect(cmsService.isBlockAllowedInPageType(blockName0, CMS.PAGE_TYPES.LISTING)).toBe(false);
+            expect(cmsService.isBlockAllowedInPageType(blockName0, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(false);
+
+            const blockName1 = 'block_1';
+            const onLandingPageAndProduct = {
+                name: blockName1,
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            cmsService.registerCmsBlock(onLandingPageAndProduct);
+            expect(cmsService.isBlockAllowedInPageType(blockName1, CMS.PAGE_TYPES.SHOP)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName1, CMS.PAGE_TYPES.LANDING)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName1, CMS.PAGE_TYPES.LISTING)).toBe(false);
+            expect(cmsService.isBlockAllowedInPageType(blockName1, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(false);
+
+            const blockName2 = 'block_2';
+            const withEmptyAllowedPageTypes = {
+                name: blockName2,
+                allowedPageTypes: [],
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            cmsService.registerCmsBlock(withEmptyAllowedPageTypes);
+            expect(cmsService.isBlockAllowedInPageType(blockName2, CMS.PAGE_TYPES.SHOP)).toBe(false);
+            expect(cmsService.isBlockAllowedInPageType(blockName2, CMS.PAGE_TYPES.LANDING)).toBe(false);
+            expect(cmsService.isBlockAllowedInPageType(blockName2, CMS.PAGE_TYPES.LISTING)).toBe(false);
+            expect(cmsService.isBlockAllowedInPageType(blockName2, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(false);
+
+            const blockName3 = 'block_3';
+            const withInvalidConfig = {
+                name: blockName3,
+                allowedPageTypes: null,
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            cmsService.registerCmsBlock(withInvalidConfig);
+            expect(cmsService.isBlockAllowedInPageType(blockName3, CMS.PAGE_TYPES.SHOP)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName3, CMS.PAGE_TYPES.LANDING)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName3, CMS.PAGE_TYPES.LISTING)).toBe(true);
+            expect(cmsService.isBlockAllowedInPageType(blockName3, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(true);
+        });
+
+        it('should restrict elements to pageTypes', () => {
+            const elementName0 = 'block_0';
+            const OnlyOnShopPage = {
+                name: elementName0,
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP],
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            expect(cmsService.registerCmsElement(OnlyOnShopPage)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName0, CMS.PAGE_TYPES.SHOP)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName0, CMS.PAGE_TYPES.LANDING)).toBe(false);
+            expect(cmsService.isElementAllowedInPageType(elementName0, CMS.PAGE_TYPES.LISTING)).toBe(false);
+            expect(cmsService.isElementAllowedInPageType(elementName0, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(false);
+
+            const elementName1 = 'element_1';
+            const onLandingPageAndProduct = {
+                name: elementName1,
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            cmsService.registerCmsElement(onLandingPageAndProduct);
+            expect(cmsService.isElementAllowedInPageType(elementName1, CMS.PAGE_TYPES.SHOP)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName1, CMS.PAGE_TYPES.LANDING)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName1, CMS.PAGE_TYPES.LISTING)).toBe(false);
+            expect(cmsService.isElementAllowedInPageType(elementName1, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(false);
+
+            const elementName2 = 'block_2';
+            const withEmptyAllowedPageTypes = {
+                name: elementName2,
+                allowedPageTypes: [],
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            cmsService.registerCmsElement(withEmptyAllowedPageTypes);
+            expect(cmsService.isElementAllowedInPageType(elementName2, CMS.PAGE_TYPES.SHOP)).toBe(false);
+            expect(cmsService.isElementAllowedInPageType(elementName2, CMS.PAGE_TYPES.LANDING)).toBe(false);
+            expect(cmsService.isElementAllowedInPageType(elementName2, CMS.PAGE_TYPES.LISTING)).toBe(false);
+            expect(cmsService.isElementAllowedInPageType(elementName2, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(false);
+
+            const elementName3 = 'element_3';
+            const withInvalidConfig = {
+                name: elementName3,
+                allowedPageTypes: null,
+                component: 'sw-cms-el-test',
+                config: {},
+            };
+            cmsService.registerCmsElement(withInvalidConfig);
+            expect(cmsService.isElementAllowedInPageType(elementName3, CMS.PAGE_TYPES.SHOP)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName3, CMS.PAGE_TYPES.LANDING)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName3, CMS.PAGE_TYPES.LISTING)).toBe(true);
+            expect(cmsService.isElementAllowedInPageType(elementName3, CMS.PAGE_TYPES.PRODUCT_DETAIL)).toBe(true);
         });
     });
 });

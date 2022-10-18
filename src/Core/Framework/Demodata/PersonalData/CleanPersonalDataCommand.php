@@ -15,6 +15,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class CleanPersonalDataCommand extends Command
 {
     protected const VALID_TYPES = [
@@ -27,15 +30,9 @@ class CleanPersonalDataCommand extends Command
 
     protected static $defaultName = 'database:clean-personal-data';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
     /**
      * @internal
@@ -107,7 +104,7 @@ class CleanPersonalDataCommand extends Command
         }
 
         if ($all || $type === self::TYPE_CARTS) {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM cart
                 WHERE DATE(created_at) <= (DATE_SUB(CURDATE(), INTERVAL :days DAY))',
                 ['days' => $days]

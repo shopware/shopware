@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Faker\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {
     private EntityRepositoryInterface $attributeSetRepository;
@@ -21,6 +23,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     private DefinitionInstanceRegistry $definitionRegistry;
 
+    /**
+     * @var array<string, array<string, mixed>>
+     */
     private array $attributeSets = [];
 
     /**
@@ -40,6 +45,8 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     /**
      * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
+     *
+     * @return array<string, mixed>|null
      */
     public function getRandomSet(): ?array
     {
@@ -84,6 +91,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $console->progressFinish();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function randomCustomField(string $prefix, DemodataContext $context): array
     {
         $types = [
@@ -182,6 +192,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         ];
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function generateCustomFieldSet(array $options, DemodataContext $context): void
     {
         $relationNames = array_keys($options['relations']);
@@ -214,13 +227,16 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $this->attributeSetRepository->upsert([$set], $context->getContext());
     }
 
+    /**
+     * @param list<array<string, mixed>> $attributes
+     */
     private function generateCustomFields(string $entityName, int $count, array $attributes, DemodataContext $context): void
     {
         $repo = $this->definitionRegistry->getRepository($entityName);
 
-        $ids = $this->connection->executeQuery(
+        $ids = $this->connection->fetchFirstColumn(
             sprintf('SELECT LOWER(HEX(id)) FROM `%s` ORDER BY rand() LIMIT %s', $entityName, $count)
-        )->fetchAll(FetchMode::COLUMN);
+        );
 
         $chunkSize = 50;
         foreach (array_chunk($ids, $chunkSize) as $chunk) {

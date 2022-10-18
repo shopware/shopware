@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class DemodataRequestCreatedEvent extends Event
 {
     private DemodataRequest $request;

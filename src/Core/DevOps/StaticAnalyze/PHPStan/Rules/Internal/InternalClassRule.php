@@ -16,11 +16,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @implements Rule<InClassNode>
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
  */
 class InternalClassRule implements Rule
 {
     private const TEST_CLASS_EXCEPTIONS = [
         StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
+    ];
+
+    private const INTERNAL_NAMESPACES = [
+        '\\DevOps\\StaticAnalyze',
+        '\\Framework\\Demodata',
     ];
 
     public function getNodeType(): string
@@ -61,6 +68,18 @@ class InternalClassRule implements Rule
             }
 
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($namespace = $this->isInInternalNamespace($node)) {
+            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
+            /**
+             * @deprecated tag:v6.5.0 - remove deprecation check, as all classes in internal namespaces should become internal in v6.5.0
+             */
+            if (\str_contains($classDeprecation, 'reason:becomes-internal')) {
+                return [];
+            }
+
+            return ['Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -137,5 +156,18 @@ class InternalClassRule implements Rule
         }
 
         return false;
+    }
+
+    private function isInInternalNamespace(InClassNode $node): ?string
+    {
+        $namespace = $node->getClassReflection()->getName();
+
+        foreach (self::INTERNAL_NAMESPACES as $internalNamespace) {
+            if (\str_contains($namespace, $internalNamespace)) {
+                return $internalNamespace;
+            }
+        }
+
+        return null;
     }
 }

@@ -12,6 +12,9 @@ use PHPStan\Type\MethodTypeSpecifyingExtension;
 use PHPStan\Type\TypeCombinator;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     private TypeSpecifier $typeSpecifier;

@@ -12,22 +12,16 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class DemodataService
 {
-    /**
-     * @var DemodataGeneratorInterface[]
-     */
-    private $generators;
+    private array $generators;
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
     /**
      * @internal

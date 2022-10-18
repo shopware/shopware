@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ */
 class TagGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;

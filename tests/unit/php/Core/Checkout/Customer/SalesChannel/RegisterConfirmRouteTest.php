@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -36,6 +37,11 @@ class RegisterConfirmRouteTest extends TestCase
     protected $context;
 
     /**
+     * @var MockObject|EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
      * @var MockObject|EntityRepositoryInterface
      */
     protected $customerRepository;
@@ -46,6 +52,11 @@ class RegisterConfirmRouteTest extends TestCase
     protected $validator;
 
     /**
+     * @var Stub|SalesChannelContextServiceInterface
+     */
+    protected $salesChannelContextService;
+
+    /**
      * @var RegisterConfirmRoute
      */
     protected $route;
@@ -54,23 +65,25 @@ class RegisterConfirmRouteTest extends TestCase
     {
         parent::setUp();
         $this->context = $this->createMock(SalesChannelContext::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->customerRepository = $this->createMock(EntityRepositoryInterface::class);
         $this->validator = $this->createMock(DataValidator::class);
+        $this->salesChannelContextPersister = $this->createMock(SalesChannelContextPersister::class);
 
         $newSalesChannelContext = $this->createMock(SalesChannelContext::class);
         $newSalesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $salesChannelContextService = $this->createStub(SalesChannelContextServiceInterface::class);
-        $salesChannelContextService
+        $this->salesChannelContextService = $this->createStub(SalesChannelContextServiceInterface::class);
+        $this->salesChannelContextService
             ->method('get')
             ->willReturn($newSalesChannelContext);
 
         $this->route = new RegisterConfirmRoute(
             $this->customerRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            $this->eventDispatcher,
             $this->validator,
-            $this->createMock(SalesChannelContextPersister::class),
-            $salesChannelContextService
+            $this->salesChannelContextPersister,
+            $this->salesChannelContextService
         );
     }
 

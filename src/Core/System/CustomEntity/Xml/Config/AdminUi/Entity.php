@@ -1,27 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Flag\AdminUi;
+namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
-use Shopware\Core\System\CustomEntity\Xml\Flag\Flag;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 
-/**
- * @internal
- */
-class AdminUiFlag extends Flag
+class Entity extends CustomEntityFlag
 {
     private const MAPPING = [
-        'detail' => DetailConfig::class,
-        'listing' => ListingConfig::class,
+        'listing' => Listing::class,
+        'detail' => Detail::class,
     ];
 
-    protected string $technicalName = 'admin-ui';
+    protected string $name;
 
-    public static function fromXml(\DOMElement $element): Flag
+    protected Listing $listing;
+
+    protected Detail $detail;
+
+    public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();
         $self->assign($self->parse($element));
 
         return $self;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getListing(): Listing
+    {
+        return $this->listing;
     }
 
     /**
@@ -31,7 +42,7 @@ class AdminUiFlag extends Flag
      */
     protected function parseChild(\DOMElement $child, array $values): array
     {
-        /** @var Flag|null $class */
+        /** @var CustomEntityFlag|null $class */
         $class = self::MAPPING[$child->tagName] ?? null;
 
         if (!$class) {

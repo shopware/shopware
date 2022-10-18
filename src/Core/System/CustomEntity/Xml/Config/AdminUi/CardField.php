@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Flag\AdminUi;
+namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
-use Shopware\Core\System\CustomEntity\Xml\Flag\Flag;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
-class CardFieldConfig extends Flag
+class CardField extends CustomEntityFlag
 {
-    public static function fromXml(\DOMElement $element): Flag
+    public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();
         $self->assign($self->parse($element));

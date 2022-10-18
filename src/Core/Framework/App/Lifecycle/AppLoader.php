@@ -7,6 +7,8 @@ use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiConfig;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareConfig;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -194,5 +196,27 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $snippets;
+    }
+
+    public function getCmsAwareConfig(AppEntity $app): ?CmsAwareConfig
+    {
+        $configPath = sprintf('%s/%s/Resources/config/%s', $this->projectDir, $app->getPath(), CmsAwareConfig::FILENAME);
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return CmsAwareConfig::createFromXmlFile($configPath);
+    }
+
+    public function getAdminUiConfig(AppEntity $app): ?AdminUiConfig
+    {
+        $configPath = sprintf('%s/%s/Resources/config/%s', $this->projectDir, $app->getPath(), AdminUiConfig::FILENAME);
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return AdminUiConfig::createFromXmlFile($configPath);
     }
 }

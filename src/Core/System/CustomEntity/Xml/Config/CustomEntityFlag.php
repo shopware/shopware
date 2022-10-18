@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Flag;
+namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -8,7 +8,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal
  */
-abstract class Flag extends XmlElement
+abstract class CustomEntityFlag extends XmlElement
 {
     protected string $technicalName;
 
@@ -20,7 +20,12 @@ abstract class Flag extends XmlElement
         $this->assign($data);
     }
 
-    abstract public static function fromXml(\DOMElement $element): Flag;
+    public function getName(): string
+    {
+        return $this->technicalName;
+    }
+
+    abstract public static function fromXml(\DOMElement $element): CustomEntityFlag;
 
     /**
      * @return array<string, mixed>
@@ -32,11 +37,6 @@ abstract class Flag extends XmlElement
         unset($data['technicalName']);
 
         return $data;
-    }
-
-    public function getName(): string
-    {
-        return $this->technicalName;
     }
 
     /**

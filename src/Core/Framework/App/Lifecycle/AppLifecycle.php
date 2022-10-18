@@ -45,6 +45,10 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiConfig;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareConfig;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -523,9 +527,14 @@ class AppLifecycle extends AbstractAppLifecycle
         if ($entities === null || $entities->getEntities() === null) {
             return;
         }
+
+        $entities = $this->enrichCmsAwareEntities($app, $entities);
+        $entities = $this->enrichAdminUiEntities($app, $entities);
+
         $this->customEntityPersister->update($entities->toStorage(), $id);
         $this->customEntitySchemaUpdater->update();
 
+        /** @phpstan-ignore-next-line does not recognize that we aleary check that $entities->getEntities() is not null */
         foreach ($entities->getEntities()->getEntities() as $entity) {
             $manifest->addPermissions([
                 $entity->getName() => [
@@ -536,6 +545,74 @@ class AppLifecycle extends AbstractAppLifecycle
                 ],
             ]);
         }
+    }
+
+    private function enrichCmsAwareEntities(AppEntity $app, CustomEntityXmlSchema $entities): CustomEntityXmlSchema
+    {
+        if (!($cmsAwareConfig = $this->appLoader->getCmsAwareConfig($app)) || $entities->getEntities() === null) {
+            return $entities;
+        }
+
+        if (!($cmsAware = $cmsAwareConfig->getCmsAware())) {
+            return $entities;
+        }
+
+        $cmsAwareEntitiesConfig = $cmsAware->getEntities();
+
+        foreach ($entities->getEntities()->getEntities() as $entity) {
+            if (!\array_key_exists($entity->getName(), $cmsAwareEntitiesConfig)) {
+                continue;
+            }
+
+            $fields = $entity->getFields();
+            $fields = array_merge($fields, CmsAwareConfig::getCmsAwareFields());
+            $entity->setFields($fields);
+
+            $flags = $entity->getFlags();
+            $flags = array_merge($flags, ['cms-aware' => $cmsAwareEntitiesConfig[$entity->getName()]]);
+            $entity->setFlags($flags);
+
+            unset($cmsAwareEntitiesConfig[$entity->getName()]);
+        }
+
+        if (!empty($cmsAwareEntitiesConfig)) {
+            throw CustomEntityConfigurationException::entityNotGivenException(CmsAwareConfig::FILENAME, array_keys($cmsAwareEntitiesConfig));
+        }
+
+        return $entities;
+    }
+
+    private function enrichAdminUiEntities(AppEntity $app, CustomEntityXmlSchema $entities): CustomEntityXmlSchema
+    {
+        if (!($adminUiConfig = $this->appLoader->getAdminUiConfig($app)) || $entities->getEntities() === null) {
+            return $entities;
+        }
+
+        if (!($adminUi = $adminUiConfig->getAdminUi())) {
+            return $entities;
+        }
+
+        $adminUiEntitiesConfig = $adminUi->getEntities();
+
+        foreach ($entities->getEntities()->getEntities() as $entity) {
+            if (!\array_key_exists($entity->getName(), $adminUiEntitiesConfig)) {
+                continue;
+            }
+
+            AdminUiConfig::validateConfiguration($adminUiEntitiesConfig[$entity->getName()], $entity);
+
+            $flags = $entity->getFlags();
+            $flags = array_merge($flags, ['admin-ui' => $adminUiEntitiesConfig[$entity->getName()]]);
+            $entity->setFlags($flags);
+
+            unset($adminUiEntitiesConfig[$entity->getName()]);
+        }
+
+        if (!empty($adminUiEntitiesConfig)) {
+            throw CustomEntityConfigurationException::entityNotGivenException(AdminUiConfig::FILENAME, array_keys($adminUiEntitiesConfig));
+        }
+
+        return $entities;
     }
 
     private function updateConfigurable(AppEntity $app, Manifest $manifest, bool $install, Context $context): void

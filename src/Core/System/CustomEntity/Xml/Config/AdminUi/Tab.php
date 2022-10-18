@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Flag\AdminUi;
+namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
-use Shopware\Core\System\CustomEntity\Xml\Flag\Flag;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 
 /**
  * @internal
  */
-class ListingConfig extends Flag
+class Tab extends CustomEntityFlag
 {
     private const MAPPING = [
-        'column' => ColumnConfig::class,
+        'card' => Card::class,
     ];
 
-    public static function fromXml(\DOMElement $element): Flag
+    public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();
         $self->assign($self->parse($element));
@@ -28,14 +28,14 @@ class ListingConfig extends Flag
      */
     protected function parseChild(\DOMElement $child, array $values): array
     {
-        /** @var Flag|null $class */
+        /** @var CustomEntityFlag|null $class */
         $class = self::MAPPING[$child->tagName] ?? null;
 
         if (!$class) {
             throw new \RuntimeException(sprintf('Flag type "%s" not found', $child->tagName));
         }
 
-        $values['columns'][] = $class::fromXml($child);
+        $values['cards'][] = $class::fromXml($child);
 
         return $values;
     }

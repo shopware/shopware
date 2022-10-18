@@ -64,10 +64,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      *
-     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      * @param Api $api
      *
-     * @return array<string, mixed>
+     * @return OpenApiSpec
      */
     public function generate(array $definitions, string $api, string $apiType): array
     {
@@ -114,7 +114,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      *
-     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return never
      */

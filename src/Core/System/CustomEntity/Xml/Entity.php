@@ -5,8 +5,6 @@ namespace Shopware\Core\System\CustomEntity\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\FieldFactory;
-use Shopware\Core\System\CustomEntity\Xml\Flag\Flag;
-use Shopware\Core\System\CustomEntity\Xml\Flag\FlagFactory;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -19,7 +17,7 @@ class Entity extends XmlElement
     protected string $name;
 
     /**
-     * @var array<string, mixed>
+     * @var array<int, Field>
      */
     protected array $fields = [];
 
@@ -55,11 +53,19 @@ class Entity extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<int, Field>
      */
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * @param array<int, Field> $fields
+     */
+    public function setFields(array $fields): void
+    {
+        $this->fields = $fields;
     }
 
     /**
@@ -68,6 +74,14 @@ class Entity extends XmlElement
     public function getFlags(): array
     {
         return $this->flags;
+    }
+
+    /**
+     * @param array<string, mixed> $flags
+     */
+    public function setFlags(array $flags): void
+    {
+        $this->flags = $flags;
     }
 
     public function getName(): string
@@ -112,19 +126,6 @@ class Entity extends XmlElement
             $values[$child->tagName] = self::parseChildNodes($child, static function (\DOMElement $element): Field {
                 return FieldFactory::createFromXml($element);
             });
-
-            return $values;
-        }
-
-        if ($child->tagName === 'flags') {
-            $result = self::parseChildNodes($child, static function (\DOMElement $element): Flag {
-                return FlagFactory::createFromXml($element);
-            });
-
-            /** @var Flag $flag */
-            foreach ($result as $flag) {
-                $values[$child->tagName][$flag->getName()] = $flag;
-            }
 
             return $values;
         }

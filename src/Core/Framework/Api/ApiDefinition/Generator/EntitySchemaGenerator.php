@@ -72,7 +72,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
+     * @return array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool, flags?: array<string, array<string,mixed>>}>
      */
     public function getSchema(array $definitions): array
     {
@@ -81,10 +81,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
-            if (!$definition instanceof EntityDefinition) {
-                continue;
-            }
-
             $entity = $definition->getEntityName();
 
             $entitySchema = $this->getEntitySchema($definition);
@@ -100,7 +96,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}
+     * @return array{entity: string, properties: array<string, array{type: string, flags: list<Flag>}>, write-protected: bool, read-protected: bool, flags?: array<string, array<string,mixed>>}
      */
     private function getEntitySchema(EntityDefinition $definition): array
     {

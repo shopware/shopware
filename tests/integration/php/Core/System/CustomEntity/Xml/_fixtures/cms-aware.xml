@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<cms-aware xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/System/CustomEntity/Xml/Config/CmsAware/cms-aware-1.0.xsd">
+    <entity name="test_custom_entity_1"/>
+    <entity name="test_custom_entity_2"/>
+    <entity name="test_custom_entity_3"/>
+</cms-aware>

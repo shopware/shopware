@@ -18,6 +18,7 @@ const customEntityDefinitionWithAdminUi = {
     flags: {
         'cms-aware': {},
         'admin-ui': {
+            icon: 'some-icon',
             navigationParent: 'content',
             position: '50',
             listing: {
@@ -85,6 +86,7 @@ describe('src/app/service/custom-entity-definition.service', () => {
 
         expect(service.getMenuEntries()).toStrictEqual([{
             id: 'custom-entity/custom_entity_with_admin_ui',
+            icon: 'some-icon',
             label: 'custom_entity_with_admin_ui.moduleTitle',
             moduleType: 'plugin',
             parent: 'content',
@@ -92,7 +94,7 @@ describe('src/app/service/custom-entity-definition.service', () => {
                 entityName: 'custom_entity_with_admin_ui',
             },
             path: 'sw.custom.entity.index',
-            position: '50'
+            position: '50',
         }]);
     });
 });

@@ -132,11 +132,11 @@ class PromotionExclusionUpdater
         }
 
         RetryableQuery::retryable($this->connection, function () use ($affectedIds, $deleteId): void {
-            $sqlStatement = "
+            $sqlStatement = '
                 UPDATE promotion
-                SET promotion.exclusion_ids = JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,'one', :value)))
+                SET promotion.exclusion_ids = JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,\'one\', :value)))
                 WHERE id IN(:affectedIds)
-            ";
+            ';
 
             $this->connection->executeUpdate($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
         });

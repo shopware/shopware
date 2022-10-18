@@ -47,12 +47,12 @@ class Migration1590408550AclResources extends MigrationStep
 
     private function getRoles(Connection $connection): array
     {
-        $roles = $connection->fetchAll("
-            SELECT LOWER(HEX(`role`.id)) as id, CONCAT(`resource`.`resource`, ':', `resource`.`privilege`) as priv
+        $roles = $connection->fetchAll('
+            SELECT LOWER(HEX(`role`.id)) as id, CONCAT(`resource`.`resource`, \':\', `resource`.`privilege`) as priv
             FROM acl_role `role`
                 LEFT JOIN acl_resource `resource`
                     ON `role`.id = `resource`.acl_role_id
-        ");
+        ');
 
         return FetchModeHelper::group($roles);
     }

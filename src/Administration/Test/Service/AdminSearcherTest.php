@@ -54,7 +54,7 @@ class AdminSearcherTest extends TestCase
         $this->searcher = $this->getContainer()->get(AdminSearcher::class);
 
         $connection = $this->getContainer()->get(Connection::class);
-        $userId = (string) $connection->executeQuery("SELECT id FROM `user` WHERE username = 'admin'")->fetchColumn();
+        $userId = (string) $connection->executeQuery('SELECT id FROM `user` WHERE username = \'admin\'')->fetchColumn();
         $this->userId = Uuid::fromBytesToHex($userId);
         $this->context = Context::createDefaultContext();
     }

@@ -343,7 +343,7 @@ class ShopConfigurator
         );
 
         if (!$name) {
-            throw new ShopConfigurationException("locale_translation.name for iso: '" . $iso . "', localeId: '" . $localeId . "' not found!");
+            throw new ShopConfigurationException('locale_translation.name for iso: \'' . $iso . '\', localeId: \'' . $localeId . '\' not found!');
         }
 
         $this->connection->executeStatement(

@@ -154,7 +154,7 @@ class SeoUrlGenerator
 
     private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): void
     {
-        $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
+        $template = '{% autoescape \'' . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
         $this->twig->setLoader(new ArrayLoader(['template' => $template]));
 
         try {

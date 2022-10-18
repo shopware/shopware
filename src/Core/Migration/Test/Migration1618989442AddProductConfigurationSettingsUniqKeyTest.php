@@ -209,10 +209,10 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
 
     private function hasIndex(): bool
     {
-        return (bool) $this->connection->executeQuery("
+        return (bool) $this->connection->executeQuery('
             SHOW INDEXES IN `product_configurator_setting`
-            WHERE `Key_name` = 'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id'
-        ")->fetchOne();
+            WHERE `Key_name` = \'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id\'
+        ')->fetchOne();
     }
 
     private function insertDuplicateData(): string

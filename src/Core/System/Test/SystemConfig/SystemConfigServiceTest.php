@@ -97,7 +97,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
             $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'string'. But is of type 'array'");
+            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'string\'. But is of type \'array\'');
         }
         $actual = $this->systemConfigService->getString('foo.bar');
         static::assertSame($expected, $actual);
@@ -130,7 +130,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
             $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'int'. But is of type 'array'");
+            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'int\'. But is of type \'array\'');
         }
         $actual = $this->systemConfigService->getInt('foo.bar');
         static::assertSame($expected, $actual);
@@ -163,7 +163,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
             $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'float'. But is of type 'array'");
+            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'float\'. But is of type \'array\'');
         }
         $actual = $this->systemConfigService->getFloat('foo.bar');
         static::assertSame($expected, $actual);

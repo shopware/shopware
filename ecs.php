@@ -33,6 +33,7 @@ use PhpCsFixer\Fixer\PhpUnit\PhpUnitTestCaseStaticMethodCallsFixer;
 use PhpCsFixer\Fixer\ReturnNotation\NoUselessReturnFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer;
+use PhpCsFixer\Fixer\StringNotation\SingleQuoteFixer;
 use PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer;
 use PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
@@ -97,6 +98,7 @@ return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->ruleWithConfiguration(GeneralPhpdocAnnotationRemoveFixer::class, ['annotations' => ['copyright', 'category']]);
     $ecsConfig->ruleWithConfiguration(NoSuperfluousPhpdocTagsFixer::class, ['allow_unused_params' => true, 'allow_mixed' => true]);
     $ecsConfig->ruleWithConfiguration(PhpUnitDedicateAssertFixer::class, ['target' => 'newest']);
+    $ecsConfig->ruleWithConfiguration(SingleQuoteFixer::class, ['strings_containing_single_quote_chars' => true]);
 
     $parameters = $ecsConfig->parameters();
     $parameters->set(Option::CACHE_DIRECTORY, $_SERVER['SHOPWARE_TOOL_CACHE_ECS'] ?? 'var/cache/cs_fixer');

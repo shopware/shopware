@@ -103,8 +103,8 @@ class ProductCategoryDenormalizer
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'LOWER(HEX(product.id)) as product_id',
-            "GROUP_CONCAT(category.path SEPARATOR '') as paths",
-            "GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR '|') as ids",
+            'GROUP_CONCAT(category.path SEPARATOR \'\') as paths',
+            'GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR \'|\') as ids',
         ]);
         $query->from('product');
         $query->leftJoin(

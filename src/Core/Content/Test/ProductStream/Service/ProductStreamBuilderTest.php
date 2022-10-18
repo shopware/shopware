@@ -247,11 +247,11 @@ class ProductStreamBuilderTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->exec(
-            "
+            '
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
-                (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[]', 0, '2019-08-16 08:43:57.488', NULL);
-        "
+                (UNHEX(\'137B079935714281BA80B40F83F8D7EB\'), \'[]\', 0, \'2019-08-16 08:43:57.488\', NULL);
+        '
         );
     }
 

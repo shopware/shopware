@@ -941,7 +941,7 @@ class AppLifecycleTest extends TestCase
                 [
                     'name' => 'app-deleted/delete.script.twig',
                     'hook' => 'app-deleted',
-                    'script' => "{% do debug.dump('deleted') %}",
+                    'script' => '{% do debug.dump(\'deleted\') %}',
                     'active' => true,
                 ],
             ],

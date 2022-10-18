@@ -1982,14 +1982,14 @@ class VersioningTest extends TestCase
     private function getCommits(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAllAssociative(
-            "SELECT d.*
+            'SELECT d.*
              FROM version_commit_data d
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
              WHERE entity_name = :entity
-             AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY auto_increment",
+             AND JSON_EXTRACT(entity_id, \'$.id\') = :id
+             ORDER BY auto_increment',
             [
                 'entity' => $entity,
                 'id' => $id,
@@ -2013,14 +2013,14 @@ class VersioningTest extends TestCase
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAllAssociative(
-            "SELECT d.*
+            'SELECT d.*
              FROM version_commit_data d
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
              WHERE entity_name = :entity
-             AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY auto_increment",
+             AND JSON_EXTRACT(entity_id, \'$.id\') = :id
+             ORDER BY auto_increment',
             [
                 'entity' => $entity,
                 'id' => $id,
@@ -2044,13 +2044,13 @@ class VersioningTest extends TestCase
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId, string $versionField = 'versionId'): array
     {
         $data = $this->connection->fetchAllAssociative(
-            "SELECT *
+            'SELECT *
              FROM version_commit_data
              WHERE entity_name = :entity
-             AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
-             AND JSON_EXTRACT(entity_id, '$.languageId') = :language
-             AND JSON_EXTRACT(entity_id, '$." . $versionField . "') = :version
-             ORDER BY auto_increment",
+             AND JSON_EXTRACT(entity_id, \'$.' . $foreignKeyName . '\') = :id
+             AND JSON_EXTRACT(entity_id, \'$.languageId\') = :language
+             AND JSON_EXTRACT(entity_id, \'$.' . $versionField . '\') = :version
+             ORDER BY auto_increment',
             [
                 'entity' => $entity,
                 'id' => $foreignKey,

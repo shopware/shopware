@@ -52,7 +52,7 @@ class SystemUpdateFinishCommand extends Command
 
         $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
         if ($dsn === '' || $dsn === Kernel::PLACEHOLDER_DATABASE_URL) {
-            $output->note("Environment variable 'DATABASE_URL' not defined. Skipping " . $this->getName() . '...');
+            $output->note('Environment variable \'DATABASE_URL\' not defined. Skipping ' . $this->getName() . '...');
 
             return self::SUCCESS;
         }

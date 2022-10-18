@@ -57,17 +57,17 @@ if (empty($salesChannel)) {
 $ids = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 3 ' . $limit);
 
 $listings = $connection->fetchFirstColumn(
-    "
+    '
     SELECT
-        CONCAT('/', seo_path_info)
+        CONCAT(\'/\', seo_path_info)
     FROM seo_url
     INNER JOIN category ON(category.id = seo_url.foreign_key)
     WHERE
-        route_name = 'frontend.navigation.page' AND
+        route_name = \'frontend.navigation.page\' AND
         is_deleted = 0 AND
         is_canonical = 1 AND
         foreign_key IN (:ids)
-",
+',
     [
         'ids' => Uuid::fromHexToBytesList($ids),
     ],
@@ -77,18 +77,18 @@ $listings = $connection->fetchFirstColumn(
 $storeApiCategories = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 5 ' . $limit);
 
 $limit = $env['product_page_limit'] !== null ? ' LIMIT ' . (int) $env['product_page_limit'] : '';
-$details = $connection->fetchFirstColumn("
+$details = $connection->fetchFirstColumn('
 SELECT
-  CONCAT('/', seo_path_info)
+  CONCAT(\'/\', seo_path_info)
 FROM seo_url
     INNER JOIN product ON(product.id = seo_url.foreign_key AND product.version_id = :versionId)
     INNER JOIN product_visibility ON(product_visibility.product_id = product.id AND product_visibility.product_version_id = :versionId AND product_visibility.sales_channel_id = :salesChannelId)
 WHERE
-  route_name = 'frontend.detail.page' AND
+  route_name = \'frontend.detail.page\' AND
   is_deleted = 0 AND
   is_canonical = 1
 GROUP BY product.id
-" . $limit, [
+' . $limit, [
     'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
     'salesChannelId' => Uuid::fromHexToBytes($salesChannel['id']),
 ]);
@@ -114,13 +114,13 @@ $categories = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM
 $taxId = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
 $advertisements = $connection->fetchAllAssociative(
-    "
-    SELECT product_number as number, CONCAT('/', seo_path_info) as url
+    '
+    SELECT product_number as number, CONCAT(\'/\', seo_path_info) as url
     FROM product
        INNER JOIN seo_url
-          ON seo_url.route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1
+          ON seo_url.route_name = \'frontend.detail.page\' AND is_deleted = 0 AND is_canonical = 1
     WHERE is_closeout = 0 AND min_purchase = 1
-    LIMIT " . (int) $env['advertisements']
+    LIMIT ' . (int) $env['advertisements']
 );
 
 $connection->executeStatement(

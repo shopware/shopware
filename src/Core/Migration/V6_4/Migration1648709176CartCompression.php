@@ -20,7 +20,7 @@ class Migration1648709176CartCompression extends MigrationStep
     public function updateDestructive(Connection $connection): void
     {
         if (!$this->columnExists($connection, 'cart', 'compressed')) {
-            $connection->executeStatement("ALTER TABLE `cart` ADD `compressed` tinyint(1) NOT NULL DEFAULT '0';");
+            $connection->executeStatement('ALTER TABLE `cart` ADD `compressed` tinyint(1) NOT NULL DEFAULT \'0\';');
         }
 
         // after adding the payload column, we may save carts as compressed serialized objects, there is no way of return at this point

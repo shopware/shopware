@@ -38,8 +38,8 @@ class DomainLoader extends AbstractDomainLoader
         $query = $this->connection->createQueryBuilder();
 
         $query->select([
-            "CONCAT(TRIM(TRAILING '/' FROM domain.url), '/') `key`",
-            "CONCAT(TRIM(TRAILING '/' FROM domain.url), '/') url",
+            'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') `key`',
+            'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') url',
             'LOWER(HEX(domain.id)) id',
             'LOWER(HEX(sales_channel.id)) salesChannelId',
             'LOWER(HEX(sales_channel.type_id)) typeId',

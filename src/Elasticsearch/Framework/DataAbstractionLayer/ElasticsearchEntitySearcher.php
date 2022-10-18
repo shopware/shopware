@@ -180,12 +180,12 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
 
             $fields[] = sprintf(
-                "
-                if (doc['%s'].size()==0) {
-                    value = value + 'empty';
+                '
+                if (doc[\'%s\'].size()==0) {
+                    value = value + \'empty\';
                 } else {
-                    value = value + doc['%s'].value;
-                }",
+                    value = value + doc[\'%s\'].value;
+                }',
                 $accessor,
                 $accessor
             );

@@ -14,16 +14,16 @@ class Migration1536232630PropertyGroup extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate("
+        $connection->executeUpdate('
             CREATE TABLE `property_group` (
               `id`              BINARY(16)  NOT NULL,
-              `sorting_type`    VARCHAR(50) NOT NULL DEFAULT 'alphanumeric',
-              `display_type`    VARCHAR(50) NOT NULL DEFAULT 'text',
+              `sorting_type`    VARCHAR(50) NOT NULL DEFAULT \'alphanumeric\',
+              `display_type`    VARCHAR(50) NOT NULL DEFAULT \'text\',
               `created_at`      DATETIME(3) NOT NULL,
               `updated_at`      DATETIME(3) NULL,
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ");
+        ');
 
         $connection->executeUpdate('
             CREATE TABLE `property_group_translation` (

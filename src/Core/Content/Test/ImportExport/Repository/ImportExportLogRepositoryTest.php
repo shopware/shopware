@@ -92,7 +92,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($data): void {
                 $this->logRepository->create(array_values($data), $context);
             });
-            static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Create within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -110,7 +110,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
             try {
                 $this->logRepository->create([$entry], $this->context);
-                static::fail(sprintf("Create without required property '%s'", $property));
+                static::fail(sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
                 static::assertInstanceOf(WriteConstraintViolationException::class, $e->getExceptions()[0]);
@@ -248,7 +248,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -302,7 +302,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -359,7 +359,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($ids): void {
                 $this->logRepository->delete($ids, $context);
             });
-            static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Delete within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }

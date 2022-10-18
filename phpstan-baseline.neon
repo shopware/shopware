@@ -2888,11 +2888,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Rule/BillingZipCodeRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\CustomerLoggedInRuleTest\\:\\:getCaseTestMatchValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/CustomerLoggedInRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\CustomerNumberRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/CustomerNumberRuleTest.php

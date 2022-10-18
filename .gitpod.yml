@@ -36,7 +36,7 @@ tasks:
       symfony server:start --port 8000
   - name: Getting Started
     command: |
-      echo 'Hey!. Your environment is starting soon. You can see the progress in the Shopware Terminal'
+      echo 'Hey. Your environment is starting soon. You can see the progress in the Shopware Terminal'
       echo 'If you want to run the Admin Watch, just use the Terminal alias: admin-watch'
       echo 'Happy Coding!'
       echo "Shop URL: $(gp url 8000)"

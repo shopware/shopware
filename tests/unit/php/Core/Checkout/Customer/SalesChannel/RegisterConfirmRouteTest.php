@@ -37,7 +37,7 @@ class RegisterConfirmRouteTest extends TestCase
     protected $context;
 
     /**
-     * @var MockObject|SalesChannelRepositoryInterface
+     * @var MockObject|EntityRepositoryInterface
      */
     protected $customerRepository;
 

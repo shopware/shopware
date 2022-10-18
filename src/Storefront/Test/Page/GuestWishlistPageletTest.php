@@ -6,6 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
@@ -46,7 +47,7 @@ class GuestWishlistPageletTest extends TestCase
 
     private EventDispatcher $eventDispatcher;
 
-    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     public function setUp(): void
     {
@@ -137,7 +138,8 @@ class GuestWishlistPageletTest extends TestCase
         $listenerClosure = function (GuestWishListPageletProductCriteriaEvent $event) use (
             &$eventDidRun,
             $phpunit,
-            $productId
+            $productId,
+            $context
         ): void {
             $eventDidRun = true;
             $expectedCriteria = new Criteria();
@@ -147,7 +149,7 @@ class GuestWishlistPageletTest extends TestCase
                 ->addAssociation('options.group')
                 ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-            $filter = $this->productCloseoutFilterFactory->create();
+            $filter = $this->productCloseoutFilterFactory->create($context);
             $expectedCriteria->addFilter($filter);
 
             $phpunit->assertEquals($expectedCriteria, $event->getCriteria());

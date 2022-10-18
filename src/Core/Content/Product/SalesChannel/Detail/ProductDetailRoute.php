@@ -8,8 +8,8 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -44,7 +44,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private ProductDefinition $productDefinition;
 
-    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     /**
      * @internal
@@ -56,7 +56,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         CategoryBreadcrumbBuilder $breadcrumbBuilder,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         SalesChannelProductDefinition $productDefinition,
-        ProductCloseoutFilterFactory $productCloseoutFilterFactory
+        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->productRepository = $productRepository;
         $this->config = $config;
@@ -137,7 +137,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 
         if ($hideCloseoutProductsWhenOutOfStock) {
-            $filter = $this->productCloseoutFilterFactory->create();
+            $filter = $this->productCloseoutFilterFactory->create($context);
             $filter->addQuery(new EqualsFilter('product.parentId', null));
             $criteria->addFilter($filter);
         }

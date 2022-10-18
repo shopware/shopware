@@ -7,8 +7,8 @@ use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,7 +35,7 @@ class ProductListingLoader
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     /**
      * @internal
@@ -45,7 +45,7 @@ class ProductListingLoader
         SystemConfigService $systemConfigService,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        ProductCloseoutFilterFactory $productCloseoutFilterFactory
+        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->repository = $repository;
         $this->systemConfigService = $systemConfigService;
@@ -153,7 +153,7 @@ class ProductListingLoader
             return;
         }
 
-        $closeoutFilter = $this->productCloseoutFilterFactory->create();
+        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
         $criteria->addFilter($closeoutFilter);
     }
 

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -38,7 +38,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
 
     private SystemConfigService $systemConfigService;
 
-    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     /**
      * @internal
@@ -48,7 +48,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         SalesChannelRepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
-        ProductCloseoutFilterFactory $productCloseoutFilterFactory
+        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->wishlistRepository = $wishlistRepository;
         $this->productRepository = $productRepository;
@@ -135,7 +135,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             return $criteria;
         }
 
-        $closeoutFilter = $this->productCloseoutFilterFactory->create();
+        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
         $criteria->addFilter($closeoutFilter);
 
         return $criteria;

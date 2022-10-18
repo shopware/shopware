@@ -5,8 +5,9 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-// @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-product-properties
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-product-properties
+ */
 Component.register('sw-product-detail-properties', {
     template,
 

@@ -1,9 +1,10 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_modal_folder_settings %}
 <sw-modal
+    v-if="!!mediaFolder"
     class="sw-media-modal-folder-settings"
     :class="modalClass"
-    :title="folder.name"
+    :title="mediaFolder.name"
     variant="large"
     @modal-close="closeModal"
 >
@@ -22,6 +23,7 @@
                 class="sw-media-folder-settings__settings-tab"
                 name="settings"
                 :active-tab="active"
+                :has-error="!!mediaFolderNameError"
                 :native="true"
             >
                 {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
@@ -55,9 +57,10 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_folder_settings_name_field %}
                 <sw-field
-                    v-model="folder.name"
+                    v-model="mediaFolder.name"
                     type="text"
                     :disabled="disabled"
+                    :error="mediaFolderNameError"
                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
                 />
                 {% endblock %}
@@ -69,7 +72,7 @@
                     :disabled="disabled"
                     entity="media_default_folder"
                     :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
-                    :value="folder.defaultFolderId ? folder.defaultFolderId : ''"
+                    :value="mediaFolder.defaultFolderId ? mediaFolder.defaultFolderId : ''"
                     :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
                     show-clearable-button
                     @change="onInputDefaultFolder"
@@ -116,10 +119,10 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
                     <sw-field
-                        v-model="folder.useParentConfiguration"
+                        v-model="mediaFolder.useParentConfiguration"
                         type="switch"
                         :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
-                        :disabled="folder.parentId === null"
+                        :disabled="mediaFolder.parentId === null"
                         @change="onChangeInheritance"
                     />
                     {% endblock %}
@@ -130,7 +133,7 @@
                         v-model="configuration.createThumbnails"
                         type="switch"
                         :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
-                        :disabled="folder.useParentConfiguration || disabled"
+                        :disabled="mediaFolder.useParentConfiguration || disabled"
                     />
                     {% endblock %}
 

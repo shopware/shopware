@@ -38,6 +38,7 @@ Component.register('sw-media-quickinfo', {
             isLoading: false,
             isSaveSuccessful: false,
             showModalReplace: false,
+            fileNameError: null,
         };
     },
 
@@ -64,6 +65,20 @@ Component.register('sw-media-quickinfo', {
         createdAt() {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
+        },
+
+        fileNameClasses() {
+            return {
+                'has--error': this.fileNameError,
+            };
+        },
+    },
+
+    watch: {
+        'item.id': {
+            handler() {
+                this.fileNameError = null;
+            },
         },
     },
 
@@ -135,9 +150,22 @@ Component.register('sw-media-quickinfo', {
         async onChangeFileName(value) {
             const { item } = this;
             item.isLoading = true;
+            this.fileNameError = null;
 
             try {
-                await this.mediaService.renameMedia(item.id, value);
+                await this.mediaService.renameMedia(item.id, value).catch((error) => {
+                    const fileNameErrorCodes = ['CONTENT__MEDIA_EMPTY_FILE', 'CONTENT__MEDIA_ILLEGAL_FILE_NAME'];
+
+                    error.response.data.errors.forEach((e) => {
+                        if (this.fileNameError || !fileNameErrorCodes.includes(e.code)) {
+                            return;
+                        }
+
+                        this.fileNameError = e;
+                    });
+
+                    return Promise.reject(error);
+                });
                 item.fileName = value;
 
                 this.createNotificationSuccess({
@@ -177,6 +205,10 @@ Component.register('sw-media-quickinfo', {
             return ['sw-media-sidebar__quickaction', {
                 'sw-media-sidebar__quickaction--disabled': disabled,
             }];
+        },
+
+        onRemoveFileNameError() {
+            this.fileNameError = null;
         },
     },
 });

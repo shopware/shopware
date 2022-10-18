@@ -22,7 +22,7 @@ const itemMock = (options = {}) => {
     };
 };
 
-function createWrapper(privileges = []) {
+function createWrapper(privileges = [], mediaServiceFunctions = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -44,7 +44,10 @@ function createWrapper(privileges = []) {
                     }
                 })
             },
-            mediaService: {},
+            mediaService: {
+                renameMedia: () => Promise.resolve(),
+                ...mediaServiceFunctions,
+            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
@@ -132,6 +135,42 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).not.toContain('sw-media-sidebar__quickaction--disabled');
+    });
+
+    it.each([
+        {
+            status: 500,
+            code: 'CONTENT__MEDIA_ILLEGAL_FILE_NAME',
+        },
+        {
+            status: 500,
+            code: 'CONTENT__MEDIA_EMPTY_FILE',
+        },
+    ])('should map error %p', async (error) => {
+        const wrapper = createWrapper(
+            [
+                'media.editor'
+            ],
+            {
+                // eslint-disable-next-line prefer-promise-reject-errors
+                renameMedia: () => Promise.reject(
+                    {
+                        response: {
+                            data: {
+                                errors: [
+                                    error,
+                                ]
+                            }
+                        }
+                    }
+                ),
+            }
+        );
+        await wrapper.vm.$nextTick();
+
+        await wrapper.vm.onChangeFileName('newFileName');
+
+        expect(wrapper.vm.fileNameError).toStrictEqual(error);
     });
 });
 

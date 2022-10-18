@@ -175,8 +175,15 @@ Component.register('sw-media-folder-item', {
             this.showSettings = true;
         },
 
-        closeSettings() {
+        closeSettings(mediaFolderChanged) {
             this.showSettings = false;
+
+            // The boolean check if necessary, because sometimes the original html event is passed as an argument
+            if (typeof mediaFolderChanged === 'boolean' && mediaFolderChanged === true) {
+                this.$nextTick(() => {
+                    this.$emit('media-folder-changed');
+                });
+            }
         },
 
         openDissolveModal() {
@@ -229,7 +236,7 @@ Component.register('sw-media-folder-item', {
 
         async refreshIconConfig() {
             await this.getIconConfigFromFolder();
-            this.closeSettings();
+            this.closeSettings(true);
         },
     },
 });

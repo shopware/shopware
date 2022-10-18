@@ -3,6 +3,7 @@ import './sw-media-modal-folder-settings.scss';
 
 const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
@@ -17,12 +18,22 @@ Component.register('sw-media-modal-folder-settings', {
     ],
 
     props: {
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed, use folderId instead
+         */
         folder: {
-            required: true,
+            required: false,
             type: Object,
-            validator(value) {
-                return value.getEntityName() === 'media_folder';
+            validator() {
+                console.warn('The "folder" prop is deprecated and will be removed in v6.5.0, use "folderId" instead.');
+
+                return false;
             },
+            default: null,
+        },
+        mediaFolderId: {
+            required: true,
+            type: String,
         },
         disabled: {
             required: false,
@@ -40,8 +51,7 @@ Component.register('sw-media-modal-folder-settings', {
             configuration: null,
             mediaFolderConfigurationThumbnailSizeRepository: null,
             originalConfiguration: null,
-            // eslint-disable-next-line vue/no-dupe-keys
-            // disabled: false
+            mediaFolder: null,
         };
     },
 
@@ -59,7 +69,7 @@ Component.register('sw-media-modal-folder-settings', {
             return this.repositoryFactory.create('media_folder_configuration');
         },
         notEditable() {
-            return this.folder.useParentConfiguration
+            return this.mediaFolder.useParentConfiguration
                 || !this.configuration.createThumbnails
                 || this.disabled;
         },
@@ -75,6 +85,8 @@ Component.register('sw-media-modal-folder-settings', {
                 this.$tc('global.sw-media-modal-folder-settings.labelStopEdit') :
                 this.$tc('global.sw-media-modal-folder-settings.labelEditList');
         },
+
+        ...mapPropertyErrors('mediaFolder', ['name']),
     },
 
     created() {
@@ -83,8 +95,13 @@ Component.register('sw-media-modal-folder-settings', {
 
     methods: {
         async createdComponent() {
+            this.mediaFolder = await this.loadMediaFolder();
+
             await this.getThumbnailSizes();
-            this.configuration = await this.mediaFolderConfigurationRepository.get(this.folder.configurationId, Context.api);
+            this.configuration = await this.mediaFolderConfigurationRepository.get(
+                this.mediaFolder.configurationId,
+                Context.api,
+            );
 
             this.mediaFolderConfigurationThumbnailSizeRepository = this.repositoryFactory.create(
                 this.configuration.mediaThumbnailSizes.entity,
@@ -94,8 +111,8 @@ Component.register('sw-media-modal-folder-settings', {
             this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository
                 .search(new Criteria(1, 25), Context.api);
 
-            if (this.folder.parentId !== null) {
-                this.parent = await this.mediaFolderRepository.get(this.folder.parentId, Context.api);
+            if (this.mediaFolder.parentId !== null) {
+                this.parent = await this.mediaFolderRepository.get(this.mediaFolder.parentId, Context.api);
                 this.parent.configuration = await this.mediaFolderConfigurationRepository
                     .get(this.parent.configurationId, Context.api);
             }
@@ -207,7 +224,7 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         async onClickSave() {
-            this.folder.configurationId = this.configuration.id;
+            this.mediaFolder.configurationId = this.configuration.id;
 
             // if the config is created all properties that are null won't be sent to the server
             // this leads to setting default values for this properties on the server side
@@ -221,10 +238,10 @@ Component.register('sw-media-modal-folder-settings', {
                 this.configuration.createThumbnails = false;
             }
 
-            if (this.folder.defaultFolderId) {
-                await this.ensureUniqueDefaultFolder(this.folder.id, this.folder.defaultFolderId);
+            if (this.mediaFolder.defaultFolderId) {
+                await this.ensureUniqueDefaultFolder(this.mediaFolder.id, this.mediaFolder.defaultFolderId);
             } else {
-                this.folder.defaultFolderId = null;
+                this.mediaFolder.defaultFolderId = null;
             }
 
             try {
@@ -236,8 +253,8 @@ Component.register('sw-media-modal-folder-settings', {
                         }
                     });
 
-                if (this.folder && this.folder.getEntityName) {
-                    await this.mediaFolderRepository.save(this.folder, Context.api);
+                if (this.mediaFolder && this.mediaFolder.getEntityName) {
+                    await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
                 }
 
                 this.createNotificationSuccess({
@@ -248,7 +265,7 @@ Component.register('sw-media-modal-folder-settings', {
                 });
 
                 this.$nextTick(() => {
-                    this.$emit('media-settings-modal-save', this.folder);
+                    this.$emit('media-settings-modal-save', this.mediaFolder);
                 });
             } catch (e) {
                 this.createNotificationError({
@@ -278,7 +295,7 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         onClickCancel(originalDomEvent) {
-            this.mediaFolderRepository.discard(this.folder);
+            this.mediaFolderRepository.discard(this.mediaFolder);
 
             this.closeModal(originalDomEvent);
         },
@@ -288,7 +305,11 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         onInputDefaultFolder(defaultFolderId) {
-            this.folder.defaultFolderId = defaultFolderId;
+            this.mediaFolder.defaultFolderId = defaultFolderId;
+        },
+
+        loadMediaFolder() {
+            return this.mediaFolderRepository.get(this.mediaFolderId, Context.api);
         },
     },
 });

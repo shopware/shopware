@@ -12,10 +12,10 @@ describe('date.helper.js', () => {
         expect(DateHelper.format(1/0)).toStrictEqual('');
         expect(DateHelper.format()).toStrictEqual('');
         expect(DateHelper.format('parse me')).toStrictEqual('');
-
     });
 
     test('it returns formatted date from date object', () => {
+        // Mon Feb 03 2020 09:00:00 GMT+0100
         const date = new Date(2020, 1, 3, 9, 0, 0);
         Object.defineProperty(navigator, 'language', {
             value: 'en-GB',
@@ -25,6 +25,6 @@ describe('date.helper.js', () => {
 
         expect(DateHelper.format(date.getTime())).toBe(expectedDate);
         expect(DateHelper.format(date)).toBe(expectedDate);
-        expect(DateHelper.format(expectedDate)).toBe(expectedDate);
+        expect(DateHelper.format(date.toISOString())).toBe(expectedDate);
     });
 });

@@ -6,12 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\IsCompanyRule;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -19,95 +13,46 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class IsCompanyCustomerRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    protected function setUp(): void
+    public function testThatNonExistingCustomerDoesNotMatch(): void
     {
-        $this->ruleRepository = $this->getContainer()->get('rule.repository');
-        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
-        $this->context = Context::createDefaultContext();
+        $this->matchRuleWithCustomer(new IsCompanyRule(true), null, false);
+        $this->matchRuleWithCustomer(new IsCompanyRule(false), null, false);
     }
 
-    public function testIfRuleIsConsistent(): void
+    public function testThatCustomerWithCompanyMatchesCorrectly(): void
     {
-        $ruleId = Uuid::randomHex();
-        $this->ruleRepository->create(
-            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
-        );
-
-        $id = Uuid::randomHex();
-        $this->conditionRepository->create([
-            [
-                'id' => $id,
-                'type' => (new IsCompanyRule())->getName(),
-                'ruleId' => $ruleId,
-                'value' => [
-                    'isCompany' => true,
-                ],
-            ],
-        ], $this->context);
-
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
-    public function testThatFilledCompanyInformationMatchesToTrue(): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setCompany('shopware AG');
 
-        $salesChannelContext->method('getCustomer')
-            ->willReturn($customer);
-        $isCompanyRule = new IsCompanyRule(true);
-
-        $scope = new CheckoutRuleScope($salesChannelContext);
-
-        static::assertTrue($isCompanyRule->match($scope));
+        $this->matchRuleWithCustomer(new IsCompanyRule(true), $customer, true);
+        $this->matchRuleWithCustomer(new IsCompanyRule(false), $customer, false);
     }
 
-    public function testThatUnfilledCompanyInformationMatchesToFalse(): void
+    public function testThatCustomerWithoutCompanyMatchesCorrectly(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
 
-        $salesChannelContext->method('getCustomer')
-            ->willReturn($customer);
-        $isCompanyRule = new IsCompanyRule(true);
-
-        $scope = new CheckoutRuleScope($salesChannelContext);
-
-        static::assertFalse($isCompanyRule->match($scope));
+        $this->matchRuleWithCustomer(new IsCompanyRule(true), $customer, false);
+        $this->matchRuleWithCustomer(new IsCompanyRule(false), $customer, true);
     }
 
-    public function testThatEmptyStringCompanyInformationMatchesToFalse(): void
+    public function testThatCustomerWithEmptyStringCompanyMatchesCorrectly(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setCompany('');
 
+        $this->matchRuleWithCustomer(new IsCompanyRule(true), $customer, false);
+        $this->matchRuleWithCustomer(new IsCompanyRule(false), $customer, true);
+    }
+
+    private function matchRuleWithCustomer(IsCompanyRule $isCompanyRule, ?CustomerEntity $customer, bool $isMatchExpected): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
-        $isCompanyRule = new IsCompanyRule(true);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
 
-        static::assertFalse($isCompanyRule->match($scope));
+        static::assertSame($isCompanyRule->match($scope), $isMatchExpected);
     }
 }

@@ -1,5 +1,5 @@
 import template from './sw-sidebar-collapse.html.twig';
-import './sw-sidebar-collaps.scss';
+import './sw-sidebar-collapse.scss';
 
 const { Component } = Shopware;
 

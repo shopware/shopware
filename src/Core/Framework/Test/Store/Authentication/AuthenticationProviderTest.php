@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
 use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -20,6 +21,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AuthenticationProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+    }
 
     public function testItReturnsTheCorrectHeader(): void
     {

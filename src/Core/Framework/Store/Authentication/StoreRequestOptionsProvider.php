@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in future versions
+ */
 class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
@@ -46,16 +49,21 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         $this->localeProvider = $localeProvider;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getAuthenticationHeader(Context $context): array
     {
         return array_filter([
             self::SHOPWARE_PLATFORM_TOKEN_HEADER => $this->getUserStoreToken($context),
-            self::SHOPWARE_SHOP_SECRET_HEADER => $this->systemConfigService->get(self::CONFIG_KEY_STORE_SHOP_SECRET),
+            self::SHOPWARE_SHOP_SECRET_HEADER => $this->systemConfigService->getString(self::CONFIG_KEY_STORE_SHOP_SECRET),
         ]);
     }
 
     /**
      * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
+     *
+     * @return array<string, string>
      */
     public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
     {

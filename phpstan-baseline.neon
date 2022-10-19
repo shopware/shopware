@@ -6161,26 +6161,6 @@ parameters:
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 		-
-			message: "#^Parameter \\#1 \\$character of function ord expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/TypeDetector/ImageTypeDetector.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/TypeDetector/ImageTypeDetector.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fread expects resource, resource\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Media/TypeDetector/ImageTypeDetector.php
-
-		-
-			message: "#^Parameter \\#2 \\$subject of function preg_match_all expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/TypeDetector/ImageTypeDetector.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetector\\:\\:__construct\\(\\) has parameter \\$typeDetector with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
@@ -9524,71 +9504,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:updateThumbnails\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/AudioTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/AudioTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/DefaultTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/DefaultTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/DocumentTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/DocumentTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function rtrim expects string, bool\\|float\\|int\\|string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/TypeDetector/ImageTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/ImageTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/ImageTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/TypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/TypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/VideoTypeDetectorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/TypeDetector/VideoTypeDetectorTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

@@ -162,11 +162,6 @@ class VersionManager
 
     public function createVersion(EntityDefinition $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        $primaryKey = [
-            'id' => $id,
-            'versionId' => Defaults::LIVE_VERSION,
-        ];
-
         $versionId = $versionId ?? Uuid::randomHex();
         $versionData = ['id' => $versionId];
 
@@ -178,7 +173,7 @@ class VersionManager
             $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
         });
 
-        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, new CloneBehavior(), false);
+        $affected = $this->cloneEntity($definition, $id, $id, $versionId, $context, new CloneBehavior(), false);
 
         $versionContext = $context->createWithVersionId($versionId);
 

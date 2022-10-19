@@ -173,6 +173,8 @@ class ProductStreamUpdater extends EntityIndexer
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
+        $considerInheritance = $context->considerInheritance();
+        $context->setConsiderInheritance(true);
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true);
             if (empty($filter)) {
@@ -203,6 +205,7 @@ class ProductStreamUpdater extends EntityIndexer
                 ]);
             }
         }
+        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(

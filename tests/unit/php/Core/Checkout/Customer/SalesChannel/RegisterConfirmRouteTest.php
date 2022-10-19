@@ -26,7 +26,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- * @group rules
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute
  */
 class RegisterConfirmRouteTest extends TestCase
@@ -50,6 +49,11 @@ class RegisterConfirmRouteTest extends TestCase
      * @var MockObject|DataValidator
      */
     protected $validator;
+
+    /**
+     * @var MockObject|SalesChannelContextPersister
+     */
+    protected $salesChannelContextPersister;
 
     /**
      * @var Stub|SalesChannelContextServiceInterface

@@ -1,6 +1,6 @@
 ---
 title: Fix plugin discovery order
-issue: NEXT-21996
+issue: NEXT-23770
 author: Maximilian Rüsch
 author_email: maximilian.ruesch@pickware.de
 author_github: maximilianruesch

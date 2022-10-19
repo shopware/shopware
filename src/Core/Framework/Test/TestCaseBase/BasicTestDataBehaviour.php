@@ -6,12 +6,15 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Checkout\Test\Customer\CustomerBuilder;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -289,5 +292,75 @@ trait BasicTestDataBehaviour
         $connection = $this->getContainer()->get(Connection::class);
 
         return Uuid::fromBytesToHex($connection->fetchOne('SELECT id FROM currency WHERE iso_code = :iso', ['iso' => $iso]));
+    }
+
+    /**
+     * @param array<string, mixed> $additionalData
+     *
+     * @return array<array<string, mixed>>
+     */
+    private function createCustomers(
+        IdsCollection &$idsCollection,
+        int $numberOfCustomers,
+        string $idPrefix = 'customer',
+        array $additionalData = []
+    ): array {
+        $builders = [];
+        while ($numberOfCustomers-- > 0) {
+            $builder = new CustomerBuilder($idsCollection, "$idPrefix-$numberOfCustomers");
+            foreach ($additionalData as $key => $value) {
+                if (method_exists($builder, $key)) {
+                    if (\is_array($value)) {
+                        $builder->{$key}(...$value);
+
+                        continue;
+                    }
+
+                    $builder->{$key}($value);
+                }
+            }
+            $builders[] = $builder->build();
+        }
+
+        if (!empty($builders)) {
+            $this->getContainer()->get('customer.repository')->upsert($builders, Context::createDefaultContext());
+        }
+
+        return $builders;
+    }
+
+    /**
+     * @param array<string, mixed> $additionalData
+     *
+     * @return array<array<string, mixed>>
+     */
+    private function createProducts(
+        IdsCollection &$idsCollection,
+        int $numberOfProducts,
+        string $idPrefix = 'product',
+        array $additionalData = ['price' => 100]
+    ): array {
+        $builders = [];
+        while ($numberOfProducts-- > 0) {
+            $builder = new ProductBuilder($idsCollection, "$idPrefix-$numberOfProducts");
+            foreach ($additionalData as $key => $value) {
+                if (method_exists($builder, $key)) {
+                    if (\is_array($value)) {
+                        $builder->{$key}(...$value);
+
+                        continue;
+                    }
+
+                    $builder->{$key}($value);
+                }
+            }
+            $builders[] = $builder->build();
+        }
+
+        if (!empty($builders)) {
+            $this->getContainer()->get('product.repository')->upsert($builders, Context::createDefaultContext());
+        }
+
+        return $builders;
     }
 }

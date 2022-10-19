@@ -1,6 +1,6 @@
 ---
 title: Fix double opt-in account reactivation
-issue: -
+issue: NEXT-23771
 author: Silvio Kennecke
 author_email: development@silvio-kennecke.de
 author_github: @silviokennecke

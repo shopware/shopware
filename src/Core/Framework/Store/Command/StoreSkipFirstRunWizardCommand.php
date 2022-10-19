@@ -6,11 +6,10 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 
-class StoreSkipFirstRunWizard extends Command
+class StoreSkipFirstRunWizardCommand extends Command
 {
     public static $defaultName = 'store:skip-first-run-wizard';
 

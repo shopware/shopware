@@ -99,7 +99,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Command\StoreSkipFirstRunWizard">
+        <service id="Shopware\Core\Framework\Store\Command\StoreSkipFirstRunWizardCommand">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
             <tag name="console.command"/>
         </service>

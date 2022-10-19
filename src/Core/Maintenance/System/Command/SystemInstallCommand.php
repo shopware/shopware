@@ -44,6 +44,7 @@ class SystemInstallCommand extends Command
             ->addOption('shop-locale', null, InputOption::VALUE_REQUIRED, 'Default language locale of the shop')
             ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
             ->addOption('skip-jwt-keys-generation', null, InputOption::VALUE_NONE, 'Skips generation of jwt private and public key')
+            ->addOption('skip-first-run-wizard', null, InputOption::VALUE_NONE, 'Skips the first run wizard in the administration')
         ;
     }
 
@@ -144,6 +145,12 @@ class SystemInstallCommand extends Command
                     'theme-name' => 'Storefront',
                 ];
             }
+        }
+
+        if ($input->getOption('skip-first-run-wizard')) {
+            $commands[] = [
+                'command' => 'store:skip-first-run-wizard',
+            ];
         }
 
         $commands[] = [

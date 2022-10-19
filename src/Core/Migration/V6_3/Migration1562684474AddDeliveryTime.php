@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1562684474AddDeliveryTime extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1562684474AddDeliveryTime extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product`
             ADD `delivery_time_id` binary(16) NULL AFTER `product_manufacturer_version_id`,
             ADD `deliveryTime` binary(16) NULL AFTER `delivery_time_id`,
@@ -22,7 +25,7 @@ class Migration1562684474AddDeliveryTime extends MigrationStep
             DROP `max_delivery_time`;
         ');
 
-        $connection->executeUpdate('UPDATE product SET delivery_time_id = (SELECT id FROM delivery_time LIMIT 1) WHERE parent_id IS NULL');
+        $connection->executeStatement('UPDATE product SET delivery_time_id = (SELECT id FROM delivery_time LIMIT 1) WHERE parent_id IS NULL');
     }
 
     public function updateDestructive(Connection $connection): void

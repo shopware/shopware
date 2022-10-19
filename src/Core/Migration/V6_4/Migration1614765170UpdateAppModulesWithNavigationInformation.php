@@ -3,9 +3,11 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1614765170UpdateAppModulesWithNavigationInformation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -15,7 +17,8 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
     public function update(Connection $connection): void
     {
-        $apps = $connection->executeQuery('SELECT `id`, `modules` FROM `app`')->fetchAll(FetchMode::ASSOCIATIVE);
+        /** @var list<array{id: string, modules: string|null}> $apps */
+        $apps = $connection->executeQuery('SELECT `id`, `modules` FROM `app`')->fetchAllAssociative();
 
         $preparedModules = $this->prepareModules($apps);
 
@@ -27,6 +30,11 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
         // implement update destructive
     }
 
+    /**
+     * @param list<array{id: string, modules: string|null}> $apps
+     *
+     * @return list<array{id: string, modules: string|null}>
+     */
     private function prepareModules(array $apps): array
     {
         return array_map(static function (array $app) {
@@ -47,11 +55,14 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
             return [
                 'id' => $app['id'],
-                'modules' => json_encode($modules),
+                'modules' => json_encode($modules, \JSON_THROW_ON_ERROR),
             ];
         }, $apps);
     }
 
+    /**
+     * @param list<array{id: string, modules: string|null}> $preparedModules
+     */
     private function updateModules(array $preparedModules, Connection $connection): void
     {
         $connection->beginTransaction();
@@ -60,7 +71,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
         try {
             foreach ($preparedModules as $prepared) {
-                $statement->execute([
+                $statement->executeStatement([
                     'id' => $prepared['id'],
                     'modules' => $prepared['modules'],
                 ]);

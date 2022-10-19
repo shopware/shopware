@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1649315608AllowDisable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -20,7 +23,7 @@ class Migration1649315608AllowDisable extends MigrationStep
             return;
         }
 
-        $connection->executeUpdate('ALTER TABLE `app` ADD `allow_disable` TINYINT(1) NOT NULL DEFAULT 1 AFTER `active`;');
+        $connection->executeStatement('ALTER TABLE `app` ADD `allow_disable` TINYINT(1) NOT NULL DEFAULT 1 AFTER `active`;');
     }
 
     public function updateDestructive(Connection $connection): void

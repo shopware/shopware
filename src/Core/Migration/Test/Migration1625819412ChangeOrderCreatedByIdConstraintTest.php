@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,13 +32,13 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `order`
             DROP FOREIGN KEY `fk.order.created_by_id`,
             DROP FOREIGN KEY `fk.order.updated_by_id`;
         ');
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `order`
             ADD CONSTRAINT `fk.order.created_by_id` FOREIGN KEY (`created_by_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
             ADD CONSTRAINT `fk.order.updated_by_id` FOREIGN KEY (`updated_by_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -87,7 +88,7 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
         static::assertNull($order->getUpdatedById());
     }
 
-    private function createUserWithId(string $userId)
+    private function createUserWithId(string $userId): EntityRepositoryInterface
     {
         $userRepository = $this->getContainer()->get('user.repository');
         $userRepository->create([
@@ -106,6 +107,9 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
         return $userRepository;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function createOrderPayload(): array
     {
         $addressId = Uuid::randomHex();

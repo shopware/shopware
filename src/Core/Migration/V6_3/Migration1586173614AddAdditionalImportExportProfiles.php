@@ -10,6 +10,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1586173614AddAdditionalImportExportProfiles extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -37,6 +40,9 @@ class Migration1586173614AddAdditionalImportExportProfiles extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @return list<array{name: string, source_entity: string, mapping: list<array{key: string, mappedKey: string}>}>
+     */
     private function getProfiles(): array
     {
         return [

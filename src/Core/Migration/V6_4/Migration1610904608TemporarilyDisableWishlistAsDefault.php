@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1610904608TemporarilyDisableWishlistAsDefault extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -15,7 +18,7 @@ class Migration1610904608TemporarilyDisableWishlistAsDefault extends MigrationSt
 
     public function update(Connection $connection): void
     {
-        $configId = $connection->fetchColumn('SELECT id FROM system_config WHERE configuration_key = :key', [
+        $configId = $connection->fetchOne('SELECT id FROM system_config WHERE configuration_key = :key', [
             'key' => 'core.cart.wishlistEnabled',
         ]);
 

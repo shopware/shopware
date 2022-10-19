@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1648709176CartCompression extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -35,7 +38,7 @@ class Migration1648709176CartCompression extends MigrationStep
         /** @phpstan-ignore-next-line phpstan complains because `cart` colum does not exist anymore after this migration ran. */
         while ($token = $connection->fetchOne('SELECT token FROM cart WHERE `payload` IS NULL AND `cart` IS NOT NULL')) {
             RetryableQuery::retryable($connection, static function () use ($connection, $token): void {
-                $connection->executeUpdate('UPDATE cart SET `payload` = `cart`, `compressed` = 0 WHERE token = :token', ['token' => $token]);
+                $connection->executeStatement('UPDATE cart SET `payload` = `cart`, `compressed` = 0 WHERE token = :token', ['token' => $token]);
             });
         }
 

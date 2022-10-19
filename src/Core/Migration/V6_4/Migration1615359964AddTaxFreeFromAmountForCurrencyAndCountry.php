@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1615359964AddTaxFreeFromAmountForCurrencyAndCountry extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,24 +17,24 @@ class Migration1615359964AddTaxFreeFromAmountForCurrencyAndCountry extends Migra
 
     public function update(Connection $connection): void
     {
-        $featureCountryColumn = $connection->fetchColumn(
+        $featureCountryColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `country` WHERE `Field` LIKE :column;',
             ['column' => 'tax_free_from']
         );
 
         if ($featureCountryColumn === false) {
-            $connection->executeUpdate('
+            $connection->executeStatement('
             ALTER TABLE `country` ADD COLUMN `tax_free_from` DOUBLE DEFAULT 0 AFTER `shipping_available`;
             ');
         }
 
-        $featureCurrencyColumn = $connection->fetchColumn(
+        $featureCurrencyColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `currency` WHERE `Field` LIKE :column;',
             ['column' => 'tax_free_from']
         );
 
         if ($featureCurrencyColumn === false) {
-            $connection->executeUpdate('
+            $connection->executeStatement('
             ALTER TABLE `currency` ADD COLUMN `tax_free_from` DOUBLE DEFAULT 0 AFTER `total_rounding`;
             ');
         }

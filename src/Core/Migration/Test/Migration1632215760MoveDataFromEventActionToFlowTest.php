@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
@@ -23,11 +24,11 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $eventActionRepository;
+    private EntityRepositoryInterface $eventActionRepository;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     public function setUp(): void
     {
@@ -110,7 +111,8 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
         $flowSequences = $flow->getSequences();
 
         static::assertSame('checkout.order.placed', $flow->getEventName());
-        static::assertSame(3, $flowSequences->count());
+        static::assertInstanceOf(FlowSequenceCollection::class, $flowSequences);
+        static::assertCount(3, $flowSequences);
 
         foreach ($flowSequences->getElements() as $flowSequence) {
             if ($flowSequence->getActionName() === null) {

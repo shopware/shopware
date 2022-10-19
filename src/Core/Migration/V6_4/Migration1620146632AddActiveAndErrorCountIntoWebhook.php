@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1620146632AddActiveAndErrorCountIntoWebhook extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,22 +17,22 @@ class Migration1620146632AddActiveAndErrorCountIntoWebhook extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $activeColumn = $connection->fetchColumn(
+        $activeColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `webhook` WHERE `Field` LIKE :column;',
             ['column' => 'active']
         );
 
         if ($activeColumn === false) {
-            $connection->executeUpdate('ALTER TABLE `webhook` ADD COLUMN `active` TINYINT(1) DEFAULT 1 AFTER `app_id`');
+            $connection->executeStatement('ALTER TABLE `webhook` ADD COLUMN `active` TINYINT(1) DEFAULT 1 AFTER `app_id`');
         }
 
-        $errorCount = $connection->fetchColumn(
+        $errorCount = $connection->fetchOne(
             'SHOW COLUMNS FROM `webhook` WHERE `Field` LIKE :column;',
             ['column' => 'error_count']
         );
 
         if ($errorCount === false) {
-            $connection->executeUpdate('ALTER TABLE `webhook` ADD COLUMN `error_count` INT(11) NOT NULL DEFAULT 0');
+            $connection->executeStatement('ALTER TABLE `webhook` ADD COLUMN `error_count` INT(11) NOT NULL DEFAULT 0');
         }
     }
 

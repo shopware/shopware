@@ -6,10 +6,16 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1624262862UpdateDefaultValueOnCaptchaV2 extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.activeCaptchasV2';
 
+    /**
+     * @var array<string, array{name: string, isActive: bool, config?: array<string, mixed>}>
+     */
     private array $captchaItems = [
         'honeypot' => [
             'name' => 'Honeypot',
@@ -46,7 +52,7 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $configId = $connection->fetchColumn('SELECT id FROM system_config WHERE configuration_key = :key AND updated_at IS NULL', [
+        $configId = $connection->fetchOne('SELECT id FROM system_config WHERE configuration_key = :key AND updated_at IS NULL', [
             'key' => self::CONFIG_KEY,
         ]);
 
@@ -72,10 +78,10 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2 extends MigrationStep
     private function migrationDataFromActiveCaptchaV1(Connection $connection): void
     {
         $configActiveCaptchaV1 = 'core.basicInformation.activeCaptchas';
-        $activeCaptchas = $connection->fetchColumn('SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = ?', [$configActiveCaptchaV1]);
+        $activeCaptchas = $connection->fetchOne('SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = ?', [$configActiveCaptchaV1]);
         $activeCaptchas = json_decode($activeCaptchas, true);
         foreach ($activeCaptchas['_value'] as $value) {
-            $this->captchaItems[$value]['isActive'] = true;
+            $this->captchaItems[(string) $value]['isActive'] = true;
         }
     }
 }

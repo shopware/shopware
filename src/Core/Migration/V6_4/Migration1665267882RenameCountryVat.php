@@ -8,6 +8,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
+/**
+ * @internal
+ */
 class Migration1665267882RenameCountryVat extends MigrationStep
 {
     use ImportTranslationsTrait;

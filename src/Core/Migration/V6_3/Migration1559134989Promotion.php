@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1559134989Promotion extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,8 +20,8 @@ class Migration1559134989Promotion extends MigrationStep
      */
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `promotion` ADD `use_individual_codes` TINYINT(1) NOT NULL DEFAULT 0;');
-        $connection->executeUpdate('ALTER TABLE `promotion` ADD `individual_code_pattern` VARCHAR(255) NULL UNIQUE;');
+        $connection->executeStatement('ALTER TABLE `promotion` ADD `use_individual_codes` TINYINT(1) NOT NULL DEFAULT 0;');
+        $connection->executeStatement('ALTER TABLE `promotion` ADD `individual_code_pattern` VARCHAR(255) NULL UNIQUE;');
     }
 
     public function updateDestructive(Connection $connection): void

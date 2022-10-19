@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1562240231UserPasswordRecovery extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -35,7 +38,7 @@ INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
         if (!$languageId && $locale !== 'en-GB') {
             return null;
         }

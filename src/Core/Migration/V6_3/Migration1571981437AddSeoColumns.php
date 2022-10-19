@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1571981437AddSeoColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,7 +24,7 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_translation`
             DROP COLUMN `additional_text`
         ');
@@ -29,11 +32,11 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     private function addProductColum(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product_translation`
             ADD COLUMN `meta_description` varchar(255) NULL AFTER `additional_text`
         ');
-        $connection->executeUpdate('
+        $connection->executeStatement('
             UPDATE `product_translation`
             SET `meta_description` = `additional_text`;
         ');
@@ -41,17 +44,17 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     private function addCategoryColumns(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `category_translation`
             ADD COLUMN `meta_title` varchar(255) NULL AFTER `description`
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `category_translation`
             ADD COLUMN `meta_description` varchar(255) NULL AFTER `meta_title`
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `category_translation`
             ADD COLUMN `keywords` varchar(255) NULL AFTER `meta_description`
         ');

@@ -7,6 +7,9 @@ use Doctrine\DBAL\DBALException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1572264837AddCacheId extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,15 +19,15 @@ class Migration1572264837AddCacheId extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('DELETE FROM app_config');
+        $connection->executeStatement('DELETE FROM app_config');
 
         try {
-            $connection->exec('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
+            $connection->executeStatement('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
         } catch (DBALException $e) {
             // PK already exists
         }
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             '
             INSERT IGNORE INTO app_config (`key`, `value`)
             VALUES (?, ?)',

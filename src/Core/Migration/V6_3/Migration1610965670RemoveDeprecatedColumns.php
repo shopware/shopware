@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -29,25 +32,22 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
     private function dropDecimalPrecisionColumn(Connection $connection): void
     {
         try {
-            $connection->executeUpdate(
-                '
-                DROP TRIGGER `currency_cash_rounding_insert`'
+            $connection->executeStatement(
+                'DROP TRIGGER `currency_cash_rounding_insert`'
             );
         } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeUpdate(
-                '
-                DROP TRIGGER `currency_cash_rounding_update`'
+            $connection->executeStatement(
+                'DROP TRIGGER `currency_cash_rounding_update`'
             );
         } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeUpdate(
-                '
-                ALTER TABLE `currency`
+            $connection->executeStatement(
+                'ALTER TABLE `currency`
                 DROP COLUMN `decimal_precision`'
             );
         } catch (\Throwable $e) {
@@ -57,25 +57,22 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
     private function dropPurchasePrice(Connection $connection): void
     {
         try {
-            $connection->executeUpdate(
-                '
-                DROP TRIGGER `product_purchase_prices_insert`'
+            $connection->executeStatement(
+                'DROP TRIGGER `product_purchase_prices_insert`'
             );
         } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeUpdate(
-                '
-                DROP TRIGGER `product_purchase_prices_update`'
+            $connection->executeStatement(
+                'DROP TRIGGER `product_purchase_prices_update`'
             );
         } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeUpdate(
-                '
-                ALTER TABLE `product`
+            $connection->executeStatement(
+                'ALTER TABLE `product`
                 DROP COLUMN `purchase_price`'
             );
         } catch (\Throwable $e) {
@@ -85,9 +82,8 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
     private function dropCustomFields(Connection $connection): void
     {
         try {
-            $connection->executeUpdate(
-                '
-                ALTER TABLE `customer_wishlist_product`
+            $connection->executeStatement(
+                'ALTER TABLE `customer_wishlist_product`
                 DROP COLUMN `custom_fields`'
             );
         } catch (\Throwable $e) {

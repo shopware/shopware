@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1595422169AddProductSorting extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -52,7 +55,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
 
     private function createTable(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `product_sorting` (
               `id`                              BINARY(16)                              NOT NULL,
               `url_key`                         VARCHAR(255)                            NOT NULL,
@@ -71,7 +74,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
 
     private function createTranslationTable(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `product_sorting_translation` (
               `product_sorting_id`          BINARY(16)              NOT NULL,
               `language_id`                 BINARY(16)              NOT NULL,
@@ -97,6 +100,9 @@ class Migration1595422169AddProductSorting extends MigrationStep
         ]);
     }
 
+    /**
+     * @return list<array{id: string, url_key: string, priority: int, active: int, locked: int, fields: string, created_at: string, translations: array{de-DE: string, en-GB: string}}>
+     */
     private function getDefaultSortings(): array
     {
         return [
@@ -106,7 +112,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 4,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => json_encode([['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Name A-Z',
@@ -119,7 +125,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 3,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.name', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => json_encode([['field' => 'product.name', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Name Z-A',
@@ -132,7 +138,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 2,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => json_encode([['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Preis aufsteigend',
@@ -145,7 +151,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 1,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.listingPrices', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => json_encode([['field' => 'product.listingPrices', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Preis absteigend',
@@ -158,7 +164,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 0,
                 'active' => 1,
                 'locked' => 1,
-                'fields' => json_encode([['field' => '_score', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => json_encode([['field' => '_score', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Beste Ergebnisse',

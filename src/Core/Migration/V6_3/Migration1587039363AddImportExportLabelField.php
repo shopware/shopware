@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1587039363AddImportExportLabelField extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,9 +19,9 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `import_export_profile` MODIFY `name` VARCHAR(255) NULL;');
+        $connection->executeStatement('ALTER TABLE `import_export_profile` MODIFY `name` VARCHAR(255) NULL;');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `import_export_profile_translation` (
                 `import_export_profile_id` BINARY(16) NOT NULL,
                 `language_id` BINARY(16) NOT NULL,
@@ -33,20 +36,20 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $translationsPresent = $connection->fetchColumn('SELECT 1 FROM `import_export_profile_translation` LIMIT 1;');
+        $translationsPresent = $connection->fetchOne('SELECT 1 FROM `import_export_profile_translation` LIMIT 1;');
 
         if ($translationsPresent !== false) {
             return;
         }
 
         $defaultLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $englishLanguageId = $connection->fetchColumn('
+        $englishLanguageId = $connection->fetchOne('
             SELECT lang.id
             FROM language lang
             INNER JOIN locale loc ON lang.translation_code_id = loc.id
             AND loc.code = \'en-GB\';
         ');
-        $germanLanguageId = $connection->fetchColumn('
+        $germanLanguageId = $connection->fetchOne('
             SELECT lang.id
             FROM language lang
             INNER JOIN locale loc ON lang.translation_code_id = loc.id
@@ -75,19 +78,19 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
         ');
 
         if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
-            $insertNamesAsLabelsStatement->execute([
+            $insertNamesAsLabelsStatement->executeStatement([
                 'languageId' => $defaultLanguageId,
             ]);
         }
 
         if ($englishLanguageId) {
-            $insertNamesAsLabelsStatement->execute([
+            $insertNamesAsLabelsStatement->executeStatement([
                 'languageId' => $englishLanguageId,
             ]);
         }
 
         if ($germanLanguageId) {
-            $insertGermanLabelsStatement->execute([
+            $insertGermanLabelsStatement->executeStatement([
                 'languageId' => $germanLanguageId,
             ]);
         }

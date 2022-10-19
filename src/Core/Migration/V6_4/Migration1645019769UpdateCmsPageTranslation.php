@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1645019769UpdateCmsPageTranslation extends MigrationStep
 {
     private Connection $connection;
@@ -42,9 +45,13 @@ class Migration1645019769UpdateCmsPageTranslation extends MigrationStep
         // implement update destructive
     }
 
+    /**
+     * @return list<array<string, string>>
+     */
     private function fetchCmsPageTranslationByName(string $cmsPageTranslationName): array
     {
-        return $this->connection->fetchAll(
+        /** @var list<array<string, string>> $translationData */
+        $translationData = $this->connection->fetchAllAssociative(
             'SELECT `cms_page_id`, `cms_page_version_id`, `language_id`
             FROM `cms_page_translation` INNER JOIN `cms_page` ON `cms_page_translation`.`cms_page_id` = `cms_page`.`id`
             WHERE `name` = :cmsPageTranslationName AND `locked` = 1 AND `cms_page_translation`.`updated_at` IS NULL',
@@ -52,5 +59,7 @@ class Migration1645019769UpdateCmsPageTranslation extends MigrationStep
                 'cmsPageTranslationName' => $cmsPageTranslationName,
             ]
         );
+
+        return $translationData;
     }
 }

@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1612980753AddLinkSettingsToCategory extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -20,7 +23,7 @@ ALTER TABLE `category_translation`
     ADD COLUMN `link_new_tab`   TINYINT        NULL AFTER `breadcrumb`,
     ADD COLUMN `internal_link`  BINARY(16)     NULL AFTER `breadcrumb`
 SQL;
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $connection->createQueryBuilder()
             ->update('category_translation', 'translation')

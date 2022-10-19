@@ -7,10 +7,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1617935350ActiveCaptchasV2 extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.activeCaptchasV2';
 
+    /**
+     * @var array<string, array{name: string, isActive: bool, config?: array<string, mixed>}>
+     */
     private array $captchaItems = [
         'honeypot' => [
             'name' => 'Honeypot',
@@ -47,7 +53,7 @@ class Migration1617935350ActiveCaptchasV2 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $configPresent = $connection->fetchColumn('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [self::CONFIG_KEY]);
+        $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [self::CONFIG_KEY]);
         if ($configPresent !== false) {
             // Captchas are already configured, don't alter the setting
             return;

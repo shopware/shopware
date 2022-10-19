@@ -37,7 +37,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 '
                     UPDATE mail_template_translation
                     SET content_html = :html, content_plain = :plain
@@ -67,7 +67,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE mail_template_translation
                  SET content_html = :html, content_plain = :plain
                  WHERE language_id = :language_id AND mail_template_id = :template',
@@ -96,7 +96,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE mail_template_translation
                  SET subject = :subject
                  WHERE language_id = :language_id AND mail_template_id = :template',
@@ -122,7 +122,7 @@ trait UpdateMailTrait
         }
 
         foreach ($translations as $translation) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 '
                     UPDATE mail_template_translation
                     SET subject = :subject

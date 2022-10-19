@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1592837424AddProductTypeToCategory extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,7 +25,7 @@ ADD CONSTRAINT `fk.category.product_stream_id` FOREIGN KEY (`product_stream_id`)
 REFERENCES `product_stream` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

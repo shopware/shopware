@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1607581276AddProductSearchConfigurationDefaults extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -36,10 +39,10 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         $enLanguageId = $this->fetchLanguageIdByName('en-GB', $connection);
         $deLanguageId = $this->fetchLanguageIdByName('de-DE', $connection);
 
-        $searchConfigEnId = $connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $enLanguageId])
+        $searchConfigEnId = $connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $enLanguageId])
             ?: Uuid::randomBytes();
 
-        $searchConfigDeId = $connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $deLanguageId])
+        $searchConfigDeId = $connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => $deLanguageId])
             ?: Uuid::randomBytes();
 
         $enStopwords = require __DIR__ . '/../Fixtures/stopwords/en.php';
@@ -88,6 +91,9 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         $queue->execute();
     }
 
+    /**
+     * @return list<array{table: string, id: string, product_search_config_id: string, field: string, tokenize: int, searchable: int, ranking: int, created_at: string}>
+     */
     private function getConfigFieldDefaultData(string $configId, string $createdAt): array
     {
         $entityName = ProductSearchConfigFieldDefinition::ENTITY_NAME;
@@ -253,9 +259,8 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
     {
-        $languageId = $connection->fetchColumn(
-            '
-            SELECT `language`.id FROM `language`
+        $languageId = $connection->fetchOne(
+            'SELECT `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id
             WHERE `code` = :code',
             ['code' => $isoCode]

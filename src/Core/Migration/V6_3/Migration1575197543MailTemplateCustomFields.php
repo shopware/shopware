@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1575197543MailTemplateCustomFields extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,12 +17,12 @@ class Migration1575197543MailTemplateCustomFields extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `mail_template_translation`
 ADD `custom_fields` json NULL AFTER `content_plain`;'
         );
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `mail_template_translation` ADD CONSTRAINT `json.mail_template_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`));'
         );
     }

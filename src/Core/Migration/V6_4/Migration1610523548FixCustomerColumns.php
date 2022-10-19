@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1610523548FixCustomerColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,14 +17,14 @@ class Migration1610523548FixCustomerColumns extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `customer`
              ADD COLUMN `double_opt_in_registration` TINYINT(1) NOT NULL DEFAULT 0 AFTER `doubleOptInRegistration`,
              ADD COLUMN `double_opt_in_email_sent_date` DATETIME(3) NULL AFTER `doubleOptInEmailSentDate`,
              ADD COLUMN `double_opt_in_confirm_date` DATETIME(3) NULL AFTER `doubleOptInConfirmDate`'
         );
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             UPDATE `customer`
             SET `customer`.`double_opt_in_registration` = `customer`.`doubleOptInRegistration`,
                 `customer`.`double_opt_in_email_sent_date` = `customer`.`doubleOptInEmailSentDate`,
@@ -34,10 +37,10 @@ class Migration1610523548FixCustomerColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
-        $connection->executeUpdate('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
+        $connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
+        $connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `customer`
             DROP COLUMN `doubleOptInRegistration`,
             DROP COLUMN `doubleOptInEmailSentDate`,

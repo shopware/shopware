@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1600676671OrderLineItemCoverMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1600676671OrderLineItemCoverMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE order_line_item
                 LEFT JOIN media ON media.id = order_line_item.cover_id
              SET cover_id = NULL
@@ -26,7 +29,7 @@ class Migration1600676671OrderLineItemCoverMedia extends MigrationStep
             DROP FOREIGN KEY `fk.order_line_item.cover_id`
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
             ALTER TABLE `order_line_item`
@@ -34,7 +37,7 @@ SQL;
             FOREIGN KEY (`cover_id`) REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

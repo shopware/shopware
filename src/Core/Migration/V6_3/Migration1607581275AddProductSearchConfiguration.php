@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1607581275AddProductSearchConfiguration extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -28,7 +31,7 @@ class Migration1607581275AddProductSearchConfiguration extends MigrationStep
 
     private function createProductSearchConfigTable(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `product_search_config` (
                 `id`                    BINARY(16)        NOT NULL,
                 `language_id`           BINARY(16)        NOT NULL,
@@ -48,7 +51,7 @@ class Migration1607581275AddProductSearchConfiguration extends MigrationStep
 
     private function createProductSearchConfigFieldTable(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `product_search_config_field` (
                 `id`                            BINARY(16)                                  NOT NULL,
                 `product_search_config_id`      BINARY(16)                                  NOT NULL,

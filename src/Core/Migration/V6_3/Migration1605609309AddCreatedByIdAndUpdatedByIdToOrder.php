@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1605609309AddCreatedByIdAndUpdatedByIdToOrder extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,16 +17,16 @@ class Migration1605609309AddCreatedByIdAndUpdatedByIdToOrder extends MigrationSt
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `order`
             ADD COLUMN `created_by_id` BINARY(16) NULL AFTER `rule_ids`,
             ADD COLUMN `updated_by_id` BINARY(16) NULL AFTER `created_by_id`;
         ');
 
-        $connection->executeUpdate('ALTER TABLE `order` ADD CONSTRAINT `fk.order.created_by_id` FOREIGN KEY (`created_by_id`)
+        $connection->executeStatement('ALTER TABLE `order` ADD CONSTRAINT `fk.order.created_by_id` FOREIGN KEY (`created_by_id`)
               REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE');
 
-        $connection->executeUpdate('ALTER TABLE `order` ADD CONSTRAINT `fk.order.updated_by_id` FOREIGN KEY (`updated_by_id`)
+        $connection->executeStatement('ALTER TABLE `order` ADD CONSTRAINT `fk.order.updated_by_id` FOREIGN KEY (`updated_by_id`)
               REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE');
     }
 

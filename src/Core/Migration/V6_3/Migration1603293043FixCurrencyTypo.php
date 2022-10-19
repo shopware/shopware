@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1603293043FixCurrencyTypo extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -32,7 +35,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->where('loc.code = :englishLocale')
                 ->setParameter('englishLocale', 'en-GB')
                 ->execute()
-                ->fetchColumn();
+                ->fetchOne();
 
             if ($englishLanguageId === false) {
                 return;
@@ -44,7 +47,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->where('language_id = :englishLocale AND short_name = :swedishKronaShortName AND updated_at IS NULL ')
                 ->setParameters(['englishLocale' => $englishLanguageId, 'swedishKronaShortName' => 'SEK'])
                 ->execute()
-                ->fetchColumn();
+                ->fetchOne();
 
             if ($enSwedishCurrencyTranslationUnchanged === false) {
                 return;

@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1606310257AddCanonicalUrlProp extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1606310257AddCanonicalUrlProp extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `product`
             ADD `canonical_product_id` BINARY(16) NULL,
             ADD `canonicalProduct` BINARY(16) NULL,

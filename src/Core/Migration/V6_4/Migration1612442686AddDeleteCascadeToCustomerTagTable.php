@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1612442686AddDeleteCascadeToCustomerTagTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,8 +17,8 @@ class Migration1612442686AddDeleteCascadeToCustomerTagTable extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `customer_tag` DROP FOREIGN KEY `fk.customer_tag.customer_id`;');
-        $connection->executeUpdate('ALTER TABLE `customer_tag` ADD CONSTRAINT `fk.customer_tag.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;');
+        $connection->executeStatement('ALTER TABLE `customer_tag` DROP FOREIGN KEY `fk.customer_tag.customer_id`;');
+        $connection->executeStatement('ALTER TABLE `customer_tag` ADD CONSTRAINT `fk.customer_tag.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;');
     }
 
     public function updateDestructive(Connection $connection): void

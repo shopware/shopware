@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -193,7 +196,7 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
             ->where('technical_name = :technicalName')
             ->setParameter('technicalName', $technicalName)
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
 
         return $result ?: null;
     }

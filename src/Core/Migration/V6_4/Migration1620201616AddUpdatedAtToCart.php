@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1620201616AddUpdatedAtToCart extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1620201616AddUpdatedAtToCart extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `cart` ADD COLUMN `updated_at` DATETIME(3) NULL;');
+        $connection->executeStatement('ALTER TABLE `cart` ADD COLUMN `updated_at` DATETIME(3) NULL;');
     }
 
     public function updateDestructive(Connection $connection): void

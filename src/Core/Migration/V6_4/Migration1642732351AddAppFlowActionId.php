@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1642732351AddAppFlowActionId extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,14 +17,14 @@ class Migration1642732351AddAppFlowActionId extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $appFlowActionIdColumn = $connection->fetchColumn(
+        $appFlowActionIdColumn = $connection->fetchOne(
             'SHOW COLUMNS FROM `flow_sequence` WHERE `Field` LIKE :column;',
             ['column' => 'app_flow_action_id']
         );
 
         if ($appFlowActionIdColumn === false) {
-            $connection->executeUpdate('ALTER TABLE `flow_sequence` ADD COLUMN `app_flow_action_id` BINARY(16) DEFAULT null AFTER `flow_id`');
-            $connection->executeUpdate(
+            $connection->executeStatement('ALTER TABLE `flow_sequence` ADD COLUMN `app_flow_action_id` BINARY(16) DEFAULT null AFTER `flow_id`');
+            $connection->executeStatement(
                 'ALTER TABLE `flow_sequence`
                 ADD CONSTRAINT `fk.flow_sequence.app_flow_action_id` FOREIGN KEY (`app_flow_action_id`) REFERENCES `app_flow_action` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;'
             );

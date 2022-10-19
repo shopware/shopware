@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1536232920PaymentMethod extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -15,7 +18,7 @@ class Migration1536232920PaymentMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `payment_method` (
                 `id`                    BINARY(16)                              NOT NULL,
                 `handler_identifier`    VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT "' . str_replace('\\', '\\\\', DefaultPayment::class) . '",
@@ -36,7 +39,7 @@ class Migration1536232920PaymentMethod extends MigrationStep
                 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `payment_method_translation` (
               `payment_method_id` BINARY(16)                              NOT NULL,
               `language_id`       BINARY(16)                              NOT NULL,

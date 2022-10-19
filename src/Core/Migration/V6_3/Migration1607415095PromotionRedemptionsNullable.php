@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1607415095PromotionRedemptionsNullable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -23,7 +26,7 @@ class Migration1607415095PromotionRedemptionsNullable extends MigrationStep
                 MODIFY COLUMN `max_redemptions_per_customer` INT NULL;'
         );
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

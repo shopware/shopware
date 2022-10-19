@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1563785071AddThemeHelpText extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +17,7 @@ class Migration1563785071AddThemeHelpText extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `theme_translation` ADD `help_texts` json NULL AFTER `labels`;');
+        $connection->executeStatement('ALTER TABLE `theme_translation` ADD `help_texts` json NULL AFTER `labels`;');
     }
 
     public function updateDestructive(Connection $connection): void

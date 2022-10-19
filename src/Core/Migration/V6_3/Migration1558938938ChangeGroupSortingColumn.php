@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1558938938ChangeGroupSortingColumn extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,9 +17,9 @@ class Migration1558938938ChangeGroupSortingColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `product` ADD `configurator_group_config` json NULL AFTER `configurator_group_sorting`;');
-        $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `configurator_group_sorting`;');
-        $connection->executeUpdate('ALTER TABLE `product` ADD COLUMN `display_in_listing` TINYINT(1) DEFAULT 1');
+        $connection->executeStatement('ALTER TABLE `product` ADD `configurator_group_config` json NULL AFTER `configurator_group_sorting`;');
+        $connection->executeStatement('ALTER TABLE `product` DROP COLUMN `configurator_group_sorting`;');
+        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `display_in_listing` TINYINT(1) DEFAULT 1');
     }
 
     public function updateDestructive(Connection $connection): void

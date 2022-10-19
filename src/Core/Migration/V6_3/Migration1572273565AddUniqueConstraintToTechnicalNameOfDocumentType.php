@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * Adds a missing unique constraint to column `technical_name` of table `document_type`.
  * Before that, it removes rows with duplicated `technical_name` from table `document_type`
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
 class Migration1572273565AddUniqueConstraintToTechnicalNameOfDocumentType extends MigrationStep
 {
@@ -18,7 +20,7 @@ class Migration1572273565AddUniqueConstraintToTechnicalNameOfDocumentType extend
 
     public function update(Connection $connection): void
     {
-        $duplicatedDocumentTypes = $connection->fetchAll(
+        $duplicatedDocumentTypes = $connection->fetchFirstColumn(
             'SELECT `id`
             FROM `document_type`
             WHERE (`technical_name`, `created_at`) NOT IN (
@@ -31,14 +33,14 @@ class Migration1572273565AddUniqueConstraintToTechnicalNameOfDocumentType extend
         );
 
         foreach ($duplicatedDocumentTypes as $duplicatedDocumentType) {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM `document_type`
                 WHERE `id` = :id',
                 $duplicatedDocumentType
             );
         }
 
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'ALTER TABLE `document_type` ADD CONSTRAINT `uniq.document_type.technical_name` UNIQUE (`technical_name`)'
         );
     }

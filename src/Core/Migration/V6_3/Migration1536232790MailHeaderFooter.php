@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1536232790MailHeaderFooter extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -17,7 +20,7 @@ class Migration1536232790MailHeaderFooter extends MigrationStep
      */
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_header_footer` (
               `id`              BINARY(16)          NOT NULL,
               `system_default`  TINYINT(1) unsigned NOT NULL DEFAULT \'0\',
@@ -27,7 +30,7 @@ class Migration1536232790MailHeaderFooter extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `mail_header_footer_translation` (
               `mail_header_footer_id`   BINARY(16)      NOT NULL,
               `language_id`             BINARY(16)      NOT NULL,

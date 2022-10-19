@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1589357321AddCountries extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -53,7 +56,7 @@ class Migration1589357321AddCountries extends MigrationStep
 
         foreach ($this->createNewCountries() as $country) {
             $id = Uuid::randomBytes();
-            $exists = $connection->fetchColumn('SELECT 1 FROM country WHERE iso = :iso3', ['iso3' => $country['iso3']]);
+            $exists = $connection->fetchOne('SELECT 1 FROM country WHERE iso = :iso3', ['iso3' => $country['iso3']]);
             if ($exists !== false) {
                 continue;
             }
@@ -92,9 +95,12 @@ class Migration1589357321AddCountries extends MigrationStep
             ORDER BY created_at ASC
 SQL;
 
-        return (string) $connection->executeQuery($sql, ['code' => $code])->fetchColumn();
+        return (string) $connection->executeQuery($sql, ['code' => $code])->fetchOne();
     }
 
+    /**
+     * @return list<array{iso: string, iso3: string, de: string, en: string}>
+     */
     private function createNewCountries(): array
     {
         return [

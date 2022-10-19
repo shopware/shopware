@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -24,13 +23,14 @@ class Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableT
     {
         $conn = $this->getContainer()->get(Connection::class);
 
-        $database = $conn->fetchColumn('select database();');
+        $database = $conn->fetchOne('select database();');
 
         $migration = new Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTable();
         $migration->update($conn);
 
-        $foreignKeyInfoUpdated = $conn->fetchAssoc('SELECT * FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME = "document_base_config" AND REFERENCED_TABLE_NAME = "media" AND CONSTRAINT_SCHEMA = "' . $database . '";') ?? [];
+        $foreignKeyInfoUpdated = $conn->fetchAssociative('SELECT * FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME = "document_base_config" AND REFERENCED_TABLE_NAME = "media" AND CONSTRAINT_SCHEMA = "' . $database . '";');
 
+        static::assertIsArray($foreignKeyInfoUpdated);
         static::assertNotEmpty($foreignKeyInfoUpdated);
         static::assertEquals($foreignKeyInfoUpdated['CONSTRAINT_NAME'], 'fk.document_base_config.logo_id');
         static::assertEquals($foreignKeyInfoUpdated['DELETE_RULE'], 'SET NULL');
@@ -71,7 +71,6 @@ class Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableT
 
         $documentConfigs = $documentBaseConfigRepository->search(new Criteria([$documentConfigId]), $context);
 
-        /** @var DocumentBaseConfigEntity $documentConfig */
         static::assertNotEmpty($documentConfig = $documentConfigs->first());
         static::assertNull($documentConfig->getLogoId());
     }

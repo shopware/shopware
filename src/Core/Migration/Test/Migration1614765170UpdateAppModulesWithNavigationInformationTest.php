@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -104,6 +105,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
         $apps = $this->appRepository->search(new Criteria([$firstAppId, $secondAppId]), $this->context);
 
         $firstApp = $apps->get($firstAppId);
+        static::assertInstanceOf(AppEntity::class, $firstApp);
         static::assertEquals([
             [
                 'source' => 'http://testApp1-module',
@@ -117,6 +119,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
         ], $firstApp->getModules());
 
         $secondApp = $apps->get($secondAppId);
+        static::assertInstanceOf(AppEntity::class, $secondApp);
         static::assertEquals([
             [
                 'source' => 'http://testApp2-module',
@@ -162,6 +165,9 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
         ], $app->getModules());
     }
 
+    /**
+     * @param list<array<string, mixed>>|null $modules
+     */
     private function insertAppWithModule(string $name, ?array $modules): string
     {
         $appId = Uuid::randomHex();

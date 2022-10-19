@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1600338271AddTopsellerSorting extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -47,6 +50,9 @@ class Migration1600338271AddTopsellerSorting extends MigrationStep
         $this->importTranslation('product_sorting_translation', $translations, $connection);
     }
 
+    /**
+     * @return array{id: string, priority: int, active: int, locked: int, fields: string, created_at: string, translations: array{de-DE: string, en-GB: string}}
+     */
     private function getTopsellerSorting(): array
     {
         return [
@@ -55,7 +61,7 @@ class Migration1600338271AddTopsellerSorting extends MigrationStep
             'priority' => 0,
             'active' => 1,
             'locked' => 0,
-            'fields' => json_encode([['field' => 'product.sales', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+            'fields' => json_encode([['field' => 'product.sales', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'translations' => [
                 'de-DE' => 'Topseller',

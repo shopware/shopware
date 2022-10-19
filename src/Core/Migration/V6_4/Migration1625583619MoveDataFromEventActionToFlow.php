@@ -14,6 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ *
+ * @phpstan-import-type SequenceData from Migration1648803451FixInvalidMigrationOfBusinessEventToFlow
+ */
 class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 {
     private const RECIPIENT_TYPE_DEFAULT = 'default';
@@ -22,16 +27,34 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
     public bool $internal = false;
 
+    /**
+     * @var array<string, string>
+     */
     private array $ruleIds = [];
 
+    /**
+     * @var list<array<string, string|int>>
+     */
     private array $ruleQueue = [];
 
+    /**
+     * @var list<array<string, string|int>>
+     */
     private array $ruleConditionQueue = [];
 
+    /**
+     * @var list<array<string, string|int|null>>
+     */
     private array $flowQueue = [];
 
+    /**
+     * @var list<SequenceData>
+     */
     private array $flowSequenceQueue = [];
 
+    /**
+     * @var list<array<string, string>>
+     */
     private array $salesChannelRuleQueue = [];
 
     public function getCreationTimestamp(): int
@@ -246,7 +269,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             'value' => json_encode([
                 'operator' => '=',
                 'salesChannelIds' => $salesChannelIds,
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'created_at' => $createdAt,
         ];
 
@@ -288,6 +311,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         return $ruleId;
     }
 
+    /**
+     * @return array{0: list<string>, 1: string}
+     */
     private function createSortedSalesChannelIdsString(string $salesChannelIds): array
     {
         $salesChannelIds = explode(',', $salesChannelIds);
@@ -297,6 +323,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         return [$salesChannelIds, $salesChannelIdString];
     }
 
+    /**
+     * @return SequenceData
+     */
     private function buildSequenceData(
         string $id,
         string $flowId,

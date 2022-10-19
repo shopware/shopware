@@ -19,7 +19,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
     {
         $connectionMock = $this->createMock(Connection::class);
         $resultStatement = $this->createMock(Statement::class);
-        $resultStatement->method('fetchOne')->willReturn(false);
+        $resultStatement->method('fetch')->willReturn(false);
 
         // early return because of no german language id by locale de-DE
         $resultStatement->expects(static::never())->method('fetchAllAssociative');

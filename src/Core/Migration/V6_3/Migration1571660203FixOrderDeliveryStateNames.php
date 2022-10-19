@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1571660203FixOrderDeliveryStateNames extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,7 +30,7 @@ class Migration1571660203FixOrderDeliveryStateNames extends MigrationStep
                       AND `language_id` = :lang
 SQL;
 
-                $connection->executeUpdate($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => $defaultLangId]);
+                $connection->executeStatement($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => $defaultLangId]);
             }
 
             if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
@@ -37,7 +40,7 @@ SQL;
                       AND `language_id` = :lang
 SQL;
 
-                $connection->executeUpdate($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+                $connection->executeStatement($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
             }
 
             if ($deLangId) {
@@ -47,7 +50,7 @@ SQL;
                       AND `language_id` = :lang
 SQL;
 
-                $connection->executeUpdate($sql, ['name' => $mailTemplate['nameDe'], 'technicalName' => $technicalName, 'lang' => $deLangId]);
+                $connection->executeStatement($sql, ['name' => $mailTemplate['nameDe'], 'technicalName' => $technicalName, 'lang' => $deLangId]);
             }
         }
     }
@@ -57,6 +60,9 @@ SQL;
         // implement update destructive
     }
 
+    /**
+     * @return array<string, array{name: string, nameDe: string}>
+     */
     private function getMailTemplatesMapping(): array
     {
         return [
@@ -92,7 +98,7 @@ INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
         if (!$languageId && $locale !== 'en-GB') {
             return null;
         }

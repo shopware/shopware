@@ -24,7 +24,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 
     private Migration1636362839FlowBuilderGenerateMultipleDoc $migration;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     private TestDataCollection $ids;
 
@@ -48,8 +48,8 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
             ]
         );
 
-        $newConfig = json_decode($actionGenerateDocs['config'], true);
-        static::assertIsArray($newConfig);
+        static::assertIsArray($actionGenerateDocs);
+        $newConfig = json_decode($actionGenerateDocs['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotNull($newConfig['documentTypes']);
     }
 

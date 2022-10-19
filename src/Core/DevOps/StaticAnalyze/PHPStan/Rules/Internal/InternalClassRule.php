@@ -9,6 +9,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 use Shopware\Storefront\Controller\StorefrontController;
@@ -80,6 +81,18 @@ class InternalClassRule implements Rule
             }
 
             return ['Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($this->isMigrationStep($node)) {
+            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
+            /**
+             * @deprecated tag:v6.5.0 - remove deprecation check, as all migration steps become internal in v6.5.0
+             */
+            if (\str_contains($classDeprecation, 'tag:v6.5.0')) {
+                return [];
+            }
+
+            return ['Migrations must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -169,5 +182,16 @@ class InternalClassRule implements Rule
         }
 
         return null;
+    }
+
+    private function isMigrationStep(InClassNode $node): bool
+    {
+        $class = $node->getClassReflection();
+
+        if ($class->getParentClass() === null) {
+            return false;
+        }
+
+        return $class->getParentClass()->getName() === MigrationStep::class;
     }
 }

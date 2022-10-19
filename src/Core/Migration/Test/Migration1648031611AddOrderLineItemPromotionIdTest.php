@@ -86,6 +86,9 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
         $this->removeEntities($context);
     }
 
+    /**
+     * @return iterable<array{0: bool}>
+     */
     public function dataProviderPromotion(): iterable
     {
         return [

@@ -30,30 +30,15 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $salesChannelProductRepository;
+    private SalesChannelRepositoryInterface $salesChannelProductRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var ProductConfiguratorLoader
-     */
-    private $loader;
+    private ProductConfiguratorLoader $loader;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {

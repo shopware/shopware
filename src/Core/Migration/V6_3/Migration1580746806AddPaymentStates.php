@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ */
 class Migration1580746806AddPaymentStates extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -28,7 +31,7 @@ class Migration1580746806AddPaymentStates extends MigrationStep
 
     private function addOrderTransactionStates(Connection $connection): void
     {
-        $stateMachineId = (string) $connection->fetchColumn(
+        $stateMachineId = (string) $connection->fetchOne(
             'SELECT `id` FROM `state_machine` WHERE `technical_name` = :technical_name LIMIT 1',
             ['technical_name' => OrderTransactionStates::STATE_MACHINE]
         );
@@ -134,7 +137,7 @@ class Migration1580746806AddPaymentStates extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = $connection->fetchColumn(
+        $langId = $connection->fetchOne(
             'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
             ['code' => $code]
         );
@@ -151,7 +154,7 @@ class Migration1580746806AddPaymentStates extends MigrationStep
 
     private function fetchStateId(string $technicalName, string $stateMachineId, Connection $connection): ?string
     {
-        $stateId = $connection->fetchColumn(
+        $stateId = $connection->fetchOne(
             'SELECT `id` FROM `state_machine_state` WHERE
             `technical_name` = :technical_name AND
             `state_machine_id` = :state_machine_id

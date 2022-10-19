@@ -27106,11 +27106,6 @@ parameters:
 			path: src/Core/System/Test/StateMachine/StateMachineRegistryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\StateMachine\\\\StateMachineRegistryTest\\:\\:createStateMachineWithoutInitialState\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/System/Test/StateMachine/StateMachineRegistryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigGetCommandTest\\:\\:configFormatDefaultProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/System/Test/SystemConfig/Command/ConfigGetCommandTest.php
@@ -27259,11 +27254,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\:\\:getAclRoles\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleCollection but returns Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/System/User/UserEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Test\\\\FixtureLoader\\:\\:sync\\(\\) has parameter \\$content with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Test/FixtureLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Test\\\\Integration\\\\Helper\\\\MailEventListener\\:\\:__construct\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
@@ -29117,11 +29107,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Csrf\\\\CsrfPlaceholderHandlerTest\\:\\:generateToken\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Csrf/CsrfPlaceholderHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Csrf\\\\CsrfPlaceholderHandlerTest\\:\\:generateToken\\(\\) is unused\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Csrf/CsrfPlaceholderHandlerTest.php
 

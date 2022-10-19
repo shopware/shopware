@@ -2,7 +2,7 @@
     "$schema":"./vendor/phpbench/phpbench/phpbench.schema.json",
     "core.extensions": ["Shopware\\Tests\\Bench\\BenchExtension"],
     "runner.bootstrap": "tests/performance/bench/BenchBootstrap.php",
-    "runner.path": "tests/performance/bench/Cases",
+    "runner.path": ["tests/performance/bench/Storefront", "tests/performance/bench/Administration"],
     "runner.file_pattern": "*Bench.php",
     "runner.iterations": 10,
     "runner.revs": 3,

@@ -2,42 +2,63 @@
 
 namespace Shopware\Core\Test;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
  */
 class FixtureLoader
 {
+    use BasicTestDataBehaviour;
+
+    private ContainerInterface $container;
+
     private EntityWriterInterface $writer;
 
-    public function __construct(EntityWriterInterface $writer)
-    {
-        $this->writer = $writer;
+    private Connection $connection;
+
+    public function __construct(
+        ContainerInterface $container
+    ) {
+        $this->container = $container;
+        $this->connection = $container->get(Connection::class);
+        $this->writer = $container->get(EntityWriter::class);
     }
 
-    public function load(string $file): IdsCollection
+    public function load(string $content, ?IdsCollection $ids = null): IdsCollection
     {
-        $content = (string) \file_get_contents($file);
-
-        $ids = new IdsCollection([
-            'currency' => Defaults::CURRENCY,
-            'api-type' => Defaults::SALES_CHANNEL_TYPE_API,
-            'comparison-type' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
-            'storefront-type' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'language' => Defaults::LANGUAGE_SYSTEM,
-        ]);
+        if (!$ids) {
+            $ids = new IdsCollection([
+                'currency' => Defaults::CURRENCY,
+                'api-type' => Defaults::SALES_CHANNEL_TYPE_API,
+                'comparison-type' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
+                'storefront-type' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+                'language' => Defaults::LANGUAGE_SYSTEM,
+                'locale' => $this->getLocaleIdOfSystemLanguage(),
+                'es-locale' => $this->getLocaleIdFromLocaleCode('es-ES'),
+            ]);
+        }
 
         $content = $this->replaceIds($ids, $content);
-
         $this->sync(\json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        $this->container->get(EntityIndexerRegistry::class)->index(false);
 
         return $ids;
+    }
+
+    public function getContainer(): ContainerInterface
+    {
+        return $this->container;
     }
 
     private function replaceIds(IdsCollection $ids, string $content): string
@@ -49,6 +70,9 @@ class FixtureLoader
         }, $content);
     }
 
+    /**
+     * @param array<array<string, mixed>> $content
+     */
     private function sync(array $content): void
     {
         $operations = [];
@@ -57,5 +81,23 @@ class FixtureLoader
         }
 
         $this->writer->sync($operations, WriteContext::createFromContext(Context::createDefaultContext()));
+    }
+
+    private function getLocaleIdOfSystemLanguage(): string
+    {
+        return $this->connection
+            ->fetchOne(
+                'SELECT LOWER(HEX(locale_id)) FROM language WHERE id = UNHEX(:systemLanguageId)',
+                ['systemLanguageId' => Defaults::LANGUAGE_SYSTEM]
+            );
+    }
+
+    private function getLocaleIdFromLocaleCode(string $code): string
+    {
+        return $this->connection
+            ->fetchOne(
+                'SELECT LOWER(HEX(id)) from locale WHERE code = :code',
+                ['code' => $code]
+            );
     }
 }

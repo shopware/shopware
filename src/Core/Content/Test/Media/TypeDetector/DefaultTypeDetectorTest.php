@@ -41,7 +41,7 @@ class DefaultTypeDetectorTest extends TestCase
     public function testDetectWebp(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
-            $this->createMediaFile(__DIR__ . '/../fixtures/shopware.webp'),
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.vp8x.webp'),
             null
         );
 
@@ -175,11 +175,14 @@ class DefaultTypeDetectorTest extends TestCase
 
     private function createMediaFile(string $filePath): MediaFile
     {
+        static::assertIsString($mimeContentType = mime_content_type($filePath));
+        static::assertIsInt($filesize = filesize($filePath));
+
         return new MediaFile(
             $filePath,
-            mime_content_type($filePath),
+            $mimeContentType,
             pathinfo($filePath, \PATHINFO_EXTENSION),
-            filesize($filePath)
+            $filesize
         );
     }
 }

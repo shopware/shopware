@@ -11,9 +11,9 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,7 +46,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private ProductListingLoader $listingLoader;
 
-    private ProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     /**
      * @internal
@@ -58,7 +58,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         SalesChannelRepositoryInterface $productRepository,
         SystemConfigService $systemConfigService,
         ProductListingLoader $listingLoader,
-        ProductCloseoutFilterFactory $productCloseoutFilterFactory
+        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->crossSellingRepository = $crossSellingRepository;
@@ -216,7 +216,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             return $criteria;
         }
 
-        $closeoutFilter = $this->productCloseoutFilterFactory->create();
+        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
         $criteria->addFilter($closeoutFilter);
 
         return $criteria;

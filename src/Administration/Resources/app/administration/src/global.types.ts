@@ -58,6 +58,17 @@ type SalutationFilterEntityType = {
     [key: string]: unknown
 };
 
+type CmsService = {
+    registerCmsElement: (config: { [key: string]: unknown }) => void,
+    registerCmsBlock: $TSFixMeFunction,
+    getCmsElementConfigByName: $TSFixMeFunction,
+    getCmsBlockConfigByName: $TSFixMeFunction,
+    getCmsElementRegistry: $TSFixMeFunction,
+    getCmsBlockRegistry: $TSFixMeFunction,
+    getEntityMappingTypes: $TSFixMeFunction,
+    getPropertyByMappingPath: $TSFixMeFunction,
+};
+
 // declare global types
 declare global {
     /**
@@ -113,6 +124,7 @@ declare global {
         appAclService: $TSFixMe,
         appCmsService: $TSFixMe,
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
+        cmsService: CmsService,
         searchRankingService: $TSFixMe,
         searchPreferencesService: $TSFixMe,
         storeService: StoreApiService,

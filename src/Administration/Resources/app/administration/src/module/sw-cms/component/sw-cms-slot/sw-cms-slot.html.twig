@@ -14,6 +14,7 @@
     <component
         :is="elementConfig.component"
         v-model="element"
+        :element-data="elementConfig"
         :disabled="disabled"
     />
     {% endblock %}
@@ -84,6 +85,7 @@
         <component
             :is="elementConfig.configComponent"
             v-model="element"
+            :element-data="elementConfig"
         />
         {% endblock %}
 
@@ -130,6 +132,7 @@
                     <component
                         :is="element.previewComponent"
                         class="sw-cms-slot__element-preview"
+                        :element-data="element"
                     />
                     {% endblock %}
 

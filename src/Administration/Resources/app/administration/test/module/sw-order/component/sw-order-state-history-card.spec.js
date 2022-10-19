@@ -11,6 +11,8 @@ function createWrapper(privileges = []) {
     };
 
     orderProp.transactions.last = () => ({});
+    orderProp.transactions.getIds = () => ([]);
+    orderProp.deliveries.getIds = () => ([]);
 
     return shallowMount(Shopware.Component.build('sw-order-state-history-card'), {
         stubs: {

@@ -155,7 +155,7 @@ class FlowDispatcher implements EventDispatcherInterface
             throw new ServiceNotFoundException(FlowExecutor::class);
         }
 
-        foreach ($flows as $flowId => $flow) {
+        foreach ($flows as $flow) {
             try {
                 /** @var Flow $payload */
                 $payload = $flow['payload'];
@@ -164,7 +164,7 @@ class FlowDispatcher implements EventDispatcherInterface
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
-                    . 'Flow id: ' . $flowId . "\n"
+                    . 'Flow id: ' . $flow['id'] . "\n"
                     . 'Sequence id: ' . $e->getSequenceId() . "\n"
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
@@ -173,7 +173,7 @@ class FlowDispatcher implements EventDispatcherInterface
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
-                    . 'Flow id: ' . $flowId . "\n"
+                    . 'Flow id: ' . $flow['id'] . "\n"
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
                 );

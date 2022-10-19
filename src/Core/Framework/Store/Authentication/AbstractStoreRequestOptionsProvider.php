@@ -8,10 +8,15 @@ use Shopware\Core\Framework\Context;
 
 abstract class AbstractStoreRequestOptionsProvider
 {
+    /**
+     * @return array<string, string>
+     */
     abstract public function getAuthenticationHeader(Context $context): array;
 
     /**
      * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
+     *
+     * @return array<string, string>
      */
     abstract public function getDefaultQueryParameters(?Context $context, ?string $language = null): array;
 

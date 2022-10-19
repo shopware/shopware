@@ -18706,46 +18706,6 @@ parameters:
 			path: src/Core/Framework/Script/ServiceStubs.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\AbstractAuthenticationProvider\\:\\:getAuthenticationHeader\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/AbstractAuthenticationProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\AbstractStoreRequestOptionsProvider\\:\\:getAuthenticationHeader\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/AbstractStoreRequestOptionsProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\AbstractStoreRequestOptionsProvider\\:\\:getDefaultQueryParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/AbstractStoreRequestOptionsProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\AuthenticationProvider\\:\\:getAuthenticationHeader\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/AuthenticationProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\FrwRequestOptionsProvider\\:\\:getAuthenticationHeader\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/FrwRequestOptionsProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\FrwRequestOptionsProvider\\:\\:getDefaultQueryParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/FrwRequestOptionsProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\StoreRequestOptionsProvider\\:\\:getAuthenticationHeader\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/StoreRequestOptionsProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\StoreRequestOptionsProvider\\:\\:getDefaultQueryParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/StoreRequestOptionsProvider.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionRequiresNewPrivilegesException\\:\\:fromPrivilegeList\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Exception/ExtensionRequiresNewPrivilegesException.php
@@ -23619,16 +23579,6 @@ parameters:
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Authentication/FrwRequestOptionsProviderTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Authentication/StoreRequestOptionsProviderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Authentication\\\\StoreRequestOptionsProviderTest\\:\\:\\$systemConfigService is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Authentication/StoreRequestOptionsProviderTest.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\EqualsFilterStruct\\|Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\MultiFilterStruct\\:\\:getQueries\\(\\)\\.$#"

@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- * @covers \Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationExceptionTest
+ * @covers \Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException
  */
 class LicenseDomainVerificationExceptionTest extends TestCase
 {

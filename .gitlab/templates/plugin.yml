@@ -220,7 +220,7 @@ phpunit:
             --log-junit ${CI_PROJECT_DIR}/phpunit.junit.xml
             --colors=never
             --coverage-cobertura ${CI_PROJECT_DIR}/cobertura.xml
-            --coverage-text | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+            --coverage-text | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always

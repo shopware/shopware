@@ -365,7 +365,9 @@ cypress admin:
     rules:
         -   exists:
                 - Resources/app/administration/test/e2e/cypress.json
+                - Resources/app/administration/test/e2e/cypress.config.js
                 - src/Resources/app/administration/test/e2e/cypress.json
+                - src/Resources/app/administration/test/e2e/cypress.config.js
 
 cypress storefront:
     extends: .base e2e
@@ -376,7 +378,9 @@ cypress storefront:
     rules:
         -   exists:
                 - Resources/app/storefront/test/e2e/cypress.json
+                - Resources/app/storefront/test/e2e/cypress.config.js
                 - src/Resources/app/storefront/test/e2e/cypress.json
+                - src/Resources/app/storefront/test/e2e/cypress.config.js
 
 percy admin:
     extends: cypress admin

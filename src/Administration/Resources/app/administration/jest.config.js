@@ -20,6 +20,8 @@ module.exports = {
     collectCoverageFrom: [
         'src/**/*.js',
         'src/**/*.ts',
+        '!src/**/*.spec.js',
+        '!src/**/*.spec.ts',
     ],
 
     coverageReporters: [

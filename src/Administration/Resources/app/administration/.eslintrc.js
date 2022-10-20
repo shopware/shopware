@@ -176,6 +176,7 @@ module.exports = {
                 'comma-dangle': 0,
                 'max-len': 0,
                 'inclusive-language/use-inclusive-words': 0,
+                'sw-deprecation-rules/private-feature-declarations': 0,
             },
         }, {
             files: ['**/snippet/*.json'],

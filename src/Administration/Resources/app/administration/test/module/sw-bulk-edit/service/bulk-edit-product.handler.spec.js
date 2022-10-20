@@ -21,6 +21,10 @@ function getBulkEditProductHandler() {
     return handler;
 }
 
+function paginate(data, criteria) {
+    return data.slice((criteria.page - 1) * criteria.limit, criteria.page * criteria.limit);
+}
+
 describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => {
     it('is registered correctly', () => {
         const factory = getBulkEditApiFactory();
@@ -919,8 +923,20 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
 
             const spyRepository = jest.spyOn(handler.repositoryFactory, 'create').mockImplementation((entity) => {
                 return {
-                    search: async () => Promise.resolve(existAssociations[entity]),
-                    searchIds: async () => Promise.resolve({ data: existAssociations[entity] })
+                    search: async (criteria) => {
+                        const response = paginate(existAssociations[entity], criteria);
+                        response.total = existAssociations[entity].length;
+
+                        return Promise.resolve(response);
+                    },
+                    searchIds: async (criteria) => {
+                        const response = {
+                          data: paginate(existAssociations[entity], criteria),
+                          total: existAssociations[entity].length
+                        };
+
+                        return Promise.resolve(response);
+                    }
                 };
             });
 

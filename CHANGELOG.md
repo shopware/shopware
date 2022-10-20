@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.4.16.1
+*  [NEXT-23419 - Fix invisible context menu issue](/changelog/release-6-4-16-1/2022-09-26-fix-invisible-context-menu-issue.md)
+
 ## 6.4.16.0
 *  [NEXT-14872 - Search of Entities with FKField as Primary Key fixed](/changelog/release-6-4-16-0/2021-05-04-search-of-entities-with-fkfield-as-primary-key-fixed.md)
 *  [NEXT-11392 - Limit variants to sales channel](/changelog/release-6-4-16-0/2021-11-02-limit-variants-to-sales-channel.md)

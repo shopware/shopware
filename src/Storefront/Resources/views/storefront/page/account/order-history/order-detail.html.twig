@@ -200,6 +200,20 @@
                                 </div>
                             </div>
                         {% endblock %}
+
+                        {% block page_account_order_item_detail_table_footnote %}
+                            <div class="order-item-detail-footnote">
+                                {% if context.taxState == "gross" %}
+                                    {{ "footer.includeVatText"|trans({
+                                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    })|raw }}
+                                {% else %}
+                                    {{ "footer.excludeVatText"|trans({
+                                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                    })|raw }}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

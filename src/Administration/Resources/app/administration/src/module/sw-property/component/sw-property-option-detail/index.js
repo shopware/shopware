@@ -1,7 +1,10 @@
 import template from './sw-property-option-detail.html.twig';
 
+const { Component } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-property-option-detail', {
+Component.register('sw-property-option-detail', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -26,10 +29,18 @@ Shopware.Component.register('sw-property-option-detail', {
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
+
+        ...mapPropertyErrors('currentOption', ['name']),
     },
 
     methods: {
         onCancel() {
+            // Remove all property group options
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                { expression: 'property_group_option' },
+            );
+
             this.$emit('cancel-option-edit', this.currentOption);
         },
 

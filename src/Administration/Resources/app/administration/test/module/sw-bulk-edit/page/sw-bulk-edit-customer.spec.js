@@ -164,6 +164,7 @@ function createWrapper(isResponseError = false) {
             'sw-help-center': true,
             'sw-ignore-class': true,
             'sw-entity-tag-select': true,
+            'sw-error-summary': true,
         },
         props: {
             title: 'Foo bar'

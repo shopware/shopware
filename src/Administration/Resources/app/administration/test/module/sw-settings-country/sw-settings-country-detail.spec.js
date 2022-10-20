@@ -141,6 +141,7 @@ function createWrapper(privileges = []) {
             'router-link': true,
             'router-view': true,
             'sw-skeleton': true,
+            'sw-error-summary': true,
         }
     });
 }

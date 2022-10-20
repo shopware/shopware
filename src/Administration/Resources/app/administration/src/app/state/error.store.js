@@ -62,6 +62,10 @@ class VuexErrorStore {
                 return getters.getApiErrorFromPath(entity.getEntityName(), entity.id, path);
             },
 
+            getAllApiErrors: (state) => () => {
+                return Object.values(state.api);
+            },
+
             existsErrorInProperty: (state) => (entity, properties) => {
                 const entityErrors = state.api[entity];
                 if (!entityErrors) {

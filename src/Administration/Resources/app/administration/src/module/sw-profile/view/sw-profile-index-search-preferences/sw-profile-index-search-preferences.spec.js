@@ -40,6 +40,7 @@ async function createWrapper() {
             'sw-checkbox-field': true,
             'sw-loader': true,
             'sw-extension-component-section': true,
+            'sw-alert': true,
         },
         provide: {
             repositoryFactory: {
@@ -101,13 +102,23 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         wrapper.vm.getDataSource.mockRestore();
     });
 
+    it('should update data source once component created', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.updateDataSource = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.updateDataSource).toHaveBeenCalled();
+        wrapper.vm.updateDataSource.mockRestore();
+    });
+
     it('should add event listeners once component created', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.addEventListeners = jest.fn();
 
         await wrapper.vm.createdComponent();
 
-        expect(wrapper.vm.addEventListeners).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.addEventListeners).toHaveBeenCalled();
         wrapper.vm.addEventListeners.mockRestore();
     });
 

@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-visibility-config';
+import 'src/module/sw-cms/component/sw-cms-visibility-config/index';
 import 'src/app/component/base/sw-icon';
 
 function createWrapper() {
@@ -22,9 +22,9 @@ function createWrapper() {
             'icons-regular-tablet': true,
             'icons-regular-mobile': true,
             'icons-regular-desktop': true,
-            'icons-custom-hide-device-mobile': true,
-            'icons-custom-hide-device-tablet': true,
-            'icons-custom-hide-device-desktop': true,
+            'icons-regular-tablet-slash': true,
+            'icons-regular-mobile-slash': true,
+            'icons-regular-desktop-slash': true,
         },
     });
 }
@@ -59,12 +59,12 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         });
 
         const mobileIcon = wrapper.findAll('.sw-icon').at(0);
-        expect(mobileIcon.classes()).toContain('icon--custom-hide-device-mobile');
+        expect(mobileIcon.classes()).toContain('icon--regular-mobile-slash');
 
         const tabletIcon = wrapper.findAll('.sw-icon').at(1);
-        expect(tabletIcon.classes()).toContain('icon--custom-hide-device-tablet');
+        expect(tabletIcon.classes()).toContain('icon--regular-tablet-slash');
 
         const desktopIcon = wrapper.findAll('.sw-icon').at(2);
-        expect(desktopIcon.classes()).toContain('icon--custom-hide-device-desktop');
+        expect(desktopIcon.classes()).toContain('icon--regular-desktop-slash');
     });
 });

@@ -286,10 +286,9 @@
                     <template #header>
                         <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
                     </template>
-                    <sw-cms-visibility-config
-                        slot="content"
-                        :visibility="selectedBlock.visibility"
-                    />
+                    <template #content>
+                        <sw-cms-visibility-config :visibility="selectedBlock.visibility" />
+                    </template>
                 </sw-sidebar-collapse>
             </template>
         </div>
@@ -320,6 +319,15 @@
                         @section-delete="onSectionDelete"
                     />
                     {% endblock %}
+                </sw-sidebar-collapse>
+
+                <sw-sidebar-collapse :expand-on-loading="false">
+                    <template #header>
+                        <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
+                    </template>
+                    <template #content>
+                        <sw-cms-visibility-config :visibility="selectedSection.visibility" />
+                    </template>
                 </sw-sidebar-collapse>
                 {% endblock %}
             </template>

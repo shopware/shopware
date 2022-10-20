@@ -72,6 +72,10 @@
             grid-template-columns: 2fr 4fr;
             grid-gap: 28px;
         }
+
+        .sw-cms-visibility-wrapper {
+            grid-column: span 2;
+        }
     }
 
     &.is--sidebar.is--boxed {
@@ -148,6 +152,13 @@
             .sw-icon {
                 margin-bottom: 8px;
             }
+        }
+    }
+
+    &__content,
+    &__sidebar {
+        &.is--expanded {
+            opacity: 0.6;
         }
     }
 }

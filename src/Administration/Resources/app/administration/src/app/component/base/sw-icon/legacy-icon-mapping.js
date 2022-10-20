@@ -342,7 +342,4 @@ export default {
     'icons-custom-inherited-disabled': null,
     'icons-custom-inherited': null,
     'icons-custom-uninherited': null,
-    'icons-custom-hide-device-desktop': null,
-    'icons-custom-hide-device-mobile': null,
-    'icons-custom-hide-device-tablet': null,
 };

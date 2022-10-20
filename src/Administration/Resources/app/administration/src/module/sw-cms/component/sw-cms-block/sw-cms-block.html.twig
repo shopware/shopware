@@ -5,33 +5,17 @@
     :class="customBlockClass"
     :style="blockStyles"
 >
-    <div
-        v-if="invisibleBlock"
-        class="sw-cms-block__visibility-wrapper"
+    <sw-cms-visibility-toggle
+        v-if="isVisible"
+        :text="toggleButtonText"
+        :is-collapsed="isCollapsed"
         :class="expandedClass"
-    >
-        <div class="sw-cms-block__visibility">
-            <sw-icon
-                name="regular-eye-slash"
-                size="24"
-            />
-            <span class="sw-cms-block__visibility-text">{{ $tc('sw-cms.detail.label.visibilityParagraph') }}</span>
-            <button
-                class="sw-cms-block__visibility-btn"
-                @click="toggleVisibility"
-            >
-                <span>{{ toggleTextButton }}</span>
-                <sw-icon
-                    :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
-                    size="16"
-                />
-            </button>
-        </div>
-    </div>
+        @toggle="toggleVisibility"
+    />
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_content %}
     <div
-        v-if="!isCollapsed || !invisibleBlock"
+        v-if="!isCollapsed || !isVisible"
         class="sw-cms-block__content"
         :class="expandedClass"
         :style="blockPadding"

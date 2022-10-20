@@ -1,6 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-section';
+import 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 import Vuex from 'vuex';
 
 function createWrapper() {
@@ -34,7 +35,12 @@ function createWrapper() {
                         sectionPosition: 'main',
                         type: 'foo-bar-removed'
                     }
-                ]
+                ],
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                }
             }
         },
         stubs: {
@@ -42,7 +48,8 @@ function createWrapper() {
             'sw-cms-section-actions': true,
             'sw-cms-block': true,
             'sw-cms-block-foo-bar': true,
-            'sw-cms-stage-add-block': true
+            'sw-cms-stage-add-block': true,
+            'sw-cms-visibility-toggle': Shopware.Component.build('sw-cms-visibility-toggle'),
         },
         provide: {
             repositoryFactory: {},
@@ -66,7 +73,8 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                     sectionPosition: 'main',
                     type: 'foo-bar'
                 },
-                isSystemDefaultLanguage: true
+                isSystemDefaultLanguage: true,
+                currentCmsDeviceView: 'desktop',
             }
         });
     });
@@ -112,5 +120,27 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeFalsy();
         });
+    });
+
+    it('the visibility toggle wrapper should exist and be visible', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            section: {
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: false,
+                }
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
+    });
+
+    it('the visibility toggle wrapper should not exist', async () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeFalsy();
     });
 });

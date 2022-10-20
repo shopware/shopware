@@ -111,7 +111,7 @@ Component.register('sw-cms-block', {
             return Filter.getByName('asset');
         },
 
-        invisibleBlock() {
+        isVisible() {
             const view = State.get('cmsPageState').currentCmsDeviceView;
 
             return (view === 'desktop' && !this.block.visibility.desktop) ||
@@ -119,14 +119,14 @@ Component.register('sw-cms-block', {
                 (view === 'mobile' && !this.block.visibility.mobile);
         },
 
-        toggleTextButton() {
-            return this.isCollapsed ?
-                this.$tc('sw-cms.sidebar.contentMenu.visibilityTextButton', 0)
-                : this.$tc('sw-cms.sidebar.contentMenu.visibilityTextButton', 1);
+        toggleButtonText() {
+            return this.$tc('sw-cms.sidebar.contentMenu.visibilityBlockTextButton', !this.isCollapsed);
         },
 
         expandedClass() {
-            return !this.isCollapsed ? 'is--expanded' : '';
+            return {
+                'is--expanded': this.isVisible && !this.isCollapsed,
+            };
         },
     },
 

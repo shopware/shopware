@@ -55,7 +55,8 @@
         "visibilityMobile": "Mobile",
         "visibilityTablet": "Tablet",
         "visibilityDesktop": "Desktop",
-        "visibilityTextButton": "Collapse block | Expand block",
+        "visibilityBlockTextButton": "Collapse block | Expand block",
+        "visibilitySectionTextButton": "Collapse section | Expand section",
         "visibilityLabelCheckboxGroup": "Devices"
       },
       "layoutAssignment": {

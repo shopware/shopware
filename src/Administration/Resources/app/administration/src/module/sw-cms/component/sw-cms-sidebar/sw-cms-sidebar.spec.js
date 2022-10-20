@@ -163,6 +163,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             state: {
                 isSystemDefaultLanguage: true,
                 selectedBlock: {},
+                selectedSection: {},
             }
         });
     });

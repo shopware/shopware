@@ -55,7 +55,8 @@
         "visibilityMobile": "Mobil",
         "visibilityTablet": "Tablet",
         "visibilityDesktop": "Desktop",
-        "visibilityTextButton": "Block einklappen | Block ausklappen",
+        "visibilityBlockTextButton": "Block einklappen | Block ausklappen",
+        "visibilitySectionTextButton": "Sektion einklappen | Sektion ausklappen",
         "visibilityLabelCheckboxGroup": "Anzeigegeräte"
       },
       "layoutAssignment": {

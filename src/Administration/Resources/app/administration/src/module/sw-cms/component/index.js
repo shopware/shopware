@@ -22,3 +22,4 @@ import './sw-cms-layout-assignment-modal';
 import './sw-cms-missing-element-modal';
 import './sw-cms-product-assignment';
 import './sw-cms-visibility-config';
+import './sw-cms-visibility-toggle';

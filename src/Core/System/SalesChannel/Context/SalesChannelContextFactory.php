@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\SalesChannel\BaseContext;
@@ -53,6 +54,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     /**
      * @internal
+     *
+     * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
@@ -128,6 +131,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding
         );
 
+        $fallbackGroup = $customerGroup;
+        Feature::callSilentIfInactive('v6.5.0.0', function () use ($base, &$fallbackGroup): void {
+            $fallbackGroup = $base->getFallbackCustomerGroup();
+        });
+
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
@@ -135,7 +143,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $base->getSalesChannel(),
             $base->getCurrency(),
             $customerGroup,
-            $base->getFallbackCustomerGroup(),
+            $fallbackGroup,
             $taxRules,
             $payment,
             $base->getShippingMethod(),
@@ -196,6 +204,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
      * @codeCoverageIgnore
+     *
+     * @param array<string, mixed> $options
      */
     private function getPaymentMethod(array $options, BaseContext $context, ?CustomerEntity $customer): PaymentMethodEntity
     {
@@ -213,6 +223,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->addAssociation('media');
         $criteria->setTitle('context-factory::payment-method');
 
+        /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->get($id);
 
         if (!$paymentMethod) {
@@ -222,6 +233,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $paymentMethod;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function loadCustomer(array $options, Context $context): ?CustomerEntity
     {
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
@@ -262,10 +276,18 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context);
 
-        $customer->setActiveBillingAddress($addresses->get($activeBillingAddressId));
-        $customer->setActiveShippingAddress($addresses->get($activeShippingAddressId));
-        $customer->setDefaultBillingAddress($addresses->get($customer->getDefaultBillingAddressId()));
-        $customer->setDefaultShippingAddress($addresses->get($customer->getDefaultShippingAddressId()));
+        /** @var CustomerAddressEntity $activeBillingAddress */
+        $activeBillingAddress = $addresses->get($activeBillingAddressId);
+        $customer->setActiveBillingAddress($activeBillingAddress);
+        /** @var CustomerAddressEntity $activeShippingAddress */
+        $activeShippingAddress = $addresses->get($activeShippingAddressId);
+        $customer->setActiveShippingAddress($activeShippingAddress);
+        /** @var CustomerAddressEntity $defaultBillingAddress */
+        $defaultBillingAddress = $addresses->get($customer->getDefaultBillingAddressId());
+        $customer->setDefaultBillingAddress($defaultBillingAddress);
+        /** @var CustomerAddressEntity $defaultShippingAddress */
+        $defaultShippingAddress = $addresses->get($customer->getDefaultShippingAddressId());
+        $customer->setDefaultShippingAddress($defaultShippingAddress);
 
         return $customer;
     }

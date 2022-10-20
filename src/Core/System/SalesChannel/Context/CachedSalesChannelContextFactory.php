@@ -80,6 +80,9 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         return 'context-factory-' . $salesChannelId;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function isCacheable(array $options): bool
     {
         return !isset($options[SalesChannelContextService::CUSTOMER_ID])

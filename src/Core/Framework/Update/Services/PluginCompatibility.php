@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Update\Struct\Version;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be considered internal
+ *
+ * @phpstan-type Compatibility array{name: string, managedByComposer: bool, installedVersion: ?string, statusVariant: ?string, statusColor: ?string, statusMessage: string, statusName: string}
  */
 class PluginCompatibility
 {
@@ -49,6 +51,9 @@ class PluginCompatibility
         $this->extensionDataProvider = $extensionDataProvider;
     }
 
+    /**
+     * @return list<Compatibility>
+     */
     public function getPluginCompatibilities(Version $update, Context $context, ?PluginCollection $plugins = null): array
     {
         if ($plugins === null) {
@@ -87,6 +92,9 @@ class PluginCompatibility
         return $pluginInfo;
     }
 
+    /**
+     * @return list<Compatibility>
+     */
     public function getExtensionCompatibilities(Version $update, Context $context, ?ExtensionCollection $extensions = null): array
     {
         if ($extensions === null) {
@@ -196,6 +204,8 @@ class PluginCompatibility
     }
 
     /**
+     * @param list<string> $deactivatedPlugins
+     *
      * @return PluginEntity[]
      */
     public function getPluginsToReactivate(array $deactivatedPlugins, Version $newVersion, Context $context): array
@@ -222,6 +232,8 @@ class PluginCompatibility
     }
 
     /**
+     * @param list<string> $deactivatedPlugins
+     *
      * @return ExtensionStruct[]
      */
     public function getExtensionsToReactivate(array $deactivatedPlugins, Version $newVersion, Context $context): array
@@ -266,7 +278,7 @@ class PluginCompatibility
     }
 
     /**
-     * @param array<string> $pluginIds
+     * @param list<string> $pluginIds
      */
     private function fetchInactivePlugins(array $pluginIds, Context $context): PluginCollection
     {
@@ -280,7 +292,7 @@ class PluginCompatibility
     }
 
     /**
-     * @param array<string> $pluginIds
+     * @param list<string> $pluginIds
      */
     private function fetchInactiveExtensions(array $pluginIds, Context $context): ExtensionCollection
     {
@@ -290,6 +302,9 @@ class PluginCompatibility
         return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
     }
 
+    /**
+     * @return array{statusColor: ?string, statusVariant: ?string}
+     */
     private function mapColorToStatusVariant(string $color): array
     {
         switch ($color) {

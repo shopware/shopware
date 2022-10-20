@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -58,6 +59,8 @@ class StoreControllerTest extends TestCase
      */
     public function testDownloadPluginUpdateBehaviour(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $pluginLifecycleService = $this->getPluginLifecycleServiceMock();
         $pluginLifecycleService->expects(static::never())->method('updatePlugin');
 

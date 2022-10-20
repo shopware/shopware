@@ -3,12 +3,15 @@
 namespace Shopware\Core\Framework\Store\Exception;
 
 /**
- * @deprecated tag:v6.5.0 - Will only extend from Shopware\Core\Framework\ShopwareHttpException
+ * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only extend from Shopware\Core\Framework\ShopwareHttpException
  *
  * @internal
  */
 class ExtensionUpdateRequiresConsentAffirmationException extends ExtensionRequiresNewPrivilegesException
 {
+    /**
+     * @param array<string, array<string, mixed>> $deltas
+     */
     public static function fromDelta(string $appName, array $deltas): self
     {
         return new self(

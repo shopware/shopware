@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserExcept
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +28,11 @@ abstract class AbstractStoreController extends AbstractController
 
     public function __construct(EntityRepositoryInterface $userRepository)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', AbstractStoreRequestOptionsProvider::class)
+        );
+
         $this->userRepository = $userRepository;
     }
 
@@ -36,6 +43,11 @@ abstract class AbstractStoreController extends AbstractController
      */
     protected function getUserStoreToken(Context $context): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', AbstractStoreRequestOptionsProvider::class)
+        );
+
         $contextSource = $this->ensureAdminApiSource($context);
 
         $userId = $contextSource->getUserId();
@@ -60,6 +72,11 @@ abstract class AbstractStoreController extends AbstractController
 
     protected function ensureAdminApiSource(Context $context): AdminApiSource
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', AbstractStoreRequestOptionsProvider::class)
+        );
+
         $contextSource = $context->getSource();
         if (!($contextSource instanceof AdminApiSource)) {
             throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));

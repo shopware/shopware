@@ -7,10 +7,11 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - newsletter field in customer will be remove on version 6.5.0.
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - newsletter field in customer will be removed in version 6.5.0.
  * So this subscriber will be removed also on v.6.5.0
  * Please don't use this subscriber for further extensions
  *
@@ -35,6 +36,10 @@ class CustomerNewsletterSubscriber implements EventSubscriberInterface
 
     public function newsletterConfirmed(NewsletterConfirmEvent $event): void
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return;
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $event->getNewsletterRecipient()->getEmail()));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $event->getSalesChannelId()));
@@ -54,6 +59,10 @@ class CustomerNewsletterSubscriber implements EventSubscriberInterface
 
     public function newsletterUnsubscribed(NewsletterUnsubscribeEvent $event): void
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return;
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $event->getNewsletterRecipient()->getEmail()));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $event->getSalesChannelId()));

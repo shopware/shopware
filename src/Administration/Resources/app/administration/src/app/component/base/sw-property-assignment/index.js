@@ -4,7 +4,9 @@ import './sw-property-assignment.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.5.0 - Will be removed without replacement
+ */
 Component.register('sw-property-assignment', {
     template,
 

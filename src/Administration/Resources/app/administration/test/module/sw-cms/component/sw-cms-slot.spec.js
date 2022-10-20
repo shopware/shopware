@@ -79,4 +79,69 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
         expect(wrapper.vm.tooltipDisabled.disabled).toBe(false);
     });
+
+    it('test onSelectElement', async () => {
+        const wrapper = createWrapper();
+        expect(wrapper.vm.element).toEqual({});
+
+        wrapper.vm.onSelectElement({
+            name: 'testElement',
+        });
+        expect(wrapper.vm.element).toEqual({
+            type: 'testElement',
+            config: {},
+            data: {},
+            locked: false,
+        });
+
+        wrapper.vm.onSelectElement({
+            name: 'testElement2',
+            defaultConfig: {
+                imageId: 1234567980,
+            },
+        });
+        expect(wrapper.vm.element).toEqual({
+            type: 'testElement2',
+            config: {
+                imageId: 1234567980,
+            },
+            data: {},
+            locked: false,
+        });
+
+        wrapper.vm.onSelectElement({
+            name: 'testElement3',
+            defaultData: {
+                text: 'Test text',
+            }
+        });
+        expect(wrapper.vm.element).toEqual({
+            type: 'testElement3',
+            config: {},
+            data: {
+                text: 'Test text',
+            },
+            locked: false,
+        });
+
+        wrapper.vm.onSelectElement({
+            name: 'testElement4',
+            defaultConfig: {
+                imageId: 1234567980,
+            },
+            defaultData: {
+                text: 'Test text',
+            },
+        });
+        expect(wrapper.vm.element).toEqual({
+            type: 'testElement4',
+            config: {
+                imageId: 1234567980,
+            },
+            data: {
+                text: 'Test text',
+            },
+            locked: false,
+        });
+    });
 });

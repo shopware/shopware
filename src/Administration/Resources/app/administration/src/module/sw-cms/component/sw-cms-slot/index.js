@@ -2,6 +2,7 @@ import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 
 const { Component } = Shopware;
+const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
@@ -105,11 +106,10 @@ Component.register('sw-cms-slot', {
         onCloseElementModal() {
             this.showElementSelection = false;
         },
-
-        onSelectElement(elementType) {
-            this.element.data = {};
-            this.element.config = {};
-            this.element.type = elementType;
+        onSelectElement(element) {
+            this.element.data = deepCopyObject(element?.defaultData || {});
+            this.element.config = deepCopyObject(element?.defaultConfig || {});
+            this.element.type = element.name;
             this.element.locked = false;
             this.showElementSelection = false;
         },

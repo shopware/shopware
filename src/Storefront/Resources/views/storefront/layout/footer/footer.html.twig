@@ -1,3 +1,7 @@
+{% if showVatNotice is not defined %}
+    {% set showVatNotice = true %}
+{% endif %}
+
 {% block layout_footer_inner_container %}
     <div class="container">
 
@@ -203,21 +207,23 @@
             {% endblock %}
 
             {% block layout_footer_vat %}
-                <div class="footer-vat">
-                    {% if context.taxState == "gross" %}
-                        <p>
-                            {{ "footer.includeVatText"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
-                            })|raw }}
-                        </p>
-                    {% else %}
-                        <p>
-                            {{ "footer.excludeVatText"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
-                            })|raw }}
-                        </p>
-                    {% endif %}
-                </div>
+                {% if showVatNotice %}
+                    <div class="footer-vat">
+                        {% if context.taxState == "gross" %}
+                            <p>
+                                {{ "footer.includeVatText"|trans({
+                                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                })|raw }}
+                            </p>
+                        {% else %}
+                            <p>
+                                {{ "footer.excludeVatText"|trans({
+                                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                })|raw }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endblock %}
 
             {% block layout_footer_copyright %}

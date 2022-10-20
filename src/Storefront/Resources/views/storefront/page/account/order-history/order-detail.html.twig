@@ -1,4 +1,6 @@
 {% block page_account_order_item_detail_overview %}
+    {% set isTaxStateSame = order.taxStatus is same as (context.context.taxState) %}
+
     <div class="order-item-detail">
         <div class="collapse"
              id="order{{ order.orderNumber }}">
@@ -197,6 +199,21 @@
                                     </div>
                                 </div>
                             </div>
+                        {% endblock %}
+                        {% block page_account_order_item_detail_table_footnote %}
+                            {% if not isTaxStateSame %}
+                                <div class="order-item-detail-footnote">
+                                    {% if context.taxState == "gross" %}
+                                        {{ "general.star"|trans|sw_sanitize }}{{ "footer.excludeVat"|trans({
+                                            '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                        })|raw }}
+                                    {% else %}
+                                        {{ "general.star"|trans|sw_sanitize }}{{ "footer.includeVat"|trans({
+                                            '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                        })|raw }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}

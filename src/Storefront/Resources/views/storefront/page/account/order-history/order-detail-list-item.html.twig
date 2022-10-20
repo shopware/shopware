@@ -3,6 +3,11 @@
 {% block page_account_order_item_detail_list_item %}
     {% set PROMOTION_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PROMOTION_LINE_ITEM_TYPE') %}
 
+    {% set taxFootNote = "general.star"|trans|sw_sanitize %}
+
+    {% if not isTaxStateSame %}
+        {% set taxFootNote = ("general.star"|trans|sw_sanitize) ~ ("general.star"|trans|sw_sanitize) %}
+    {% endif %}
 
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
@@ -139,7 +144,7 @@
 
                                                 {% block page_account_order_item_detail_referenceunit_content %}
                                                     <span class="order-price-reference-content">
-                                                        ({{ referencePrice.price|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
+                                                        ({{ referencePrice.price|currency(order.currency.isoCode) }}{{ taxFootNote }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
                                                     </span>
                                                 {% endblock %}
 
@@ -189,7 +194,7 @@
                                     {% if lineItem.type == PROMOTION_LINE_ITEM_TYPE %}
                                         /
                                     {% else %}
-                                        {{ lineItem.unitPrice|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }}
+                                        {{ lineItem.unitPrice|currency(order.currency.isoCode) }}{{ taxFootNote }}
                                     {% endif %}
                                 </span>
                             {% endblock %}
@@ -209,7 +214,7 @@
 
                         {% block page_account_order_item_detail_total_value %}
                             <span class="order-item-value order-item-total-value">
-                                {{ lineItem.totalPrice|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }}
+                                {{ lineItem.totalPrice|currency(order.currency.isoCode) }}{{ taxFootNote }}
                             </span>
                         {% endblock %}
 

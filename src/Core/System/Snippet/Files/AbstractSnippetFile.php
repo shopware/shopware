@@ -2,12 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
-/**
- * @deprecated tag:v6.5.0 - Use AbstractSnippetFile instead
- *
- * @method string getTechnicalName()
- */
-interface SnippetFileInterface
+abstract class AbstractSnippetFile implements SnippetFileInterface
 {
     /**
      * Returns the displayed name.
@@ -15,7 +10,7 @@ interface SnippetFileInterface
      * Example:
      * storefront.en-GB
      */
-    public function getName(): string;
+    abstract public function getName(): string;
 
     /**
      * Returns the path to the json language file.
@@ -23,7 +18,7 @@ interface SnippetFileInterface
      * Example:
      * /appPath/subDirectory/storefront.en-GB.json
      */
-    public function getPath(): string;
+    abstract public function getPath(): string;
 
     /**
      * Returns the associated language ISO.
@@ -32,7 +27,7 @@ interface SnippetFileInterface
      * en-GB
      * de-DE
      */
-    public function getIso(): string;
+    abstract public function getIso(): string;
 
     /**
      * Return the snippet author, which will be used when editing a file snippet in a snippet set
@@ -41,10 +36,15 @@ interface SnippetFileInterface
      * shopware
      * pluginName
      */
-    public function getAuthor(): string;
+    abstract public function getAuthor(): string;
 
     /**
      * Returns a boolean which determines if its a base language file
      */
-    public function isBase(): bool;
+    abstract public function isBase(): bool;
+
+    /**
+     * Returns a technical name of the bundle or app that the file is belonged to
+     */
+    abstract public function getTechnicalName(): string;
 }

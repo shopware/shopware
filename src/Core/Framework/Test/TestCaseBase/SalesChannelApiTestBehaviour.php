@@ -228,8 +228,8 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param array<mixed> $salesChannel
-     * @param array<mixed> $options
+     * @param array<string, string> $salesChannel
+     * @param array<string, mixed> $options
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
@@ -243,7 +243,7 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param array<mixed> $salesChannelOverride
+     * @param array<string, mixed> $salesChannelOverride
      */
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {

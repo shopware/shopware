@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Test\Translation\_fixtures;
 
-use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
 /**
  * @internal
  */
-class SnippetFile_UnitTest implements SnippetFileInterface
+class SnippetFile_UnitTest extends AbstractSnippetFile
 {
     public function getName(): string
     {
@@ -32,5 +32,10 @@ class SnippetFile_UnitTest implements SnippetFileInterface
     public function isBase(): bool
     {
         return false;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return 'unitFile';
     }
 }

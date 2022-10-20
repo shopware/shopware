@@ -16,30 +16,18 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
+
+    private Connection $connection;
 
     /**
-     * @var Connection
+     * @var array<string, string>
      */
-    private $connection;
+    private array $pluginAuthors = [];
 
-    /**
-     * @var array
-     */
-    private $pluginAuthors;
+    private AppSnippetFileLoader $appSnippetFileLoader;
 
-    /**
-     * @var AppSnippetFileLoader
-     */
-    private $appSnippetFileLoader;
-
-    /**
-     * @var ActiveAppsLoader
-     */
-    private $activeAppsLoader;
+    private ActiveAppsLoader $activeAppsLoader;
 
     /**
      * @internal
@@ -93,13 +81,14 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
             foreach ($snippetFiles as $snippetFile) {
+                $snippetFile->setTechnicalName($app['name']);
                 $snippetFileCollection->add($snippetFile);
             }
         }
     }
 
     /**
-     * @return SnippetFileInterface[]
+     * @return AbstractSnippetFile[]
      */
     private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle): array
     {
@@ -121,7 +110,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
-                        false
+                        false,
+                        $bundle->getName()
                     );
 
                     break;
@@ -131,7 +121,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
-                        $nameParts[2] === 'base'
+                        $nameParts[2] === 'base',
+                        $bundle->getName()
                     );
 
                     break;
@@ -154,6 +145,9 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         return $this->getPluginAuthors()[\get_class($bundle)] ?? '';
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getPluginAuthors(): array
     {
         if (!$this->pluginAuthors) {

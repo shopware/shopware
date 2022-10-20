@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Files;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -10,6 +10,7 @@ use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
 
 /**
  * @internal
+ * @covers \Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory
  */
 class SnippetFileCollectionFactoryTest extends TestCase
 {
@@ -22,7 +23,7 @@ class SnippetFileCollectionFactoryTest extends TestCase
                 $fileCollection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true));
             });
 
-        $factory = new SnippetFileCollectionFactory([], $snippetFileLoaderMock);
+        $factory = new SnippetFileCollectionFactory($snippetFileLoaderMock);
 
         $collection = $factory->createSnippetFileCollection();
 

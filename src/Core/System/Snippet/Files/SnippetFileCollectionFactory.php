@@ -4,28 +4,19 @@ namespace Shopware\Core\System\Snippet\Files;
 
 class SnippetFileCollectionFactory
 {
-    /**
-     * @var iterable|SnippetFileInterface[]
-     */
-    private $snippetFiles;
-
-    /**
-     * @var SnippetFileLoaderInterface
-     */
-    private $snippetFileLoader;
+    private SnippetFileLoaderInterface $snippetFileLoader;
 
     /**
      * @internal
      */
-    public function __construct(iterable $snippetFiles, SnippetFileLoaderInterface $snippetFileLoader)
+    public function __construct(SnippetFileLoaderInterface $snippetFileLoader)
     {
-        $this->snippetFiles = $snippetFiles;
         $this->snippetFileLoader = $snippetFileLoader;
     }
 
     public function createSnippetFileCollection(): SnippetFileCollection
     {
-        $collection = new SnippetFileCollection($this->snippetFiles);
+        $collection = new SnippetFileCollection();
         $this->snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
         return $collection;

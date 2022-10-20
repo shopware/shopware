@@ -1,33 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Files;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\App\EmptyActiveAppsLoader;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
-use Shopware\Core\System\Test\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
-use Shopware\Core\System\Test\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
-use Shopware\Core\System\Test\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
+use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
+use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
+use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\System\Snippet\Files\SnippetFileLoader
  */
 class SnippetFileLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testLoadSnippetsFromShopwareBundle(): void
     {
         $kernel = new MockedKernel(
             [
-                new ShopwareBundleWithSnippets(),
+                'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
             ]
         );
 
@@ -35,9 +32,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->createMock(Connection::class),
+            $this->createMock(AppSnippetFileLoader::class),
+            new EmptyActiveAppsLoader()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -62,6 +59,7 @@ class SnippetFileLoaderTest extends TestCase
         );
         static::assertEquals('en-GB', $snippetFile->getIso());
         static::assertEquals('Shopware', $snippetFile->getAuthor());
+        static::assertEquals('ShopwareBundleWithSnippets', $snippetFile->getTechnicalName());
         static::assertFalse($snippetFile->isBase());
     }
 
@@ -69,7 +67,7 @@ class SnippetFileLoaderTest extends TestCase
     {
         $kernel = new MockedKernel(
             [
-                new ShopwareBundleWithSnippets(),
+                'ShopwareBundleWithSnippets' => new ShopwareBundleWithSnippets(),
             ]
         );
 
@@ -79,22 +77,24 @@ class SnippetFileLoaderTest extends TestCase
                 __DIR__ . '/_fixtures/ShopwareBundleWithSnippets/Resources/snippet/storefront.de-DE.json',
                 'xx-XX',
                 'test Author',
-                true
+                true,
+                'ShopwareBundleWithSnippets'
             ),
             new GenericSnippetFile(
                 'test',
                 __DIR__ . '/_fixtures/ShopwareBundleWithSnippets/Resources/snippet/storefront.en-GB.json',
                 'yy-YY',
                 'test Author',
-                true
+                true,
+                'ShopwareBundleWithSnippets'
             ),
         ]);
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->createMock(Connection::class),
+            $this->createMock(AppSnippetFileLoader::class),
+            new EmptyActiveAppsLoader()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -119,29 +119,23 @@ class SnippetFileLoaderTest extends TestCase
         );
         static::assertEquals('yy-YY', $snippetFile->getIso());
         static::assertEquals('test Author', $snippetFile->getAuthor());
+        static::assertEquals('ShopwareBundleWithSnippets', $snippetFile->getTechnicalName());
         static::assertTrue($snippetFile->isBase());
     }
 
     public function testLoadSnippetsFromPlugin(): void
     {
-        /** @var EntityRepositoryInterface $pluginRepo */
-        $pluginRepo = $this->getContainer()->get('plugin.repository');
-        $pluginRepo->create([
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())->method('fetchAll')->willReturn([
             [
-                'name' => 'SnippetSet',
-                'label' => 'SnippetSet Plugin',
                 'baseClass' => SnippetSet::class,
-                'active' => true,
-                'managedByComposer' => true,
-                'autoload' => [],
                 'author' => 'Plugin Manufacturer',
-                'version' => '1.0.0',
             ],
-        ], Context::createDefaultContext());
+        ]);
 
         $kernel = new MockedKernel(
             [
-                new SnippetSet(true, __DIR__),
+                'SnippetSet' => new SnippetSet(true, __DIR__),
             ]
         );
 
@@ -149,9 +143,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $connection,
+            $this->createMock(AppSnippetFileLoader::class),
+            new EmptyActiveAppsLoader()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -176,29 +170,23 @@ class SnippetFileLoaderTest extends TestCase
         );
         static::assertEquals('en-GB', $snippetFile->getIso());
         static::assertEquals('Plugin Manufacturer', $snippetFile->getAuthor());
+        static::assertEquals('SnippetSet', $snippetFile->getTechnicalName());
         static::assertFalse($snippetFile->isBase());
     }
 
     public function testLoadBaseSnippetsFromPlugin(): void
     {
-        /** @var EntityRepositoryInterface $pluginRepo */
-        $pluginRepo = $this->getContainer()->get('plugin.repository');
-        $pluginRepo->create([
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())->method('fetchAll')->willReturn([
             [
-                'name' => 'BaseSnippetSet',
-                'label' => 'BaseSnippetSet Plugin',
                 'baseClass' => BaseSnippetSet::class,
-                'active' => true,
-                'managedByComposer' => true,
-                'autoload' => [],
                 'author' => 'Plugin Manufacturer',
-                'version' => '1.0.0',
             ],
-        ], Context::createDefaultContext());
+        ]);
 
         $kernel = new MockedKernel(
             [
-                new BaseSnippetSet(true, __DIR__),
+                'BaseSnippetSet' => new BaseSnippetSet(true, __DIR__),
             ]
         );
 
@@ -206,9 +194,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $connection,
+            $this->createMock(AppSnippetFileLoader::class),
+            new EmptyActiveAppsLoader()
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -223,6 +211,7 @@ class SnippetFileLoaderTest extends TestCase
         );
         static::assertEquals('de-DE', $snippetFile->getIso());
         static::assertEquals('Plugin Manufacturer', $snippetFile->getAuthor());
+        static::assertEquals('BaseSnippetSet', $snippetFile->getTechnicalName());
         static::assertTrue($snippetFile->isBase());
 
         $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];

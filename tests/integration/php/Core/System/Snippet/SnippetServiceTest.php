@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet;
+namespace Shopware\Tests\Integration\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -8,11 +8,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -25,7 +26,7 @@ class SnippetServiceTest extends TestCase
 
     public function tearDown(): void
     {
-        foreach (glob(__DIR__ . '/Mock/_fixtures/*.json') as $mockFile) {
+        foreach (glob(__DIR__ . '/Mock/_fixtures/*.json') ?: [] as $mockFile) {
             unlink($mockFile);
         }
     }
@@ -133,11 +134,14 @@ json
 
     /**
      * @dataProvider dataProviderForTestGetStoreFrontSnippets
+     *
+     * @param array<int, array<int, MessageCatalogue|array<int|string, string>>> $expectedResult
      */
     public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
         $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
 
+        static::assertNotNull($this->getSnippetSetIdForLocale('en-GB'));
         $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en-GB'));
 
         static::assertSame($expectedResult, $result);
@@ -148,6 +152,7 @@ json
         $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
 
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
+        static::assertNotNull($snippetSetId);
 
         $snippetRepository = $this->getContainer()->get('snippet.repository');
         $snippetRepository->create([
@@ -176,7 +181,7 @@ json
     public function testStorefrontSnippetFallback(): void
     {
         $service = $this->getSnippetService(
-            new MockSnippetFile('test-fallback-en', 'en-GB', json_encode([
+            new MockSnippetFile('test-fallback-en', 'en-GB', (string) json_encode([
                 'foo' => 'en-foo',
                 'not-exists' => 'en-bar',
                 'storefront' => [
@@ -188,7 +193,7 @@ json
                     ],
                 ],
             ])),
-            new MockSnippetFile('test-fallback-de', 'de-DE', json_encode([
+            new MockSnippetFile('test-fallback-de', 'de-DE', (string) json_encode([
                 'storefront' => [
                     'account' => [
                         'overview' => 'Übersicht',
@@ -210,7 +215,10 @@ json
             ]
         );
 
-        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('de-DE'), 'en-GB');
+        $snippetSetId = $this->getSnippetSetIdForLocale('de-DE');
+
+        static::assertNotNull($snippetSetId);
+        $result = $service->getStorefrontSnippets($catalog, $snippetSetId, 'en-GB');
 
         static::assertEquals(
             [
@@ -225,6 +233,9 @@ json
         );
     }
 
+    /**
+     * @return array<int, array<int, MessageCatalogue|array<int|string, string>>>
+     */
     public function dataProviderForTestGetStoreFrontSnippets(): array
     {
         return [
@@ -905,11 +916,17 @@ json
         static::assertSame(['total' => 0, 'data' => []], $result);
     }
 
+    /**
+     * @param array<string> $messages
+     */
     private function getCatalog(array $messages, string $local): MessageCatalogueInterface
     {
         return new MessageCatalogue($local, $messages);
     }
 
+    /**
+     * @param array<mixed> $result
+     */
     private function assertSnippetResult(
         array $result,
         string $translationKey,
@@ -929,23 +946,30 @@ json
         }
     }
 
-    private function getSnippetService(SnippetFileInterface ...$snippetFiles): SnippetService
+    private function getSnippetService(AbstractSnippetFile ...$snippetFiles): SnippetService
     {
         $collection = new SnippetFileCollection();
         foreach ($snippetFiles as $file) {
             $collection->add($file);
         }
 
-        return new SnippetService(
+        $snippetService = new SnippetService(
             $this->getContainer()->get(Connection::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
             $this->getContainer()->get('sales_channel_domain.repository'),
-            $this->getContainer()->get(SnippetFilterFactory::class)
+            $this->getContainer()->get(SnippetFilterFactory::class),
+            $this->getContainer()->get(RequestStack::class),
+            $this->getContainer()
         );
+
+        return $snippetService;
     }
 
+    /**
+     * @param array<mixed> $result
+     */
     private function assertFirstSnippetSetIdEquals(array $result, string $fooId): void
     {
         foreach ($result['data'] as $data) {

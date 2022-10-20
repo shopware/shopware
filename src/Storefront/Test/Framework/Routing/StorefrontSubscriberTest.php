@@ -33,10 +33,7 @@ class StorefrontSubscriberTest extends TestCase
     use AppSystemTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {

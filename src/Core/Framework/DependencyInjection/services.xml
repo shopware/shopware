@@ -254,6 +254,8 @@ base-uri 'self';
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="service_container" />
         </service>
 
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
@@ -281,7 +283,6 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory">
-            <argument type="collection" />
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileLoader"/>
         </service>
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Mock;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Mock;
 
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
@@ -17,13 +17,15 @@ class MockSnippetFile extends AbstractSnippetFile
 
     private string $technicalName;
 
+    private string $content;
+
     public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true, string $technicalName = 'mock')
     {
         $this->name = $name;
         $this->iso = $iso ?? $name;
         $this->isBase = $isBase;
-        file_put_contents($this->getPath(), $content);
         $this->technicalName = $technicalName;
+        $this->content = $content;
     }
 
     public function getName(): string
@@ -54,5 +56,10 @@ class MockSnippetFile extends AbstractSnippetFile
     public function getTechnicalName(): string
     {
         return $this->technicalName;
+    }
+
+    public function getContent(): string
+    {
+        return $this->content;
     }
 }

@@ -52,7 +52,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(0, $urls->count());
+        static::assertCount(0, $urls);
     }
 
     public function testUrlsAreWrittenToOnlyAssignedSalesChannel(): void
@@ -73,10 +73,11 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(1, $urls->count());
+        static::assertCount(1, $urls);
 
         $url = $urls->first();
 
+        static::assertNotNull($url);
         static::assertSame($s1, $url->getSalesChannelId());
         static::assertSame($id, $url->getForeignKey());
         static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
@@ -101,7 +102,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(0, $urls->count());
+        static::assertCount(0, $urls);
     }
 
     public function testUrlExistsForAllLanguages(): void
@@ -140,7 +141,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(\count($languageIds), $urls->count());
+        static::assertCount(\count($languageIds), $urls);
 
         foreach ($languageIds as $languageId) {
             $foundUrl = false;
@@ -173,11 +174,11 @@ class CustomerGroupSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        static::assertSame(1, $this->getSeoUrlsById($id)->count());
+        static::assertCount(1, $this->getSeoUrlsById($id));
 
         $this->customerGroupRepository->delete([['id' => $id]], Context::createDefaultContext());
 
-        static::assertSame(0, $this->getSeoUrlsById($id)->count());
+        static::assertCount(0, $this->getSeoUrlsById($id));
     }
 
     public function testSaveGroupAndEnableLaterSalesChannels(): void
@@ -204,10 +205,11 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(1, $urls->count());
+        static::assertCount(1, $urls);
 
         $url = $urls->first();
 
+        static::assertNotNull($url);
         static::assertSame($s1, $url->getSalesChannelId());
         static::assertSame($id, $url->getForeignKey());
         static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
@@ -219,9 +221,17 @@ class CustomerGroupSubscriberTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('foreignKey', $id));
 
-        return $this->seoRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        /** @var SeoUrlCollection $result */
+        $result = $this->seoRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return $result;
     }
 
+    /**
+     * @param array<string, mixed> $salesChannelOverride
+     *
+     * @return array<string, mixed>
+     */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
         /** @var EntityRepositoryInterface $salesChannelRepository */

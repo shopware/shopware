@@ -1,0 +1,11 @@
+# This file contains patterns to be ignored while testing for use deprecated code
+# https://symfony.com/doc/current/components/phpunit_bridge.html#ignoring-deprecations
+
+# Deprecation via Feature::triggerDeprecation or throw -> can be ignored as we use the feature flag to cover this cases
+%Since shopware\/core%
+# @deprecated annotations for internal code, can be ignored as it should be covered by Feature::triggerDeprecation already
+%The Shopware\\%
+# DomPDF throws deprecation notices for PHP 8.1, but we can't do anything about it, as we can't update the lib currently
+%Dompdf\\Frame%
+# Also triggered by DomPDF internally
+%mb_stripos\(\)\: Passing null to parameter #1 \(\$haystack\) of type string is deprecated%

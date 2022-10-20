@@ -117,7 +117,7 @@ class ElasticsearchHelperTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Delete this method only covers the old behavior
+     * @group legacy
      *
      * @ActiveFeatures(features={})
      */

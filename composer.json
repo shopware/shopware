@@ -180,7 +180,7 @@
         "symfony/css-selector": "~5.4.0",
         "symfony/dom-crawler": "~5.4.0",
         "symfony/expression-language": "~5.4.0",
-        "symfony/phpunit-bridge": "~5.4.0",
+        "symfony/phpunit-bridge": "~6.1.0",
         "symfony/var-dumper": "~5.4.0",
         "symfony/web-profiler-bundle": "~5.4.0"
     },

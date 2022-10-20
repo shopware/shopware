@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Test\Annotation\ActiveFeatures;
@@ -42,7 +43,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class EntityRepositoryTest extends TestCase
 {
     /**
-     * @deprecated tag:v6.5.0 - Tests the deprecated constructor, can be deleted
+     * @group legacy
      *
      * @ActiveFeatures(features={})
      */
@@ -71,6 +72,9 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('Since shopware/core : EntityRepository constructor for definition  requires the event factory as required 7th parameter in v6.5.0.0', $text);
     }
 
+    /**
+     * @group legacy
+     */
     public function testEventFactoryNotInjected(): void
     {
         $repo = new EntityRepository(

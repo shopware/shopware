@@ -139,6 +139,8 @@ class ProductControllerTest extends TestCase
 
     public function testIndexNoCmsPage(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->productEntity = new SalesChannelProductEntity();
         $this->productEntity->setId('test');
         $this->productPage = new ProductPage();
@@ -206,6 +208,8 @@ class ProductControllerTest extends TestCase
 
     public function testSwitchVariantReturnOld(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $ids = new IdsCollection();
 
         $options = [

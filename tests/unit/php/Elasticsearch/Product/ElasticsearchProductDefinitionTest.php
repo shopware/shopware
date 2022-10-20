@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
@@ -325,7 +326,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
     /**
      * @ActiveFeatures(features={})
      *
-     * @deprecated tag:v6.5.0 - Remove this test method
+     * @group legacy
      */
     public function testExtendDocument(): void
     {
@@ -546,6 +547,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     /**
      * @ActiveFeatures(features={})
+     *
+     * @group legacy
      */
     public function testFetchFormatsCustomFields(): void
     {

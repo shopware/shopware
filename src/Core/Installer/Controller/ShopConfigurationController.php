@@ -93,7 +93,7 @@ class ShopConfigurationController extends InstallerController
             ];
 
             /** @var list<string>|null $availableCurrencies */
-            $availableCurrencies = $request->request->get('available_currencies');
+            $availableCurrencies = $request->request->all('available_currencies');
 
             $schema = 'http';
             // This is for supporting Apache 2.2

@@ -2,6 +2,7 @@ import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.fa
 import BulkEditProductHandler from 'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler';
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
+const highAssociationCount = 750;
 
 function getBulkEditApiFactory() {
     return new BulkEditApiFactory();
@@ -774,6 +775,43 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             id: 'product_media_1'
                         }
                     ]
+                }
+            ],
+            [
+                'add more than 500 oneToMany association',
+                [{
+                    type: 'add',
+                    field: 'media',
+                    mappingReferenceField: 'mediaId',
+                    value: Array(highAssociationCount).fill(0).map((v,k) => ({ mediaId: `media_${k}` }))
+                }],
+                {
+                    'upsert-product_media': {
+                        action: 'upsert',
+                        entity: 'product_media',
+                        payload: Array(highAssociationCount).fill(0).map((v,k) => ({ productId: 'product_1', mediaId: `media_${k}` }))
+                    }
+                },
+                {
+                    product_media: Array(highAssociationCount).fill(0).map((v,k) => ({ id: `product_media_${k}`, productId: 'product_2', mediaId: `media_${k}` }))
+                }
+            ],
+            [
+                'add more than 500 manyToMany association',
+                [{
+                    type: 'add',
+                    field: 'categories',
+                    value: Array(highAssociationCount).fill(0).map((v,k) => ({ id: `category_${k}` }))
+                }],
+                {
+                    'upsert-product_category': {
+                        action: 'upsert',
+                        entity: 'product_category',
+                        payload: Array(highAssociationCount).fill(0).map((v,k) => ({ productId: 'product_1', categoryId: `category_${k}` }))
+                    }
+                },
+                {
+                    product_category: Array(highAssociationCount).fill(0).map((v,k) => ({ id: `product_category_${k}`, productId: 'product_2', categoryId: `category_${k}` }))
                 }
             ]
         ];

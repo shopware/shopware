@@ -371,6 +371,12 @@ Component.register('sw-search-bar', {
                 return;
             }
 
+            if (Context.app.adminEsEnable) {
+                this.doGlobalSearchWithElasticSearch();
+
+                return;
+            }
+
             this.doGlobalSearch();
         },
 
@@ -443,6 +449,16 @@ Component.register('sw-search-bar', {
             }
         }, 750),
 
+        doGlobalSearchWithElasticSearch: utils.debounce(function debouncedSearch() {
+            const searchTerm = this.searchTerm.trim();
+            if (searchTerm?.length > 0) {
+                this.loadResults(searchTerm);
+            } else {
+                this.showResultsContainer = false;
+                this.showResultsSearchTrends = false;
+            }
+        }, 30),
+
         async loadResults(searchTerm) {
             this.isLoading = true;
             this.results = [];
@@ -489,6 +505,8 @@ Component.register('sw-search-bar', {
 
                     item.entities = Object.values(item.data).slice(0, this.searchLimit);
                     item.entity = entity;
+
+                    this.results = this.results.filter(result => entity !== result.entity);
 
                     this.results = [
                         ...this.results,

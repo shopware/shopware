@@ -1298,4 +1298,42 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.isComponentMounted).toBe(false);
         expect(wrapper.vm.currentSearchType).toBe(null);
     });
+
+    it('should search with ES when adminEsEnable is true', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+
+        wrapper = await createWrapper({
+            initialSearchType: '',
+            typeSearchAlwaysInContainer: false
+        }, {
+            all: {
+                entityName: '',
+                placeholderSnippet: '',
+                listingRoute: ''
+            },
+            foo: {
+                entityName: 'foo',
+                placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                listingRoute: 'sw.foo.index'
+            }
+        });
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.all');
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        // type search value
+        await searchInput.setValue('shorts');
+        await flushPromises();
+
+        const debouncedDoGlobalSearch = swSearchBarComponent.methods.doGlobalSearchWithElasticSearch;
+        await debouncedDoGlobalSearch.flush();
+
+        await flushPromises();
+
+        expect(spyLoadResults).toHaveBeenCalled();
+    });
 });

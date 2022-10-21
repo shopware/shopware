@@ -4,11 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent
  *
  * @internal
+ *
+ * @DisabledFeatures(features={"v6.5.0.0"})
  */
 class OpenApiPathsEventTest extends TestCase
 {

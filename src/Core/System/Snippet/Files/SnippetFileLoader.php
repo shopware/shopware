@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Snippet\Files;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
@@ -151,12 +150,10 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function getPluginAuthors(): array
     {
         if (!$this->pluginAuthors) {
-            $authors = $this->connection->fetchAll('
+            $this->pluginAuthors = $this->connection->fetchAllKeyValue('
             SELECT `base_class` AS `baseClass`, `author`
             FROM `plugin`
         ');
-
-            $this->pluginAuthors = FetchModeHelper::keyPair($authors);
         }
 
         return $this->pluginAuthors;

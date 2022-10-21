@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @internal
  *
- * @group legacy
+ * @DisabledFeatures(features={"v6.5.0.0"})
  */
 class OpenApiLoaderTest extends TestCase
 {

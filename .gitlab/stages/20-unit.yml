@@ -147,7 +147,6 @@ PHP unit coverage:
     services: []
     variables:
         APP_ENV: "test"
-        FEATURE_ALL: "false"
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

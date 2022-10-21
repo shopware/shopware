@@ -8,7 +8,7 @@ namespace Shopware\Core\Test\Annotation;
  *
  * @Target({"METHOD", "CLASS"})
  */
-final class ActiveFeatures
+final class DisabledFeatures
 {
     /**
      * @var array<string>

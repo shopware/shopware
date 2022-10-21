@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -67,9 +67,7 @@ class ProductSuggestRouteTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={})
-     *
-     * @deprecated tag:v6.5.0 - Remove this test method
+     * @DisabledFeatures(features={"v6.5.0.0"})
      */
     public function testLoadSuccessfullyWithout65(): void
     {
@@ -143,9 +141,6 @@ class ProductSuggestRouteTest extends TestCase
         );
     }
 
-    /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
-     */
     public function testLoadSuccessfully(): void
     {
         $request = new Request();

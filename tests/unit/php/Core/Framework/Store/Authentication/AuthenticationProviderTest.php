@@ -6,11 +6,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Authentication\AuthenticationProvider
+ *
+ * @DisabledFeatures(features={"v6.5.0.0"})
  */
 class AuthenticationProviderTest extends TestCase
 {

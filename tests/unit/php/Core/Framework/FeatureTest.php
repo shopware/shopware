@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -57,7 +57,7 @@ class FeatureTest extends TestCase
         Feature::fake([], function (): void {
             static::assertFalse(Feature::isActive('FEATURE_ALL'));
             static::assertFalse(Feature::isActive('FEATURE_NEXT_0000'));
-            static::assertFalse(Feature::isActive('v6.5.0.0'));
+            static::assertFalse(Feature::isActive('v6.4.5.0'));
             static::assertFalse(Feature::isActive('PERFORMANCE_TWEAKS'));
         });
 
@@ -118,6 +118,8 @@ class FeatureTest extends TestCase
     }
 
     /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     *
      * @covers ::triggerDeprecationOrThrow
      */
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
@@ -133,8 +135,6 @@ class FeatureTest extends TestCase
 
     /**
      * @covers \Shopware\Core\Framework\Feature
-     *
-     * @ActiveFeatures("v6.5.0.0")
      */
     public function testTriggerDeprecationOrThrowThrows(): void
     {
@@ -161,7 +161,7 @@ class FeatureTest extends TestCase
     /**
      * @covers \Shopware\Core\Framework\Feature
      *
-     * @ActiveFeatures("v6.4.0.0")
+     * @DisabledFeatures(features={"v6.5.0.0"})
      * @dataProvider callSilentIfInactiveProvider
      */
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void

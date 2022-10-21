@@ -1591,31 +1591,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Aggregate/PromotionIndividualCode/PromotionIndividualCodeCollection.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"deleteIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Api/PromotionActionController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"getDiscountFilterPickers\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Api/PromotionActionController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"getIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Api/PromotionActionController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"getSetGroupPackagers\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Api/PromotionActionController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"getSetGroupSorters\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Api/PromotionActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Cart\\\\CartPromotionsDataDefinition\\:\\:addAutomaticPromotions\\(\\) has parameter \\$promotions with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Cart/CartPromotionsDataDefinition.php

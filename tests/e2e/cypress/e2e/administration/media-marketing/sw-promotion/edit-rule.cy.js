@@ -10,6 +10,7 @@ describe('Promotion: Test promotion with preconditional rules', () => {
     // eslint-disable-next-line no-undef
     before(() => {
         cy.onlyOnFeature('FEATURE_NEXT_13810');
+        cy.skipOnFeature('v6.5.0.0');
     });
 
     beforeEach(() => {

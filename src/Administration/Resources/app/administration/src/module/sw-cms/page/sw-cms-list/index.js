@@ -422,8 +422,9 @@ Component.register('sw-cms-list', {
             if (this.newName) {
                 this.currentPage.name = this.newName;
                 this.saveCmsPage(this.currentPage);
-                this.newName = null;
+                this.getList();
             }
+            this.newName = null;
             this.currentPage = null;
             this.showRenameModal = false;
         },

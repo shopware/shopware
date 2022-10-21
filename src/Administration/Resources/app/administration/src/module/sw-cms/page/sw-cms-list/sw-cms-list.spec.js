@@ -77,8 +77,11 @@ function createWrapper(privileges = ['user_config:read', 'user_config:create', '
             'sw-confirm-modal': {
                 template: '<div></div>',
                 props: ['text']
-            }
-
+            },
+            'sw-text-field': {
+                props: ['value', 'label', 'placeholder'],
+                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />'
+            },
         },
         mocks: {
             $route: { query: '' },
@@ -138,6 +141,13 @@ function createWrapper(privileges = ['user_config:read', 'user_config:create', '
                     return privileges.includes(identifier);
                 }
             },
+        },
+        data: () => {
+            return {
+                cmsPage: {
+                    locked: false,
+                },
+            };
         },
         attachTo: document.body
     });
@@ -360,10 +370,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const contextMenuItemEdit = wrapper.find('.sw-cms-list__context-menu-item-edit');
         const contextMenuItemDuplicate = wrapper.find('.sw-cms-list__context-menu-item-duplicate');
+        const contextMenuItemRename = wrapper.find('.sw-cms-list__context-menu-item-rename');
         const contextMenuItemDelete = wrapper.find('.sw-cms-list__context-menu-item-delete');
 
         expect(contextMenuItemEdit.props().disabled).toBe(true);
         expect(contextMenuItemDuplicate.props().disabled).toBe(true);
+        expect(contextMenuItemRename.props().disabled).toBe(true);
         expect(contextMenuItemDelete.props().disabled).toBe(false);
     });
 
@@ -1013,5 +1025,46 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(saveSpy).toHaveBeenCalledTimes(0);
         expect(listItems.at(0).props('isDefault')).toBe(false);
         expect(listItems.at(1).props('isDefault')).toBe(true);
+    });
+
+    it('should rename the layout', async () => {
+        const wrapper = createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.pageRepository.save = jest.fn(() => Promise.resolve());
+        await wrapper.setData({
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    name: 'CMS Page 1',
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                }
+            ]
+        });
+
+        await wrapper.find('.sw-data-grid__actions-menu')
+            .trigger('click');
+
+        await wrapper.find('.sw-cms-list__context-menu-item-rename').trigger('click');
+        await wrapper.find('.sw-text-field').setValue('CMD Page 1 New');
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onConfirmPageRename();
+
+        expect(wrapper.vm.pageRepository.save).toHaveBeenCalledTimes(1);
+
+        const renameMock = wrapper.vm.pageRepository.save.mock.calls[0];
+
+        expect(renameMock[0].name).toBe('CMD Page 1 New');
+        expect(renameMock[0].name).not.toBe('CMD Page 1');
     });
 });

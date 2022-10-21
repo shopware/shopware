@@ -14,27 +14,31 @@ class FileFetcher
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.5.0 - Property will become private
      */
     public $enableUrlUploadFeature;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.5.0 - Property will become private
      */
     public $enableUrlValidation;
 
-    /**
-     * @var FileUrlValidatorInterface
-     */
-    private $fileUrlValidator;
+    private FileUrlValidatorInterface $fileUrlValidator;
+
+    private int $maxFileSize;
 
     /**
      * @internal
      */
-    public function __construct(FileUrlValidatorInterface $fileUrlValidator, bool $enableUrlUploadFeature = true, bool $enableUrlValidation = true)
+    public function __construct(FileUrlValidatorInterface $fileUrlValidator, bool $enableUrlUploadFeature = true, bool $enableUrlValidation = true, int $maxFileSize = 0)
     {
         $this->fileUrlValidator = $fileUrlValidator;
         $this->enableUrlUploadFeature = $enableUrlUploadFeature;
         $this->enableUrlValidation = $enableUrlValidation;
+        $this->maxFileSize = $maxFileSize;
     }
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile
@@ -46,7 +50,7 @@ class FileFetcher
         $destStream = $this->openDestinationStream($fileName);
 
         try {
-            $bytesWritten = $this->copyStreams($inputStream, $destStream);
+            $bytesWritten = $this->copyStreams($inputStream, $destStream, 0);
         } finally {
             fclose($inputStream);
             fclose($destStream);
@@ -83,7 +87,7 @@ class FileFetcher
         $destStream = $this->openDestinationStream($fileName);
 
         try {
-            $writtenBytes = $this->copyStreams($inputStream, $destStream);
+            $writtenBytes = $this->copyStreams($inputStream, $destStream, $this->maxFileSize);
         } finally {
             fclose($inputStream);
             fclose($destStream);
@@ -198,12 +202,24 @@ class FileFetcher
      * @param resource $sourceStream
      * @param resource        $destStream
      */
-    private function copyStreams($sourceStream, $destStream): int
+    private function copyStreams($sourceStream, $destStream, int $maxFileSize = 0): int
     {
-        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
+        if ($maxFileSize === 0) {
+            $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
+            if ($writtenBytes === false) {
+                throw new UploadException('Error while copying media from source');
+            }
 
+            return $writtenBytes;
+        }
+
+        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream, $maxFileSize, 0);
         if ($writtenBytes === false) {
             throw new UploadException('Error while copying media from source');
+        }
+
+        if ($writtenBytes === $maxFileSize) {
+            throw new UploadException('Source file exceeds maximum file size limit');
         }
 
         return $writtenBytes;

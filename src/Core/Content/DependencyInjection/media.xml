@@ -94,6 +94,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface" />
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.media.enable_url_validation%</argument>
+            <argument>%shopware.media.url_upload_max_size%</argument>
         </service>
 
         <service class="Shopware\Core\Content\Media\File\FileUrlValidator" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface">

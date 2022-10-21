@@ -167,6 +167,7 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: true
+        url_upload_max_size: 0
 
     dal:
         batch_size: 125

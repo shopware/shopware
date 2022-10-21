@@ -610,6 +610,9 @@
                 },
                 "enable_url_validation": {
                     "type": "boolean"
+                },
+                "url_upload_max_size": {
+                    "type": "string"
                 }
             },
             "title": "Media"

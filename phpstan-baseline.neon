@@ -971,26 +971,6 @@ parameters:
 			path: src/Core/Checkout/Customer/CustomerEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DataAbstractionLayer\\\\CustomerIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/DataAbstractionLayer/CustomerIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DataAbstractionLayer\\\\CustomerIndexingMessage\\:\\:getIdsWithEmailChange\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/DataAbstractionLayer/CustomerIndexingMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DataAbstractionLayer\\\\CustomerIndexingMessage\\:\\:setIdsWithEmailChange\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/DataAbstractionLayer/CustomerIndexingMessage.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DataAbstractionLayer\\\\CustomerIndexingMessage\\:\\:\\$getIdsWithEmailChange type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/DataAbstractionLayer/CustomerIndexingMessage.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DeleteUnusedGuestCustomerService\\:\\:deleteUnusedCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/DeleteUnusedGuestCustomerService.php
@@ -2924,21 +2904,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 5
 			path: src/Core/Checkout/Test/Customer/SalesChannel/ChangePaymentMethodRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\ChangeProfileRouteTest\\:\\:testChangeVatIdsOfCommercialAccount\\(\\) has parameter \\$constraint with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/ChangeProfileRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 8
-			path: src/Core/Checkout/Test/Customer/SalesChannel/ChangeProfileRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\ChangeProfileRouteTest\\:\\:\\$salesChannelId is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/ChangeProfileRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -6078,21 +6043,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetector\\:\\:\\$typeDetector \\(array\\<Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetectorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\DataAbstractionLayer\\\\Indexing\\\\CustomerNewsletterSalesChannelsUpdater\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/DataAbstractionLayer/Indexing/CustomerNewsletterSalesChannelsUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\DataAbstractionLayer\\\\Indexing\\\\CustomerNewsletterSalesChannelsUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/DataAbstractionLayer/Indexing/CustomerNewsletterSalesChannelsUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\DataAbstractionLayer\\\\Indexing\\\\CustomerNewsletterSalesChannelsUpdater\\:\\:updateCustomerEmailRecipient\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/DataAbstractionLayer/Indexing/CustomerNewsletterSalesChannelsUpdater.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\DataAbstractionLayer\\\\NewsletterRecipientIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"

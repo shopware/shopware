@@ -14,6 +14,6 @@ trait InheritanceUpdaterTrait
             'ALTER TABLE `#table#` ADD COLUMN `#column#` binary(16) NULL'
         );
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 }

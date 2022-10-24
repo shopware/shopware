@@ -34,7 +34,9 @@ class CmsElementFavoritesService extends UserConfigClass {
 
     protected async readUserConfig(): Promise<void> {
         this.userConfig = await this.getUserConfig();
-        this.state.favorites = this.userConfig.value;
+        if (Array.isArray(this.userConfig.value)) {
+            this.state.favorites = this.userConfig.value;
+        }
     }
 
     protected setUserConfig(): void {
@@ -44,7 +46,6 @@ class CmsElementFavoritesService extends UserConfigClass {
 
 let cmsElementFavoritesService: CmsElementFavoritesService;
 
-// @ts-expect-error
 Application.addServiceProvider('cmsElementFavorites', () => {
     if (!cmsElementFavoritesService) {
         cmsElementFavoritesService = new CmsElementFavoritesService();

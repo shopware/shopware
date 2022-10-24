@@ -34,7 +34,10 @@ class CmsBlockFavoritesService extends UserConfigClass {
 
     protected async readUserConfig(): Promise<void> {
         this.userConfig = await this.getUserConfig();
-        this.state.favorites = this.userConfig.value;
+
+        if (Array.isArray(this.userConfig.value)) {
+            this.state.favorites = this.userConfig.value;
+        }
     }
 
     protected setUserConfig(): void {
@@ -44,7 +47,6 @@ class CmsBlockFavoritesService extends UserConfigClass {
 
 let cmsBlockFavoritesService: CmsBlockFavoritesService;
 
-// @ts-expect-error
 Application.addServiceProvider('cmsBlockFavorites', () => {
     if (!cmsBlockFavoritesService) {
         cmsBlockFavoritesService = new CmsBlockFavoritesService();

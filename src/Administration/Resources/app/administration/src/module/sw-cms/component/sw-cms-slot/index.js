@@ -71,13 +71,13 @@ Component.register('sw-cms-slot', {
 
             if (favorites.length) {
                 result.push({
-                    title: this.$tc('sw-cms.elements.general.switch.groups.favorites'),
+                    title: 'sw-cms.elements.general.switch.groups.favorites',
                     items: favorites,
                 });
             }
 
             result.push({
-                title: this.$tc('sw-cms.elements.general.switch.groups.all'),
+                title: 'sw-cms.elements.general.switch.groups.all',
                 items: nonFavorites,
             });
 

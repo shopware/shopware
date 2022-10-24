@@ -124,22 +124,22 @@
                 expand-on-loading
                 expand-chevron-direction="up"
             >
-                <div slot="header">
+                <template #header>
                     {{ $tc(cmsElementGroup.title) }}
-                </div>
+                </template>
 
-                <div slot="content">
+                <template slot="content">
                     <div class="sw-cms-slot__element-selection">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_slot_content_element_modal_selection_element %}
-                        <div
+                        <template
                             v-for="element in cmsElementGroup.items"
-                            :key="element.name"
                             class="element-selection__element-wrapper"
-                            @click="onSelectElement(element)"
-                            @keydown.enter="onSelectElement(element)"
                         >
-                            <template v-if="!element.hidden && element.previewComponent">
+                            <div
+                                v-if="!element.hidden && element.previewComponent"
+                                :key="element.name"
+                            >
                                 <div class="element-selection__element">
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_slot_content_element_modal_selection_element_component %}
@@ -154,8 +154,8 @@
                                     {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
                                     <div
                                         class="element-selection__overlay element-selection__overlay-action-select"
-                                        @click="onSelectElement(element.name)"
-                                        @keydown.enter="onSelectElement(element.name)"
+                                        @click="onSelectElement(element)"
+                                        @keydown.enter="onSelectElement(element)"
                                     >
                                         <sw-icon
                                             name="regular-repeat"
@@ -189,11 +189,11 @@
                                 {% block sw_cms_slot_content_element_modal_selection_element_label %}
                                 <span class="element-selection__label">{{ $tc(element.label) }}</span>
                             {% endblock %}
-                            </template>
-                        </div>
+                            </div>
+                        </template>
                         {% endblock %}
                     </div>
-                </div>
+                </template>
             </sw-sidebar-collapse>
             {% endblock %}
         </div>

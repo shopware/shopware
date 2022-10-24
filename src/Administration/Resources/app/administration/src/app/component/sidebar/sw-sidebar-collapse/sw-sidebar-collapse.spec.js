@@ -2,10 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/base/sw-collapse';
 import 'src/app/component/sidebar/sw-sidebar-collapse';
 
-function createWrapper(propsData = {}) {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-sidebar-collapse'), {
+    return shallowMount(await Shopware.Component.build('sw-sidebar-collapse'), {
         localVue,
         stubs: {
             'sw-icon': {
@@ -16,16 +16,6 @@ function createWrapper(propsData = {}) {
             },
             'sw-collapse': true
         },
-        propsData: {
-            ...propsData
-        },
-        provide: {
-            cmsElementFavorites: {
-                isFavorite() {
-                    return false;
-                }
-            }
-        },
         mocks: {
             $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values)
         }
@@ -33,26 +23,9 @@ function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    beforeAll(async () => {});
-
-    beforeEach(() => {});
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     describe('no props', () => {
-        it('should be a Vue.JS component', async () => {
-            wrapper = await createWrapper({});
-
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         it('has a chevron pointing right', async () => {
-            wrapper = await createWrapper({});
+            const wrapper = await createWrapper();
 
             expect(wrapper.find('.sw-sidebar-collapse__button').text()).toContain('right');
         });
@@ -60,7 +33,9 @@ describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
 
     describe('prop expandChevronDirection down', () => {
         it('has a chevron pointing down', async () => {
-            wrapper = await createWrapper({
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
                 expandChevronDirection: 'bottom'
             });
 

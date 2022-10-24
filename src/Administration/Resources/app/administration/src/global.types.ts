@@ -34,6 +34,8 @@ import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
+import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
+import type cmsBlockFavoritesService from './module/sw-cms/service/cms-block-favorites.service';
 import type CheckoutStoreService from './core/service/api/checkout-store.api.service';
 
 // trick to make it an "external module" to support global type extension
@@ -126,6 +128,8 @@ declare global {
         appCmsService: $TSFixMe,
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
         cmsService: CmsService,
+        cmsElementFavorites: cmsElementFavoritesService,
+        cmsBlockFavorites: cmsBlockFavoritesService,
         searchRankingService: $TSFixMe,
         searchPreferencesService: $TSFixMe,
         storeService: StoreApiService,

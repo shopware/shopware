@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep
 {
     public function getCreationTimestamp(): int

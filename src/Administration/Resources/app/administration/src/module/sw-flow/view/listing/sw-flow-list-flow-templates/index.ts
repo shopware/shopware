@@ -15,6 +15,7 @@ interface FlowTemplateEntity extends Entity {
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// @ts-expect-error
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-list-flow-templates', {
     template,
@@ -54,7 +55,6 @@ Component.register('sw-flow-list-flow-templates', {
 
     metaInfo(): MetaInfo {
         return {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             title: this.$createTitle() as string,
         };
@@ -69,11 +69,10 @@ Component.register('sw-flow-list-flow-templates', {
             const criteria = new Criteria(1, 25);
 
             if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+                criteria.setTerm(this.searchTerm as string);
             }
 
             criteria
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
                 .addSorting(Criteria.sort('updatedAt', 'DESC'));
@@ -107,21 +106,18 @@ Component.register('sw-flow-list-flow-templates', {
 
     watch: {
         searchTerm(value): void {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.onSearch(value);
         },
     },
 
     created(): void {
-        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.createComponent();
     },
 
     methods: {
         createComponent(): void {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.getList();
         },
@@ -130,7 +126,6 @@ Component.register('sw-flow-list-flow-templates', {
             // @ts-expect-error
             this.isLoading = true;
 
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             this.flowTemplateRepository.search(this.flowTemplateCriteria)
                 .then((data: EntityCollection) => {

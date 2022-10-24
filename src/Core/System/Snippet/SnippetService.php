@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -292,11 +291,9 @@ class SnippetService
      */
     protected function fetchSnippetsFromDatabase(string $snippetSetId): array
     {
-        $snippets = $this->connection->fetchAllKeyValue('SELECT translation_key, value FROM snippet WHERE snippet_set_id = :snippetSetId', [
+        return $this->connection->fetchAllKeyValue('SELECT translation_key, value FROM snippet WHERE snippet_set_id = :snippetSetId', [
             'snippetSetId' => Uuid::fromHexToBytes($snippetSetId),
         ]);
-
-        return FetchModeHelper::keyPair($snippets);
     }
 
     /**

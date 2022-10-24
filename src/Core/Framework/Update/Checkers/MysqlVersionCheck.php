@@ -30,7 +30,7 @@ class MysqlVersionCheck implements CheckerInterface
      */
     public function check($values): ValidationResult
     {
-        $currentVersion = $this->connection->fetchColumn('SELECT VERSION()');
+        $currentVersion = $this->connection->fetchOne('SELECT VERSION()');
 
         $vars = ['minVersion' => $values, 'currentVersion' => $currentVersion];
 

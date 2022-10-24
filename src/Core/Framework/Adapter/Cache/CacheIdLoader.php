@@ -10,15 +10,9 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 class CacheIdLoader
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var CacheItemPoolInterface|null
-     */
-    private $restartSignalCachePool;
+    private ?CacheItemPoolInterface $restartSignalCachePool;
 
     /**
      * @internal
@@ -37,7 +31,7 @@ class CacheIdLoader
         }
 
         try {
-            $cacheId = $this->connection->fetchColumn(
+            $cacheId = $this->connection->fetchOne(
                 '# cache-id-loader
                 SELECT `value` FROM app_config WHERE `key` = :key',
                 ['key' => 'cache-id']
@@ -63,7 +57,7 @@ class CacheIdLoader
 
     public function write(string $cacheId): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
             ['cacheId' => $cacheId, 'key' => 'cache-id']
         );

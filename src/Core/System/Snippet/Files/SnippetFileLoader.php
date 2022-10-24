@@ -150,10 +150,13 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function getPluginAuthors(): array
     {
         if (!$this->pluginAuthors) {
-            $this->pluginAuthors = $this->connection->fetchAllKeyValue('
-            SELECT `base_class` AS `baseClass`, `author`
-            FROM `plugin`
-        ');
+            /** @var array<string, string> $authors */
+            $authors = $this->connection->fetchAllKeyValue('
+                SELECT `base_class` AS `baseClass`, `author`
+                FROM `plugin`
+            ');
+
+            $this->pluginAuthors = $authors;
         }
 
         return $this->pluginAuthors;

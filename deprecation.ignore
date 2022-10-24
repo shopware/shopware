@@ -5,6 +5,8 @@
 %Since shopware\/core%
 # @deprecated annotations for internal code, can be ignored as it should be covered by Feature::triggerDeprecation already
 %The Shopware\\%
+# Some services are deprecated, as they will be private, but the AbstractController relies on them and uses ServiceSubscriberInterface so it will continue working
+%Accessing the \".*\" service directly from the container is deprecated, use dependency injection instead%
 # DomPDF throws deprecation notices for PHP 8.1, but we can't do anything about it, as we can't update the lib currently
 %Dompdf\\Frame%
 # Also triggered by DomPDF internally

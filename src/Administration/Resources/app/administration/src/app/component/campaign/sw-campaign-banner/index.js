@@ -2,6 +2,7 @@ import template from './sw-campaign-banner.html.twig';
 import './sw-campaign-banner.scss';
 
 /**
+ * @deprecated tag:v6.5.0 - Will be removed without replacement
  * @private
  * @status ready
  * @example-type code-only

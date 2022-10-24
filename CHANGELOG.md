@@ -97,6 +97,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-23529 - Deprecate sw-property-assignment](/changelog/release-6-4-17-0/2022-10-18-deprecate-sw-property-assignment.md)
 *  [NEXT-23815 - Fix failing date test due to different locales](/changelog/release-6-4-17-0/2022-10-18-fix-failing-date-test-due-to-different-locales.md) ([Max](https://github.com/aragon999))
 *  [NEXT-9366 - 2022-10-18-fix-webp-animation-bit-flag-recognition](/changelog/release-6-4-17-0/2022-10-18-fix-webp-animation-bit-flag-recognition.md)
+*  [NEXT-23840 - Remove superfluous twig instruction](/changelog/release-6-4-17-0/2022-10-24-remove-superfluous-twig-instruction.md)
 
 ## 6.4.16.1
 *  [NEXT-23419 - Fix invisible context menu issue](/changelog/release-6-4-16-1/2022-09-26-fix-invisible-context-menu-issue.md)

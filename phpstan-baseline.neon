@@ -13186,26 +13186,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/PriceField.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\SingleEntitySelectField\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleEntitySelectField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\SingleEntitySelectField\\:\\:getPlaceholder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleEntitySelectField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\SingleEntitySelectField\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleEntitySelectField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\CustomFieldTypes\\\\SingleEntitySelectField\\:\\:\\$placeholder type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleEntitySelectField.php
-
-		-
 			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/SingleSelectField.php

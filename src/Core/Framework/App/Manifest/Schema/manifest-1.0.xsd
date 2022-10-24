@@ -329,6 +329,7 @@
                 <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             </xs:choice>
             <xs:element name="entity" type="xs:string"/>
+            <xs:element name="label-property" type="xs:string"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>

@@ -1,5 +1,6 @@
 ---
 title: Show translated unit name in product-detail-price-unit
+issue: NEXT-23834
 author: Julian Krzefski
 author_email: krzefski@heptacom.de
 author_github: jkrzefski

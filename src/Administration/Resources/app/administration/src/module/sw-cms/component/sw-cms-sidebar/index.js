@@ -76,9 +76,7 @@ export default {
             const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
 
             const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
-                return block.category === this.currentBlockCategory &&
-                    block.hidden !== true &&
-                    this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+                return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
             });
 
             return Object.fromEntries(blocks);
@@ -170,10 +168,6 @@ export default {
             }
 
             return result.filter(b => b.category === this.currentBlockCategory);
-        },
-
-        cmsBlockFavoritesTypes() {
-            return this.cmsBlockFavorites.getFavoriteBlockType();
         },
 
         ...mapPropertyErrors('page', ['name']),

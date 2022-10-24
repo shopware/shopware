@@ -23,7 +23,10 @@ responses.addResponse({
 responses.addResponse({
     method: 'Post',
     url: '/user-config',
-    status: 200
+    status: 200,
+    response: {
+        data: []
+    }
 });
 
 describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.js', () => {
@@ -35,10 +38,6 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         };
 
         service = new SalesChannelFavoritesService();
-    });
-
-    afterEach(() => {
-        service = null;
     });
 
     it('getFavoriteIds > should return favorites from internal state', async () => {

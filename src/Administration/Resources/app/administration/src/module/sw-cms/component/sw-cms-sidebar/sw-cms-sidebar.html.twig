@@ -196,8 +196,8 @@
                 <sw-empty-state
                     v-if="cmsBlocksBySelectedBlockCategory.length === 0 && currentBlockCategory === 'favorite'"
                     icon="solid-heart"
-                    auto-height
                     :absolute="false"
+                    :title="$tc('sw-cms.detail.title.blockFavoriteEmptyState')"
                 >
                     {{ $tc('sw-cms.detail.label.blockFavoriteEmptyState') }}
                 </sw-empty-state>

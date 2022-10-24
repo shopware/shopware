@@ -12,6 +12,14 @@ class SalesChannelFavoritesService extends UserConfigClass {
 
     private state: { favorites: string[] } = Vue.observable({ favorites: [] });
 
+    private async initService(): Promise<void> {
+        this.userConfig = await this.getUserConfig();
+
+        if (this.userConfig.value?.length) {
+            this.state.favorites = this.userConfig.value;
+        }
+    }
+
     public getFavoriteIds(): string[] {
         return this.state.favorites;
     }
@@ -20,7 +28,7 @@ class SalesChannelFavoritesService extends UserConfigClass {
         return this.state.favorites.includes(salesChannelId);
     }
 
-    public update(state: boolean, salesChannelId: string): void {
+    public update(state: boolean, salesChannelId: string): Promise<void> {
         if (state && !this.isFavorite(salesChannelId)) {
             this.state.favorites.push(salesChannelId);
         } else if (!state && this.isFavorite(salesChannelId)) {
@@ -29,7 +37,7 @@ class SalesChannelFavoritesService extends UserConfigClass {
             this.state.favorites.splice(index, 1);
         }
 
-        void this.saveUserConfig();
+        return this.saveUserConfig();
     }
 
     protected getConfigurationKey(): string {
@@ -38,7 +46,9 @@ class SalesChannelFavoritesService extends UserConfigClass {
 
     protected async readUserConfig(): Promise<void> {
         this.userConfig = await this.getUserConfig();
-        this.state.favorites = this.userConfig.value;
+        if (Array.isArray(this.userConfig?.value)) {
+            this.state.favorites = this.userConfig.value;
+        }
     }
 
     protected setUserConfig(): void {

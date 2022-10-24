@@ -19,7 +19,10 @@ responses.addResponse({
 responses.addResponse({
     method: 'Post',
     url: '/user-config',
-    status: 200
+    status: 200,
+    response: {
+        data: []
+    }
 });
 
 describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {

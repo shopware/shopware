@@ -51,7 +51,6 @@ describe('CMS: check validation of product list page', () => {
         cy.get('.sw-cms-detail__empty-stage-content').should('be.visible');
         cy.get('.sw-cms-detail__save-action').click();
 
-        cy.awaitAndCheckNotification('Errors occured. Please check the error list in the editor.');
-        cy.contains('.sw-alert__message', 'This listing page does not contain a product listing block.');
+        cy.awaitAndCheckNotification('Errors occurred. Please check the error list in the editor.');
     });
 });

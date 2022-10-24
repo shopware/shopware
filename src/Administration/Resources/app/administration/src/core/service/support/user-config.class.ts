@@ -1,3 +1,5 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+
 const { Context, Data, Service, State } = Shopware;
 const { Criteria } = Data;
 
@@ -12,43 +14,18 @@ interface CurrentUserObject {
     [index: string]: unknown;
 }
 
-interface UserConfigObject {
-    extensions: Record<string, unknown>;
-    id: string;
-    userId: string;
-    key: string;
-    value: string[];
-    isNew: () => boolean;
-}
-
-interface AclServiceInterface {
-    can(permission: string): boolean;
-}
-
-interface CriteriaInterface {
-    addFilter(filter: unknown): CriteriaInterface;
-    equals(field: string, value: string|number|boolean|null): unknown;
-}
-
-interface RepositorySearchResultInterface {
-    total: number;
-    first(): unknown;
-}
-
-interface RepositoryInterface {
-    create(context: unknown): unknown;
-    search(criteria: CriteriaInterface, context: unknown): Promise<RepositorySearchResultInterface>;
-    save(entity: unknown, context: unknown): Promise<void>;
+interface UserConfigEntity extends Entity {
+    value?: string[] | null;
 }
 
 abstract class UserConfigClass {
-    private userConfigRepository = <RepositoryInterface><unknown> Service('repositoryFactory').create('user_config');
+    private userConfigRepository = Service('repositoryFactory').create('user_config');
 
     private currentUserId = this.getCurrentUserId();
 
     protected userConfig = this.createUserConfigEntity(this.getConfigurationKey());
 
-    private aclService = <AclServiceInterface> Service('acl');
+    private aclService = Service('acl');
 
     constructor() {
         void this.readUserConfig();
@@ -74,20 +51,21 @@ abstract class UserConfigClass {
         void this.readUserConfig();
     }
 
-    protected async getUserConfig(): Promise<UserConfigObject> {
+    protected async getUserConfig(): Promise<UserConfigEntity> {
         if (!this.aclService.can(USER_CONFIG_PERMISSIONS.READ)) {
-            void Promise.resolve(this.userConfig);
+            return this.userConfig;
         }
 
         const response = await this.userConfigRepository.search(this.getCriteria(this.getConfigurationKey()), Context.api);
-        const userConfig = <UserConfigObject> (response.total ? response.first() : this.userConfig);
+
+        const userConfig = response.first() || this.userConfig;
 
         return this.handleEmptyUserConfig(userConfig);
     }
 
     protected async saveUserConfig(): Promise<void> {
         if (!this.aclService.can(USER_CONFIG_PERMISSIONS.CREATE) || !this.aclService.can(USER_CONFIG_PERMISSIONS.UPDATE)) {
-            void Promise.resolve();
+            return;
         }
 
         this.setUserConfig();
@@ -96,8 +74,12 @@ abstract class UserConfigClass {
         await this.readUserConfig();
     }
 
-    private createUserConfigEntity(configKey : string): UserConfigObject {
-        const entity = <UserConfigObject> this.userConfigRepository.create(Context.api);
+    private createUserConfigEntity(configKey: string): UserConfigEntity {
+        const entity = this.userConfigRepository.create(Context.api);
+
+        if (!entity) {
+            throw new Error('Could not create user config entity');
+        }
 
         Object.assign(entity, {
             userId: this.currentUserId,
@@ -108,16 +90,16 @@ abstract class UserConfigClass {
         return entity;
     }
 
-    private handleEmptyUserConfig(userConfig: UserConfigObject): UserConfigObject {
-        if (!Array.isArray(userConfig.value)) {
+    private handleEmptyUserConfig(userConfig: UserConfigEntity): UserConfigEntity {
+        if (!Array.isArray(userConfig?.value)) {
             userConfig.value = [];
         }
 
         return userConfig;
     }
 
-    private getCriteria(configKey : string): CriteriaInterface {
-        const criteria = <CriteriaInterface><unknown> new Criteria(1, 25);
+    private getCriteria(configKey : string): InstanceType<typeof Criteria> {
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('key', configKey));
         criteria.addFilter(Criteria.equals('userId', this.currentUserId));

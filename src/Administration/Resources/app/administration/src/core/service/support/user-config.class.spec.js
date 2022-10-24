@@ -1,4 +1,44 @@
-import CmsBlockFavorites from 'src/module/sw-cms/service/cms-block-favorites.service';
+import Vue from 'vue';
+import UserConfigBaseClass from './user-config.class';
+
+class UserConfigImplementation extends UserConfigBaseClass {
+    static USER_CONFIG_KEY = 'favorites';
+
+    state = Vue.observable({ favorites: [] });
+
+    getFavoriteBlockNames() {
+        return this.state.favorites;
+    }
+
+    isFavorite(elementName) {
+        return this.state.favorites.includes(elementName);
+    }
+
+    update(state, elementName) {
+        if (state && !this.isFavorite(elementName)) {
+            this.state.favorites.push(elementName);
+        } else if (!state && this.isFavorite(elementName)) {
+            const index = this.state.favorites.indexOf(elementName);
+
+            this.state.favorites.splice(index, 1);
+        }
+
+        this.saveUserConfig();
+    }
+
+    getConfigurationKey() {
+        return this.USER_CONFIG_KEY;
+    }
+
+    async readUserConfig() {
+        this.userConfig = await this.getUserConfig();
+        this.state.favorites = this.userConfig.value;
+    }
+
+    setUserConfig() {
+        this.userConfig.value = this.state.favorites;
+    }
+}
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -11,7 +51,7 @@ responses.addResponse({
             data: [{
                 id: '8badf7ebe678ab968fe88c269c214ea6',
                 userId: '8fe88c269c214ea68badf7ebe678ab96',
-                key: CmsBlockFavorites.USER_CONFIG_KEY,
+                key: UserConfigImplementation.USER_CONFIG_KEY,
                 value: []
             }]
         }
@@ -27,7 +67,8 @@ responses.addResponse({
     }
 });
 
-describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
+
+describe('src/Administration/Resources/app/administration/src/core/service/support/user-config.class.ts', () => {
     let service;
 
     beforeEach(() => {
@@ -35,7 +76,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
             id: '8fe88c269c214ea68badf7ebe678ab96'
         };
 
-        service = new CmsBlockFavorites();
+        service = new UserConfigImplementation();
     });
 
     it('getFavoriteBlockNames > should return favorites from internal state', () => {
@@ -92,11 +133,11 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     it('createUserConfigEntity > entity has specific values', () => {
         const expectedValues = {
             userId: Shopware.State.get('session').currentUser.id,
-            key: CmsBlockFavorites.USER_CONFIG_KEY,
+            key: UserConfigImplementation.USER_CONFIG_KEY,
             value: []
         };
 
-        const entity = service.createUserConfigEntity(CmsBlockFavorites.USER_CONFIG_KEY);
+        const entity = service.createUserConfigEntity(UserConfigImplementation.USER_CONFIG_KEY);
 
         expect(entity).toMatchObject(expectedValues);
     });
@@ -112,9 +153,9 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     });
 
     it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria(CmsBlockFavorites.USER_CONFIG_KEY);
+        const criteria = service.getCriteria(UserConfigImplementation.USER_CONFIG_KEY);
 
-        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: CmsBlockFavorites.USER_CONFIG_KEY });
+        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: UserConfigImplementation.USER_CONFIG_KEY });
         expect(criteria.filters).toContainEqual({ type: 'equals', field: 'userId', value: '8fe88c269c214ea68badf7ebe678ab96' });
     });
 

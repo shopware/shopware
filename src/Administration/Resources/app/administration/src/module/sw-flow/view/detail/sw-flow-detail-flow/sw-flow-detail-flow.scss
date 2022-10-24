@@ -10,6 +10,10 @@
         transition: max-width 0.3s ease-in-out;
     }
 
+    &__warning-box.sw-alert {
+        margin-bottom: 40px;
+    }
+
     &__trigger-card {
         display: grid;
         grid-template-columns: auto 1fr;

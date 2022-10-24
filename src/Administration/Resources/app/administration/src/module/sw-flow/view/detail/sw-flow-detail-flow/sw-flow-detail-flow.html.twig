@@ -7,6 +7,13 @@
         class="sw-flow-detail-flow__content"
         :style="flowContainerStyle"
     >
+        <sw-alert
+            v-if="showActionWarning"
+            variant="warning"
+            class="sw-flow-detail-flow__warning-box"
+        >
+            {{ $tc('sw-flow.detail.warningText') }}
+        </sw-alert>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">

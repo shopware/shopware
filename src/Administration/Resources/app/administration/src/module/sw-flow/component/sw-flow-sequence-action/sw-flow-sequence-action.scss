@@ -3,6 +3,38 @@
 @import "~scss/mixins";
 
 .sw-flow-sequence-action {
+    &.has--arrow {
+        position: relative;
+        display: grid;
+        grid-template-columns: min-content;
+        grid-template-rows: min-content;
+
+        .sw-flow-sequence-action__card {
+            margin-right: 0;
+        }
+
+        .sw-flow-sequence-action__add-action {
+            display: none;
+        }
+    }
+
+    &__error-action {
+        p {
+            font-size: $font-size-small;
+        }
+    }
+
+    &__error-action-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        font-weight: $font-weight-semi-bold;
+
+        span {
+            margin-right: 12px;
+        }
+    }
+
     &__card {
         margin-right: 32px;
         width: 326px;
@@ -258,5 +290,49 @@
 
     .sw-icon-action.sw-icon {
         padding: 0 !important;
+    }
+
+    &__icon-raw {
+        &.sw-icon {
+            width: 12px;
+            height: 12px;
+        }
+    }
+
+    &__true-arrow {
+        grid-column: 2;
+        grid-row: 1;
+        position: relative;
+        width: 100%;
+        min-width: 100px;
+        top: 40px;
+
+        &.has--true-action {
+            width: 110px;
+        }
+
+        .icon--regular-chevron-right-s {
+            position: absolute;
+            top: -7px;
+            right: 0;
+            color: $color-gray-500;
+        }
+    }
+
+    &__true-line {
+        border-top: 2px dashed $color-gray-400;
+        height: 2px;
+        width: calc(100% - 6px);
+        position: absolute;
+    }
+
+    &__oval {
+        @include circle(12px);
+
+        position: absolute;
+        background: $color-white;
+        border: 1px solid $color-gray-400;
+        top: -6px;
+        left: -7px;
     }
 }

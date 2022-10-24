@@ -64,7 +64,8 @@
         "labelFalse": "False",
         "noActions": "No actions added yet",
         "noRule": "No rule defined yet"
-      }
+      },
+      "warningText": "This flow uses actions that are unavailable due to a plan change, inactive or uninstalled extensions. When the flow is triggered, unavailable actions will not be executed."
     },
     "page": {
       "tabGeneral": "General",
@@ -119,7 +120,10 @@
         "customer": "Customers",
         "general": "General",
         "order": "Order"
-      }
+      },
+      "unknownLabel": "Unknown action",
+      "warningText": "This action was provided by an extension that is inactive or no longer installed."
+
     },
     "rule": {
       "addRule": "Add rule",

@@ -6005,15 +6005,9 @@ parameters:
 			count: 1
 			path: src/Core/Content/Media/Metadata/MetadataLoader.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\ImageMetadataLoader\\:\\:extractMetadata\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Metadata/MetadataLoader/ImageMetadataLoader.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\MetadataLoaderInterface\\:\\:extractMetadata\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Metadata/MetadataLoader/MetadataLoaderInterface.php
+
+
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\AbstractPathNameStrategy\\:\\:\\$blacklist type has no value type specified in iterable type array\\.$#"

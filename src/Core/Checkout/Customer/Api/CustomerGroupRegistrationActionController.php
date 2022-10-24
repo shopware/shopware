@@ -160,7 +160,7 @@ class CustomerGroupRegistrationActionController
             $customerIds[] = $customerId;
         }
 
-        $requestCustomerIds = $request->request->get('customerIds', \json_encode([]));
+        $requestCustomerIds = $request->request->all('customerIds');
 
         if (\is_string($requestCustomerIds)) {
             $requestCustomerIds = \json_decode($requestCustomerIds, true);

@@ -9,3 +9,7 @@
 %Dompdf\\Frame%
 # Also triggered by DomPDF internally
 %mb_stripos\(\)\: Passing null to parameter #1 \(\$haystack\) of type string is deprecated%
+# Also triggered by DomPDF internally
+%mb_strtolower\(\)\: Passing null to parameter #1 \(\$string\) of type string is deprecated%
+# Triggered by MessengerEnqueueTransport, which we will remove in 6.5
+%Enqueue\\MessengerAdapter\\EnvelopeItem\\TransportConfiguration%

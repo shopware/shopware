@@ -21,8 +21,6 @@ class Application extends BaseApplication
      */
     public function __construct($env)
     {
-        $this->registerErrorHandler();
-
         parent::__construct('Shopware Update', '1.0.0');
 
         $config = require __DIR__ . '/../../config/config.php';
@@ -79,17 +77,5 @@ class Application extends BaseApplication
         $defaultCommands[] = new UpdateCommand();
 
         return $defaultCommands;
-    }
-
-    private function registerErrorHandler(): void
-    {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            // error was suppressed with the @-operator
-            if (error_reporting() === 0) {
-                return false;
-            }
-
-            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-        });
     }
 }

@@ -131,16 +131,18 @@ export default class OffCanvasCartPlugin extends Plugin {
         const { shippingToggleSelector, shippingContainerSelector } = this.options;
         const toggle = document.querySelector(shippingToggleSelector);
 
-        toggle.addEventListener('click', () => {
-            const target = document.querySelector(shippingContainerSelector);
-            const hiddenClass = 'offcanvas-shipping-preference--hidden';
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const target = document.querySelector(shippingContainerSelector);
+                const hiddenClass = 'offcanvas-shipping-preference--hidden';
 
-            if (target.classList.contains(hiddenClass)) {
-                target.classList.remove(hiddenClass);
-            } else {
-                target.classList.add(hiddenClass);
-            }
-        });
+                if (target.classList.contains(hiddenClass)) {
+                    target.classList.remove(hiddenClass);
+                } else {
+                    target.classList.add(hiddenClass);
+                }
+            });
+        }
     }
 
     /**

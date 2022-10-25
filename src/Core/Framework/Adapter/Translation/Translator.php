@@ -19,6 +19,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
@@ -83,6 +84,10 @@ class Translator extends AbstractTranslator
 
     public static function buildName(string $id): string
     {
+        if (false !== \strpbrk($id, ItemInterface::RESERVED_CHARACTERS)) {
+            $id = \str_replace(str_split(ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
+        }
+
         return 'translator.' . $id;
     }
 

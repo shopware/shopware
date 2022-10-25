@@ -70,7 +70,6 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -83,8 +82,6 @@ use function array_column;
 use function array_combine;
 
 /**
- * @ActiveFeatures(features={})
- *
  * @internal
  * @group skip-paratest
  */
@@ -208,6 +205,8 @@ class ElasticsearchProductTest extends TestCase
             $context = $this->context;
 
             $this->clearElasticsearch();
+
+            $this->resetStopWords();
 
             $this->ids->set('currency', $this->currencyId);
             $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
@@ -3759,5 +3758,15 @@ class ElasticsearchProductTest extends TestCase
         $context->addExtension('currencies', $this->getContainer()->get('currency.repository')->search(new Criteria(), $this->context));
 
         return $context;
+    }
+
+    /**
+     * Some tests use terms that are excluded by the default configuration in the administration.
+     * Therefore we reset the configuration.
+     */
+    private function resetStopWords(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement('UPDATE `product_search_config` SET `excluded_terms` = "[]"');
     }
 }

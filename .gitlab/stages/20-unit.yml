@@ -288,6 +288,8 @@ PHP Full:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
                 composer update --prefer-lowest --optimize-autoloader
+                # disable symfony deprecation check, when running with lowest dependency versions
+                export SYMFONY_DEPRECATIONS_HELPER=disabled
             fi
         - >
             if [ "$ONLY_CORE" == "true" ]; then

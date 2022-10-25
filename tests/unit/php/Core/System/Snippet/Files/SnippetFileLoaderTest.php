@@ -4,7 +4,8 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\EmptyActiveAppsLoader;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -34,7 +35,10 @@ class SnippetFileLoaderTest extends TestCase
             $kernel,
             $this->createMock(Connection::class),
             $this->createMock(AppSnippetFileLoader::class),
-            new EmptyActiveAppsLoader()
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+            )
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -94,7 +98,10 @@ class SnippetFileLoaderTest extends TestCase
             $kernel,
             $this->createMock(Connection::class),
             $this->createMock(AppSnippetFileLoader::class),
-            new EmptyActiveAppsLoader()
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+            )
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -142,7 +149,10 @@ class SnippetFileLoaderTest extends TestCase
             $kernel,
             $connection,
             $this->createMock(AppSnippetFileLoader::class),
-            new EmptyActiveAppsLoader()
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+            )
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -190,7 +200,10 @@ class SnippetFileLoaderTest extends TestCase
             $kernel,
             $connection,
             $this->createMock(AppSnippetFileLoader::class),
-            new EmptyActiveAppsLoader()
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+            )
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);

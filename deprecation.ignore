@@ -15,3 +15,5 @@
 %mb_strtolower\(\)\: Passing null to parameter #1 \(\$string\) of type string is deprecated%
 # Triggered by MessengerEnqueueTransport, which we will remove in 6.5
 %Enqueue\\MessengerAdapter\\EnvelopeItem\\TransportConfiguration%
+# should be fixed with NEXT-23859
+%Returning a file to import for CSS or external references in custom importer callables is deprecated%

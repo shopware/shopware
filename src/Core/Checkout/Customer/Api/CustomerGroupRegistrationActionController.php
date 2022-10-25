@@ -162,10 +162,6 @@ class CustomerGroupRegistrationActionController
 
         $requestCustomerIds = $request->request->all('customerIds');
 
-        if (\is_string($requestCustomerIds)) {
-            $requestCustomerIds = \json_decode($requestCustomerIds, true);
-        }
-
         if (!empty($requestCustomerIds)) {
             $customerIds = array_unique(array_merge($customerIds, $requestCustomerIds));
         }

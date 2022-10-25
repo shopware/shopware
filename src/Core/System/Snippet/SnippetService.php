@@ -291,9 +291,12 @@ class SnippetService
      */
     protected function fetchSnippetsFromDatabase(string $snippetSetId): array
     {
-        return $this->connection->fetchAllKeyValue('SELECT translation_key, value FROM snippet WHERE snippet_set_id = :snippetSetId', [
+        /** @var array<string, string> $snippets */
+        $snippets = $this->connection->fetchAllKeyValue('SELECT translation_key, value FROM snippet WHERE snippet_set_id = :snippetSetId', [
             'snippetSetId' => Uuid::fromHexToBytes($snippetSetId),
         ]);
+
+        return $snippets;
     }
 
     /**

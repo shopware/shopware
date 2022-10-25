@@ -250,15 +250,15 @@
         "contextMenu": {
           "getHelpLabel": "Hilfe anfragen",
           "seeDetailsLabel": "Details ansehen",
-          "config": "Konfiguration",
+          "config": "Konfigurieren",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
           "removeLabel": "Entfernen",
           "cancelAndRemoveLabel": "Kündigen und entfernen",
           "uninstallLabel": "Deinstallieren",
           "updateLabel": "Aktualisieren auf {version}",
-          "rateLabel": "Bewerten",
+          "rateLabel": "Erweiterung Bewerten",
           "policyExtensions": "Datenschutz-Erweiterungen",
-          "permissions": "Berechtigungen",
+          "permissions": "Berechtigungen einsehen",
           "openExtension": "Erweiterung öffnen"
         }
       },

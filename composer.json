@@ -404,6 +404,7 @@
             "@php bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
             "@npm:admin run unit-watch"
         ],
+        "admin:create:test": "@npm:admin run create-test",
         "storefront:unit": [
             "@npm:storefront run unit"
         ],

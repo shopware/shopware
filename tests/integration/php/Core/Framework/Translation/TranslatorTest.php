@@ -302,4 +302,9 @@ class TranslatorTest extends TestCase
             'oldId' => $currentDeId,
         ]);
     }
+
+    public function testItReplacesReservedCharacter()
+    {
+        static::assertEquals('translator.<_r_strong>', Translator::buildName('</strong>'));
+    }
 }

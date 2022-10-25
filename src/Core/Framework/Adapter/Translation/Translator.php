@@ -102,6 +102,10 @@ class Translator extends AbstractTranslator
 
     public static function buildName(string $id): string
     {
+        if (\strpbrk($id, ItemInterface::RESERVED_CHARACTERS) !== false) {
+            $id = \str_replace(\str_split(ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
+        }
+
         return 'translator.' . $id;
     }
 

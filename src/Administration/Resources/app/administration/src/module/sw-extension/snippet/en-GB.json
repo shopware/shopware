@@ -258,7 +258,7 @@
           "updateLabel": "Update to {version}",
           "rateLabel": "Rate extension",
           "policyExtensions": "Privacy policy extensions",
-          "permissions": "See Permissions",
+          "permissions": "See permissions",
           "openExtension": "Open extension"
         }
       },

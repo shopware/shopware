@@ -39,14 +39,17 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             (new ShippingMethodEntity())->assign([
                 'id' => 'original-shipping-method-id',
                 'name' => 'original-shipping-method-name',
+                'translated' => ['name' => 'original-shipping-method-name'],
             ]),
             (new ShippingMethodEntity())->assign([
                 'id' => 'any-other-shipping-method-id',
                 'name' => 'any-other-shipping-method-name',
+                'translated' => ['name' => 'any-other-shipping-method-name'],
             ]),
             (new ShippingMethodEntity())->assign([
                 'id' => 'default-shipping-method-id',
                 'name' => 'default-shipping-method-name',
+                'translated' => ['name' => 'default-shipping-method-name'],
             ]),
         ]);
 
@@ -85,6 +88,32 @@ class BlockedShippingMethodSwitcherTest extends TestCase
         static::assertCount(1, $errorCollectionFiltered);
         static::assertSame([
             'newShippingMethodName' => 'default-shipping-method-name',
+            'oldShippingMethodName' => 'original-shipping-method-name',
+        ], $errorCollectionFiltered->first()->getParameters());
+    }
+
+    public function testSwitchBlockedOriginalWithTranslatedName(): void
+    {
+        $errorCollection = $this->getErrorCollection(['original-shipping-method-name']);
+
+        $this->shippingMethodCollection->remove('any-other-shipping-method-id');
+        $this->shippingMethodCollection->remove('default-shipping-method-id');
+        $this->shippingMethodCollection->add((new ShippingMethodEntity())->assign([
+            'id' => 'translated-shipping-method-id',
+            'name' => null,
+            'translated' => ['name' => 'translated-shipping-method-name'],
+        ]));
+
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+        static::assertSame('translated-shipping-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof ShippingMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        static::assertSame([
+            'newShippingMethodName' => 'translated-shipping-method-name',
             'oldShippingMethodName' => 'original-shipping-method-name',
         ], $errorCollectionFiltered->first()->getParameters());
     }

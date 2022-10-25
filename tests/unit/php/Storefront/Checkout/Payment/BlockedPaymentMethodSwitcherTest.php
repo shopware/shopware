@@ -39,14 +39,17 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             (new PaymentMethodEntity())->assign([
                 'id' => 'original-payment-method-id',
                 'name' => 'original-payment-method-name',
+                'translated' => ['name' => 'original-payment-method-name'],
             ]),
             (new PaymentMethodEntity())->assign([
                 'id' => 'any-other-payment-method-id',
                 'name' => 'any-other-payment-method-name',
+                'translated' => ['name' => 'any-other-payment-method-name'],
             ]),
             (new PaymentMethodEntity())->assign([
                 'id' => 'default-payment-method-id',
                 'name' => 'default-payment-method-name',
+                'translated' => ['name' => 'default-payment-method-name'],
             ]),
         ]);
 
@@ -85,6 +88,32 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         static::assertCount(1, $errorCollectionFiltered);
         static::assertSame([
             'newPaymentMethodName' => 'default-payment-method-name',
+            'oldPaymentMethodName' => 'original-payment-method-name',
+        ], $errorCollectionFiltered->first()->getParameters());
+    }
+
+    public function testSwitchBlockedOriginalWithTranslatedName(): void
+    {
+        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+
+        $this->paymentMethodCollection->remove('any-other-payment-method-id');
+        $this->paymentMethodCollection->remove('default-payment-method-id');
+        $this->paymentMethodCollection->add((new PaymentMethodEntity())->assign([
+            'id' => 'translated-payment-method-id',
+            'name' => null,
+            'translated' => ['name' => 'translated-payment-method-name'],
+        ]));
+
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+        static::assertSame('translated-payment-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        static::assertSame([
+            'newPaymentMethodName' => 'translated-payment-method-name',
             'oldPaymentMethodName' => 'original-payment-method-name',
         ], $errorCollectionFiltered->first()->getParameters());
     }

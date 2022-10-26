@@ -94,7 +94,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
-        cy.contains('.smart-bar__header', 'Bulk edit: 3 products');
+        cy.contains('.smart-bar__header', 'Bulk bewerking: 3 producten');
         cy.get('.sw-bulk-edit-change-field-visibilities [type="checkbox"]').click();
         cy.get('div[name="visibilities"]').typeMultiSelectAndCheck('E2E install test');
 
@@ -106,7 +106,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Success');
+        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Succes');
         cy.contains('.footer-right .sw-button--primary', 'Sluiten');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');

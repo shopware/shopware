@@ -267,7 +267,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--selectedCodeType').select('Individuele promotie codes');
-        cy.contains('Generate new codes').click();
+        cy.contains('Genereer nieuwe codes').click();
         cy.get('#modalTitleEl').should('be.visible');
         cy.get('input#sw-field--pattern-prefix').clearTypeAndCheck('EK_');
         cy.get('input#sw-field--preview').should('have.attr', 'label', 'Voorbeeld promotieco');

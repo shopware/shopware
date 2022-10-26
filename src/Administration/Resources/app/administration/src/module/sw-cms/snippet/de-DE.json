@@ -60,7 +60,6 @@
       },
       "layoutSetAsDefault": {
         "headline": "Standardlayouts",
-        "infoText": "Standardlayouts werden neuen Kategorie- und Produktseiten bei der Erstellung automatisch zugewiesen. Möchtest Du dieses Layout als Standardlayout verwenden?",
         "actionSetAsDefaultLayout": "Als Standardlayout verwenden"
       }
     },
@@ -670,7 +669,7 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Standardlayout zuweisen",
-        "infoText": "Bist Du sicher, dass Du dieses Layout verwenden möchtest, um es allen Kategorien ohne Layout zuzuweisen?"
+        "infoText": "Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Abbrechen",

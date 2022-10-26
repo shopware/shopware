@@ -3,14 +3,26 @@
 
 This little guide will guide you how to write unit tests for the administration in Shopware 6.
 
+## Topic Overview
+* [When to write tests](#when-to-write-tests)
+* [Prerequisites](#prerequisites)
+* [Test file location](#test-file-location)
+* [Test commands](#test-commands)
+    * [Run all tests](#run-all-unit-tests)
+    * [Run changed files](#run-only-changed-files)
+* [Setup for testing services and es modules](#setup-for-testing-services-and-es-modules)
+* [Setup for testing Vue components](#setup-for-testing-vue-components)
+* [Write tests for components](#write-tests-for-components)
+    * [Example test structure](#example-test-structure)
+
 ## When should I write unit tests
 You should write a unit test for every functional change. It should guarantee that 
-your written code works and that a third developer don't break the functionality with his code.
+your written code works and that a third developer doesn't break the functionality with his code.
 
 With a good test coverage we can have the confidence to deploy a stable software without extra
 manual testing.
 
-## General information
+## Prerequisites
 We are using [Jest](https://jestjs.io/) as our testing framework. It is a solid foundation and widely
 used by many developers. Before you are reading this guide you have to make sure that you understand the
 basics of unit tests and how Jest works.
@@ -18,28 +30,23 @@ basics of unit tests and how Jest works.
 You can find good source for best practices in this Github Repo: 
 [https://github.com/goldbergyoni/javascript-testing-best-practices](https://github.com/goldbergyoni/javascript-testing-best-practices) 
 
-## Folder structure
-The test folder structure should match the source folder structure. You add a test for a file in the same
-path as the source path. The name should also be the same with an additional `.spec` before the ending `.js`.
-As an example a test for `src/core/service/login.service.js` should be created
-in `test/core/service/login.service.spec.js`. 
+## Test file location
+The test files are placed in the same directory as the file which should be tested.
+The file name is the same with the suffix `.spec.js` or `spec.ts`.
 
 ## Test commands
 Before you are using the commands make sure that you installed all dependencies for your administration.
-If you didn't have done this already then you can use this PSH command:
-`./psh.phar administration:install-dependencies`
+If you didn't have done this already then you can use this Composer command:
+`composer run init:js`
 
 #### Run all unit tests:  
 This command executes all unit tests and show you a complete code coverage.  
-`./psh.phar administration:unit`
-
+`composer run admin:unit`
 
 #### Run only changed files:  
 This command executes only unit tests on changed files. It automatically restarts if a file
 get saved. This should be used during the development of unit tests.  
-`./psh.phar administration:unit-watch`
-
-
+`composer run admin:unit:watch`
 
 ## Setup for testing services and ES modules
 Services and isolated EcmaScript modules are good testable because
@@ -89,7 +96,7 @@ are supporting template inheritance and extendability for third party developers
 to bear in mind.
 
 We are using a global object as an interface for the whole administration. Every component gets registered to this 
-object, e.g. `Shopware.Component.register()`. Therefore we have access to Component with the `Shopware.Component.build()`
+object, e.g. `Shopware.Component.register()`. Therefore, we have access to Component with the `Shopware.Component.build()`
 method. This creates a native Vue component with a working template. Every override and extension from another
 components are resolved in the built component.
 
@@ -151,7 +158,7 @@ describe('components/sw-multi-select', () => {
 We create a new `wrapper` before each test. This contains our component. In our first test we only
 check if the wrapper is a Vue instance. 
 
-Now lets start the watcher to see if the test works. You can do this with our PSH command `./psh.phar administration:unit-watch`.
+Now lets start the watcher to see if the test works. You can do this with our PSH command `composer run admin:unit:watch`.
 You should see a result like this: `Test Suites: 1 passed, 1 total`. Now we have a working test. You
 should also see several warnings like this:
 
@@ -320,7 +327,6 @@ beforeAll(() => {
 
 
 ## Write tests for components
-
 After setting up your component test you need to write your tests. A good way to write them is to test input
 and output. The most common tests are:
 
@@ -380,5 +386,71 @@ it('should render a new joke from api', async () => {
 
     expect(actualJoke.text()).toEqual('What did one wall say to the other? Meet you at the corner!');
     jokeService.getJoke.mockReset();
+})
+```
+
+
+### Example test structure
+
+```typescript
+import {shallowMount, createLocalVue, Wrapper} from '@vue/test-utils';
+import flushPromises from 'flush-promises';
+
+// add additional parameters to change options for the test
+async function createWrapper(/* options = {} */): Wrapper {
+    // add localVue only if needed
+    const localVue = createLocalVue();
+
+    // prefer shallowMount over normal mount
+    return shallowMount(await Shopware.Component.build('sw-your-component-for-test'), {
+        // localVue only if needed
+        localVue,
+        // add stubs for missing component
+        stubs: {
+            'sw-missing-component-one': Shopware.Component.build('sw-missing-component-one'),
+            'sw-missing-component-two': Shopware.Component.build('sw-missing-component-two'),
+        },
+        mocks: {
+            // add mocks if needed
+        },
+        // needed if you interact with elements
+        attachTo: document.body,
+
+        // ...options,
+    });
+}
+
+describe('the/path/to/the/component', () => {
+    let wrapper: Wrapper;
+
+    beforeAll(async () => {
+        // generate all needed mocks, etc.
+    })
+
+    beforeEach(async () => {
+        // reset all mocks and state changes to default
+        wrapper = await createWrapper();
+        
+        // wait for created hook etc.
+        await flushPromises();
+    })
+
+    afterEach(async () => {
+        // cleanup everything
+
+        // destroy the existing wrapper
+        if (wrapper) {
+            await wrapper.destroy();
+        }
+
+        // wait until all promises are finished
+        await flushPromises();
+    })
+
+    it('should be a Vue.js component', () => {
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    // Add more component tests
 })
 ```

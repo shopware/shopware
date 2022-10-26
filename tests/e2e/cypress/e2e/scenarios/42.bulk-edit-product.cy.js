@@ -59,7 +59,7 @@ describe('Bulk Edit - Products', () => {
         // Make changes on both product
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
-        cy.contains('.smart-bar__header', 'Bulk edit: 2 products');
+        cy.contains('.smart-bar__header', 'Bulk bewerking: 2 producten');
         cy.get('.sw-bulk-edit-change-field-description [type]').click();
         cy.get('.sw-text-editor__content-editor').clear().type('Bulk edit test');
 
@@ -99,7 +99,7 @@ describe('Bulk Edit - Products', () => {
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Success');
+        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Succes');
         cy.contains('.footer-right .sw-button--primary', 'Sluiten');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');

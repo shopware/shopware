@@ -122,7 +122,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         const wrapper = createWrapper();
         await wrapper.setProps({
             customer: {
-                accountType: 'private'
+                company: null,
             }
         });
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeFalsy();
@@ -133,9 +133,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         const wrapper = createWrapper();
         await wrapper.setProps({
             customer: {
-                accountType: null,
+                company: 'shopware',
             },
-            address: {}
+            address: {},
         });
 
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();

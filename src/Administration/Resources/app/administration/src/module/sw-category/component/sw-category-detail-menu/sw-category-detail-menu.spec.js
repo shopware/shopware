@@ -8,7 +8,15 @@ function createWrapper(privileges = []) {
             'sw-switch-field': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
-            'sw-text-editor': true
+            'sw-text-editor': true,
+            'sw-media-modal-v2': {
+                template: '<div class="sw-media-modal-v2-mock"><button @click="onEmitSelection">Add media</button></div>',
+                methods: {
+                    onEmitSelection() {
+                        this.$emit('media-modal-selection-change', [{ id: 'id' }]);
+                    }
+                }
+            },
         },
         provide: {
             acl: {
@@ -19,7 +27,6 @@ function createWrapper(privileges = []) {
                 }
             },
             openMediaSidebar: () => {},
-            repositoryFactory: {}
         },
         propsData: {
             category: {
@@ -83,5 +90,55 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         const textEditor = wrapper.find('sw-text-editor-stub');
 
         expect(textEditor.attributes().disabled).toBe('true');
+    });
+
+    it('should open media modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({ showMediaModal: true });
+
+        const mediaModal = wrapper.find('.sw-media-modal-v2-mock');
+
+        expect(mediaModal.exists()).toBeTruthy();
+    });
+
+    it('should turn off media modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({ showMediaModal: false });
+
+        const mediaModal = wrapper.find('.sw-media-modal-v2-mock');
+
+        expect(mediaModal.exists()).toBeFalsy();
+    });
+
+    it('should be able to change category media', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.mediaRepository.get = jest.fn(() => Promise.resolve({ id: 'id' }));
+
+        await wrapper.setData({ showMediaModal: true });
+        const button = wrapper.find('.sw-media-modal-v2-mock button');
+        await button.trigger('click');
+
+        expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith('id');
+        expect(wrapper.vm.category.mediaId).toBe('id');
+
+        wrapper.vm.mediaRepository.get.mockRestore();
+    });
+
+    it('should not change category media when selected media is null', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.mediaRepository.get = jest.fn(() => Promise.resolve({}));
+        wrapper.vm.onMediaSelectionChange([]);
+
+        expect(wrapper.vm.mediaRepository.get).not.toHaveBeenCalled();
+
+        wrapper.vm.mediaRepository.get.mockRestore();
     });
 });

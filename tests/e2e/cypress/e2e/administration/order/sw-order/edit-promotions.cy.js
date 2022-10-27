@@ -92,8 +92,6 @@ describe('Order: Test promotions in existing orders', () => {
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-        cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
-
         cy.get('.sw-tagged-field__input')
             .click()
             .typeAndCheck('GET5')

@@ -251,6 +251,7 @@
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}",
       "textPromotionRemoved": "Rabatt {promotion} wurde entfernt",
+      "textUnsavedChanges": "Es gibt ungespeicherte Änderungen. Bitte speichere, bevor Du dieses Feld bearbeitest.",
       "textMissingProductLineItems": "Die folgenden Positionen sind mit Produkten assoziiert, die gelöscht wurden:",
       "textMissingProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Daher werden diese Positionen beim Speichern der Bestellung in benutzerdefinierte Positionen umgewandelt.",
       "textConvertedProductLineItems": "Die folgenden Positionen waren mit Produkten assoziiert, die gelöscht wurden:",

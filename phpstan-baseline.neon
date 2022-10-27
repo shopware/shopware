@@ -3426,11 +3426,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/SalesChannel/SetPaymentOrderRouteTest.php
 
 		-
-			message: "#^Parameter \\#4 \\$salesChannel of static method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Common\\\\Generator\\:\\:createSalesChannelContext\\(\\) expects Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Payment/Cart/PaymentMethodValidatorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Cart\\\\PaymentRefundProcessorTest\\:\\:getInvalidStatesForTransitions\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Cart/PaymentRefundProcessorTest.php

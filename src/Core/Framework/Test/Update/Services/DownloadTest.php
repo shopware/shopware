@@ -60,7 +60,7 @@ class DownloadTest extends TestCase
         $tempfile = $this->tmpFile();
 
         $download->downloadFile(
-            'http://assets.shopware.com/sw_logo_white.png',
+            'https://assets.shopware.com/sw_logo_white.png',
             $tempfile,
             10521,
             '5f98432a760cae72c85b1835017306bdd84e2f68'

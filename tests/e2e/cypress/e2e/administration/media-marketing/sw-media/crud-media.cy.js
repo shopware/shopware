@@ -57,7 +57,7 @@ describe('Media: Test crud operations', () => {
             '.sw-media-upload-v2__button-url-upload',
             '.sw-media-upload-v2__button-context-menu'
         );
-        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
 
         cy.wait('@saveDataUrlUpload')
             .its('response.statusCode').should('equal', 204);
@@ -86,7 +86,7 @@ describe('Media: Test crud operations', () => {
         );
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
-        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
         cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
             .should('be.visible');
         cy.awaitAndCheckNotification('File has been saved.');
@@ -134,7 +134,7 @@ describe('Media: Test crud operations', () => {
             '.sw-media-upload-v2__button-url-upload',
             '.sw-media-upload-v2__button-context-menu'
         );
-        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
 
         cy.wait('@saveDataUrlUpload').its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('File has been saved.');

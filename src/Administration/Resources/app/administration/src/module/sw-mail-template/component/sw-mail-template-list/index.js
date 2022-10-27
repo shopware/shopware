@@ -78,6 +78,7 @@ Component.register('sw-mail-template-list', {
                 dataIndex: 'mailTemplateType.name',
                 label: 'sw-mail-template.list.columnMailType',
                 allowResize: true,
+                routerLink: 'sw.mail.template.detail',
                 primary: true,
             }, {
                 property: 'description',

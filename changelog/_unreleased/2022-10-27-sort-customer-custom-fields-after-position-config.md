@@ -1,6 +1,6 @@
 ---
 title: Add customFieldPosition sorting to Customer customFields
-issue: ???
+issue: NEXT-23912
 author: Lyubomir Mladenov
 author_email: lubo@wexo.dk
 author_github: @wexollm

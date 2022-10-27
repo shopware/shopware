@@ -5,6 +5,9 @@ framework:
                 dsn: "sync://"
 
 shopware:
+    media:
+        enable_url_upload_feature: true
+        enable_url_validation: false
     admin_worker:
         enable_admin_worker: false
     api:

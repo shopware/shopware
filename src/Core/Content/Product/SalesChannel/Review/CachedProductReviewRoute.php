@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -38,6 +39,9 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var string[]
+     */
     private array $states;
 
     private EventDispatcherInterface $dispatcher;
@@ -46,6 +50,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
      * @internal
      *
      * @param AbstractCacheTracer<ProductReviewRouteResponse> $tracer
+     * @param string[] $states
      */
     public function __construct(
         AbstractProductReviewRoute $decorated,
@@ -106,7 +111,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]),
         ];
 
         $event = new ProductDetailRouteCacheKeyEvent($parts, $request, $context, $criteria);
@@ -115,6 +120,9 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
         return self::buildName($productId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
+    /**
+     * @return string[]
+     */
     private function generateTags(string $productId, Request $request, ProductReviewRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

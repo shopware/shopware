@@ -296,11 +296,6 @@ parameters:
 			path: src/Core/Checkout/Cart/CartBehavior.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartRuleLoader\\:\\:\\$currencyFactor type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/CartRuleLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartSerializationCleaner\\:\\:cleanupCustomFields\\(\\) has parameter \\$customFieldAllowList with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/CartSerializationCleaner.php
@@ -564,6 +559,11 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupServiceRegistry\\:\\:\\$sorters type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupServiceRegistry.php
+
+		-
+			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|string\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/LineItem/Group/RulesMatcher/AnyRuleLineItemMatcher.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:buildFlat\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -1451,6 +1451,11 @@ parameters:
 			path: src/Core/Checkout/Order/OrderEntity.php
 
 		-
+			message: "#^Cannot call method getRules\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|string\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponse\\:\\:addPaymentChangeable\\(\\) has parameter \\$paymentChangeable with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
@@ -1908,6 +1913,11 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\PromotionEntity\\:\\:setOrdersPerCustomerCount\\(\\) has parameter \\$ordersPerCustomerCount with no value type specified in iterable type array\\.$#"
 			count: 1
+			path: src/Core/Checkout/Promotion/PromotionEntity.php
+
+		-
+			message: "#^Parameter \\#1 \\$rule of method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\Container\\:\\:addRule\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule, Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|string\\|null given\\.$#"
+			count: 3
 			path: src/Core/Checkout/Promotion/PromotionEntity.php
 
 		-
@@ -6236,16 +6246,6 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductTranslation/ProductTranslationEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductCartProcessor\\:\\:getNotCompleted\\(\\) has parameter \\$lineItems with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductCartProcessor\\:\\:getNotCompleted\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
@@ -6686,21 +6686,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Price/ProductPriceCalculator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Review\\\\CachedProductReviewRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Review/CachedProductReviewRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Review\\\\CachedProductReviewRoute\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Review/CachedProductReviewRoute.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Review\\\\CachedProductReviewRoute\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Review/CachedProductReviewRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Review\\\\RatingMatrix\\:\\:getMatrix\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 2
 			path: src/Core/Content/Product/SalesChannel/Review/RatingMatrix.php
@@ -7044,36 +7029,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Rule\\\\Event\\\\RuleIndexerEvent\\:\\:\\$skip type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/Event/RuleIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\:\\:filterMatchingRules\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:getModuleTypes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:getPayload\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:setModuleTypes\\(\\) has parameter \\$moduleTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:setPayload\\(\\) has parameter \\$payload with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:\\$moduleTypes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
 
 		-
 			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\|null\\.$#"
@@ -22986,6 +22941,11 @@ parameters:
 			path: src/Core/Framework/Test/Rule/RuleTest.php
 
 		-
+			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|string\\|null\\.$#"
+			count: 6
+			path: src/Core/Framework/Test/Rule/ScriptRuleTest.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\ScriptRuleTest\\:\\:testRuleScriptExecution\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Rule/ScriptRuleTest.php
@@ -25234,41 +25194,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannel\\\\ContextSwitchRoute\\:\\:checkNewDomain\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:getLanguageIdChain\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:getPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:getRuleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:setPermissions\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:\\$permissions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:\\$rulesIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"

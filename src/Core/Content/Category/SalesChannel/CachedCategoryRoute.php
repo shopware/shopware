@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -114,7 +115,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
         $parts = array_merge(
             $request->query->all(),
             $request->request->all(),
-            [$this->generator->getSalesChannelContextHash($context)]
+            [$this->generator->getSalesChannelContextHash($context, [RuleAreas::CATEGORY_AREA, RuleAreas::PRODUCT_AREA])]
         );
 
         $event = new CategoryRouteCacheKeyEvent($navigationId, $parts, $request, $context, null);

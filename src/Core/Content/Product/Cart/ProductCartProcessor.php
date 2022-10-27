@@ -23,6 +23,7 @@ use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalcula
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -92,7 +93,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
 
-                $hash = $this->generator->getSalesChannelContextHash($context);
+                $hash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
 
                 // refresh data timestamp to prevent unnecessary gateway calls
                 foreach ($items as $lineItem) {
@@ -420,6 +421,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return $definition;
     }
 
+    /**
+     * @param LineItem[] $lineItems
+     *
+     * @return mixed[]
+     */
     private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context): array
     {
         $ids = [];
@@ -428,7 +434,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $hash = $this->generator->getSalesChannelContextHash($context);
 
-        /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();
 

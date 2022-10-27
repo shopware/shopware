@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -106,7 +107,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context),
+            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]),
             $request->get('search'),
         ];
 

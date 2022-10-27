@@ -12,7 +12,7 @@ Module.register('sw-settings-document', {
     title: 'sw-settings-document.general.mainMenuItemGeneral',
     description: 'sw-settings-document.general.description',
     color: '#9AA8B5',
-    icon: 'regular-file-text',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'document',
 

@@ -10,6 +10,7 @@ use Shopware\Core\Content\LandingPage\Event\LandingPageRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -110,7 +111,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
         $parts = array_merge(
             $request->query->all(),
             $request->request->all(),
-            [$this->generator->getSalesChannelContextHash($context)]
+            [$this->generator->getSalesChannelContextHash($context, [RuleAreas::LANDING_PAGE_AREA, RuleAreas::PRODUCT_AREA, RuleAreas::CATEGORY_AREA])]
         );
 
         $event = new LandingPageRouteCacheKeyEvent($landingPageId, $parts, $request, $context, null);

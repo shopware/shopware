@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -12,13 +13,36 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class RuleCollection extends EntityCollection
 {
+    /**
+     * @return RuleCollection
+     */
     public function filterMatchingRules(Cart $cart, SalesChannelContext $context)
     {
         return $this->filter(
             function (RuleEntity $rule) use ($cart, $context) {
+                if (!$rule->getPayload() instanceof Rule) {
+                    return false;
+                }
+
                 return $rule->getPayload()->match(new CartRuleScope($cart, $context));
             }
         );
+    }
+
+    /**
+     * @return array<string, string[]>
+     */
+    public function getIdsByArea(): array
+    {
+        $idsByArea = [];
+
+        foreach ($this->getElements() as $rule) {
+            foreach ($rule->getAreas() ?? [] as $area) {
+                $idsByArea[$area] = array_unique(array_merge($idsByArea[$area] ?? [], [$rule->getId()]));
+            }
+        }
+
+        return $idsByArea;
     }
 
     public function sortByPriority(): void

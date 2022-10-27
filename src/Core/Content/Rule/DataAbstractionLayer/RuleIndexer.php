@@ -31,6 +31,8 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     public const PAYLOAD_UPDATER = 'rule.payload';
 
+    public const AREA_UPDATER = 'rule.area';
+
     private IteratorFactory $iteratorFactory;
 
     private Connection $connection;
@@ -43,6 +45,8 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private CartRuleLoader $cartRuleLoader;
 
+    private RuleAreaUpdater $areaUpdater;
+
     /**
      * @internal
      */
@@ -51,6 +55,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         RulePayloadUpdater $payloadUpdater,
+        RuleAreaUpdater $areaUpdater,
         CartRuleLoader $cartRuleLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -58,6 +63,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->repository = $repository;
         $this->connection = $connection;
         $this->payloadUpdater = $payloadUpdater;
+        $this->areaUpdater = $areaUpdater;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartRuleLoader = $cartRuleLoader;
     }
@@ -138,6 +144,10 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
         if ($message->allow(self::PAYLOAD_UPDATER)) {
             $this->payloadUpdater->update($ids);
+        }
+
+        if ($message->allow(self::AREA_UPDATER)) {
+            $this->areaUpdater->update($ids);
         }
 
         $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), $message->getSkip()));

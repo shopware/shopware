@@ -36,6 +36,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <tag name="shopware.entity_indexer"/>
             <tag name="kernel.event_subscriber" />
@@ -45,6 +46,12 @@
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Rule\RuleDefinition"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

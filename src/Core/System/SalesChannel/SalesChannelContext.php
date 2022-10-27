@@ -78,9 +78,14 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $rulesIds;
+
+    /**
+     * @var array<string, string[]>
+     */
+    protected array $areaRuleIds;
 
     /**
      * @var bool
@@ -88,7 +93,7 @@ class SalesChannelContext extends Struct
     protected $rulesLocked = false;
 
     /**
-     * @var array
+     * @var mixed[]
      */
     protected $permissions = [];
 
@@ -122,6 +127,7 @@ class SalesChannelContext extends Struct
      * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
      *
      * @param array<string> $rulesIds
+     * @param array<string, string[]> $areaRuleIds
      */
     public function __construct(
         Context $baseContext,
@@ -138,7 +144,8 @@ class SalesChannelContext extends Struct
         ?CustomerEntity $customer,
         CashRoundingConfig $itemRounding,
         CashRoundingConfig $totalRounding,
-        array $rulesIds = []
+        array $rulesIds = [],
+        array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->fallbackCustomerGroup = $fallbackCustomerGroup;
@@ -150,6 +157,7 @@ class SalesChannelContext extends Struct
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
         $this->rulesIds = $rulesIds;
+        $this->areaRuleIds = $areaRuleIds;
         $this->token = $token;
         $this->context = $baseContext;
         $this->itemRounding = $itemRounding;
@@ -241,6 +249,9 @@ class SalesChannelContext extends Struct
         return $this->context;
     }
 
+    /**
+     * @return string[]
+     */
     public function getRuleIds(): array
     {
         return $this->rulesIds;
@@ -257,6 +268,48 @@ class SalesChannelContext extends Struct
 
         $this->rulesIds = array_filter(array_values($ruleIds));
         $this->getContext()->setRuleIds($this->rulesIds);
+    }
+
+    /**
+     * @internal
+     *
+     * @return array<string, string[]>
+     */
+    public function getAreaRuleIds(): array
+    {
+        return $this->areaRuleIds;
+    }
+
+    /**
+     * @internal
+     *
+     * @param string[] $areas
+     *
+     * @return string[]
+     */
+    public function getRuleIdsByAreas(array $areas): array
+    {
+        $ruleIds = [];
+
+        foreach ($areas as $area) {
+            if (empty($this->areaRuleIds[$area])) {
+                continue;
+            }
+
+            $ruleIds = array_unique(array_merge($ruleIds, $this->areaRuleIds[$area]));
+        }
+
+        return array_values($ruleIds);
+    }
+
+    /**
+     * @internal
+     *
+     * @param array<string, string[]> $areaRuleIds
+     */
+    public function setAreaRuleIds(array $areaRuleIds): void
+    {
+        $this->areaRuleIds = $areaRuleIds;
     }
 
     public function lockRules(): void
@@ -289,11 +342,17 @@ class SalesChannelContext extends Struct
         return $this->getSalesChannel()->getTaxCalculationType();
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getPermissions(): array
     {
         return $this->permissions;
     }
 
+    /**
+     * @param mixed[] $permissions
+     */
     public function setPermissions(array $permissions): void
     {
         if ($this->permisionsLocked) {
@@ -310,7 +369,7 @@ class SalesChannelContext extends Struct
 
     public function hasPermission(string $permission): bool
     {
-        return $this->permissions[$permission] ?? false;
+        return \array_key_exists($permission, $this->permissions) && (bool) $this->permissions[$permission];
     }
 
     public function getSalesChannelId(): string
@@ -333,6 +392,9 @@ class SalesChannelContext extends Struct
         return $this->context->hasState(...$states);
     }
 
+    /**
+     * @return string[]
+     */
     public function getStates(): array
     {
         return $this->context->getStates();
@@ -348,6 +410,9 @@ class SalesChannelContext extends Struct
         $this->domainId = $domainId;
     }
 
+    /**
+     * @return string[]
+     */
     public function getLanguageIdChain(): array
     {
         return $this->context->getLanguageIdChain();

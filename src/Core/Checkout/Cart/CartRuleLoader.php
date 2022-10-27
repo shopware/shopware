@@ -45,6 +45,9 @@ class CartRuleLoader implements ResetInterface
 
     private Connection $connection;
 
+    /**
+     * @var array<string, float>
+     */
     private array $currencyFactor = [];
 
     /**
@@ -167,6 +170,7 @@ class CartRuleLoader implements ResetInterface
             }
 
             $context->setRuleIds($rules->getIds());
+            $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
             if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {

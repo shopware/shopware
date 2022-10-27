@@ -47,7 +47,7 @@ class RuleEntity extends Entity
     protected $payload;
 
     /**
-     * @var array|null
+     * @var string[]|null
      */
     protected $moduleTypes;
 
@@ -82,6 +82,11 @@ class RuleEntity extends Entity
      * @var bool
      */
     protected $invalid;
+
+    /**
+     * @var string[]|null
+     */
+    protected ?array $areas = null;
 
     /**
      * @var ShippingMethodPriceCollection|null
@@ -138,6 +143,9 @@ class RuleEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @return Rule|string|null
+     */
     public function getPayload()
     {
         $this->checkIfPropertyAccessIsAllowed('payload');
@@ -147,6 +155,8 @@ class RuleEntity extends Entity
 
     /**
      * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     *
+     * @param Rule|string|null $payload
      */
     public function setPayload($payload): void
     {
@@ -223,11 +233,33 @@ class RuleEntity extends Entity
         $this->invalid = $invalid;
     }
 
+    /**
+     * @return string[]|null
+     */
+    public function getAreas(): ?array
+    {
+        return $this->areas;
+    }
+
+    /**
+     * @param string[] $areas
+     */
+    public function setAreas(array $areas): void
+    {
+        $this->areas = $areas;
+    }
+
+    /**
+     * @return string[]|null
+     */
     public function getModuleTypes(): ?array
     {
         return $this->moduleTypes;
     }
 
+    /**
+     * @param string[]|null $moduleTypes
+     */
     public function setModuleTypes(?array $moduleTypes): void
     {
         $this->moduleTypes = $moduleTypes;

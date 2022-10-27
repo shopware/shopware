@@ -108,7 +108,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
-        $baseUrl = 'http://assets.shopware.com/sw_logo_white.png';
+        $baseUrl = 'https://assets.shopware.com/sw_logo_white.png';
 
         $url = sprintf(
             '/api/_action/media/%s/upload',

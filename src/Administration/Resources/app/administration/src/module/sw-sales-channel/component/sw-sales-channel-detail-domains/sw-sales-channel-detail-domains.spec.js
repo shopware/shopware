@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-modal';
@@ -208,7 +207,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         }, getExampleDomains());
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await flushPromises();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(languages.first().id);
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toBe(languages);
@@ -230,7 +229,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         }, getExampleDomains());
 
         wrapper.vm.onClickOpenCreateDomainModal();
-        await flushPromises();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(currencies.first().id);
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toBe(currencies);

@@ -2,6 +2,9 @@ import template from './sw-settings-store.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private in future versions
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-store', {
     template,
@@ -9,6 +12,7 @@ Component.register('sw-settings-store', {
     mixins: [
         Mixin.getByName('notification'),
     ],
+
     data() {
         return {
             isLoading: false,
@@ -25,7 +29,6 @@ Component.register('sw-settings-store', {
             title: this.$createTitle(),
         };
     },
-
 
     methods: {
         saveFinish() {

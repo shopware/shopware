@@ -1,5 +1,8 @@
 import ApiService from 'src/core/service/api.service';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed without replacement
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class MarketingService extends ApiService {
     constructor(httpClient, loginService) {

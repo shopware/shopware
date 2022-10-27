@@ -33,6 +33,8 @@ Component.register('sw-cms-list', {
             currentPageType: null,
             showMediaModal: false,
             currentPage: null,
+            showRenameModal: false,
+            newName: null,
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
@@ -404,6 +406,27 @@ Component.register('sw-cms-list', {
             this.currentPage.previewMediaId = image.id;
             this.saveCmsPage(this.currentPage);
             this.currentPage.previewMedia = image;
+        },
+
+        onRenameCmsPage(page) {
+            this.currentPage = page;
+            this.showRenameModal = true;
+        },
+
+        onCloseRenameModal() {
+            this.currentPage = null;
+            this.showRenameModal = false;
+        },
+
+        onConfirmPageRename() {
+            if (this.newName) {
+                this.currentPage.name = this.newName;
+                this.saveCmsPage(this.currentPage);
+                this.getList();
+            }
+            this.newName = null;
+            this.currentPage = null;
+            this.showRenameModal = false;
         },
 
         onDeleteCmsPage(page) {

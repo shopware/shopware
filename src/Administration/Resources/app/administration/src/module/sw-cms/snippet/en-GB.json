@@ -738,6 +738,7 @@
       "cmsListItem": {
         "emptyText": "No layout assigned",
         "edit": "Edit",
+        "rename": "Rename",
         "delete": "Delete",
         "duplicate": "Duplicate",
         "addPreviewImage": "Add preview image",
@@ -749,7 +750,10 @@
         "removePreviewImage": "Remove preview",
         "notificationDeleteErrorMessage": "The layout you want to delete is still assigned to at least one category.",
         "modal": {
+          "renameModalTitle": "Rename layout",
+          "textRenameConfirm": "Choose a new name for \"{pageName}\":",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
+          "buttonRename": "Rename",
           "buttonCancel": "Cancel",
           "buttonDelete": "Delete"
         }

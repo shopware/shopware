@@ -69,7 +69,7 @@ describe('Media: Visual tests', () => {
                 '.sw-media-upload-v2__button-url-upload',
                 '.sw-media-upload-v2__button-context-menu'
             );
-            page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+            page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
 
             cy.wait('@saveDataUrlUpload')
                 .its('response.statusCode').should('equal', 204);

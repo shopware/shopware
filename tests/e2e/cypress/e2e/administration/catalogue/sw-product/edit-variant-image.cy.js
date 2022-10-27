@@ -326,7 +326,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-media-upload-v2__switch-mode').click();
         cy.contains('Upload file from URL').click();
         cy.get('input[name=sw-field--url]').should('be.visible')
-            .type('http://assets.shopware.com/media/website/pages/frontpage/growth_customerloyalty_en-2x.png');
+            .type('https://assets.shopware.com/media/website/pages/frontpage/growth_customerloyalty_en-2x.png');
         cy.get('.sw-media-url-form__submit-button').click();
 
         // Check if image uploaded successfully

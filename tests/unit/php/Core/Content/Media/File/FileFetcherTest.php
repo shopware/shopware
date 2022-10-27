@@ -115,7 +115,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrl(): void
     {
-        $url = 'http://assets.shopware.com/sw_logo_white.png';
+        $url = 'https://assets.shopware.com/sw_logo_white.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -238,7 +238,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithoutLimit(): void
     {
-        $url = 'http://assets.shopware.com/sw_logo_white.png';
+        $url = 'https://assets.shopware.com/sw_logo_white.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -264,7 +264,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithLimitInRange(): void
     {
-        $url = 'http://assets.shopware.com/sw_logo_white.png';
+        $url = 'https://assets.shopware.com/sw_logo_white.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -292,7 +292,7 @@ class FileFetcherTest extends TestCase
     {
         $this->expectException(UploadException::class);
 
-        $url = 'http://assets.shopware.com/sw_logo_white.png';
+        $url = 'https://assets.shopware.com/sw_logo_white.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 

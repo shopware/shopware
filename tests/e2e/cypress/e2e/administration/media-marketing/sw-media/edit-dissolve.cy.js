@@ -38,7 +38,7 @@ describe('Media: Dissolve folder', () => {
             '',
             true
         );
-        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
         page.dissolve('sw_logo_white.png');
     });
 });

@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollecto
 class DataCollector extends BaseDataCollector
 {
     private bool $enabled;
+
     private ClientProfiler $client;
 
     /**

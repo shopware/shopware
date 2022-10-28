@@ -3,7 +3,6 @@
 namespace Shopware\Elasticsearch\Profiler;
 
 use Elasticsearch\Client;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;

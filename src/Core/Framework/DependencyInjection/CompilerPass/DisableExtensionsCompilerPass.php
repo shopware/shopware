@@ -2,20 +2,17 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\EmptyActiveAppsLoader;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed without replacement
+ */
 class DisableExtensionsCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return;
-        }
-
-        $container->getDefinition(ActiveAppsLoader::class)->setClass(EmptyActiveAppsLoader::class);
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'DisableExtensionsCompilerPass will be removed without replacement');
     }
 }

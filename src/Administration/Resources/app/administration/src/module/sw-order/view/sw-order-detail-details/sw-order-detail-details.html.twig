@@ -243,6 +243,7 @@
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"
         :order="order"
+        :is-loading="isLoading"
         @modal-close="showStateHistoryModal = false"
     />
     {% endblock %}

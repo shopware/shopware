@@ -13,7 +13,7 @@ const testEntityData = [{
 
 testEntityData.total = 1;
 
-function createWrapper(query = {}) {
+async function createWrapper(query = {}) {
     config.mocks.$route = {
         params: {
             entityName: testEntityName
@@ -26,7 +26,7 @@ function createWrapper(query = {}) {
         query,
     };
 
-    return shallowMount(Shopware.Component.build('sw-generic-custom-entity-list'), {
+    return shallowMount(await Shopware.Component.build('sw-generic-custom-entity-list'), {
         provide: {
             customEntityDefinitionService: {
                 getDefinitionByName() {
@@ -114,13 +114,13 @@ function createWrapper(query = {}) {
 
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display the empty state when 0 entities are found', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
@@ -142,7 +142,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('gets the custom entity definition and renders the columns', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -208,7 +208,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('changes to content language with the language switch', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -223,7 +223,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('parses the route on creation', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             term: 'some-search-term',
             page: '2',
             limit: '10',
@@ -278,7 +278,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('changes the route when searching', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -302,7 +302,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('changes the route when sorting', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -338,7 +338,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('changes the route when changing the page and limit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -360,7 +360,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     });
 
     it('reacts to route changes and fetches data with new criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 

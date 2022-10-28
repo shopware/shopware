@@ -13,19 +13,19 @@ Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', swCmsCreate);
 
 const pageId = 'TEST-PAGE-ID';
 const categoryId = 'TEST-CATEGORY-ID';
+const customEntityId = 'TEST-CUSTOM-ENTITY-ID';
 
 const pageRepository = {
     create() {
-        const categories = [];
-        categories.add = function add(entity) {
-            this.push(entity);
-        };
-
         return {
             id: pageId,
             name: 'CMS-PAGE-NAME',
             type: 'product_list',
-            categories
+            categories: [],
+            extensions: {
+                customEntityTestSwCmsPage: [],
+                ceTestSwCmsPage: [],
+            }
         };
     },
     save: jest.fn(() => Promise.resolve()),
@@ -33,6 +33,10 @@ const pageRepository = {
 
 const categoryRepository = {
     get: () => Promise.resolve({ id: categoryId }),
+};
+
+const customEntityRepository = {
+    get: () => Promise.resolve({ id: customEntityId }),
 };
 
 async function createWrapper(routeParams = {}) {
@@ -64,6 +68,9 @@ async function createWrapper(routeParams = {}) {
                             return categoryRepository;
                         case 'cms_page':
                             return pageRepository;
+                        case 'custom_entity_test':
+                        case 'ce_test':
+                            return customEntityRepository;
                         default:
                             throw new Error(`No repository for ${name} configured`);
                     }
@@ -87,7 +94,7 @@ async function createWrapper(routeParams = {}) {
 }
 
 describe('module/sw-cms/page/sw-cms-create', () => {
-    beforeAll(() => {
+    beforeEach(() => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
@@ -103,7 +110,7 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should assign new layout to', async () => {
+    it('should assign new layout to a category', async () => {
         const wrapper = await createWrapper({ type: 'category', id: categoryId });
 
         await wrapper.vm.onSave();
@@ -120,6 +127,69 @@ describe('module/sw-cms/page/sw-cms-create', () => {
         }));
 
         expect(callArg.categories).toHaveLength(1);
-        expect(callArg.categories[0]).toMatchObject({ id: 'TEST-CATEGORY-ID' });
+        expect(callArg.categories[0]).toMatchObject({ id: categoryId });
+    });
+
+    it('should assign new layout to a custom entity prefixed with custom_entity_', async () => {
+        const wrapper = await createWrapper({ type: 'custom_entity_test', id: customEntityId });
+
+        await wrapper.vm.onSave();
+
+        const mockFn = wrapper.vm.pageRepository.save;
+        expect(mockFn).toHaveBeenCalledTimes(1);
+
+        const callArg = mockFn.mock.calls[0][0];
+        expect(callArg).toEqual(expect.objectContaining({
+            id: 'TEST-PAGE-ID',
+            name: 'CMS-PAGE-NAME',
+            sections: [],
+            type: 'product_list'
+        }));
+
+        expect(callArg.extensions.customEntityTestSwCmsPage).toHaveLength(1);
+        expect(callArg.extensions.customEntityTestSwCmsPage[0]).toMatchObject({ id: customEntityId });
+    });
+
+    it('should assign new layout to a custom entity prefixed with ce_', async () => {
+        const wrapper = await createWrapper({ type: 'ce_test', id: customEntityId });
+
+        await wrapper.vm.onSave();
+
+        const mockFn = wrapper.vm.pageRepository.save;
+        expect(mockFn).toHaveBeenCalledTimes(1);
+
+        const callArg = mockFn.mock.calls[0][0];
+        expect(callArg).toEqual(expect.objectContaining({
+            id: 'TEST-PAGE-ID',
+            name: 'CMS-PAGE-NAME',
+            sections: [],
+            type: 'product_list'
+        }));
+
+        expect(callArg.extensions.ceTestSwCmsPage).toHaveLength(1);
+        expect(callArg.extensions.ceTestSwCmsPage[0]).toMatchObject({ id: customEntityId });
+    });
+
+    it('should show a error notification if assignment fails but still save', async () => {
+        const wrapper = await createWrapper({ type: 'ce_should_fail', id: customEntityId });
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.onSave();
+
+        const mockFn = wrapper.vm.pageRepository.save;
+        expect(mockFn).toHaveBeenCalledTimes(1);
+
+        const callArg = mockFn.mock.calls[0][0];
+        expect(callArg).toEqual(expect.objectContaining({
+            id: 'TEST-PAGE-ID',
+            name: 'CMS-PAGE-NAME',
+            sections: [],
+            type: 'product_list'
+        }));
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-cms.create.notification.assignToEntityError'
+        });
     });
 });

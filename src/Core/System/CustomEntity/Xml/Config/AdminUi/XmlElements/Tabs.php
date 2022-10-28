@@ -28,7 +28,7 @@ class Tabs extends CustomEntityFlag
     /**
      * @param array<string, mixed> $values
      *
-     * @return array<int|string, mixed>
+     * @return Tabs[]
      */
     protected function parseChild(\DOMElement $child, array $values): array
     {

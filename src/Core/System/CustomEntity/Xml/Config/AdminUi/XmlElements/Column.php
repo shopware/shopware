@@ -13,6 +13,13 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  */
 class Column extends CustomEntityFlag
 {
+    protected string $ref;
+
+    public function getRef(): string
+    {
+        return $this->ref;
+    }
+
     public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();

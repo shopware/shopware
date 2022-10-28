@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal
@@ -57,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinition>  $definitions
      *
      * @return OpenApiSpec
      */
@@ -120,9 +120,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
      *
-     * @return array<string, array{name: string, translatable: array<string, mixed>, properties: array<string, mixed>}>
+     * @return array<string, array{name: string, translatable: array<int|string, mixed>, properties: array<string, mixed>}>
      */
     public function getSchema(array $definitions): array
     {
@@ -234,12 +234,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinition> $definitions
      */
     private function containsSalesChannelDefinition(array $definitions): bool
     {
         foreach ($definitions as $definition) {
-            if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+            if (is_subclass_of($definition, SalesChannelDefinition::class)) {
                 return true;
             }
         }
@@ -267,7 +267,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             return true;
         }
 
-        if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+        if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinition::class)) {
             return true;
         }
 

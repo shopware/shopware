@@ -62,11 +62,16 @@
       "layoutAssignment": {
         "headline": "Verwalte wo dieses Layout zu sehen ist",
         "infoText": "Du kannst Layouts für unterschiedliche Kategorien in Deinem Shop verwenden. Hier kannst Du einsehen, in welchen Kategorien dieses Layout bereits eingesetzt wird, oder es anderen Kategorien zuweisen.",
-        "actionAssignLayout": "Layout zuweisen"
+        "actionAssignLayout": "Layout-Zuweisung fehlgeschlagen"
       },
       "layoutSetAsDefault": {
         "headline": "Standardlayouts",
         "actionSetAsDefaultLayout": "Als Standardlayout verwenden"
+      }
+    },
+    "create": {
+      "notification":{
+        "assignToEntityError": "Layout-Zuweisung fehlgeschlagen"
       }
     },
     "createWizard": {

@@ -22,6 +22,13 @@ class Card extends CustomEntityFlag
      */
     protected array $fields;
 
+    protected string $name;
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();

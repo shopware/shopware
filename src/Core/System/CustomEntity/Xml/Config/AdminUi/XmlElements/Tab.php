@@ -17,10 +17,17 @@ class Tab extends CustomEntityFlag
         'card' => Card::class,
     ];
 
+    protected string $name;
+
     /**
-     * @var CustomEntityFlag[]
+     * @var Card[]
      */
     protected array $cards;
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
@@ -31,7 +38,7 @@ class Tab extends CustomEntityFlag
     }
 
     /**
-     * @return CustomEntityFlag[]
+     * @return Card[]
      */
     public function getCards(): array
     {

@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-custom-entity/component/sw-custom-entity-input-field';
 
-function createWrapper(propsData = { type: 'string' }) {
-    return shallowMount(Shopware.Component.build('sw-custom-entity-input-field'), {
+async function createWrapper(propsData = { type: 'string' }) {
+    return shallowMount(await Shopware.Component.build('sw-custom-entity-input-field'), {
         propsData,
         provide: {
         },
@@ -37,7 +37,7 @@ const basicMockData = {
 
 describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -48,7 +48,9 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
                 ...basicMockData,
                 type,
             };
-            const wrapper = createWrapper(mockData);
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps(mockData);
 
             const inputField = wrapper.get(`.sw-custom-entity-input-field__${type}`);
             expect(inputField.attributes().value).toBe(mockData.value);
@@ -64,7 +66,9 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
                 ...basicMockData,
                 type,
             };
-            const wrapper = createWrapper(mockData);
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps(mockData);
 
             const inputField = wrapper.get(`.sw-custom-entity-input-field__${type}`);
             expect(inputField.attributes()['number-type']).toBe(type);

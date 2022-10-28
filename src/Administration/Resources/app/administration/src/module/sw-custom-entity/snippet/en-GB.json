@@ -2,6 +2,11 @@
     "sw-custom-entity": {
         "general": {
             "mainMenuItemGeneral": "Custom Entity"
+        },
+        "detail": {
+            "tabs": {
+                "layout": "Layout"
+            }
         }
     }
 }

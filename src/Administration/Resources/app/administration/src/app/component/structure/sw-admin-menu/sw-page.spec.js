@@ -4,7 +4,7 @@ import 'src/app/component/structure/sw-page';
 
 const testColor = 'red';
 
-function createWrapper() {
+async function createWrapper() {
     config.mocks.$route = {
         meta: {
             $module: {
@@ -13,7 +13,7 @@ function createWrapper() {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-page'), {
+    return shallowMount(await Shopware.Component.build('sw-page'), {
         stubs: {
             'sw-search-bar': true,
             'sw-notification-center': true,
@@ -28,16 +28,13 @@ function createWrapper() {
 
 describe('src/app/component/structure/sw-page', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should use the header bottom-color specified with the headerBorderColor prop', async () => {
-        const wrapper = createWrapper();
-
-        expect(wrapper.get('.sw-page__head-area').attributes('style')).toStrictEqual('border-bottom-color: #d8dde6; padding-right: 0px;');
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper();
 
         expect(wrapper.get('.sw-page__head-area').attributes('style')).toStrictEqual('border-bottom-color: red; padding-right: 0px;');
 

@@ -16,7 +16,7 @@
             variant="primary"
             :disabled="isLoading"
             @process-finish="saveFinish"
-            @click.prevent="onSave"
+            @click="onSave"
         >
             {{ $tc('global.default.save') }}
         </sw-button-process>
@@ -29,15 +29,13 @@
     <template #content>
         <sw-card-view>
             <sw-tabs
-                v-if="!isLoading && customEntityData"
+                v-if="!isLoading && detailTabs"
                 class="sw-generic-custom-entity-detail__tabs"
                 position-identifier="sw-generic-custom-entity-detail-tabs"
                 :default-item="mainTabName"
+                :small="false"
             >
-                <template
-                    v-if="detailTabs.length > 1"
-                    #default="{ active }"
-                >
+                <template #default="{ active }">
                     <sw-tabs-item
                         v-for="tab in detailTabs"
                         :key="`tab-item-${tab.name}`"
@@ -47,16 +45,24 @@
                     >
                         {{ getLabel('tabs', tab.name) }}
                     </sw-tabs-item>
+
+                    <sw-tabs-item
+                        v-if="customEntityDataDefinition?.flags?.['cms-aware']"
+                        class="sw-generic-custom-entity-detail__tab-item"
+                        name="cms-aware-tab"
+                        :active-tab="active"
+                    >
+                        {{ $tc('sw-custom-entity.detail.tabs.layout') }}
+                    </sw-tabs-item>
                 </template>
 
                 <template #content="{ active }">
-                    <div
+                    <template
                         v-for="tab in detailTabs"
-                        :key="`tab-${tab.name}`"
-                        class="sw-generic-custom-entity-detail__tab-wrapper"
                     >
                         <div
                             v-if="active === tab.name"
+                            :key="`tab-${tab.name}`"
                             class="sw-generic-custom-entity-detail__tab"
                         >
                             <sw-card
@@ -78,7 +84,17 @@
                                 />
                             </sw-card>
                         </div>
-                    </div>
+                    </template>
+
+                    <sw-generic-cms-page-assignment
+                        v-if="active === 'cms-aware-tab'"
+                        :cms-page-id="customEntityData.swCmsPageId"
+                        :slot-overrides="customEntityData.swSlotConfig"
+                        class="sw-generic-custom-entity-detail__tab sw-generic-custom-entity-detail__tab-cms-aware"
+                        @update:cms-page-id="updateCmsPageId"
+                        @update:slot-overrides="updateCmsSlotOverwrites"
+                        @create-layout="onCreateLayout"
+                    />
                 </template>
             </sw-tabs>
         </sw-card-view>

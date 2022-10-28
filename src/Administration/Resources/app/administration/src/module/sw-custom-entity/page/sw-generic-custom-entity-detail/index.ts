@@ -12,12 +12,21 @@ import './sw-generic-custom-entity-detail.scss';
 
 const { Component, Mixin } = Shopware;
 
+interface CmsSlotOverrides {
+    [key: string]: unknown
+}
+
+interface CustomEntityData extends Entity {
+    swCmsPageId: string | null;
+    swSlotConfig: CmsSlotOverrides | null;
+}
+
 type GenericCustomEntityDetailData = {
     isLoading: boolean,
     isSaveSuccessful: boolean,
     customEntityName: string,
     entityAccentColor: string,
-    customEntityData: Entity|null,
+    customEntityData: CustomEntityData|null,
     customEntityDataDefinition?: CustomEntityDefinition,
     customEntityProperties?: CustomEntityProperties,
     customEntityDataRepository?: Repository,
@@ -59,8 +68,8 @@ Component.register('sw-generic-custom-entity-detail', {
             return this.$route.params?.id;
         },
 
-        detailTabs(): AdminTabsDefinition[]|undefined {
-            return this.customEntityDataDefinition?.flags['admin-ui']?.detail?.tabs;
+        detailTabs(): AdminTabsDefinition[] {
+            return this.customEntityDataDefinition?.flags['admin-ui']?.detail?.tabs ?? [];
         },
 
         mainTabName(): string|undefined {
@@ -111,14 +120,14 @@ Component.register('sw-generic-custom-entity-detail', {
             }
 
             if (!this.customEntityDataId) {
-                this.customEntityData = this.customEntityDataRepository.create(Shopware.Context.api);
+                this.customEntityData = this.customEntityDataRepository.create(Shopware.Context.api) as CustomEntityData;
                 this.isLoading = false;
 
                 return Promise.resolve();
             }
 
             return this.customEntityDataRepository.get(this.customEntityDataId, Shopware.Context.api).then((data) => {
-                this.customEntityData = data;
+                this.customEntityData = data as CustomEntityData;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -181,6 +190,36 @@ Component.register('sw-generic-custom-entity-detail', {
 
         getType(field: string): string {
             return this.customEntityProperties?.[field].type || '';
+        },
+
+        updateCmsPageId(cmsPageId: string | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swCmsPageId = cmsPageId;
+        },
+
+        updateCmsSlotOverwrites(cmsSlotOverwrites: CmsSlotOverrides | null) {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.customEntityData.swSlotConfig = cmsSlotOverwrites;
+        },
+
+        onCreateLayout() {
+            if (!this.customEntityData) {
+                return;
+            }
+
+            this.$router.push({
+                name: 'sw.cms.create',
+                params: {
+                    id: this.customEntityData.id,
+                    type: this.customEntityName,
+                },
+            });
         },
     },
 });

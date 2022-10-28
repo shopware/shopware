@@ -12,6 +12,8 @@ use Symfony\Component\Config\Util\XmlUtils;
  */
 class CustomEntityXmlSchema
 {
+    public const FILENAME = 'entities.xml';
+
     private const XSD_FILE = __DIR__ . '/entity-1.0.xsd';
 
     private string $path;
@@ -53,6 +55,9 @@ class CustomEntityXmlSchema
         return $this->entities;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toStorage(): array
     {
         if ($this->entities === null) {

@@ -90,7 +90,7 @@
                     :disabled="!acl.can('category.editor')"
                     @click="openInPagebuilder"
                 >
-                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
                 </sw-button>
                 {% endblock %}
 

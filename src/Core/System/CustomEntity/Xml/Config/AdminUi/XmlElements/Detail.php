@@ -17,7 +17,7 @@ class Detail extends CustomEntityFlag
         'tabs' => Tabs::class,
     ];
 
-    protected CustomEntityFlag $tabs;
+    protected Tabs $tabs;
 
     public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
@@ -27,7 +27,7 @@ class Detail extends CustomEntityFlag
         return $self;
     }
 
-    public function getTabs(): CustomEntityFlag
+    public function getTabs(): Tabs
     {
         return $this->tabs;
     }

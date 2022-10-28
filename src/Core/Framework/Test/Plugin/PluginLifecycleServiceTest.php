@@ -87,9 +87,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->container = $this->getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->container->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->container->get('language.repository'),
-            $this->container->getParameter('kernel.project_dir'),
             $this->container->get(PluginFinder::class)
         );
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
@@ -99,8 +100,14 @@ class PluginLifecycleServiceTest extends TestCase
 
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
 
-        $this->addTestPluginToKernel(self::PLUGIN_NAME);
-        $this->addTestPluginToKernel('SwagTestWithoutConfig');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/' . self::PLUGIN_NAME,
+            self::PLUGIN_NAME
+        );
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/SwagTestWithoutConfig',
+            'SwagTestWithoutConfig'
+        );
 
         $this->context = Context::createDefaultContext();
     }
@@ -396,7 +403,10 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePluginWithDependencies(): void
     {
-        $this->addTestPluginToKernel(self::DEPENDENT_PLUGIN_NAME);
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/' . self::DEPENDENT_PLUGIN_NAME,
+            self::DEPENDENT_PLUGIN_NAME
+        );
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         $basePlugin = $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
@@ -437,7 +447,10 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testActivateNotSupportedVersion(): void
     {
-        $this->addTestPluginToKernel(self::NOT_SUPPORTED_VERSION_PLUGIN_NAME);
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/' . self::NOT_SUPPORTED_VERSION_PLUGIN_NAME,
+            self::NOT_SUPPORTED_VERSION_PLUGIN_NAME
+        );
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
@@ -455,7 +468,10 @@ class PluginLifecycleServiceTest extends TestCase
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
         static::markTestSkipped('This test needs the storefront bundle installed.');
-        $this->addTestPluginToKernel('SwagTestTheme');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/SwagTestTheme',
+            'SwagTestTheme'
+        );
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 

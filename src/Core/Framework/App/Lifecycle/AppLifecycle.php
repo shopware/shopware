@@ -529,7 +529,7 @@ class AppLifecycle extends AbstractAppLifecycle
             return;
         }
 
-        // todo consider to unify this part (e.g. ExtensionEntity) https://gitlab.shopware.com/shopware/6/product/platform/-/merge_requests/9168#note_478886
+        // ToDo NEXT-24156 - Unify to one `enrich` method (until "SchemaUpdater->update()")
         $entities = $this->customEntityEnrichmentService->enrichCmsAwareEntities(
             $this->appLoader->getCmsAwareXmlSchema($app),
             $entities
@@ -541,7 +541,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->customEntityPersister->update($entities->toStorage(), $id);
         $this->customEntitySchemaUpdater->update();
-        // todo end
 
         /** @phpstan-ignore-next-line does not recognize that we already checked that $entities->getEntities() is not null */
         foreach ($entities->getEntities()->getEntities() as $entity) {

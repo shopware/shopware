@@ -13,7 +13,7 @@ class Entity extends CustomEntityFlag
         return $this->name;
     }
 
-    public static function fromXml(\DOMElement $element): CustomEntityFlag
+    public static function fromXml(\DOMElement $element): Entity
     {
         $self = new self();
         $self->assign($self->parse($element));

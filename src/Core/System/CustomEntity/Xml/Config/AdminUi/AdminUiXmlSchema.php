@@ -13,11 +13,11 @@ class AdminUiXmlSchema
 {
     public const FILENAME = 'admin-ui.xml';
 
-    private const XSD_FILE = __DIR__ . '/admin-ui-1.0.xsd';
+    public const XSD_FILEPATH = __DIR__ . '/admin-ui-1.0.xsd';
 
-    private ?AdminUi $adminUi;
+    private AdminUi $adminUi;
 
-    public function __construct(?AdminUi $adminUi)
+    public function __construct(AdminUi $adminUi)
     {
         $this->adminUi = $adminUi;
     }
@@ -30,14 +30,14 @@ class AdminUiXmlSchema
     public static function createFromXmlFile(string $xmlFilePath): self
     {
         try {
-            $doc = XmlUtils::loadFile($xmlFilePath, self::XSD_FILE);
+            $doc = XmlUtils::loadFile($xmlFilePath, self::XSD_FILEPATH);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFilePath, $e->getMessage());
         }
 
-        $config = $doc->getElementsByTagName('admin-ui')->item(0);
-        $config = $config === null ? null : AdminUi::fromXml($config);
+        /** @var \DOMElement $domItem */
+        $domItem = $doc->getElementsByTagName('admin-ui')->item(0);
 
-        return new self($config);
+        return new self(AdminUi::fromXml($domItem));
     }
 }

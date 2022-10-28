@@ -14,6 +14,13 @@ use Symfony\Component\Config\Util\XmlUtils;
  */
 class CardField extends CustomEntityFlag
 {
+    protected string $ref;
+
+    public function getRef(): string
+    {
+        return $this->ref;
+    }
+
     public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();

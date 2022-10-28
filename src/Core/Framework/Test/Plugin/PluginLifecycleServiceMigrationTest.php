@@ -93,13 +93,17 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $this->pluginService = $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->container->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->container->get('language.repository'),
-            $this->container->getParameter('kernel.project_dir'),
             $this->container->get(PluginFinder::class)
         );
 
-        $this->addTestPluginToKernel('SwagManualMigrationTest');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/SwagManualMigrationTest',
+            'SwagManualMigrationTest'
+        );
         $this->requireMigrationFiles();
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());

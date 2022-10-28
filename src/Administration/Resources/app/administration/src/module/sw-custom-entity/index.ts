@@ -1,6 +1,7 @@
 import './page/sw-generic-custom-entity-list';
 import './page/sw-generic-custom-entity-detail';
 import './component/sw-custom-entity-input-field';
+import './component/sw-generic-cms-page-assignment';
 
 const { Module } = Shopware;
 

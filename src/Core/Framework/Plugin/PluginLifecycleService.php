@@ -621,13 +621,12 @@ class PluginLifecycleService
             return;
         }
 
-        // todo consider to unify this part (e.g. ExtensionEntity) https://gitlab.shopware.com/shopware/6/product/platform/-/merge_requests/9168#note_478886
+        // ToDo NEXT-24156 - Unify to one `enrich` method (until "SchemaUpdater->update()")
         $entities = $this->customEntityEnrichmentService->enrichCmsAwareEntities($this->getCmsAwareXmlSchema($plugin), $entities);
         $entities = $this->customEntityEnrichmentService->enrichAdminUiEntities($this->getAdminUiXmlSchema($plugin), $entities);
 
         $this->customEntityPersister->update($entities->toStorage(), null, $plugin->getId());
         $this->customEntitySchemaUpdater->update();
-        // todo end
     }
 
     private function getCmsAwareXmlSchema(PluginEntity $plugin): ?CmsAwareXmlSchema
@@ -665,7 +664,12 @@ class PluginLifecycleService
 
     private function getCustomEntities(PluginEntity $plugin): ?CustomEntityXmlSchema
     {
-        $configPath = sprintf('%s/%s/src/Resources/config/entities.xml', $this->projectDir, $plugin->getPath());
+        $configPath = sprintf(
+            '%s/%s/src/Resources/config/%s',
+            $this->projectDir,
+            $plugin->getPath(),
+            CustomEntityXmlSchema::FILENAME
+        );
 
         if (!file_exists($configPath)) {
             return null;

@@ -69,6 +69,11 @@
         "actionSetAsDefaultLayout": "Set as default layout"
       }
     },
+    "create": {
+      "notification":{
+        "assignToEntityError": "Assigning layouts failed"
+      }
+    },
     "createWizard": {
       "choosePageTypeTitle": "What kind of page would you like to create?",
       "choosePageTypeHelpText": "These different layout types will help you find existing layouts faster. You may change the layout type afterwards at any time via the layout settings.",

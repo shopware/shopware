@@ -35,7 +35,7 @@ const customEntityRepositoryMock = {
     },
 };
 
-function createWrapper() {
+async function createWrapper() {
     Shopware.State.registerModule('swCategoryDetail', {
         namespaced: true,
         state: {
@@ -50,7 +50,7 @@ function createWrapper() {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-category-detail-custom-entity'), {
+    return shallowMount(await Shopware.Component.build('sw-category-detail-custom-entity'), {
         stubs: {
             'sw-card': {
                 template: '<div class="sw-card"><slot /></div>',
@@ -88,15 +88,14 @@ function createWrapper() {
     });
 }
 
-describe('src/module/sw-category/component/sw-category-detail-menu', () => {
+describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts', () => {
     it('should allow selecting a custom entity', async () => {
         global.activeAclRoles = ['category.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
+        wrapper.vm.onEntityChange(undefined);
 
-        // deselect custom entity type
-        wrapper.vm.category.customEntityTypeId = undefined;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check initial state without custom entity type selected
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').props()).toStrictEqual({
@@ -123,6 +122,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         // select a custom entity type
         entitySelect.vm.$emit('change', customEntity1.id, { name: customEntity1.name });
+        await flushPromises();
         await wrapper.vm.$nextTick();
 
         // expect the custom entity type and the customEntityAssignments to have been updated
@@ -155,9 +155,8 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should allow selecting a custom entity instances', async () => {
         global.activeAclRoles = ['category.editor'];
 
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         // expect a custom entity type to be selected
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').exists()).toBe(false);
@@ -201,7 +200,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         // select another custom entity type
         wrapper.find('.sw-entity-single-select').vm.$emit('change', customEntity2.id, { name: customEntity2.name });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select').props()).toStrictEqual({
             value: customEntity2.id,
@@ -242,7 +241,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         // trigger a change event
         wrapper.find('.sw-many-to-many-assignment-card').vm.$emit('change', emptyEntityCollection);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-many-to-many-assignment-card').props()).toStrictEqual({
             columns: [{

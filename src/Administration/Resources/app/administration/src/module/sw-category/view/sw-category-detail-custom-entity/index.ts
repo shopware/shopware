@@ -30,7 +30,7 @@ Component.register('sw-category-detail-custom-entity', {
 
     data() {
         return {
-            categoryCustomEntityProperty: '',
+            categoryCustomEntityProperty: '' as string,
         };
     },
 
@@ -94,13 +94,14 @@ Component.register('sw-category-detail-custom-entity', {
 
 
     methods: {
-        onEntityChange(id: string, entity: CustomEntity) {
+        onEntityChange(id: string, entity?: CustomEntity) {
             if (!this.category) {
                 return;
             }
 
             this.category.customEntityTypeId = id;
-            this.categoryCustomEntityProperty = Utils.string.camelCase(entity.name);
+
+            this.categoryCustomEntityProperty = Utils.string.camelCase(entity?.name ?? '');
         },
 
         async fetchCustomEntityName() {
@@ -109,7 +110,8 @@ Component.register('sw-category-detail-custom-entity', {
             }
 
             const customEntityRepository = this.repositoryFactory.create('custom_entity');
-            const customEntity = await customEntityRepository.get(this.category.customEntityTypeId) as CustomEntity | null;
+            const customEntity = await customEntityRepository
+                .get(this.category.customEntityTypeId) as CustomEntity | null;
 
             if (!customEntity) {
                 return;

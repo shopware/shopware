@@ -1,9 +1,15 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-view';
+import swCategoryView from 'src/module/sw-category/component/sw-category-view';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
 
-function createWrapper(categoryType) {
+Shopware.Component.register('sw-category-view', swCategoryView);
+
+async function createWrapper(categoryType) {
+    if (Shopware.State.get('swCategoryDetail')) {
+        Shopware.State.unregisterModule('swCategoryDetail');
+    }
+
     Shopware.State.registerModule('swCategoryDetail', {
         namespaced: true,
         state: {
@@ -14,6 +20,10 @@ function createWrapper(categoryType) {
         }
     });
 
+    if (Shopware.State.get('cmsPageState')) {
+        Shopware.State.unregisterModule('cmsPageState');
+    }
+
     Shopware.State.registerModule('cmsPageState', {
         namespaced: true,
         state: {
@@ -21,7 +31,7 @@ function createWrapper(categoryType) {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-category-view'), {
+    return shallowMount(await Shopware.Component.build('sw-category-view'), {
         stubs: {
             'sw-card-view': {
                 template: '<div class="sw-card-view"><slot /></div>',
@@ -63,7 +73,7 @@ function createWrapper(categoryType) {
 
 describe('src/module/sw-category/component/sw-category-view', () => {
     it('should display static snippets and position-identifiers', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.get('.sw-category-view').attributes('position-identifier')).toBe('sw-category-view');
         expect(wrapper.get('.sw-language-info').props('entityDescription')).toStrictEqual({
@@ -126,7 +136,7 @@ describe('src/module/sw-category/component/sw-category-view', () => {
             displaySeoTab
         } = testcase;
         it(`should display the tabs for the '${type}' category type`, async () => {
-            const wrapper = createWrapper(type);
+            const wrapper = await createWrapper(type);
 
             const generalTab = wrapper.find('.sw-category-detail__tab-base');
             expect(generalTab.isVisible()).toBe(displayGeneralTab);

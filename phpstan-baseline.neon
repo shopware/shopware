@@ -9106,11 +9106,6 @@ parameters:
 			path: src/Core/Framework/App/Cms/Xml/Block.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\Xml\\\\Block\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Cms/Xml/Block.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\Xml\\\\Block\\:\\:toEntityArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Cms/Xml/Block.php
@@ -9136,11 +9131,6 @@ parameters:
 			path: src/Core/Framework/App/Cms/Xml/Config.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\Xml\\\\Config\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Cms/Xml/Config.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\Xml\\\\Config\\:\\:\\$items type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Cms/Xml/Config.php
@@ -9157,11 +9147,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\Xml\\\\Slot\\:\\:parseSlot\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Cms/Xml/Slot.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\Xml\\\\Slot\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Cms/Xml/Slot.php
 
@@ -9801,62 +9786,12 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/MainModule.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:getDescription\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:getLabel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:getPrivacyPolicyExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:\\$description type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:\\$label type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Metadata\\:\\:\\$privacyPolicyExtensions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/Metadata.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\PaymentMethod\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/PaymentMethod.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\PaymentMethod\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/PaymentMethod.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\PaymentMethod\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/PaymentMethod.php
 
@@ -9882,11 +9817,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleCondition\\:\\:parseChild\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/RuleCondition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\RuleCondition\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/RuleCondition.php
 
@@ -9934,6 +9864,16 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Webhooks\\:\\:__construct\\(\\) has parameter \\$webhooks with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/Webhooks.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Handler\\\\AppAsyncPaymentHandler\\:\\:buildFinalizePayload\\(\\) has parameter \\$queryParameters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Handler/AppAsyncPaymentHandler.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Handler\\\\AppAsyncPaymentHandler\\:\\:buildPayPayload\\(\\) has parameter \\$requestData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/App/Payment/Handler/AppAsyncPaymentHandler.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\XmlElement\\:\\:ensureTranslationForDefaultLanguageExist\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
@@ -16151,6 +16091,16 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCarts\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
+
+		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader constructor invoked with 3 parameters, 1\\-2 required\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
@@ -16174,36 +16124,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginFromFileSystemStructTest\\:\\:dataProviderTestGetName\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/PluginFromFileSystemStructTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:createNonStandardLanguageContext\\(\\) has parameter \\$iso with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:getIsoId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:getValidDutchChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:getValidEnglishChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:getValidGermanChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:\\$iso has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\Util\\\\VersionSanitizerTest\\:\\:versionProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

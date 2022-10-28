@@ -72,7 +72,9 @@ abstract class CustomEntityFlag extends XmlElement
      */
     protected function parseChild(\DomElement $child, array $values): array
     {
-        $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize($child->nodeValue);
+        /** @var string $nodeValue */
+        $nodeValue = $child->nodeValue;
+        $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize($nodeValue);
 
         return $values;
     }

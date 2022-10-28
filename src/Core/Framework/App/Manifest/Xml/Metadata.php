@@ -27,12 +27,12 @@ class Metadata extends XmlElement
     ];
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $label = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $description = [];
 
@@ -72,10 +72,13 @@ class Metadata extends XmlElement
     protected $privacy;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $privacyPolicyExtensions = [];
 
+    /**
+     * @param array<int|string, mixed> $data
+     */
     private function __construct(array $data)
     {
         $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
@@ -123,11 +126,17 @@ class Metadata extends XmlElement
         return new MissingTranslationError(self::class, $missingTranslations);
     }
 
+    /**
+     * @return string[]
+     */
     public function getLabel(): array
     {
         return $this->label;
     }
 
+    /**
+     * @return string[]
+     */
     public function getDescription(): array
     {
         return $this->description;
@@ -168,11 +177,17 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPrivacyPolicyExtensions(): array
     {
         return $this->privacyPolicyExtensions;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];

@@ -8,7 +8,7 @@ import './sw-category-layout-card.scss';
 export default {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: ['acl'],
 
     props: {
         category: {

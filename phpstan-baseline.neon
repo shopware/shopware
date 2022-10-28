@@ -2506,11 +2506,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Rule/LineItemOfManufacturerRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\LineItemOfTypeRuleTest\\:\\:getCartRuleScopeTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/LineItemOfTypeRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\LineItemPromotedRuleTest\\:\\:matchTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Rule/LineItemPromotedRuleTest.php

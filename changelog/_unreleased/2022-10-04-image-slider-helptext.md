@@ -1,10 +1,13 @@
 ---
 title: Added helpText to the minHeight of the image slider elements
+issue: NEXT-23929
 author: Joschi Mehta
 author_email: ninja@ig-academy.com
 author_github: @NinjaArmy
 ---
 # Administration
-* Added a small helpText to the minHeight field in the shopping world expierences to the image slider and image gallery element.
+* Added helpText to `sw-text-field` inside `sw-cms-el-config-image-gallery.html.twig` and `sw-cms-el-config-image-slider.html.twig`
+* Added snippet `sw-cms.elements.image.config.label.minHeightHelpText`
+___
 # Storefront
-* If a user enters a value with spaces the input would not work. Trimmed the spaces out of the input so it will work even with a incorrect input.
+* Added a white-space filter for `sliderConfig.minHeight.value` inside templates `cms-element-image-gallery.html.twig` and `cms-element-image-slider.html.twig`

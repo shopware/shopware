@@ -31,20 +31,11 @@ class EntityForeignKeyResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $testConnection;
+    private Connection $testConnection;
 
-    /**
-     * @var EntityForeignKeyResolver
-     */
-    private $entityForeignKeyResolver;
+    private EntityForeignKeyResolver $entityForeignKeyResolver;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
     public function testItCreatesEventsForWriteProtectedCascadeDeletes(): void
     {
@@ -114,7 +105,9 @@ class EntityForeignKeyResolverTest extends TestCase
             }
         }
 
-        static::assertEmpty($categoryIds);
+        foreach ($categoryIds as $categoryId) {
+            static::fail('All category IDS must be unset at this point');
+        }
     }
 
     public function testNestedCascades(): void

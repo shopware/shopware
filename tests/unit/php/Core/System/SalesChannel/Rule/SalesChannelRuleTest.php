@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
- * @covers \SalesChannelRule
+ * @covers \Shopware\Core\Framework\Rule\SalesChannelRule
  */
 class SalesChannelRuleTest extends TestCase
 {

@@ -2851,11 +2851,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/SalesChannel/AccountNewsletterRecipientRouteTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$value of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:setServerParameter\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/AccountNewsletterRecipientRouteTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\AccountNewsletterRecipientRouteTest\\:\\:\\$customerRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/SalesChannel/AccountNewsletterRecipientRouteTest.php
@@ -2903,11 +2898,6 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 5
-			path: src/Core/Checkout/Test/Customer/SalesChannel/CustomerRouteTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$value of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:setServerParameter\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
 			path: src/Core/Checkout/Test/Customer/SalesChannel/CustomerRouteTest.php
 
 		-
@@ -8130,36 +8120,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
 
 		-
-			message: "#^Cannot access offset 'access_token' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'expire_date' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'original_name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'path' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'size' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
 			message: "#^Cannot call method getAccessToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
@@ -8253,51 +8213,6 @@ parameters:
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'delimiter' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'enclosure' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'file_type' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'label' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'mapping' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'source_entity' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'system_default' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Repository\\\\ImportExportProfileRepositoryTest\\:\\:getTranslationRecords\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -9278,11 +9193,6 @@ parameters:
 			message: "#^Variable \\$orFilter in PHPDoc tag @var does not exist\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Cms/Type/BuyBoxTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductManufacturer\\\\ProductManufacturerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cms/Type/ManufacturerLogoTypeCmsResolverTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cms\\\\Type\\\\ProductBoxTypeDataResolverTest\\:\\:EnrichWithStaticConfigProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -25689,11 +25599,6 @@ parameters:
 			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
 
 		-
-			message: "#^Cannot call method getQuantity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 4
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
 			message: "#^Cannot call method getToken\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
 			count: 2
 			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
@@ -25721,11 +25626,6 @@ parameters:
 		-
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
 			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Cannot call method getQuantity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 4
 			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
 
 		-

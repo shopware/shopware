@@ -254,7 +254,8 @@ class GenerateDocumentActionTest extends TestCase
             );
         }
 
-        static::assertEmpty($this->getDocumentId($order->getId()));
+        $before = $this->getDocumentId($order->getId());
+        static::assertEmpty($before);
 
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
@@ -267,7 +268,8 @@ class GenerateDocumentActionTest extends TestCase
             $subscriber->handleFlow($flow);
         }
 
-        static::assertNotEmpty($this->getDocumentId($order->getId()));
+        $after = $this->getDocumentId($order->getId());
+        static::assertNotEmpty($after);
         $property->setValue(
             $registry,
             $oldValue

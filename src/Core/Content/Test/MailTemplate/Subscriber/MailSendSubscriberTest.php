@@ -155,10 +155,10 @@ class MailSendSubscriberTest extends TestCase
 
         static::assertNotEmpty($mailTemplateId);
 
-        $config = array_filter([
+        $config = [
             'mail_template_id' => $mailTemplateId,
             'recipients' => ['test@example.com' => 'Shopware ag'],
-        ]);
+        ];
 
         $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
         $translator = $this->getContainer()->get(Translator::class);

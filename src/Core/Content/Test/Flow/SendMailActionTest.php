@@ -252,7 +252,7 @@ class SendMailActionTest extends TestCase
 
         static::assertNotEmpty($mailTemplateId);
 
-        $config = array_filter([
+        $config = [
             'mailTemplateId' => $mailTemplateId,
             'recipient' => [
                 'type' => 'admin',
@@ -261,7 +261,7 @@ class SendMailActionTest extends TestCase
                     'phuoc.cao.x@shopware.com' => 'shopware',
                 ],
             ],
-        ]);
+        ];
 
         $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
 
@@ -329,12 +329,12 @@ class SendMailActionTest extends TestCase
 
         static::assertNotEmpty($mailTemplateId);
 
-        $config = array_filter([
+        $config = [
             'mailTemplateId' => $mailTemplateId,
             'recipient' => [
                 'type' => 'contactFormMail',
             ],
-        ]);
+        ];
         $data = new DataBag();
         if ($hasEmail) {
             $data->set('email', 'test@example.com');
@@ -416,12 +416,12 @@ class SendMailActionTest extends TestCase
 
         static::assertNotEmpty($mailTemplateId);
 
-        $config = array_filter([
+        $config = [
             'mailTemplateId' => $mailTemplateId,
             'recipient' => [
                 'type' => 'contactFormMail',
             ],
-        ]);
+        ];
 
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);

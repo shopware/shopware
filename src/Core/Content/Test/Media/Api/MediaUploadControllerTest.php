@@ -263,8 +263,8 @@ class MediaUploadControllerTest extends TestCase
 
     private function getMediaEntity(): MediaEntity
     {
-        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());

@@ -195,7 +195,7 @@ class EntitySearchResult extends EntityCollection
     {
         return new static(
             $this->entity,
-            $this->total,
+            $elements->count(),
             $elements,
             $this->aggregations,
             $this->criteria,

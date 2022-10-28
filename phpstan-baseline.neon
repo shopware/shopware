@@ -4836,11 +4836,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Offset 'extension' does not exist on array\\{dirname\\: string, basename\\: string, filename\\: string, extension\\?\\: string\\}\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$originalRecord has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExport.php
@@ -5244,31 +5239,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\MappingService\\:\\:guessKeyFromMappedKey\\(\\) has parameter \\$keyLookupTable with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Service/MappingService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\SupportedFeaturesService\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/SupportedFeaturesService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\SupportedFeaturesService\\:\\:__construct\\(\\) has parameter \\$fileTypes with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/SupportedFeaturesService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\SupportedFeaturesService\\:\\:getEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/SupportedFeaturesService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\SupportedFeaturesService\\:\\:getFileTypes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/SupportedFeaturesService.php
-
-		-
-			message: "#^Parameter \\#1 \\$value of static method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\SupportedFeaturesService\\:\\:toBytes\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/ImportExport/Service/SupportedFeaturesService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Config\\:\\:__construct\\(\\) has parameter \\$mapping with no value type specified in iterable type iterable\\.$#"
@@ -7905,17 +7875,7 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
-			message: "#^Cannot access offset 'assignedProducts' on array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
-
-		-
 			message: "#^Cannot access offset 'id' on array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
-
-		-
-			message: "#^Cannot access offset 'productId' on array\\|Traversable\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
 
@@ -8233,46 +8193,6 @@ parameters:
 			message: "#^Variable \\$upsertData might not be defined\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'activity' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'file_id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'profile_id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'profile_name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'state' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'user_id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'username' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportLogRepositoryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Repository\\\\ImportExportLogRepositoryTest\\:\\:prepareFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -8665,16 +8585,6 @@ parameters:
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with non\\-empty\\-string will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailHeaderFooterApiTest\\:\\:prepareHeaderFooterTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
@@ -8693,56 +8603,6 @@ parameters:
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with non\\-empty\\-string will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'description' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'footer_html' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'footer_plain' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'header_html' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'header_plain' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Cannot access offset 'system_default' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Repository\\\\MailHeaderFooterRepositoryTest\\:\\:prepareHeaderFooterTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:sendMailProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -8990,11 +8850,6 @@ parameters:
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with string and array\\<int, string\\> will always evaluate to false\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaFolderRepositoryDecoratorTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:getRelativeMediaUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
 			count: 9
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaFolderRepositoryDecoratorTest.php
@@ -9151,7 +9006,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$folderId of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:dissolve\\(\\) expects string, string\\|null given\\.$#"
-			count: 6
+			count: 5
 			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
 
 		-
@@ -13664,11 +13519,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Command/CreateHydratorCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\CompiledFieldCollection\\:\\:createNew\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\CompiledFieldCollection\\:\\:getExtensionFields\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
@@ -14269,16 +14119,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/FetchModeHelper.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:addInsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:addInsert\\(\\) has parameter \\$types with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepare\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
@@ -14305,16 +14145,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Parameter \\#2 \\$pieces of function implode expects array, array\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:\\$inserts type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
 
@@ -15487,11 +15317,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\:\\:\\$percentage type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Pricing/Price.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\PriceCollection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php
 
 		-
 			message: "#^Cannot call method getStorageName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\|null\\.$#"
@@ -17799,16 +17624,6 @@ parameters:
 			path: src/Core/Framework/Rule/Container/ZipCodeRule.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:has\\(\\) has parameter \\$class with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:stringArray\\(\\) has parameter \\$ruleValue with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/RuleComparison.php
@@ -18614,11 +18429,6 @@ parameters:
 			path: src/Core/Framework/Store/Struct/ImageStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseDomainCollection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/LicenseDomainCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/LicenseStruct.php
@@ -18652,11 +18462,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PermissionStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/PermissionStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRecommendationCollection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/PluginRecommendationCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRegionStruct\\:\\:__construct\\(\\) has parameter \\$categories with no value type specified in iterable type iterable\\.$#"
@@ -18829,68 +18634,13 @@ parameters:
 			path: src/Core/Framework/Struct/ArrayStruct.php
 
 		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:createNew\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:first\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:fmap\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:getKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:has\\(\\) has parameter \\$key with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:last\\(\\) has no return type specified\\.$#"
 			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:reduce\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:reduce\\(\\) has parameter \\$initial with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:validateType\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^PHPDoc tag @return has invalid value \\(\\(\\$this\\-\\>elements is non\\-empty\\-array \\? TElement \\: null\\)\\)\\: Unexpected token \"\\-\\>elements\", expected '\\)' at offset 25$#"
-			count: 2
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
@@ -19047,11 +18797,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
-
-		-
-			message: "#^Cannot access offset 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Bundle' on array\\<string, class\\-string\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/TemplateIteratorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\TwigCacheTest\\:\\:createFinder\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
@@ -20664,16 +20409,6 @@ parameters:
 			path: src/Core/Framework/Test/App/TestAppServer.php
 
 		-
-			message: "#^Cannot access offset 'size' on array\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Asset/FlysystemLastModifiedVersionStrategyTest.php
-
-		-
-			message: "#^Cannot access offset 'timestamp' on array\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Asset/FlysystemLastModifiedVersionStrategyTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Asset\\\\PrefixVersionStrategyTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Asset/PrefixVersionStrategyTest.php
@@ -21794,41 +21529,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
 
 		-
-			message: "#^Cannot access offset 'created_at' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot access offset 'description' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot access offset 'ean' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot access offset 'link' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot access offset 'name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Cannot access offset 'updated_at' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
 			message: "#^Cannot call method getFlag\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
@@ -21849,6 +21549,11 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
 
 		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with array\\{test\\: 'test'\\} and array\\{root\\: string\\} will always evaluate to false\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DependencyInjection\\\\fixtures\\\\TestActionEventCompilerPass\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/Test/DependencyInjection/fixtures/TestActionEventCompilerPass.php
@@ -21867,16 +21572,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Event\\\\ActionTestSubscriber\\:\\:\\$lastActionConfig has no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Event/ActionTestSubscriber.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Event/EventAction/EventActionSubscriberTest.php
-
-		-
-			message: "#^Cannot access offset 'mail_id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Event/EventAction/EventActionSubscriberTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\IdleFeatureFlagTest\\:\\:\\$featureAllValue has no type specified\\.$#"
@@ -22361,6 +22056,16 @@ parameters:
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader constructor invoked with 3 parameters, 1\\-2 required\\.$#"
 			count: 3
+			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$data of static method Composer\\\\InstalledVersions\\:\\:reload\\(\\) expects array\\{root\\: array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}, versions\\: array\\<string, array\\{dev_requirement\\: bool, pretty_version\\?\\: string, version\\?\\: string, aliases\\?\\: array\\<string\\>, reference\\?\\: string, replaced\\?\\: array\\<string\\>, provided\\?\\: array\\<string\\>, install_path\\?\\: string, \\.\\.\\.\\}\\>\\}, array\\<'root'\\|'versions', array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}\\|array\\{swag/broken1\\: array\\{dev_requirement\\: false, type\\: 'shopware\\-platform…', install_path\\: '/tmp/some\\-random…'\\}, swag/broken2\\: array\\{dev_requirement\\: false, type\\: 'shopware\\-platform…', install_path\\: literal\\-string&non\\-falsy\\-string\\}\\}\\> given\\.$#"
+			count: 1
+			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$data of static method Composer\\\\InstalledVersions\\:\\:reload\\(\\) expects array\\{root\\: array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}, versions\\: array\\<string, array\\{dev_requirement\\: bool, pretty_version\\?\\: string, version\\?\\: string, aliases\\?\\: array\\<string\\>, reference\\?\\: string, replaced\\?\\: array\\<string\\>, provided\\?\\: array\\<string\\>, install_path\\?\\: string, \\.\\.\\.\\}\\>\\}, array\\<'root'\\|'versions', array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}\\|array\\{swag/composer\\-loaded\\: array\\{dev_requirement\\: false, type\\: 'shopware\\-platform…', install_path\\: literal\\-string&non\\-falsy\\-string\\}\\}\\> given\\.$#"
+			count: 1
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
 
 		-
@@ -24411,11 +24116,6 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:shrinkParameters\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|bool\\|float\\|int\\|string\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\|null given\\.$#"
-			count: 4
 			path: src/Core/Profiling/Twig/DoctrineExtension.php
 
 		-
@@ -26949,11 +26649,6 @@ parameters:
 			path: src/Docs/Inspection/ModuleTag.php
 
 		-
-			message: "#^Method Shopware\\\\Docs\\\\Inspection\\\\ModuleTagCollection\\:\\:createNew\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Docs/Inspection/ModuleTagCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Docs\\\\Inspection\\\\ModuleTagCollection\\:\\:merge\\(\\) has parameter \\$moduleTags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Docs/Inspection/ModuleTagCollection.php
@@ -27682,31 +27377,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php
-
-		-
-			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
-
-		-
-			message: "#^Cannot access offset 'path' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
-
-		-
-			message: "#^Cannot access offset 'port' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
-
-		-
-			message: "#^Cannot access offset 'query' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
-
-		-
-			message: "#^Cannot access offset 'scheme' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TemplateConfigAccessor\\:\\:config\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -29485,11 +29155,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleService\\:\\:updateMediaInConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Offset 'extension' does not exist on array\\{dirname\\: string, basename\\: string, filename\\: string, extension\\?\\: string\\}\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php
 

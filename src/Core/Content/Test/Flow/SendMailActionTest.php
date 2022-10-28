@@ -133,6 +133,8 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
+        static::assertIsString($documentIdNewer);
+        static::assertIsString($documentIdOlder);
         $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
         $documents = $documentRepository->search($criteria, $context);
 
@@ -155,7 +157,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);
@@ -290,7 +291,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);
@@ -373,7 +373,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);
@@ -459,7 +458,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);
@@ -534,7 +532,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);
@@ -605,7 +602,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);
@@ -698,7 +694,6 @@ class SendMailActionTest extends TestCase
         if (!Feature::isActive('v6.5.0.0')) {
             $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
         } else {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = $this->getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);

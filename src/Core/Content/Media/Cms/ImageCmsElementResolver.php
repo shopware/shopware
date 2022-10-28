@@ -101,10 +101,9 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            /** @var MediaEntity|null $media */
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
-            if ($media !== null) {
+            if ($media instanceof MediaEntity) {
                 $image->setMediaId($media->getUniqueIdentifier());
                 $image->setMedia($media);
             }
@@ -118,9 +117,8 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getValue());
-            if (!$media) {
+            $media = $searchResult->get($config->getStringValue());
+            if (!$media instanceof MediaEntity) {
                 return;
             }
 

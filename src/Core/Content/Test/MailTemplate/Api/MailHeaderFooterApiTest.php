@@ -17,20 +17,11 @@ class MailHeaderFooterApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -39,9 +30,9 @@ class MailHeaderFooterApiTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         try {
-            $this->connection->executeUpdate('DELETE FROM mail_header_footer');
+            $this->connection->executeStatement('DELETE FROM mail_header_footer');
         } catch (\Exception $e) {
-            static::assertTrue(false . 'Failed to remove testdata: ' . $e->getMessage());
+            static::fail('Failed to remove testdata: ' . $e->getMessage());
         }
     }
 
@@ -64,10 +55,11 @@ class MailHeaderFooterApiTest extends TestCase
         }
 
         // read created data from db
-        $records = $this->connection->fetchAll(
+        $records = $this->connection->fetchAllAssociative(
             'SELECT *
-                        FROM mail_header_footer mhf
-                        JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
+             FROM mail_header_footer mhf
+             JOIN mail_header_footer_translation mhft
+                 ON mhf.id=mhft.mail_header_footer_id'
         );
 
         // compare expected and resulting data
@@ -107,16 +99,16 @@ class MailHeaderFooterApiTest extends TestCase
         $content = json_decode($response->getContent());
 
         // Prepare expected data.
-        $expextData = [];
-        foreach (array_values($data) as $entry) {
-            $expextData[$entry['id']] = $entry;
+        $expectData = [];
+        foreach ($data as $entry) {
+            $expectData[$entry['id']] = $entry;
         }
 
         // compare expected and resulting data
         static::assertEquals($num, $content->total);
         for ($i = 0; $i < $num; ++$i) {
             $mailHeaderFooter = $content->data[$i];
-            $expect = $expextData[$mailHeaderFooter->_uniqueIdentifier];
+            $expect = $expectData[$mailHeaderFooter->_uniqueIdentifier];
             static::assertEquals($expect['systemDefault'], $mailHeaderFooter->systemDefault);
             static::assertEquals($expect['name'], $mailHeaderFooter->name);
             static::assertEquals($expect['description'], $mailHeaderFooter->description);
@@ -140,9 +132,9 @@ class MailHeaderFooterApiTest extends TestCase
         $ids = array_column($data, 'id');
         shuffle($data);
 
-        $expextData = [];
+        $expectData = [];
         foreach ($ids as $idx => $id) {
-            $expextData[$id] = $data[$idx];
+            $expectData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
             $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
@@ -164,7 +156,7 @@ class MailHeaderFooterApiTest extends TestCase
         static::assertEquals($num, $content->total);
         for ($i = 0; $i < $num; ++$i) {
             $mailHeaderFooter = $content->data[$i];
-            $expect = $expextData[$mailHeaderFooter->_uniqueIdentifier];
+            $expect = $expectData[$mailHeaderFooter->_uniqueIdentifier];
             static::assertEquals($expect['systemDefault'], $mailHeaderFooter->systemDefault);
             static::assertEquals($expect['name'], $mailHeaderFooter->name);
             static::assertEquals($expect['description'], $mailHeaderFooter->description);
@@ -185,7 +177,7 @@ class MailHeaderFooterApiTest extends TestCase
         $data = $this->prepareHeaderFooterTestData($num);
         $this->repository->create(array_values($data), $this->context);
 
-        foreach (array_values($data) as $expect) {
+        foreach ($data as $expect) {
             // Request details
             $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
@@ -216,6 +208,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         // Use last entry for search filters.
         $searchData = array_pop($data);
+        static::assertIsArray($searchData);
         $filter = [];
         foreach ($searchData as $key => $value) {
             // Search call
@@ -255,10 +248,7 @@ class MailHeaderFooterApiTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
-    /**
-     * @param bool $search
-     */
-    protected function prepareRoute($search = false): string
+    protected function prepareRoute(bool $search = false): string
     {
         $addPath = '';
         if ($search) {
@@ -271,10 +261,9 @@ class MailHeaderFooterApiTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @param int    $num
-     * @param string $add
+     * @return array<string, array<string, mixed>>
      */
-    protected function prepareHeaderFooterTestData($num = 1, $add = ''): array
+    private function prepareHeaderFooterTestData(int $num = 1, string $add = ''): array
     {
         $data = [];
         for ($i = 1; $i <= $num; ++$i) {
@@ -282,7 +271,7 @@ class MailHeaderFooterApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'systemDefault' => (($i % 2 === 0) ? false : true),
+                'systemDefault' => $i % 2 !== 0,
                 'name' => sprintf('Test-Template %d %s', $i, $add),
                 'description' => sprintf('John Doe %d %s', $i, $add),
                 'headerPlain' => sprintf('Test header 123 %d %s', $i, $add),

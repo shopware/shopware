@@ -21,50 +21,23 @@ use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 class ThemeLifecycleService
 {
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $pluginRegistry;
+    private StorefrontPluginRegistryInterface $pluginRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaFolderRepository;
+    private EntityRepositoryInterface $mediaFolderRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeMediaRepository;
+    private EntityRepositoryInterface $themeMediaRepository;
 
-    /**
-     * @var FileSaver
-     */
-    private $fileSaver;
+    private FileSaver $fileSaver;
 
-    /**
-     * @var ThemeFileImporterInterface
-     */
-    private $themeFileImporter;
+    private ThemeFileImporterInterface $themeFileImporter;
 
-    /**
-     * @var FileNameProvider
-     */
-    private $fileNameProvider;
+    private FileNameProvider $fileNameProvider;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     private EntityRepositoryInterface $themeChildRepository;
 
@@ -201,16 +174,16 @@ class ThemeLifecycleService
             'mediaFile' => new MediaFile(
                 $path,
                 mimetype_from_filename($pathinfo['basename']),
-                $pathinfo['extension'],
+                $pathinfo['extension'] ?? '',
                 filesize($path)
             ),
         ];
     }
 
-    private function getMediaDefaultFolderId(string $folder, Context $context): ?string
+    private function getMediaDefaultFolderId(Context $context): ?string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', $folder));
+        $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
         $criteria->addAssociation('defaultFolder');
         $criteria->setLimit(1);
         $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
@@ -342,11 +315,14 @@ class ThemeLifecycleService
         }
     }
 
-    private function updateMediaInConfiguration(?ThemeEntity $theme, StorefrontPluginConfiguration $pluginConfiguration, Context $context): array
-    {
+    private function updateMediaInConfiguration(
+        ?ThemeEntity $theme,
+        StorefrontPluginConfiguration $pluginConfiguration,
+        Context $context
+    ): array {
         $media = [];
         $themeData = [];
-        $themeFolderId = $this->getMediaDefaultFolderId('theme', $context);
+        $themeFolderId = $this->getMediaDefaultFolderId($context);
 
         if ($pluginConfiguration->getPreviewMedia()) {
             $mediaId = Uuid::randomHex();

@@ -12335,20 +12335,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/App/ActionButton/Response/ReloadDataResponseFactory.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\:\\:getActiveApps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActiveAppsLoader.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\:\\:loadApps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActiveAppsLoader.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\:\\:\\$activeApps type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActiveAppsLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -12625,10 +12612,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/App/Delta/PermissionsDeltaProvider.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\EmptyActiveAppsLoader\\:\\:getActiveApps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/EmptyActiveAppsLoader.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent\\:\\:getWebhookPayload\\(\\) return type has no value type specified in iterable type array\\.$#"

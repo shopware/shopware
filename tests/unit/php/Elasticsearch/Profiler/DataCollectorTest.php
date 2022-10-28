@@ -47,6 +47,7 @@ class DataCollectorTest extends TestCase
             ->willReturn($catMock);
 
         $collector = new DataCollector(
+            true,
             $client
         );
 
@@ -76,6 +77,7 @@ class DataCollectorTest extends TestCase
             ]);
 
         $collector = new DataCollector(
+            true,
             $client
         );
 
@@ -88,6 +90,26 @@ class DataCollectorTest extends TestCase
 
         $collector->reset();
         static::assertCount(0, $collector->getRequests());
+        static::assertEquals(0, $collector->getTime());
+    }
+
+    public function testDisabled(): void
+    {
+        $client = $this->createMock(ClientProfiler::class);
+        $client
+            ->expects(static::never())
+            ->method('cluster');
+
+        $collector = new DataCollector(
+            false,
+            $client
+        );
+
+        $collector->collect(
+            new Request(),
+            new Response()
+        );
+
         static::assertEquals(0, $collector->getTime());
     }
 }

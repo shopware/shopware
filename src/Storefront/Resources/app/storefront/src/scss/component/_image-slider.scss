@@ -14,11 +14,13 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         display: block;
         width: 100%;
     }
-    .arrows-outside {
-        .image-slider-item-wrapper  {
+
+    .has-nav-outside {
+        .image-slider-item-wrapper {
             padding: 0 25px;
         }
     }
+
     .image-slider-item {
         display: grid;
         max-width: 100%;

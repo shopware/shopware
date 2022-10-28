@@ -70,14 +70,6 @@ parameters:
             paths:
                 - src/**/*Test.php
 
-        # benchmark tests create db tables on the fly, migration cases also work with DDL
-        -
-            message: '#Query error:#'
-            paths:
-                - src/Core/Migration/**/*.php
-                - tests/performance/**/*.php
-                - tests/migration/**/*.php
-
         # Method gets always an EntityCollection
         -
             message: '#^Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable given\.$#'

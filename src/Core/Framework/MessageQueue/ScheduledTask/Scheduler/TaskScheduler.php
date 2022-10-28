@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -117,7 +118,10 @@ class TaskScheduler
                     RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             ),
-            new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SCHEDULED)
+            new EqualsAnyFilter('status', [
+                ScheduledTaskDefinition::STATUS_SCHEDULED,
+                ScheduledTaskDefinition::STATUS_SKIPPED,
+            ])
         );
 
         return $criteria;
@@ -148,7 +152,10 @@ class TaskScheduler
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SCHEDULED)
+            new EqualsAnyFilter('status', [
+                ScheduledTaskDefinition::STATUS_SCHEDULED,
+                ScheduledTaskDefinition::STATUS_SKIPPED,
+            ])
         )
         ->addAggregation(new MinAggregation('nextExecutionTime', 'nextExecutionTime'));
 

@@ -82,9 +82,10 @@ class ScheduledTaskEntity extends Entity
 
     public function isExecutionAllowed(): bool
     {
-        // If the status is failed execution is still allowed so retries are possible
+        // If the status is failed, skipped or queued, the execution is still allowed, so retries are possible
         return $this->status === ScheduledTaskDefinition::STATUS_QUEUED
-            || $this->status === ScheduledTaskDefinition::STATUS_FAILED;
+            || $this->status === ScheduledTaskDefinition::STATUS_FAILED
+            || $this->status === ScheduledTaskDefinition::STATUS_SKIPPED;
     }
 
     public function setStatus(string $status): void

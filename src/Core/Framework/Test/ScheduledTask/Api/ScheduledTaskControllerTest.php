@@ -53,6 +53,36 @@ class ScheduledTaskControllerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
+    public function testRunSkippedTasks(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->exec('DELETE FROM scheduled_task');
+
+        $repo = $this->getContainer()->get('scheduled_task.repository');
+        $taskId = Uuid::randomHex();
+        $repo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => RequeueDeadMessagesTask::class,
+                'runInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
+                'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
+            ],
+        ], Context::createDefaultContext());
+
+        $url = '/api/_action/scheduled-task/run';
+        $client = $this->getBrowser();
+        $client->request('POST', $url);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
+
+        /** @var ScheduledTaskEntity $task */
+        $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+    }
+
     public function testGetMinRunInterval(): void
     {
         $connection = $this->getContainer()->get(Connection::class);

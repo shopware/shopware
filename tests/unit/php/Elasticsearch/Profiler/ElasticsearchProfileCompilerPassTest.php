@@ -34,9 +34,6 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
         static::assertFalse($container->hasDefinition(DataCollector::class));
     }
 
-    /**
-     * @backupGlobals
-     */
     public function testCompilerPassDecoratesClient(): void
     {
         $container = new ContainerBuilder();
@@ -51,7 +48,6 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
 
         $container->setParameter('kernel.debug', true);
 
-        $_SERVER['SHOPWARE_ES_ENABLED'] = '1';
         $compilerPass = new ElasticsearchProfileCompilerPass();
         $compilerPass->process($container);
 

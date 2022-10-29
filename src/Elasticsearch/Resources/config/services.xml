@@ -222,6 +222,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Profiler\DataCollector">
+            <argument>%elasticsearch.enabled%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
         </service>

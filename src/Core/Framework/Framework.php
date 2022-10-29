@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableExtensionsCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
@@ -111,7 +110,6 @@ class Framework extends Bundle
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
         $container->addCompilerPass(new RedisPrefixCompilerPass());
-        $container->addCompilerPass(new DisableExtensionsCompilerPass());
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());

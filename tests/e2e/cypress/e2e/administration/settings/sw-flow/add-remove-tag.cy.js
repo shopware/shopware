@@ -70,7 +70,7 @@ describe('Flow builder: Add remove tag testing', () => {
         // Add "Not USA Customer" tag in False block
         cy.get('.sw-flow-sequence__false-block .sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence__false-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Add tag', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Add tag', '.sw-flow-sequence__false-block .sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-tag-modal').should('be.visible');
 
         cy.get('.sw-flow-tag-modal__tags-field input')
@@ -86,7 +86,7 @@ describe('Flow builder: Add remove tag testing', () => {
         // Remove "New Customer" tag in True block
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Remove tag', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Remove tag', '.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-tag-modal').should('be.visible');
 
         cy.get('.sw-flow-tag-modal__tags-field').typeMultiSelectAndCheck('New Customer');
@@ -94,9 +94,8 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.get('.sw-flow-tag-modal').should('not.exist');
 
         // Add "USA Customer" tag in True block
-        cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__add-button').click();
-        cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Add tag', '.sw-flow-sequence-action__selection-action');
+        cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action')
+            .typeSingleSelect('Add tag', '.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-tag-modal').should('be.visible');
 
         cy.get('.sw-flow-tag-modal__tags-field input')

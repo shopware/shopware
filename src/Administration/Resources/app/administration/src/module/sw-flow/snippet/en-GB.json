@@ -50,10 +50,12 @@
         "selectorHelpTextAddSequence": "Flows are started by a single trigger, but can consist of multiple sequences.<br/><br/>Sequences will be executed one after the other. You can end a flow completely at any stage by adding a \"stop\" action.",
         "selectorIfCondition": "Add condition (IF)",
         "selectorThenAction": "Add action (THEN)",
-        "conditionTitle": "Condition (IF)",
+        "conditionTitle": "Condition",
+        "conditionDescription": "(IF)",
         "conditionExplainsTitle": "Create condition",
         "conditionExplainsDescription": "Conditions are made up of rules. You can either select an existing rule or create a new one to set up a condition.",
-        "actionTitle": "Action (THEN)",
+        "actionTitle": "Action",
+        "actionDescription": "(THEN)",
         "contextButton": {
           "deleteCondition": "Delete condition",
           "deleteActionContainer": "Delete all actions"

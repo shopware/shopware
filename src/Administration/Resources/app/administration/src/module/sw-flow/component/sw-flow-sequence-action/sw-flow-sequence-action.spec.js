@@ -224,8 +224,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         expect(sequencesState[0]).toEqual(newSequence);
 
-        const addButton = wrapper.find('.sw-flow-sequence-action__add-button');
-        expect(addButton.exists()).toBeTruthy();
+        const addActionSelect = wrapper.find('.sw-flow-sequence-action__select');
+        expect(addActionSelect.exists()).toBeTruthy();
     });
 
     it('should show action list correctly', async () => {
@@ -257,11 +257,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 }
             }
         });
-
-        const addButton = wrapper.find('.sw-flow-sequence-action__add-button');
-        expect(addButton.exists()).toBeTruthy();
-
-        await addButton.trigger('click');
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
@@ -381,35 +376,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
         expect(invalidSequences).toEqual([]);
-        expect(actionSelection.exists()).toBeFalsy();
-
-        const addButton = wrapper.find('.sw-flow-sequence-action__add-button');
-        expect(addButton.exists()).toBeTruthy();
-    });
-
-    it('should able to toggle add action button', async () => {
-        Shopware.State.commit('swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }]));
-
-        const wrapper = createWrapper();
-
-        let actionSelect = wrapper.find('.sw-single-select__selection');
-        expect(actionSelect.exists()).toBeTruthy();
-
-        const closeSelection = wrapper.find('.sw-icon[name="regular-times-circle-s"]');
-        await closeSelection.trigger('click');
-
-        let addButton = wrapper.find('.sw-flow-sequence-action__add-button');
-        actionSelect = wrapper.find('.sw-single-select__selection');
-        expect(addButton.exists()).toBeTruthy();
-        expect(actionSelect.exists()).toBeFalsy();
-
-        await addButton.trigger('click');
-
-        addButton = wrapper.find('.sw-flow-sequence-action__add-button');
-        actionSelect = wrapper.find('.sw-single-select__selection');
-        expect(addButton.exists()).toBeFalsy();
-        expect(actionSelect.exists()).toBeTruthy();
+        expect(actionSelection.exists()).toBeTruthy();
     });
 
     it('should able to disable add buttons', async () => {
@@ -422,7 +389,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeFalsy();
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeFalsy();
-        expect(wrapper.find('.sw-flow-sequence-action__add-action').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-flow-sequence-action__select').exists()).toBeTruthy();
 
         await wrapper.setProps({
             disabled: true

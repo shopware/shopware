@@ -189,15 +189,26 @@
 
     &__header {
         display: flex;
-        background: $color-gray-100;
         padding: 16px 16px 12px 24px;
         justify-content: space-between;
         max-height: 55px;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &__title-description {
+        display: flex;
+        gap: 4px;
     }
 
     &__title {
         font-size: $font-size-default;
         font-weight: $font-weight-semi-bold;
+    }
+
+    &__description {
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
     }
 
     &__rule {
@@ -233,7 +244,7 @@
 
     &__rule-header {
         display: flex;
-        margin-bottom: 4px;
+        justify-content: space-between;
     }
 
     &__rule-name {
@@ -262,43 +273,12 @@
         display: flex;
     }
 
-    &__add-button {
-        @include flex-centering-vertical;
-
-        padding-left: 24px;
-        cursor: pointer;
-
-        p {
-            color: $color-shopware-brand-500;
-            text-decoration: underline;
-            font-size: $font-size-small;
-        }
-    }
-
-    &__add-icon {
-        @include circle(12px);
-        @include flex-centering;
-
-        background: $color-shopware-brand-500;
-        color: $color-white;
-        margin-right: 9px;
-    }
-
     &__select {
         @include flex-centering-vertical;
 
-        justify-content: start;
-        padding: 0 24px;
-        margin-bottom: 0;
+        padding: 16px 24px;
+        border-top: 1px solid $color-gray-300;
         width: 100%;
-
-        .icon--regular-times-circle-s {
-            cursor: pointer;
-        }
-    }
-
-    &__selection-rule {
-        margin-left: 9px;
     }
 
     &__explains {

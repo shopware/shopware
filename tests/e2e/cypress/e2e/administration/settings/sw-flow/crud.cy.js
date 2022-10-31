@@ -135,7 +135,6 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-flow-detail__tab-flow').click();
 
-        cy.get('.sw-flow-sequence-action__add-button').click();
         cy.get('.sw-flow-sequence-action__selection-action')
             .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
 

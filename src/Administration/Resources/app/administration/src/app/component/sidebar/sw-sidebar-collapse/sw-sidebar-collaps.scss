@@ -8,7 +8,6 @@ $sw-sidebar-collapse-font-size-title: $font-size-default;
     .sw-sidebar-collapse__header {
         display: grid;
         grid-template-columns: 1fr 1fr auto;
-        cursor: pointer;
         padding-top: 16px;
         padding-bottom: 16px;
         color: $sw-sidebar-collapse-color-title;
@@ -19,13 +18,18 @@ $sw-sidebar-collapse-font-size-title: $font-size-default;
         font-size: $sw-sidebar-collapse-font-size-title;
         font-weight: $font-weight-regular;
         margin: 0 25px;
+        cursor: pointer;
     }
 
-    .sw-sidebar-collapse__button {
-        margin-right: 25px;
+    .sw-sidebar-collapse__indicator {
+        cursor: pointer;
 
-        &.is--hidden {
-            display: none;
+        .sw-sidebar-collapse__button {
+            margin-right: 25px;
+
+            &.is--hidden {
+                display: none;
+            }
         }
     }
 }

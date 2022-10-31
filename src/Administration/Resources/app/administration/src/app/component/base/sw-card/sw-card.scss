@@ -18,7 +18,9 @@
     position: relative;
     color: $color-darkgray-200;
 
-    @include drop-shadow-default;
+    &:not(.sw-card--hero) {
+        @include drop-shadow-default;
+    }
 
     &__context-menu {
         position: absolute;

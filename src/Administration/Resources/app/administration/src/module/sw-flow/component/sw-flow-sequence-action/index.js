@@ -36,7 +36,6 @@ Component.register('sw-flow-sequence-action', {
 
     data() {
         return {
-            showAddButton: true,
             fieldError: null,
             selectedAction: '',
             currentSequence: {},
@@ -179,7 +178,6 @@ Component.register('sw-flow-sequence-action', {
 
     methods: {
         createdComponent() {
-            this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
             this.getAppFlowAction();
         },
 
@@ -281,7 +279,6 @@ Component.register('sw-flow-sequence-action', {
             }
 
             this.removeFieldError();
-            this.toggleAddButton();
         },
 
         editAction(action) {
@@ -398,10 +395,6 @@ Component.register('sw-flow-sequence-action', {
             return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;
             });
-        },
-
-        toggleAddButton() {
-            this.showAddButton = !this.showAddButton;
         },
 
         sortByPosition(sequences) {

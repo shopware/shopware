@@ -12,9 +12,15 @@
         <div class="sw-flow-sequence-action__header">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_title %}
-            <h3 class="sw-flow-sequence-action__title">
-                {{ $tc('sw-flow.detail.sequence.actionTitle') }}
-            </h3>
+            <div class="sw-flow-sequence-action__title-description">
+                <h3 class="sw-flow-sequence-action__title">
+                    {{ $tc('sw-flow.detail.sequence.actionTitle') }}
+                </h3>
+
+                <p class="sw-flow-sequence-action__description">
+                    {{ $tc('sw-flow.detail.sequence.actionDescription') }}
+                </p>
+            </div>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -178,7 +184,6 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_sequence_action_item_custom %}
                             {% endblock %}
-
                         </li>
                         {% endblock %}
                     </transition-group>
@@ -188,106 +193,81 @@
             </div>
             {% endblock %}
 
+            {# @major-deprecated tag:v6.5.0 - block will be removed #}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_add_action %}
+
+            {# @major-deprecated tag:v6.5.0 - block will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_sequence_action_add_button %}
+            {# @major-deprecated tag:v6.5.0 - block will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_sequence_action_add_icon %}
+            {% endblock %}
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_sequence_action_add_select %}
             <div
                 v-if="showAddAction && !disabled"
-                class="sw-flow-sequence-action__add-action"
+                class="sw-flow-sequence-action__select"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_flow_sequence_action_add_button %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                <a
-                    v-if="showAddButton"
-                    class="sw-flow-sequence-action__add-button"
-                    @click="toggleAddButton"
+                {% block sw_flow_sequence_action_list %}
+                <sw-grouped-single-select
+                    class="sw-flow-sequence-action__selection-action"
+                    size="small"
+                    value=""
+                    :placeholder="$tc('sw-flow.actions.placeholderSelectAction')"
+                    :options="actionOptions"
+                    :groups="groups"
+                    :popover-classes="['sw-flow-sequence-action__popover']"
+                    :error="fieldError"
+                    @change="openDynamicModal"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_flow_sequence_action_add_icon %}
-                    <div class="sw-flow-sequence-action__add-icon">
-                        {# @deprecated tag:v6.5.0 - Padding can be removed #}
-                        <sw-icon
-                            size="8px"
-                            style="padding: 2px"
-                            color="#fff"
-                            name="regular-plus-xxs"
-                        />
-                    </div>
-                    {% endblock %}
+                    <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
+                        <li
+                            is="sw-select-result"
+                            v-tooltip="{
+                                message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                disabled: !item.disabled
+                            }"
+                            :selected="isSelected(item)"
+                            v-bind="{ item, index }"
+                            :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
+                            @item-select="setValue"
+                        >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_flow_sequence_action_select_results_list_result_label %}
+                            <sw-icon
+                                v-if="!item.iconRaw"
+                                :name="`${item.icon}`"
+                                size="12px"
+                                class="sw-icon-action"
+                            />
 
-                    <p>{{ $tc('sw-flow.actions.addAction') }}</p>
-                </a>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_flow_sequence_action_add_select %}
-                <div
-                    v-else
-                    class="sw-flow-sequence-action__select"
-                >
-                    <sw-icon
-                        size="12px"
-                        color="#758ca3"
-                        name="regular-times-circle-s"
-                        @click="toggleAddButton"
-                    />
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_flow_sequence_action_list %}
-                    <sw-grouped-single-select
-                        class="sw-flow-sequence-action__selection-action"
-                        size="small"
-                        value=""
-                        :placeholder="$tc('sw-flow.actions.placeholderSelectAction')"
-                        :options="actionOptions"
-                        :groups="groups"
-                        :popover-classes="['sw-flow-sequence-action__popover']"
-                        :error="fieldError"
-                        @change="openDynamicModal"
-                    >
-
-                        <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
-                            <li
-                                is="sw-select-result"
-                                v-tooltip="{
-                                    message: $tc('sw-flow.actions.tooltipActionDisabled'),
-                                    disabled: !item.disabled
-                                }"
-                                :selected="isSelected(item)"
-                                v-bind="{ item, index }"
-                                :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
-                                @item-select="setValue"
+                            <img
+                                v-else
+                                class="sw-flow-sequence-action__icon-raw"
+                                :src="`data:image/png;base64, ${item.iconRaw}`"
+                                alt=""
                             >
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_flow_sequence_action_select_results_list_result_label %}
-                                <sw-icon
-                                    v-if="!item.iconRaw"
-                                    :name="`${item.icon}`"
-                                    size="12px"
-                                    class="sw-icon-action"
-                                />
-                                <img
-                                    v-else
-                                    class="sw-flow-sequence-action__icon-raw"
-                                    :src="`data:image/png;base64, ${item.iconRaw}`"
-                                    alt=""
-                                >
 
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="getKey(item, labelProperty)"
-                                />
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getKey(item, labelProperty)"
+                            />
 
-                                <template v-else>
-                                    {{ getKey(item, labelProperty) }}
-                                </template>
-                                {% endblock %}
-                            </li>
-                        </template>
-                    </sw-grouped-single-select>
-                    {% endblock %}
-                </div>
+                            <template v-else>
+                                {{ getKey(item, labelProperty) }}
+                            </template>
+                            {% endblock %}
+                        </li>
+                    </template>
+                </sw-grouped-single-select>
                 {% endblock %}
             </div>
+            {% endblock %}
             {% endblock %}
         </div>
         {% endblock %}

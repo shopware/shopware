@@ -21,9 +21,21 @@
         border-bottom: 1px solid $color-gray-300;
     }
 
+    &__title-description {
+        display: flex;
+        gap: 4px;
+    }
+
     &__title {
         font-size: $font-size-default;
         font-weight: $font-weight-semi-bold;
+        margin: 0;
+    }
+
+    &__description {
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
     }
 
     &__actions {
@@ -65,6 +77,8 @@
 
     &__action-header {
         display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 4px;
     }
 
@@ -146,53 +160,17 @@
         }
     }
 
-    &__add-action {
-        border-top: 1px solid $color-gray-300;
-        height: 56px;
-        display: flex;
-    }
-
-    &__add-button {
-        @include flex-centering-vertical;
-
-        padding-left: 24px;
-        cursor: pointer;
-
-        p {
-            color: $color-shopware-brand-500;
-            text-decoration: underline;
-            font-size: $font-size-small;
-        }
-    }
-
-    &__add-icon {
-        @include circle(12px);
-        @include flex-centering;
-
-        background: $color-shopware-brand-500;
-        color: $color-white;
-        margin-right: 9px;
-
-        .sw-icon {
-            padding: 0 !important;
-        }
-    }
-
     &__select {
         @include flex-centering-vertical;
 
-        justify-content: start;
-        padding: 0 24px;
+        padding: 16px 24px;
         margin-bottom: 0;
+        border-top: 1px solid $color-gray-300;
         width: 100%;
 
         .icon--regular-times-circle-s {
             cursor: pointer;
         }
-    }
-
-    &__selection-action {
-        margin-left: 9px;
     }
 
     &__disabled {

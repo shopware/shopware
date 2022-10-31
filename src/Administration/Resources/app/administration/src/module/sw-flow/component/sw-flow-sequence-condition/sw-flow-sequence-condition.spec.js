@@ -294,31 +294,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         expect(invalidSequences).toEqual([]);
     });
 
-    it('should able to toggle add action button', async () => {
-        Shopware.State.commit('swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }]));
-
-        const wrapper = createWrapper();
-
-        let ruleSelect = wrapper.find('.sw-flow-sequence-condition__selection-rule');
-        expect(ruleSelect.exists()).toBeTruthy();
-
-        const closeSelection = wrapper.find('.sw-icon[name="regular-times-circle-s"]');
-        await closeSelection.trigger('click');
-
-        let addButton = wrapper.find('.sw-flow-sequence-condition__add-button');
-        ruleSelect = wrapper.find('.sw-flow-sequence-condition__selection-rule');
-        expect(addButton.exists()).toBeTruthy();
-        expect(ruleSelect.exists()).toBeFalsy();
-
-        await addButton.trigger('click');
-
-        addButton = wrapper.find('.sw-flow-sequence-condition__add-button');
-        ruleSelect = wrapper.find('.sw-flow-sequence-condition__selection-rule');
-        expect(addButton.exists()).toBeFalsy();
-        expect(ruleSelect.exists()).toBeTruthy();
-    });
-
     it('should able to remove a condition and its children', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 

@@ -50,10 +50,12 @@
         "selectorHelpTextAddSequence": "Flows werden durch einen einzelnen Auslöser gestartet, können aber aus mehreren Sequenzen bestehen.<br/><br/>Sequenzen werden nacheinander ausgeführt. Flows können jederzeit durch eine \"Stop\"-Aktion vollständig beendet werden.",
         "selectorIfCondition": "Bedingung (WENN) hinzufügen",
         "selectorThenAction": "Aktion (DANN) hinzufügen",
-        "conditionTitle": "Bedingung (WENN)",
+        "conditionTitle": "Bedingung",
+        "conditionDescription": "(WENN)",
         "conditionExplainsTitle": "Bedingung erstellen",
         "conditionExplainsDescription": "Bedingungen bestehen aus Regeln. Du kannst entwender eine vorhandene Regel auswählen oder eine neue Regel erstellen, um die Bedingung zu definieren.",
-        "actionTitle": "Aktion (DANN)",
+        "actionTitle": "Aktion",
+        "actionDescription": "(DANN)",
         "contextButton": {
           "deleteCondition": "Bedingung löschen",
           "deleteActionContainer": "Alle Aktionen löschen"

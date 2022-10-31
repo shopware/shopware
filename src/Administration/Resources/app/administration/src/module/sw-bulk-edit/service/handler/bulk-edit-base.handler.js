@@ -428,7 +428,7 @@ class BulkEditBaseHandler {
             }
         });
 
-        if (existAssociations.total > existAssociations.length) {
+        if (existAssociations.total > Object.keys(mappedExistAssociations).length) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 
@@ -477,7 +477,7 @@ class BulkEditBaseHandler {
             mappedExistAssociations[key] = [association];
         });
 
-        if (mappingIds.total > existAssociations.length) {
+        if (mappingIds.total > Object.keys(mappedExistAssociations).length) {
             return this._fetchManyToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 

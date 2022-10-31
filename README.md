@@ -223,7 +223,7 @@ Shopware 6 consists of multiple repositories, two of them are important to you:
     - This is where the shopware core is developed. You need it as dependency in your projects
     - This is where you can participate in the development of Shopware through pull requests
     - It's split into multiple repositories for production setups, all read-only
-- [`shopware/development`](https://github.com/shopware/development) is the development template
+- A template based on Symfony flex, which you can use to start your own project
     - **This is where your journey with shopware starts**
     - Installation see below!
 
@@ -231,47 +231,37 @@ Shopware 6 consists of multiple repositories, two of them are important to you:
 
 A full installation guide covering different dev environments is available in the [docs](https://developer.shopware.com/docs/guides/installation).
 
-*For the impatient reader, here is a tl;dr using docker.*
+*For the impatient reader, here is a tl;dr using docker and symfony cli.*
 
-Let's start by cloning the development template:
-
-```bash
-> git clone git@github.com:shopware/development.git
-```
-
-You now have the application template for the Shopware Platform in the directory `development`, we now change into it:
+Let's start by creating a new project:
 
 ```bash
-> cd development
+> composer create-project shopware/production:dev-flex project
 ```
 
-Only if you want to work with the Shopware platform code itself, e.g. in order to create a pull request for it, you should clone the platform code manually. Before doing so, empty the existing platform directory.
+You now have the application template for the Shopware Platform in the directory `project`, we now change into it:
 
 ```bash
-> rm platform/.gitkeep
-> git clone git@github.com:shopware/platform
-> git checkout @ platform/.gitkeep
+> cd project
 ```
 
-Build and start the containers:
+Now we start our service containers:
 
 ```bash
-> ./psh.phar docker:start
+> docker compose up -d
 ```
 
-Access the application container:
+And install Shopware with the following command:
 
 ```bash
-> ./psh.phar docker:ssh
+symfony console system:install --basic-setup --drop-database --create-database -f
 ```
 
-Execute the installer:
+Start the webserver:
 
 ```bash
-> ./psh.phar install
+symfony server:start -d
 ```
-
-This may take a while since many caches need to be generated on first execution, but only on first execution.
 
 To be sure that the installation succeeded, just open the following URL in your favorite browser: [localhost:8000](http://localhost:8000/)
 

@@ -1,14 +1,19 @@
+import type Repository from 'src/core/data/repository.data';
 import type { MetaInfo } from 'vue-meta';
 import template from './sw-flow-index.html.twig';
 import './sw-flow-index.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-index', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -35,9 +40,33 @@ Component.register('sw-flow-index', {
         };
     },
 
+    computed: {
+        flowRepository(): Repository {
+            return this.repositoryFactory.create('flow');
+        },
+    },
+
+    created(): void {
+        this.createComponent();
+    },
+
     methods: {
+        createComponent(): void {
+            void this.getTotal();
+        },
+
+        async getTotal(): Promise<void> {
+            const criteria = new Criteria(1, null);
+            const { total } = await this.flowRepository.searchIds(criteria);
+            this.total = total;
+        },
+
+        onUpdateTotalFlow(total: number): void {
+            this.total = total;
+        },
+
         onSearch(term: string): void {
             this.term = term;
         },
     },
-});
+};

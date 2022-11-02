@@ -161,7 +161,7 @@ class InfoController extends AbstractController
     {
         $events = $this->eventCollector->collect($context);
 
-        return $this->json($events);
+        return new JsonResponse($events);
     }
 
     /**
@@ -255,7 +255,7 @@ class InfoController extends AbstractController
 
         $events = $this->flowActionCollector->collect($context);
 
-        return $this->json($events);
+        return new JsonResponse($events);
     }
 
     /**

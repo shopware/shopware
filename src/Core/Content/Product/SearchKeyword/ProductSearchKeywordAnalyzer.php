@@ -13,15 +13,9 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
 {
     private const MAXIMUM_KEYWORD_LENGTH = 500;
 
-    /**
-     * @var TokenizerInterface
-     */
-    private $tokenizer;
+    private TokenizerInterface $tokenizer;
 
-    /**
-     * @var AbstractTokenFilter
-     */
-    private $tokenFilter;
+    private AbstractTokenFilter $tokenFilter;
 
     /**
      * @internal
@@ -47,24 +41,29 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             $values = array_filter($this->resolveEntityValue($product, $path));
 
             if ($isTokenize) {
-                try {
-                    $values = $this->tokenize($values, $context);
-                } catch (\Throwable $error) {
-                    // Can occur if the resolved value is a nested array. This prevents the implode() from being executed. We ignore this error at this point to allow some error tolerance in the configuration
+                $nonScalarValues = array_filter($values, function ($value) {
+                    return !\is_scalar($value);
+                });
+
+                if ($nonScalarValues !== []) {
                     continue;
                 }
+
+                /** @var array<int, string> $onlyScalarValues */
+                $onlyScalarValues = $values;
+                $values = $this->tokenize($onlyScalarValues, $context);
             }
 
             foreach ($values as $value) {
-                try {
-                    // even the field is non tokenize, if it reached 500 chars, we should break it anyway
-                    $parts = array_filter(mb_str_split((string) $value, self::MAXIMUM_KEYWORD_LENGTH));
+                if (!\is_scalar($value)) {
+                    continue;
+                }
 
-                    foreach ($parts as $part) {
-                        $keywords->add(new AnalyzedKeyword((string) $part, $ranking));
-                    }
-                } catch (\Throwable $error) {
-                    // Can occur if the resolved value is a nested array. This prevents the string cast from being executed (Array to string conversion). We ignore this error at this point to allow some error tolerance in the configuration
+                // even the field is non tokenize, if it reached 500 chars, we should break it anyway
+                $parts = array_filter(mb_str_split((string) $value, self::MAXIMUM_KEYWORD_LENGTH));
+
+                foreach ($parts as $part) {
+                    $keywords->add(new AnalyzedKeyword((string) $part, $ranking));
                 }
             }
         }
@@ -87,7 +86,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     }
 
     /**
-     * @return array<int, string>
+     * @return array<int, string|array<mixed>>
      */
     private function resolveEntityValue(Entity $entity, string $path): array
     {

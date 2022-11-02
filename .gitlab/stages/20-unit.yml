@@ -147,7 +147,6 @@ PHP unit coverage:
     services: []
     variables:
         APP_ENV: "test"
-        FEATURE_ALL: "false"
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -162,7 +161,7 @@ PHP unit coverage:
             --log-junit phpunit.junit.xml
             --testsuite unit
             --coverage-text
-            --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+            --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
       when: always
@@ -200,7 +199,7 @@ PHP migration coverage:
             --log-junit phpunit.junit.xml
             --testsuite migration-tests
             --coverage-text
-            --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+            --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
       when: always
@@ -289,6 +288,8 @@ PHP Full:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
                 composer update --prefer-lowest --optimize-autoloader
+                # disable symfony deprecation check, when running with lowest dependency versions
+                export SYMFONY_DEPRECATIONS_HELPER=disabled
             fi
         - >
             if [ "$ONLY_CORE" == "true" ]; then

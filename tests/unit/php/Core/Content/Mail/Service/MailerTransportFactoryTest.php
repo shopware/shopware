@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailerTransportFactory;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\ConfigService;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
@@ -16,6 +17,8 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
  * @internal
  *
  * @covers \Shopware\Core\Content\Mail\Service\MailerTransportFactory
+ *
+ * @DisabledFeatures(features={"v6.5.0.0"})
  */
 class MailerTransportFactoryTest extends TestCase
 {

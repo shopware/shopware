@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
@@ -323,9 +323,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={})
-     *
-     * @deprecated tag:v6.5.0 - Remove this test method
+     * @DisabledFeatures(features={"v6.5.0.0"})
      */
     public function testExtendDocument(): void
     {
@@ -342,7 +340,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={})
+     * @DisabledFeatures(features={"FEATURE_NEXT_22900"})
      */
     public function testBuildTermQuery(): void
     {
@@ -426,9 +424,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame($expected, $queries);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_22900"})
-     */
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
     {
         $searchQueryBuilder = $this->createMock(AbstractProductSearchQueryBuilder::class);
@@ -483,7 +478,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         static::assertSame(1, $document['id']);
         static::assertSame('Test', $document['name']);
-        static::assertSame('Test  1', $document['fullText']);
 
         $prices = [
             'cheapest_price_rule-1_b7d2554b0ce847cd82f3ac9bd1c0dfca_gross' => 5,
@@ -545,7 +539,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={})
+     * @DisabledFeatures(features={"v6.5.0.0"})
      */
     public function testFetchFormatsCustomFields(): void
     {
@@ -572,9 +566,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame('foo', $documents['1']['customFields']['unknown']);
     }
 
-    /**
-     * @ActiveFeatures(features={"v6_5_0_0"})
-     */
     public function testFetchFormatsCustomFieldsAndRemovesNotMappedFields(): void
     {
         $connection = $this->getConnection();

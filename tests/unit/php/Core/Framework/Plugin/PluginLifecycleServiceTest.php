@@ -41,7 +41,6 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -173,9 +172,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testInstallPluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -189,9 +185,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testInstallPluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -260,9 +253,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(PluginPostUninstallEvent::class, $returnedEvents[3]);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUninstallPluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -277,9 +267,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUninstallPluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -336,9 +323,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(PluginPostUpdateEvent::class, $returnedEvents[1]);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUpdatePluginMajor(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -353,9 +337,6 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertInstanceOf(UpdateContext::class, $updateContext);
     }
 
-    /**
-     * @ActiveFeatures(features={"FEATURE_NEXT_1797"})
-     */
     public function testUpdatePluginMajorComposerException(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();

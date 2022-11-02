@@ -89,6 +89,8 @@ class SalesChannelProxyController extends AbstractController
 
     private Connection $connection;
 
+    private RequestStack $requestStack;
+
     /**
      * @internal
      */
@@ -103,7 +105,8 @@ class SalesChannelProxyController extends AbstractController
         ApiOrderCartService $adminOrderCartService,
         AbstractCartOrderRoute $orderRoute,
         CartService $cartService,
-        Connection $connection
+        Connection $connection,
+        RequestStack $requestStack
     ) {
         $this->kernel = $kernel;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -116,6 +119,7 @@ class SalesChannelProxyController extends AbstractController
         $this->orderRoute = $orderRoute;
         $this->cartService = $cartService;
         $this->connection = $connection;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -258,16 +262,13 @@ class SalesChannelProxyController extends AbstractController
 
     private function wrapInSalesChannelApiRoute(Request $request, callable $call): Response
     {
-        /** @var RequestStack $requestStack */
-        $requestStack = $this->get('request_stack');
-
-        $requestStackBackup = $this->clearRequestStackWithBackup($requestStack);
-        $requestStack->push($request);
+        $requestStackBackup = $this->clearRequestStackWithBackup($this->requestStack);
+        $this->requestStack->push($request);
 
         try {
             return $call();
         } finally {
-            $this->restoreRequestStack($requestStack, $requestStackBackup);
+            $this->restoreRequestStack($this->requestStack, $requestStackBackup);
         }
     }
 

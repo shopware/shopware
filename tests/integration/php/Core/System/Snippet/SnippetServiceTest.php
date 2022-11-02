@@ -26,9 +26,7 @@ class SnippetServiceTest extends TestCase
 
     public function tearDown(): void
     {
-        foreach (glob(__DIR__ . '/Mock/_fixtures/*.json') ?: [] as $mockFile) {
-            unlink($mockFile);
-        }
+        MockSnippetFile::cleanup();
     }
 
     public function getStorefrontSnippetsForNotExistingSnippetSet(): void

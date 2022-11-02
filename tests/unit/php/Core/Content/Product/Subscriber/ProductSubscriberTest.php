@@ -8,13 +8,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\Product\AbstractIsNewDetector;
-use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
-use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\AbstractSalesChannelProductBuilder;
+use Shopware\Core\Content\Product\IsNewDetector;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
+use Shopware\Core\Content\Product\ProductVariationBuilder;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Framework\Context;
@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
@@ -44,17 +43,7 @@ class ProductSubscriberTest extends TestCase
      */
     public function testProductLoadedEvent(ProductEntity $productEntity, SystemConfigService $systemConfigService, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
-        $productSubscriber = new ProductSubscriber(
-            $this->createMock(AbstractSalesChannelProductBuilder::class),
-            $this->createMock(AbstractProductVariationBuilder::class),
-            $this->createMock(AbstractProductPriceCalculator::class),
-            $this->createMock(AbstractPropertyGroupSorter::class),
-            $this->createMock(AbstractProductMaxPurchaseCalculator::class),
-            $this->createMock(AbstractIsNewDetector::class),
-            $systemConfigService
-        );
+        $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new EntityLoadedEvent(new ProductDefinition(), [$productEntity], Context::createDefaultContext());
 
@@ -68,17 +57,7 @@ class ProductSubscriberTest extends TestCase
      */
     public function testPartialEntityLoadedEvent(PartialEntity $productEntity, SystemConfigService $systemConfigService, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent, bool $hasCmsPageIdProperty): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
-        $productSubscriber = new ProductSubscriber(
-            $this->createMock(AbstractSalesChannelProductBuilder::class),
-            $this->createMock(AbstractProductVariationBuilder::class),
-            $this->createMock(AbstractProductPriceCalculator::class),
-            $this->createMock(AbstractPropertyGroupSorter::class),
-            $this->createMock(AbstractProductMaxPurchaseCalculator::class),
-            $this->createMock(AbstractIsNewDetector::class),
-            $systemConfigService
-        );
+        $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new PartialEntityLoadedEvent(new ProductDefinition(), [$productEntity], Context::createDefaultContext());
 
@@ -102,17 +81,7 @@ class ProductSubscriberTest extends TestCase
      */
     public function testSalesChannelProductLoadedEvent(ProductEntity $productEntity, SystemConfigService $systemConfigService, SalesChannelContext $salesChannelContext, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
-        $productSubscriber = new ProductSubscriber(
-            $this->createMock(AbstractSalesChannelProductBuilder::class),
-            $this->createMock(AbstractProductVariationBuilder::class),
-            $this->createMock(AbstractProductPriceCalculator::class),
-            $this->createMock(AbstractPropertyGroupSorter::class),
-            $this->createMock(AbstractProductMaxPurchaseCalculator::class),
-            $this->createMock(AbstractIsNewDetector::class),
-            $systemConfigService
-        );
+        $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new SalesChannelEntityLoadedEvent(new ProductDefinition(), [$productEntity], $salesChannelContext);
 
@@ -126,17 +95,7 @@ class ProductSubscriberTest extends TestCase
      */
     public function testPartialSalesChannelProductLoadedEvent(PartialEntity $productEntity, SystemConfigService $systemConfigService, SalesChannelContext $salesChannelContext, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent, bool $hasCmsPageIdProperty): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
-        $productSubscriber = new ProductSubscriber(
-            $this->createMock(AbstractSalesChannelProductBuilder::class),
-            $this->createMock(AbstractProductVariationBuilder::class),
-            $this->createMock(AbstractProductPriceCalculator::class),
-            $this->createMock(AbstractPropertyGroupSorter::class),
-            $this->createMock(AbstractProductMaxPurchaseCalculator::class),
-            $this->createMock(AbstractIsNewDetector::class),
-            $systemConfigService
-        );
+        $productSubscriber = $this->getSubscriber($systemConfigService);
 
         $event = new PartialSalesChannelEntityLoadedEvent(new ProductDefinition(), [$productEntity], $salesChannelContext);
 
@@ -318,6 +277,19 @@ class ProductSubscriberTest extends TestCase
         }
 
         return $productEntity;
+    }
+
+    private function getSubscriber(SystemConfigService $systemConfigService): ProductSubscriber
+    {
+        return new ProductSubscriber(
+            $this->createMock(AbstractSalesChannelProductBuilder::class),
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            $systemConfigService
+        );
     }
 
     private function getPartialEntity(bool $hasCmsPageIdProperty, ?string $cmsPageId = null): PartialEntity

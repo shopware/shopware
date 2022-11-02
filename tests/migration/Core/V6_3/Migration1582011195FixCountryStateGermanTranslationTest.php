@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Migration\Core\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_3\Migration1582011195FixCountryStateGermanTranslation;
@@ -18,8 +18,8 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
     public function testNoGermanLanguageId(): void
     {
         $connectionMock = $this->createMock(Connection::class);
-        $resultStatement = $this->createMock(Statement::class);
-        $resultStatement->method('fetch')->willReturn(false);
+        $resultStatement = $this->createMock(Result::class);
+        $resultStatement->method('fetchOne')->willReturn(false);
 
         // early return because of no german language id by locale de-DE
         $resultStatement->expects(static::never())->method('fetchAllAssociative');

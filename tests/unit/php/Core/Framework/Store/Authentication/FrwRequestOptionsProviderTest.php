@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -138,6 +138,9 @@ class FrwRequestOptionsProviderTest extends TestCase
         $frwRequestOptionsProvider->getAuthenticationHeader($context);
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     */
     public function testGetDefaultQueryParametersTakesContextAndLanguageBefore65(): void
     {
         $context = Context::createDefaultContext();
@@ -165,9 +168,6 @@ class FrwRequestOptionsProviderTest extends TestCase
         ], $queries);
     }
 
-    /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
-     */
     public function testGetDefaultQueryParametersDelegatesToInnerProvider(): void
     {
         $context = Context::createDefaultContext();

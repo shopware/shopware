@@ -203,7 +203,11 @@ class VersionManager
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
         $commitIds = $this->entitySearcher->search($this->versionCommitDefinition, $criteria, $writeContext->getContext());
 
-        $readCriteria = new Criteria($commitIds->getIds());
+        $readCriteria = new Criteria();
+        if ($commitIds->getTotal() > 0) {
+            $readCriteria = new Criteria($commitIds->getIds());
+        }
+
         $readCriteria->addAssociation('data');
 
         $readCriteria

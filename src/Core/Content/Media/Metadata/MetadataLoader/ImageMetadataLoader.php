@@ -2,30 +2,30 @@
 
 namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
-use FastImageSize\FastImageSize;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 
 class ImageMetadataLoader implements MetadataLoaderInterface
 {
     /**
-     * @var FastImageSize
-     */
-    private $fastImage;
-
-    /**
      * @internal
      */
     public function __construct()
     {
-        $this->fastImage = new FastImageSize();
     }
 
+    /**
+     * @return array{width: int, height: int, type: int}|null
+     */
     public function extractMetadata(string $filePath): ?array
     {
-        $metadata = $this->fastImage->getImageSize($filePath);
+        $metadata = \getimagesize($filePath);
         if (\is_array($metadata)) {
-            return $metadata;
+            return [
+                'width' => $metadata[0],
+                'height' => $metadata[1],
+                'type' => $metadata[2],
+            ];
         }
 
         return null;

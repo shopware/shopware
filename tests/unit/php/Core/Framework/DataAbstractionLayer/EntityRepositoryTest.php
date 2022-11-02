@@ -31,7 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -42,9 +42,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class EntityRepositoryTest extends TestCase
 {
     /**
-     * @deprecated tag:v6.5.0 - Tests the deprecated constructor, can be deleted
-     *
-     * @ActiveFeatures(features={})
+     * @DisabledFeatures(features={"v6.5.0.0"})
      */
     public function testConstructorOld(): void
     {
@@ -71,6 +69,9 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('Since shopware/core : EntityRepository constructor for definition  requires the event factory as required 7th parameter in v6.5.0.0', $text);
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     */
     public function testEventFactoryNotInjected(): void
     {
         $repo = new EntityRepository(
@@ -282,9 +283,6 @@ class EntityRepositoryTest extends TestCase
         static::assertSame('foo', $search['fullText']);
     }
 
-    /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
-     */
     public function testSearchPartialEvent(): void
     {
         $product = new PartialEntity();

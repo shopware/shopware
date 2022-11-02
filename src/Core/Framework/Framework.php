@@ -135,13 +135,12 @@ class Framework extends Bundle
         if (!\is_array($featureFlags)) {
             throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
         }
+        Feature::registerFeatures($featureFlags);
 
         $cacheDir = $this->container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {
             throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
         }
-
-        Feature::registerFeatures($featureFlags);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),

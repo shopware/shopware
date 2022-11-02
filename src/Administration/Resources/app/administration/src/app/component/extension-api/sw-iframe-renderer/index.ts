@@ -1,6 +1,8 @@
 import template from './sw-iframe-renderer.html.twig';
 import type { Extension } from '../../../state/extensions.store';
 
+const { isEqual } = Shopware.Utils.types;
+
 /**
  * @private
  * @description This component renders iFrame views for extensions
@@ -93,7 +95,7 @@ Shopware.Component.register('sw-iframe-renderer', {
     watch: {
         extension: {
             immediate: true,
-            handler(extension) {
+            handler(extension, oldExtension) {
                 if (!extension || !this.extensionIsApp) {
                     return;
                 }
@@ -106,7 +108,10 @@ Shopware.Component.register('sw-iframe-renderer', {
                         return;
                     }
 
-                    this.signedIframeSrc = uri;
+                    // Reload iframe when extension data changes
+                    if (!isEqual(oldExtension, extension)) {
+                        this.signedIframeSrc = uri;
+                    }
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                 }).catch(() => {});
             },

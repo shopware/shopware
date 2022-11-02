@@ -60,13 +60,13 @@
                                              data-product-slider-controls="true">
                                             {% block element_product_slider_controls_items %}
                                                 <button
-                                                    class="base-slider-controls-prev product-slider-controls-prev{% if sliderConfig.border.value %} has-border{% endif %}">
+                                                    class="base-slider-controls-prev product-slider-controls-prev{% if sliderConfig.border.value %} has-border{% endif %}" aria-label="{{ 'general.previous'|trans|striptags }}">
                                                     {% block element_product_slider_controls_items_prev_icon %}
                                                         {% sw_icon 'arrow-head-left' %}
                                                     {% endblock %}
                                                 </button>
                                                 <button
-                                                    class="base-slider-controls-next product-slider-controls-next{% if sliderConfig.border.value %} has-border{% endif %}">
+                                                    class="base-slider-controls-next product-slider-controls-next{% if sliderConfig.border.value %} has-border{% endif %}" aria-label="{{ 'general.next'|trans|striptags }}">
                                                     {% block element_product_slider_controls_items_next_icon %}
                                                         {% sw_icon 'arrow-head-right' %}
                                                     {% endblock %}

@@ -116,7 +116,7 @@ class ProductStreamUpdaterTest extends TestCase
                         'type' => 'equals',
                         'field' => 'active',
                         'value' => '1',
-                    ]
+                    ],
                 ],
             ],
             [
@@ -127,16 +127,15 @@ class ProductStreamUpdaterTest extends TestCase
                         'type' => 'equals',
                         'field' => 'active',
                         'value' => '0',
-                    ]
+                    ],
                 ],
-            ]
+            ],
         ], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
         $productStreamIndexer->handle(
             $productStreamIndexer->update($writtenEvent)
         );
-
 
         $productId = Uuid::randomHex();
         $products = [$this->getProductData($productId)];
@@ -150,8 +149,8 @@ class ProductStreamUpdaterTest extends TestCase
 
         foreach ($variantIds as $id => $active) {
             $productData = $this->getProductData($id);
-            $productData["parentId"] = $productId;
-            $productData["active"] = $active;
+            $productData['parentId'] = $productId;
+            $productData['active'] = $active;
             $products[] = $productData;
         }
 
@@ -168,14 +167,13 @@ class ProductStreamUpdaterTest extends TestCase
             $this->salesChannel->getContext()
         ));
 
-
         $productIds = array_keys($variantIds);
         $productIds[] = $productId;
 
         // Valid product_stream for active products.
         $activeProducts = $this->productRepository->search(
             (new Criteria($productIds))
-                ->addFilter(new EqualsFilter("streams.id", $activeStreamId))
+                ->addFilter(new EqualsFilter('streams.id', $activeStreamId))
                 ->addAssociation('streams'),
             $this->salesChannel->getContext()
         )->getEntities();
@@ -185,7 +183,7 @@ class ProductStreamUpdaterTest extends TestCase
             3,
             $activeProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
                 return $product->getStreams()
-                    ->filterByProperty("id", $activeStreamId)
+                    ->filterByProperty('id', $activeStreamId)
                     ->first();
             })->count()
         );
@@ -194,16 +192,15 @@ class ProductStreamUpdaterTest extends TestCase
             0,
             $activeProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
                 return $product->getStreams()
-                    ->filterByProperty("id", $inActiveStreamId)
+                    ->filterByProperty('id', $inActiveStreamId)
                     ->first();
             })->count()
         );
 
-
         // Valid product_stream for inactive products.
         $inActiveProducts = $this->productRepository->search(
             (new Criteria($productIds))
-                ->addFilter(new EqualsFilter("streams.id", $inActiveStreamId))
+                ->addFilter(new EqualsFilter('streams.id', $inActiveStreamId))
                 ->addAssociation('streams'),
             $this->salesChannel->getContext()
         )->getEntities();
@@ -213,7 +210,7 @@ class ProductStreamUpdaterTest extends TestCase
             1,
             $inActiveProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
                 return $product->getStreams()
-                    ->filterByProperty("id", $inActiveStreamId)
+                    ->filterByProperty('id', $inActiveStreamId)
                     ->first();
             })->count()
         );
@@ -222,7 +219,7 @@ class ProductStreamUpdaterTest extends TestCase
             0,
             $inActiveProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
                 return $product->getStreams()
-                    ->filterByProperty("id", $activeStreamId)
+                    ->filterByProperty('id', $activeStreamId)
                     ->first();
             })->count()
         );

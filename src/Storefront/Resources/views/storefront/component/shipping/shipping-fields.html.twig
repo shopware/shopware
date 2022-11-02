@@ -6,7 +6,7 @@
 {% block component_shipping_methods %}
     <div class="shipping-methods">
         {% block component_shipping_method %}
-            {% for shipping in page.shippingMethods[:visibleShippingMethodsLimit] %}
+            {% for shipping in page.shippingMethods[:visibleShippingMethodsLimit]|sort((a, b) => a.position <=> b.position) %}
                 {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
             {% endfor %}
 

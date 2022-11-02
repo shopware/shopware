@@ -12,12 +12,14 @@ interface FlowTemplateEntity extends Entity {
     eventName: string,
 }
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// @ts-expect-error
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-list-flow-templates', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['acl', 'repositoryFactory'],
@@ -105,7 +107,7 @@ Component.register('sw-flow-list-flow-templates', {
     },
 
     watch: {
-        searchTerm(value): void {
+        searchTerm(value: string): void {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.onSearch(value);
         },
@@ -173,4 +175,4 @@ Component.register('sw-flow-list-flow-templates', {
             this.selectedItems = Object.values(selection);
         },
     },
-});
+};

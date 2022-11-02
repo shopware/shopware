@@ -302,32 +302,13 @@ Component.register('sw-flow-detail', {
             this.isLoading = true;
 
             if (this.$route.query?.type === 'template') {
-                const flowTemplate = this.flowTemplateRepository.create();
-                flowTemplate.id = this.flowId;
-                flowTemplate.name = this.flow.name;
-                flowTemplate.config = {
-                    eventName: this.flow.eventName,
-                    sequences: this.flow.sequences,
-                    description: this.flow.description,
-                };
-                flowTemplate._isNew = false;
+                this.createNotificationError({
+                    message: this.$tc('sw-flow.flowNotification.messageSaveError'),
+                });
 
-                return this.flowTemplateRepository.save(flowTemplate)
-                    .then(() => {
-                        this.createNotificationSuccess({
-                            message: this.$tc('sw-flow.flowNotification.messageUpdateTemplateSuccess'),
-                        });
+                this.isLoading = false;
 
-                        this.getDetailFlowTemplate();
-                    }).catch(() => {
-                        this.createNotificationError({
-                            message: this.$tc('sw-flow.flowNotification.messageSaveError'),
-                        });
-
-                        this.handleFieldValiationError();
-                    }).finally(() => {
-                        this.isLoading = false;
-                    });
+                return null;
             }
 
             return this.flowRepository.save(this.flow)

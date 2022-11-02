@@ -185,17 +185,6 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should be able to save a flow template ', () => {
-        const wrapper = await createWrapper([
-            'flow.editor'
-        ], {
-            type: 'template'
-        });
-
-        const saveButton = wrapper.find('.sw-flow-detail__save');
-        expect(saveButton.attributes().disabled).toBeFalsy();
-    });
-
     it('should able to remove selector sequences before saving', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
@@ -218,72 +207,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequencesState.length).toEqual(2);
     });
 
-    it('should able to remove selector sequences before saving template', async () => {
+    it('should not able to saving flow', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
-        ], {
-            type: 'template'
-        }, {
-            eventName: 'checkout.customer',
-            sequences: [1, 2]
-        });
-
-        Shopware.State.commit('swFlowState/setFlow',
-            {
-                name: 'Flow 1',
-                config: {
-                    eventName: 'checkout.customer',
-                    sequences: getSequencesCollection(sequencesFixture)
-                }
-            });
-
-        let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(4);
-
-        const saveButton = wrapper.find('.sw-flow-detail__save');
-        await saveButton.trigger('click');
-
-        sequencesState = Shopware.State.getters['swFlowState/sequences'];
-
-        expect(sequencesState.length).toEqual(2);
-    });
-
-    it('should not able to saving flow', async () => {
-        const wrapper = createWrapper([
-            'flow.editor'
         ], {}, {
-            eventName: 'checkout.customer',
-            sequences: [1, 2]
-        }, null, Promise.reject());
-
-        Shopware.State.commit('swFlowState/setFlow',
-            {
-                name: 'Flow 1',
-                config: {
-                    eventName: 'checkout.customer',
-                    sequences: getSequencesCollection(sequencesFixture)
-                }
-            });
-
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(4);
-
-        await wrapper.vm.$nextTick();
-        wrapper.vm.createNotificationError = jest.fn();
-
-        const saveButton = wrapper.find('.sw-flow-detail__save');
-        await saveButton.trigger('click');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.createNotificationError).toBeCalled();
-    });
-
-    it('should not able to saving template', async () => {
-        const wrapper = createWrapper([
-            'flow.editor'
-        ], {
-            type: 'template'
-        }, {
             eventName: 'checkout.customer',
             sequences: [1, 2]
         }, null, Promise.reject());
@@ -314,38 +241,6 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         const wrapper = await createWrapper([
             'flow.editor'
         ]);
-
-        wrapper.vm.createNotificationWarning = jest.fn();
-
-        Shopware.State.commit('swFlowState/setFlow',
-            {
-                eventName: 'checkout.customer',
-                name: 'Flow 1',
-                sequences: getSequencesCollection([{
-                    ...sequenceFixture,
-                    ruleId: ''
-                }])
-            });
-
-        let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
-        expect(invalidSequences).toEqual([]);
-
-        const saveButton = wrapper.find('.sw-flow-detail__save');
-        await saveButton.trigger('click');
-
-        invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
-        expect(invalidSequences).toEqual(['1']);
-
-        expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
-        wrapper.vm.createNotificationWarning.mockRestore();
-    });
-
-    it('should able to validate sequences before saving template', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor'
-        ], {
-            type: 'template'
-        });
 
         wrapper.vm.createNotificationWarning = jest.fn();
 

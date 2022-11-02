@@ -22,7 +22,11 @@ function createWrapper(privileges = []) {
                                 eventName: 'checkout.order.placed'
                             }
                         ]);
-                    }
+                    },
+
+                    searchIds: () => Promise.resolve({
+                        total: 20
+                    })
                 })
             },
 
@@ -81,5 +85,12 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         const createButton = wrapper.find('.sw-flow-list__create');
 
         expect(createButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be show a number of flows ', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');
     });
 });

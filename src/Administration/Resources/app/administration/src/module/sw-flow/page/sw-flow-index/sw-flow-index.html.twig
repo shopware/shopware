@@ -27,7 +27,6 @@
     </template>
 
     <template #smart-bar-actions>
-
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_list_smart_bar_actions_extension %}
         {% endblock %}
@@ -86,6 +85,7 @@
                         v-else
                         :is-loading="isLoading"
                         :search-term="term"
+                        @on-update-total="onUpdateTotalFlow"
                     />
                 </template>
             </sw-tabs>

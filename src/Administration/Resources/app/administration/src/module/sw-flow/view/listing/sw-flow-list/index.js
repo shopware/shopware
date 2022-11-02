@@ -199,6 +199,8 @@ Component.register('sw-flow-list', {
         updateRecords(result) {
             this.flows = result;
             this.total = result.total;
+
+            this.$emit('on-update-total', this.total);
         },
 
         getTranslatedEventName(value) {

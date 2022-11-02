@@ -21,7 +21,7 @@ shopware:
 
     media:
         enable_url_upload_feature: true
-        enable_url_validation: true
+        enable_url_validation: false
 
     html_sanitizer:
         sets:

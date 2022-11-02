@@ -38,7 +38,7 @@ describe('Media: Dissolve folder', () => {
             '',
             true
         );
-        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
-        page.dissolve('sw_logo_white.png');
+        page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
+        page.dissolve('plugin-manager--login.png');
     });
 });

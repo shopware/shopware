@@ -81,8 +81,16 @@ class StoreClient
         $this->instanceService = $instanceService;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed without replacement
+     */
     public function ping(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'StoreClient::ping() will be removed without replacement.'
+        );
+
         $this->client->get($this->endpoints['ping']);
     }
 

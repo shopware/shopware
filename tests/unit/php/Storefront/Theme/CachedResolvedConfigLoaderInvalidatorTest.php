@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
+namespace Shopware\Tests\Unit\Storefront\Theme;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,23 +21,14 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
     private CachedResolvedConfigLoaderInvalidator $cachedResolvedConfigLoaderInvalidator;
 
     /**
-     * @var Connection&\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $connection;
-
-    /**
      * @var CacheInvalidator&\PHPUnit\Framework\MockObject\MockObject
      */
     private $logger;
 
     public function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
         $this->logger = $this->createMock(CacheInvalidator::class);
-        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator(
-            $this->logger,
-            $this->connection
-        );
+        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->logger);
     }
 
     public function testGetSubscribedEvents(): void
@@ -60,17 +50,12 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         $event = new ThemeAssignedEvent($themeId, $salesChannelId);
         $name = 'theme-config-' . $themeId;
 
-        $snippetSetIds = [Uuid::randomHex(), Uuid::randomHex()];
-        $this->connection->expects(static::once())->method('fetchFirstColumn')->willReturn($snippetSetIds);
-
-        $snippetSetCacheKeys = array_map(function (string $setId) {
-            return 'translation.catalog.' . $setId;
-        }, $snippetSetIds);
+        $snippetSetCacheKeys = ['translation.catalog.' . $salesChannelId];
 
         $expectedInvalidatedTags = [
             [[$name]],
             [[CachedDomainLoader::CACHE_KEY]],
-            [$snippetSetCacheKeys],
+            [$snippetSetCacheKeys, true],
         ];
 
         $this->logger->expects(static::exactly(\count($expectedInvalidatedTags)))->method('invalidate')->withConsecutive(...$expectedInvalidatedTags);

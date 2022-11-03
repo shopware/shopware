@@ -15,5 +15,8 @@ abstract class AbstractTranslator implements TranslatorInterface, TranslatorBagI
      */
     abstract public function trace(string $key, \Closure $param);
 
+    /**
+     * @return array<int, string>
+     */
     abstract public function getTrace(string $key): array;
 }

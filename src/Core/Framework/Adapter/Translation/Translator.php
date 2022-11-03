@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
@@ -19,6 +20,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
@@ -39,6 +41,9 @@ class Translator extends AbstractTranslator
 
     private CacheInterface $cache;
 
+    /**
+     * @var array<string, MessageCatalogueInterface>
+     */
     private array $isCustomized = [];
 
     private MessageFormatterInterface $formatter;
@@ -47,16 +52,27 @@ class Translator extends AbstractTranslator
 
     private ?string $snippetSetId = null;
 
+    private ?string $salesChannelId = null;
+
     private ?string $localeBeforeInject = null;
 
     private string $environment;
 
+    /**
+     * @var array<string, bool>
+     */
     private array $keys = ['all' => true];
 
+    /**
+     * @var array<string, array<string, bool>>
+     */
     private array $traces = [];
 
     private EntityRepositoryInterface $snippetSetRepository;
 
+    /**
+     * @var array<string, string>
+     */
     private array $snippets = [];
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
@@ -109,6 +125,9 @@ class Translator extends AbstractTranslator
         return $result;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
@@ -145,7 +164,7 @@ class Translator extends AbstractTranslator
     }
 
     /**
-     * {@inheritdoc}
+     * @param array<string, string> $parameters
      */
     public function trans($id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
@@ -207,6 +226,7 @@ class Translator extends AbstractTranslator
     public function injectSettings(string $salesChannelId, string $languageId, string $locale, Context $context): void
     {
         $this->localeBeforeInject = $this->getLocale();
+        $this->salesChannelId = $salesChannelId;
         $this->setLocale($locale);
         $this->resolveSnippetSetId($salesChannelId, $languageId, $locale, $context);
         $this->getCatalogue($locale);
@@ -217,6 +237,7 @@ class Translator extends AbstractTranslator
         \assert($this->localeBeforeInject !== null);
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
+        $this->salesChannelId = null;
     }
 
     public function getSnippetSetId(?string $locale = null): ?string
@@ -249,6 +270,9 @@ class Translator extends AbstractTranslator
         return $this->snippetSetId;
     }
 
+    /**
+     * @return array<int, MessageCatalogueInterface>
+     */
     public function getCatalogues(): array
     {
         return array_values($this->isCustomized);
@@ -285,6 +309,7 @@ class Translator extends AbstractTranslator
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale, ?string $locale = null): MessageCatalogueInterface
     {
         $snippetSetId = $this->getSnippetSetId($locale);
+
         if (!$snippetSetId) {
             return $catalog;
         }
@@ -301,11 +326,19 @@ class Translator extends AbstractTranslator
         return $this->isCustomized[$snippetSetId] = $newCatalog;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
-        $key = 'translation.catalog.' . $snippetSetId;
+        $salesChannelId = $this->resolveSalesChannelId() ?? 'DEFAULT';
 
-        return $this->cache->get($key, function () use ($catalog, $snippetSetId, $fallbackLocale) {
+        $key = sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId);
+
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $salesChannelId, $fallbackLocale) {
+            $item->tag('translation.catalog.' . $snippetSetId);
+            $item->tag('translation.catalog.' . $salesChannelId);
+
             return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale);
         });
     }
@@ -318,5 +351,25 @@ class Translator extends AbstractTranslator
             // this allows us to use the translator even if there's no db connection yet
             return 'en-GB';
         }
+    }
+
+    private function resolveSalesChannelId(): ?string
+    {
+        $salesChannelId = $this->salesChannelId;
+
+        if ($salesChannelId !== null) {
+            return $salesChannelId;
+        }
+
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (!$request) {
+            return null;
+        }
+
+        /** @var string|null $salesChannelId */
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        return $salesChannelId;
     }
 }

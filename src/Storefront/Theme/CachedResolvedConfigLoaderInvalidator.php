@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -17,15 +16,12 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 {
     private CacheInvalidator $logger;
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(CacheInvalidator $logger, Connection $connection)
+    public function __construct(CacheInvalidator $logger)
     {
         $this->logger = $logger;
-        $this->connection = $connection;
     }
 
     /**
@@ -57,11 +53,9 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
         $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
         $this->logger->invalidate([CachedDomainLoader::CACHE_KEY]);
 
-        $snippetSetIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set');
+        $salesChannelId = $event->getSalesChannelId();
 
-        $this->logger->invalidate(array_map(function (string $id) {
-            return 'translation.catalog.' . $id;
-        }, $snippetSetIds));
+        $this->logger->invalidate(['translation.catalog.' . $salesChannelId], true);
     }
 
     public function reset(ThemeConfigResetEvent $event): void

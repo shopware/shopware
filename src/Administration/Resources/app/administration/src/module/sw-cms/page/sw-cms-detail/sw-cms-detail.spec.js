@@ -426,6 +426,36 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(wrapper.find('sw-cms-missing-element-modal-stub').exists()).toBeFalsy();
     });
 
+    it('should not show the missing element modal when checking dont remind checkbox', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            page: {
+                type: 'product_detail',
+                name: 'Product page',
+                categories: [],
+                sections: [{
+                    blocks: [{
+                        slots: [
+                            { type: 'product-description-reviews', config: {} },
+                        ]
+                    }]
+                }]
+            }
+        });
+
+        await expect(wrapper.vm.onSave()).rejects.toEqual();
+        expect(wrapper.vm.showMissingElementModal).toBe(true);
+        await wrapper.vm.onChangeDontRemindCheckbox();
+        await wrapper.vm.onSaveMissingElementModal();
+
+        expect(wrapper.vm.validationWarnings).toEqual([
+            'buyBox', 'crossSelling'
+        ].map(element => `sw-cms.elements.${element}.label`));
+        expect(wrapper.vm.showMissingElementModal).toBe(false);
+    });
+
     it('should get preview entity for categories', async () => {
         wrapper = await createWrapper();
         await flushPromises();

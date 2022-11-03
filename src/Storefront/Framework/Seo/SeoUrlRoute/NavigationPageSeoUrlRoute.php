@@ -56,8 +56,9 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
     {
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('active', true),
-            new NotFilter(NotFilter::CONNECTION_AND, [
+            new NotFilter(NotFilter::CONNECTION_OR, [
                 new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
+                new EqualsFilter('type', CategoryDefinition::TYPE_LINK),
             ]),
         ]));
     }

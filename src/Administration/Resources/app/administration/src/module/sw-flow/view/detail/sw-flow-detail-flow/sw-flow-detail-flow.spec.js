@@ -159,7 +159,8 @@ function createWrapper(privileges = []) {
                         @input="$emit('option-select', $event.target.value)"
                         class="sw-flow-trigger" />
                 `
-            }
+            },
+            'sw-alert': true
         }
     });
 }
@@ -176,7 +177,17 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                     eventName: '',
                     sequences: getSequencesCollection()
                 },
-                invalidSequences: []
+                invalidSequences: [],
+                triggerActions: [
+                    { name: 'action.add.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
+                    { name: 'action.add.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
+                    { name: 'action.remove.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
+                    { name: 'action.remove.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
+                    { name: 'action.mail.send', requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'], extensions: [] },
+                    { name: 'action.set.order.state', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
+                    { name: 'telegram.send.message', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
+                    { name: 'action.stop.flow', requirements: [], extensions: [] },
+                ],
             }
         });
     });
@@ -251,5 +262,29 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         expect(sequencesState[sequencesState.length - 1].displayGroup).toEqual(3);
         expect(sequencesState[sequencesState.length - 1].position).toEqual(1);
         expect(sequencesState[sequencesState.length - 1].parentId).toBeNull();
+    });
+
+    it('should be able to show warning alert when has invalid action', async () => {
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                eventName: 'checkout.customer',
+                name: 'Flow 1',
+                sequences: [{
+                    id: '1',
+                    actionName: 'action.something.name',
+                    ruleId: null,
+                    parentId: null,
+                    position: 1,
+                    displayGroup: 1,
+                    config: {}
+                }]
+            });
+
+        const wrapper = createWrapper([
+            'flow.editor'
+        ]);
+
+        const alertElement = wrapper.findAll('.sw-flow-detail-flow__warning-box');
+        expect(alertElement.exists()).toBeTruthy();
     });
 });

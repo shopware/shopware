@@ -22,7 +22,7 @@ class ErrorResponseFactory
         );
 
         $response->setEncodingOptions($response->getEncodingOptions() | \JSON_INVALID_UTF8_SUBSTITUTE);
-        $response->setData(['errors' => $this->getErrorsFromException($exception, $debug)]);
+        $response->setData(['errors' => $this->getErrorsFromException($exception, $debug), 'stack' => $debug ? $exception->getTrace() : null]);
 
         return $response;
     }

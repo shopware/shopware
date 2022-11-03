@@ -30,7 +30,7 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
             ->from('system_config')
             ->where('configuration_key = "core.loginRegistration.passwordMinLength"');
 
-        $configId = $builder->execute()->fetchOne();
+        $configId = $builder->executeQuery()->fetchOne();
         if (!$configId) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
@@ -44,7 +44,7 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
             ->from('system_config')
             ->where('configuration_key = "core.address.showZipcodeInFrontOfCity"');
 
-        $configId = $builder->execute()->fetchOne();
+        $configId = $builder->executeQuery()->fetchOne();
         if (!$configId) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),

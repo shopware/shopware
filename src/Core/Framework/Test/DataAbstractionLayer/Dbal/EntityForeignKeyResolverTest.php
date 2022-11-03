@@ -188,7 +188,7 @@ class EntityForeignKeyResolverTest extends TestCase
     private function getStateId(string $state, string $machine)
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('
+            ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine

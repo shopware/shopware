@@ -153,7 +153,7 @@ class CartPersister extends AbstractCartPersister
 
     public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
             ['newToken' => $newToken, 'oldToken' => $oldToken]
         );

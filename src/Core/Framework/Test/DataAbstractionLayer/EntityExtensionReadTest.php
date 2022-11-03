@@ -168,10 +168,11 @@ class EntityExtensionReadTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $created = $this->connection->fetchAll('SELECT * FROM many_to_one_product');
+        $created = $this->connection->fetchAllAssociative('SELECT * FROM many_to_one_product');
 
         static::assertCount(1, $created);
         $reference = array_shift($created);
+        static::assertIsArray($reference);
         static::assertSame($extendableId, Uuid::fromBytesToHex($reference['id']));
 
         $criteria = new Criteria();

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -51,20 +50,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ExceptionHandlerRegistry
-     */
-    private $exceptionHandlerRegistry;
+    private ExceptionHandlerRegistry $exceptionHandlerRegistry;
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
@@ -376,7 +366,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $query->setParameters($params);
 
-            $result = $query->execute()->fetchAllAssociative();
+            $result = $query->executeQuery()->fetchAllAssociative();
 
             $primaryKeyBag = $parameters->getPrimaryKeyBag();
 
@@ -494,7 +484,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $query->setParameters(array_merge($values, array_values($identifier)), $types);
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->execute();
+            $query->executeStatement();
         });
     }
 
@@ -543,7 +533,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $this->addPrimaryCondition($query, $ids);
 
-            $states[$entity] = $query->execute()->fetchAll();
+            $states[$entity] = $query->executeQuery()->fetchAllAssociative();
         }
 
         foreach ($commands as $command) {
@@ -725,7 +715,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
         }
 
-        $exists = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+        $exists = $query->executeQuery()->fetchAssociative();
         if (!$exists) {
             $exists = [];
         }

@@ -104,7 +104,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll(
+        $records = $this->connection->fetchAllAssociative(
             'SELECT * FROM import_export_profile'
         );
         $translationRecords = $this->getTranslationRecords();
@@ -209,7 +209,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll(
+        $records = $this->connection->fetchAllAssociative(
             'SELECT * FROM import_export_profile'
         );
         $translationRecords = $this->getTranslationRecords();
@@ -257,7 +257,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($upsertData), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
         static::assertCount($num, $records);
@@ -291,7 +291,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             }
         }
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
 
         static::assertEquals($num - $deleted, \count($records));
     }
@@ -314,7 +314,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             }
         }
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
 
         static::assertCount($num, $records);
     }
@@ -332,7 +332,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
 
         static::assertCount($num, $records);
     }
@@ -368,7 +368,7 @@ class ImportExportProfileRepositoryTest extends TestCase
     protected function getTranslationRecords(): array
     {
         return array_reduce(
-            $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
+            $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation'),
             static function ($carry, $translationRecord) {
                 $carry[$translationRecord['import_export_profile_id']] = $translationRecord;
 

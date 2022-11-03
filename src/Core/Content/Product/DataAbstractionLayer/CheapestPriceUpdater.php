@@ -192,7 +192,7 @@ class CheapestPriceUpdater
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $data = $query->execute()->fetchAllAssociative();
+        $data = $query->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         /** @var array<string, mixed> $row */
@@ -224,7 +224,7 @@ class CheapestPriceUpdater
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $defaults = $query->execute()->fetchAllAssociative();
+        $defaults = $query->executeQuery()->fetchAllAssociative();
 
         /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {

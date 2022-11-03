@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -23,20 +24,11 @@ class ChangeEmailRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
     protected function setUp(): void
     {
@@ -240,7 +232,7 @@ class ChangeEmailRouteTest extends TestCase
             );
 
         $count = (int) $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+            ->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
         static::assertSame(1, $count);
 
         $this->browser
@@ -255,11 +247,11 @@ class ChangeEmailRouteTest extends TestCase
             );
 
         $count = (int) $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+            ->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
         static::assertSame(0, $count);
 
         $email = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT email FROM newsletter_recipient WHERE status = "direct" AND email = "test@fooware.de"');
+            ->fetchOne('SELECT email FROM newsletter_recipient WHERE status = "direct" AND email = "test@fooware.de"');
         static::assertSame($email, 'test@fooware.de');
     }
 

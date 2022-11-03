@@ -18,9 +18,6 @@ class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterfa
      */
     public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
-        if ($e->getCode() !== 0) {
-            return null;
-        }
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.customer_wishlist.sales_channel_id__customer_id\'/', $e->getMessage())) {
             return new DuplicateWishlistProductException();
         }

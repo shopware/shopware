@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ForwardCompatibility\Result;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -106,7 +106,7 @@ class StockUpdaterTest extends TestCase
         );
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->method('execute')->willReturn($result);
+        $queryBuilder->method('executeQuery')->willReturn($result);
 
         $connection = $this->getConnectionMock();
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
@@ -153,7 +153,8 @@ class StockUpdaterTest extends TestCase
     private function getConnectionMock(): MockObject
     {
         $statement = $this->createMock(Statement::class);
-        $statement->method('execute')->willReturn(true);
+        $statement->method('execute')->willReturn($this->createMock(Result::class));
+        $statement->method('getWrappedStatement')->willReturn($this->createMock(\Doctrine\DBAL\Driver\Statement::class));
 
         $connection = $this->createMock(Connection::class);
         $connection->method('prepare')->willReturn($statement);

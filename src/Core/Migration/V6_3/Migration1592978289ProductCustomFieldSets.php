@@ -30,7 +30,7 @@ class Migration1592978289ProductCustomFieldSets extends MigrationStep
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function createAssociation(Connection $connection): void
     {
@@ -52,7 +52,7 @@ SQL;
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function addGlobalFlag(Connection $connection): void
     {

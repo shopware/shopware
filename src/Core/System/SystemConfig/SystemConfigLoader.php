@@ -49,7 +49,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
         $query->addOrderBy('sales_channel_id', 'ASC');
 
-        $result = $query->execute();
+        $result = $query->executeQuery();
 
         return $this->buildSystemConfigArray($result->fetchAllKeyValue());
     }

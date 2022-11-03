@@ -23,15 +23,9 @@ class ProductReviewSaveRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -159,7 +153,7 @@ class ProductReviewSaveRouteTest extends TestCase
     {
         $count = $this->getContainer()
             ->get(Connection::class)
-            ->fetchColumn('SELECT COUNT(*) FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
+            ->fetchOne('SELECT COUNT(*) FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
         static::assertEquals($expected, $count);
     }

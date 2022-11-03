@@ -929,7 +929,7 @@ PHP_EOL;
 
     private function getConfigurationServiceDbException(array $plugins): ConfigurationService
     {
-        return new ConfigurationServiceExcepetion(
+        return new ConfigurationServiceException(
             $plugins,
             new ConfigReader(),
             $this->getContainer()->get(AppLoader::class),
@@ -956,13 +956,13 @@ PHP_EOL;
 /**
  * @internal
  */
-class ConfigurationServiceExcepetion extends ConfigurationService
+class ConfigurationServiceException extends ConfigurationService
 {
     /**
      * @throws \Doctrine\DBAL\Exception
      */
     public function checkConfiguration(string $domain, Context $context): bool
     {
-        throw \Doctrine\DBAL\Exception::invalidTableName('any');
+        throw \Doctrine\DBAL\Exception::invalidPlatformType('any');
     }
 }

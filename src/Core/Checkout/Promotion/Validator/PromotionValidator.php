@@ -135,7 +135,7 @@ class PromotionValidator implements EventSubscriberInterface
      * @param list<WriteCommand> $writeCommands
      *
      * @throws ResourceNotFoundException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function collect(array $writeCommands): void
     {
@@ -444,7 +444,7 @@ class PromotionValidator implements EventSubscriberInterface
             ->where($qb->expr()->eq('individual_code_pattern', ':pattern'))
             ->setParameter('pattern', $pattern);
 
-        $promotions = $query->execute()->fetchFirstColumn();
+        $promotions = $query->executeQuery()->fetchFirstColumn();
 
         /** @var string $id */
         foreach ($promotions as $id) {
@@ -481,7 +481,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter('promotion_id', $promotionId);
         }
 
-        $existingIndividual = ((int) $query->execute()->fetchOne()) > 0;
+        $existingIndividual = ((int) $query->executeQuery()->fetchOne()) > 0;
 
         if ($existingIndividual) {
             return true;
@@ -503,6 +503,6 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter('id', $promotionId);
         }
 
-        return ((int) $query->execute()->fetchOne()) > 0;
+        return ((int) $query->executeQuery()->fetchOne()) > 0;
     }
 }

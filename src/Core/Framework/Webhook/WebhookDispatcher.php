@@ -419,7 +419,7 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private function loadPrivileges(string $eventName, array $affectedRoleIds): void
     {
-        $roles = $this->connection->fetchAll('
+        $roles = $this->connection->fetchAllAssociative('
             SELECT `id`, `privileges`
             FROM `acl_role`
             WHERE `id` IN (:aclRoleIds)

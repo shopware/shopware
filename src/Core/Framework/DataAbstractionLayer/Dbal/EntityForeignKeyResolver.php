@@ -31,15 +31,9 @@ use Shopware\Core\System\Language\LanguageDefinition;
  */
 class EntityForeignKeyResolver
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
+    private EntityDefinitionQueryHelper $queryHelper;
 
     /**
      * @internal
@@ -245,7 +239,7 @@ class EntityForeignKeyResolver
 
         $this->queryHelper->addIdCondition(new Criteria($ids), $root, $query);
 
-        $affected = $query->execute()->fetchAll();
+        $affected = $query->executeQuery()->fetchAllAssociative();
 
         if (empty($affected)) {
             return [];

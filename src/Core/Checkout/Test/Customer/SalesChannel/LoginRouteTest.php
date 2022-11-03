@@ -23,6 +23,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
@@ -34,20 +35,11 @@ class LoginRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
     protected function setUp(): void
     {
@@ -288,10 +280,9 @@ class LoginRouteTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
-        $defaultCountry = $countryStatement->fetchColumn();
-        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
-        $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchColumn();
+        $defaultCountry = $connection->fetchOne('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
+        $defaultPaymentMethod = $connection->fetchOne('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`');
+        $defaultShippingMethod = $connection->fetchOne('SELECT id FROM shipping_method WHERE active = 1');
 
         // @deprecated tag:v6.6.0 - keep $column = 'payload'
         $column = 'cart';

@@ -22,7 +22,7 @@ class Version extends Struct
     public $changelog;
 
     /**
-     * @var string
+     * @var non-empty-string
      */
     public $uri;
 

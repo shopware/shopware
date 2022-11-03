@@ -16,7 +16,7 @@ class Migration1536232790MailHeaderFooter extends MigrationStep
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {

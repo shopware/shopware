@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 
@@ -30,21 +31,18 @@ WHERE
     AND REFERENCED_TABLE_NAME = '%s';
 EOD;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
-     * @var AbstractSchemaManager
+     * @var AbstractSchemaManager<MySQLPlatform>
      */
-    private $schemaManager;
+    private AbstractSchemaManager $schemaManager;
 
     public function __construct(
         Connection $connection
     ) {
         $this->connection = $connection;
-        $this->schemaManager = $connection->getSchemaManager();
+        $this->schemaManager = $connection->createSchemaManager();
     }
 
     public function getRelationData(string $tableName, string $keyColumn): array
@@ -185,10 +183,10 @@ EOD;
 
     private function fetchRelationData(string $tableName): array
     {
-        $databaseName = $this->connection->fetchColumn('SELECT DATABASE()');
+        $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
         $query = sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
-        return $this->connection->fetchAll($query);
+        return $this->connection->fetchAllAssociative($query);
     }
 
     private function createModifyPrimaryKeyQuery(string $tableName, string $newColumnName, string $defaultValue): string

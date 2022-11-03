@@ -65,7 +65,7 @@ class DomainLoader extends AbstractDomainLoader
         $query->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
         /** @var array<string, Domain> $domains */
-        $domains = FetchModeHelper::groupUnique($query->execute()->fetchAllAssociative());
+        $domains = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
 
         return $domains;
     }

@@ -101,7 +101,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
         $query->addOrderBy('seo_url.sales_channel_id');
 
-        $seoUrls = $query->execute()->fetchAll();
+        $seoUrls = $query->executeQuery()->fetchAllAssociative();
         foreach ($seoUrls as $seoUrl) {
             $seoPathInfo = trim($seoUrl['seo_path_info']);
             if ($seoPathInfo === '') {

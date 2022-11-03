@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -34,10 +34,7 @@ class JsonFieldTest extends TestCase
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -55,14 +52,14 @@ CREATE TABLE `_test_nullable` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }
 
     public function testSearchForNullFields(): void
@@ -105,7 +102,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), [$data], $context);
 
-        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -243,7 +240,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(VersionCommitDataDefinition::class), [$data], $context);
 
-        $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $entityId = $this->connection->fetchOne('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($entityId);
 
         $entityId = json_decode($entityId, true);
@@ -356,8 +353,11 @@ EOF;
         try {
             $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
             static::assertEmpty($result->getIds());
-        } catch (DBALException $exception) {
+        } catch (Exception $exception) {
             // mysql throws an exception on invalid path
+            static::assertTrue(true);
+        } catch (\Doctrine\DBAL\ArrayParameters\Exception $exception) {
+            // postgres throws an exception on invalid path
             static::assertTrue(true);
         }
     }

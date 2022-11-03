@@ -135,9 +135,11 @@ class DoctrineExtension extends AbstractExtension
      */
     public function replaceQueryParameters(string $query, $parameters): string
     {
+        /** @var array<mixed> $values */
         $values = $parameters;
 
         if ($parameters instanceof Data) {
+            /** @var array<mixed> $values */
             $values = $parameters->getValue(true);
         }
 

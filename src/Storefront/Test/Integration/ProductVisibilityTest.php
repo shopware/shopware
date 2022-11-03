@@ -279,7 +279,7 @@ class ProductVisibilityTest extends TestCase
         $id = $this->ids->create($key);
 
         $snippetSetId = (string) $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT id FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT id FROM snippet_set LIMIT 1');
 
         $data = [
             'id' => $id,

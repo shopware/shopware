@@ -207,7 +207,7 @@ class CategoryIndexer extends EntityIndexer
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', Uuid::fromHexToBytes($versionId));
 
-        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        return $query->executeQuery()->fetchFirstColumn();
     }
 
     private function getIterator(?array $offset): IterableQuery

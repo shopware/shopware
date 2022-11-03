@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
+use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,15 +29,9 @@ class ApiRequestContextResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var ApiRequestContextResolver
-     */
-    private $resolver;
+    private RequestContextResolverInterface $resolver;
 
     protected function setUp(): void
     {
@@ -203,7 +198,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('UPDATE `integration` SET `admin` = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
+            ->executeStatement('UPDATE `integration` SET `admin` = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
@@ -414,7 +409,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
+            ->executeStatement('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
@@ -436,7 +431,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
+            ->executeStatement('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
         $this->addRoleToIntegration($ids->get('integration'), ['currency:read']);
 
@@ -449,13 +444,10 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertArrayHasKey('data', $response);
     }
 
-    /**
-     * @throws \Doctrine\DBAL\DBALException
-     */
     private function createUser(array $roles, bool $isAdmin): TestUser
     {
         $user = TestUser::createNewTestUser($this->connection);
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `user` SET admin = :admin WHERE id = :id',
             ['admin' => $isAdmin ? 1 : 0, 'id' => Uuid::fromHexToBytes($user->getUserId())]
         );

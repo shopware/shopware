@@ -278,7 +278,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderId(): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT id
             FROM `order`
@@ -289,7 +289,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -302,7 +302,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOderDeliveryState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od
@@ -316,7 +316,7 @@ class SetOrderStateActionTest extends TestCase
 
     private function getOrderTransactionState(string $orderId): string
     {
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             '
             SELECT state_machine_state.technical_name
             FROM `order` od

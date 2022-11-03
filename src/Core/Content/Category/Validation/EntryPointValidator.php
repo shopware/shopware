@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Category\Validation;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -117,7 +116,7 @@ class EntryPointValidator implements EventSubscriberInterface
             }
         }
 
-        $query = $this->connection->createQueryBuilder()
+        $result = $this->connection->createQueryBuilder()
             ->select('id')
             ->from(SalesChannelDefinition::ENTITY_NAME)
             ->where('navigation_category_id = :navigation_id')
@@ -127,12 +126,8 @@ class EntryPointValidator implements EventSubscriberInterface
             ->setParameter('footer_id', $categoryId)
             ->setParameter('service_id', $categoryId)
             ->setMaxResults(1)
-            ->execute();
+            ->executeQuery();
 
-        if (!($query instanceof ResultStatement)) {
-            return true;
-        }
-
-        return !(bool) $query->fetchColumn();
+        return !$result->fetchOne();
     }
 }

@@ -161,12 +161,12 @@ class UpdatedByFieldTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        return Uuid::fromBytesToHex((string) $this->getContainer()->get(Connection::class)->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 
     private function fetchOrderStateId(string $orderStateTechnicalName): string
     {
-        $id = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $id = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT state_machine_state.id
             FROM state_machine_state
             JOIN state_machine ON state_machine_state.state_machine_id = state_machine.id

@@ -273,9 +273,7 @@ class ThemeService
             } elseif (\array_key_exists('value', $fieldItem)) {
                 $themeConfig['currentFields'][$field]['value'] = $fieldItem['value'];
             }
-        }
 
-        foreach ($themeConfig['fields'] as $field => $fieldItem) {
             $isInherited = $this->fieldIsInherited($field, $baseThemeConfig);
             $themeConfig['baseThemeFields'][$field]['isInherited'] = $isInherited;
 

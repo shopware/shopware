@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -10,10 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class PromotionCodesLoader
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -24,10 +22,15 @@ class PromotionCodesLoader
     }
 
     /**
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @return list<string>
      */
     public function loadIndividualCodes(string $promotionId): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', PromotionCodeService::class)
+        );
+
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select('code');
@@ -35,8 +38,8 @@ class PromotionCodesLoader
         $qb->where($qb->expr()->eq('promotion_id', ':id'));
         $qb->setParameter('id', Uuid::fromHexToBytes($promotionId));
 
-        /** @var array|bool $result */
-        $result = $qb->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        /** @var list<string>|bool $result */
+        $result = $qb->executeQuery()->fetchFirstColumn();
 
         if ($result !== (array) $result) {
             return [];

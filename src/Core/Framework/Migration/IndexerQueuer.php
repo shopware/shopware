@@ -124,7 +124,7 @@ class IndexerQueuer
 
     private static function fetchCurrent(Connection $connection): ?array
     {
-        $currentRow = $connection->fetchAssoc(
+        $currentRow = $connection->fetchAssociative(
             '
             SELECT *
             FROM system_config

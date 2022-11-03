@@ -33,20 +33,11 @@ class SetNullOnDeleteTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityWriter
-     */
-    private $writer;
+    private EntityWriter $writer;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -71,13 +62,13 @@ class SetNullOnDeleteTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DROP TABLE IF EXISTS set_null_on_delete_child;
              DROP TABLE IF EXISTS set_null_on_delete_parent;
              DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
         );
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'CREATE TABLE `set_null_on_delete_parent` (
                `id` binary(16) NOT NULL,
                `set_null_on_delete_many_to_one_id` binary(16) NULL,
@@ -89,7 +80,7 @@ class SetNullOnDeleteTest extends TestCase
              );'
         );
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'CREATE TABLE `set_null_on_delete_child` (
                `id` binary(16) NOT NULL,
                `set_null_on_delete_parent_id` binary(16) NULL,
@@ -104,7 +95,7 @@ class SetNullOnDeleteTest extends TestCase
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
         );
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'CREATE TABLE `set_null_on_delete_many_to_one` (
                `id` binary(16) NOT NULL,
                `name` varchar(255) NOT NULL,
@@ -114,7 +105,7 @@ class SetNullOnDeleteTest extends TestCase
              );'
         );
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'ALTER TABLE `set_null_on_delete_parent`
              ADD FOREIGN KEY (`set_null_on_delete_many_to_one_id`) REFERENCES `set_null_on_delete_many_to_one` (`id`) ON DELETE SET NULL;'
         );
@@ -126,7 +117,7 @@ class SetNullOnDeleteTest extends TestCase
     {
         $this->connection->rollBack();
 
-        $this->connection->exec(
+        $this->connection->executeStatement(
             'DROP TABLE IF EXISTS set_null_on_delete_child;
              DROP TABLE IF EXISTS set_null_on_delete_parent;
              DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
@@ -154,10 +145,10 @@ class SetNullOnDeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_parent');
         static::assertCount(1, $parents);
 
-        $children = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_child');
+        $children = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_child');
         static::assertCount(1, $children);
 
         $result = $this->writer->delete(
@@ -189,10 +180,10 @@ class SetNullOnDeleteTest extends TestCase
             'setNullOnDeleteParentVersionId' => null,
         ], $updateResult->getPayload());
 
-        $parents = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_parent');
         static::assertCount(0, $parents);
 
-        $children = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_child');
+        $children = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_child');
         static::assertCount(1, $children);
         static::assertNull($children[0]['set_null_on_delete_parent_id']);
         static::assertNull($children[0]['set_null_on_delete_parent_version_id']);
@@ -219,10 +210,10 @@ class SetNullOnDeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_parent');
         static::assertCount(1, $parents);
 
-        $manyToOne = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_many_to_one');
+        $manyToOne = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_many_to_one');
         static::assertCount(1, $manyToOne);
 
         $result = $this->writer->delete(
@@ -254,11 +245,11 @@ class SetNullOnDeleteTest extends TestCase
             'setNullOnDeleteManyToOneId' => null,
         ], $updateResult->getPayload());
 
-        $parents = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_parent');
+        $parents = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_parent');
         static::assertCount(1, $parents);
         static::assertNull($parents[0]['set_null_on_delete_many_to_one_id']);
 
-        $manyToOne = $this->connection->fetchAll('SELECT * FROM set_null_on_delete_many_to_one');
+        $manyToOne = $this->connection->fetchAllAssociative('SELECT * FROM set_null_on_delete_many_to_one');
         static::assertCount(0, $manyToOne);
     }
 

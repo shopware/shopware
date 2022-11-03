@@ -57,7 +57,7 @@ final class ReferenceInvoiceLoader
             $builder->setParameter('documentId', Uuid::fromHexToBytes($referenceDocumentId));
         }
 
-        $result = $builder->execute()->fetchAssociative();
+        $result = $builder->executeQuery()->fetchAssociative();
 
         return $result !== false ? $result : [];
     }

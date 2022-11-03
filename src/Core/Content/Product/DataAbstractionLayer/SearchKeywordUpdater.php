@@ -39,7 +39,7 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * @var array[]
      */
-    private $config = [];
+    private array $config = [];
 
     /**
      * @internal
@@ -172,7 +172,7 @@ class SearchKeywordUpdater implements ResetInterface
         ];
 
         RetryableQuery::retryable($this->connection, function () use ($params): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
                 $params,
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -267,7 +267,7 @@ class SearchKeywordUpdater implements ResetInterface
 
         $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), Connection::PARAM_STR_ARRAY);
 
-        $all = $query->execute()->fetchAll();
+        $all = $query->executeQuery()->fetchAllAssociative();
 
         $fields = array_filter($all, function (array $field) use ($languageId) {
             return $field['language_id'] === $languageId;

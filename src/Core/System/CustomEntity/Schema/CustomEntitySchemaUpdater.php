@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
@@ -37,7 +38,7 @@ class CustomEntitySchemaUpdater
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-            $schema = $this->getSchemaManager()->createSchema();
+            $schema = $this->getSchemaManager()->introspectSchema();
 
             $this->cleanup($schema);
 
@@ -78,6 +79,9 @@ class CustomEntitySchemaUpdater
         }
     }
 
+    /**
+     * @return AbstractSchemaManager<MySQLPlatform>
+     */
     private function getSchemaManager(): AbstractSchemaManager
     {
         $manager = $this->connection->getSchemaManager();

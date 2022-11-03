@@ -68,7 +68,7 @@ class AvailableCombinationLoader
             'product.available',
         ]);
 
-        $combinations = $query->execute()->fetchAll();
+        $combinations = $query->executeQuery()->fetchAllAssociative();
         $combinations = FetchModeHelper::groupUnique($combinations);
 
         $result = new AvailableCombinationResult();

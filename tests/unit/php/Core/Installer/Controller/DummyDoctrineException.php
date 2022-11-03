@@ -9,16 +9,9 @@ use Doctrine\DBAL\Exception\DriverException;
  */
 class DummyDoctrineException extends DriverException
 {
-    private int $errorCode;
-
     public function __construct(int $errorCode, string $message = '')
     {
-        $this->errorCode = $errorCode;
+        $this->code = $errorCode;
         $this->message = $message;
-    }
-
-    public function getErrorCode(): int
-    {
-        return $this->errorCode;
     }
 }

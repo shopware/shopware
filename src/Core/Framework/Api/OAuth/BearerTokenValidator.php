@@ -13,20 +13,11 @@ use Shopware\Core\PlatformRequest;
 
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var AuthorizationValidatorInterface
-     */
-    private $decorated;
+    private AuthorizationValidatorInterface $decorated;
 
-    /**
-     * @var Configuration
-     */
-    private $configuration;
+    private Configuration $configuration;
 
     /**
      * @internal
@@ -64,7 +55,6 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
 
     /**
      * @throws OAuthServerException
-     * @throws \Doctrine\DBAL\DBALException
      */
     private function validateAccessTokenIssuedAt(\DateTimeImmutable $tokenIssuedAt, string $userId): void
     {
@@ -73,8 +63,8 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
             ->from('user')
             ->where('id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if ($lastUpdatedPasswordAt === false) {
             throw OAuthServerException::accessDenied('Access token is invalid');

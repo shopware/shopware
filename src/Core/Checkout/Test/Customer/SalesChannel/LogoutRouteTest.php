@@ -138,7 +138,7 @@ class LogoutRouteTest extends TestCase
 
         $currentCustomerToken = $response['contextToken'];
 
-        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
+        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $currentCustomerToken);
 
@@ -154,11 +154,11 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
+        $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
 
         static::assertFalse($customerIdWithOldToken);
 
-        $newCustomerContextToken = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT token FROM sales_channel_api_context WHERE customer_id = ?', [$currentCustomerId]);
+        $newCustomerContextToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT token FROM sales_channel_api_context WHERE customer_id = ?', [$currentCustomerId]);
 
         static::assertNotEmpty($newCustomerContextToken);
         static::assertNotEquals($currentCustomerToken, $newCustomerContextToken);
@@ -188,7 +188,7 @@ class LogoutRouteTest extends TestCase
 
         $currentCustomerToken = $response['contextToken'];
 
-        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
+        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $currentCustomerToken);
 
@@ -202,7 +202,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
+        $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
 
         static::assertEquals($currentCustomerId, $customerIdWithOldToken);
     }
@@ -277,7 +277,7 @@ class LogoutRouteTest extends TestCase
         static::assertEquals($login->getToken(), $logout->getToken());
 
         $exists = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);
+            ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);
 
         static::assertEmpty($exists);
     }

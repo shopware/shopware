@@ -154,7 +154,7 @@ class SchemaUpdater
 
             switch ($field['type']) {
                 case 'int':
-                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsinged' => true]);
+                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsigned' => true]);
 
                     break;
                 case 'bool':

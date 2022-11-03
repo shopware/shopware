@@ -232,7 +232,7 @@ class OrderActionController extends AbstractController
 
             $fetchOrder->setParameter('id', Uuid::fromHexToBytes($referencedId));
 
-            $orderId = $fetchOrder->execute()->fetchOne();
+            $orderId = $fetchOrder->executeQuery()->fetchOne();
 
             $query->setParameter('orderId', $orderId);
         }
@@ -242,7 +242,7 @@ class OrderActionController extends AbstractController
 
         $query->setParameter('documentTypes', $documentTypes, Connection::PARAM_STR_ARRAY);
 
-        $documents = $query->execute()->fetchAllAssociative();
+        $documents = $query->executeQuery()->fetchAllAssociative();
 
         $documentsGroupByType = FetchModeHelper::group($documents);
 

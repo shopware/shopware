@@ -236,7 +236,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
         WHERE sales_channel.id = :id
         GROUP BY sales_channel.id, sales_channel.language_id, sales_channel.currency_id, currency.factor';
 
-        $data = $this->connection->fetchAssoc($sql, [
+        $data = $this->connection->fetchAssociative($sql, [
             'id' => Uuid::fromHexToBytes($salesChannelId),
         ]);
         if ($data === false) {
@@ -285,8 +285,8 @@ class BaseContextFactory extends AbstractBaseContextFactory
             ->from('language')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($languageId))
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if ($data === false) {
             throw new LanguageNotFoundException($languageId);

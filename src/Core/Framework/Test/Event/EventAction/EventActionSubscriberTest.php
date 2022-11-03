@@ -34,6 +34,7 @@ class EventActionSubscriberTest extends TestCase
         $event = $this->getContainer()->get(Connection::class)->fetchAssociative($sql);
         static::assertIsArray($event);
 
+        static::assertIsArray($event);
         static::assertNotNull($event['id']);
         static::assertNotNull($event['mail_id']);
 

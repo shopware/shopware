@@ -54,20 +54,11 @@ class CreditNoteGeneratorTest extends TestCase
 
     public const CUSTOMER_GROUP_NET = true;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -551,9 +542,9 @@ class CreditNoteGeneratorTest extends TestCase
 
     private function getDefaultPaymentMethod(): ?string
     {
-        $id = $this->connection->executeQuery(
+        $id = $this->connection->fetchOne(
             'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        )->fetchColumn();
+        );
 
         if (!$id) {
             return null;

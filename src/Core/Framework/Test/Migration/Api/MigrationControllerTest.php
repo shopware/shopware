@@ -162,7 +162,7 @@ class MigrationControllerTest extends TestCase
             $query->andWhere('`update` IS NOT NULL');
         }
 
-        return (int) $query->execute()->fetchColumn();
+        return (int) $query->executeQuery()->fetchOne();
     }
 
     private function createBasRequest(bool $exceptions = false): Request

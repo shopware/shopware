@@ -7,11 +7,13 @@ use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -22,35 +24,17 @@ class AddWishlistProductRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var object|null
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
@@ -158,8 +142,9 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         $errors = $response['errors'][0];
+        unset($errors['meta']);
 
-        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode(), print_r($errors, true));
         static::assertEquals('CHECKOUT__DUPLICATE_WISHLIST_PRODUCT', $errors['code']);
     }
 

@@ -102,7 +102,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         //execute and fetch ids
-        $rows = $query->execute()->fetchAll();
+        $rows = $query->executeQuery()->fetchAllAssociative();
 
         $total = $this->getTotalCount($criteria, $query, $rows);
 
@@ -183,14 +183,14 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query->resetQueryPart('orderBy');
         $query->setMaxResults(null);
-        $query->setFirstResult(null);
+        $query->setFirstResult(0);
 
         $total = new QueryBuilder($query->getConnection());
         $total->select(['COUNT(*)'])
             ->from(sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
-        return (int) $total->execute()->fetchOne();
+        return (int) $total->executeQuery()->fetchOne();
     }
 
     private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void

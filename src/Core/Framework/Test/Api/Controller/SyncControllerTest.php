@@ -301,7 +301,7 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -321,7 +321,7 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -362,7 +362,7 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -404,7 +404,7 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data, \JSON_THROW_ON_ERROR));
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -443,9 +443,9 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeUpdate('DELETE FROM enqueue;');
-        $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
-        $this->connection->executeUpdate('DELETE FROM `increment`;');
+        $this->connection->executeStatement('DELETE FROM enqueue;');
+        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
+        $this->connection->executeStatement('DELETE FROM `increment`;');
 
         $this->getBrowser()->request(
             'POST',
@@ -456,7 +456,7 @@ class SyncControllerTest extends TestCase
             json_encode($data, \JSON_THROW_ON_ERROR)
         );
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -492,9 +492,9 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeUpdate('DELETE FROM enqueue;');
-        $this->connection->executeUpdate('DELETE FROM `increment`;');
-        $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
+        $this->connection->executeStatement('DELETE FROM enqueue;');
+        $this->connection->executeStatement('DELETE FROM `increment`;');
+        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
 
         $keys = $this->gateway->list('message_queue_stats');
         static::assertEmpty($keys);
@@ -508,7 +508,7 @@ class SyncControllerTest extends TestCase
             json_encode($data, \JSON_THROW_ON_ERROR)
         );
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
             ['id' => Connection::PARAM_STR_ARRAY]

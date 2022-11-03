@@ -91,7 +91,7 @@ class MigrationRuntime
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NULL')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
     }
 
@@ -103,7 +103,7 @@ class MigrationRuntime
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
     }
 

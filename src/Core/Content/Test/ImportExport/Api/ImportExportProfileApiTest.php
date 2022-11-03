@@ -56,7 +56,7 @@ class ImportExportProfileApiTest extends TestCase
         }
 
         // read created data from db
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
         // compare expected and resulting data
@@ -327,7 +327,7 @@ class ImportExportProfileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-            $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+            $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
             static::assertCount($num - $deleted, $records);
 
             // Delete call with valid id.
@@ -342,7 +342,7 @@ class ImportExportProfileApiTest extends TestCase
                 static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
                 ++$deleted;
             }
-            $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+            $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
             static::assertCount($num - $deleted, $records);
         }
     }
@@ -395,7 +395,7 @@ class ImportExportProfileApiTest extends TestCase
     protected function getTranslationRecords(): array
     {
         return array_reduce(
-            $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
+            $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation'),
             static function ($carry, $translationRecord) {
                 $carry[$translationRecord['import_export_profile_id']] = $translationRecord;
 

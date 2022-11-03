@@ -91,10 +91,10 @@ class AuthControllerTest extends TestCase
         $newSessionId = $session->getId();
         static::assertNotEquals($sessionId, $newSessionId);
 
-        $oldCartExists = $connection->fetchColumn('SELECT 1 FROM cart WHERE token = ?', [$contextToken]);
+        $oldCartExists = $connection->fetchOne('SELECT 1 FROM cart WHERE token = ?', [$contextToken]);
         static::assertFalse($oldCartExists);
 
-        $oldContextExists = $connection->fetchColumn('SELECT 1 FROM sales_channel_api_context WHERE token = ?', [$contextToken]);
+        $oldContextExists = $connection->fetchOne('SELECT 1 FROM sales_channel_api_context WHERE token = ?', [$contextToken]);
         static::assertFalse($oldContextExists);
     }
 

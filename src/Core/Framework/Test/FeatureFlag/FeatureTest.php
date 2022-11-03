@@ -124,8 +124,13 @@ class FeatureTest extends TestCase
         static::assertTrue($indicator);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - can safely be removed as the tested method will also be removed
+     */
     public function testTheMethodGetsExecutes(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->setUpFixtures();
         $this->indicator = null;
 
@@ -609,6 +614,11 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($registeredFlags);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Can be removed as the test that uses this will also be removed
+     *
+     * @phpstan-ignore-next-line
+     */
     private function indicate(?\stdClass $arg = null): void
     {
         $this->indicator = $arg;

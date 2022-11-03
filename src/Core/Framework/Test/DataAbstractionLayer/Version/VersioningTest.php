@@ -685,7 +685,7 @@ class VersioningTest extends TestCase
         $versionId = $this->productRepository->createVersion($productId, $context);
 
         //check both products exists
-        $products = $this->connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        $products = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(2, $products);
 
         $versions = array_map(function ($item) {
@@ -695,7 +695,7 @@ class VersioningTest extends TestCase
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
 
-        $prices = $this->connection->fetchAll('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+        $prices = $this->connection->fetchAllAssociative('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(4, $prices);
 
         $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
@@ -738,7 +738,7 @@ class VersioningTest extends TestCase
         $versionId = $this->productRepository->createVersion($productId, $context);
 
         //check both products exists
-        $products = $this->connection->fetchAll(
+        $products = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($productId)]
         );
@@ -751,7 +751,7 @@ class VersioningTest extends TestCase
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
             ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
         );
@@ -762,7 +762,7 @@ class VersioningTest extends TestCase
             static::assertSame(Defaults::LIVE_VERSION, $categoryVersion);
         }
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
             ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
         );
@@ -1087,7 +1087,7 @@ class VersioningTest extends TestCase
         static::assertInstanceOf(CategoryCollection::class, $product->getCategories());
         static::assertCount(2, $product->getCategories());
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :id AND product_version_id = :version',
             ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
         );
@@ -1893,9 +1893,8 @@ class VersioningTest extends TestCase
 
     private function getReviewCount(string $productId, string $versionId): int
     {
-        return (int) $this->getContainer()
-            ->get(Connection::class)
-            ->fetchColumn(
+        return (int) $this->connection
+            ->fetchOne(
                 'SELECT COUNT(*) FROM product_review WHERE product_id = :id AND product_version_id = :version',
                 ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
             );

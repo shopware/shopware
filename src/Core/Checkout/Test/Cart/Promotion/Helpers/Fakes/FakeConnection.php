@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
-use Doctrine\DBAL\Cache\ArrayStatement;
+use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\PDOMySql\Driver;
-use Doctrine\DBAL\ForwardCompatibility\Result;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 
 /**
  * @internal
@@ -24,7 +22,7 @@ class FakeConnection extends Connection
     /**
      * @param array<mixed> $dbRows
      *
-     * @throws DBALException
+     * @throws \Doctrine\DBAL\Exception
      *
      * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
      * therefore deriving classes should not change the constructor args, as we are in tests we ignore the error
@@ -35,21 +33,18 @@ class FakeConnection extends Connection
             [
                 'url' => 'sqlite:///:memory:',
             ],
-            new Driver(),
+            new \Doctrine\DBAL\Driver\PDO\MySQL\Driver(),
             new Configuration()
         );
 
         $this->dbRows = $dbRows;
     }
 
-    /**
-     * @return Result<mixed>
-     */
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        /** @deprecated tag:v6.5.0 - Return `Doctrine\DBAL\Cache\ArrayResult` after DBAL upgrade */
         return new Result(
-            new ArrayStatement($this->dbRows)
+            new ArrayResult($this->dbRows),
+            $this
         );
     }
 

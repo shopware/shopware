@@ -280,7 +280,7 @@ class StockUpdaterTest extends TestCase
 
         $count = $this->getContainer()
             ->get(Connection::class)
-            ->fetchColumn('SELECT COUNT(id) FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($orderId)]);
+            ->fetchOne('SELECT COUNT(id) FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($orderId)]);
 
         static::assertEquals(3, $count);
 

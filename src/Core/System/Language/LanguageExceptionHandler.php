@@ -20,9 +20,6 @@ class LanguageExceptionHandler implements ExceptionHandlerInterface
      */
     public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
-        if ($e->getCode() !== 0) {
-            return null;
-        }
         if (!Feature::isActive('FEATURE_NEXT_16640')
             && $command instanceof DeleteCommand
             && $command->getDefinition()->getEntityName() !== LanguageDefinition::ENTITY_NAME) {

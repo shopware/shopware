@@ -416,7 +416,7 @@ class NavigationPageSeoUrlTest extends TestCase
         $query->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME);
         $query->setParameter('language', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
 
-        $urls = $query->execute()->fetchAll();
+        $urls = $query->executeQuery()->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($urls);
     }

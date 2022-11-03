@@ -50,7 +50,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount($num, $records);
         foreach ($records as $record) {
@@ -281,7 +281,7 @@ class ImportExportFileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
         static::assertCount($num, $records);
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
@@ -290,7 +290,7 @@ class ImportExportFileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
         static::assertEquals($num - 1, \count($records));
     }
 

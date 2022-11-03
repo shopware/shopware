@@ -321,7 +321,7 @@ class StateMachineActionControllerTest extends TestCase
                 ],
             ],
             'availabilityRuleId' => $rule['id'],
-            'deliveryTimeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
+            'deliveryTimeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
             'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
         ];
 

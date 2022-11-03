@@ -24,10 +24,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
 {
     public const VIOLATION_NO_PERMISSION = 'no_permission_violation';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -95,7 +92,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
             FROM `app`
             INNER JOIN `custom_field_set` ON `custom_field_set`.`app_id` = `app`.`id`
             WHERE `custom_field_set`.`id` = :customFieldSetId
-        ', ['customFieldSetId' => $id])->fetchColumn();
+        ', ['customFieldSetId' => $id])->fetchOne();
 
         if (!$integrationId) {
             return null;

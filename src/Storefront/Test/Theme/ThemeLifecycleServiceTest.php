@@ -162,7 +162,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $bundle = $this->getThemeConfig();
         $themeMediaDefaultFolderId = $this->getThemeMediaDefaultFolderId();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             UPDATE `media`
             SET `media_folder_id` = null
             WHERE `media_folder_id` = :defaultThemeFolder

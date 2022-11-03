@@ -5,7 +5,7 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\DriverManager;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
@@ -25,6 +25,9 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
+/**
+ * @psalm-import-type Params from DriverManager
+ */
 class HttpKernel
 {
     protected static ?Connection $connection = null;
@@ -73,7 +76,8 @@ class HttpKernel
 
         try {
             return $this->doHandle($request, (int) $type, (bool) $catch);
-        } catch (DBALException $e) {
+        } catch (\Doctrine\DBAL\Exception $e) {
+            /** @var Params|array{url?: string} $connectionParams */
             $connectionParams = self::getConnection()->getParams();
 
             $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());

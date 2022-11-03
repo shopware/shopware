@@ -232,7 +232,7 @@ trait OrderActionTrait
     private function getStateId(string $state, string $machine): string
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('
+            ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine

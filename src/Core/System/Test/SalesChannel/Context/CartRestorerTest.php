@@ -390,7 +390,7 @@ class CartRestorerTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result > 0;
     }
@@ -402,7 +402,7 @@ class CartRestorerTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result > 0;
     }

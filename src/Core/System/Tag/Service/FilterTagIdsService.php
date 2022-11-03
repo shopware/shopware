@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Tag\Service;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -54,7 +55,7 @@ class FilterTagIdsService
             $this->addAssignmentFilter($query, $assignmentFilter);
         }
 
-        $ids = $query->execute()->fetchFirstColumn();
+        $ids = $query->executeQuery()->fetchFirstColumn();
 
         return new FilteredTagIdsStruct($ids, $this->getTotal($query));
     }
@@ -80,12 +81,12 @@ class FilterTagIdsService
         $query->setMaxResults(null);
         $query->setFirstResult(0);
 
-        $total = (new QueryBuilder($query->getConnection()))
+        $total = (new QueryBuilder($this->connection))
             ->select(['COUNT(*)'])
             ->from(sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
-        return (int) $total->execute()->fetchOne();
+        return (int) $total->executeQuery()->fetchOne();
     }
 
     private function addEmptyFilter(QueryBuilder $query): void
@@ -134,7 +135,7 @@ class FilterTagIdsService
             return;
         }
 
-        $expressions = $query->expr()->orX();
+        $expressions = new CompositeExpression(CompositeExpression::TYPE_OR);
 
         foreach ($manyToManyFields as $manyToManyField) {
             $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
@@ -144,7 +145,7 @@ class FilterTagIdsService
                 ->select([$mappingLocalColumn])
                 ->from($mappingTable);
 
-            $expressions->add($query->expr()->in('`tag`.`id`', sprintf('(%s)', $subQuery->getSQL())));
+            $expressions = $expressions->with($query->expr()->in('`tag`.`id`', sprintf('(%s)', $subQuery->getSQL())));
         }
 
         $query->andWhere($expressions);

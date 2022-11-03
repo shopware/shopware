@@ -26,20 +26,11 @@ class StateMachineSateFieldSerializerTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function setUp(): void
     {
@@ -150,12 +141,12 @@ class StateMachineSateFieldSerializerTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        return Uuid::fromBytesToHex((string) $this->connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $this->connection->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 
     private function fetchOrderStateId(string $orderStateTechnicalName): string
     {
-        $id = $this->connection->fetchColumn(
+        $id = $this->connection->fetchOne(
             'SELECT state_machine_state.id
             FROM state_machine_state
             JOIN state_machine ON state_machine_state.state_machine_id = state_machine.id

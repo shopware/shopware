@@ -22,12 +22,12 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
     public function update(Connection $connection): void
     {
         $stmt = $connection->prepare('SELECT count(`id`) FROM seo_url_template WHERE `entity_name` = ? AND `route_name` = ?');
-        $stmt->executeQuery([
+        $result = $stmt->executeQuery([
             'product',
             ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
-        if ((int) $stmt->fetchOne() === 0) {
+        if ((int) $result->fetchOne() === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 'sales_channel_id' => null,
@@ -38,12 +38,12 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
             ]);
         }
 
-        $stmt->executeQuery([
+        $result = $stmt->executeQuery([
             'category',
             NavigationPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
-        if ((int) $stmt->fetchOne() === 0) {
+        if ((int) $result->fetchOne() === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 'sales_channel_id' => null,

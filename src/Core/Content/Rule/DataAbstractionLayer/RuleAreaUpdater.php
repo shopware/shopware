@@ -196,7 +196,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             Connection::PARAM_STR_ARRAY
         );
 
-        return FetchModeHelper::groupUnique($query->execute()->fetchAllAssociative());
+        return FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
     }
 
     private function addSelect(QueryBuilder $query, AssociationField $associationField): void

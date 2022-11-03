@@ -46,7 +46,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
 
             if ($writeResult->getOperation() === EntityWriteResult::OPERATION_INSERT) {
                 if ($snippetSets === null) {
-                    $snippetSets = $this->connection->fetchAll('SELECT id, iso FROM snippet_set');
+                    $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
                 }
 
                 if (empty($snippetSets)) {

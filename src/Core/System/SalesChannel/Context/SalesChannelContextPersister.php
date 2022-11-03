@@ -62,7 +62,7 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
                 VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
             [
@@ -87,7 +87,7 @@ class SalesChannelContextPersister
             );
         }
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE FROM sales_channel_api_context WHERE token = :token',
             [
                 'token' => $token,
@@ -99,7 +99,7 @@ class SalesChannelContextPersister
     {
         $newToken = Random::getAlphanumericString(32);
 
-        $affected = $this->connection->executeUpdate(
+        $affected = $this->connection->executeStatement(
             'UPDATE `sales_channel_api_context`
                    SET `token` = :newToken,
                        `updated_at` = :updatedAt
@@ -127,7 +127,7 @@ class SalesChannelContextPersister
         if ($this->cartPersister instanceof AbstractCartPersister) {
             $this->cartPersister->replace($oldToken, $newToken, $context);
         } else {
-            $this->connection->executeUpdate('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
+            $this->connection->executeStatement('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
         }
 
         $context->assign(['token' => $newToken]);
@@ -160,7 +160,7 @@ class SalesChannelContextPersister
             $qb->setMaxResults(1);
         }
 
-        $data = $qb->execute()->fetchAllAssociative();
+        $data = $qb->executeQuery()->fetchAllAssociative();
 
         if (empty($data)) {
             return [];

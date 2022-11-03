@@ -10,10 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class PromotionExclusionUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -99,7 +96,7 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $excludeThisIds
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      *
      * @return array<string>
      */
@@ -138,7 +135,7 @@ class PromotionExclusionUpdater
                 WHERE id IN(:affectedIds)
             ';
 
-            $this->connection->executeUpdate($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
+            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
         });
 
         return $tags;
@@ -147,7 +144,7 @@ class PromotionExclusionUpdater
     /**
      * appends addId in all promotions that id is in ids
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     private function addToJSON(string $addId, array $ids): void
     {
@@ -156,7 +153,7 @@ class PromotionExclusionUpdater
         }
 
         RetryableQuery::retryable($this->connection, function () use ($addId, $ids): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'UPDATE promotion
                  SET promotion.exclusion_ids = (JSON_ARRAY_APPEND(IFNULL(promotion.exclusion_ids,JSON_ARRAY()), \'$\', :value))
                  WHERE id IN (:addToTheseIds)
@@ -177,7 +174,7 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $onlyAddThisExistingIds
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
@@ -241,7 +238,7 @@ class PromotionExclusionUpdater
 
         $query->setParameter('id', Uuid::fromHexToBytes($id));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     /**

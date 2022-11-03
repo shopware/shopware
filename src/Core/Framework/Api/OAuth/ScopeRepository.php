@@ -16,12 +16,9 @@ class ScopeRepository implements ScopeRepositoryInterface
     /**
      * @var ScopeEntityInterface[]
      */
-    private $scopes;
+    private array $scopes;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -84,8 +81,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             ->where('id = UNHEX(:accessKey)')
             ->setParameter('accessKey', $userIdentifier)
             ->setMaxResults(1)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if ($isAdmin) {
             $scopes[] = new AdminScope();

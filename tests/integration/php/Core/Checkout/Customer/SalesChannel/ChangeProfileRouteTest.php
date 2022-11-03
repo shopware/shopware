@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
+namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
@@ -18,7 +19,6 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- * @group store-api
  */
 class ChangeProfileRouteTest extends TestCase
 {
@@ -45,8 +45,6 @@ class ChangeProfileRouteTest extends TestCase
      */
     private $customerId;
 
-    private string $salesChannelId;
-
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
@@ -72,7 +70,7 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -87,7 +85,7 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
 
@@ -109,12 +107,12 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
         $this->browser->request('GET', '/store-api/account/customer');
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('Max', $customer['firstName']);
         static::assertSame('Mustermann', $customer['lastName']);
@@ -140,7 +138,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
@@ -173,7 +171,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
@@ -303,7 +301,8 @@ class ChangeProfileRouteTest extends TestCase
     /**
      * @dataProvider dataProviderVatIds
      *
-     * @param array<string>|null $vatIds
+     * @param array<string, boolean> $constraint
+     * @param array<string|null>|null $vatIds
      * @param array<string>|null $expectedVatIds
      */
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
@@ -334,7 +333,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         if (!$shouldBeValid) {
             static::assertArrayHasKey('errors', $response);
@@ -377,7 +376,7 @@ class ChangeProfileRouteTest extends TestCase
                 $changeData
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
@@ -389,6 +388,58 @@ class ChangeProfileRouteTest extends TestCase
         static::assertEquals('', $customer->getCompany());
         static::assertEquals($changeData['firstName'], $customer->getFirstName());
         static::assertEquals($changeData['lastName'], $customer->getLastName());
+    }
+
+    public function testChangeSuccessWithNewsletterRecipient(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/account/customer',
+                [
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => $response['email'],
+                    'firstName' => $response['firstName'],
+                    'lastName' => $response['lastName'],
+                    'option' => 'direct',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
+
+        /** @var array<string, string> $newsletterRecipient */
+        $newsletterRecipient = $this->getContainer()->get(Connection::class)
+            ->fetchAssociative('SELECT * FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+
+        static::assertSame($newsletterRecipient['first_name'], $response['firstName']);
+        static::assertSame($newsletterRecipient['last_name'], $response['lastName']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                [
+                    'salutationId' => $this->getValidSalutationId(),
+                    'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                    'firstName' => 'FirstName',
+                    'lastName' => 'LastName',
+                ]
+            );
+
+        /** @var array<string, string> $newsletterRecipient */
+        $newsletterRecipient = $this->getContainer()->get(Connection::class)
+            ->fetchAssociative('SELECT * FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+
+        static::assertEquals($newsletterRecipient['first_name'], 'FirstName');
+        static::assertEquals($newsletterRecipient['last_name'], 'LastName');
     }
 
     private function createData(): void

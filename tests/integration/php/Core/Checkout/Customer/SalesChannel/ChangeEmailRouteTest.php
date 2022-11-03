@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
+namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,7 +17,6 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- * @group store-api
  */
 class ChangeEmailRouteTest extends TestCase
 {

@@ -315,6 +315,27 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
+        yield 'render with a display company address' => [
+            [7],
+            function (DocumentGenerateOperation $operation): void {
+                $operation->assign([
+                    'config' => [
+                        'displayLineItems' => true,
+                        'displayFooter' => true,
+                        'displayHeader' => true,
+                        'displayCompanyAddress' => true,
+                        'companyAddress' => 'Ebbinghoff 10 - 48624 Schöppingen',
+                    ],
+                ]);
+            },
+            function (RenderedDocument $rendered, OrderEntity $order): void {
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+                $rendered = $rendered->getHtml();
+                static::assertStringContainsString('Ebbinghoff 10</br>48624 Schöppingen', $rendered);
+            },
+        ];
+
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM customer');
     }
 

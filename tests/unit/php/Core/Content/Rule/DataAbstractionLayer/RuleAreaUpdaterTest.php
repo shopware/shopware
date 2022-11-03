@@ -103,11 +103,8 @@ class RuleAreaUpdaterTest extends TestCase
             ['ids' => Connection::PARAM_STR_ARRAY, 'flowTypes' => Connection::PARAM_STR_ARRAY]
         )->willReturn($resultStatement);
 
-        $driverStatement = $this->createMock(\Doctrine\DBAL\Driver\Statement::class);
         $statement = $this->createMock(Statement::class);
-        $statement->method('getWrappedStatement')->willReturn($driverStatement);
-
-        $driverStatement->expects(static::once())->method('execute')->with([
+        $statement->expects(static::once())->method('executeStatement')->with([
             'areas' => json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA]),
             'id' => Uuid::fromHexToBytes($id),
         ]);

@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package core
@@ -18,99 +16,27 @@ class RetryableQuery
      */
     private $connection;
 
-    /**
-     * @var DriverStatement<mixed>
-     */
-    private DriverStatement $query;
+    private Statement $query;
 
-    /**
-     * @param Connection $param1
-     * @param Statement|DriverStatement<mixed> $param2
-     */
-    public function __construct($param1, $param2 = null)
+    public function __construct(Connection $connection, Statement $query)
     {
-        if ($param1 instanceof DriverStatement && $param2 === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Only passing a DriverStatement to RetryableQuery::__construct() is deprecated and will not be possible anymore in v6.5.0.0., instead pass a Connection as first parameter and a Doctrine\DBAL\Statement as second.'
-            );
-            $this->query = $param1;
-        } elseif ($param1 instanceof Connection && $param2 instanceof Statement) {
-            $this->connection = $param1;
-            $this->query = $param2->getWrappedStatement();
-        } elseif ($param1 instanceof Connection && $param2 instanceof DriverStatement) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Passing a DriverStatement as second argument to RetryableQuery::__construct() is deprecated and will not be possible anymore in v6.5.0.0., instead pass a Doctrine\DBAL\Statement as second parameter.'
-            );
-            $this->connection = $param1;
-            $this->query = $param2;
-        } else {
-            throw new \InvalidArgumentException(
-                'Constructor arguments must be of type (Doctrine\DBAL\Connection $connection, Doctrine\DBAL\Statement $query).'
-            );
-        }
+        $this->connection = $connection;
+        $this->query = $query;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - will return the number of affected rows as int in the next major and $params won't allow null anymore and will be an empty array as default value
-     */
-    public function execute(?array $params = null): bool
+    public function execute(array $params = []): int
     {
-        if (\func_num_args() === 0) {
-            $params = [];
-        }
-
-        if ($params === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Passing null as first parameter to RetryableQuery::execute() is deprecated and will not be possible anymore in v6.5.0.0., instead pass an empty array or omit the parameter completely.'
-            );
-
-            $params = [];
-        }
-
         return self::retry($this->connection, function () use ($params) {
-            /** @deprecated tag:v6.5.0 - Will execute the DBAL statement instead of the DriverStatement directly */
-            $this->query->execute($params);
-
-            return true;
-        // return $this->query->executeStatement($params);
+            return $this->query->executeStatement($params);
         }, 0);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Params will be natively types and the second param won't allow null anymore, pass a Connection as first parameter and a Closure as second
-     *
-     * @param Connection $param1
-     * @param \Closure   $param2
-     */
-    public static function retryable($param1, $param2 = null)
+    public static function retryable(Connection $connection, \Closure $closure)
     {
-        if ($param1 instanceof \Closure && $param2 === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Only passing a Closure to RetryableQuery::retryable() is deprecated and will not be possible anymore in v6.5.0.0., instead pass a Connection as first parameter and a Closure as second.'
-            );
-
-            return self::retry(null, $param1, 0);
-        }
-
-        if ($param1 instanceof Connection && $param2 instanceof \Closure) {
-            return self::retry($param1, $param2, 0);
-        }
-
-        throw new \InvalidArgumentException(
-            'Arguments must be of type (Doctrine\DBAL\Connection $connection, \Closure $closure).'
-        );
+        return self::retry($connection, $closure, 0);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - Will return `Doctrine\DBAL\Statement` in the next major
-     *
-     * @return DriverStatement<mixed>
-     */
-    public function getQuery(): DriverStatement
+    public function getQuery(): Statement
     {
         return $this->query;
     }

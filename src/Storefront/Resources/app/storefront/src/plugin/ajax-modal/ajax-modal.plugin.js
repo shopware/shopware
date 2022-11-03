@@ -116,6 +116,7 @@ export default class AjaxModalPlugin extends Plugin {
     _processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
         loadingIndicatorUtil.remove();
         pseudoModalUtil.updateContent(response);
+        PluginManager.initializePlugins();
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
     }
 

@@ -41,7 +41,7 @@ class EntitySearchResultTest extends TestCase
         $newInstance = $entitySearchResult->slice(2);
 
         static::assertSame(ArrayEntity::class, $newInstance->getEntity());
-        static::assertSame(ArrayEntity::class, get_class($newInstance->first()));
+        static::assertSame(ArrayEntity::class, \get_class($newInstance->first()));
         static::assertSame(8, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());
@@ -54,17 +54,16 @@ class EntitySearchResultTest extends TestCase
 
         $count = 0;
 
-        $newInstance = $entitySearchResult->filter(function () use (&$count){
-            return 5 < $count++;
+        $newInstance = $entitySearchResult->filter(function () use (&$count) {
+            return $count++ > 5;
         });
 
         static::assertSame(ArrayEntity::class, $newInstance->getEntity());
-        static::assertSame(ArrayEntity::class, get_class($newInstance->first()));
+        static::assertSame(ArrayEntity::class, \get_class($newInstance->first()));
         static::assertSame(4, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());
         static::assertSame($entitySearchResult->getContext(), $newInstance->getContext());
-
     }
 
     public function resultPageCriteriaDataProvider(): \Generator
@@ -80,10 +79,11 @@ class EntitySearchResultTest extends TestCase
     private function createEntitySearchResult(): EntitySearchResult
     {
         $entities = [];
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 10; ++$i) {
             $entities[] = new ArrayEntity(['id' => Uuid::randomHex()]);
         }
         $entityCollection = new EntityCollection($entities);
+
         return new EntitySearchResult(
             ArrayEntity::class,
             $entityCollection->count(),

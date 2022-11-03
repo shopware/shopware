@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Framework\RateLimiter;
+namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
@@ -38,6 +39,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  * @group slow
+ * @covers \Shopware\Core\Framework\RateLimiter\RateLimiter
  */
 class RateLimiterTest extends TestCase
 {
@@ -296,7 +298,8 @@ class RateLimiterTest extends TestCase
         $factory = new RateLimiterFactory(
             $config,
             new CacheStorage(new ArrayAdapter()),
-            $this->createMock(LockFactory::class)
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(LockFactory::class),
         );
 
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));

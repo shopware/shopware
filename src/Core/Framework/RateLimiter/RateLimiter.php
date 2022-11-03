@@ -20,6 +20,8 @@ class RateLimiter
 
     public const NEWSLETTER_FORM = 'newsletter_form';
 
+    public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
+
     /**
      * @var array<string, RateLimiterFactory>
      */

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -35,6 +36,7 @@ class RateLimiterCompilerPass implements CompilerPassInterface
             $cacheDef->addArgument(new Reference($config['cache_pool']));
 
             $def->addArgument($cacheDef);
+            $def->addArgument(new Reference(SystemConfigService::class));
             $def->addArgument(new Reference($config['lock_factory']));
 
             $rateLimiter->addMethodCall('registerLimiterFactory', [$name, $def]);
@@ -43,6 +45,9 @@ class RateLimiterCompilerPass implements CompilerPassInterface
         $container->setDefinition('shopware.rate_limiter', $rateLimiter);
     }
 
+    /**
+     * @param array<string, array<string, int|string>|bool|string|int> $config
+     */
     private function setConfigDefaults(array &$config): void
     {
         if (!\array_key_exists('enabled', $config)) {

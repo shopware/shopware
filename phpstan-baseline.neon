@@ -896,16 +896,6 @@ parameters:
 			path: src/Core/Checkout/Cart/SalesChannel/AbstractCartItemAddRoute.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\CartItemAddRoute\\:\\:add\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/SalesChannel/CartItemAddRoute.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$item has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/SalesChannel/CartItemAddRoute.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$item has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/SalesChannel/CartItemUpdateRoute.php
@@ -16919,11 +16909,6 @@ parameters:
 			path: src/Core/Framework/DependencyInjection/CompilerPass/BusinessEventRegisterCompilerPass.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\RateLimiterCompilerPass\\:\\:setConfigDefaults\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DependencyInjection/CompilerPass/RateLimiterCompilerPass.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\FrameworkExtension\\:\\:addShopwareConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/FrameworkExtension.php
@@ -17697,16 +17682,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\Policy\\\\TimeBackoffLimiter\\:\\:\\$limits type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/RateLimiter/Policy/TimeBackoffLimiter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\RateLimiterFactory\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/RateLimiterFactory.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\RateLimiterFactory\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/RateLimiterFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\AbstractRouteScope\\:\\:getRoutePrefixes\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -22537,11 +22512,6 @@ parameters:
 			message: "#^Method SwagTestWithBundle\\\\SwagTestWithBundle\\:\\:getAdditionalBundles\\(\\) should return array\\<Shopware\\\\Core\\\\Framework\\\\Bundle\\> but returns array\\<int, Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\_fixture\\\\bundles\\\\FooBarBundle\\|Symfony\\\\Bundle\\\\FrameworkBundle\\\\FrameworkBundle\\>\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestWithBundle/src/SwagTestWithBundle.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\RateLimiter\\\\Policy\\\\TimeBackoffLimiterTest\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/RateLimiter/Policy/TimeBackoffLimiterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:addRoleToIntegration\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"

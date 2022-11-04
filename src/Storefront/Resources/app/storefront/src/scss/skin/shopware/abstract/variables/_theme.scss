@@ -1,9 +1,9 @@
 // Bootstrap
 
 // Color system
-$sw-color-brand-primary: #008490 !default;
-$sw-color-brand-secondary: #526e7f !default;
-$sw-color-price: #4a545b !default;
+$sw-color-brand-primary: #008490 !default; // @deprecated tag:v6.5.0 - Color will be #0B539B
+$sw-color-brand-secondary: #526e7f !default; // @deprecated tag:v6.5.0 - Color will be #3D444D
+$sw-color-price: #4a545b !default; // @deprecated tag:v6.5.0 - Color will be #2B3136
 
 $sw-color-success: #3cc261 !default;
 $sw-color-info: #26b6cf !default;
@@ -11,18 +11,18 @@ $sw-color-warning: #ffbd5d !default;
 $sw-color-danger: #e52427 !default;
 
 $sw-background-color: #fff !default;
-$sw-text-color: #4a545b !default;
-$sw-headline-color: #4a545b !default;
-$sw-border-color: #bcc1c7 !default;
+$sw-text-color: #4a545b !default; // @deprecated tag:v6.5.0 - Color will be #2B3136
+$sw-headline-color: #4a545b !default; // @deprecated tag:v6.5.0 - Color will be #2B3136
+$sw-border-color: #bcc1c7 !default; // @deprecated tag:v6.5.0 - Color will be #798490
 
-$sw-color-buy-button: #008490 !default;
+$sw-color-buy-button: #008490 !default; // @deprecated tag:v6.5.0 - Color will be #0B539B
 $sw-color-buy-button-text: #fff !default;
 
-//fonts
+// Fonts
 $sw-font-family-base: 'Inter', sans-serif !default;
 $sw-font-family-headline: 'Inter', sans-serif !default;
 
-//logos
+// Logos
 $sw-logo-default: url('logo.png') !default;
 $sw-logo-default-sm: url('logo.png') !default;
 $sw-logo-default-md: url('logo.png') !default;

@@ -202,6 +202,12 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             if (!$rule instanceof Container) {
                 $rule->assign($data);
                 $validations = $rule->getConstraints();
+                $config = $rule->getVars() ?? [];
+                if(is_array($config) && array_key_exists('operator', $config) && array_key_exists('amount', $config)) {
+                    if($config['operator'] === 'empty' && $config['amount'] === null) {
+                        unset($data['amount']);
+                    }
+                }
                 $violationList->addAll($this->validateConsistence($basePath, $validations, $data));
             }
         }

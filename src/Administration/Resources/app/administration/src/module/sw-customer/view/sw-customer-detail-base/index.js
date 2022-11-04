@@ -44,6 +44,8 @@ Component.register('sw-customer-detail-base', {
 
             criteria
                 .addFilter(Criteria.equals('relations.entityName', 'customer'));
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
 
             return criteria;
         },

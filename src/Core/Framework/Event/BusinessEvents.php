@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerChangedEmailEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
@@ -73,6 +74,12 @@ final class BusinessEvents
      * @Event("Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent")
      */
     public const CHECKOUT_ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
+
+    /**
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerChangedEmailEvent")
+     */
+
+    public const CHECKOUT_CUSTOMER_CHANGED_EMAIL = CustomerChangedEmailEvent::EVENT_NAME;
 
     /**
      * @Event("Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent")

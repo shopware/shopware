@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerChangedEmailEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedHook;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedHook;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,6 +46,8 @@ class AccountProfileController extends StorefrontController
 
     private LoggerInterface $logger;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
@@ -54,7 +58,8 @@ class AccountProfileController extends StorefrontController
         AbstractChangePasswordRoute $changePasswordRoute,
         AbstractChangeEmailRoute $changeEmailRoute,
         AbstractDeleteCustomerRoute $deleteCustomerRoute,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->overviewPageLoader = $overviewPageLoader;
         $this->profilePageLoader = $profilePageLoader;
@@ -63,6 +68,7 @@ class AccountProfileController extends StorefrontController
         $this->changeEmailRoute = $changeEmailRoute;
         $this->deleteCustomerRoute = $deleteCustomerRoute;
         $this->logger = $logger;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -127,6 +133,11 @@ class AccountProfileController extends StorefrontController
             $this->changeEmailRoute->change($data->get('email')->toRequestDataBag(), $context, $customer);
 
             $this->addFlash(self::SUCCESS, $this->trans('account.emailChangeSuccess'));
+
+            $data->set('password', null);
+
+            $event = new CustomerChangedEmailEvent($context, $customer, $data);
+            $this->eventDispatcher->dispatch($event);
         } catch (ConstraintViolationException $formViolations) {
             $this->addFlash(self::DANGER, $this->trans('account.emailChangeNoSuccess'));
 

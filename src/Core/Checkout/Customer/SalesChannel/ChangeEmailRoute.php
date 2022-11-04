@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerChangedEmailEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
@@ -80,6 +81,11 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
+
+        $requestDataBag->set('password', null);
+
+        $event = new CustomerChangedEmailEvent($context, $customer, $requestDataBag);
+        $this->eventDispatcher->dispatch($event);
 
         return new SuccessResponse();
     }

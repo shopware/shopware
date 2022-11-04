@@ -54,6 +54,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="event_dispatcher"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

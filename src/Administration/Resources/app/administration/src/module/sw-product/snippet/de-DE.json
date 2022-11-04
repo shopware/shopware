@@ -500,6 +500,9 @@
         "label": "Kategorien",
         "placeholder": "Kategorien auswählen ..."
       },
+      "salesFilter": {
+        "label": "Verkauf"
+      },
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Tags auswählen ..."

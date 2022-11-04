@@ -162,6 +162,14 @@ Component.register('sw-advanced-selection-product', {
                     placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
                     displayPath: true,
                 },
+                'sales-filter': {
+                    property: 'sales',
+                    label: this.$tc('sw-product.filters.salesFilter.label'),
+                    digits: 20,
+                    min: 0,
+                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                },
                 'price-filter': {
                     property: 'price',
                     label: this.$tc('sw-product.filters.priceFilter.label'),

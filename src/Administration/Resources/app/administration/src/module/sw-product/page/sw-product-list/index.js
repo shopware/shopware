@@ -46,6 +46,7 @@ Component.register('sw-product-list', {
                 'manufacturer-filter',
                 'visibilities-filter',
                 'categories-filter',
+                'sales-filter',
                 'tags-filter',
             ],
             storeKey: 'grid.filter.product',
@@ -156,6 +157,14 @@ Component.register('sw-product-list', {
                     label: this.$tc('sw-product.filters.categoriesFilter.label'),
                     placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
                     displayPath: true,
+                },
+                'sales-filter': {
+                    property: 'sales',
+                    label: this.$tc('sw-product.filters.salesFilter.label'),
+                    digits: 20,
+                    min: 0,
+                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
                 'price-filter': {
                     property: 'price',

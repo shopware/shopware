@@ -6,7 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Migration\V6_4\Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry;
 
 /**
  * @internal
@@ -14,6 +15,8 @@ use Shopware\Core\Migration\Migration1649858046UpdateConfigurableFormatAndValida
  */
 class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     private Connection $connection;
 
     /**
@@ -45,6 +48,26 @@ class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryT
 
         $postalCodeRequiredColumnExists = $this->hasColumn('country', 'postal_code_required');
         static::assertTrue($postalCodeRequiredColumnExists);
+
+        $defaultPostalCodePatternColumnExists = $this->hasColumn('country', 'default_postal_code_pattern');
+        static::assertTrue($defaultPostalCodePatternColumnExists);
+    }
+
+    public function testDefaultPostalCodePatternAdded(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $migration = new Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry();
+
+        foreach ($migration::PATTERNS as $iso => $pattern) {
+            $defaultPostalCodePattern = $connection->fetchOne('SELECT `default_postal_code_pattern` FROM `country` WHERE iso = :iso', ['iso' => $iso]);
+
+            if (empty($defaultPostalCodePattern)) {
+                continue;
+            }
+
+            static::assertSame($defaultPostalCodePattern, $pattern);
+        }
     }
 
     private function prepare(): void
@@ -71,6 +94,12 @@ class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryT
 
         if ($postalCodeRequiredColumnExists) {
             $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `postal_code_required`');
+        }
+
+        $defaultPostalCodePatternColumnExists = $this->hasColumn('country', 'default_postal_code_pattern');
+
+        if ($defaultPostalCodePatternColumnExists) {
+            $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `default_postal_code_pattern`');
         }
     }
 

@@ -13,9 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -154,7 +152,7 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware()),
             (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware()),
             (new TranslatedField('addressFormat'))->addFlags(new ApiAware()),
-            (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
+            (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern'))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),

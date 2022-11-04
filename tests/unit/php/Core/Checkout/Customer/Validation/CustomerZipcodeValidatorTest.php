@@ -50,14 +50,13 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testInValidZipcodeIsRequired(): void
     {
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
-            [
-                'iso' => 'DE',
-                'postal_code_required' => true,
-                'check_postal_code_pattern' => false,
-                'check_advanced_postal_code_pattern' => false,
-                'advanced_postal_code_pattern' => null,
-            ],
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'iso' => 'DE',
+            'postal_code_required' => true,
+            'check_postal_code_pattern' => false,
+            'check_advanced_postal_code_pattern' => false,
+            'advanced_postal_code_pattern' => null,
+            'default_postal_code_pattern' => '\\d{5}',
         ]);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -88,14 +87,13 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidZipcodeIsRequired(): void
     {
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
-            [
-                'iso' => 'DE',
-                'postal_code_required' => true,
-                'check_postal_code_pattern' => false,
-                'check_advanced_postal_code_pattern' => false,
-                'advanced_postal_code_pattern' => null,
-            ],
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'iso' => 'DE',
+            'postal_code_required' => true,
+            'check_postal_code_pattern' => false,
+            'check_advanced_postal_code_pattern' => false,
+            'advanced_postal_code_pattern' => null,
+            'default_postal_code_pattern' => '\\d{5}',
         ]);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -108,14 +106,13 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidZipcodeWithAdvancedValidationPattern(): void
     {
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
-            [
-                'iso' => 'DE',
-                'postal_code_required' => true,
-                'check_postal_code_pattern' => true,
-                'check_advanced_postal_code_pattern' => true,
-                'advanced_postal_code_pattern' => '\\d{6}',
-            ],
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'iso' => 'DE',
+            'postal_code_required' => true,
+            'check_postal_code_pattern' => true,
+            'check_advanced_postal_code_pattern' => true,
+            'advanced_postal_code_pattern' => '\\d{6}',
+            'default_postal_code_pattern' => null,
         ]);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -130,14 +127,13 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testInvalidZipcodeWithAdvancedValidationPattern(): void
     {
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
-            [
-                'iso' => 'DE',
-                'postal_code_required' => true,
-                'check_postal_code_pattern' => true,
-                'check_advanced_postal_code_pattern' => true,
-                'advanced_postal_code_pattern' => '\\d{5}',
-            ],
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'iso' => 'DE',
+            'postal_code_required' => true,
+            'check_postal_code_pattern' => true,
+            'check_advanced_postal_code_pattern' => true,
+            'advanced_postal_code_pattern' => '\\d{5}',
+            'default_postal_code_pattern' => null,
         ]);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -168,14 +164,13 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidZipcodeWithDefaultPattern(): void
     {
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
-            [
-                'iso' => 'DE',
-                'postal_code_required' => true,
-                'check_postal_code_pattern' => true,
-                'check_advanced_postal_code_pattern' => false,
-                'advanced_postal_code_pattern' => null,
-            ],
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'iso' => 'DE',
+            'postal_code_required' => true,
+            'check_postal_code_pattern' => true,
+            'check_advanced_postal_code_pattern' => false,
+            'advanced_postal_code_pattern' => null,
+            'default_postal_code_pattern' => '\\d{5}',
         ]);
 
         $executionContext = $this->createMock(ExecutionContext::class);
@@ -190,14 +185,13 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testInValidZipcodeWithDefaultPattern(): void
     {
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
-            [
-                'iso' => 'DE',
-                'postal_code_required' => true,
-                'check_postal_code_pattern' => true,
-                'check_advanced_postal_code_pattern' => false,
-                'advanced_postal_code_pattern' => null,
-            ],
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'iso' => 'DE',
+            'postal_code_required' => true,
+            'check_postal_code_pattern' => true,
+            'check_advanced_postal_code_pattern' => false,
+            'advanced_postal_code_pattern' => null,
+            'default_postal_code_pattern' => '\\d{5}',
         ]);
 
         $executionContext = $this->createMock(ExecutionContext::class);

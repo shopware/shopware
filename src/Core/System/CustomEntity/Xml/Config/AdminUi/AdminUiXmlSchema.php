@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\Entity as AdminUiEntity;
-use Shopware\Core\System\CustomEntity\Xml\Entity;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
-class AdminUiConfig
+class AdminUiXmlSchema
 {
     public const FILENAME = 'admin-ui.xml';
 
@@ -40,24 +39,5 @@ class AdminUiConfig
         $config = $config === null ? null : AdminUi::fromXml($config);
 
         return new self($config);
-    }
-
-    public static function validateConfiguration(AdminUiEntity $adminUiEntity, Entity $entity): void
-    {
-        $listing = $adminUiEntity->getListing();
-        $referencedFields = array_column($listing->getColumns(), 'ref');
-        $referencedFields = array_unique($referencedFields);
-
-        $entityFields = [];
-        foreach ($entity->getFields() as $field) {
-            $entityFields[] = $field->getName();
-        }
-
-        $intersect = array_intersect($referencedFields, $entityFields);
-        if (\count($intersect) !== \count($referencedFields)) {
-            $invalidFields = array_diff($referencedFields, $intersect);
-
-            //TODO: throw error
-        }
     }
 }

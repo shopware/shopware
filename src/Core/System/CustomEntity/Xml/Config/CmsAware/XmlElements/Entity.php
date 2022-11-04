@@ -1,14 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
+namespace Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements;
 
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 
-/**
- * @internal
- */
-class Column extends CustomEntityFlag
+class Entity extends CustomEntityFlag
 {
+    protected string $name;
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public static function fromXml(\DOMElement $element): CustomEntityFlag
     {
         $self = new self();

@@ -30,6 +30,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\Migration\Migration1536761533Test;
 use SwagTest\SwagTest;
@@ -309,7 +313,11 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->systemConfigService
+            $this->systemConfigService,
+            $this->container->get(CustomEntityPersister::class),
+            $this->container->get(CustomEntitySchemaUpdater::class),
+            $this->container->get(CustomEntityXmlSchemaValidator::class),
+            $this->container->get(CustomEntityEnrichmentService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -811,7 +819,11 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->systemConfigService
+            $this->systemConfigService,
+            $this->container->get(CustomEntityPersister::class),
+            $this->container->get(CustomEntitySchemaUpdater::class),
+            $this->container->get(CustomEntityXmlSchemaValidator::class),
+            $this->container->get(CustomEntityEnrichmentService::class)
         );
     }
 

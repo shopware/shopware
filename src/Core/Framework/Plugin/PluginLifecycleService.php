@@ -42,6 +42,13 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -56,6 +63,8 @@ class PluginLifecycleService
 {
     public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
+    private ?string $projectDir;
+
     public function __construct(
         private EntityRepository $pluginRepo,
         private EventDispatcherInterface $eventDispatcher,
@@ -67,8 +76,13 @@ class PluginLifecycleService
         private RequirementsValidator $requirementValidator,
         private CacheItemPoolInterface $restartSignalCachePool,
         private string $shopwareVersion,
-        private SystemConfigService $systemConfigService
+        private SystemConfigService $systemConfigService,
+        private CustomEntityPersister $customEntityPersister,
+        private CustomEntitySchemaUpdater $customEntitySchemaUpdater,
+        private CustomEntityXmlSchemaValidator $customEntityXmlValidator,
+        private CustomEntityEnrichmentService $customEntityEnrichmentService
     ) {
+        $this->projectDir = $this->container->getParameter('kernel.project_dir');
     }
 
     /**
@@ -124,6 +138,7 @@ class PluginLifecycleService
         $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
         $pluginBaseClass->install($installContext);
+        $this->updateCustomEntities($plugin);
 
         $this->runMigrations($installContext);
 
@@ -190,15 +205,13 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $pluginBaseClass->removeMigrations();
-        }
-
-        if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 
+        $pluginId = $plugin->getId();
         $this->updatePluginData(
             [
-                'id' => $plugin->getId(),
+                'id' => $pluginId,
                 'active' => false,
                 'installedAt' => null,
             ],
@@ -206,6 +219,10 @@ class PluginLifecycleService
         );
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
+
+        if (!$uninstallContext->keepUserData()) {
+            $this->removeCustomEntities($pluginId);
+        }
 
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
 
@@ -274,6 +291,7 @@ class PluginLifecycleService
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
+        $this->updateCustomEntities($plugin);
         $this->runMigrations($updateContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
@@ -541,7 +559,7 @@ class PluginLifecycleService
         /*
          * Reboot kernel with $plugin active=true.
          *
-         * All other Requests wont have this plugin active until its updated in the db
+         * All other Requests won't have this plugin active until it's updated in the db
          */
         $tmpStaticPluginLoader = new StaticKernelPluginLoader($pluginLoader->getClassLoader(), $pluginDir, $plugins);
         $kernel->reboot(null, $tmpStaticPluginLoader);
@@ -593,5 +611,69 @@ class PluginLifecycleService
             (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),
             $context
         );
+    }
+
+    private function updateCustomEntities(PluginEntity $plugin): void
+    {
+        $entities = $this->getCustomEntities($plugin);
+
+        if ($entities === null || $entities->getEntities() === null) {
+            return;
+        }
+
+        // todo consider to unify this part (e.g. ExtensionEntity) https://gitlab.shopware.com/shopware/6/product/platform/-/merge_requests/9168#note_478886
+        $entities = $this->customEntityEnrichmentService->enrichCmsAwareEntities($this->getCmsAwareXmlSchema($plugin), $entities);
+        $entities = $this->customEntityEnrichmentService->enrichAdminUiEntities($this->getAdminUiXmlSchema($plugin), $entities);
+
+        $this->customEntityPersister->update($entities->toStorage(), null, $plugin->getId());
+        $this->customEntitySchemaUpdater->update();
+        // todo end
+    }
+
+    private function getCmsAwareXmlSchema(PluginEntity $plugin): ?CmsAwareXmlSchema
+    {
+        $configPath = sprintf(
+            '%s/%s/src/Resources/config/%s',
+            $this->projectDir,
+            $plugin->getPath(),
+            CmsAwareXmlSchema::FILENAME
+        );
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return CmsAwareXmlSchema::createFromXmlFile($configPath);
+    }
+
+    private function getAdminUiXmlSchema(PluginEntity $plugin): ?AdminUiXmlSchema
+    {
+        $configPath = sprintf('%s/%s/src/Resources/config/%s', $this->projectDir, $plugin->getPath(), AdminUiXmlSchema::FILENAME);
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return AdminUiXmlSchema::createFromXmlFile($configPath);
+    }
+
+    private function removeCustomEntities(string $pluginId): void
+    {
+        $this->customEntityPersister->update([], null, $pluginId);
+        $this->customEntitySchemaUpdater->update();
+    }
+
+    private function getCustomEntities(PluginEntity $plugin): ?CustomEntityXmlSchema
+    {
+        $configPath = sprintf('%s/%s/src/Resources/config/entities.xml', $this->projectDir, $plugin->getPath());
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        $entities = CustomEntityXmlSchema::createFromXmlFile($configPath);
+        $this->customEntityXmlValidator->validate($entities);
+
+        return $entities;
     }
 }

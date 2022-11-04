@@ -40,6 +40,10 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
@@ -106,6 +110,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->requirementsValidatorMock = $this->createMock(RequirementsValidator::class);
         $this->cacheItemPoolInterfaceMock = $this->createMock(CacheItemPoolInterface::class);
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $customEntityPersisterMock = $this->createMock(CustomEntityPersister::class);
+        $customEntitySchemaUpdaterMock = $this->createMock(CustomEntitySchemaUpdater::class);
+        $customEntityXmlSchemaValidatorMock = $this->createMock(CustomEntityXmlSchemaValidator::class);
+        $customEntityEnrichmentServiceMock = $this->createMock(CustomEntityEnrichmentService::class);
         $shopwareVersionString = Kernel::SHOPWARE_FALLBACK_VERSION;
         $this->pluginMock = $this->createMock(Plugin::class);
 
@@ -123,7 +131,11 @@ class PluginLifecycleServiceTest extends TestCase
             $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,
             $shopwareVersionString,
-            $systemConfigServiceMock
+            $systemConfigServiceMock,
+            $customEntityPersisterMock,
+            $customEntitySchemaUpdaterMock,
+            $customEntityXmlSchemaValidatorMock,
+            $customEntityEnrichmentServiceMock
         );
     }
 

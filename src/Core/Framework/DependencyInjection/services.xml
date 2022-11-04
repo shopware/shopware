@@ -218,6 +218,9 @@ base-uri 'self';
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <!-- Custom Entity -->
+        <service id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
+
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">

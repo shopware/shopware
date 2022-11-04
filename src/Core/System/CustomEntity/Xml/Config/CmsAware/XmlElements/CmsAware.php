@@ -1,10 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
+namespace Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements;
 
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 
-class AdminUi extends CustomEntityFlag
+/**
+ * Represents the AdminUi configuration
+ *
+ * The config is located here Resources/config/admin-ui.xml
+ */
+class CmsAware extends CustomEntityFlag
 {
     private const MAPPING = [
         'entity' => Entity::class,
@@ -42,7 +47,7 @@ class AdminUi extends CustomEntityFlag
         $class = self::MAPPING[$child->tagName] ?? null;
 
         if (!$class) {
-            throw new \RuntimeException(sprintf('Flag type "%s" not found', $child->tagName));
+            throw new \RuntimeException(\sprintf('Flag type "%s" not found', $child->tagName));
         }
 
         if ($child->tagName === 'entity') {

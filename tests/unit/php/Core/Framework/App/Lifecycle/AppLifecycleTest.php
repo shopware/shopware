@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -249,6 +250,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(FlowActionPersister::class),
             $appAdministrationSnippetPersisterMock,
+            $this->createMock(CustomEntityEnrichmentService::class)
         );
     }
 

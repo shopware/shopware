@@ -16156,16 +16156,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
 
 		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginAclTest\\:\\:getAclRoleMock\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/PluginAclTest.php
@@ -16184,41 +16174,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginFromFileSystemStructTest\\:\\:dataProviderTestGetName\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/PluginFromFileSystemStructTest.php
-
-		-
-			message: "#^Cannot call method getInstalledAt\\(\\) on Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginLifecycleServiceMigrationTest\\:\\:getMigrationTestPlugin\\(\\) never returns null so it can be removed from the return type\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$plugin of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginLifecycleService\\:\\:activatePlugin\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity, Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$plugin of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginLifecycleService\\:\\:deactivatePlugin\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity, Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$plugin of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginLifecycleService\\:\\:installPlugin\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity, Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$plugin of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginLifecycleService\\:\\:uninstallPlugin\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity, Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$plugin of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginLifecycleService\\:\\:updatePlugin\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity, Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginLifecycleServiceMigrationTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:createNonStandardLanguageContext\\(\\) has parameter \\$iso with no type specified\\.$#"

@@ -23,9 +23,18 @@
     </xs:complexType>
 
     <xs:complexType name="listing">
+        <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="columns" type="listing-columns" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="listing-columns">
         <xs:choice>
             <xs:element name="column" type="listing-column" minOccurs="1" maxOccurs="unbounded"/>
         </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="listing-column">
+        <xs:attribute name="ref" type="xs:string" use="required"/>
+        <xs:attribute name="hidden" type="xs:boolean" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="detail">
@@ -33,34 +42,23 @@
             <xs:element name="tabs" type="detail-tabs" minOccurs="1" maxOccurs="1"/>
         </xs:choice>
     </xs:complexType>
-
-    <xs:complexType name="listing-column">
-        <xs:attribute name="ref" type="xs:string" use="required"/>
-        <xs:attribute name="hidden" type="xs:boolean" default="false"/>
-    </xs:complexType>
-
     <xs:complexType name="detail-tabs">
         <xs:choice maxOccurs="unbounded" minOccurs="1">
             <xs:element name="tab" type="detail-tab"/>
         </xs:choice>
     </xs:complexType>
-
     <xs:complexType name="detail-tab">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="card" type="detail-card" minOccurs="1"/>
         </xs:choice>
-
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
-
     <xs:complexType name="detail-card">
         <xs:choice maxOccurs="unbounded" minOccurs="1">
             <xs:element name="field" type="detail-field"/>
         </xs:choice>
-
         <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>
-
     <xs:complexType name="detail-field">
         <xs:attribute type="xs:string" name="ref" use="required"/>
         <xs:attribute type="xs:boolean" name="helpText" default="false"/>

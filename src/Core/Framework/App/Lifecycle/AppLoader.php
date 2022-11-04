@@ -7,8 +7,8 @@ use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiConfig;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareConfig;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -198,25 +198,35 @@ class AppLoader extends AbstractAppLoader
         return $snippets;
     }
 
-    public function getCmsAwareConfig(AppEntity $app): ?CmsAwareConfig
+    public function getCmsAwareXmlSchema(AppEntity $app): ?CmsAwareXmlSchema
     {
-        $configPath = sprintf('%s/%s/Resources/config/%s', $this->projectDir, $app->getPath(), CmsAwareConfig::FILENAME);
+        $configPath = sprintf(
+            '%s/%s/Resources/config/%s',
+            $this->projectDir,
+            $app->getPath(),
+            CmsAwareXmlSchema::FILENAME
+        );
 
         if (!file_exists($configPath)) {
             return null;
         }
 
-        return CmsAwareConfig::createFromXmlFile($configPath);
+        return CmsAwareXmlSchema::createFromXmlFile($configPath);
     }
 
-    public function getAdminUiConfig(AppEntity $app): ?AdminUiConfig
+    public function getAdminUiXmlSchema(AppEntity $app): ?AdminUiXmlSchema
     {
-        $configPath = sprintf('%s/%s/Resources/config/%s', $this->projectDir, $app->getPath(), AdminUiConfig::FILENAME);
+        $configPath = sprintf(
+            '%s/%s/Resources/config/%s',
+            $this->projectDir,
+            $app->getPath(),
+            AdminUiXmlSchema::FILENAME
+        );
 
         if (!file_exists($configPath)) {
             return null;
         }
 
-        return AdminUiConfig::createFromXmlFile($configPath);
+        return AdminUiXmlSchema::createFromXmlFile($configPath);
     }
 }

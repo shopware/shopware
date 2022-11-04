@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Integration\Core\System\CustomEntity\Xml\Flag\CmsAware;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAware;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareConfig;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements\CmsAware;
 
 /**
  * @internal
@@ -13,7 +13,7 @@ class CmsAwareFlagTest extends TestCase
 {
     public function testCreateFromXmlFile(): void
     {
-        $cmsAwareFlag = CmsAwareConfig::createFromXmlFile(
+        $cmsAwareFlag = CmsAwareXmlSchema::createFromXmlFile(
             __DIR__ . '/../../../Xml/_fixtures/cms-aware.xml'
         );
 

@@ -1,11 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
+namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
+ * Represents the XML field element
+ *
+ * admin-ui > entity > detail > tabs > tab > card > field
+ *
  * @internal
  */
 class CardField extends CustomEntityFlag

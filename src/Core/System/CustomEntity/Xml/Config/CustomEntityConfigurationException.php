@@ -11,6 +11,12 @@ class CustomEntityConfigurationException extends \RuntimeException
     {
         $entities = implode(', ', $entities);
 
-        return new \RuntimeException(\sprintf('The entities %s are not given in the entities.xml but are configured in %s', $entities, $configFileName));
+        return new \RuntimeException(
+            \sprintf(
+                'The entities %s are not given in the entities.xml but are configured in %s',
+                $entities,
+                $configFileName
+            )
+        );
     }
 }

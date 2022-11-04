@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\CmsAware;
 
+use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements\CmsAware;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\ManyToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\ManyToOneField;
@@ -13,7 +14,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal
  */
-class CmsAwareConfig
+class CmsAwareXmlSchema
 {
     public const FILENAME = 'cms-aware.xml';
 

@@ -333,6 +333,9 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
+                if (Feature::isActive('v6.5.0.0')) {
+                    static::markTestSkipped('Company address in invoice will be removed');
+                }
                 static::assertInstanceOf(RenderedDocument::class, $rendered);
 
                 $rendered = $rendered->getHtml();

@@ -16,30 +16,20 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 
 const addressFormat = [
-    [
-        { type: 'snippet', value: 'address/company' },
-        { type: 'plain', value: '-' },
-        { type: 'snippet', value: 'address/department' }
-    ],
-    [
-        { type: 'snippet', value: 'address/first_name' },
-        { type: 'snippet', value: 'address/last_name' }
-    ],
-    [{ type: 'snippet', value: 'address/street' }],
-    [
-        { type: 'snippet', value: 'address/zipcode' },
-        { type: 'snippet', value: 'address/city' }
-    ],
-    [{ type: 'snippet', value: 'address/country' }]
+    ['address/company', 'symbol/dash', 'address/department'],
+    ['address/first_name', 'address/last_name'],
+    ['address/street'],
+    ['address/zipcode', 'address/city'],
+    ['address/country']
 ];
 
-function createWrapper(privileges = [], customPropsData = {}) {
+async function createWrapper(privileges = [], customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('droppable', {});
     localVue.directive('draggable', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-address-handling'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-address-handling'), {
         localVue,
 
         mocks: {
@@ -96,24 +86,7 @@ function createWrapper(privileges = [], customPropsData = {}) {
             customSnippetApiService: {
                 snippets: () => {
                     return Promise.resolve({
-                        data: [
-                            {
-                                type: 'plain',
-                                value: '-'
-                            },
-                            {
-                                type: 'plain',
-                                value: ','
-                            },
-                            {
-                                type: 'snippet',
-                                value: 'address/country_state'
-                            },
-                            {
-                                type: 'snippet',
-                                value: 'address/salutation'
-                            }
-                        ]
+                        data: ['symbol/dash', 'symbol/comma', 'address/country_state', 'address/salutation']
                     });
                 },
 
@@ -136,18 +109,18 @@ function createWrapper(privileges = [], customPropsData = {}) {
             'sw-container': true,
             'sw-ignore-class': true,
             'sw-text-field': true,
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
             'sw-help-text': true,
             'sw-icon': true,
             'sw-extension-component-section': true,
-            'sw-multi-snippet-drag-and-drop': Shopware.Component.build('sw-multi-snippet-drag-and-drop'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-multi-snippet-drag-and-drop': await Shopware.Component.build('sw-multi-snippet-drag-and-drop'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': true,
-            'sw-label': Shopware.Component.build('sw-label'),
-            'sw-settings-country-preview-template': Shopware.Component.build('sw-settings-country-preview-template'),
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-settings-country-preview-template': await Shopware.Component.build('sw-settings-country-preview-template'),
             'sw-settings-country-new-snippet-modal': {
                 template: `
                     <div class="sw-modal sw-settings-country-new-snippet-modal">
@@ -159,17 +132,17 @@ function createWrapper(privileges = [], customPropsData = {}) {
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
                     </div>`
             },
-            'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
+            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': true,
             'sw-loader': true,
         }
@@ -188,14 +161,14 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     beforeEach(async () => {
         global.activeFeatureFlags = ['v6.5.0.0'];
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', async () => {
+    it('should be a Vue.JS component', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -359,7 +332,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
             {}
         ]) {
-            wrapper = createWrapper(['country.editor'], prop);
+            // eslint-disable-next-line no-await-in-loop
+            wrapper = await createWrapper(['country.editor'], prop);
 
             const countryCheckPostalCodePatternField = wrapper.find(
                 'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]'
@@ -457,21 +431,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            [
-                { type: 'snippet', value: 'address/company' },
-                { type: 'plain', value: '-' },
-                { type: 'snippet', value: 'address/department' }
-            ],
-            [
-                { type: 'snippet', value: 'address/first_name' },
-                { type: 'snippet', value: 'address/last_name' }
-            ],
-            [{ type: 'snippet', value: 'address/street' }],
-            [
-                { type: 'snippet', value: 'address/zipcode' },
-                { type: 'snippet', value: 'address/city' }
-            ],
-            [{ type: 'snippet', value: 'address/country' }]
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/first_name', 'address/last_name'],
+            ['address/street'],
+            ['address/zipcode', 'address/city'],
+            ['address/country']
         ]);
 
         expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(4);
@@ -484,21 +448,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.addressFormat).toEqual([
-            [{ type: 'snippet', value: 'address/country' }],
-            [
-                { type: 'snippet', value: 'address/company' },
-                { type: 'plain', value: '-' },
-                { type: 'snippet', value: 'address/department' }
-            ],
-            [
-                { type: 'snippet', value: 'address/first_name' },
-                { type: 'snippet', value: 'address/last_name' }
-            ],
-            [{ type: 'snippet', value: 'address/street' }],
-            [
-                { type: 'snippet', value: 'address/zipcode' },
-                { type: 'snippet', value: 'address/city' }
-            ]
+            ['address/country'],
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/first_name', 'address/last_name'],
+            ['address/street'],
+            ['address/zipcode', 'address/city']
         ]);
 
         expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(2);
@@ -518,18 +472,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ],
-            [{ value: 'address/first_name', type: 'snippet' }, { value: 'address/last_name', type: 'snippet' }],
-            [{ value: 'address/street', type: 'snippet' }],
-            [
-                { value: 'address/zipcode', type: 'snippet' },
-                { value: 'address/city', type: 'snippet' },
-            ],
-            [{ value: 'address/country', type: 'snippet' }],
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/first_name', 'address/last_name'],
+            ['address/street'],
+            ['address/zipcode', 'address/city'],
+            ['address/country'],
         ]);
 
         expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(3);
@@ -542,18 +489,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
         expect(wrapper.vm.country.addressFormat).toEqual([
-            [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ],
-            [{ value: 'address/street', type: 'snippet' }],
-            [
-                { value: 'address/zipcode', type: 'snippet' },
-                { value: 'address/city', type: 'snippet' },
-            ],
-            [{ value: 'address/country', type: 'snippet' }],
-            [{ value: 'address/first_name', type: 'snippet' }, { value: 'address/last_name', type: 'snippet' }],
+            ['address/company', 'symbol/dash', 'address/department'],
+            ['address/street'],
+            ['address/zipcode', 'address/city'],
+            ['address/country'],
+            ['address/first_name', 'address/last_name'],
         ]);
         expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(2);
         expect(swMultiSnippet.at(3).findAll('.sw-select-selection-list > li').length).toEqual(2);
@@ -587,24 +527,16 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'country.editor'
         ]);
 
-        await wrapper.vm.dragStart({
+        await wrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: [
-                    { value: 'address/company', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/department', type: 'snippet' },
-                ]
+                snippet: ['address/company', 'symbol/dash', 'address/department']
             }
         });
 
         expect(wrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         });
     });
 
@@ -616,37 +548,26 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(wrapper.vm.draggedItem).toBeNull();
         expect(wrapper.vm.droppedItem).toBeNull();
 
-        await wrapper.vm.onMouseEnter(null, null);
+        await wrapper.vm.onDragEnter(null, null);
 
         expect(wrapper.vm.draggedItem).toBeNull();
         expect(wrapper.vm.droppedItem).toBeNull();
 
-        await wrapper.vm.dragStart({
+        await wrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: [
-                    { value: 'address/company', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/department', type: 'snippet' },
-                ]
+                snippet: ['address/company', 'symbol/dash', 'address/department']
             }
         });
+
         expect(wrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         });
 
-        await wrapper.vm.onMouseEnter({
+        await wrapper.vm.onDragEnter({
             index: 0,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         }, null);
 
         expect(wrapper.vm.droppedItem).toBeNull();
@@ -660,95 +581,62 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(wrapper.vm.draggedItem).toBeNull();
         expect(wrapper.vm.droppedItem).toBeNull();
 
-        await wrapper.vm.dragStart({
+        await wrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: [
-                    { value: 'address/company', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/department', type: 'snippet' },
-                ]
+                snippet: ['address/company', 'symbol/dash', 'address/department']
             }
         });
+
         expect(wrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         });
 
-        await wrapper.vm.onMouseEnter({
+        await wrapper.vm.onDragEnter({
             index: 0,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         }, {
             index: 1,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         });
 
         expect(wrapper.vm.droppedItem).toEqual({
             index: 1,
-            snippet: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ]
+            snippet: ['address/company', 'symbol/dash', 'address/department']
         });
     });
 
     it('should be able to sort the list on dragging', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            { value: 'address/company', type: 'snippet' },
-            { value: '-', type: 'plain' },
-            { value: 'address/department', type: 'snippet' },
+            'address/company', 'symbol/dash', 'address/department'
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            { value: 'address/first_name', type: 'snippet' },
-            { value: 'address/last_name', type: 'snippet' },
+            'address/first_name', 'address/last_name'
         ]);
 
         await wrapper.setData({
             draggedItem: {
                 index: 1,
-                snippet: [
-                    { value: 'address/company', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/department', type: 'snippet' },
-                ]
+                snippet: ['address/company', 'symbol/dash', 'address/department']
             },
             droppedItem: {
                 index: 0,
-                snippet: [
-                    { value: 'address/company', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/department', type: 'snippet' },
-                ]
+                snippet: ['address/company', 'symbol/dash', 'address/department']
             }
         });
 
-        await wrapper.vm.dragEnd();
+        await wrapper.vm.onDrop();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            { value: 'address/first_name', type: 'snippet' },
-            { value: 'address/last_name', type: 'snippet' },
+            'address/first_name', 'address/last_name'
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            { value: 'address/company', type: 'snippet' },
-            { value: '-', type: 'plain' },
-            { value: 'address/department', type: 'snippet' },
+            'address/company', 'symbol/dash', 'address/department'
         ]);
     });
 
@@ -757,46 +645,34 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             'country.editor'
         ]);
 
-        expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            { type: 'snippet', value: 'address/company' },
-            { type: 'plain', value: '-' },
-            { type: 'snippet', value: 'address/department' }
-        ]);
+        expect(wrapper.vm.country.addressFormat[0]).toEqual(
+            ['address/company', 'symbol/dash', 'address/department']
+        );
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            { type: 'snippet', value: 'address/first_name' },
-            { type: 'snippet', value: 'address/last_name' }
+            'address/first_name', 'address/last_name',
         ]);
 
-        await wrapper.vm.onDragEnd(
+        await wrapper.vm.onDropEnd(
             0,
             {
                 dragData: {
                     index: 2,
                     linePosition: 0,
-                    snippet: {
-                        type: 'snippet',
-                        value: 'address/department'
-                    }
+                    snippet: 'address/department'
                 },
                 dropData: {
                     index: 1,
-                    snippet: [
-                        { value: 'address/first_name', type: 'snippet' },
-                        { value: 'address/last_name', type: 'snippet' }
-                    ]
+                    snippet: ['address/first_name', 'address/last_name']
                 }
             }
         );
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            { type: 'snippet', value: 'address/company' },
-            { type: 'plain', value: '-' },
+            'address/company', 'symbol/dash'
         ]);
 
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            { value: 'address/first_name', type: 'snippet' },
-            { value: 'address/last_name', type: 'snippet' },
-            { type: 'snippet', value: 'address/department' }
+            'address/first_name', 'address/last_name', 'address/department'
         ]);
     });
 
@@ -808,50 +684,37 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.setProps({
             country: {
                 addressFormat: [
-                    [
-                        { type: 'snippet', value: 'address/company' },
-                        { type: 'plain', value: '-' },
-                        { type: 'snippet', value: 'address/department' }
-                    ],
-                    [
-                        { type: 'snippet', value: 'address/first_name' },
-                        { type: 'snippet', value: 'address/last_name' }
-                    ]
+                    ['address/company', 'symbol/dash', 'address/department'],
+                    ['address/first_name', 'address/last_name']
                 ]
             }
         });
 
-        expect(wrapper.vm.country.addressFormat[0][2]).toEqual({ value: 'address/department', type: 'snippet' });
-        expect(wrapper.vm.country.addressFormat[1][1]).toEqual({ value: 'address/last_name', type: 'snippet' });
+        expect(wrapper.vm.country.addressFormat[0][2]).toEqual('address/department');
+        expect(wrapper.vm.country.addressFormat[1][1]).toEqual('address/last_name');
 
-        await wrapper.vm.onDragEnd(
+        await wrapper.vm.onDropEnd(
             1,
             {
                 dragData: {
                     index: 1,
                     linePosition: 1,
-                    snippet: {
-                        type: 'snippet',
-                        value: 'address/last_name'
-                    }
+                    snippet: 'address/last_name'
                 },
                 dropData: {
                     index: 2,
                     linePosition: 0,
-                    snippet: {
-                        type: 'snippet',
-                        value: 'address/department'
-                    }
+                    snippet: 'address/department'
                 }
             }
         );
 
-        expect(wrapper.vm.country.addressFormat[0][2]).toEqual({ value: 'address/last_name', type: 'snippet' });
-        expect(wrapper.vm.country.addressFormat[1][1]).toEqual({ value: 'address/department', type: 'snippet' });
+        expect(wrapper.vm.country.addressFormat[0][2]).toEqual('address/last_name');
+        expect(wrapper.vm.country.addressFormat[1][1]).toEqual('address/department');
     });
 
     it('should be able to preview formatting with the customer', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 

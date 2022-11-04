@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
-use Shopware\Core\System\Country\CountryDefinition;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -203,6 +202,8 @@ class InfoControllerTest extends TestCase
 
     public function testBusinessEventRoute(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
         $client->request('GET', $url);
@@ -500,6 +501,7 @@ class InfoControllerTest extends TestCase
 
     public function testMailAwareBusinessEventRoute(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
         $client->request('GET', $url);

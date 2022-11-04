@@ -71,7 +71,7 @@ class CustomSnippetFormatController
     {
         $directory = __DIR__ . '/../../Resources/views/snippets/';
 
-        $this->getSnippetsFromDir($directory);
+        return $this->getSnippetsFromDir($directory);
     }
 
     /**

@@ -202,15 +202,4 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
-
-    it('should show sidebar when navigate to address handling tab', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.$router.push({ name: 'sw.settings.country.detail.address-handling' });
-        await wrapper.vm.$nextTick();
-
-        const sidebar = wrapper.find('sw-settings-country-sidebar-stub');
-        expect(sidebar.exists()).toBeTruthy();
-        expect(sidebar.attributes().disabled).toBeUndefined();
-    });
 });

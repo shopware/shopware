@@ -81,6 +81,9 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
     private function getCountry(string $countryId): CountryEntity
     {
+        /**
+         * @var CountryEntity|null $country
+         */
         $country = $this->countryRepository->search(new Criteria([$countryId]), Context::createDefaultContext())->get($countryId);
 
         if ($country === null) {

@@ -13,7 +13,7 @@ class CustomerZipCode extends Constraint
 {
     public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
 
-    public ?string $countryId;
+    public ?string $countryId = null;
 
     public bool $caseSensitiveCheck = true;
 

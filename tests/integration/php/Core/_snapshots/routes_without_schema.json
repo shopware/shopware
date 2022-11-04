@@ -113,7 +113,6 @@
     "/_action/version/merge/{entity}/{versionId}",
     "/_action/version/{entity}/{id}",
     "/_action/version/{versionId}/{entity}/{entityId}",
-    "/_info/country/address/default-format",
     "/_info/entity-schema.json",
     "/_info/me",
     "/_info/me",

@@ -1,6 +1,6 @@
 import camelCase from 'lodash/camelCase';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { Address, Snippet } from 'src/core/service/api/custom-snippet.api.service';
+import type { Address } from 'src/core/service/api/custom-snippet.api.service';
 import type { PropType } from 'vue';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import template from './sw-settings-country-address-handling.html.twig';
@@ -45,7 +45,7 @@ interface TreeItem {
 interface DragItem {
     index: number,
     linePosition?: number | null,
-    snippet: Snippet[]
+    snippet: string[]
 }
 
 interface CountryEntity extends Entity {
@@ -54,14 +54,17 @@ interface CountryEntity extends Entity {
     checkPostalCodePattern: boolean,
     checkAdvancedPostalCodePattern: boolean,
     advancedPostalCodePattern: string|null,
-    addressFormat: Array<Snippet[]> | [],
+    addressFormat: Array<string[]> | [],
     defaultPostalCodePattern: string|null,
 }
 
-const CUSTOM_SNIPPET_TYPE = {
-    PLAIN: 'plain',
-    SNIPPET: 'snippet',
-} as { PLAIN: string, SNIPPET: string };
+const DefaultAddressFormat = [
+    ['address/company', 'symbol/dash', 'address/department'],
+    ['address/first_name', 'address/last_name'],
+    ['address/street'],
+    ['address/zipcode', 'address/city'],
+    ['address/country'],
+] as string[][];
 
 /**
  * @private
@@ -69,11 +72,7 @@ const CUSTOM_SNIPPET_TYPE = {
 Component.register('sw-settings-country-address-handling', {
     template,
 
-    inject: [
-        'acl',
-        'customSnippetApiService',
-        'countryApiService',
-    ],
+    inject: ['acl', 'customSnippetApiService'],
 
     props: {
         country: {
@@ -129,16 +128,16 @@ Component.register('sw-settings-country-address-handling', {
                 dragGroup: 'sw-multi-snippet',
                 validDragCls: 'is--valid-drag',
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                onDragStart: this.dragStart,
+                onDragStart: this.onDragStart,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                onDragEnter: this.onMouseEnter,
+                onDragEnter: this.onDragEnter,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                onDrop: this.dragEnd,
+                onDrop: this.onDrop,
                 preventEvent: false,
             } as DragConfig;
         },
 
-        addressFormat(): Array<Snippet[]> {
+        addressFormat(): Array<string[]> {
             return this.country.addressFormat;
         },
 
@@ -202,11 +201,11 @@ Component.register('sw-settings-country-address-handling', {
             void this.getSnippets();
         },
 
-        dragStart(config: DragConfig): void {
+        onDragStart(config: DragConfig): void {
             this.draggedItem = config.data;
         },
 
-        onMouseEnter(dragData: DragItem, dropData: DragItem): void {
+        onDragEnter(dragData: DragItem, dropData: DragItem): void {
             if (!this.draggedItem) {
                 return;
             }
@@ -218,7 +217,7 @@ Component.register('sw-settings-country-address-handling', {
             this.droppedItem = dropData;
         },
 
-        dragEnd(): void {
+        onDrop(): void {
             if (!this.addressFormat?.length || !this.droppedItem || !this.draggedItem) {
                 return;
             }
@@ -242,7 +241,7 @@ Component.register('sw-settings-country-address-handling', {
             this.droppedItem = null;
         },
 
-        onDragEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem, dropData: DragItem }): void {
+        onDropEnd(dragPosition: number, { dragData, dropData }: { dragData: DragItem, dropData: DragItem }): void {
             // swap positions in different lines
             if (
                 typeof dropData?.linePosition === 'number' &&
@@ -291,7 +290,7 @@ Component.register('sw-settings-country-address-handling', {
             this.$set(this.country, 'addressFormat', this.swapPosition(source, source, swag) ?? []);
         },
 
-        swapPosition(source: number, dest: number, swag: Array<Snippet[]>): Array<Snippet[]>|null {
+        swapPosition(source: number, dest: number, swag: Array<string[]>): Array<string[]>|null {
             if (!this.addressFormat?.length) {
                 return null;
             }
@@ -305,7 +304,7 @@ Component.register('sw-settings-country-address-handling', {
             return newSnippets;
         },
 
-        change(index: number, newSnippet?: Snippet): void {
+        change(index: number, newSnippet?: string): void {
             if (!newSnippet) {
                 this.$set(this.country, 'addressFormat', this.addressFormat.filter((_, key) => index !== key));
                 return;
@@ -333,12 +332,8 @@ Component.register('sw-settings-country-address-handling', {
             void this.renderFormattingAddress(this.customer.defaultBillingAddress);
         },
 
-        resetMarkup(): Promise<unknown> {
-            return this.countryApiService.defaultCountryAddressFormat()
-                .then((response) => {
-                    const defaultAddressFormat = (response as { data: Array<Snippet[]>}).data;
-                    this.$set(this.country, 'addressFormat', defaultAddressFormat);
-                });
+        resetMarkup(): void {
+            this.$set(this.country, 'addressFormat', cloneDeep(DefaultAddressFormat));
         },
 
         openSnippetModal(position: number) {
@@ -353,18 +348,14 @@ Component.register('sw-settings-country-address-handling', {
 
         getSnippets(): Promise<unknown> {
             return this.customSnippetApiService.snippets().then((response) => {
-                const snippets = (response as { data: Snippet[] }).data;
+                const snippets = (response as { data: string[] }).data;
 
-                this.snippets = snippets?.map((snippet: Snippet) => {
+                this.snippets = snippets?.map((snippet: string) => {
                     return {
-                        id: snippet.type === CUSTOM_SNIPPET_TYPE.PLAIN
-                            ? `${CUSTOM_SNIPPET_TYPE.PLAIN}/${snippet.value}`
-                            : snippet.value,
-                        name: snippet.type === CUSTOM_SNIPPET_TYPE.PLAIN
-                            ? snippet.value
-                            : this.getLabelProperty(snippet.value),
+                        id: snippet,
+                        name: this.getLabelProperty(snippet),
                     };
-                }) as TreeItem[];
+                });
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
             }).catch(() => {});
         },

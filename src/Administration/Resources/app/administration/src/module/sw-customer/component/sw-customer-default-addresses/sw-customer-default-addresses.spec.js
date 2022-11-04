@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-default-addresses/index';
 import 'src/app/component/base/sw-address';
 
-function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {
-    return shallowMount(Shopware.Component.build('sw-customer-default-addresses'), {
+async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {
+    return shallowMount(await Shopware.Component.build('sw-customer-default-addresses'), {
         propsData: {
             customer: {
                 defaultShippingAddress,
@@ -17,7 +17,7 @@ function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) 
             'sw-card-section': {
                 template: '<div class="sw-card-section"><slot></slot></div>'
             },
-            'sw-address': Shopware.Component.build('sw-address'),
+            'sw-address': await Shopware.Component.build('sw-address'),
         },
         provide: {
             customSnippetApiService: {

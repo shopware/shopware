@@ -111,11 +111,11 @@
                     :key="index"
                     class="sw-select-selection-list__item-holder"
                     :class="'sw-select-selection-list__item-holder--' + index"
-                    :data-id="snippet['value']"
+                    :data-id="snippet"
                 >
                     <slot
                         name="selected-option"
-                        v-bind="{ snippet, defaultLabel: snippet['label'], disabled }"
+                        v-bind="{ snippet, defaultLabel: snippet, disabled }"
                     >
                         <sw-label
                             :dismissable="true"
@@ -127,7 +127,7 @@
                                     name="label-property"
                                     v-bind="{ item: snippet, index }"
                                 >
-                                    {{ getLabelProperty(snippet['value']) }}
+                                    {{ getLabelProperty(snippet) }}
                                 </slot>
                             </span>
                         </sw-label>

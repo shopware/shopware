@@ -23,11 +23,11 @@
                     :key="index"
                     class="sw-select-selection-list__item-holder"
                     :class="'sw-select-selection-list__item-holder--' + index"
-                    :data-id="snippet[valueProperty]"
+                    :data-id="snippet"
                 >
                     <slot
                         name="selected-option"
-                        v-bind="{ snippet, defaultLabel: snippet[labelProperty], disabled, linePosition }"
+                        v-bind="{ snippet, defaultLabel: snippet, disabled, linePosition }"
                     >
                         <sw-label
                             v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition }}"
@@ -39,9 +39,9 @@
                             <span class="sw-select-selection-list__item">
                                 <slot
                                     name="label-property"
-                                    v-bind="{ item: snippet, index, labelProperty, valueProperty, getLabelProperty }"
+                                    v-bind="{ item: snippet, index, getLabelProperty }"
                                 >
-                                    {{ getLabelProperty(snippet[labelProperty]) }}
+                                    {{ getLabelProperty(snippet) }}
                                 </slot>
                             </span>
                         </sw-label>

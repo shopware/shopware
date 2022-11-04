@@ -1,5 +1,4 @@
 import type { PropType } from 'vue';
-import type { Snippet } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-settings-country-new-snippet-modal.html.twig';
 import './sw-settings-country-new-snippet-modal.scss';
 
@@ -22,11 +21,6 @@ interface TreeItem {
     }
 }
 
-const CUSTOM_SNIPPET_TYPE = {
-    PLAIN: 'plain',
-    SNIPPET: 'snippet',
-} as { PLAIN: string, SNIPPET: string };
-
 /**
  * @private
  */
@@ -46,7 +40,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
         },
 
         addressFormat: {
-            type: Array as PropType<Array<Snippet[]>>,
+            type: Array as PropType<Array<string[]>>,
             required: true,
         },
 
@@ -78,7 +72,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
     },
 
     computed: {
-        selection(): Snippet[] {
+        selection(): string[] {
             return this.addressFormat[this.currentPosition];
         },
     },
@@ -107,12 +101,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
         },
 
         addElement(data: Selection) {
-            const plain = data.parentId === CUSTOM_SNIPPET_TYPE.PLAIN;
-
-            this.addressFormat[this.currentPosition].push({
-                type: plain ? CUSTOM_SNIPPET_TYPE.PLAIN : CUSTOM_SNIPPET_TYPE.SNIPPET,
-                value: plain ? data.name : data.id.replace('.', '/'),
-            } as Snippet);
+            this.addressFormat[this.currentPosition].push(data.id.replace('.', '/'));
 
             this.$emit('change', this.currentPosition, this.addressFormat[this.currentPosition]);
         },

@@ -39,6 +39,11 @@
         padding: 5px;
     }
 
+    .sw-tree-item .sw-tree-item__label {
+        font-size: $font-size-default;
+        text-transform: capitalize;
+    }
+
     &__search-field {
         position: relative;
 

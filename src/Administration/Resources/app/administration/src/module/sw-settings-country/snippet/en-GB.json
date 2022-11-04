@@ -118,6 +118,11 @@
       "phoneNumber": "Phone number",
       "department": "Department",
       "title": "Title"
+    },
+    "symbol": {
+      "tilde": ".",
+      "dash": "-",
+      "comma": ","
     }
   }
 }

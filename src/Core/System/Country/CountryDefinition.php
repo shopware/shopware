@@ -39,52 +39,11 @@ class CountryDefinition extends EntityDefinition
     public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
 
     public const DEFAULT_ADDRESS_FORMAT = [
-        [
-            [
-                'type' => 'snippet',
-                'value' => 'address/company',
-            ],
-            [
-                'type' => 'plain',
-                'value' => '-',
-            ],
-            [
-                'type' => 'snippet',
-                'value' => 'address/department',
-            ],
-        ],
-        [
-            [
-                'type' => 'snippet',
-                'value' => 'address/first_name',
-            ],
-            [
-                'type' => 'snippet',
-                'value' => 'address/last_name',
-            ],
-        ],
-        [
-            [
-                'type' => 'snippet',
-                'value' => 'address/street',
-            ],
-        ],
-        [
-            [
-                'type' => 'snippet',
-                'value' => 'address/zipcode',
-            ],
-            [
-                'type' => 'snippet',
-                'value' => 'address/city',
-            ],
-        ],
-        [
-            [
-                'type' => 'snippet',
-                'value' => 'address/country',
-            ],
-        ],
+        ['address/company', 'symbol/dash', 'address/department'],
+        ['address/first_name', 'address/last_name'],
+        ['address/street'],
+        ['address/zipcode', 'address/city'],
+        ['address/country'],
     ];
 
     public function getEntityName(): string

@@ -1,5 +1,4 @@
 import type { PropType } from 'vue';
-import type { Snippet } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-multi-snippet-drag-and-drop.html.twig';
 import './sw-multi-snippet-drag-and-drop.scss';
 
@@ -27,7 +26,7 @@ interface DragConfig {
 interface DragItem {
     index: number,
     linePosition?: number | null,
-    snippet: Snippet[]
+    snippet: string[]
 }
 
 const DEFAULT_MIN_LINES = 1 as number;
@@ -70,18 +69,6 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             type: Boolean,
             required: false,
             default: false,
-        },
-
-        labelProperty: {
-            type: String,
-            required: false,
-            default: 'value',
-        },
-
-        valueProperty: {
-            type: String,
-            required: false,
-            default: 'value',
         },
 
         selectionDisablingMethod: {
@@ -198,7 +185,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                 return;
             }
 
-            this.$emit('drag-end', this.linePosition, { dragData, dropData });
+            this.$emit('drop-end', this.linePosition, { dragData, dropData });
         },
 
         isSelectionDisabled(selection: $TSFixMe): boolean {

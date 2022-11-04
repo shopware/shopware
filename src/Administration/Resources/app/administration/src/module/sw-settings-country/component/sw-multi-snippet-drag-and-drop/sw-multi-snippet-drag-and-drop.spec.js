@@ -8,13 +8,13 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-button';
 
-function createWrapper(customPropsData = {}) {
+async function createWrapper(customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('droppable', {});
     localVue.directive('draggable', {});
 
-    return shallowMount(Shopware.Component.build('sw-multi-snippet-drag-and-drop'), {
+    return shallowMount(await Shopware.Component.build('sw-multi-snippet-drag-and-drop'), {
         localVue,
 
         mocks: {
@@ -31,26 +31,22 @@ function createWrapper(customPropsData = {}) {
         },
 
         propsData: {
-            value: [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-            ],
+            value: ['address/company', 'symbol/dash', 'address/department'],
             totalLines: 3,
             linePosition: 0,
             ...customPropsData
         },
 
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-label': Shopware.Component.build('sw-label'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
@@ -146,46 +142,32 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            [
-                { value: '-', type: 'plain' },
-                {
-                    type: 'snippet',
-                    value: 'address/department'
-                }
-            ]
+            ['symbol/dash', 'address/department']
         ]);
     });
 
     it('should emit `change` when swap on the same line on dragging', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.value[1]).toEqual({ type: 'plain', value: '-' });
-        expect(wrapper.vm.value[0])
-            .toEqual({ type: 'snippet', value: 'address/company' });
+        expect(wrapper.vm.value[1]).toEqual('symbol/dash');
+        expect(wrapper.vm.value[0]).toEqual('address/company');
 
         await wrapper.vm.dragEnd(
             {
                 index: 0,
                 linePosition: 0,
-                snippet: {
-                    type: 'snippet',
-                    value: 'address/company'
-                }
+                snippet: 'address/company'
             }, {
                 index: 1,
                 linePosition: 0,
-                snippet: { type: 'plain', value: '-' }
+                snippet: 'symbol/dash'
             },
         );
 
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            [
-                { value: '-', type: 'plain' },
-                { value: 'address/company', type: 'snippet' },
-                { value: 'address/department', type: 'snippet' }
-            ]
+            ['symbol/dash', 'address/company', 'address/department']
         ]);
     });
 
@@ -227,7 +209,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.emitted()['drag-enter']).toBeTruthy();
     });
 
-    it('should emit event `drag-end` when drop', async () => {
+    it('should emit event `drop-end` when drop', async () => {
         const wrapper = await createWrapper({ totalLines: 1 });
 
         expect(wrapper.emitted()).toEqual({});
@@ -239,17 +221,14 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
             {
                 index: 0,
                 linePosition: 1,
-                snippet: {
-                    type: 'snippet',
-                    value: 'address/company'
-                }
+                snippet: 'address/company'
             }, {
                 index: 1,
                 linePosition: 0,
-                snippet: { type: 'plain', value: '-' }
+                snippet: 'symbol/dash'
             },
         );
 
-        expect(wrapper.emitted()['drag-end']).toBeTruthy();
+        expect(wrapper.emitted()['drop-end']).toBeTruthy();
     });
 });

@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-delivery-metadata/index';
 import 'src/app/component/base/sw-address';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-delivery-metadata'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-delivery-metadata'), {
         propsData: {
             delivery: {
                 shippingMethod: {
@@ -26,7 +26,7 @@ function createWrapper() {
         },
         stubs: {
             'sw-container': true,
-            'sw-address': Shopware.Component.build('sw-address'),
+            'sw-address': await Shopware.Component.build('sw-address'),
             'sw-card': true,
             'sw-description-list': true,
         },

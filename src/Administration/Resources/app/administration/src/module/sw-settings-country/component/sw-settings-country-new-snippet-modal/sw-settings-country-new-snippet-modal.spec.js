@@ -13,13 +13,11 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/utils/sw-vnode-renderer';
 import 'src/app/component/form/field-base/sw-contextual-field';
 
-const swSettingsCountryNewSnippetModalComponent = Shopware.Component.build('sw-settings-country-new-snippet-modal');
-
-function createWrapper(customPropsData = {}) {
+async function createWrapper(customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(swSettingsCountryNewSnippetModalComponent, {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-new-snippet-modal'), {
         localVue,
 
         mocks: {
@@ -38,14 +36,14 @@ function createWrapper(customPropsData = {}) {
         propsData: {
             selections: [
                 {
-                    id: 'plain/-',
+                    id: 'symbol/dash',
                     name: '-',
-                    parentId: 'plain'
+                    parentId: 'symbol'
                 },
                 {
-                    id: 'plain/,',
+                    id: 'symbol/comma',
                     name: ',',
-                    parentId: 'plain'
+                    parentId: 'symbol'
                 },
                 {
                     id: 'address/country_state',
@@ -75,11 +73,7 @@ function createWrapper(customPropsData = {}) {
             ],
             currentPosition: 0,
             addressFormat: [
-                [
-                    { value: 'address/company', type: 'snippet' },
-                    { value: '-', type: 'plain' },
-                    { value: 'address/department', type: 'snippet' },
-                ]
+                ['address/company', 'symbol/dash', 'address/department']
             ],
             ...customPropsData
         },
@@ -92,29 +86,29 @@ function createWrapper(customPropsData = {}) {
         },
 
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-label': Shopware.Component.build('sw-label'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': true,
-            'sw-tree': Shopware.Component.build('sw-tree'),
-            'sw-tree-item': Shopware.Component.build('sw-tree-item'),
-            'sw-tree-input-field': Shopware.Component.build('sw-tree-input-field'),
+            'sw-tree': await Shopware.Component.build('sw-tree'),
+            'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
+            'sw-tree-input-field': await Shopware.Component.build('sw-tree-input-field'),
             'sw-confirm-field': true,
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
                     </div>`
             },
-            'sw-vnode-renderer': Shopware.Component.build('sw-vnode-renderer'),
+            'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-skeleton': true,
         }
     });
@@ -145,10 +139,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            [
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' }
-            ]
+            ['symbol/dash', 'address/department']
         ]);
     });
 
@@ -162,16 +153,13 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
-            [
-                { value: 'address/company', type: 'snippet' },
-                { value: '-', type: 'plain' },
-                { value: 'address/department', type: 'snippet' },
-                { type: 'plain', value: '-' }
-            ]
+            ['address/company', 'symbol/dash', 'address/department', 'symbol/dash']
         ]);
     });
 
     it('should be able to reorder data when user type search term in search field', async () => {
+        const swSettingsCountryNewSnippetModalComponent = await Shopware.Component.build('sw-settings-country-new-snippet-modal');
+
         const wrapper = await createWrapper();
 
         const searchInputField = wrapper.find('.sw-settings-country-new-snippet-modal__input-field');

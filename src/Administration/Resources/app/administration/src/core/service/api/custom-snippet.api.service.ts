@@ -40,11 +40,6 @@ interface Address {
     additionalAddressLine2?: string,
 }
 
-interface Snippet {
-    type: string,
-    value: string,
-}
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class CustomSnippetApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
@@ -57,12 +52,12 @@ export default class CustomSnippetApiService extends ApiService {
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}`, {
                 headers: this.getBasicHeaders(),
-            }).then((response: AxiosResponse<Array<Snippet[]>>) => {
+            }).then((response: AxiosResponse<Array<string[]>>) => {
                 return ApiService.handleResponse(response);
             });
     }
 
-    render(address: Address, format: Array<Snippet[]>): Promise<unknown> {
+    render(address: Address, format: Array<string[]>): Promise<unknown> {
         const params = { data: { address }, format };
 
         return this.httpClient
@@ -75,4 +70,4 @@ export default class CustomSnippetApiService extends ApiService {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type { Address, Snippet };
+export type { Address };

@@ -1,6 +1,5 @@
 ---
 title: ElementDataCollection iterable
-issue: /
 author: Rune Laenen
 author_email: rune@laenen.me
 ---

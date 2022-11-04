@@ -12,7 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1664541794AddIndexForLogEntryTask;
  *
  * @covers \Shopware\Core\Migration\V6_4\Migration1664541794AddIndexForLogEntryTask
  */
-class Migration1664541794AddIndexForTasksTest extends TestCase
+class Migration1664541794AddIndexForLogEntryTaskTest extends TestCase
 {
     protected function setUp(): void
     {

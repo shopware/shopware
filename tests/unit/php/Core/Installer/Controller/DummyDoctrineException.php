@@ -14,4 +14,9 @@ class DummyDoctrineException extends DriverException
         $this->code = $errorCode;
         $this->message = $message;
     }
+
+    public function getErrorCode()
+    {
+        return $this->code;
+    }
 }

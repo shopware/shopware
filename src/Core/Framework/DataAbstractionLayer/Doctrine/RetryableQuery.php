@@ -15,11 +15,14 @@ class RetryableQuery
      */
     private $connection;
 
+    /**
+     * @var DriverStatement<mixed>
+     */
     private DriverStatement $query;
 
     /**
      * @param Connection $param1
-     * @param Statement|DriverStatement $param2
+     * @param Statement|DriverStatement<mixed> $param2
      */
     public function __construct($param1, $param2 = null)
     {
@@ -29,6 +32,9 @@ class RetryableQuery
                 'Only passing a DriverStatement to RetryableQuery::__construct() is deprecated and will not be possible anymore in v6.5.0.0., instead pass a Connection as first parameter and a Doctrine\DBAL\Statement as second.'
             );
             $this->query = $param1;
+        } elseif ($param1 instanceof Connection && $param2 instanceof Statement) {
+            $this->connection = $param1;
+            $this->query = $param2->getWrappedStatement();
         } elseif ($param1 instanceof Connection && $param2 instanceof DriverStatement) {
             Feature::triggerDeprecationOrThrow(
                 'v6.5.0.0',
@@ -36,9 +42,6 @@ class RetryableQuery
             );
             $this->connection = $param1;
             $this->query = $param2;
-        } elseif ($param1 instanceof Connection && $param2 instanceof Statement) {
-            $this->connection = $param1;
-            $this->query = $param2->getWrappedStatement();
         } else {
             throw new \InvalidArgumentException(
                 'Constructor arguments must be of type (Doctrine\DBAL\Connection $connection, Doctrine\DBAL\Statement $query).'
@@ -101,6 +104,8 @@ class RetryableQuery
 
     /**
      * @deprecated tag:v6.5.0 - reason:return-type-change - Will return `Doctrine\DBAL\Statement` in the next major
+     *
+     * @return DriverStatement<mixed>
      */
     public function getQuery(): DriverStatement
     {

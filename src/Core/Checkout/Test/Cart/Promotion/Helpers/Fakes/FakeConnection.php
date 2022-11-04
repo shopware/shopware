@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
-use Doctrine\DBAL\Cache\ArrayResult;
+use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -40,11 +40,14 @@ class FakeConnection extends Connection
         $this->dbRows = $dbRows;
     }
 
+    /**
+     * @return \Doctrine\DBAL\ForwardCompatibility\Result<mixed>
+     */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        return new Result(
-            new ArrayResult($this->dbRows),
-            $this
+        /** @deprecated tag:v6.5.0 - Return `Doctrine\DBAL\Cache\ArrayResult` after DBAL upgrade */
+        return new \Doctrine\DBAL\ForwardCompatibility\Result(
+            new ArrayStatement($this->dbRows)
         );
     }
 

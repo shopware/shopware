@@ -13,8 +13,6 @@ parameters:
     paths:
         - src
         - tests
-    parallel:
-        maximumNumberOfProcesses: 6
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
     # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
@@ -254,10 +252,6 @@ parameters:
         -
             message: "#^Return type of call to method PHPUnit\\\\Framework\\\\TestCase\\:\\:createPartialMock\\(\\) contains unresolvable type.$#"
             path: tests/unit/php/Core/Content/Mail/Service/MailerTransportLoaderTest.php
-
-        - # Private method usage via callable is not detected by PHPStan
-            message: '#Method Shopware\\Core\\Framework\\Test\\FeatureFlag\\FeatureTest::indicate\(\) is unused#'
-            path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
 
 services:
     -

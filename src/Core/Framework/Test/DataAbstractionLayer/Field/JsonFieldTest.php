@@ -356,9 +356,6 @@ EOF;
         } catch (Exception $exception) {
             // mysql throws an exception on invalid path
             static::assertTrue(true);
-        } catch (\Doctrine\DBAL\ArrayParameters\Exception $exception) {
-            // postgres throws an exception on invalid path
-            static::assertTrue(true);
         }
     }
 

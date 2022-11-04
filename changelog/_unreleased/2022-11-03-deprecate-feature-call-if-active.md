@@ -1,5 +1,5 @@
 ---
-title: Deprecate `Featre::ifActiveCall()`
+title: Deprecate `Feature::ifActiveCall()`
 issue: NEXT-23917
 ---
 # Core

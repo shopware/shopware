@@ -4,6 +4,9 @@ import './sw-dashboard-statistics.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-dashboard-statistics', {
     template,

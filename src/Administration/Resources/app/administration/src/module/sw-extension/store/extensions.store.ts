@@ -148,6 +148,9 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
     },
 };
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default shopwareExtensionsStore;
 

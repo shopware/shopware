@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 class LocaleProvider
 {
     private EntityRepositoryInterface $userRepository;

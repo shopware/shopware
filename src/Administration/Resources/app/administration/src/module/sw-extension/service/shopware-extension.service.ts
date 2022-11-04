@@ -22,6 +22,9 @@ interface LabeledLocation extends Location {
     label: string|null
 }
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareExtensionService {
     public readonly EXTENSION_VARIANT_TYPES: Readonly<EXTENSION_VARIANT_TYPES>;
@@ -31,7 +34,7 @@ export default class ShopwareExtensionService {
     private readonly storeApiService: StoreApiService;
 
     /**
-     * @deprecated tag:6.5.0 - Parameter storeApiService will be required in future versions
+     * @deprecated tag:v6.5.0 - Parameter storeApiService will be required in future versions
      */
     constructor(
         private readonly appModulesService: AppModulesService,
@@ -207,7 +210,7 @@ export default class ShopwareExtensionService {
     }
 
     /**
-     * @deprecated tag:6.5.0.0 - will be private in future versions
+     * @deprecated tag:v6.5.0 - will be private in future versions
      */
     public async updateModules() {
         const modules = await this.appModulesService.fetchAppModules();
@@ -216,7 +219,7 @@ export default class ShopwareExtensionService {
     }
 
     /**
-     * @deprecated tag:6.5.0 - will be removed. Use private function getLinkToTheme instead
+     * @deprecated tag:v6.5.0 - will be removed. Use private function getLinkToTheme instead
      */
     public async _getLinkToTheme(extension: Extension) {
         return this.getLinkToTheme(extension);
@@ -244,7 +247,7 @@ export default class ShopwareExtensionService {
     }
 
     /**
-     * @deprecated tag:6.5.0 - will be removed. Use private function getLinkToApp instead
+     * @deprecated tag:v6.5.0 - will be removed. Use private function getLinkToApp instead
      */
     public _getLinkToApp(extension: Extension) {
         return this.getLinkToApp(extension);
@@ -265,7 +268,7 @@ export default class ShopwareExtensionService {
     }
 
     /**
-     * @deprecated tag:6.5.0 - will be removed. Use private function getAppFromStore instead
+     * @deprecated tag:v6.5.0 - will be removed. Use private function getAppFromStore instead
      */
     public _getAppFromStore(extensionName: string) {
         return this.getAppFromStore(extensionName);
@@ -278,7 +281,7 @@ export default class ShopwareExtensionService {
     }
 
     /**
-     * @deprecated tag:6.5.0 - will be removed. Use private function appHasMainModule instead
+     * @deprecated tag:v6.5.0 - will be removed. Use private function appHasMainModule instead
      */
     public _appHasMainModule(app: AppModuleDefinition) {
         return this.appHasMainModule(app);
@@ -289,7 +292,7 @@ export default class ShopwareExtensionService {
     }
 
     /**
-     * @deprecated tag:6.5.0 - will be removed. Use private function createLinkToModule instead
+     * @deprecated tag:v6.5.0 - will be removed. Use private function createLinkToModule instead
      */
     public _createLinkToModule(appName: string) {
         return this.createLinkToModule(appName);

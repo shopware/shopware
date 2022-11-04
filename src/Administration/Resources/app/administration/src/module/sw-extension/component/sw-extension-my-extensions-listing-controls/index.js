@@ -1,6 +1,9 @@
 import template from './sw-extension-my-extensions-listing-controls.html.twig';
 import './sw-extension-my-extensions-listing-controls.scss';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
     template,

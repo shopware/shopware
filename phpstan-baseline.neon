@@ -66,21 +66,6 @@ parameters:
 			path: src/Administration/Framework/Routing/KnownIps/KnownIpsCollectorInterface.php
 
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Notification\\\\NotificationEntity\\:\\:getRequiredPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Notification/NotificationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Notification\\\\NotificationEntity\\:\\:setRequiredPrivileges\\(\\) has parameter \\$requiredPrivileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Notification/NotificationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Administration\\\\Notification\\\\NotificationEntity\\:\\:\\$requiredPrivileges type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Notification/NotificationEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Notification\\\\NotificationService\\:\\:createNotification\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Notification/NotificationService.php
@@ -18547,16 +18532,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\OpenSSLVerifier\\:\\:\\$keyResource \\(resource\\) does not accept resource\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreClientFactory\\:\\:__construct\\(\\) has parameter \\$middlewares with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreClientFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreClientFactory\\:\\:getClientBaseConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreClientFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreService\\:\\:fireTrackingEvent\\(\\) has parameter \\$additionalData with no value type specified in iterable type array\\.$#"

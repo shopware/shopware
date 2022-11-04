@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Struct\FrwState;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 class FirstRunWizardFinishedEvent extends Event
 {
     /**

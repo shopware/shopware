@@ -21,6 +21,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 class StoreDownloadCommand extends Command
 {
     public static $defaultName = 'store:download';

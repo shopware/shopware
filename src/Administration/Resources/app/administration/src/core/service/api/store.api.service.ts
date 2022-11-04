@@ -19,6 +19,7 @@ interface UserInfoResponse {
 
 /**
  * Gateway for the API end point "store"
+ * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class StoreApiService extends ApiService {
@@ -150,5 +151,8 @@ export default class StoreApiService extends ApiService {
     }
 }
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { StoreApiService, UserInfo };

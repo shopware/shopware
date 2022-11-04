@@ -1,5 +1,8 @@
 import template from './sw-extension-store-recommendation.html.twig';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-extension-my-extensions-recommendation', {
     template,

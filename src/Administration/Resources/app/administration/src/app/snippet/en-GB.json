@@ -361,10 +361,12 @@
       "description": "A file with the name \"{fileName}\" already exists.",
       "buttonReplace": "Replace file",
       "buttonRename": "Rename file",
+      "buttonKeep": "Use file",
       "buttonSkip": "Skip file",
       "labelSaveSelection": "Save selection and apply to {count} more.",
       "labelOptionReplace": "Upload and replace",
       "labelOptionRename": "Upload and rename",
+      "labelOptionKeep": "Use existing file",
       "labelOptionSkip": "Skip file",
       "labelOldFile": "Existing file",
       "labelNewFile": "Uploaded file"
@@ -412,6 +414,9 @@
       "notification": {
         "success": {
           "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
+        },
+        "assigned": {
+          "message": "Media file has been assigned."
         },
         "failure": {
           "message": "Error while uploading file."

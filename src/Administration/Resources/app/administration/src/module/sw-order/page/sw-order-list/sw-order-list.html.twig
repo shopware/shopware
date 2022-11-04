@@ -124,6 +124,18 @@
                         {{ $tc('sw-order.list.labelManualOrder') }}
                     </sw-label>
                     {% endblock %}
+
+                    <sw-button
+                        v-if="item.customerComment"
+                        v-tooltip="{ message: item.customerComment }"
+                        class="sw-order-list__tooltip-order-comment"
+                        size="x-small"
+                    >
+                        <sw-icon
+                            name="regular-comments"
+                            size="14px"
+                        />
+                    </sw-button>
                 </template>
                 {% endblock %}
 

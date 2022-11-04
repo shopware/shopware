@@ -131,6 +131,10 @@ export default class OffCanvasCartPlugin extends Plugin {
         const { shippingToggleSelector, shippingContainerSelector } = this.options;
         const toggle = document.querySelector(shippingToggleSelector);
 
+        if (!toggle) {
+            return;
+        }
+
         toggle.addEventListener('click', () => {
             const target = document.querySelector(shippingContainerSelector);
             const hiddenClass = 'offcanvas-shipping-preference--hidden';

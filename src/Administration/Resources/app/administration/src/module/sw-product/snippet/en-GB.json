@@ -526,6 +526,9 @@
         "label": "Categories",
         "placeholder": "Select categories..."
       },
+      "salesFilter": {
+        "label": "Sales"
+      },
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Select tags..."

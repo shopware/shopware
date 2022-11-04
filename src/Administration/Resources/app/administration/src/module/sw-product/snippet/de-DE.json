@@ -526,6 +526,9 @@
         "label": "Kategorien",
         "placeholder": "Kategorien auswählen ..."
       },
+      "salesFilter": {
+        "label": "Verkäufe"
+      },
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Tags auswählen ..."

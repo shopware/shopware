@@ -1,6 +1,6 @@
 ---
 title: Ajax Modal initialize plugins after loading
-issue: NEXT-23355
+issue: NEXT-24007
 author: Rune Laenen
 author_email: rune@laenen.me
 ---

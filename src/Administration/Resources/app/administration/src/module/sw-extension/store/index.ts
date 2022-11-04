@@ -1,6 +1,9 @@
 import type { ShopwareClass } from 'src/core/shopware';
 import extensionStore from './extensions.store';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState(Shopware: ShopwareClass): void {
     Shopware.State.registerModule('shopwareExtensions', extensionStore);

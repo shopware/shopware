@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 abstract class AbstractStoreRequestOptionsProvider
 {
     /**

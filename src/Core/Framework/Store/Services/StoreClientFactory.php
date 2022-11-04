@@ -7,6 +7,9 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 class StoreClientFactory
 {
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
@@ -20,6 +23,8 @@ class StoreClientFactory
 
     /**
      * @internal
+     *
+     * @param MiddlewareInterface[] $middlewares
      */
     public function __construct(
         SystemConfigService $configService,
@@ -43,10 +48,13 @@ class StoreClientFactory
         return new Client($config);
     }
 
+    /**
+     * @return array{base_uri: string, headers: array<string, string>}
+     */
     private function getClientBaseConfig(): array
     {
         return [
-            'base_uri' => $this->configService->get(self::CONFIG_KEY_STORE_API_URI),
+            'base_uri' => $this->configService->getString(self::CONFIG_KEY_STORE_API_URI),
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/vnd.api+json,application/json',

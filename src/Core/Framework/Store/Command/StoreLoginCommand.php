@@ -20,6 +20,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 class StoreLoginCommand extends Command
 {
     public static $defaultName = 'store:login';

@@ -95,6 +95,23 @@ class MediaApiService extends ApiService {
         });
     }
 
+    keepFile(uploadTag, uploadData) {
+        const task = new UploadTask({ uploadTag, ...uploadData });
+        this.getListenerForTag(uploadTag).forEach((listener) => {
+            listener(this._createUploadEvent(
+                UploadEvents.UPLOAD_FINISHED,
+                uploadTag,
+                {
+                    targetId: task.targetId,
+                    successAmount: 0,
+                    failureAmount: 0,
+                    totalAmount: 0,
+                    customMessage: 'global.sw-media-upload.notification.assigned.message',
+                },
+            ));
+        });
+    }
+
     cancelUpload(uploadTag, uploadData) {
         const tasks = new UploadTask({ uploadTag, ...uploadData });
         this.getListenerForTag(uploadTag).forEach((listener) => {

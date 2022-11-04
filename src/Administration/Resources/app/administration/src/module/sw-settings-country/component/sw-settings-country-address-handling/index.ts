@@ -3,6 +3,7 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type { Address } from 'src/core/service/api/custom-snippet.api.service';
 import type { PropType } from 'vue';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
 
@@ -14,26 +15,6 @@ interface CustomerEntity extends Entity {
     firstName: string,
     lastName: string,
     defaultBillingAddress: Address
-}
-
-interface DragConfig {
-    delay: number,
-    dragGroup: number | string,
-    draggableCls: string,
-    draggingStateCls: string,
-    dragElementCls: string,
-    validDragCls: string,
-    invalidDragCls: string,
-    preventEvent: boolean,
-    validateDrop: boolean,
-    validateDrag: boolean,
-    onDragStart: (...args: never[]) => void,
-    onDragEnter: (...args: never[]) => void,
-    onDragLeave: (...args: never[]) => void,
-    onDrop: (...args: never[]) => void,
-    // eslint-disable-next-line no-use-before-define
-    data: DragItem,
-    disabled: boolean,
 }
 
 interface TreeItem {
@@ -122,7 +103,7 @@ Component.register('sw-settings-country-address-handling', {
             return criteria;
         },
 
-        dragConf(): DragConfig {
+        dragConf(): DragConfig<DragItem> {
             return {
                 delay: 200,
                 dragGroup: 'sw-multi-snippet',
@@ -134,7 +115,7 @@ Component.register('sw-settings-country-address-handling', {
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onDrop,
                 preventEvent: false,
-            } as DragConfig;
+            } as DragConfig<DragItem>;
         },
 
         addressFormat(): Array<string[]> {
@@ -201,8 +182,9 @@ Component.register('sw-settings-country-address-handling', {
             void this.getSnippets();
         },
 
-        onDragStart(config: DragConfig): void {
-            this.draggedItem = config.data;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onDragStart(dragConfig: DragConfig<DragItem>, draggedElement: Element, dragElement: Element): void {
+            this.draggedItem = dragConfig.data;
         },
 
         onDragEnter(dragData: DragItem, dropData: DragItem): void {
@@ -217,7 +199,8 @@ Component.register('sw-settings-country-address-handling', {
             this.droppedItem = dropData;
         },
 
-        onDrop(): void {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onDrop(dragData: DragItem, dropData: DragItem): void {
             if (!this.addressFormat?.length || !this.droppedItem || !this.draggedItem) {
                 return;
             }
@@ -268,7 +251,7 @@ Component.register('sw-settings-country-address-handling', {
             );
         },
 
-        moveToLocation(source: number, dest: number | null): void {
+        moveToNewPosition(source: number, dest: number | null): void {
             if (!this.addressFormat) {
                 return;
             }

@@ -86,14 +86,14 @@
 
         <sw-context-menu-item
             :disabled="isMinLines"
-            @click="moveToLocation(0)"
+            @click="moveToNewPosition(0)"
         >
             {{ $tc('sw-settings-country.general.actions.moveTop') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
             :disabled="isMinLines"
-            @click="moveToLocation"
+            @click="moveToNewPosition"
         >
             {{ $tc('sw-settings-country.general.actions.moveBottom') }}
         </sw-context-menu-item>

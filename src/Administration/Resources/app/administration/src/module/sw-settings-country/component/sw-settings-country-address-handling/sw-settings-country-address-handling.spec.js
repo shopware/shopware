@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-address-handling';
 import 'src/module/sw-settings-country/component/sw-settings-country-preview-template';
 import 'src/app/component/base/sw-card';
@@ -149,8 +149,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('module/sw-settings-country/component/sw-settings-country-address-handling', () => {
     let wrapper;
 
@@ -160,15 +158,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     beforeEach(async () => {
         global.activeFeatureFlags = ['v6.5.0.0'];
+    });
 
+    it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
-    });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

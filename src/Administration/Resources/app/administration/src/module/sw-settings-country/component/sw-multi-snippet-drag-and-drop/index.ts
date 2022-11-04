@@ -1,27 +1,9 @@
 import type { PropType } from 'vue';
+import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-multi-snippet-drag-and-drop.html.twig';
 import './sw-multi-snippet-drag-and-drop.scss';
 
 const { Component } = Shopware;
-
-interface DragConfig {
-    delay: number,
-    dragGroup: number | string,
-    draggableCls: string,
-    draggingStateCls: string,
-    dragElementCls: string,
-    validDragCls: string,
-    invalidDragCls: string,
-    preventEvent: boolean,
-    validateDrop: boolean,
-    validateDrag: boolean,
-    onDragStart: (...args: never[]) => void,
-    onDragEnter: (...args: never[]) => void,
-    onDragLeave: (...args: never[]) => void,
-    onDrop: (...args: never[]) => void,
-    data: Record<string, unknown>,
-    disabled: boolean,
-}
 
 interface DragItem {
     index: number,
@@ -80,7 +62,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         dragConfig: {
             type: Object,
             required: false,
-            default(): DragConfig {
+            default(): DragConfig<DragItem> {
                 return this.defaultConfig;
             },
         },
@@ -88,7 +70,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         dropConfig: {
             type: Object,
             required: false,
-            default(): DragConfig {
+            default(): DragConfig<DragItem> {
                 return this.defaultConfig;
             },
         },
@@ -101,7 +83,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
     },
 
     data(): {
-        defaultConfig: DragConfig,
+        defaultConfig: DragConfig<DragItem>,
         } {
         return {
             defaultConfig: {
@@ -110,7 +92,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                 validDragCls: 'is--valid-drag',
                 preventEvent: true,
                 disabled: this.disabled,
-            } as DragConfig,
+            } as DragConfig<DragItem>,
         };
     },
 
@@ -119,17 +101,17 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             return null;
         },
 
-        mergedDragConfig(): DragConfig {
+        mergedDragConfig(): DragConfig<DragItem> {
             return {
                 ...this.defaultConfig,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                onDragStart: this.dragStart,
+                onDragStart: this.onDragStart,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDragEnter: this.onDragEnter,
                 // eslint-disable-next-line @typescript-eslint/unbound-method
-                onDrop: this.dragEnd,
+                onDrop: this.onDrop,
                 ...this.dragConfig,
-            } as DragConfig;
+            } as DragConfig<DragItem>;
         },
 
         mergedDropConfig(): DragConfig {
@@ -149,7 +131,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
     },
 
     methods: {
-        dragStart(config: DragConfig, element: string, dragElement: string): void {
+        onDragStart(config: DragConfig, element: string, dragElement: string): void {
             this.$emit('drag-start', { config, element, dragElement });
         },
 
@@ -161,7 +143,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             this.$emit('drag-enter', { dragData, dropData });
         },
 
-        dragEnd(dragData: DragItem, dropData: DragItem) {
+        onDrop(dragData: DragItem, dropData: DragItem) {
             if (!dragData || !dropData) {
                 return;
             }
@@ -210,8 +192,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             this.$emit('add-new-line', this.linePosition, position);
         },
 
-        moveToLocation(position = null) {
-            this.$emit('location-move', this.linePosition, position);
+        moveToNewPosition(position = null) {
+            this.$emit('position-move', this.linePosition, position);
         },
 
         onDelete() {

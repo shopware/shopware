@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop/index';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -58,8 +58,6 @@ async function createWrapper(customPropsData = {}) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
@@ -106,8 +104,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
 
         await menuContextButton.trigger('click');
 
-        expect(wrapper.emitted()['location-move']).toBeTruthy();
-        expect(wrapper.emitted()['location-move'][0]).toEqual([0, 0]);
+        expect(wrapper.emitted()['position-move']).toBeTruthy();
+        expect(wrapper.emitted()['position-move'][0]).toEqual([0, 0]);
     });
 
     it('should emit `location move` when move row to bottom', async () => {
@@ -117,8 +115,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
 
         await menuContextButton.trigger('click');
 
-        expect(wrapper.emitted()['location-move']).toBeTruthy();
-        expect(wrapper.emitted()['location-move'][0]).toEqual([0, null]);
+        expect(wrapper.emitted()['position-move']).toBeTruthy();
+        expect(wrapper.emitted()['position-move'][0]).toEqual([0, null]);
     });
 
     it('should emit `change` when delete current line', async () => {
@@ -152,7 +150,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.vm.value[1]).toEqual('symbol/dash');
         expect(wrapper.vm.value[0]).toEqual('address/company');
 
-        await wrapper.vm.dragEnd(
+        await wrapper.vm.onDrop(
             {
                 index: 0,
                 linePosition: 0,
@@ -192,7 +190,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
 
         expect(wrapper.emitted()).toEqual({});
 
-        await wrapper.vm.dragStart();
+        await wrapper.vm.onDragStart();
 
         expect(wrapper.emitted()['drag-start']).toBeTruthy();
     });
@@ -217,7 +215,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await wrapper.vm.onDragEnter(null, null);
         expect(wrapper.emitted()).toEqual({});
 
-        await wrapper.vm.dragEnd(
+        await wrapper.vm.onDrop(
             {
                 index: 0,
                 linePosition: 1,

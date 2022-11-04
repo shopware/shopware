@@ -9,6 +9,11 @@
         overflow-y: auto;
     }
 
+    .sw-tree .sw-tree__content {
+        max-height: unset;
+        min-height: unset;
+    }
+
     .sw-tree .sw-tree__content .tree-items {
         padding: 0;
     }
@@ -31,7 +36,7 @@
         }
     }
 
-    .sw-tree-item .sw-tree-item__icon span {
+    .sw-tree-item .icon--regular-circle-xxs {
         padding: 3px;
     }
 
@@ -40,7 +45,6 @@
     }
 
     .sw-tree-item .sw-tree-item__label {
-        font-size: $font-size-default;
         text-transform: capitalize;
     }
 
@@ -52,7 +56,6 @@
         }
 
         .sw-field__label label {
-            font-size: $font-size-default;
             font-weight: $font-weight-semi-bold;
         }
 

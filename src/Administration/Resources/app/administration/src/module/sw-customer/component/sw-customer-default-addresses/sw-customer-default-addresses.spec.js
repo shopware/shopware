@@ -34,10 +34,6 @@ async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress 
 describe('module/sw-customer/page/sw-customer-base-info', () => {
     let wrapper;
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();

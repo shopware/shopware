@@ -29,6 +29,9 @@ export default class StoreApiService extends ApiService {
         this.name = 'storeService';
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be removed withouth replacement
+     */
     public async ping() {
         await this.httpClient.get(
             `/_action/${this.getApiBasePath()}/ping`,

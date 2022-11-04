@@ -61,11 +61,18 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Will be removed without replacement
+     *
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/ping", name="api.custom.store.ping", methods={"GET"})
      */
     public function pingStoreAPI(): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'Route "api.custom.store.ping" is deprecated and will be removed without replacement.'
+        );
+
         try {
             $this->storeClient->ping();
         } catch (ClientException | ConnectException $exception) {

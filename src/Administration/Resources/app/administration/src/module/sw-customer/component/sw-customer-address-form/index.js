@@ -1,6 +1,5 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 const { Component, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -121,11 +120,7 @@ Component.register('sw-customer-address-form', {
         },
 
         isBusinessAccountType() {
-            if (!this.customer?.accountType) {
-                return true;
-            }
-
-            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+            return this.customer.company !== null;
         },
     },
 

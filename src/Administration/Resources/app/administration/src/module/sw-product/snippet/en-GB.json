@@ -238,6 +238,7 @@
       "columnTags": "Tags",
       "columnActions": "Action(s)",
       "columnMedia": "Media",
+      "columnSales": "Sales",
       "columnDownloadsTooltip": "Digital products must have at least one file attached.",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",

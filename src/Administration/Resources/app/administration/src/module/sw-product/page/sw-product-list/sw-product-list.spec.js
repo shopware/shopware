@@ -378,7 +378,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.vm.getList();
 
         // get header which sorts grid when clicking on it
-        const currencyColumnHeader = wrapper.find('.sw-data-grid__cell--header.sw-data-grid__cell--4');
+        const currencyColumnHeader = wrapper.find('.sw-data-grid__cell--header.sw-data-grid__cell--5');
 
         const priceCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const firstPriceCell = priceCells.at(0);
@@ -410,7 +410,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.vm.getList();
 
         // get header which sorts grid when clicking on it
-        const currencyColumnHeader = wrapper.find('.sw-data-grid__cell--header.sw-data-grid__cell--4');
+        const currencyColumnHeader = wrapper.find('.sw-data-grid__cell--header.sw-data-grid__cell--5');
 
         // sort grid after price ASC
         await currencyColumnHeader.trigger('click');
@@ -431,7 +431,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(secondPoundCell.text()).toBe('400');
 
         const columnHeaders = wrapper.findAll('.sw-data-grid__cell.sw-data-grid__cell--header');
-        const poundColumn = columnHeaders.at(6);
+        const poundColumn = columnHeaders.at(7);
 
         await poundColumn.trigger('click');
 

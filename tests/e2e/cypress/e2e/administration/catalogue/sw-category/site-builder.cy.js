@@ -165,7 +165,7 @@ describe('Category: site builder feature', () => {
         cy.get('.sw-sales-channel-detail__select-footer-category-id').should('contain', 'Categorian');
     });
 
-    it('@base @catalogue: create a subcategory as entry point with service navigation', { tags: ['pa-content-management'] }, () => {
+    it('@base @catalogue: create a subcategory as entry point with footer service navigation', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
         cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
@@ -183,7 +183,7 @@ describe('Category: site builder feature', () => {
         cy.get('.sw-category-detail-base__type-selection .sw-block-field__block')
             .typeSingleSelectAndCheck('Page / List', '.sw-category-detail-base__type-selection');
         cy.get('.sw-category-entry-point-card__entry-point-selection .sw-block-field__block')
-            .typeSingleSelectAndCheck('Service navigation', '.sw-category-entry-point-card__entry-point-selection');
+            .typeSingleSelectAndCheck('Footer service navigation', '.sw-category-entry-point-card__entry-point-selection');
 
         cy.get('.sw-category-entry-point-card__sales-channel-selection')
             .typeMultiSelectAndCheckMultiple(['Storefront', 'Headless']);
@@ -198,7 +198,7 @@ describe('Category: site builder feature', () => {
         cy.get('input[name="categoryActive"]').should('be.checked');
         cy.get('.sw-category-detail-base__type-selection .sw-block-field__block .sw-select__selection').should('contain', 'Page / List');
         cy.get('.sw-category-entry-point-card__entry-point-selection')
-            .should('contain', 'Service navigation');
+            .should('contain', 'Footer service navigation');
         cy.get('.sw-category-entry-point-card__sales-channel-selection')
             .should('contain', 'Storefront')
             .should('contain', 'Headless');

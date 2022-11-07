@@ -9,7 +9,7 @@
     "defaultAuthor": "Autor",
     "modal": {
       "modalTitleChange": "Theme wechseln",
-      "textChangeTheme": "Möchtest du wirklich das Theme ändern? Dies kann die Darstellung deines Shops verändern.",
+      "textChangeTheme": "Möchtest Du wirklich das Theme wechseln? Dies kann die Darstellung Deines Shops verändern.",
       "buttonChange": "Theme wechseln",
       "buttonCancel": "Abbrechen"
     }

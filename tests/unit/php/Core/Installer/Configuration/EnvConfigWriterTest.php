@@ -52,10 +52,10 @@ class EnvConfigWriterTest extends TestCase
         static::assertFileExists(__DIR__ . '/_fixtures/.env');
         $content = \file_get_contents(__DIR__ . '/_fixtures/.env');
         static::assertIsString($content);
-        static::assertStringContainsString('DATABASE_URL="' . $info->asDsn() . '"', $content);
-        static::assertStringContainsString('APP_URL="https://localhost/shop"', $content);
-        static::assertStringContainsString('BLUE_GREEN_DEPLOYMENT="1"', $content);
-        static::assertStringContainsString('INSTANCE_ID="1234567890"', $content);
+        static::assertStringContainsString('DATABASE_URL=' . $info->asDsn(), $content);
+        static::assertStringContainsString('APP_URL=https://localhost/shop', $content);
+        static::assertStringContainsString('BLUE_GREEN_DEPLOYMENT=1', $content);
+        static::assertStringContainsString('INSTANCE_ID=1234567890', $content);
 
         static::assertFileExists(__DIR__ . '/_fixtures/public/.htaccess');
         static::assertFileEquals(__DIR__ . '/_fixtures/public/.htaccess.dist', __DIR__ . '/_fixtures/public/.htaccess');

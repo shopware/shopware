@@ -65,7 +65,7 @@ class AppActionControllerTest extends TestCase
                  * It will no longer be used in the manifest.xml file
                  * and will be processed in the Executor with an OpenNewTabResponse response instead.
                  */
-                'openNewTab' => true,
+                'openNewTab' => false,
                 'icon' => base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             ],
         ], $result);

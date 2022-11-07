@@ -442,6 +442,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="request_stack"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

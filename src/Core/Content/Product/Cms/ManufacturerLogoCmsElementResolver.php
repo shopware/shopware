@@ -92,7 +92,7 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             }
 
             /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getValue());
+            $media = $searchResult->get($config->getStringValue());
 
             return $media;
         }
@@ -101,9 +101,6 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             return null;
         }
 
-        /** @var MediaEntity|null $media */
-        $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
-
-        return $media;
+        return $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
     }
 }

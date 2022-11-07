@@ -31,21 +31,6 @@ class SwGetAttributeTest extends TestCase
         class_exists(CoreExtension::class);
     }
 
-    public function testSwGetAttributeBothNull(): void
-    {
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), null, null);
-
-        static::assertEquals('', $result);
-    }
-
-    public function testSwGetAttributePropertyNull(): void
-    {
-        $object = new ArrayStruct();
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, null);
-
-        static::assertEquals('', $result);
-    }
-
     public function testSwGetAttributeValueNull(): void
     {
         $object = new ArrayStruct(['test' => null]);

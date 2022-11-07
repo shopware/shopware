@@ -70,17 +70,9 @@ parameters:
             paths:
                 - src/**/*Test.php
 
-        # benchmark tests create db tables on the fly, migration cases also work with DDL
-        -
-            message: '#Query error:#'
-            paths:
-                - src/Core/Migration/**/*.php
-                - tests/performance/**/*.php
-                - tests/migration/**/*.php
-
         # Method gets always an EntityCollection
         -
-            message: '#^Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable given\.$#'
+            message: '#^Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable<Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity> given\.$#'
             path: src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php
 
         # @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455)
@@ -258,14 +250,7 @@ parameters:
         # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
         - '#Trait .* is used zero times and is not analysed.#'
 
-        # Bug in Phpstan Symfony: https://github.com/phpstan/phpstan-symfony/issues/286
-        -
-            message: '#Parameter \#1 \$expected of static method PHPUnit\\Framework\\Assert::assertSame\(\) contains unresolvable type#'
-            count: 4
-            path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
-
-        # PHPstan does not realize that we used bypass final
-        -
+        - # PHPstan does not realize that we used bypass final
             message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<(.*)>\\:\\:getMock\\(\\) contains unresolvable type.$#"
             paths:
                 - tests/unit/php
@@ -273,6 +258,10 @@ parameters:
         -
             message: "#^Return type of call to method PHPUnit\\\\Framework\\\\TestCase\\:\\:createPartialMock\\(\\) contains unresolvable type.$#"
             path: tests/unit/php/Core/Content/Mail/Service/MailerTransportLoaderTest.php
+
+        - # Private method usage via callable is not detected by PHPStan
+            message: '#Method Shopware\\Core\\Framework\\Test\\FeatureFlag\\FeatureTest::indicate\(\) is unused#'
+            path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
 
 services:
     -

@@ -46,7 +46,7 @@ describe('Media: Test crud operations', () => {
         }).as('saveDataFileUpload');
 
         cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
+            url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
             method: 'POST'
         }).as('saveDataUrlUpload');
 
@@ -57,15 +57,15 @@ describe('Media: Test crud operations', () => {
             '.sw-media-upload-v2__button-url-upload',
             '.sw-media-upload-v2__button-context-menu'
         );
-        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
+        page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 
         cy.wait('@saveDataUrlUpload')
             .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-media-media-item .sw-media-preview-v2__item')
             .should('have.attr', 'src')
-            .and('match', /sw_logo_white/);
-        cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
+            .and('match', /plugin-manager--login/);
+        cy.get('.sw-media-base-item__name[title="plugin-manager--login.png"]')
             .should('be.visible');
     });
 
@@ -86,11 +86,11 @@ describe('Media: Test crud operations', () => {
         );
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
-        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
-        cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
+        page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
+        cy.get('.sw-media-base-item__name[title="plugin-manager--login.png"]')
             .should('be.visible');
         cy.awaitAndCheckNotification('File has been saved.');
-        cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
+        cy.get('.sw-media-base-item__name[title="plugin-manager--login.png"]')
             .first()
             .click();
 
@@ -104,7 +104,7 @@ describe('Media: Test crud operations', () => {
 
         cy.get('.sw-media-media-item .sw-media-preview-v2__item')
             .should('have.attr', 'src')
-            .and('match', /sw_logo_white/);
+            .and('match', /plugin-manager--login/);
         cy.get('input[placeholder="Cypress example title"]').should('be.visible');
     });
 
@@ -123,7 +123,7 @@ describe('Media: Test crud operations', () => {
         }).as('saveDataFileUpload');
 
         cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
+            url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
             method: 'POST'
         }).as('saveDataUrlUpload');
 
@@ -134,14 +134,14 @@ describe('Media: Test crud operations', () => {
             '.sw-media-upload-v2__button-url-upload',
             '.sw-media-upload-v2__button-context-menu'
         );
-        page.uploadImageUsingUrl('https://assets.shopware.com/sw_logo_white.png');
+        page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/plugin-manager--login.png`);
 
         cy.wait('@saveDataUrlUpload').its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-media-media-item .sw-media-preview-v2__item')
             .should('have.attr', 'src')
-            .and('match', /sw_logo_white/);
+            .and('match', /plugin-manager--login/);
 
-        page.deleteFile('sw_logo_white.png');
+        page.deleteFile('plugin-manager--login.png');
     });
 });

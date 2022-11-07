@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -22,9 +21,6 @@ class MailFactoryTest extends TestCase
         $this->mailFactoryCreateTestHelper();
     }
 
-    /**
-     * @ActiveFeatures("FEATURE_NEXT_16710", "V6_5_0_0")
-     */
     public function testCreateWithFeatureFlag(): void
     {
         $this->mailFactoryCreateTestHelper();

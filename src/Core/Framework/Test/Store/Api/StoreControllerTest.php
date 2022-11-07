@@ -78,6 +78,8 @@ class StoreControllerTest extends TestCase
 
     public function testCheckLoginWithoutStoreToken(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         /** @var UserEntity $adminUser */
         $adminUser = $this->userRepository->search(new Criteria(), $this->defaultContext)->first();
 
@@ -93,6 +95,8 @@ class StoreControllerTest extends TestCase
 
     public function testPingStoreApiAvailable(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $storeClientMock = $this->createMock(StoreClient::class);
         $storeClientMock->expects(static::once())
             ->method('ping');
@@ -107,6 +111,8 @@ class StoreControllerTest extends TestCase
 
     public function testPingStoreApiNotAvailable(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $storeClientMock = $this->createMock(StoreClient::class);
         $storeClientMock->expects(static::once())
             ->method('ping')
@@ -115,6 +121,17 @@ class StoreControllerTest extends TestCase
         $storeController = $this->getStoreController($storeClientMock);
 
         static::expectException(StoreNotAvailableException::class);
+        $storeController->pingStoreAPI();
+    }
+
+    public function testPingStoreApiIsDeprecated(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
+        $storeClientMock = $this->createMock(StoreClient::class);
+        $storeController = $this->getStoreController($storeClientMock);
+
+        static::expectException(\RuntimeException::class);
         $storeController->pingStoreAPI();
     }
 

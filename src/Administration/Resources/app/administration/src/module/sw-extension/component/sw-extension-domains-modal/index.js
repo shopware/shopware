@@ -3,6 +3,9 @@ import './sw-extension-domains-modal.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-extension-domains-modal', {
     template,

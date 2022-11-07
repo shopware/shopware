@@ -64,7 +64,8 @@
         "labelFalse": "Falsch",
         "noActions": "Kein Aktionen hinzugefügt",
         "noRule": "Noch keine Regeln definiert"
-      }
+      },
+      "warningText": "Dieser Flow verwendet Aktionen, die aufgrund einer Änderung der gebuchten Edition bzw. durch Deaktivierung oder Deinstallation der dazugehörigen Erweiterungen, nicht mehr verfügbar sind. Wenn dieser Flow ausgelöst wird, werden nicht verfügbare Aktionen nicht ausgeführt."
     },
     "page": {
       "tabGeneral": "Allgemein",
@@ -119,7 +120,9 @@
         "customer": "Kunden",
         "general": "Allgemein",
         "order": "Bestellung"
-      }
+      },
+      "unknownLabel": "Unbekannte Aktion",
+      "warningText": "Diese Aktion wurde durch eine Erweiterung bereitgestellt, die inaktiv oder nicht mehr installiert ist."
     },
     "rule": {
       "addRule": "Regel hinzufügen",

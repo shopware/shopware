@@ -44,6 +44,22 @@ Component.register('sw-flow-detail-flow', {
             return this.sequences.filter(sequence => !sequence.parentId);
         },
 
+        showActionWarning() {
+            if (!this.triggerActions.length || !this.sequences.length) {
+                return false;
+            }
+
+            let showWarning = false;
+            this.sequences.filter(action => action.actionName).forEach(sequence => {
+                const actionInvalid = this.triggerActions.find(item => item.name === sequence.actionName);
+                if (!actionInvalid) {
+                    showWarning = true;
+                }
+            });
+
+            return showWarning;
+        },
+
         ...mapState('swFlowState', ['flow', 'triggerActions']),
         ...mapGetters('swFlowState', ['sequences']),
     },

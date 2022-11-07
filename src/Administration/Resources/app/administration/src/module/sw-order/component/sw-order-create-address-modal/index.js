@@ -76,6 +76,10 @@ Component.register('sw-order-create-address-modal', {
                 this.activeCustomer.addresses.source,
             );
         },
+
+        isValidCompanyField() {
+            return this.customer.company !== null && !!this.currentAddress.company?.trim().length;
+        },
     },
 
     created() {
@@ -169,6 +173,19 @@ Component.register('sw-order-create-address-modal', {
 
             if (this.currentAddress.isNew()) {
                 this.addresses.push(this.currentAddress);
+            }
+
+            if (!this.isValidCompanyField) {
+                const companyError = new Shopware.Classes.ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                });
+
+                await Shopware.State.dispatch('error/addApiError', {
+                    expression: `customer_address.${this.currentAddress.id}.company`,
+                    error: companyError,
+                });
+
+                return Promise.reject(companyError);
             }
 
             return this.addressRepository.save(this.currentAddress);

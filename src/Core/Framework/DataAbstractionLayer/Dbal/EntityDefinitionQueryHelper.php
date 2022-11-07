@@ -194,7 +194,7 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
+        if (str_starts_with($fieldName, $prefix)) {
             $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
@@ -214,7 +214,7 @@ class EntityDefinitionQueryHelper
             $associationKey = array_shift($parts);
         }
 
-        if (!$fields->has($associationKey)) {
+        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
         }
 

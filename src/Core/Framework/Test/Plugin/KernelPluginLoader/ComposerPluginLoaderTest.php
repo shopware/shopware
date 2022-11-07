@@ -62,9 +62,7 @@ class ComposerPluginLoaderTest extends TestCase
 
     public function testWithInvalidPlugins(): void
     {
-        $before = InstalledVersions::getAllRawData();
-
-        $modified = $before;
+        $modified = InstalledVersions::getAllRawData();
         $modified[0]['versions'] = [
             // Points to path that does not exists
             'swag/broken1' => [
@@ -89,12 +87,10 @@ class ComposerPluginLoaderTest extends TestCase
 
     public function testLoadsPlugins(): void
     {
-        $before = InstalledVersions::getAllRawData();
-
-        // We assume that the class can be find from the autoloader without modifying them
+        // We assume that the class can be found from the autoloader without modifying them
         require_once __DIR__ . '/../_fixture/plugins/SwagTestComposerLoaded/src/SwagTestComposerLoaded.php';
 
-        $modified = $before;
+        $modified = InstalledVersions::getAllRawData();
         $modified[0]['versions'] = [
             'swag/composer-loaded' => [
                 'dev_requirement' => false,

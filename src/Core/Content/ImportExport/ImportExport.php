@@ -40,60 +40,27 @@ class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var AbstractPipe
-     */
-    private $pipe;
+    private AbstractPipe $pipe;
 
-    /**
-     * @var AbstractReader
-     */
-    private $reader;
+    private AbstractReader $reader;
 
-    /**
-     * @var AbstractWriter
-     */
-    private $writer;
+    private AbstractWriter $writer;
 
-    /**
-     * @var ImportExportLogEntity
-     */
-    private $logEntity;
+    private ImportExportLogEntity $logEntity;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
-    /**
-     * @var int
-     */
-    private $importLimit;
+    private int $importLimit;
 
-    /**
-     * @var int
-     */
-    private $exportLimit;
+    private int $exportLimit;
 
-    /**
-     * @var int|null
-     */
-    private $total;
+    private ?int $total = null;
 
-    /**
-     * @var ImportExportService
-     */
-    private $importExportService;
+    private ImportExportService $importExportService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     private Connection $connection;
 
@@ -303,7 +270,7 @@ class ImportExport
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $criteria->setLimit($this->exportLimit <= 0 ? 250 : $this->exportLimit);
-        $fullExport = $this->exportLimit === null || $this->exportLimit <= 0;
+        $fullExport = $this->exportLimit <= 0;
 
         $targetFile = $this->getPartFilePath($this->logEntity->getFile()->getPath(), $offset);
 
@@ -483,7 +450,7 @@ class ImportExport
         // created a invalid records export if it doesn't exist
         if (!$this->logEntity->getInvalidRecordsLogId()) {
             $pathInfo = pathinfo($this->logEntity->getFile()->getOriginalName());
-            $newName = $pathInfo['filename'] . '_failed.' . $pathInfo['extension'];
+            $newName = $pathInfo['filename'] . '_failed.' . ($pathInfo['extension'] ?? '');
 
             $newPath = $this->logEntity->getFile()->getPath() . '_invalid';
 

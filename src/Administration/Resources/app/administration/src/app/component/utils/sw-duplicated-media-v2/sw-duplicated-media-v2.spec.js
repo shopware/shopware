@@ -22,7 +22,15 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         uploads = {};
         wrapper = shallowMount(Shopware.Component.build('sw-duplicated-media-v2'), {
             provide: {
-                repositoryFactory: {},
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve([{ id: 'foo' }]),
+                            get: () => Promise.resolve({ id: 'foo', hasFile: true }),
+                            delete: () => Promise.resolve()
+                        };
+                    }
+                },
                 mediaService: {
                     addDefaultListener: jest.fn(),
                     removeDefaultListener: jest.fn(),
@@ -34,8 +42,18 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     },
                     provideName: async (fileName) => {
                         return { fileName: `${fileName}_(2)` };
-                    }
+                    },
+                    keepFile: jest.fn()
                 }
+            },
+            stubs: {
+                'sw-modal': true,
+                'sw-container': true,
+                'sw-media-preview-v2': true,
+                'sw-icon': true,
+                'sw-field': true,
+                'sw-button': true,
+                'sw-media-media-item': true
             }
         });
     });
@@ -57,5 +75,17 @@ describe('components/utils/sw-duplicated-media-v2', () => {
 
         expect(matchingUploadTask.fileName).toBe(`${uploadTaskMock.fileName}_(2)`);
         expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
+    });
+
+    it('should keep the existing file', async () => {
+        wrapper.vm.defaultOption = 'Keep';
+        await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
+
+        await wrapper.vm.solveDuplicate();
+        await wrapper.vm.$nextTick();
+
+        const expectedTask = { ...uploadTaskMock, ...{ targetId: 'foo' } };
+
+        expect(wrapper.vm.mediaService.keepFile).toHaveBeenCalledWith(expectedTask.uploadTag, expectedTask);
     });
 });

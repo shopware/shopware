@@ -65,10 +65,10 @@ class CustomerValidationFactoryTest extends TestCase
         for ($i = 0; $i < 10; ++$i) {
             $profileDefinition = new DataValidationDefinition();
 
-            $notBlankName = $faker->name;
+            $notBlankName = $faker->name();
             $profileDefinition->add($notBlankName, new NotBlank());
 
-            $emailName = $faker->name;
+            $emailName = $faker->name();
             $profileDefinition->add($emailName, new Email());
 
             $expected = new DataValidationDefinition('customer.create');

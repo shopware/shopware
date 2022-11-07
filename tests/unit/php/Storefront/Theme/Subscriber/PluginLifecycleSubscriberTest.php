@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber;
@@ -41,7 +41,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         );
     }
 
-    public function testgetSubscribtions(): void
+    /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     */
+    public function testGetSubscribedEventsLegacy(): void
     {
         static::assertEquals(
             [
@@ -57,10 +60,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         );
     }
 
-    /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
-     */
-    public function testgetSubscribtionsMajor(): void
+    public function testGetSubscribedEvents(): void
     {
         static::assertEquals(
             [

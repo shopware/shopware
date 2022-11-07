@@ -70,12 +70,14 @@ class MediaFolderServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
 
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
         $configId = $this->mediaFolderRepo
-            ->search(new Criteria(array_filter([$media->getMediaFolderId()])), $this->context)
-            ->get($media->getMediaFolderId())
+            ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->get($mediaFolderId)
             ->getConfigurationId();
 
-        $this->mediaFolderService->dissolve($media->getMediaFolderId(), $this->context);
+        $this->mediaFolderService->dissolve($mediaFolderId, $this->context);
 
         $this->assertMediaFolderIsDeleted($media);
         $this->assertMediaHasNoFolder($media);
@@ -397,9 +399,11 @@ class MediaFolderServiceTest extends TestCase
 
     private function assertMediaFolderIsDeleted(MediaEntity $media): void
     {
+        $mediaFolderId = $media->getMediaFolderId();
+        static::assertIsString($mediaFolderId);
         $folder = $this->mediaFolderRepo
-            ->search(new Criteria(array_filter([$media->getMediaFolderId()])), $this->context)
-            ->get($media->getMediaFolderId());
+            ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->get($mediaFolderId);
         static::assertNull($folder);
     }
 

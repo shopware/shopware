@@ -18,6 +18,9 @@ Component.register('sw-category-detail', {
         'seoUrlService',
     ],
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
     provide() {
         return {
             openMediaSidebar: this.openMediaSidebar,
@@ -599,10 +602,16 @@ Component.register('sw-category-detail', {
             this.$router.push({ name: 'sw.category.index' });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed completely
+         */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed completely
+         */
         setMediaItemFromSidebar(sideBarMedia) {
             // be consistent and fetch from repository
             this.mediaRepository.get(sideBarMedia.id).then((media) => {

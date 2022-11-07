@@ -1074,7 +1074,7 @@ class ImportExportTest extends AbstractImportExportTest
     }
 
     /**
-     * @dataProvider salesChannelAssignementCsvProvider
+     * @dataProvider salesChannelAssignmentCsvProvider
      */
     public function testSalesChannelAssignment(string $csvPath): void
     {
@@ -1153,11 +1153,9 @@ class ImportExportTest extends AbstractImportExportTest
     }
 
     /**
-     * @dataProvider
-     *
      * @return list<array{0: string}>
      */
-    public function salesChannelAssignementCsvProvider(): array
+    public function salesChannelAssignmentCsvProvider(): array
     {
         return [
             ['/fixtures/products_with_visibilities.csv'],

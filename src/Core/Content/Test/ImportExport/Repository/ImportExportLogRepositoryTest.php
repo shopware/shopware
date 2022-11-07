@@ -70,7 +70,8 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssoc('SELECT * FROM import_export_log WHERE id = :id', ['id' => $id]);
+        $record = $this->connection->fetchAssociative('SELECT * FROM import_export_log WHERE id = :id', ['id' => $id]);
+        static::assertIsArray($record);
 
         $expect = $data[$id];
         static::assertNotEmpty($record);

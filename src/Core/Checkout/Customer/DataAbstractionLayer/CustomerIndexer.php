@@ -20,6 +20,8 @@ class CustomerIndexer extends EntityIndexer
     public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
     public const NEWSLETTER_SALES_CHANNELS_UPDATER = 'customer.newsletter-sales-channels';
 
+    private const PRIMARY_KEYS_WITH_PROPERTY_CHANGE = ['email', 'firstName', 'lastName'];
+
     private IteratorFactory $iteratorFactory;
 
     private EntityRepositoryInterface $repository;
@@ -53,7 +55,7 @@ class CustomerIndexer extends EntityIndexer
     }
 
     /**
-     * @param array|null $offset
+     * @param array<string, string>|null $offset
      *
      * @deprecated tag:v6.5.0 The parameter $offset will be native typed
      */
@@ -86,8 +88,9 @@ class CustomerIndexer extends EntityIndexer
         }
 
         $indexing = new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
-        if ($getIdsWithEmailChange = $event->getPrimaryKeysWithPropertyChange(CustomerDefinition::ENTITY_NAME, ['email'])) {
-            $indexing->setIdsWithEmailChange($getIdsWithEmailChange);
+
+        if ($getIdsWithProfileChange = $event->getPrimaryKeysWithPropertyChange(CustomerDefinition::ENTITY_NAME, self::PRIMARY_KEYS_WITH_PROPERTY_CHANGE)) {
+            $indexing->setIds($getIdsWithProfileChange);
         }
 
         return $indexing;
@@ -104,8 +107,8 @@ class CustomerIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        if (!empty($message->getIdsWithEmailChange())) {
-            $this->customerNewsletterSalesChannelsUpdater->updateCustomerEmailRecipient($message->getIdsWithEmailChange());
+        if (!empty($message->getIds())) {
+            $this->customerNewsletterSalesChannelsUpdater->updateCustomersRecipient($message->getIds());
         }
 
         if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {

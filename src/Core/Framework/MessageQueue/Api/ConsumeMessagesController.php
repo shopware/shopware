@@ -121,6 +121,6 @@ class ConsumeMessagesController extends AbstractController
 
         $worker->run(['sleep' => 50]);
 
-        return $this->json(['handledMessages' => $listener->getHandledMessages()]);
+        return new JsonResponse(['handledMessages' => $listener->getHandledMessages()]);
     }
 }

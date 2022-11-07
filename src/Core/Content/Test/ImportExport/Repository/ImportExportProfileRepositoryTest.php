@@ -54,18 +54,19 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssoc(
+        $record = $this->connection->fetchAssociative(
             'SELECT * FROM import_export_profile WHERE id = :id',
             ['id' => $id]
         );
 
-        $translationRecord = $this->connection->fetchAssoc(
+        $translationRecord = $this->connection->fetchAssociative(
             'SELECT * FROM import_export_profile_translation WHERE import_export_profile_id = :id',
             ['id' => $id]
         );
+        static::assertIsArray($translationRecord);
 
         $expect = $data[$id];
-        static::assertNotEmpty($record);
+        static::assertIsArray($record);
         static::assertEquals($id, $record['id']);
         static::assertEquals($expect['name'], $record['name']);
         static::assertEquals($expect['label'], $translationRecord['label']);

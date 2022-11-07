@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Media\File;
+namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\IllegalUrlException;
@@ -8,25 +8,47 @@ use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\TestBootstrapper;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ * @group needsWebserver
+ *
  * @covers \Shopware\Core\Content\Media\File\FileFetcher
  */
 class FileFetcherTest extends TestCase
 {
     public const TEST_IMAGE = __DIR__ . '/../../../../../../../src/Core/Content/Test/Media/fixtures/shopware-logo.png';
 
-    /**
-     * @var FileFetcher
-     */
-    private $fileFetcher;
+    private FileFetcher $fileFetcher;
+
+    private bool $mediaDirCreated = false;
 
     protected function setUp(): void
     {
         $this->fileFetcher = new FileFetcher(new FileUrlValidator());
+
+        $projectDir = (new TestBootstrapper())->getProjectDir();
+        if (!\is_dir($projectDir . '/public/media')) {
+            mkdir($projectDir . '/public/media');
+            $this->mediaDirCreated = true;
+        }
+
+        \copy(self::TEST_IMAGE, $projectDir . '/public/media/shopware-logo.png');
+    }
+
+    public function tearDown(): void
+    {
+        $projectDir = (new TestBootstrapper())->getProjectDir();
+        \unlink($projectDir . '/public/media/shopware-logo.png');
+
+        if ($this->mediaDirCreated) {
+            rmdir($projectDir . '/public/media');
+            $this->mediaDirCreated = false;
+        }
     }
 
     public function testFetchRequestData(): void
@@ -115,7 +137,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrl(): void
     {
-        $url = 'https://assets.shopware.com/sw_logo_white.png';
+        $url = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -125,8 +147,10 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false);
+
         try {
-            $mediaFile = $this->fileFetcher->fetchFileFromURL(
+            $mediaFile = $fileFetcher->fetchFileFromURL(
                 $request,
                 $tempFile
             );
@@ -238,7 +262,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithoutLimit(): void
     {
-        $url = 'https://assets.shopware.com/sw_logo_white.png';
+        $url = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -248,13 +272,20 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 0);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 0);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
                 $request,
                 $tempFile
             );
+
+            $mimeType = mime_content_type($tempFile);
+
+            $correctMimes = [
+                'image/png',
+            ];
+            static::assertContains($mimeType, $correctMimes);
             static::assertGreaterThan(0, $mediaFile->getFileSize());
             static::assertFileExists($tempFile);
         } finally {
@@ -264,7 +295,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithLimitInRange(): void
     {
-        $url = 'https://assets.shopware.com/sw_logo_white.png';
+        $url = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -274,13 +305,20 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 100000);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 100000);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
                 $request,
                 $tempFile
             );
+
+            $mimeType = mime_content_type($tempFile);
+
+            $correctMimes = [
+                'image/png',
+            ];
+            static::assertContains($mimeType, $correctMimes);
             static::assertGreaterThan(0, $mediaFile->getFileSize());
             static::assertFileExists($tempFile);
         } finally {
@@ -290,9 +328,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrlWithExceedingLimit(): void
     {
-        $this->expectException(UploadException::class);
-
-        $url = 'https://assets.shopware.com/sw_logo_white.png';
+        $url = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
@@ -302,8 +338,9 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 5000);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 5000);
 
+        $this->expectException(UploadException::class);
         $mediaFile = $fileFetcher->fetchFileFromURL($request, $tempFile);
         static::assertEquals(0, $mediaFile->getFileSize());
         static::assertFileDoesNotExist($tempFile);

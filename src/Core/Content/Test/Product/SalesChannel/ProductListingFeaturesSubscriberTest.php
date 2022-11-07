@@ -584,7 +584,11 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         foreach ($expectedRequestFilters as $filter => $expected) {
             $default = \gettype($expected) === 'boolean' ? true : null;
 
-            static::assertSame($expected, $request->request->get($filter, $default));
+            if (\is_array($expected)) {
+                static::assertSame($expected, $request->request->all($filter));
+            } else {
+                static::assertSame($expected, $request->request->get($filter, $default));
+            }
         }
 
         $aggregationKeys = array_keys($criteria->getAggregations());

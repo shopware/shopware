@@ -21,7 +21,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -207,6 +207,9 @@ class StoreRequestOptionsProviderTest extends TestCase
         static::assertEquals('sw-version', $queries['shopwareVersion']);
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     */
     public function testGetDefaultQueryParametersReturnsSameLanguageThatIsPassed(): void
     {
         $localeProvider = static::createMock(LocaleProvider::class);
@@ -226,6 +229,9 @@ class StoreRequestOptionsProviderTest extends TestCase
         static::assertEquals('language-that-was-passed', $queries['language']);
     }
 
+    /**
+     * @DisabledFeatures(features={"v6.5.0.0"})
+     */
     public function testGetDefaultQueryParametersReturnsEnGbIfLanguageAndContextAreNotSet(): void
     {
         $localeProvider = static::createMock(LocaleProvider::class);
@@ -269,7 +275,7 @@ class StoreRequestOptionsProviderTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
+     * @group legacy
      */
     public function testDefaultQueryParametersThrowsIfLanguageIsPassedIn65(): void
     {
@@ -289,7 +295,7 @@ class StoreRequestOptionsProviderTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={"v6.5.0.0"})
+     * @group legacy
      */
     public function testDefaultQueryParametersThrowsIfContextIsNullIn65(): void
     {

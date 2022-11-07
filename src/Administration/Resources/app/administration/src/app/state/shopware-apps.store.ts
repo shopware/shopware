@@ -36,10 +36,12 @@ const shopwareApps: Module<ShopwareAppsState, VuexRootState> = {
     },
 
     actions: {
+        /** @deprecated tag:v6.5.0 - Will be removed, use the respective mutations instead */
         setAppModules({ commit }, modules: AppModuleDefinition[]) {
             commit('setApps', modules);
         },
 
+        /** @deprecated tag:v6.5.0 - Will be removed, use the respective mutations instead */
         setSelectedIds({ commit }, selectedIds: string[]) {
             commit('setSelectedIds', selectedIds);
         },

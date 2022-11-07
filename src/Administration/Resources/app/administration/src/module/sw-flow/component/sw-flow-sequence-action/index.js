@@ -115,7 +115,12 @@ Component.register('sw-flow-sequence-action', {
         actionClasses() {
             return {
                 'is--stop-flow': !this.showAddAction,
+                'has--arrow': this.errorArrow,
             };
+        },
+
+        errorArrow() {
+            return !this.isValidAction(this.sequence) && this.sequence.actionName && this.sequence.trueBlock;
         },
 
         modalName() {
@@ -160,6 +165,7 @@ Component.register('sw-flow-sequence-action', {
                 'customFieldSets',
                 'customFields',
                 'triggerEvent',
+                'triggerActions',
             ]),
         ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
     },
@@ -691,6 +697,14 @@ Component.register('sw-flow-sequence-action', {
             actions.splice(stopFlowIndex, 0, stopAction);
 
             return actions;
+        },
+
+        isValidAction(action) {
+            if (!this.triggerActions.length || !action.actionName) {
+                return true;
+            }
+
+            return this.triggerActions.find(item => item.name === action.actionName);
         },
     },
 });

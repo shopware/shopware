@@ -26,6 +26,13 @@ class MockSnippetFile extends AbstractSnippetFile
         $this->technicalName = $technicalName;
     }
 
+    public static function cleanup(): void
+    {
+        foreach (glob(__DIR__ . '/_fixtures/*.json') ?: [] as $mockFile) {
+            unlink($mockFile);
+        }
+    }
+
     public function getName(): string
     {
         return $this->name;

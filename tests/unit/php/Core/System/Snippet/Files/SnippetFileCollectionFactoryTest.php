@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoaderInterface;
-use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 
 /**
  * @internal

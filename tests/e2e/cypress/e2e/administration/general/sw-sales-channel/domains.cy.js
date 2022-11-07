@@ -48,7 +48,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.wait('@verifyDomain').its('response.statusCode').should('equal', 200);
 
         page.addExampleDomain();
-        cy.contains('.sw-block-field', 'Url').should('have.class', 'has--error');
+        cy.contains('.sw-block-field', 'URL').should('have.class', 'has--error');
     });
 
     it('@general: Can re-add a previously deleted domain', { tags: ['pa-sales-channels'] }, () => {

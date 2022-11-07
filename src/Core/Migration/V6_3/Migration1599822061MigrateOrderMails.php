@@ -220,7 +220,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             }
             unset($mail);
 
-            $exploded = array_filter(array_merge($exploded, $typeMails));
+            $exploded = array_merge($exploded, $typeMails);
         }
 
         return $exploded;

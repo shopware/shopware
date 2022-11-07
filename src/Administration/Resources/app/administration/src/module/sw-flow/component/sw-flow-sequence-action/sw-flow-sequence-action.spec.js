@@ -14,6 +14,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+Shopware.Service().register('shopwareDiscountCampaignService', () => {
+    return { isDiscountCampaignActive: jest.fn(() => true) };
+});
+
 const sequenceFixture = {
     id: '2',
     actionName: '',
@@ -38,6 +42,12 @@ const sequencesFixture = [
         actionName: ACTION.MAIL_SEND,
         position: 2,
         id: '3'
+    },
+    {
+        ...sequenceFixture,
+        actionName: ACTION.MAIL_SEND,
+        position: 3,
+        id: '4'
     }
 ];
 
@@ -112,7 +122,8 @@ function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
                         });
                     }
                 }
-            }
+            },
+            'sw-flow-sequence-action-error': true
         },
         propsData: {
             sequence: sequenceFixture,
@@ -295,14 +306,14 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(2);
+        expect(sequencesState.length).toEqual(3);
 
 
         const deleteContainer = wrapper.find('.sw-flow-sequence-action__delete-action-container');
         await deleteContainer.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(0);
+        expect(sequencesState.length).toEqual(1);
     });
 
     it('should able to remove an action', async () => {
@@ -320,15 +331,15 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(2);
+        expect(sequencesState.length).toEqual(3);
 
 
         const deleteActions = wrapper.findAll('.sw-flow-sequence-action__delete-action');
         await deleteActions.at(0).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(1);
-        expect(sequencesState[0]).toEqual(sequencesFixture[1]);
+        expect(sequencesState.length).toEqual(2);
+        expect(sequencesState[0]).toEqual(sequencesFixture[0]);
     });
 
     it('should set error for single select if action name is empty', async () => {
@@ -412,6 +423,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 3: {
                     ...sequencesFixture[1],
                     position: 6,
+                },
+                4: {
+                    ...sequencesFixture[2],
+                    position: 7,
                 }
             }
         });
@@ -468,6 +483,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 3: {
                     ...sequencesFixture[1],
                     position: 6,
+                },
+                4: {
+                    ...sequencesFixture[2],
+                    position: 7,
                 }
             }
         });
@@ -477,10 +496,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState[0].position).toEqual(1);
-        expect(sequencesState[1].position).toEqual(1);
+        expect(sequencesState[1].position).toEqual(2);
         await moveDownAction.trigger('click');
-        expect(sequencesState[0].position).toEqual(6);
-        expect(sequencesState[1].position).toEqual(5);
+        expect(sequencesState[0].position).toEqual(1);
+        expect(sequencesState[1].position).toEqual(7);
     });
 
     it('should reset position after deleting action', async () => {
@@ -502,7 +521,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         await deleteActions.at(0).trigger('click');
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toBe(1);
+        expect(sequencesState.length).toBe(2);
         expect(sequencesState[0].position).toBe(1);
     });
 

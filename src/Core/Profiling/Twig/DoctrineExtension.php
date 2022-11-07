@@ -13,15 +13,13 @@ class DoctrineExtension extends AbstractExtension
 {
     /**
      * Number of maximum characters that one single line can hold in the interface
-     *
-     * @var int
      */
-    private $maxCharWidth = 100;
+    private int $maxCharWidth = 100;
 
     /**
      * Define our functions
      *
-     * @return TwigFilter[]
+     * @return list<TwigFilter>
      */
     public function getFilters(): array
     {
@@ -141,6 +139,10 @@ class DoctrineExtension extends AbstractExtension
 
         if ($parameters instanceof Data) {
             $values = $parameters->getValue(true);
+        }
+
+        if (!\is_array($values)) {
+            return $query;
         }
 
         $i = 0;

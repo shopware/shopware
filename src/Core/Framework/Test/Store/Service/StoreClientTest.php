@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -205,5 +206,28 @@ class StoreClientTest extends TestCase
         $returnedUserInfo = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
 
         static::assertSame([], $returnedUserInfo);
+    }
+
+    public function testPingsStore(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
+        $this->getRequestHandler()->append(new Response(200));
+
+        $this->storeClient->ping();
+
+        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
+
+        static::assertEquals('/ping', $lastRequest->getUri()->getPath());
+        static::assertEquals('GET', $lastRequest->getMethod());
+    }
+
+    public function testPingStoreIsDeprecated(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
+        $this->expectException(\RuntimeException::class);
+        $this->storeClient->ping();
     }
 }

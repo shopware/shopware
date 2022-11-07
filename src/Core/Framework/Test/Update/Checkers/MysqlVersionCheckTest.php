@@ -26,7 +26,7 @@ class MysqlVersionCheckTest extends TestCase
     public function testCheckInvalid(): void
     {
         $connectionMock = $this->createMock(Connection::class);
-        $connectionMock->method('fetchColumn')->willReturn('5.7.0');
+        $connectionMock->method('fetchOne')->willReturn('5.7.0');
         $validationResult = (new MysqlVersionCheck($connectionMock))->check('5.7.21');
 
         $validationResultArray = json_decode(json_encode($validationResult), true);

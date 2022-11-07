@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Kernel;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal
+ */
 class InstanceService
 {
     private string $shopwareVersion;

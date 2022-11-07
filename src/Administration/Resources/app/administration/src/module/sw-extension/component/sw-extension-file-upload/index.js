@@ -7,6 +7,9 @@ const { Criteria } = Shopware.Data;
 
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-extension-file-upload', {
     template,

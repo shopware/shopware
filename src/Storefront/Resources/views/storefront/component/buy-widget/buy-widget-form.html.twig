@@ -18,6 +18,7 @@
                         <div class="col-4">
                             {% set selectQuantityThreshold = 100 %}
                             {% block buy_widget_buy_quantity %}
+                                {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
                                 {% if (product.calculatedMaxPurchase - product.minPurchase) / product.purchaseSteps > selectQuantityThreshold %}
                                     {% block buy_widget_buy_quantity_input_group %}
                                         <div class="input-group">

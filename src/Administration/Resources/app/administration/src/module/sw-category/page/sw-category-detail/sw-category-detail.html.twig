@@ -300,20 +300,9 @@
 
     {% endblock %}
 
+    {# @deprecated tag:v6.5.0 - will be removed #}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_sidebar %}
-    <template #sidebar>
-        <sw-sidebar>
-            <sw-sidebar-media-item ref="mediaSidebarItem">
-                <template #context-menu-items="media">
-                    <sw-context-menu-item @click="setMediaItemFromSidebar(media.mediaItem)">
-                        {{ $tc('sw-category.general.useAsLogo') }}
-                    </sw-context-menu-item>
-                </template>
-            </sw-sidebar-media-item>
-        </sw-sidebar>
-    </template>
     {% endblock %}
-
 </sw-page>
 {% endblock %}

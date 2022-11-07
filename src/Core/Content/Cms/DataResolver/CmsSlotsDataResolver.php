@@ -226,7 +226,7 @@ class CmsSlotsDataResolver
             return false;
         }
 
-        if (empty($filters) && empty($criteria->getIds())) {
+        if (empty($criteria->getIds())) {
             return false;
         }
 

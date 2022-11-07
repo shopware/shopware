@@ -88,7 +88,7 @@ class ActiveAppsLoaderTest extends TestCase
     }
 
     /**
-     * @backupGlobals
+     * @backupGlobals enabled
      */
     public function testDisabled(): void
     {

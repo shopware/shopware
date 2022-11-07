@@ -188,9 +188,6 @@ class EntitySearchResult extends EntityCollection
         return $this->entities->getAt($position);
     }
 
-    /**
-     * @phpstan-ignore-next-line -> we can't generalize the iterable type here
-     */
     protected function createNew(iterable $elements = [])
     {
         return new static(

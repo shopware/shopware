@@ -61,13 +61,15 @@ class ElasticsearchIndexerTest extends TestCase
     public function testSecondIndexingCreatesTask(): void
     {
         $c = $this->getContainer()->get(Connection::class);
-        static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
+        $before = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
+        static::assertEmpty($before);
 
         $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
         $indexer->iterate(null);
         $indexer->iterate(null);
 
-        static::assertNotEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
+        $after = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
+        static::assertNotEmpty($after);
     }
 
     public function testItSkipsIndexGenerationForUnusedLanguages(): void

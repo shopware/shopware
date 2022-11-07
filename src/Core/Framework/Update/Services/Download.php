@@ -43,6 +43,9 @@ class Download
      */
     public function downloadFile(string $sourceUri, string $destinationUri, int $totalSize, string $hash): int
     {
+        if ($sourceUri === '') {
+            throw new UpdateFailedException('Source URI must not be empty');
+        }
         if (($destination = fopen($destinationUri, 'a+b')) === false) {
             throw new UpdateFailedException(sprintf('Destination "%s" is invalid.', $destinationUri));
         }

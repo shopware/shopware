@@ -31,8 +31,8 @@ class EventActionSubscriberTest extends TestCase
             LIMIT 1
         ';
 
-        $event = $this->getContainer()->get(Connection::class)
-            ->fetchAssoc($sql);
+        $event = $this->getContainer()->get(Connection::class)->fetchAssociative($sql);
+        static::assertIsArray($event);
 
         static::assertNotNull($event['id']);
         static::assertNotNull($event['mail_id']);
@@ -42,7 +42,7 @@ class EventActionSubscriberTest extends TestCase
 
         $exists = $this->getContainer()
             ->get(Connection::class)
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT id FROM event_action WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($event['id'])]
             );

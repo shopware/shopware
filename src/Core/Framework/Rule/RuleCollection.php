@@ -57,6 +57,9 @@ class RuleCollection extends Collection
         );
     }
 
+    /**
+     * @param class-string $class
+     */
     public function has($class): bool
     {
         return \array_key_exists($class, $this->classes);

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheKeyEvent;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -148,11 +149,11 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         }
 
         $active = $categories->get($activeId);
-        if ($active === null) {
+        if (!$active instanceof CategoryEntity) {
             return false;
         }
 
-        if ($active->getChildCount() === 0) {
+        if ($active->getChildCount() === 0 && \is_string($active->getParentId())) {
             return $categories->has($active->getParentId());
         }
 

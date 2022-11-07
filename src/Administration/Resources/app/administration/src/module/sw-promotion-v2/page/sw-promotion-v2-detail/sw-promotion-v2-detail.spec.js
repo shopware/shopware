@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -47,7 +47,7 @@ function createWrapper(privileges = []) {
         hasOrders: false
     };
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-detail'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -94,7 +94,7 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
 
@@ -102,7 +102,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
     });
 
     it('should disable the save button when privilege does not exist', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false
@@ -115,7 +115,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
     });
 
     it('should enable the save button when privilege does not exist', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-currency/page/sw-settings-currency-detail';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-settings-currency-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-settings-currency-detail'), {
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -49,13 +49,13 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save the currency', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
 
@@ -63,7 +63,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
     });
 
     it('should be able to save the currency', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'currencies.editor'
         ]);
 

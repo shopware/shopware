@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-operator-select';
 
-function createWrapper(customProps = {}) {
-    return shallowMount(Shopware.Component.build('sw-condition-operator-select'), {
+async function createWrapper(customProps = {}) {
+    return shallowMount(await Shopware.Component.build('sw-condition-operator-select'), {
         stubs: {
             'sw-arrow-field': true,
             'sw-single-select': true
@@ -17,12 +17,12 @@ function createWrapper(customProps = {}) {
 
 describe('src/app/component/rule/sw-condition-operator-select', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const arrowField = wrapper.find('sw-arrow-field-stub');
         const singleSelect = wrapper.find('sw-single-select-stub');
@@ -32,7 +32,7 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 

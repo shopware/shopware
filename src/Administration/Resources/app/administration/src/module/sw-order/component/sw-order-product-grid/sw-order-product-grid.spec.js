@@ -43,11 +43,11 @@ function generateProducts() {
     return items;
 }
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('currency', v => v);
 
-    return shallowMount(Shopware.Component.build('sw-order-product-grid'), {
+    return shallowMount(await Shopware.Component.build('sw-order-product-grid'), {
         localVue,
         propsData: {
             taxStatus: 'gross',
@@ -66,16 +66,16 @@ function createWrapper() {
                     </div>
                 `
             },
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-number-field': Shopware.Component.build('sw-number-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-number-field': await Shopware.Component.build('sw-number-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
             'sw-product-variant-info': true,
             'sw-data-grid-settings': true,
             'sw-data-grid-skeleton': true,
@@ -108,7 +108,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
     it('should show empty state view when there is no product', async () => {
         setProductData([]);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const emptyState = wrapper.find('sw-empty-state-stub');
@@ -118,7 +118,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
     it('should show product grid', async () => {
         setProductData(products);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const emptyState = wrapper.find('sw-empty-state-stub');
@@ -131,7 +131,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
     it('should show price correctly', async () => {
         setProductData(products);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const priceColumn = wrapper.find('.sw-data-grid__header').find('.sw-data-grid__cell--3');
@@ -151,7 +151,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
     it('should emit selection-change event', async () => {
         setProductData(products);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const gridBody = wrapper.find('.sw-data-grid__body');
@@ -204,7 +204,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
     it('should have default value as 1 for the line items once it is clicked', async () => {
         setProductData(products);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const gridBody = wrapper.find('.sw-data-grid__body');

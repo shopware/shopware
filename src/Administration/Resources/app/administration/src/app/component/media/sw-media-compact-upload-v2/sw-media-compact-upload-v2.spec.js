@@ -5,11 +5,11 @@ import 'src/app/component/media/sw-media-compact-upload-v2';
 describe('src/app/component/media/sw-media-compact-upload-v2', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const localVue = createLocalVue();
         localVue.directive('droppable', {});
 
-        wrapper = shallowMount(Shopware.Component.build('sw-media-compact-upload-v2'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-media-compact-upload-v2'), {
             localVue,
             stubs: {
                 'sw-context-button': true,
@@ -24,7 +24,8 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                     getConfig: () => Promise.resolve({ settings: { enableUrlFeature: false } }),
                 },
                 mediaService: {
-                    addListener: () => {},
+                    addListener: () => {
+                    },
                 }
             },
             propsData: {

@@ -4,12 +4,12 @@ import 'src/module/sw-order/view/sw-order-create-details';
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.directive('tooltip', {});
     localVue.filter('currency', v => v);
-    return shallowMount(Shopware.Component.build('sw-order-create-details'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-details'), {
         localVue,
         stubs: {
             'sw-card-view': true,
@@ -52,7 +52,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
     });
 
     it('should be show successful notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
@@ -78,7 +78,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
     });
 
     it('should be show error notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -104,7 +104,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
     });
 
     it('should be show warning notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 

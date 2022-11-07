@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-detail-base'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-detail-base'), {
         localVue,
         stubs: {
             'sw-card': {
@@ -101,8 +101,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -136,7 +136,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

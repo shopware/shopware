@@ -13,8 +13,8 @@ function createRuleMock(isNew) {
     };
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-rule-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-rule-modal'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -73,7 +73,7 @@ function createWrapper() {
 
 describe('app/component/rule/sw-rule-modal', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 

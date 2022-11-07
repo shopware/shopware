@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-property/page/sw-property-detail';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-property-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-property-detail'), {
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -65,7 +65,7 @@ describe('module/sw-property/page/sw-property-detail', () => {
     });
 
     it('should not be able to save the property', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             isLoading: false
         });

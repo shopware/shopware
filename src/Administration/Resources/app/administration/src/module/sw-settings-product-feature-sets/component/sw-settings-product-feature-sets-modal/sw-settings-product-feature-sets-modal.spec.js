@@ -51,16 +51,16 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         };
     }
 
-    function createWrapper(additionalOptions = {}) {
-        return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-modal'), {
+    async function createWrapper(additionalOptions = {}) {
+        return shallowMount(await Shopware.Component.build('sw-settings-product-feature-sets-modal'), {
             stubs: {
                 'sw-modal': true,
-                'sw-radio-field': Shopware.Component.build('sw-radio-field'),
+                'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
                 'sw-base-field': true,
                 'sw-button': true,
                 'sw-icon': true,
-                'sw-simple-search-field': Shopware.Component.build('sw-simple-search-field'),
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-field': true,
                 'sw-data-grid-skeleton': true,
                 i18n: true
@@ -104,19 +104,19 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
 
     it('should be able to instantiate', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('has the correct class', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
     it('contains the options container', async () => {
-        const wrapper = createWrapper(getPageConfig({ showPageOne: true }));
+        const wrapper = await createWrapper(getPageConfig({ showPageOne: true }));
 
         const root = wrapper.get(`.${classes.componentRoot}`);
         const optionsContainer = root.get(`.${classes.optionsContainer}`);
@@ -132,7 +132,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the custom field list', async () => {
-        const wrapper = createWrapper(getPageConfig({ showCustomField: true }));
+        const wrapper = await createWrapper(getPageConfig({ showCustomField: true }));
 
         const root = wrapper.get(`.${classes.componentRoot}`);
 
@@ -153,7 +153,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the property group list', async () => {
-        const wrapper = createWrapper(getPageConfig({ showPropertyGroups: true }));
+        const wrapper = await createWrapper(getPageConfig({ showPropertyGroups: true }));
 
         const root = wrapper.get(`.${classes.componentRoot}`);
 
@@ -173,7 +173,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the product information list', async () => {
-        const wrapper = createWrapper(getPageConfig({ showCustomField: true }));
+        const wrapper = await createWrapper(getPageConfig({ showCustomField: true }));
 
         const root = wrapper.get(`.${classes.componentRoot}`);
 

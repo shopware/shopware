@@ -5,8 +5,8 @@ import 'src/module/sw-promotion/page/sw-promotion-list';
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-promotion-list'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-promotion-list'), {
         stubs: {
             'sw-page': {
                 template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>'
@@ -42,13 +42,13 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-promotion/page/sw-promotion-list', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable create button when privilege not available', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const element = wrapper.find('.sw-promotion-list__button-add-promotion');
 
@@ -57,7 +57,7 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
     });
 
     it('should enable create button when privilege available', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.creator'
         ]);
 
@@ -68,7 +68,7 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
     });
 
     it('should disable editing of entries when privilege not set', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false
@@ -84,7 +84,7 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
     });
 
     it('should enable editing of entries when privilege is set', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.viewer',
             'promotion.editor'
         ]);
@@ -103,7 +103,7 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
     });
 
     it('should enable deletion of entries when privilege is set', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.viewer',
             'promotion.editor',
             'promotion.deleter'

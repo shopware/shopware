@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/page/sw-order-detail';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-order-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-order-detail'), {
         mocks: {
             $route: {
                 meta: {
@@ -57,8 +57,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         Shopware.State.unregisterModule('swOrderDetail');
         Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
@@ -82,7 +82,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should have an enabled edit button', async () => {
         wrapper.destroy();
-        wrapper = createWrapper(['order.editor']);
+        wrapper = await createWrapper(['order.editor']);
 
         Shopware.State.unregisterModule('swOrderDetail');
         Shopware.State.registerModule('swOrderDetail', swOrderDetailState);

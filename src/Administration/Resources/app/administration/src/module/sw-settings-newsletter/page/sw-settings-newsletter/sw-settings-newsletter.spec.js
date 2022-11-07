@@ -22,10 +22,10 @@ const classes = {
     newsletterSubscribeUrl: 'core.newsletter.subscribeUrl'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-newsletter'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-newsletter'), {
         localVue,
         mocks: {
             $route: {
@@ -66,18 +66,18 @@ function createWrapper() {
                 template: '<div class="sw-card-view"><slot></slot></div>'
             },
             'sw-button-process': true,
-            'sw-system-config': Shopware.Component.build('sw-system-config'),
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-help-text': Shopware.Component.build('sw-help-text'),
+            'sw-system-config': await Shopware.Component.build('sw-system-config'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-help-text': await Shopware.Component.build('sw-help-text'),
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-loader': true,
@@ -128,7 +128,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
 
@@ -136,7 +136,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

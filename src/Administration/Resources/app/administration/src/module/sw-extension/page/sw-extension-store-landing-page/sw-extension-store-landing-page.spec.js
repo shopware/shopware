@@ -4,17 +4,17 @@ import 'src/app/component/base/sw-button';
 
 let successfulActivation = true;
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('asset', v => v);
 
-    return shallowMount(Shopware.Component.build('sw-extension-store-landing-page'), {
+    return shallowMount(await Shopware.Component.build('sw-extension-store-landing-page'), {
         localVue,
         stubs: {
             'sw-meteor-page': {
                 template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': true,
             'sw-label': true
         },

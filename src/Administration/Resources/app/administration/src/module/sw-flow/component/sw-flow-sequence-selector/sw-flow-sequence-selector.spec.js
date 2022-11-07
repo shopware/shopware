@@ -34,14 +34,14 @@ const sequences = [
     }
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-sequence-selector'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-sequence-selector'), {
         localVue,
         stubs: {
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': true
         },
         propsData: {
@@ -67,8 +67,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         });
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should update data correctly when adding a condition', async () => {

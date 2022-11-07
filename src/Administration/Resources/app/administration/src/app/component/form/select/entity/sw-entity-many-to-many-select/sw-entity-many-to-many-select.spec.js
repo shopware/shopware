@@ -42,24 +42,24 @@ criteria.addFilter(Criteria.equals('entity.key', 'value'));
 const deleteFn = jest.fn(() => Promise.resolve());
 const assignFn = jest.fn(() => Promise.resolve());
 
-const createEntityManyToManySelect = (customOptions) => {
+const createEntityManyToManySelect = async (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div @click="$emit(\'click\', $event)"></div>'
             },
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-loader': Shopware.Component.build('sw-loader'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-label': Shopware.Component.build('sw-label'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-label': await Shopware.Component.build('sw-label'),
         },
         propsData: {
             entityCollection: getCollection(),
@@ -76,7 +76,7 @@ const createEntityManyToManySelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-many-to-many-select'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-many-to-many-select'), {
         ...options,
         ...customOptions
     });
@@ -84,13 +84,13 @@ const createEntityManyToManySelect = (customOptions) => {
 
 describe('components/sw-entity-many-to-many-select', () => {
     it('should be a Vue.js component', async () => {
-        const swEntityManyToManySelect = createEntityManyToManySelect();
+        const swEntityManyToManySelect = await createEntityManyToManySelect();
 
         expect(swEntityManyToManySelect.vm).toBeTruthy();
     });
 
     it('should use the given criteria to search the repository', async () => {
-        const swEntityManyToManySelect = createEntityManyToManySelect();
+        const swEntityManyToManySelect = await createEntityManyToManySelect();
 
         swEntityManyToManySelect.vm.sendSearchRequest();
 
@@ -98,7 +98,7 @@ describe('components/sw-entity-many-to-many-select', () => {
     });
 
     it('should use advanced selection submit', async () => {
-        const swEntityManyToManySelect = createEntityManyToManySelect();
+        const swEntityManyToManySelect = await createEntityManyToManySelect();
 
         swEntityManyToManySelect.vm.onAdvancedSelectionSubmit([]);
 

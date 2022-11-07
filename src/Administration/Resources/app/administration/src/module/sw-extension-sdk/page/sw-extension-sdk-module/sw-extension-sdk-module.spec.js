@@ -8,10 +8,10 @@ const module = {
     baseUrl: 'http://example.com',
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-extension-sdk-module'), {
+    return shallowMount(await Shopware.Component.build('sw-extension-sdk-module'), {
         localVue,
         propsData: {
             id: Shopware.Utils.format.md5(JSON.stringify(module)),
@@ -39,7 +39,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         if (wrapper) await wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

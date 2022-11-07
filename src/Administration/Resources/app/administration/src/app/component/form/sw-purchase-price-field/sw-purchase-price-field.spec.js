@@ -39,7 +39,7 @@ const defaultPrice = {
 };
 
 // initial component setup
-const setup = (propOverride) => {
+const setup = async (propOverride) => {
     const propsData = {
         price: [dollarPrice, euroPrice],
         taxRate,
@@ -49,7 +49,7 @@ const setup = (propOverride) => {
         ...propOverride
     };
 
-    return shallowMount(Shopware.Component.build('sw-purchase-price-field'), {
+    return shallowMount(await Shopware.Component.build('sw-purchase-price-field'), {
         stubs: ['sw-price-field', 'sw-field', 'sw-icon'],
         propsData
     });
@@ -57,17 +57,17 @@ const setup = (propOverride) => {
 
 describe('components/form/sw-purchase-price-field', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should renders correctly', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should contain the dollar price', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.purchasePrice[0].net).toEqual(dollarPrice.net);
     });

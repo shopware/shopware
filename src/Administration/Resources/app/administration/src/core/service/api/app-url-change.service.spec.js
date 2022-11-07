@@ -12,7 +12,7 @@ function createAppUrlChangeService() {
 }
 
 describe('appUrlChangeService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         // Shopware.Service('appUrlChangeService')
         const { appUrlChangeService } = createAppUrlChangeService();
 

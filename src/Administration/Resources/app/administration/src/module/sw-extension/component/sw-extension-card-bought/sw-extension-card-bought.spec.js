@@ -57,8 +57,8 @@ Shopware.Application.addServiceProvider('extensionErrorService', () => {
 Shopware.Mixin.register('sw-extension-error', ExtensionErrorMixin);
 Shopware.State.registerModule('shopwareExtensions', extensionStore);
 
-function createWrapper(extension) {
-    return shallowMount(Shopware.Component.build('sw-extension-card-bought'), {
+async function createWrapper(extension) {
+    return shallowMount(await Shopware.Component.build('sw-extension-card-bought'), {
         propsData: {
             extension
         },
@@ -80,11 +80,11 @@ function createWrapper(extension) {
                 template: '<div class="sw-router-link"><slot></slot></div>',
                 props: ['to']
             },
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-extension-removal-modal': Shopware.Component.build('sw-extension-removal-modal'),
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-extension-adding-failed': Shopware.Component.build('sw-extension-adding-failed'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-extension-removal-modal': await Shopware.Component.build('sw-extension-removal-modal'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-extension-adding-failed': await Shopware.Component.build('sw-extension-adding-failed'),
             'sw-extension-rating-modal': true,
         },
         provide: {
@@ -114,7 +114,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -152,8 +152,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the extension information', () => {
-        wrapper = createWrapper({
+    it('should display the extension information', async () => {
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -195,8 +195,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel1February2021at02:30');
     });
 
-    it('should display a placeholder icon and the rent price', () => {
-        wrapper = createWrapper({
+    it('should display a placeholder icon and the rent price', async () => {
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -236,8 +236,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel1February2021at02:30');
     });
 
-    it('should link to the detail page', () => {
-        wrapper = createWrapper({
+    it('should link to the detail page', async () => {
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -263,8 +263,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '1' } });
     });
 
-    it('should link to the detail page with a store extension', () => {
-        wrapper = createWrapper({
+    it('should link to the detail page with a store extension', async () => {
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -295,8 +295,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .props().routerLink).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '5' } });
     });
 
-    it('should open the rating modal', () => {
-        wrapper = createWrapper({
+    it('should open the rating modal', async () => {
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -331,13 +331,13 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         expect(wrapper.find('.sw-extension-card-bought__rate-link')
             .text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel');
-        wrapper.find('.sw-extension-card-bought__rate-link').trigger('click');
+        await wrapper.find('.sw-extension-card-bought__rate-link').trigger('click');
 
         expect(wrapper.vm.showRatingModal).toEqual(true);
     });
 
-    it('should not display the update to button, if there is not a newer version', () => {
-        wrapper = createWrapper({
+    it('should not display the update to button, if there is not a newer version', async () => {
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -371,7 +371,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const cancelLicenceSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense');
         const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -399,7 +399,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         // Click remove to open remove modal
-        wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
+        await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
 
         // Wait for modal to appear
         await wrapper.vm.$nextTick();
@@ -408,7 +408,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
         // Perform remove action
-        wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
+        await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
 
         await flushPromises();
 
@@ -432,7 +432,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const cancelLicenceSpy = jest.spyOn(extensionStoreActionService, 'cancelLicense');
         const removeExtensionSpy = jest.spyOn(extensionStoreActionService, 'removeExtension');
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             id: 1,
             name: 'Sample Extension',
             label: 'Sample Extension Label',
@@ -461,7 +461,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         // Click remove to open remove modal
-        wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
+        await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
 
         // Wait for modal to appear
         await wrapper.vm.$nextTick();
@@ -470,7 +470,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
         // Perform remove action
-        wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
+        await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
 
         await flushPromises();
 
@@ -508,7 +508,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             });
         });
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             id: 1,
             name: 'Expired extension',
             label: 'Expired extension Label',
@@ -534,7 +534,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         // Click install
-        wrapper.get('.sw-extension-card-base__open-extension').trigger('click');
+        await wrapper.get('.sw-extension-card-base__open-extension').trigger('click');
 
         // Wait for error notification and modal render
         await wrapper.vm.$nextTick();
@@ -598,8 +598,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         };
 
         Object.entries(testCases).forEach(([testCaseName, testData]) => {
-            it(testCaseName, () => {
-                wrapper = createWrapper({
+            it(testCaseName, async () => {
+                wrapper = await createWrapper({
                     id: 555,
                     name: 'Test extension',
                     label: 'Test extension label',

@@ -2,11 +2,11 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-slot';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-cms-slot'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-slot'), {
         localVue,
         propsData: {
             element: {}
@@ -30,13 +30,13 @@ function createWrapper() {
 }
 describe('module/sw-cms/component/sw-cms-slot', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the slot name as class', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
                 slot: 'left'
@@ -47,7 +47,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('disable the custom component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -59,7 +59,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('enable the custom component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');
 
@@ -68,7 +68,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('disable the slot setting and show tooltip when element is locked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
                 locked: true
@@ -81,7 +81,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('test onSelectElement', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm.element).toEqual({});
 
         wrapper.vm.onSelectElement({

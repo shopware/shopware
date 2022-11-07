@@ -58,12 +58,12 @@ const mockChildrenCollection = [
     getMockChild('2.1', '2')
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
     localVue.filter('currency', value => value);
 
-    return shallowMount(Shopware.Component.build('sw-order-nested-line-items-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-order-nested-line-items-modal'), {
         localVue,
         propsData: {
             order: {
@@ -96,7 +96,7 @@ function createWrapper() {
             'sw-modal': true,
             'sw-loader': true,
             'sw-button': true,
-            'sw-order-nested-line-items-row': Shopware.Component.build('sw-order-nested-line-items-row')
+            'sw-order-nested-line-items-row': await Shopware.Component.build('sw-order-nested-line-items-row')
         },
         mocks: {
             $tc: snippet => snippet
@@ -105,8 +105,8 @@ function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () => {
-    it('should show the loading indicator, when loading', () => {
-        const wrapper = createWrapper();
+    it('should show the loading indicator, when loading', async () => {
+        const wrapper = await createWrapper();
         const loader = wrapper.find('.sw-order-nested-line-items-modal__loader');
 
         expect(loader.exists()).toBe(true);

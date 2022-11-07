@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-one-to-many-grid';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-one-to-many-grid'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-one-to-many-grid'), {
         propsData: {
             columns: [
                 {
@@ -53,13 +53,13 @@ function createWrapper() {
 
 describe('app/component/entity/sw-one-to-many-grid', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should enable the context menu delete item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');
@@ -70,7 +70,7 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
     });
 
     it('should disable the context menu delete item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             allowDelete: false

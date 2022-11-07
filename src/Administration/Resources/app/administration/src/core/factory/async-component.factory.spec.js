@@ -99,7 +99,7 @@ expect.extend({
 });
 
 describe('core/factory/async-component.factory.ts', () => {
-    it('test the component matrix', () => {
+    it('test the component matrix', async () => {
         const twoMatrix = createComponentMatrix({
             A: () => 1,
             B: () => 2,

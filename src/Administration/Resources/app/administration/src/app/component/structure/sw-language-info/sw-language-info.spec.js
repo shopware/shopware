@@ -18,7 +18,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: '456'
         });
 
-        wrapper = await shallowMount(Shopware.Component.build('sw-language-info'), {
+        wrapper = await shallowMount(await Shopware.Component.build('sw-language-info'), {
             localVue,
             stubs: {},
             mocks: {

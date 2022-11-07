@@ -21,7 +21,7 @@ function getBlockCollection(blocks) {
     return new EntityCollection(blocks, 'blocks', null, null, blocks);
 }
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
@@ -40,7 +40,7 @@ function createWrapper() {
     localVue.use(Vuex);
     localStorage.clear();
 
-    return shallowMount(Shopware.Component.build('sw-cms-sidebar'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-sidebar'), {
         localVue,
         propsData: {
             page: {
@@ -88,7 +88,7 @@ function createWrapper() {
             }
         },
         stubs: {
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-sidebar': true,
             'sw-sidebar-item': true,
             'sw-sidebar-collapse': true,
@@ -168,7 +168,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should be a Vue.js component', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -176,7 +176,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('disable all sidebar items', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -192,7 +192,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('enable all sidebar items', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
         expect(sidebarItems.length).toBe(5);
@@ -203,7 +203,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should correctly adjust the sectionId when drag sorting', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -232,7 +232,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should correctly adjust the sectionId when drag sorting (cross section)', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const blockDrag = {
             block: getBlockData('1a2b', 0),
@@ -262,10 +262,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(blockDrag.block.sectionId).toEqual('2222');
     });
 
-    it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', () => {
+    it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         // Check initial state of modal and localStorage
         expect(localStorage.getItem('cmsNavigatorDontRemind')).toBeFalsy();
@@ -293,10 +293,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.showSidebarNavigatorModal).toBe(false);
     });
 
-    it('should continue prompting a warning when entering the navigator, when "Do not remind me" option has not been checked once', () => {
+    it('should continue prompting a warning when entering the navigator, when "Do not remind me" option has not been checked once', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         // Check initial state of modal and localStorage
         expect(localStorage.getItem('cmsNavigatorDontRemind')).toBeFalsy();
@@ -323,10 +323,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.showSidebarNavigatorModal).toBe(true);
     });
 
-    it('should keep the id when duplicating blocks', () => {
+    it('should keep the id when duplicating blocks', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const block = getBlockData();
 
@@ -335,10 +335,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(clonedBlock.id).toBe('1a2b');
     });
 
-    it('should keep the id when duplicating slots', () => {
+    it('should keep the id when duplicating slots', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const block = getBlockData();
 
@@ -354,9 +354,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should fire event to open layout assignment modal', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        wrapper.find('.sw-cms-sidebar__layout-assignment-open').trigger('click');
+        await wrapper.find('.sw-cms-sidebar__layout-assignment-open').trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -366,7 +366,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should show tooltip and disable layout type select when page type is product detail', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             page: {
@@ -387,7 +387,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             page: {
@@ -407,7 +407,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should emit open-layout-set-as-default when clicking on set as default', async () => {
         global.activeAclRoles = ['system_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.find('.sw-cms-sidebar__layout-set-as-default-open').trigger('click');
 
@@ -415,7 +415,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should apply default data when dropping new elements', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const dragData = {
             block: {

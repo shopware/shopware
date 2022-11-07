@@ -7,11 +7,11 @@ const mediaDataMock = {
     url: 'http://shopware.com/image1.jpg'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('asset', Shopware.Filter.getByName('asset'));
 
-    return shallowMount(Shopware.Component.build('sw-cms-el-image'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-image'), {
         localVue,
         sync: false,
         provide: {
@@ -77,7 +77,7 @@ function createWrapper() {
 
 describe('src/module/sw-cms/elements/image/component', () => {
     it('should show default image if there is no config value', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const img = wrapper.find('img');
         expect(img.attributes('src'))
@@ -85,7 +85,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
     });
 
     it('should show media source regarding to media data', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {
@@ -107,7 +107,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
     });
 
     it('should show default image if demo value is undefined', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {

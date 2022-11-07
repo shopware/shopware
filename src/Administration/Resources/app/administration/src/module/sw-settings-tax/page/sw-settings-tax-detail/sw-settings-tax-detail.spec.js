@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/page/sw-settings-tax-detail';
 
-function createWrapper(privileges = [], isShopwareDefaultTax = true) {
-    return shallowMount(Shopware.Component.build('sw-settings-tax-detail'), {
+async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
+    return shallowMount(await Shopware.Component.build('sw-settings-tax-detail'), {
         mocks: {
             $te: () => isShopwareDefaultTax
         },
@@ -76,14 +76,14 @@ function createWrapper(privileges = [], isShopwareDefaultTax = true) {
 
 describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save the tax', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'tax.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -104,7 +104,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     });
 
     it('the name should be editable for non default rates', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'tax.editor'
         ], false);
         await wrapper.vm.$nextTick();
@@ -116,7 +116,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     });
 
     it('should not be able to save the tax', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(

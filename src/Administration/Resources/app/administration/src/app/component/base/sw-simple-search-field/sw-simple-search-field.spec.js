@@ -8,18 +8,18 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/field-base/sw-field-error';
 
-function createWrapper(additionalOptions = {}) {
+async function createWrapper(additionalOptions = {}) {
     const localVue = createLocalVue();
-    return shallowMount(Shopware.Component.build('sw-simple-search-field'), {
+    return shallowMount(await Shopware.Component.build('sw-simple-search-field'), {
         localVue,
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-icon': Shopware.Component.build('sw-icon'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-small-search': true
         },
         provide: {
@@ -37,8 +37,8 @@ describe('components/base/sw-simple-search-field', () => {
     /** @type Wrapper */
     let wrapper;
 
-    beforeAll(() => {
-        wrapper = createWrapper();
+    beforeAll(async () => {
+        wrapper = await createWrapper();
     });
 
     afterAll(() => {

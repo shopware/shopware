@@ -27,11 +27,11 @@ const defaultConfig = {
     data: null,
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-cms-el-product-listing'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-product-listing'), {
         localVue,
         data() {
             return {
@@ -79,13 +79,13 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should use demo products', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('cmsPageState/setCurrentDemoProducts', currentDemoProducts);
 

@@ -7,12 +7,12 @@ const createCondition = jest.fn();
 const insertNodeIntoTree = jest.fn();
 const removeNodeFromTree = jest.fn();
 
-function createWrapper(customProps = {}) {
-    return shallowMount(Shopware.Component.build('sw-condition-all-line-items-container'), {
+async function createWrapper(customProps = {}) {
+    return shallowMount(await Shopware.Component.build('sw-condition-all-line-items-container'), {
         stubs: {
             'sw-condition-tree-node': true,
-            'sw-condition-base': Shopware.Component.build('sw-condition-base'),
-            'sw-condition-day-of-week': Shopware.Component.build('sw-condition-day-of-week')
+            'sw-condition-base': await Shopware.Component.build('sw-condition-base'),
+            'sw-condition-day-of-week': await Shopware.Component.build('sw-condition-day-of-week')
         },
         provide: {
             conditionDataProviderService: {
@@ -56,12 +56,12 @@ function createWrapper(customProps = {}) {
 
 describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled condition tree', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
 
@@ -69,7 +69,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     });
 
     it('should have disabled condition tree', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 
@@ -79,7 +79,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     });
 
     it('should removeNodeFromTree when children length becomes 0', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
         condition.children.length = 0;
         await wrapper.setProps({ condition });
@@ -88,7 +88,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     });
 
     it('should call injections when children type changes to none line item type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
         condition.children.first = () => {
             return {

@@ -8,8 +8,8 @@ const defaultProps = {
     ]
 };
 
-function createWrapper(props = defaultProps) {
-    return shallowMount(Shopware.Component.build('sw-event-action-list-expand-labels'), {
+async function createWrapper(props = defaultProps) {
+    return shallowMount(await Shopware.Component.build('sw-event-action-list-expand-labels'), {
         propsData: props,
         stubs: {
             'sw-label': true
@@ -18,19 +18,19 @@ function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-event-action/component/sw-event-action-list-expand-labels', () => {
-    it('should be instantiated', () => {
-        const wrapper = createWrapper();
+    it('should be instantiated', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render all labels when items are less than default limit', () => {
-        const wrapper = createWrapper();
+    it('should render all labels when items are less than default limit', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.findAll('.sw-event-action-list-expand-labels__label').length).toBe(2);
         expect(wrapper.find('.sw-event-action-list-expand-labels__increase').exists()).toBeFalsy();
     });
 
     it('should should hide labels and show increase action when items are more than default limit', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             items: [
                 { id: '1', name: 'Headless' },
                 { id: '2', name: 'Storefront' },
@@ -47,7 +47,7 @@ describe('src/module/sw-event-action/component/sw-event-action-list-expand-label
     });
 
     it('should should increase limit with default configuration', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             items: [
                 { id: '1', name: 'Headless' },
                 { id: '2', name: 'Storefront' },
@@ -65,8 +65,8 @@ describe('src/module/sw-event-action/component/sw-event-action-list-expand-label
         expect(wrapper.find('.sw-event-action-list-expand-labels__increase').exists()).toBeFalsy();
     });
 
-    it('should increase the default limit via prop', () => {
-        const wrapper = createWrapper({
+    it('should increase the default limit via prop', async () => {
+        const wrapper = await createWrapper({
             items: [
                 { id: '1', name: 'Headless' },
                 { id: '2', name: 'Storefront' },
@@ -82,7 +82,7 @@ describe('src/module/sw-event-action/component/sw-event-action-list-expand-label
     });
 
     it('should increase by a different value when using prop', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             items: [
                 { id: '1', name: 'Headless' },
                 { id: '2', name: 'Storefront' },
@@ -107,8 +107,8 @@ describe('src/module/sw-event-action/component/sw-event-action-list-expand-label
         expect(wrapper.find('.sw-event-action-list-expand-labels__increase').exists()).toBeFalsy();
     });
 
-    it('should render translated labels', () => {
-        const wrapper = createWrapper({
+    it('should render translated labels', async () => {
+        const wrapper = await createWrapper({
             items: [
                 { id: '1', name: 'Headless', translated: { name: 'Kopflos' } },
                 { id: '2', name: 'Storefront', translated: { name: 'Geschäftsvorderseite' } },

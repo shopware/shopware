@@ -42,8 +42,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         };
     }
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-settings-listing-option-create'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-create'), {
             mocks: {
                 $router: {}
             },
@@ -67,8 +67,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.JS component', async () => {

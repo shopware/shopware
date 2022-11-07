@@ -5,11 +5,11 @@ import 'src/module/sw-settings-units/page/sw-settings-units-list';
 /**
  * @deprecated tag:v6.5.0 - Will be removed
  */
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-units'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-units'), {
         localVue,
         mocks: {
             $route: {
@@ -91,14 +91,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-units/page/sw-settings-units', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new units', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'scale_unit.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -109,7 +109,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
     });
 
     it('should not be able to create a new units', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-settings-units__create-action');
@@ -118,7 +118,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
     });
 
     it('should be able to edit a unit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'scale_unit.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -130,7 +130,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
     });
 
     it('should not be able to edit a unit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const dataGrid = wrapper.find('.sw-settings-units-grid');
@@ -140,7 +140,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
     });
 
     it('should be able to delete a units', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'scale_unit.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -151,7 +151,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
     });
 
     it('should not be able to delete a units', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-settings-units__delete-action');

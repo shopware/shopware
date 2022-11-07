@@ -4,8 +4,8 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 
 Shopware.State.registerModule('swShippingDetail', state);
 
-const createWrapper = () => {
-    return shallowMount(Shopware.Component.build('sw-settings-shipping-price-matrix'), {
+const createWrapper = async () => {
+    return shallowMount(await Shopware.Component.build('sw-settings-shipping-price-matrix'), {
         store: Shopware.State._store,
         stubs: {
             'sw-card': true,
@@ -46,14 +46,14 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should add conditions association', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 

@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
 import 'src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     const responseMockAll = [
         {
@@ -71,7 +71,7 @@ function createWrapper() {
         }
     };
 
-    const parentComponent = shallowMount(Shopware.Component.build('sw-settings-tag-detail-modal'), {
+    const parentComponent = shallowMount(await Shopware.Component.build('sw-settings-tag-detail-modal'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -96,7 +96,7 @@ function createWrapper() {
         }
     }).vm;
 
-    const wrapper = shallowMount(Shopware.Component.build('sw-settings-tag-detail-assignments'), {
+    const wrapper = shallowMount(await Shopware.Component.build('sw-settings-tag-detail-assignments'), {
         localVue,
         propsData: {
             tag: {
@@ -142,14 +142,14 @@ function createWrapper() {
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should fetch all and assigned entities', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.getList();
@@ -179,7 +179,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should handle adding and removing of assignments including inheritance', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.getList();
@@ -244,7 +244,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should search for inheritance of newly added and removed entities if selected only are shown', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.getList();
@@ -264,7 +264,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should return assignment associations', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const associations = wrapper.vm.assignmentAssociations;
@@ -291,7 +291,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should return association columns', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const columns = wrapper.vm.assignmentAssociationsColumns;
@@ -300,7 +300,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should return entity columns', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const columns = wrapper.vm.entitiesColumns;
@@ -309,7 +309,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should return selected assignments', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         let selectedAssignments = wrapper.vm.selectedAssignments;
@@ -330,7 +330,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
     });
 
     it('should increase and decrease counts on non existent properties', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.countIncrease('foo');

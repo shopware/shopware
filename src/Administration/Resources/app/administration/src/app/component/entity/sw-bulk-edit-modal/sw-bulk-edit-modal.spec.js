@@ -16,6 +16,7 @@ responses.addResponse({
 
 describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     let wrapper;
+    let stubs;
 
     const classes = {
         componentRoot: 'sw-bulk-edit-modal',
@@ -24,24 +25,11 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
         bulkEditListCellContent: 'sw-data-grid__cell-content'
     };
 
-    const stubs = {
-        'sw-modal': Shopware.Component.build('sw-modal'),
-        'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-        'sw-pagination': Shopware.Component.build('sw-pagination'),
-        'sw-checkbox-field': {
-            template: '<div class="sw-checkbox-field"></div>'
-        },
-        'sw-icon': true,
-        'sw-button': true,
-        'sw-field': true
-    };
-
-    const modal = () => {
-        return shallowMount(Shopware.Component.build('sw-bulk-edit-modal'), {
+    const modal = async () => {
+        return shallowMount(await Shopware.Component.build('sw-bulk-edit-modal'), {
             stubs: stubs,
             data() {
-                return {
-                };
+                return {};
             },
             propsData: {
                 selection: {
@@ -63,14 +51,28 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
         });
     };
 
-    it('has the correct class', () => {
-        wrapper = modal();
+    beforeAll(async () => {
+        stubs = {
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
+            'sw-checkbox-field': {
+                template: '<div class="sw-checkbox-field"></div>'
+            },
+            'sw-icon': true,
+            'sw-button': true,
+            'sw-field': true
+        };
+    });
+
+    it('has the correct class', async () => {
+        wrapper = await modal();
 
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('emits modal-close if modal is closed', () => {
-        wrapper = modal();
+    it('emits modal-close if modal is closed', async () => {
+        wrapper = await modal();
 
         const wrapperModal = wrapper.findComponent(stubs['sw-modal']);
 
@@ -80,7 +82,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     });
 
     it('should have a pagination', async () => {
-        wrapper = modal();
+        wrapper = await modal();
 
         const pagination = wrapper.find('.sw-pagination');
 
@@ -88,7 +90,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     });
 
     it('should have one page initially', async () => {
-        wrapper = modal();
+        wrapper = await modal();
         await wrapper.vm.$nextTick();
 
         const paginationButtons = wrapper.findAll('.sw-pagination__list-button');

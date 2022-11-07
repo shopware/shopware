@@ -8,7 +8,7 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Component } = Shopware;
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -69,10 +69,10 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-empty-state': Shopware.Component.build('sw-empty-state'),
+            'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
             'sw-context-menu-item': true,
-            'sw-loader': Shopware.Component.build('sw-loader'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-modal': true,
             'sw-skeleton': true,
             'sw-product-variants-overview': true,
@@ -178,7 +178,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         await wrapper.setData({
@@ -189,7 +189,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             groups: [{}],

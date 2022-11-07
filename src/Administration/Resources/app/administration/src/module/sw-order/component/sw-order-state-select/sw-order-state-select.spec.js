@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-state-select';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-state-select'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-state-select'), {
         stubs: {
             'sw-field': true
         },
@@ -15,8 +15,8 @@ function createWrapper() {
 describe('src/module/sw-order/component/sw-order-state-select', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

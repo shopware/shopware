@@ -15,8 +15,8 @@ function createRuleMock(isNew) {
     };
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-flow-rule-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-flow-rule-modal'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -46,8 +46,8 @@ function createWrapper() {
         },
 
         stubs: {
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -76,7 +76,7 @@ function createWrapper() {
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
     it('should show element correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const conditionElement = wrapper.find('.sw-flow-rule-modal__rule');
@@ -90,7 +90,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         ];
 
         const detailHeaderTab = wrapper.find('.sw-flow-rule-modal__tab-detail');
-        detailHeaderTab.trigger('click');
+        await detailHeaderTab.trigger('click');
         await wrapper.vm.$nextTick();
 
         fieldClasses.forEach(elementClass => {

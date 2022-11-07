@@ -6,8 +6,8 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
-function createWrapper(propsData = {}) {
-    return shallowMount(Shopware.Component.build('sw-product-stream-field-select'), {
+async function createWrapper(propsData = {}) {
+    return shallowMount(await Shopware.Component.build('sw-product-stream-field-select'), {
         provide: {
             conditionDataProviderService: {
                 isPropertyInAllowList: () => true,
@@ -23,11 +23,11 @@ function createWrapper(propsData = {}) {
         },
         stubs: {
             'sw-arrow-field': true,
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': true
         },
         propsData: {
@@ -42,14 +42,14 @@ function createWrapper(propsData = {}) {
 }
 
 describe('src/module/sw-product-stream/component/sw-product-stream-field-select', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a disabled prop', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.props('disabled')).toBe(false);
 
         await wrapper.setProps({ disabled: true });
@@ -57,9 +57,9 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
         expect(wrapper.props('disabled')).toBe(true);
     });
 
-    it('should return correct options with json accessor', () => {
-        const wrapper = createWrapper();
-        wrapper.vm.$nextTick();
+    it('should return correct options with json accessor', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.options).toEqual([{
             label: 'jsontest',
@@ -67,14 +67,14 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
         }]);
     });
 
-    it('should return gray arrow primary color without error', () => {
-        const wrapper = createWrapper();
+    it('should return gray arrow primary color without error', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.arrowPrimaryColor).toBe('#758ca3');
     });
 
-    it('should return red arrow primary color with error', () => {
-        const wrapper = createWrapper({
+    it('should return red arrow primary color with error', async () => {
+        const wrapper = await createWrapper({
             hasError: true,
         });
 

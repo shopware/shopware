@@ -63,11 +63,11 @@ const customerData = {
     ),
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-order-customer-address-select'), {
+    return shallowMount(await Shopware.Component.build('sw-order-customer-address-select'), {
         localVue,
         propsData: {
             customer: { ...customerData },
@@ -79,11 +79,11 @@ function createWrapper() {
             'sw-popover': {
                 template: '<div class="sw-popover"><slot></slot></div>'
             },
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-highlight-text': true,
             'sw-loader': true,
             'sw-icon': true,
@@ -130,7 +130,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
     });
 
     it('should show address option correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const billingAddressSelect = wrapper.find('.sw-select__selection');
@@ -142,7 +142,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
     });
 
     it('should able to set billing address same as shipping address', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const billingAddressSelect = wrapper.find('.sw-select__selection');
@@ -158,7 +158,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
     });
 
     it('should filter entries correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.vm.searchAddress('test');

@@ -6,11 +6,10 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
 
-const swDataGrid = Shopware.Component.build('sw-data-grid');
-const swDataGridColumnPosition = Shopware.Component.build('sw-data-grid-column-position');
-
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;
+    let swDataGridColumnPosition;
+    let swDataGrid;
 
     const classes = {
         componentRoot: 'sw-settings-product-feature-sets-values-card',
@@ -42,14 +41,14 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         labelName: 'sw-settings-product-feature-sets.modal.label.name'
     };
 
-    const valuesCard = (additionalOptions = {}) => {
-        return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-values-card'), {
+    const valuesCard = async (additionalOptions = {}) => {
+        return shallowMount(await Shopware.Component.build('sw-settings-product-feature-sets-values-card'), {
             stubs: {
-                'sw-card': Shopware.Component.build('sw-card'),
+                'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-ignore-class': true,
                 'sw-container': true,
                 'sw-simple-search-field': true,
-                'sw-button': Shopware.Component.build('sw-button'),
+                'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-icon': true,
                 'sw-data-grid': swDataGrid,
                 'sw-loader': true,
@@ -104,8 +103,13 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         return props.productFeatureSet.features.find(feature => feature.type === 'referencePrice');
     };
 
-    beforeEach(() => {
-        wrapper = valuesCard();
+    beforeAll(async () => {
+        swDataGrid = await Shopware.Component.build('sw-data-grid');
+        swDataGridColumnPosition = await Shopware.Component.build('sw-data-grid-column-position');
+    });
+
+    beforeEach(async () => {
+        wrapper = await valuesCard();
     });
 
     afterEach(() => {
@@ -230,8 +234,8 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         });
     });
 
-    it('should load feature listing as empty if there are no features', () => {
-        wrapper = valuesCard({
+    it('should load feature listing as empty if there are no features', async () => {
+        wrapper = await valuesCard({
             propsData: {
                 isLoading: false,
                 productFeatureSet: {

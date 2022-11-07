@@ -3,7 +3,7 @@ import 'src/module/sw-category/component/sw-landing-page-tree';
 import VueRouter from 'vue-router';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
-function createWrapper(privileges = ['landing_page.creator', 'landing_page.editor']) {
+async function createWrapper(privileges = ['landing_page.creator', 'landing_page.editor']) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -20,7 +20,7 @@ function createWrapper(privileges = ['landing_page.creator', 'landing_page.edito
         routes
     });
 
-    return shallowMount(Shopware.Component.build('sw-landing-page-tree'), {
+    return shallowMount(await Shopware.Component.build('sw-landing-page-tree'), {
         localVue,
         router,
         stubs: {
@@ -80,13 +80,13 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to sort the items', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -103,7 +103,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should be able to delete the items in sw-tree', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -116,7 +116,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should not be able to delete the items in sw-tree', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -133,7 +133,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should be able to create new landing pages', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -146,7 +146,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should not be able to create new landing pages in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -163,7 +163,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should be able to delete landing pages in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -176,7 +176,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should not be able to delete landing pages in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -193,7 +193,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should show the checkbox in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -206,7 +206,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should not show the checkbox in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -223,7 +223,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should show the custom tooltip text in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -240,7 +240,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should not show the custom tooltip text in sw-tree-item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -253,7 +253,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should get right landing page url', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false
@@ -265,7 +265,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     });
 
     it('should get wrong landing page url', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoadingInitialData: false

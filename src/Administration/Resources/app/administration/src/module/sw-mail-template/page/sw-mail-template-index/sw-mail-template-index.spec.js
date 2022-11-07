@@ -6,11 +6,11 @@ import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
 
 global.allowedErrors = [missingGetListMethod];
 
-const createWrapper = () => {
+const createWrapper = async () => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-mail-template-index'), {
+    return shallowMount(await Shopware.Component.build('sw-mail-template-index'), {
         localVue,
         provide: {
             searchRankingService: {}
@@ -55,8 +55,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
     });
-    it('should not allow to create', () => {
-        const wrapper = createWrapper();
+    it('should not allow to create', async () => {
+        const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-context-button');
         const innerButton = createButton.find('sw-button-stub');
@@ -65,10 +65,10 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         expect(innerButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should allow to create', () => {
+    it('should allow to create', async () => {
         global.activeAclRoles = ['mail_templates.creator'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-context-button');
         const innerButton = createButton.find('sw-button-stub');

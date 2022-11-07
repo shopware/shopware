@@ -64,8 +64,8 @@ const filters = [
 
 let savedFilterData = {};
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-filter-panel'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-filter-panel'), {
         propsData: {
             title: 'Filter',
             entity: 'product',
@@ -74,16 +74,16 @@ function createWrapper() {
             defaults: ['filter1', 'filter2', 'filter3', 'filter4', 'filter5', 'filter6', 'filter7']
         },
         stubs: {
-            'sw-boolean-filter': Shopware.Component.build('sw-boolean-filter'),
-            'sw-select-field': Shopware.Component.build('sw-select-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-base-filter': Shopware.Component.build('sw-base-filter'),
+            'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
             'sw-field-error': {
                 template: '<div></div>'
             },
             'sw-icon': true,
-            'sw-existence-filter': Shopware.Component.build('sw-existence-filter'),
+            'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
             'sw-multi-select-filter': true,
             'sw-string-filter': true,
             'sw-number-filter': true,
@@ -113,7 +113,7 @@ Shopware.Service().register('filterService', () => {
 
 describe('components/sw-filter-panel', () => {
     it('should render filter components correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-boolean-filter').exists()).toBeTruthy();
         expect(wrapper.find('.sw-existence-filter').exists()).toBeTruthy();
@@ -125,13 +125,13 @@ describe('components/sw-filter-panel', () => {
 
 
     it('should update filter with updated values', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
         const options = wrapper.find('.sw-boolean-filter').findAll('option');
 
-        options.at(1).setSelected();
+        await options.at(1).setSelected();
 
         await wrapper.vm.$nextTick();
 
@@ -143,23 +143,23 @@ describe('components/sw-filter-panel', () => {
             filter1: {}
         };
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const options = wrapper.find('.sw-boolean-filter').findAll('option');
 
-        options.at(0).setSelected();
+        await options.at(0).setSelected();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.vm.activeFilters.filter1).toBeFalsy();
     });
 
     it('should display only default filters', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             defaults: ['filter1', 'filter2']
@@ -174,11 +174,11 @@ describe('components/sw-filter-panel', () => {
     });
 
     it('should reset all filters when `Reset All` button is clicked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-boolean-filter').findAll('option').at(1).setSelected();
+        await wrapper.find('.sw-boolean-filter').findAll('option').at(1).setSelected();
 
         await wrapper.vm.$nextTick();
 
@@ -205,7 +205,7 @@ describe('components/sw-filter-panel', () => {
             }
         };
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 

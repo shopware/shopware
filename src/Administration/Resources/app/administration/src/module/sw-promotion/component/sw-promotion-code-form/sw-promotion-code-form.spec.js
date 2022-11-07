@@ -7,8 +7,8 @@ import 'src/app/component/form/sw-checkbox-field';
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-promotion-code-form'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-promotion-code-form'), {
         stubs: {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
@@ -19,7 +19,7 @@ function createWrapper(privileges = []) {
             'sw-contextual-field': {
                 template: '<div class="sw-contextual-field"><slot></slot></div>'
             },
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-base-field': true,
             'sw-field-error': true,
             'sw-icon': {
@@ -92,8 +92,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion/component/sw-promotion-code-form', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -115,7 +115,7 @@ describe('src/module/sw-promotion/component/sw-promotion-code-form', () => {
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 
@@ -125,7 +125,7 @@ describe('src/module/sw-promotion/component/sw-promotion-code-form', () => {
     });
 
     it('should not show notification warning when open modal individual codes', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 
@@ -162,7 +162,7 @@ describe('src/module/sw-promotion/component/sw-promotion-code-form', () => {
     });
 
     it('should show notification warning when promotion name couldn\'t be open modal individual codes', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

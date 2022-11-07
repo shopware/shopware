@@ -4,8 +4,8 @@ import 'src/app/component/base/sw-empty-state';
 describe('components/base/sw-empty-state', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-empty-state'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
             stubs: {
                 'sw-icon': true
             },

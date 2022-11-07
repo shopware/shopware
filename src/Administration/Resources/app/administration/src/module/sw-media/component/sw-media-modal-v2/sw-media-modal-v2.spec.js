@@ -4,8 +4,8 @@ import 'src/module/sw-media/component/sw-media-modal-v2';
 describe('src/module/sw-media/component/sw-media-modal-v2', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-media-modal-v2'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-media-modal-v2'), {
             stubs: {
                 'sw-modal': true,
                 'sw-tabs': {

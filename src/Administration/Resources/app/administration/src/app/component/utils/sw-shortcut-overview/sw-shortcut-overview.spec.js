@@ -4,8 +4,8 @@ import 'src/app/component/utils/sw-shortcut-overview';
 describe('app/component/utils/sw-shortcut-overview', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-shortcut-overview'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-shortcut-overview'), {
             stubs: {
                 'sw-modal': true,
                 'sw-shortcut-overview-item': true

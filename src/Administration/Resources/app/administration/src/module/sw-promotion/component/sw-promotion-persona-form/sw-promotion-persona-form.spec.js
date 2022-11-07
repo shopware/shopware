@@ -6,8 +6,8 @@ import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/sta
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-promotion-persona-form'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-promotion-persona-form'), {
         stubs: {
             'sw-entity-single-select': {
                 template: '<div class="sw-entity-single-select"></div>'
@@ -97,8 +97,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion/component/sw-promotion-persona-form', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -122,7 +122,7 @@ describe('src/module/sw-promotion/component/sw-promotion-persona-form', () => {
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

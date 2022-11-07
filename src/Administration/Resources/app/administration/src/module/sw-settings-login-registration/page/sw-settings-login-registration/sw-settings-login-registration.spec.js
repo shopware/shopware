@@ -9,10 +9,10 @@ const classes = {
     settingsCard: 'sw-card'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-login-registration'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-login-registration'), {
         localVue,
         mocks: {
             $route: {
@@ -43,7 +43,7 @@ function createWrapper() {
                 template: '<div class="sw-card-view"><slot></slot></div>'
             },
             'sw-button-process': true,
-            'sw-system-config': Shopware.Component.build('sw-system-config'),
+            'sw-system-config': await Shopware.Component.build('sw-system-config'),
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-skeleton': true
@@ -54,15 +54,15 @@ function createWrapper() {
 describe('module/sw-settings-login-registration/page/sw-settings-login-registration', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

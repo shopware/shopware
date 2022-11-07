@@ -24,7 +24,7 @@ Shopware.Utils.debounce = function debounce(fn) {
 const localVue = createLocalVue();
 localVue.use(shortcutPlugin);
 
-const createWrapper = (componentOverride) => {
+const createWrapper = async (componentOverride) => {
     const baseComponent = {
         name: 'base-component',
         template: '<div></div>',
@@ -66,7 +66,7 @@ describe('app/plugins/shortcut.plugin', () => {
     });
 
     it('should test with a Vue.js component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -74,7 +74,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('String: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: 'onSave'
             },
@@ -100,7 +100,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('Object with boolean active: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active: true,
@@ -126,7 +126,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('Object with boolean active: should NOT call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active: false,
@@ -152,7 +152,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('Object with function active: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active() {
@@ -180,7 +180,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('Object with function active: should NOT call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active() {
@@ -208,7 +208,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('Object with function active which access the vue instance: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active() {
@@ -241,7 +241,7 @@ describe('app/plugins/shortcut.plugin', () => {
     it('Object with function active which access the vue instance: should NOT call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active() {
@@ -275,7 +275,7 @@ describe('app/plugins/shortcut.plugin', () => {
         const onSaveMock = jest.fn();
         let shouldExecute = true;
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             shortcuts: {
                 s: {
                     active() {
@@ -342,26 +342,26 @@ describe('app/plugins/shortcut.plugin', () => {
             document.body.appendChild(element);
         }
 
-        wrapper = await mount(Shopware.Component.build('base-component'), {
+        wrapper = await mount(await Shopware.Component.build('base-component'), {
             attachTo: element,
             localVue,
             stubs: {
-                'sw-text-editor': Shopware.Component.build('sw-text-editor'),
-                'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
-                'sw-text-editor-toolbar-button': Shopware.Component.build('sw-text-editor-toolbar-button'),
+                'sw-text-editor': await Shopware.Component.build('sw-text-editor'),
+                'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
+                'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
                 'sw-icon': { template: '<div class="sw-icon"></div>' },
-                'sw-field': Shopware.Component.build('sw-field'),
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
                 'sw-field-error': true,
-                'sw-compact-colorpicker': Shopware.Component.build('sw-compact-colorpicker'),
-                'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
-                'sw-container': Shopware.Component.build('sw-container'),
-                'sw-button': Shopware.Component.build('sw-button')
+                'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
+                'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
+                'sw-container': await Shopware.Component.build('sw-container'),
+                'sw-button': await Shopware.Component.build('sw-button')
             },
             shouldProxy: true
         });
@@ -369,9 +369,9 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).not.toHaveBeenCalled();
         expect(testString).toBe('foo');
 
-        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
-        contentEditor.element.blur = () => {
-            contentEditor.trigger('blur');
+        const contentEditor = await wrapper.find('.sw-text-editor__content-editor');
+        contentEditor.element.blur = async () => {
+            await contentEditor.trigger('blur');
         };
 
         // click in editable content

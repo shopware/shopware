@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-conditions'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-conditions'), {
         localVue,
         stubs: {
             'sw-card': {
@@ -107,19 +107,19 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable adding discounts when privileges not set', () => {
+    it('should disable adding discounts when privileges not set', async () => {
         expect(
             wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled
         ).toBeTruthy();
@@ -134,8 +134,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
         ).toBeTruthy();
     });
 
-    it('should enable adding discounts when privilege is set', () => {
-        wrapper = createWrapper([
+    it('should enable adding discounts when privilege is set', async () => {
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

@@ -18,9 +18,9 @@ describe('components/utils/sw-duplicated-media-v2', () => {
     let wrapper;
     let uploads = {};
 
-    beforeEach(() => {
+    beforeEach(async () => {
         uploads = {};
-        wrapper = shallowMount(Shopware.Component.build('sw-duplicated-media-v2'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-duplicated-media-v2'), {
             provide: {
                 repositoryFactory: {
                     create: () => {

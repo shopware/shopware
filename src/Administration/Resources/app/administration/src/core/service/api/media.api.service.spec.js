@@ -28,7 +28,7 @@ function getMediaApiService(client = null, loginService = null) {
 }
 
 describe('storeService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         expect(getMediaApiService()).toBeInstanceOf(MediaApiService);
     });
 

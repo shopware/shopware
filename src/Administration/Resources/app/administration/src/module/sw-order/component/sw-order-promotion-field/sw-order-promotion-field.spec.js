@@ -79,7 +79,7 @@ const createStateMapper = (customOrder = {}) => {
 };
 
 
-const createWrapper = (custom) => {
+const createWrapper = async (custom) => {
     const notificationMixin = {
         methods: {
             createNotificationError() {},
@@ -88,7 +88,7 @@ const createWrapper = (custom) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-order-promotion-field'), {
+    return shallowMount(await Shopware.Component.build('sw-order-promotion-field'), {
         ...{
             propsData: {
                 isLoading: false,
@@ -158,22 +158,22 @@ const createWrapper = (custom) => {
 };
 
 describe('src/module/sw-order/component/sw-order-promotion-field', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         createStateMapper();
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should filter manual Promotions', async () => {
         createStateMapper();
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.manualPromotions).toStrictEqual(manualPromotions);
     });
 
     it('should filter automatic Promotions', async () => {
         createStateMapper();
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.automaticPromotions).toStrictEqual(automaticPromotions);
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
@@ -181,7 +181,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
     it('should disable automatic promotion on toggle with saved changes', async () => {
         createStateMapper();
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.disabledAutoPromotions = true;
 
@@ -195,7 +195,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
     it('should skip disable automatic promotion on toggle with unsaved changes', async () => {
         createStateMapper();
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             computed: {
                 hasOrderUnsavedChanges() {
                     return true;
@@ -221,7 +221,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
     it('should skip adding promotion code with unsaved changes', async () => {
         createStateMapper();
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             computed: {
                 hasOrderUnsavedChanges() {
                     return true;
@@ -240,7 +240,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
     it('should adding promotion code with saved changes', async () => {
         createStateMapper();
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.onSubmitCode('Redeem675');
         await flushPromises();
@@ -253,7 +253,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     it('should skip remove promotion code with unsaved changes', async () => {
         createStateMapper();
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             computed: {
                 hasOrderUnsavedChanges() {
                     return true;
@@ -272,7 +272,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     it('should remove promotion code with saved changes', async () => {
         createStateMapper();
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
         await flushPromises();

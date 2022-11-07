@@ -21,8 +21,8 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('sales_channel', 'sales_channel', {}, null, entities);
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-settings-listing-visibility-detail'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-settings-listing-visibility-detail'), {
         propsData: {
             config
         },
@@ -42,16 +42,16 @@ function createWrapper() {
             }
         },
         stubs: {
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-radio-field': Shopware.Component.build('sw-radio-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
             'sw-field-error': {
                 template: '<div></div>'
             },
-            'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
-            'sw-grid-row': Shopware.Component.build('sw-grid-row'),
-            'sw-grid-column': Shopware.Component.build('sw-grid-column'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-grid': await Shopware.Component.build('sw-grid'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
+            'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
+            'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
                 template: '<div></div>'
             }
@@ -69,7 +69,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
             }
         ];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 

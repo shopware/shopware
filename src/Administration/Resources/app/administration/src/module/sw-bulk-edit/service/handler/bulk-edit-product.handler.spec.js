@@ -28,7 +28,7 @@ function paginate(data, criteria) {
 }
 
 describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const factory = getBulkEditApiFactory();
 
         const handler = factory.getHandler('product');

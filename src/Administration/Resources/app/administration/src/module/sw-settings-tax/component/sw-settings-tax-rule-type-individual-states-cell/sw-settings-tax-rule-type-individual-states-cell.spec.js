@@ -1,13 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell';
 
-function createWrapper(taxRule) {
+async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };
 
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return mount(Shopware.Component.build('sw-settings-tax-rule-type-individual-states-cell'), {
+    return mount(await Shopware.Component.build('sw-settings-tax-rule-type-individual-states-cell'), {
         localVue,
 
         propsData: {
@@ -43,7 +43,7 @@ function createWrapper(taxRule) {
 
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             data: {
                 states: []
             }
@@ -53,7 +53,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     });
 
     it('creates an empty array taxRule.data.states is empty', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             data: {
                 states: []
             }
@@ -90,7 +90,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     });
 
     it('watches for changes in its props', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             data: {
                 states: []
             }

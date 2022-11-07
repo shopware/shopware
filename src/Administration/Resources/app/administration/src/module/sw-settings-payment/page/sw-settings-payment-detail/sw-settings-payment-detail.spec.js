@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-detail';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-settings-payment-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-settings-payment-detail'), {
         mocks: {
             $route: {
                 query: {

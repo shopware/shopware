@@ -15,11 +15,11 @@ const fieldClasses = [
 
 const btnConfirmClass = '.sw-flow-event-change-confirm-modal__confirm-button';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-event-change-confirm-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-event-change-confirm-modal'), {
         propsData: {
             item: {
                 id: 'action-name'
@@ -50,7 +50,7 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
     });
 
     it('should show element correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         fieldClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
@@ -58,7 +58,7 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
     });
 
     it('should reset flow sequence when clicking on confirm button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swFlowState/setSequences', new EntityCollection(
             '/flow_sequence',

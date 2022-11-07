@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-address-form';
 
-function createWrapper() {
+async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;
 
     responses.addResponse({
@@ -20,7 +20,7 @@ function createWrapper() {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-customer-address-form'), {
+    return shallowMount(await Shopware.Component.build('sw-customer-address-form'), {
         propsData: {
             customer: {},
             address: {}
@@ -68,7 +68,7 @@ function createWrapper() {
 
 describe('module/sw-customer/page/sw-customer-address-form', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
         const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
 
@@ -76,7 +76,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should hide state field if country dont have states', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             address: {
@@ -91,7 +91,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should show state field if country has states', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             address: {
@@ -106,7 +106,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should display company, department and vat fields when switching to business type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             customer: {
                 accountType: 'business',
@@ -119,7 +119,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should hide commercial inputs when switching to private type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             customer: {
                 company: null,
@@ -130,7 +130,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should display company, department and vat fields by default when account type is empty', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             customer: {
                 company: 'shopware',

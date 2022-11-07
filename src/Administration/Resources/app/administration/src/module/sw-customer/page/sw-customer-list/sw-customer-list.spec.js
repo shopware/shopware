@@ -3,8 +3,8 @@ import 'src/module/sw-customer/page/sw-customer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-customer-list'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-customer-list'), {
         mocks: {
             $route: {
                 query: {
@@ -94,14 +94,14 @@ Shopware.Service().register('filterService', () => {
 
 describe('module/sw-customer/page/sw-customer-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new customer', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-customer-list__button-create');
@@ -110,7 +110,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to create a new customer', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'customer.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -121,7 +121,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should not be able to inline edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -132,7 +132,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'customer.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -144,7 +144,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should not be able to delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -153,7 +153,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'customer.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -164,7 +164,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -173,7 +173,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'customer.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -184,7 +184,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -207,7 +207,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -227,7 +227,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -251,7 +251,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });

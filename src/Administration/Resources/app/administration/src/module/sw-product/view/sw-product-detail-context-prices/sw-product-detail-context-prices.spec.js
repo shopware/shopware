@@ -34,7 +34,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         }
     });
 
-    const createWrapper = () => {
+    const createWrapper = async () => {
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;
@@ -45,31 +45,31 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         localVue.use(Vuex);
         localVue.filter('asset', key => key);
 
-        return shallowMount(Shopware.Component.build('sw-product-detail-context-prices'), {
+        return shallowMount(await Shopware.Component.build('sw-product-detail-context-prices'), {
             localVue,
             stubs: {
-                'sw-container': Shopware.Component.build('sw-container'),
+                'sw-container': await Shopware.Component.build('sw-container'),
                 'sw-card': true,
                 'sw-icon': true,
                 'sw-loader': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-inheritance-switch': true,
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
                 'sw-button': true,
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-data-grid-settings': true,
-                'sw-field': Shopware.Component.build('sw-field'),
-                'sw-number-field': Shopware.Component.build('sw-number-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-number-field': await Shopware.Component.build('sw-number-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
-                'sw-list-price-field': Shopware.Component.build('sw-list-price-field'),
-                'sw-price-field': Shopware.Component.build('sw-price-field'),
-                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
+                'sw-list-price-field': await Shopware.Component.build('sw-list-price-field'),
+                'sw-price-field': await Shopware.Component.build('sw-price-field'),
+                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
                 'sw-skeleton': true,
             },
             provide: {
@@ -116,7 +116,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     });
 
     it('should be able to instantiate', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -130,7 +130,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             id: 'parentProductId'
         });
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.isChild).toBeTruthy();
@@ -147,7 +147,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             id: 'parentProductId'
         });
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.isChild).toBeFalsy();

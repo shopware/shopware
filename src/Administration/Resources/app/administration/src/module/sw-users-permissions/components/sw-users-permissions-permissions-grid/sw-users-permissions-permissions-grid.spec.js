@@ -4,7 +4,7 @@ import 'src/module/sw-users-permissions/components/sw-users-permissions-permissi
 import 'src/app/component/form/sw-checkbox-field';
 import PrivilegesService from 'src/app/service/privileges.service';
 
-function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
+async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -13,11 +13,11 @@ function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
         privilegesService.addPrivilegeMappingEntry(mapping);
     });
 
-    return shallowMount(Shopware.Component.build('sw-users-permissions-permissions-grid'), {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-permissions-grid'), {
         localVue,
         stubs: {
             'sw-card': true,
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-icon': true,
             'sw-field-error': true,
             'sw-base-field': true
@@ -33,12 +33,12 @@ function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
 
 describe('src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the header with all titles', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const gridHeader = wrapper.find('.sw-users-permissions-permissions-grid__entry-header');
         const gridTitle = gridHeader.find('.sw-users-permissions-permissions-grid__title');
@@ -70,7 +70,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should show a row with privileges', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -118,7 +118,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should show only privileges with the right category', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -155,7 +155,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should show only roles which are existing', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -177,7 +177,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should ignore role which doesn´t fit in the category', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'additional_permissions',
@@ -206,7 +206,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select the viewer role', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -247,7 +247,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should have selected the viewer role directly', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             rolePrivileges: ['product.viewer'],
             privilegesMappings: [
                 {
@@ -285,7 +285,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select the creator role', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -326,7 +326,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select a role and all its dependencies in the same row', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -378,7 +378,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should have enabled checkboxes when selecting a role with its dependencies', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -428,7 +428,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select a role and all its dependencies in other rows', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -504,7 +504,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select a role and add it to the role privileges prop', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -541,7 +541,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select a role and all dependencies to the role privileges prop', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -583,7 +583,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select all and all roles in the row should be selected', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -628,7 +628,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select all and all checkboxes in the row should be selected', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -677,7 +677,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().value).toBe(true);
     });
     it('should select all and roles in other rows should not be selected', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -767,7 +767,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select some and click on all. All have to be selected', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -821,7 +821,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().value).toBe(true);
     });
     it('should select all roles each and the checkbox all have to be checked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -869,7 +869,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should select all roles each and the checkbox all have to be checked (privilege has only two roles)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -916,7 +916,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should unselect all roles with the checkbox all', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -974,7 +974,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should disable checkboxes which are dependencies for viewer (0 dependencies)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1031,7 +1031,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should disable checkboxes which are dependencies for editor (1 dependency)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1088,7 +1088,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should disable checkboxes which are dependencies for creator (2 dependencies)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1145,7 +1145,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should disable checkboxes which are dependencies for deleter (1 dependency)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1202,7 +1202,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should show the parent permissions', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1312,7 +1312,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should organize the children to the matching parents', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1430,7 +1430,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should sort parents alphabetically with the label', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1470,7 +1470,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should sort children in parents alphabetically', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1510,7 +1510,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should be ghost checked when some of the child permission is clicked (TODO)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1634,7 +1634,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should be ghost checked when some of the child permission is clicked (all)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1754,7 +1754,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should be checked when all of the child permission is clicked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -1885,7 +1885,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should be disabled when all of the child permission are disabled', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2013,7 +2013,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should check all of the child permission when clicked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2140,7 +2140,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should check the child permission except missing roles when clicked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2267,7 +2267,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
     // eslint-disable-next-line max-len
     it('parent checkbox should check all of the child permission when clicked and some child permissions are already clicked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2396,7 +2396,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should uncheck all of the child permission when unchecked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2526,7 +2526,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('parent checkbox should uncheck all of the child permission when unchecked expect disabled checkboxes', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2669,7 +2669,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     it('should disable all checkboxes', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2786,8 +2786,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
     });
 
-    it('should not exist in the DOM if it has no child roles', () => {
-        const wrapper = createWrapper({
+    it('should not exist in the DOM if it has no child roles', async () => {
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2826,8 +2826,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productViewer.exists()).toBe(false);
     });
 
-    it('should exist in the DOM if it has at least one child role', () => {
-        const wrapper = createWrapper({
+    it('should exist in the DOM if it has at least one child role', async () => {
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -2904,7 +2904,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
      */
     it('should only add permissions that exist using the check all box', async () => {
         /** @type Wrapper */
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privilegesMappings: [
                 {
                     category: 'permissions',

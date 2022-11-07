@@ -4,11 +4,11 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import flushPromises from 'flush-promises';
 import TimezoneService from 'src/core/service/timezone.service';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-profile-index'), {
+    return shallowMount(await Shopware.Component.build('sw-profile-index'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -92,14 +92,14 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save own user', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({
             isLoading: false
@@ -129,7 +129,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to change new password', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.onChangeNewPassword('Shopware');
@@ -138,7 +138,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to change new password confirm', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.onChangeNewPasswordConfirm('Shopware');
@@ -147,7 +147,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should reset general data if route changes', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
         wrapper.vm.createdComponent = jest.fn();
         wrapper.vm.beforeMountComponent = jest.fn();

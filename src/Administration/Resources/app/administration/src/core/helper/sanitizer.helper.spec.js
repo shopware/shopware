@@ -128,7 +128,7 @@ describe('core/helper/sanitizer.helper.js', () => {
             meta: { $module: { icon: null } }
         };
 
-        const wrapper = shallowMount(Shopware.Component.build('sw-empty-state'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
             localVue,
             stubs: ['sw-icon'],
             mocks: {

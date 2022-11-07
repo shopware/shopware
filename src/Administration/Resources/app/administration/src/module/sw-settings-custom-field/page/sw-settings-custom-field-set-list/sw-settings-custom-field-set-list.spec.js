@@ -29,14 +29,14 @@ function mockCustomFieldSetData() {
     return _customFieldSets;
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
     const { Mixin } = Shopware;
 
 
-    return shallowMount(Shopware.Component.build('sw-settings-custom-field-set-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-custom-field-set-list'), {
         localVue,
         mocks: {
             $route: {
@@ -86,7 +86,7 @@ function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-icon': true,
             'sw-search-bar': true,
-            'sw-grid': Shopware.Component.build('sw-grid'),
+            'sw-grid': await Shopware.Component.build('sw-grid'),
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
@@ -113,14 +113,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new custom-field set', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-custom-field-set-list__button-create');
@@ -129,7 +129,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to create a new custom-field set', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'custom_field.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -140,7 +140,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should not be able to delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
@@ -148,7 +148,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'custom_field.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -158,7 +158,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
@@ -166,7 +166,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'custom_field.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -176,7 +176,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
     });
 
     it('should contain a listing criteria with page and limit properties', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.listingCriteria.page).toEqual(1);

@@ -20,8 +20,8 @@ function importAllConditionTypes() {
     }));
 }
 
-function createWrapperForComponent(componentName, props = {}) {
-    return shallowMount(Shopware.Component.build(componentName), {
+async function createWrapperForComponent(componentName, props = {}) {
+    return shallowMount(await Shopware.Component.build(componentName), {
         stubs: {
             'sw-field-error': {
                 template: '<div class="sw-field-error"></div>'
@@ -140,14 +140,14 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         return importAllConditionTypes();
     });
 
-    it.each(conditionTypes)('The component "%s" should be a mounted successfully', (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType);
+    it.each(conditionTypes)('The component "%s" should be a mounted successfully', async (conditionType) => {
+        const wrapper = await createWrapperForComponent(conditionType);
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.each(conditionTypes)('The component "%s" should have all fields enabled', (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType);
+    it.each(conditionTypes)('The component "%s" should have all fields enabled', async (conditionType) => {
+        const wrapper = await createWrapperForComponent(conditionType);
 
         eachField(getAllFields(wrapper), (field) => {
             // Handle edge case
@@ -159,8 +159,8 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         });
     });
 
-    it.each(conditionTypes)('The component "%s" should have all fields disabled', (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType, {
+    it.each(conditionTypes)('The component "%s" should have all fields disabled', async (conditionType) => {
+        const wrapper = await createWrapperForComponent(conditionType, {
             disabled: true
         });
 

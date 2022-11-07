@@ -22,7 +22,7 @@ function expectCreateDocumentFailed({ action }) {
 }
 
 describe('documentService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { documentApiService } = getDocumentApiService();
         expect(documentApiService).toBeInstanceOf(DocumentApiService);
     });
@@ -422,7 +422,7 @@ describe('documentService', () => {
         }
     });
 
-    it('calls getDocumentPreview with correct endpoint', () => {
+    it('calls getDocumentPreview with correct endpoint', async () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 
         let didRequest = false;
@@ -447,7 +447,7 @@ describe('documentService', () => {
         expect(didRequest).toBeTruthy();
     });
 
-    it('calls getDocument with correct endpoint', () => {
+    it('calls getDocument with correct endpoint', async () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 
         let didRequest = false;

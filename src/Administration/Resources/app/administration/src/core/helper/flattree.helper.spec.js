@@ -7,7 +7,7 @@ describe('core/helper/flattree.helper.js', () => {
         flatTree = new FlatTree();
     });
 
-    it('should register new nodes', () => {
+    it('should register new nodes', async () => {
         flatTree.add({
             label: 'Foobar',
             id: 'sw.foo.bar'
@@ -25,7 +25,7 @@ describe('core/helper/flattree.helper.js', () => {
         ]);
     });
 
-    it('expects a node to have a path or id property', () => {
+    it('expects a node to have a path or id property', async () => {
         const warnSpy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
 
@@ -92,7 +92,7 @@ describe('core/helper/flattree.helper.js', () => {
         );
     });
 
-    it('automatically sets target to _self if a link is specified', () => {
+    it('automatically sets target to _self if a link is specified', async () => {
         flatTree.add({
             id: 'foo.bar',
             link: 'https://shopware.com'
@@ -107,7 +107,7 @@ describe('core/helper/flattree.helper.js', () => {
         ]);
     });
 
-    it('should be possible to remove nodes from the tree', () => {
+    it('should be possible to remove nodes from the tree', async () => {
         flatTree.add({
             label: 'Foobar',
             id: 'sw.foo.bar'
@@ -124,7 +124,7 @@ describe('core/helper/flattree.helper.js', () => {
         expect(flatTree.convertToTree()).toHaveLength(0);
     });
 
-    it('should not remove a node when the node identifier does not match', () => {
+    it('should not remove a node when the node identifier does not match', async () => {
         flatTree.add({
             label: 'Foobar',
             id: 'sw.foo.bar'
@@ -137,7 +137,7 @@ describe('core/helper/flattree.helper.js', () => {
         ]);
     });
 
-    it('should be possible to nest child nodes infinitely (4 levels here)', () => {
+    it('should be possible to nest child nodes infinitely (4 levels here)', async () => {
         flatTree.add({
             id: 'sw.a'
         }).add({
@@ -172,7 +172,7 @@ describe('core/helper/flattree.helper.js', () => {
         ]);
     });
 
-    it('should create a tree hierarchy', () => {
+    it('should create a tree hierarchy', async () => {
         flatTree.add({
             id: 'sw.a'
         }).add({
@@ -219,7 +219,7 @@ describe('core/helper/flattree.helper.js', () => {
         ]);
     });
 
-    it('respects sorting function for children if given', () => {
+    it('respects sorting function for children if given', async () => {
         flatTree = new FlatTree((first, second) => {
             return first.position - second.position;
         });
@@ -253,11 +253,11 @@ describe('core/helper/flattree.helper.js', () => {
 
     /** @deprecated tag:v6.5.0 can be removed when defaultPosition is removed */
     describe('deprecated functions ', () => {
-        it('should be possible to get all registered nodes', () => {
+        it('should be possible to get all registered nodes', async () => {
             expect(flatTree.getRegisteredNodes()).toBeInstanceOf(Map);
         });
 
-        it('can set and get the default position', () => {
+        it('can set and get the default position', async () => {
             expect(flatTree.defaultPosition).toBe(1);
 
             flatTree.defaultPosition = -100;

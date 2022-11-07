@@ -1,11 +1,11 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-mail-template/component/sw-mail-template-list';
 
-const createWrapper = (privileges = []) => {
+const createWrapper = async (privileges = []) => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-mail-template-list'), {
+    return shallowMount(await Shopware.Component.build('sw-mail-template-list'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -83,7 +83,7 @@ const createWrapper = (privileges = []) => {
 
 describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     it('should not allow to duplicate without create permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const duplicateButton = wrapper.find('.sw-mail-template-list-grid__duplicate-action');
@@ -91,7 +91,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should allow to duplicate with create permission', async () => {
-        const wrapper = createWrapper(['mail_templates.creator']);
+        const wrapper = await createWrapper(['mail_templates.creator']);
         await wrapper.vm.$nextTick();
 
         const duplicateButton = wrapper.find('.sw-mail-template-list-grid__duplicate-action');
@@ -99,7 +99,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should not allow to delete without delete permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteButton = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
@@ -107,7 +107,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should allow to delete with delete permission', async () => {
-        const wrapper = createWrapper(['mail_templates.deleter']);
+        const wrapper = await createWrapper(['mail_templates.deleter']);
         await wrapper.vm.$nextTick();
 
         const deleteButton = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
@@ -115,7 +115,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should not allow to edit without edit permission', async () => {
-        const wrapper = createWrapper(['mail_templates.viewer']);
+        const wrapper = await createWrapper(['mail_templates.viewer']);
         await wrapper.vm.$nextTick();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -123,7 +123,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should allow to edit with edit permission', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'mail_templates.viewer',
             'mail_templates.editor'
         ]);
@@ -134,7 +134,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should hide item selection if user does not have delete permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
@@ -144,7 +144,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should show item selection if user has delete permission', async () => {
-        const wrapper = createWrapper(['mail_templates.deleter']);
+        const wrapper = await createWrapper(['mail_templates.deleter']);
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
@@ -153,15 +153,18 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 
-    it('should return three skeletons when there are no mail templates', () => {
-        const wrapper = createWrapper();
+    it('should return three skeletons when there are no mail templates', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            mailTemplates: null,
+        });
         const amountOfSkeletons = wrapper.vm.skeletonItemAmount;
 
         expect(amountOfSkeletons).toBe(3);
     });
 
-    it('should return the same amount of skeletons as there are mail templates', () => {
-        const wrapper = createWrapper();
+    it('should return the same amount of skeletons as there are mail templates', async () => {
+        const wrapper = await createWrapper();
 
         // fill listing with mail templates mocks
         wrapper.vm.mailTemplates = [
@@ -174,7 +177,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should show the listing when there are more than zero mail templates', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         // wait for vue to fetch data and render the listing
         await wrapper.vm.$nextTick();
@@ -188,7 +191,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should hide mail templates when there are no mail templates', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         // wait for vue to render the listing
         await wrapper.vm.$nextTick();
 

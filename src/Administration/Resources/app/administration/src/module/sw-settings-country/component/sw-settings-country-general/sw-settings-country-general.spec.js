@@ -3,11 +3,11 @@ import 'src/module/sw-settings-country/component/sw-settings-country-general';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 
-function createWrapper(privileges = [], customPropsData = {}) {
+async function createWrapper(privileges = [], customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-general'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-general'), {
         localVue,
 
         mocks: {
@@ -67,9 +67,9 @@ function createWrapper(privileges = [], customPropsData = {}) {
         },
 
         stubs: {
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-text-field': true,
             'sw-switch-field': true,
             'sw-icon': true,
@@ -87,14 +87,14 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to show the tax free from', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ], {
             enabled: true
@@ -154,7 +154,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
     });
 
     it('should not able to show the tax free from', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const countryNameField = wrapper.find(

@@ -19,7 +19,7 @@ const chartSeries = [
 ];
 
 // initial component setup
-const setup = ({ type, series, options, fillEmptyValues, sort } = {}) => {
+const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
     const propsData = {
         type: type || 'line',
         series: series || chartSeries,
@@ -28,7 +28,7 @@ const setup = ({ type, series, options, fillEmptyValues, sort } = {}) => {
         sort: sort || false
     };
 
-    return shallowMount(Shopware.Component.build('sw-chart'), {
+    return shallowMount(await Shopware.Component.build('sw-chart'), {
         stubs: ['apexchart'],
         propsData
     });
@@ -43,7 +43,7 @@ describe('components/base/sw-chart', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -51,7 +51,7 @@ describe('components/base/sw-chart', () => {
         const referenceFont = '"Comic Sans MS", cursive, sans-serif';
         const referenceText = 'Check against Comic Sans MS';
 
-        const wrapper = setup({
+        const wrapper = await setup({
             options: {
                 title: { text: referenceText },
                 chart: {
@@ -65,7 +65,7 @@ describe('components/base/sw-chart', () => {
     });
 
     it('should have custom options by default', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
 
         expect(wrapper.vm.mergedOptions.tooltip.theme).toMatch('dark');
     });
@@ -77,7 +77,7 @@ describe('components/base/sw-chart', () => {
         dateAgo.setHours(0, 0, 0, 0);
         dateAgo.setDate(dateAgo.getDate() - numberOfDates);
 
-        const wrapper = setup({
+        const wrapper = await setup({
             series: [{
                 name: 'Demo dates',
                 data: [
@@ -103,7 +103,7 @@ describe('components/base/sw-chart', () => {
         const dateAgo = new Date();
         dateAgo.setHours(dateAgo.getHours() - numberOfHours);
 
-        const wrapper = setup({
+        const wrapper = await setup({
             series: [{
                 name: 'Demo dates',
                 data: [
@@ -129,7 +129,7 @@ describe('components/base/sw-chart', () => {
         const dateAgo = new Date();
         dateAgo.setMinutes(dateAgo.getMinutes() - numberOfMinutes);
 
-        const wrapper = setup({
+        const wrapper = await setup({
             series: [{
                 name: 'Demo dates',
                 data: [
@@ -157,7 +157,7 @@ describe('components/base/sw-chart', () => {
         dateAgo.setDate(dateAgo.getDate() - numberOfDates);
 
         // if fillEmptyValues is not present, there should be no additional values
-        const wrapper = setup({
+        const wrapper = await setup({
             series: [{
                 name: 'Demo dates',
                 data: [
@@ -194,7 +194,7 @@ describe('components/base/sw-chart', () => {
             }
         ];
 
-        const wrapper = setup({
+        const wrapper = await setup({
             series: seriesToSort,
             sort: true
         });
@@ -234,7 +234,7 @@ describe('components/base/sw-chart', () => {
             }
         ];
 
-        const wrapper = setup({
+        const wrapper = await setup({
             series: seriesToSort,
             sort: false
         });

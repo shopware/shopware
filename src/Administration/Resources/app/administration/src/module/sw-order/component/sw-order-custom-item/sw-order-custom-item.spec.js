@@ -2,8 +2,8 @@ import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
 
 import 'src/module/sw-order/component/sw-order-custom-item';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-custom-item'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-custom-item'), {
         propsData: {
             taxStatus: 'gross',
             currency: {
@@ -27,7 +27,7 @@ enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-custom-item', () => {
     it('should price label and placeholder correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const priceField = wrapper.find('.sw-order-custom-item__price');
         expect(priceField.attributes().label).toEqual('sw-order.createBase.columnPriceGross');

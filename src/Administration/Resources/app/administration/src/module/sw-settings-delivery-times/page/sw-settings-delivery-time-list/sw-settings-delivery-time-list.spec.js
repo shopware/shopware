@@ -2,11 +2,11 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list';
 import 'src/app/component/base/sw-card';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-delivery-time-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-delivery-time-list'), {
         localVue,
         mocks: {
             $route: {
@@ -56,7 +56,7 @@ function createWrapper(privileges = []) {
             'sw-language-switch': true,
             'sw-context-menu-item': true,
             'sw-card-view': true,
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-extension-component-section': true,
             'sw-entity-listing': {
@@ -88,7 +88,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list', () => {
     it('should not be able to create a new delivery time if user does not have create permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-delivery-time-list__create');
@@ -97,7 +97,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should be able to create a new delivery time if user has create permission', async () => {
-        const wrapper = createWrapper(['delivery_times.creator']);
+        const wrapper = await createWrapper(['delivery_times.creator']);
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-delivery-time-list__create');
@@ -106,7 +106,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should not be able to edit if user does not have edit permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -114,7 +114,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should be able to edit if user has edit permission', async () => {
-        const wrapper = createWrapper(['delivery_times.editor']);
+        const wrapper = await createWrapper(['delivery_times.editor']);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -122,7 +122,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should not be able to delete if user does not have delete permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
@@ -130,7 +130,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should be able to delete if user has delete permission', async () => {
-        const wrapper = createWrapper(['delivery_times.deleter']);
+        const wrapper = await createWrapper(['delivery_times.deleter']);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
@@ -138,7 +138,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should hide item selection if user does not have delete permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-delivery-time-list-grid');
@@ -146,7 +146,7 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
     });
 
     it('should show item selection if user has delete permission', async () => {
-        const wrapper = createWrapper(['delivery_times.deleter']);
+        const wrapper = await createWrapper(['delivery_times.deleter']);
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-delivery-time-list-grid');

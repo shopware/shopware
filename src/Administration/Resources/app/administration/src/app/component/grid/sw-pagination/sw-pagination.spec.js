@@ -55,8 +55,8 @@ describe('src/component/grid/sw-pagination', () => {
         await checkNextPage(currentPage, direction, arrowButton);
     }
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-pagination'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-pagination'), {
             propsData: {
                 total: 275,
                 limit: 25,
@@ -75,8 +75,8 @@ describe('src/component/grid/sw-pagination', () => {
         });
     }
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.JS component', async () => {

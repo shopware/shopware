@@ -49,22 +49,22 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     localVue.filter('asset', key => key);
     localVue.filter('currency', key => key);
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-product-stream-grid-preview'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-product-stream-grid-preview'), {
             localVue,
             stubs: {
-                'sw-empty-state': Shopware.Component.build('sw-empty-state'),
+                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
                 'sw-simple-search-field': true,
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
                 'sw-data-grid-column-boolean': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-icon': true,
                 'sw-field-error': true,
-                'sw-base-field': Shopware.Component.build('sw-base-field')
+                'sw-base-field': await Shopware.Component.build('sw-base-field')
             },
             mocks: {
                 $route: { meta: { $module: { icon: 'default' } } }
@@ -225,7 +225,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input').trigger('click');
 
         await wrapper.vm.$nextTick();
 

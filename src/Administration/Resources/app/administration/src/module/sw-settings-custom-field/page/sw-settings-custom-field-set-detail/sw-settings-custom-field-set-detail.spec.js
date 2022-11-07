@@ -11,8 +11,8 @@ const set = {
 const localVue = createLocalVue();
 localVue.directive('tooltip', {});
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-settings-custom-field-set-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-settings-custom-field-set-detail'), {
         localVue,
         mocks: {
             $route: {
@@ -60,8 +60,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.js component', async () => {

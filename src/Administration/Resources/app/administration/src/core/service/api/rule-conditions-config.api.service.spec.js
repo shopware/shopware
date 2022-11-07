@@ -14,7 +14,7 @@ function getRuleConditionsConfigApiService() {
 }
 
 describe('ruleConditionsConfigApiService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { ruleConditionsConfigApiService } = getRuleConditionsConfigApiService();
         expect(ruleConditionsConfigApiService).toBeInstanceOf(RuleConditionsConfigApiService);
     });

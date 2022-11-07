@@ -7,13 +7,13 @@ describe('app/service/recently-search.service.js', () => {
         recentlySearchService = new RecentlySearchService();
     });
 
-    it('get method should return empty array', () => {
+    it('get method should return empty array', async () => {
         const data = recentlySearchService.get('userId');
 
         expect(data).toEqual([]);
     });
 
-    it('get method should return items from localStorage', () => {
+    it('get method should return items from localStorage', async () => {
         const items = [{ entity: 'product', id: 'productId' }];
 
         localStorage.setItem(recentlySearchService._key('userId'), JSON.stringify(items));
@@ -23,7 +23,7 @@ describe('app/service/recently-search.service.js', () => {
         expect(data).toEqual(items);
     });
 
-    it('add method should save item into localStorage', () => {
+    it('add method should save item into localStorage', async () => {
         localStorage.removeItem(recentlySearchService._key('userId'));
 
         const items = [{ entity: 'product', id: 'productId', payload: {} }];
@@ -40,7 +40,7 @@ describe('app/service/recently-search.service.js', () => {
         expect(actualStorage).toEqual(items);
     });
 
-    it('add method should add up to maximum stack', () => {
+    it('add method should add up to maximum stack', async () => {
         const maximumStack = recentlySearchService._maxStackSize();
 
         for (let i = 0; i < maximumStack; i += 1) {
@@ -52,7 +52,7 @@ describe('app/service/recently-search.service.js', () => {
         expect(data.length).toEqual(maximumStack);
     });
 
-    it('add method should push newst item to the top', () => {
+    it('add method should push newst item to the top', async () => {
         const maximumStack = recentlySearchService._maxStackSize();
 
         for (let i = 0; i < maximumStack; i += 1) {
@@ -68,7 +68,7 @@ describe('app/service/recently-search.service.js', () => {
         expect(data[0].id).toEqual('productId-new');
     });
 
-    it('add method should pop oldest out of stack', () => {
+    it('add method should pop oldest out of stack', async () => {
         const maximumStack = recentlySearchService._maxStackSize();
 
         recentlySearchService.add('userId', 'product', 'productId-old');

@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-type-select';
 
-function createWrapper(customProps = {}, customOptions = {}) {
-    return shallowMount(Shopware.Component.build('sw-condition-type-select'), {
+async function createWrapper(customProps = {}, customOptions = {}) {
+    return shallowMount(await Shopware.Component.build('sw-condition-type-select'), {
         stubs: {
             'sw-arrow-field': true,
             'sw-grouped-single-select': true
@@ -24,13 +24,13 @@ function createWrapper(customProps = {}, customOptions = {}) {
 
 describe('src/app/component/rule/sw-condition-type-select', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const arrowField = wrapper.find('sw-arrow-field-stub');
         const singleSelect = wrapper.find('sw-grouped-single-select-stub');
@@ -40,7 +40,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -53,7 +53,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     });
 
     it('should have the right tooltip according to the restriction', async () => {
-        const wrapper = createWrapper({}, {
+        const wrapper = await createWrapper({}, {
             provide: {
                 removeNodeFromTree: () => {
                 },

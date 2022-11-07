@@ -117,7 +117,7 @@ const mockMultipleTaxesItem = {
     }
 };
 
-function createWrapper({ privileges = [] }) {
+async function createWrapper({ privileges = [] }) {
     const localVue = createLocalVue();
 
     localVue.directive('tooltip', {
@@ -134,7 +134,7 @@ function createWrapper({ privileges = [] }) {
 
     localVue.filter('currency', (currency) => currency);
 
-    return shallowMount(Shopware.Component.build('sw-order-line-items-grid'), {
+    return shallowMount(await Shopware.Component.build('sw-order-line-items-grid'), {
         localVue,
         propsData: {
             order: {
@@ -174,7 +174,7 @@ function createWrapper({ privileges = [] }) {
             'sw-context-menu-item': true,
             'sw-card-filter': true,
             'sw-checkbox-field': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-settings': true,
             'sw-icon': true,
             'sw-product-variant-info': true,
@@ -210,7 +210,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('the create discounts button should not be disabled', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: ['orders.create_discounts']
         });
 
@@ -219,14 +219,14 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('the create discounts button should not be disabled', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         const button = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
         expect(button.attributes()).toHaveProperty('disabled');
     });
 
     it('only product item should have redirect link', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -259,7 +259,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should not show tooltip if only items which have single tax', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -276,7 +276,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show tooltip if item has multiple taxes', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -292,7 +292,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show tooltip if item has multiple taxes', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -308,7 +308,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show tooltip message correctly with item detail', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -324,7 +324,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show items correctly when search by search term', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -344,7 +344,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should automatically convert negative value of credit item price when user enter positive value', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -368,7 +368,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should have vat column and price label is not tax free when tax status is tax free', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -384,7 +384,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -402,7 +402,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
     // eslint-disable-next-line max-len
     it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         await wrapper.setProps({
             order: {
@@ -427,7 +427,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show total price title based on tax status correctly', async () => {
-        const wrapper = createWrapper({});
+        const wrapper = await createWrapper({});
 
         let header;
         let columnTotal;

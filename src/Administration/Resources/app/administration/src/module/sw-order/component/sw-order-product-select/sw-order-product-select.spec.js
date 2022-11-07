@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import 'src/module/sw-order/component/sw-order-product-select';
 
-const createWrapper = () => {
-    return shallowMount(Shopware.Component.build('sw-order-product-select'), {
+const createWrapper = async () => {
+    return shallowMount(await Shopware.Component.build('sw-order-product-select'), {
         propsData: {
             taxStatus: 'net',
             item: {
@@ -89,7 +89,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
     });
 
     it('should show product select if item is new product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             item: {
@@ -105,7 +105,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
     });
 
     it('should show input select if item is custom item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             item: {
@@ -120,7 +120,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
     });
 
     it('should show input select if item is credit item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             item: {
@@ -135,7 +135,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
     });
 
     it('should show text if item is existing product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             item: {
@@ -172,7 +172,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
     });
 
     it('product item should have gross price if tax status is gross', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             taxStatus: 'gross',

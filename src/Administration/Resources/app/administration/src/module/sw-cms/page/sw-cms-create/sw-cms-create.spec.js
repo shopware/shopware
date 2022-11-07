@@ -29,11 +29,11 @@ const categoryRepository = {
     get: () => Promise.resolve({ id: categoryId }),
 };
 
-function createWrapper(routeParams = {}) {
+async function createWrapper(routeParams = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-cms-create'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-create'), {
         localVue,
         stubs: {
             'sw-cms-create-wizard': {
@@ -92,13 +92,13 @@ describe('module/sw-cms/page/sw-cms-create', () => {
 
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should assign new layout to', async () => {
-        const wrapper = createWrapper({ type: 'category', id: categoryId });
+        const wrapper = await createWrapper({ type: 'category', id: categoryId });
 
         await wrapper.vm.onSave();
 

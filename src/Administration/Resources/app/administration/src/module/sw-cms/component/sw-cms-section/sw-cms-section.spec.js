@@ -3,11 +3,11 @@ import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-section';
 import Vuex from 'vuex';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-cms-section'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-section'), {
         localVue,
         propsData: {
             page: {},
@@ -72,13 +72,13 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('the disable all sub components', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
         expect(cmsSectionActions.attributes().disabled).toBeFalsy();
@@ -95,7 +95,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     });
 
     it('the disable all sub components', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });

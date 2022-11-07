@@ -2,10 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
-    return shallowMount(Shopware.Component.build('sw-product-variants-overview'), {
+    return shallowMount(await Shopware.Component.build('sw-product-variants-overview'), {
         localVue,
         propsData: {
             selectedGroups: []
@@ -71,6 +71,7 @@ function createWrapper(privileges = []) {
         }
     });
 }
+
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-overview', () => {
     const consoleError = console.error;
     beforeAll(() => {
@@ -138,19 +139,19 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled generate variants button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
         expect(generateVariantsButton.attributes().disabled).toBeTruthy();
     });
 
     it('should have an enabled generate variants button', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.creator'
         ]);
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
@@ -159,7 +160,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should allow inline editing', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
@@ -167,13 +168,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should disallow inline editing', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
         expect(dataGrid.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should enable selection deleting of list variants', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.deleter'
         ]);
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
@@ -181,7 +182,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should be able to turn on delete confirmation modal', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.deleter'
         ]);
 
@@ -197,8 +198,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             .toBe('sw-product.variations.generatedListDeleteModalMessage');
     });
 
-    it('should not be able to turn on delete confirmation modal', () => {
-        const wrapper = createWrapper([
+    it('should not be able to turn on delete confirmation modal', async () => {
+        const wrapper = await createWrapper([
             'product.editor',
         ]);
 
@@ -207,7 +208,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should be able to delete variants', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.deleter'
         ]);
 
@@ -227,7 +228,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should not be able to delete variants', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor',
         ]);
 

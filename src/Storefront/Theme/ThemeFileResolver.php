@@ -24,6 +24,9 @@ class ThemeFileResolver
         $this->themeFileImporter = $themeFileImporter;
     }
 
+    /**
+     * @return array<string, FileCollection>
+     */
     public function resolveFiles(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
@@ -79,6 +82,9 @@ class ThemeFileResolver
         ];
     }
 
+    /**
+     * @param array<int, string> $included
+     */
     private function resolve(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,

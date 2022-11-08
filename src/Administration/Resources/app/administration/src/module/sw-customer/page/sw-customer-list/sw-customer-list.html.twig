@@ -156,6 +156,15 @@
                         {{ $tc('sw-customer.list.columnNameGuestLabel') }}
                     </sw-label>
                     {% endblock %}
+
+                    <sw-label
+                        v-if="item.createdById"
+                        appearance="pill"
+                        size="small"
+                        class="sw-customer-list__created-by-admin-label"
+                    >
+                        {{ $tc('sw-customer.list.labelCreatedByAdmin') }}
+                    </sw-label>
                 </template>
                 {% endblock %}
                 {% endblock %}

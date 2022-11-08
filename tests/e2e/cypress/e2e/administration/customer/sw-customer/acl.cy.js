@@ -68,8 +68,7 @@ describe('Customer: Test ACL privileges', () => {
         });
 
         // open customer
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('.sw-data-grid__cell--firstName', 'Eroni')
+        cy.get(`${page.elements.dataGridRow}--0 a`)
             .click();
 
         // check customer values
@@ -100,8 +99,7 @@ describe('Customer: Test ACL privileges', () => {
         });
 
         // open customer
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('.sw-data-grid__cell--firstName', 'Eroni')
+        cy.get(`${page.elements.dataGridRow}--0 a`)
             .click();
 
         // Verify updated product
@@ -332,8 +330,7 @@ describe('Customer: Test ACL privileges', () => {
         }).as('checkEmailValid');
 
         // open customer
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('.sw-data-grid__cell--firstName', 'Eroni')
+        cy.get(`${page.elements.dataGridRow}--0 a`)
             .click();
 
         // Verify updated product

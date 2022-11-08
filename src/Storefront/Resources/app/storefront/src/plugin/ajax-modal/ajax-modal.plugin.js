@@ -130,7 +130,6 @@ export default class AjaxModalPlugin extends Plugin {
     _onModalOpen(pseudoModalUtil, classes) {
         const modal = pseudoModalUtil.getModal();
         modal.classList.add(...classes);
-        PluginManager.initializePlugins();
         this.$emitter.publish('ajaxModalOpen', { modal });
     }
 }

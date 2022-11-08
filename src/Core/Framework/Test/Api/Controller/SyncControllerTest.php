@@ -553,4 +553,77 @@ class SyncControllerTest extends TestCase
         $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
     }
+
+    public function invalidOperationProvider(): \Generator
+    {
+        yield 'Invalid entity argument' => [
+            'invalid-entity',
+            '',
+            'upsert',
+            [
+                ['id' => 'id1', 'name' => 'first manufacturer'],
+                ['id' => 'id2', 'name' => 'second manufacturer'],
+            ],
+            'entity',
+        ];
+
+        yield 'Missing action argument' => [
+            'missing-action',
+            ProductDefinition::ENTITY_NAME,
+            '',
+            [
+                ['id' => 'id1', 'name' => 'first manufacturer'],
+                ['id' => 'id2', 'name' => 'second manufacturer'],
+            ],
+            'action',
+        ];
+
+        yield 'Invalid action argument' => [
+            'missing-action',
+            ProductDefinition::ENTITY_NAME,
+            'invalid-action',
+            [
+                ['id' => 'id1', 'name' => 'first manufacturer'],
+                ['id' => 'id2', 'name' => 'second manufacturer'],
+            ],
+            'action',
+        ];
+
+        yield 'Missing payload argument' => [
+            'missing-action',
+            ProductDefinition::ENTITY_NAME,
+            'upsert',
+            [],
+            'payload',
+        ];
+    }
+
+    /**
+     * @dataProvider invalidOperationProvider
+     *
+     * @param array<mixed> $payload
+     */
+    public function testItThrows400WithInvalidSyncOperation(string $key, string $entity, string $action, array $payload, string $actor): void
+    {
+        if (!Feature::isActive('v6.5.0.0')) {
+            $this->connection->rollBack();
+        }
+
+        $data = [
+            [
+                'action' => $action,
+                'entity' => $entity,
+                'payload' => $payload,
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertEquals(400, $response->getStatusCode());
+
+        $content = json_decode((string) $response->getContent(), true);
+        static::assertEquals('FRAMEWORK__INVALID_SYNC_OPERATION', $content['errors'][0]['code']);
+        static::assertStringContainsString($actor, $content['errors'][0]['detail']);
+    }
 }

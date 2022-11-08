@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
+use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncOperationResult;
@@ -103,13 +104,21 @@ class SyncServiceDeprecatedTest extends TestCase
     {
         $_SERVER = $_ENV = [];
 
-        $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-            new EntityWrittenEvent('product', [new EntityWriteResult('created-id', [], 'product', EntityWriteResult::OPERATION_INSERT)], Context::createDefaultContext()),
-        ]), []);
+        $writeResult = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [new EntityWriteResult('created-id', [], 'product', EntityWriteResult::OPERATION_INSERT)], Context::createDefaultContext()),
+            ]),
+            []
+        );
 
-        $deleteResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-            new EntityWrittenEvent('product', [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_INSERT)], Context::createDefaultContext()),
-        ]), []);
+        $deleteResult = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_INSERT)], Context::createDefaultContext()),
+            ]),
+            []
+        );
 
         $entityRepo = $this->createMock(EntityRepository::class);
         $entityRepo
@@ -200,8 +209,8 @@ class SyncServiceDeprecatedTest extends TestCase
             ['id' => '2', 'name' => 'bar'],
         ]);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('provided action uff is not supported. Following actions are supported: delete, upsert');
+        $this->expectException(InvalidSyncOperationException::class);
+        $this->expectExceptionMessageMatches('/"action"/');
 
         $service->sync([$upsert], Context::createDefaultContext(), new SyncBehavior(true, false, 'disable-indexing', ['product.indexer']));
     }
@@ -290,10 +299,12 @@ class SyncServiceDeprecatedTest extends TestCase
         static::assertSame([
             'entities' => [],
             'errors' => [
-                ['code' => '0',
+                [
+                    'code' => '0',
                     'status' => '500',
                     'title' => 'Internal Server Error',
-                    'detail' => 'delete failed', ],
+                    'detail' => 'delete failed',
+                ],
             ],
         ], $deleteOp->getResult()[0]);
 
@@ -347,9 +358,13 @@ class SyncServiceDeprecatedTest extends TestCase
     {
         $_SERVER = $_ENV = [];
 
-        $deleteResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
-            new EntityWrittenEvent('product', [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_INSERT)], Context::createDefaultContext()),
-        ]), []);
+        $deleteResult = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_INSERT)], Context::createDefaultContext()),
+            ]),
+            []
+        );
 
         $entityRepo = $this->createMock(EntityRepository::class);
 

@@ -7,15 +7,21 @@ use Shopware\Core\Framework\Struct\Struct;
 class SyncOperationResult extends Struct
 {
     /**
-     * @var array
+     * @var array<mixed>
      */
     protected $result;
 
+    /**
+     * @param array<mixed> $result
+     */
     public function __construct(array $result)
     {
         $this->result = $result;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getResult(): array
     {
         return $this->result;
@@ -32,11 +38,19 @@ class SyncOperationResult extends Struct
         return false;
     }
 
+    /**
+     * @param string|int $key
+     *
+     * @return array<mixed>|null
+     */
     public function get($key): ?array
     {
         return $this->result[$key] ?? null;
     }
 
+    /**
+     * @param string|int $key
+     */
     public function has($key): bool
     {
         return isset($this->result[$key]);

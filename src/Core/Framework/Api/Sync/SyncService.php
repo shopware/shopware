@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
+use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -53,6 +55,9 @@ class SyncService implements SyncServiceInterface
 
     /**
      * @param SyncOperation[] $operations
+     *
+     * @throws ConnectionException
+     * @throws InvalidSyncOperationException
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
@@ -117,6 +122,8 @@ class SyncService implements SyncServiceInterface
         $hasError = false;
         $results = [];
         foreach ($operations as $operation) {
+            $this->validateSyncOperationInput($operation);
+
             if (!$behavior->failOnError()) {
                 //begin a new transaction for every operation to provide chunk-safe operations
                 $this->connection->beginTransaction();
@@ -171,7 +178,11 @@ class SyncService implements SyncServiceInterface
 
             default:
                 throw new \RuntimeException(
-                    sprintf('provided action %s is not supported. Following actions are supported: delete, upsert', $operation->getAction())
+                    sprintf(
+                        'provided action "%s" is not supported. Following actions are supported: %s',
+                        $operation->getAction(),
+                        implode(', ', $operation->getSupportedActions())
+                    )
                 );
         }
     }
@@ -323,5 +334,18 @@ class SyncService implements SyncServiceInterface
         ksort($entities);
 
         return $entities;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Sync Operation will be validated inside EntityWriter instead.
+     *
+     * @throws InvalidSyncOperationException
+     */
+    private function validateSyncOperationInput(SyncOperation $operation): void
+    {
+        $errors = $operation->validate();
+        if (\count($errors)) {
+            throw new InvalidSyncOperationException(sprintf('Invalid sync operation. %s', implode(' ', $errors)));
+        }
     }
 }

@@ -268,7 +268,6 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
-
         $location = $response->headers->get('Location');
         static::assertIsString($location);
         static::assertStringEndsWith(

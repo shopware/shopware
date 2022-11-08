@@ -101,6 +101,40 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 
+    it('should use UTC for date values', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                dateType: 'date'
+            }
+        });
+
+        wrapper.vm.emitValue('2022-01-01T00:00:00');
+
+        expect(wrapper.emitted().input).toBeTruthy();
+        expect(wrapper.emitted().input[0]).toEqual(['2022-01-01T00:00:00.000Z']);
+    });
+
+    it('should convert datetime values to UTC', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                dateType: 'datetime'
+            }
+        });
+
+        wrapper.vm.emitValue('2022-01-01T00:00:00');
+
+        expect(wrapper.emitted().input).toBeTruthy();
+        expect(wrapper.emitted().input[0]).toEqual(['2021-12-31T23:00:00.000Z']);
+    });
+
     it('should not show the actual user timezone as a hint when it is not a datetime', async () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'Europe/Berlin'

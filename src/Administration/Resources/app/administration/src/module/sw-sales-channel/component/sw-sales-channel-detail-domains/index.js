@@ -221,9 +221,34 @@ Component.register('sw-sales-channel-detail-domains', {
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
         },
 
+        setInitialCurrency(domain) {
+            const currency = this.salesChannel.currencies.first();
+            domain.currency = currency;
+            domain.currencyId = currency.id;
+            this.currentDomain = domain;
+        },
+
+        setInitialLanguage(domain) {
+            const language = this.salesChannel.languages.first();
+            domain.language = language;
+            domain.languageId = language.id;
+            this.currentDomain = domain;
+        },
+
         onClickOpenCreateDomainModal() {
-            this.currentDomain = this.domainRepository.create(Context.api);
-            this.setCurrentDomainBackup(this.currentDomain);
+            const domain = this.domainRepository.create(Context.api);
+
+            this.setCurrentDomainBackup(domain);
+
+            if (this.salesChannel.currencies.length === 1) {
+                this.setInitialCurrency(domain);
+            }
+
+            if (this.salesChannel.languages.length === 1) {
+                this.setInitialLanguage(domain);
+            }
+
+            this.currentDomain = domain;
         },
 
         async onClickAddNewDomain() {

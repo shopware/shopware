@@ -8,7 +8,7 @@ Shopware.Module.register('sw-settings-mailer', {
     title: 'sw-settings-mailer.general.mainMenuItemGeneral',
     description: 'sw-settings-mailer.general.description',
     color: '#9AA8B5',
-    icon: 'regular-envelope',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {

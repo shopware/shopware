@@ -89,7 +89,7 @@ class BlockedShippingMethodSwitcher
 
     private function addNoticeToCart(ErrorCollection $cartErrors, ShippingMethodEntity $shippingMethod): void
     {
-        $newShippingMethodName = $shippingMethod->getName();
+        $newShippingMethodName = $shippingMethod->getTranslation('name');
         if ($newShippingMethodName === null) {
             return;
         }

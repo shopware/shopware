@@ -88,7 +88,7 @@ class BlockedPaymentMethodSwitcher
 
     private function addNoticeToCart(ErrorCollection $cartErrors, PaymentMethodEntity $paymentMethod): void
     {
-        $newPaymentMethodName = $paymentMethod->getName();
+        $newPaymentMethodName = $paymentMethod->getTranslation('name');
         if ($newPaymentMethodName === null) {
             return;
         }

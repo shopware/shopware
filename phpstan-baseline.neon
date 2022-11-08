@@ -28014,11 +28014,6 @@ parameters:
 			path: src/Storefront/Test/Page/ErrorPageTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/LandingPage/LandingPageLoaderTest.php
-
-		-
 			message: "#^Cannot call method getVars\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/NavigationPageTest.php

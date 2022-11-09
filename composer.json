@@ -281,8 +281,8 @@
             "@php bin/console theme:dump",
             "@npm:storefront run hot-proxy"
         ],
-        "stylelint:admin": "@npm:admin:bin stylelint --syntax scss",
-        "stylelint:storefront": "@npm:storefront:bin stylelint --syntax scss --config stylelint.config.js",
+        "stylelint:admin": "@npm:admin run lint:scss",
+        "stylelint:storefront": "@npm:storefront run lint:scss",
         "stylelint": [
             "@stylelint:admin src/**/*.scss",
             "@stylelint:storefront src/**/*.scss"
@@ -394,13 +394,15 @@
             "Composer\\Config::disableProcessTimeout",
             "@e2e:recovery:cypress open"
         ],
+        "framework:schema:dump": "@php bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "admin:unit": [
-            "@php bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
             "@npm:admin run unit"
         ],
         "admin:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
-            "@php bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
+            "@framework:schema:dump",
             "@npm:admin run unit-watch"
         ],
         "admin:create:test": "@npm:admin run create-test",

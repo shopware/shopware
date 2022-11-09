@@ -16006,21 +16006,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/Handler/SleepTaskHandler.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Registry\\\\TaskRegistry\\:\\:__construct\\(\\) has parameter \\$tasks with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Registry\\\\TaskRegistry\\:\\:getDeletionPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Registry\\\\TaskRegistry\\:\\:\\$tasks type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\CreateMigrationCommand\\:\\:createMigrationFile\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php

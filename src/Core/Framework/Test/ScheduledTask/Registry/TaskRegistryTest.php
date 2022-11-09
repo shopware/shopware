@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\ScheduledTask\Registry;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
@@ -22,7 +23,7 @@ class TaskRegistryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $scheduledTaskRepo;
 
@@ -39,7 +40,8 @@ class TaskRegistryTest extends TestCase
             [
                 new RequeueDeadMessagesTask(),
             ],
-            $this->scheduledTaskRepo
+            $this->scheduledTaskRepo,
+            new ParameterBag()
         );
     }
 
@@ -98,10 +100,12 @@ class TaskRegistryTest extends TestCase
             TestMessage::class
         ));
         $registry = new TaskRegistry(
+            /** @phpstan-ignore-next-line - test pass a wrong class type so it will throw an Error as expected */
             [
                 new TestMessage(),
             ],
-            $this->scheduledTaskRepo
+            $this->scheduledTaskRepo,
+            new ParameterBag()
         );
 
         $registry->registerTasks();
@@ -121,7 +125,7 @@ class TaskRegistryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $registry = new TaskRegistry([], $this->scheduledTaskRepo);
+        $registry = new TaskRegistry([], $this->scheduledTaskRepo, new ParameterBag());
         $registry->registerTasks();
 
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();

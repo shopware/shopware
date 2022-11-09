@@ -2,7 +2,7 @@ UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
 # 6.4.17.0
-* Themes snippets are now only applied to Storefront sales channels when they or their child theme are assigned to that sales channel
+* Themes' snippets are now only applied to Storefront sales channels when they or their child themes are assigned to that sales channel
 ## Disabling caching of store-api-routes
 The Cache for Store-API-Routes can now be disabled by implementing the `Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent` and calling `disableCache()` method on the event.
 ## Limit remote URL file upload max file size

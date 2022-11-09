@@ -1,12 +1,13 @@
 # 6.5.0.0
 ## Introduced in 6.4.17.0
 * In the next major, the flow actions are not executed over the symfony events anymore, we'll remove the dependence from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.
-that means, all the flow actions extends from `FlowAction` are become the services tag. 
-* The flow builder will execute the actions via call directly the `handleFlow` function instead `dispatch` an action event.
-* To get an action service in flow builder, we need define the tag action service with a unique key, that key should be an action name.
-* About the data we'll use in the flow actions, the data will be store in the `StorableFlow $flow`, use `$flow->getStore('order_id')` or `$flow->getData('order')` instead of `$flowEvent->getOrder`.
-  * Use `$flow->getStore($key)` if you want to get the data from aware interfaces. E.g: `order_id` in `OrderAware`, `customer_id` from `CustomerAware` and so on.
-  * Use `$flow->getData($key)` if you want to get the data from original events or additional data. E.g: `order`, `customer`, `contactFormData` and so on.
+* In the next major, the flow actions are not executed via symfony events anymore, we'll remove the dependency from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.
+That means, all the flow actions extending `FlowAction` get the "services" tag. 
+* The flow builder will execute the actions when calling the `handleFlow` function directly, instead of dispatching an action event.
+* To get an action service in flow builder, we need to define the tag action service with an unique key, which should be an action name.
+* The flow action data is stored in `StorableFlow $flow`, so you should use `$flow->getStore('order_id')` or `$flow->getData('order')` instead of `$flowEvent->getOrder`.
+  * Use `$flow->getStore($key)` if you want to get the data from `aware` interfaces. Example: `order_id` in `OrderAware` or `customer_id` from `CustomerAware`.
+  * Use `$flow->getData($key)` if you want to get the data from original events or additional data. Example: `order`, `customer` or `contactFormData`.
 
 **before**
 ```xml
@@ -94,14 +95,17 @@ class SendMailAction extends FlowAction
     }
 }
 ```
-* The interface `Shopware\Core\System\Snippet\Files\SnippetFileInterface` is deprecated, please use `Shopware\Core\System\Snippet\Files\AbstractSnippetFile` instead .
+* The interface `Shopware\Core\System\Snippet\Files\SnippetFileInterface` is deprecated, please use `Shopware\Core\System\Snippet\Files\AbstractSnippetFile` instead.
+
 ## Remove old database migration trigger logic
-The `addForwardTrigger()`, `addBackwardTrigger()` and `addTrigger()` methods of the `MigrationStep`-class were removed, use `createTrigger()` instead.
-Do not rely on the state of the already executed migrations in your database trigger anymore.
+The `addForwardTrigger()`, `addBackwardTrigger()` and `addTrigger()` methods of the `MigrationStep` class were removed, use `createTrigger()` instead.
+Do not rely on the state of already executed migrations in your database triggers anymore!
 Additionally, the `@MIGRATION_{migration}_IS_ACTIVE` DB connection variables are not set at kernel boot anymore.
+
 ## Removal of `\Shopware\Core\Framework\Event\FlowEvent`
-We removed the `\Shopware\Core\Framework\Event\FlowEvent`, as Flow Actions are not executed over symfonys event system anymore.
-Implement the `handleFlow()` method in your `FlowAction` and tag your actions as `flow.action` instead.
+We removed `\Shopware\Core\Framework\Event\FlowEvent`, since Flow Actions are not executed via symfony's event system anymore.
+You should implement the `handleFlow()` method in your `FlowAction` and tag your actions as `flow.action`.
+
 ## Internal Migrations
 All DB migration steps are now considered `@internal`, as they never should be extended or adjusted afterwards.
 

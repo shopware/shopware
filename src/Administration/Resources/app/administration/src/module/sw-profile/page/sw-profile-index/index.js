@@ -252,7 +252,6 @@ Component.register('sw-profile-index', {
         },
 
         resetGeneralData() {
-            this.avatarMediaItem = null;
             this.newPassword = null;
             this.newPasswordConfirm = null;
 

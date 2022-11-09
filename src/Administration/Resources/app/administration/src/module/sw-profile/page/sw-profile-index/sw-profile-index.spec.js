@@ -154,7 +154,6 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         wrapper.vm.resetGeneralData();
 
-        expect(wrapper.vm.avatarMediaItem).toEqual(null);
         expect(wrapper.vm.newPassword).toEqual(null);
         expect(wrapper.vm.newPasswordConfirm).toEqual(null);
 

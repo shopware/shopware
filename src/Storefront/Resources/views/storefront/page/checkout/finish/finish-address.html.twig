@@ -9,6 +9,7 @@
         {% set shippingAddress = billingAddress %}
     {% endif %}
     <div class="row">
+        {# @deprecated tag:v6.5.0 - Billing address will be displayed after the shipping address. #}
         {% block page_checkout_finish_address_billing %}
             <div class="col-sm-6">
                 <div class="card checkout-card">
@@ -29,6 +30,7 @@
             </div>
         {% endblock %}
 
+        {# @deprecated tag:v6.5.0 - Shipping address will be displayed before the billing address. #}
         {% block page_checkout_finish_address_shipping %}
             <div class="col-sm-6">
                 <div class="card checkout-card">

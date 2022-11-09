@@ -574,14 +574,14 @@ const coreConfig = {
         }),
 
         ...(() => {
-            if (process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            if (isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 
             return [
                 new ForkTsCheckerWebpackPlugin({
                     typescript: {
-                        mode: 'write-references'
+                        mode: 'write-references',
                     },
                     logger: {
                         infrastructure: 'console',

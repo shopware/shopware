@@ -49,6 +49,7 @@
 
                                 {% set selectQuantityThreshold = 100 %}
                                 {% block component_line_item_quantity_select %}
+                                    {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
                                     {% if (maxQuantity - quantityInformation.minPurchase) / quantityInformation.purchaseSteps > selectQuantityThreshold %}
                                         {% block component_line_item_quantity_select_input %}
                                             <input

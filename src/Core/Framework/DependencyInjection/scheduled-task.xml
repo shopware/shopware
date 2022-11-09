@@ -18,6 +18,7 @@
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry">
             <argument type="tagged" tag="shopware.scheduled.task" />
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="parameter_bag"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler">

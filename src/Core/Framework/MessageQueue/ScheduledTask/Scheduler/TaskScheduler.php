@@ -58,13 +58,7 @@ final class TaskScheduler
         // queued, thus breaking the task.
         /** @var ScheduledTaskEntity $task */
         foreach ($tasks as $task) {
-            $this->scheduledTaskRepository->update([
-                [
-                    'id' => $task->getId(),
-                    'status' => ScheduledTaskDefinition::STATUS_QUEUED,
-                ],
-            ], $context);
-            $this->queueTask($task);
+            $this->queueTask($task, $context);
         }
     }
 
@@ -124,7 +118,7 @@ final class TaskScheduler
         return $criteria;
     }
 
-    private function queueTask(ScheduledTaskEntity $taskEntity): void
+    private function queueTask(ScheduledTaskEntity $taskEntity, Context $context): void
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
 
@@ -136,8 +130,23 @@ final class TaskScheduler
         }
 
         if (!$taskClass::shouldRun($this->parameterBag)) {
+            $this->scheduledTaskRepository->update([
+                [
+                    'id' => $taskEntity->getId(),
+                    'nextExecutionTime' => $this->calculateNextExecutionTime($taskEntity),
+                    'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
+                ],
+            ], $context);
+
             return;
         }
+
+        $this->scheduledTaskRepository->update([
+            [
+                'id' => $taskEntity->getId(),
+                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+            ],
+        ], $context);
 
         $task = new $taskClass();
         $task->setTaskId($taskEntity->getId());
@@ -170,5 +179,16 @@ final class TaskScheduler
         ->addAggregation(new MinAggregation('runInterval', 'runInterval'));
 
         return $criteria;
+    }
+
+    private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
+    {
+        $now = new \DateTimeImmutable();
+
+        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
+        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
+
+        return $newNextExecutionTime < $now ? $now : $newNextExecutionTime;
     }
 }

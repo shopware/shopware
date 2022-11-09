@@ -29,59 +29,68 @@ class EnvConfigWriter
      */
     public function writeConfig(DatabaseConnectionInformation $info, array $shop): void
     {
-        $tpl = '# This file is a "template" of which env vars need to be defined for your application
-# Copy this file to .env file for development, create environment variables when deploying to production
-# https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
-
-###> symfony/framework-bundle ###
-%s
-#TRUSTED_PROXIES=127.0.0.1,127.0.0.2
-#TRUSTED_HOSTS=localhost,example.com
-###< symfony/framework-bundle ###
-
-###> symfony/swiftmailer-bundle ###
-# For Gmail as a transport, use: "gmail://username:password@localhost"
-# For a generic SMTP server, use: "smtp://localhost:25?encryption=&auth_mode="
-# Delivery is disabled by default via "null://localhost"
-MAILER_URL=null://localhost
-###< symfony/swiftmailer-bundle ###
-
-%s
-';
         $key = Key::createNewRandomKey();
         $secret = $key->saveToAsciiSafeString();
 
-        $appEnvVars = array_filter([
-            'APP_ENV' => 'prod',
-            'APP_SECRET' => $secret,
-            'APP_URL' => $shop['schema'] . '://' . $shop['host'] . $shop['basePath'],
-            'DATABASE_SSL_CA' => $info->getSslCaPath(),
-            'DATABASE_SSL_CERT' => $info->getSslCertPath(),
-            'DATABASE_SSL_KEY' => $info->getSslCertKeyPath(),
-            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->getSslDontVerifyServerCert() ? '1' : '',
-        ]);
+        $newEnv = [];
 
-        $additionalEnvVars = [
-            'DATABASE_URL' => $info->asDsn(),
-            'COMPOSER_HOME' => $this->projectDir . '/var/cache/composer',
-            'INSTANCE_ID' => $this->idGenerator->getUniqueId(),
-            'BLUE_GREEN_DEPLOYMENT' => (int) $shop['blueGreenDeployment'],
-            'SHOPWARE_HTTP_CACHE_ENABLED' => '1',
-            'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',
-            'SHOPWARE_ES_HOSTS' => '',
-            'SHOPWARE_ES_ENABLED' => '0',
-            'SHOPWARE_ES_INDEXING_ENABLED' => '0',
-            'SHOPWARE_ES_INDEX_PREFIX' => 'sw',
-            'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
-        ];
+        $newEnv[] = '###> symfony/lock ###';
+        $newEnv[] = '# Choose one of the stores below';
+        $newEnv[] = '# postgresql+advisory://db_user:db_password@localhost/db_name';
+        $newEnv[] = 'LOCK_DSN=flock';
+        $newEnv[] = '###< symfony/lock ###';
+        $newEnv[] = '';
 
-        $envFile = sprintf(
-            $tpl,
-            $this->toEnv($appEnvVars),
-            $this->toEnv($additionalEnvVars)
-        );
+        $newEnv[] = '###> symfony/messenger ###';
+        $newEnv[] = '# Choose one of the transports below';
+        $newEnv[] = '# MESSENGER_TRANSPORT_DSN=doctrine://default';
+        $newEnv[] = '# MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages';
+        $newEnv[] = '# MESSENGER_TRANSPORT_DSN=redis://localhost:6379/messages';
+        $newEnv[] = '###< symfony/messenger ###';
+        $newEnv[] = '';
 
-        file_put_contents($this->projectDir . '/.env', $envFile);
+        $newEnv[] = '###> symfony/mailer ###';
+        $newEnv[] = 'MAILER_DSN=null://null';
+        $newEnv[] = '###< symfony/mailer ###';
+        $newEnv[] = '';
+
+        $newEnv[] = '###> shopware/core ###';
+        $newEnv[] = 'APP_ENV=prod';
+        $newEnv[] = 'APP_SECRET=' . $secret;
+        $newEnv[] = 'APP_URL=' . $shop['schema'] . '://' . $shop['host'] . $shop['basePath'];
+        $newEnv[] = 'DATABASE_URL=' . $info->asDsn();
+        $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
+        $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
+        $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
+        $newEnv[] = 'DATABASE_SSL_DONT_VERIFY_SERVER_CERT=' . ($info->getSslDontVerifyServerCert() ? '1' : '');
+        $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
+        $newEnv[] = 'INSTANCE_ID=' . $this->idGenerator->getUniqueId();
+        $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
+        $newEnv[] = '###< shopware/core ###';
+        $newEnv[] = '';
+
+        $newEnv[] = '###> shopware/elasticsearch ###';
+
+        if (file_exists($this->projectDir . '/symfony.lock')) {
+            $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
+        } else {
+            $newEnv[] = 'SHOPWARE_ES_HOSTS=http://localhost:9200';
+        }
+
+        $newEnv[] = 'SHOPWARE_ES_ENABLED=0';
+        $newEnv[] = 'SHOPWARE_ES_INDEXING_ENABLED=0';
+        $newEnv[] = 'SHOPWARE_ES_INDEX_PREFIX=sw';
+        $newEnv[] = 'SHOPWARE_ES_THROW_EXCEPTION=1';
+        $newEnv[] = '###< shopware/elasticsearch ###';
+        $newEnv[] = '';
+
+        $newEnv[] = '###> shopware/storefront ###';
+        $newEnv[] = 'SHOPWARE_HTTP_CACHE_ENABLED=1';
+        $newEnv[] = 'SHOPWARE_HTTP_DEFAULT_TTL=7200';
+        $newEnv[] = '###< shopware/storefront ###';
+        $newEnv[] = '';
+
+        file_put_contents($this->projectDir . '/.env', implode("\n", $newEnv));
 
         $htaccessPath = $this->projectDir . '/public/.htaccess';
 
@@ -93,19 +102,5 @@ MAILER_URL=null://localhost
                 chmod($htaccessPath, $perms | 0644);
             }
         }
-    }
-
-    /**
-     * @param array<string, string|int> $keyValuePairs
-     */
-    private function toEnv(array $keyValuePairs): string
-    {
-        $lines = [];
-
-        foreach ($keyValuePairs as $key => $value) {
-            $lines[] = $key . '="' . $value . '"';
-        }
-
-        return implode(\PHP_EOL, $lines);
     }
 }

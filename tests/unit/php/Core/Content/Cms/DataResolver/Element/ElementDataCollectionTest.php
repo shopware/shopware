@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element;
 
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;

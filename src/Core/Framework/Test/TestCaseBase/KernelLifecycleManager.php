@@ -129,7 +129,7 @@ class KernelLifecycleManager
                 $existingConnection = self::getConnection();
 
                 try {
-                    $existingConnection->fetchAll('SELECT 1');
+                    $existingConnection->fetchOne('SELECT 1');
                 } catch (\Throwable $e) {
                     // The connection is closed
                     $existingConnection = null;
@@ -140,7 +140,7 @@ class KernelLifecycleManager
             }
 
             // force connection to database
-            $existingConnection->fetchAll('SELECT 1');
+            $existingConnection->fetchOne('SELECT 1');
 
             $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
         } catch (\Throwable $e) {

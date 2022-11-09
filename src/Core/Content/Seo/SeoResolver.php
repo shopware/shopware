@@ -49,7 +49,7 @@ class SeoResolver extends AbstractSeoResolver
 
         $query->setTitle('seo-url::resolve');
 
-        $seoPath = $query->execute()->fetch();
+        $seoPath = $query->executeQuery()->fetchAssociative();
 
         $seoPath = $seoPath !== false
             ? $seoPath
@@ -70,7 +70,7 @@ class SeoResolver extends AbstractSeoResolver
                 ->setParameter('id', $seoPath['id'] ?? '')
                 ->setParameter('pathInfo', '/' . ltrim($seoPath['pathInfo'], '/'));
 
-            $canonical = $query->execute()->fetchAssociative();
+            $canonical = $query->executeQuery()->fetchAssociative();
             if ($canonical) {
                 $seoPath['canonicalPathInfo'] = '/' . ltrim($canonical['seoPathInfo'], '/');
             }

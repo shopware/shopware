@@ -43,6 +43,7 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
         $metaData = $this->fs->getMetadata('testFile');
         static::assertIsArray($metaData);
         $url = $this->asset->getUrl('testFile');
+        static::assertIsArray($metaData);
         static::assertSame('http://shopware.com/testFile?' . $metaData['timestamp'] . ($metaData['size'] ?? '0'), $url);
     }
 
@@ -52,6 +53,7 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
         $metaData = $this->fs->getMetadata('folder');
         static::assertIsArray($metaData);
         $url = $this->asset->getUrl('folder');
+        static::assertIsArray($metaData);
         static::assertSame('http://shopware.com/folder?' . $metaData['timestamp'] . '0', $url);
     }
 }

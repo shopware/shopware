@@ -43,7 +43,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         yield 'Email Newsletter Recipient Registered' => [
             'newsletter_sales_channel_ids' => json_encode([Uuid::randomHex() => Uuid::randomHex()]),
             function (MockObject $connection, ?array $ids): void {
-                $connection->expects(static::once())->method('executeUpdate')->willReturnCallback(function ($sql, $params) use ($ids): void {
+                $connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
                     static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
                     static::assertNotNull($ids);
@@ -60,7 +60,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         yield 'Email Newsletter Recipient Registered Multiple' => [
             'newsletter_sales_channel_ids' => json_encode([Uuid::randomHex() => Uuid::randomHex(), Uuid::randomHex() => Uuid::randomHex()]),
             function (MockObject $connection, ?array $ids): void {
-                $connection->expects(static::once())->method('executeUpdate')->willReturnCallback(function ($sql, $params) use ($ids): void {
+                $connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
                     static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
                     static::assertNotNull($ids);

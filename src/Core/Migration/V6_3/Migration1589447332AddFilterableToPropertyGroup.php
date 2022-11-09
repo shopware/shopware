@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -17,7 +16,7 @@ class Migration1589447332AddFilterableToPropertyGroup extends MigrationStep
     }
 
     /**
-     * @throws DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {

@@ -101,7 +101,7 @@ class ErrorControllerTest extends TestCase
     private function addDomain(string $url): void
     {
         $snippetSetId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

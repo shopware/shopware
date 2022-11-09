@@ -168,7 +168,7 @@ class ProductListingLoader
     {
         $ids = array_combine($ids, $ids);
 
-        $config = $this->connection->fetchAll(
+        $config = $this->connection->fetchAllAssociative(
             '# product-listing-loader::resolve-previews
             SELECT
                 parent.variant_listing_config as variantListingConfig,

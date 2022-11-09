@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -312,7 +311,7 @@ class EntityReader implements EntityReaderInterface
             $query->setTitle($criteria->getTitle() . '::read');
         }
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     /**
@@ -801,8 +800,7 @@ class EntityReader implements EntityReaderInterface
             $this->connection->executeQuery('SET @n = 0; SET @c = null;');
         }
 
-        $mapping = $query->execute()->fetchAll();
-        $mapping = FetchModeHelper::keyPair($mapping);
+        $mapping = $query->executeQuery()->fetchAllKeyValue();
 
         $ids = [];
         foreach ($mapping as &$row) {
@@ -981,7 +979,7 @@ class EntityReader implements EntityReaderInterface
         //initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
         $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
-        $rows = $wrapper->execute()->fetchAll();
+        $rows = $wrapper->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         foreach ($rows as $row) {

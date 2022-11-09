@@ -50,25 +50,13 @@ class InvoiceServiceTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var CurrencyFormatter
-     */
-    private $currencyFormatter;
+    private CurrencyFormatter $currencyFormatter;
 
     protected function setUp(): void
     {
@@ -690,9 +678,9 @@ class InvoiceServiceTest extends TestCase
 
     private function getDefaultPaymentMethod(): ?string
     {
-        $id = $this->connection->executeQuery(
+        $id = $this->connection->fetchOne(
             'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        )->fetchColumn();
+        );
 
         if (!$id) {
             return null;

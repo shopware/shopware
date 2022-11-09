@@ -174,7 +174,7 @@ class SeoUrlPersister
         $query->setParameter('language_id', $languageId);
         $query->setParameter('foreign_keys', $fks, Connection::PARAM_STR_ARRAY);
 
-        $rows = $query->execute()->fetchAllAssociative();
+        $rows = $query->executeQuery()->fetchAllAssociative();
 
         $canonicals = [];
         foreach ($rows as $row) {

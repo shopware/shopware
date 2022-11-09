@@ -18,9 +18,6 @@ class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterf
      */
     public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
-        if ($e->getCode() !== 0) {
-            return null;
-        }
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.search_config_field.field__config_id\'/', $e->getMessage())) {
             $field = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $field);

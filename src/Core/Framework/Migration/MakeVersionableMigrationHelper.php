@@ -30,15 +30,9 @@ WHERE
     AND REFERENCED_TABLE_NAME = '%s';
 EOD;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var AbstractSchemaManager
-     */
-    private $schemaManager;
+    private AbstractSchemaManager $schemaManager;
 
     public function __construct(
         Connection $connection
@@ -185,10 +179,10 @@ EOD;
 
     private function fetchRelationData(string $tableName): array
     {
-        $databaseName = $this->connection->fetchColumn('SELECT DATABASE()');
+        $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
         $query = sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
-        return $this->connection->fetchAll($query);
+        return $this->connection->fetchAllAssociative($query);
     }
 
     private function createModifyPrimaryKeyQuery(string $tableName, string $newColumnName, string $defaultValue): string

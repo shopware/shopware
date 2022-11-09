@@ -105,7 +105,7 @@ class ProductStreamIndexer extends EntityIndexer
             return;
         }
 
-        $filters = $this->connection->fetchAll(
+        $filters = $this->connection->fetchAllAssociative(
             'SELECT
                 LOWER(HEX(product_stream_id)) as array_key,
                 product_stream_filter.*

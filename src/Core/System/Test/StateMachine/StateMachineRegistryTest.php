@@ -111,7 +111,7 @@ EOF;
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }
 
     public function testNonExistingStateMachine(): void
@@ -203,9 +203,9 @@ EOF;
 
         $connection = $this->getContainer()->get(Connection::class);
 
-        $stateMachineId = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
         /** @var string $returnedPartially */
-        $returnedPartially = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
+        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
         $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
 
         $orderDeliveryId = Uuid::randomHex();
@@ -342,7 +342,7 @@ EOF;
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        return Uuid::fromBytesToHex((string) $connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $connection->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 
     private function createCustomer(): string

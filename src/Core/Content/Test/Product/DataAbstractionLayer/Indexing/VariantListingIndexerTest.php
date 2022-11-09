@@ -98,7 +98,7 @@ class VariantListingIndexerTest extends TestCase
 
         static::assertCount(1, $listing->ids);
 
-        $listing = $this->connection->fetchAll(
+        $listing = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM product WHERE display_group IS NOT NULL AND product.id = :parentId',
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
@@ -334,7 +334,7 @@ class VariantListingIndexerTest extends TestCase
 
     private function fetchListing(): Listing
     {
-        $listing = $this->connection->fetchAll(
+        $listing = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id, option_ids
              FROM product
              WHERE product.parent_id = :parentId

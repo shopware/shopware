@@ -340,7 +340,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $query->andWhere('searchable = 1');
         $query->setParameter('searchConfigId', Uuid::fromHexToBytes($searchConfigId));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getProduct(): ProductEntity
@@ -590,7 +590,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         bool $tokenize,
         int $ranking
     ): void {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `product_search_config_field`
                     SET `searchable` = :searchable, `tokenize` = :tokenize, `ranking` = :ranking
                     WHERE `product_search_config_id` =:searchConfigId',

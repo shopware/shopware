@@ -20,6 +20,8 @@ class RetryableTransaction
     }
 
     /**
+     * @param \Closure(Connection):mixed $closure The function to execute transactionally.
+     *
      * @return mixed
      */
     private static function retry(Connection $connection, \Closure $closure, int $counter)

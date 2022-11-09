@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Defaults;
@@ -46,7 +45,7 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
                 'SELECT id FROM `language` WHERE `name` = :languageName',
                 ['languageName' => $languageName]
             );
-        } catch (DBALException $e) {
+        } catch (\Doctrine\DBAL\Exception $e) {
             return null;
         }
     }

@@ -85,8 +85,8 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             ->from('sales_channel')
             ->where('sales_channel.access_key = :accessKey')
             ->setParameter('accessKey', $accessKey)
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if (!$salesChannelId) {
             throw new SalesChannelNotFoundException();

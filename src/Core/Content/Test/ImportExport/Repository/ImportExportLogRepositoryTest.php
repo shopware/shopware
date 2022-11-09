@@ -126,7 +126,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -228,7 +228,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -282,7 +282,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->upsert(array_values($upsertData), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -322,7 +322,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount(0, $records);
     }
@@ -340,7 +340,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
     }
@@ -365,7 +365,7 @@ class ImportExportLogRepositoryTest extends TestCase
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
     }

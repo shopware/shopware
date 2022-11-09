@@ -123,11 +123,17 @@ class Feature
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Will be removed, use Feature::isActive instead
+     *
      * @param object $object
      * @param mixed[] $arguments
      */
     public static function ifActiveCall(string $flagName, $object, string $methodName, ...$arguments): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::isActive')
+        );
         $closure = function () use ($object, $methodName, $arguments): void {
             $object->{$methodName}(...$arguments);
         };

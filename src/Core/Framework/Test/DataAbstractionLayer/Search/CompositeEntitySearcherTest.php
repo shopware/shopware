@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -25,20 +24,11 @@ class CompositeEntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CompositeEntitySearcher
-     */
-    private $search;
+    private CompositeEntitySearcher $search;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -46,8 +36,6 @@ class CompositeEntitySearcherTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
 
-        $connection = $this->getContainer()->get(Connection::class);
-        $userId = (string) $connection->executeQuery('SELECT id FROM `user` WHERE username = "admin"')->fetchColumn();
         $this->context = Context::createDefaultContext();
     }
 

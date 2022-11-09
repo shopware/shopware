@@ -226,7 +226,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -265,7 +265,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -304,7 +304,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -344,7 +344,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -389,7 +389,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -440,7 +440,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * NEXT-21735 - Sometimes has a $reduceValue of 0
      * @group not-deterministic
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -486,7 +486,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException

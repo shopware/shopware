@@ -16,7 +16,7 @@ class Migration1559134989Promotion extends MigrationStep
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {

@@ -558,7 +558,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             );
         }
 
-        $grouped = $this->connection->fetchAll(
+        $grouped = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(property_group_id)) as property_group_id, LOWER(HEX(id)) as id
              FROM property_group_option
              WHERE id IN (:ids)',

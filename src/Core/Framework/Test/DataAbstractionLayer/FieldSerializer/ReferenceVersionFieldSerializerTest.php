@@ -31,12 +31,12 @@ class ReferenceVersionFieldSerializerTest extends TestCase
 
         $connection = $this->getContainer()->get(Connection::class);
 
-        $value = $connection->fetchColumn('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
+        $value = $connection->fetchOne('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
         static::assertEquals(Defaults::LIVE_VERSION, $value);
 
-        $connection->executeUpdate('UPDATE product SET product_manufacturer_version_id = NULL WHERE id = :id', ['id' => $ids->getBytes('p1')]);
+        $connection->executeStatement('UPDATE product SET product_manufacturer_version_id = NULL WHERE id = :id', ['id' => $ids->getBytes('p1')]);
 
-        $value = $connection->fetchColumn('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
+        $value = $connection->fetchOne('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
         static::assertNull($value);
 
         $update = [
@@ -47,7 +47,7 @@ class ReferenceVersionFieldSerializerTest extends TestCase
         $this->getContainer()->get('product.repository')
             ->update([$update], Context::createDefaultContext());
 
-        $value = $connection->fetchColumn('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
+        $value = $connection->fetchOne('SELECT LOWER(HEX(product_manufacturer_version_id)) FROM product WHERE id = :id', ['id' => $ids->getBytes('p1')]);
         static::assertEquals(Defaults::LIVE_VERSION, $value);
     }
 }

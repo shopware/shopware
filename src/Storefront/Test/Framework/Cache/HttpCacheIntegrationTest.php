@@ -218,7 +218,7 @@ class HttpCacheIntegrationTest extends TestCase
     private function createRequest(?string $url = null)
     {
         if ($url === null) {
-            $url = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT url FROM sales_channel_domain LIMIT 1');
+            $url = $this->getContainer()->get(Connection::class)->fetchOne('SELECT url FROM sales_channel_domain LIMIT 1');
         }
 
         $request = Request::create($url);

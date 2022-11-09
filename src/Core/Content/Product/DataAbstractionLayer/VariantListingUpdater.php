@@ -106,7 +106,7 @@ class VariantListingUpdater
             ) WHERE parent_id = :parentId AND version_id = :versionId';
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate($sql, $params);
+                $this->connection->executeStatement($sql, $params);
             });
         }
     }
@@ -136,7 +136,7 @@ class VariantListingUpdater
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', $versionBytes);
 
-        $configuration = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $configuration = $query->executeQuery()->fetchAllAssociative();
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {

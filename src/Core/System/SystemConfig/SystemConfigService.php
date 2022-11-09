@@ -184,7 +184,7 @@ class SystemConfigService
             ->setParameter('prefix', $escapedDomain . '%')
             ->setParameter('salesChannelId', $salesChannelId);
 
-        $configs = $queryBuilder->execute()->fetchAllNumeric();
+        $configs = $queryBuilder->executeQuery()->fetchAllNumeric();
 
         if ($configs === []) {
             return [];

@@ -1244,7 +1244,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $ids = new TestDataCollection();
 
         $taxId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
         $this->getContainer()->get('currency.repository')
             ->create([

@@ -137,6 +137,7 @@ class MultiInsertQueryQueue
     private function prepareValues(array $columns, array $rows): array
     {
         $stackedValues = [];
+        /** @var array<string, mixed> $defaults */
         $defaults = array_combine(
             $columns,
             array_fill(0, \count($columns), 'DEFAULT')
@@ -147,6 +148,11 @@ class MultiInsertQueryQueue
             if (!\is_array($values)) {
                 continue;
             }
+
+            /**
+             * @var string $key
+             * @var mixed $value
+             */
             foreach ($data as $key => $value) {
                 $values[$key] = $value;
             }

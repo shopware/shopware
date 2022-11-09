@@ -3,19 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 
 class OffsetQuery implements IterableQuery
 {
-    /**
-     * @var QueryBuilder
-     */
-    private $query;
+    private QueryBuilder $query;
 
-    /**
-     * @var int
-     */
-    private $offset = 0;
+    private int $offset = 0;
 
     public function __construct(QueryBuilder $query)
     {
@@ -24,8 +17,7 @@ class OffsetQuery implements IterableQuery
 
     public function fetch(): array
     {
-        $data = $this->query->execute()->fetchAll();
-        $data = FetchModeHelper::keyPair($data);
+        $data = $this->query->executeQuery()->fetchAllKeyValue();
 
         $this->offset = $this->query->getFirstResult() + \count($data);
         $this->query->setFirstResult($this->offset);
@@ -48,7 +40,7 @@ class OffsetQuery implements IterableQuery
         $query->resetQueryPart('orderBy');
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
-        return (int) $query->execute()->fetchColumn();
+        return (int) $query->executeQuery()->fetchOne();
     }
 
     public function getQuery(): QueryBuilder

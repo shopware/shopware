@@ -170,7 +170,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
 
         $dbMigrations = $connection
-            ->fetchAll(
+            ->fetchAllAssociative(
                 'SELECT * FROM `migration` WHERE `class` REGEXP :pattern ORDER BY `creation_timestamp`',
                 ['pattern' => $migrationSource->getNamespacePattern()]
             );

@@ -132,7 +132,7 @@ class ElasticsearchProductTest extends TestCase
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
-        $this->navigationId = $this->connection->fetchColumn(
+        $this->navigationId = $this->connection->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );

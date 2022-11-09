@@ -3,8 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ForwardCompatibility\Result;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -75,7 +74,6 @@ class RuleAreaUpdaterTest extends TestCase
             ],
         ]);
 
-        $this->connection->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
         $this->connection->method('executeQuery')->with(
             'SELECT LOWER(HEX(`rule`.`id`)) AS array_key, IF(`rule`.`one_to_one` IS NOT NULL, 1, 0) AS oneToOne, '
             . 'EXISTS(SELECT 1 FROM `one_to_many` WHERE `rule_id` = `rule`.`id`) AS oneToMany, IF(`rule`.`many_to_one` IS NOT NULL, 1, 0) AS manyToOne, '
@@ -84,11 +82,14 @@ class RuleAreaUpdaterTest extends TestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         )->willReturn($resultStatement);
 
+        $driverStatement = $this->createMock(\Doctrine\DBAL\Driver\Statement::class);
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::once())->method('execute')->with([
+        $statement->method('getWrappedStatement')->willReturn($driverStatement);
+
+        $driverStatement->expects(static::once())->method('execute')->with([
             'areas' => json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA]),
             'id' => Uuid::fromHexToBytes($id),
-        ])->willReturn(true);
+        ]);
         $this->connection->method('prepare')->willReturn($statement);
 
         $this->areaUpdater->update([$id]);
@@ -154,11 +155,13 @@ class RuleAreaUpdaterTest extends TestCase
 
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
-        $this->connection->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
         $this->connection->method('executeQuery')
             ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD]]))
             ->willReturn($resultStatement);
-        $this->connection->method('prepare')->willReturn($this->createMock(Statement::class));
+
+        $statement = $this->createMock(Statement::class);
+        $statement->method('getWrappedStatement')->willReturn($this->createMock(\Doctrine\DBAL\Driver\Statement::class));
+        $this->connection->method('prepare')->willReturn($statement);
 
         $this->areaUpdater->onEntityWritten($event);
     }

@@ -12,10 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductCategoryDenormalizer
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -134,7 +131,7 @@ class ProductCategoryDenormalizer
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 
-        $rows = $query->execute()->fetchAll();
+        $rows = $query->executeQuery()->fetchAllAssociative();
 
         return FetchModeHelper::groupUnique($rows);
     }

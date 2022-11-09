@@ -39,15 +39,9 @@ class SyncServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var SyncService
-     */
-    private $service;
+    private SyncService $service;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -210,21 +204,21 @@ class SyncServiceTest extends TestCase
 
         $this->service->sync($operations, Context::createDefaultContext(), $behavior);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['m1', 'm2', 'm3', 'm4']))],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(4, $exists);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM tax WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertEmpty($exists);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -337,7 +331,7 @@ class SyncServiceTest extends TestCase
 
         static::assertFalse($result->isSuccess());
 
-        $written = $this->connection->fetchAll(
+        $written = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id1, $id2])],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -371,7 +365,7 @@ class SyncServiceTest extends TestCase
 
         static::assertFalse($result->isSuccess());
 
-        $written = $this->connection->fetchAll(
+        $written = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id1, $id2])],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -413,7 +407,7 @@ class SyncServiceTest extends TestCase
 
         static::assertFalse($result->isSuccess());
 
-        $written = $this->connection->fetchAll(
+        $written = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id1, $id2])],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -421,7 +415,7 @@ class SyncServiceTest extends TestCase
 
         static::assertCount(0, $written);
 
-        $written = $this->connection->fetchAll(
+        $written = $this->connection->fetchAllAssociative(
             'SELECT id FROM tax WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id1, $id2])],
             ['ids' => Connection::PARAM_STR_ARRAY]

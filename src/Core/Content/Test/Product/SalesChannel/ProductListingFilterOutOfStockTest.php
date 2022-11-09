@@ -27,21 +27,15 @@ class ProductListingFilterOutOfStockTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var ListingTestData
-     */
-    private $testData;
+    private ListingTestData $testData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );

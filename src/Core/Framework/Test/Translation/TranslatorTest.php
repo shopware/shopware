@@ -277,7 +277,7 @@ class TranslatorTest extends TestCase
 
     private function switchDefaultLanguage(): void
     {
-        $currentDeId = $this->connection->fetchColumn(
+        $currentDeId = $this->connection->fetchOne(
             'SELECT language.id
              FROM language
              INNER JOIN locale ON translation_code_id = locale.id
@@ -291,13 +291,13 @@ class TranslatorTest extends TestCase
         );
 
         // assign new uuid to old DEFAULT
-        $stmt->execute([
+        $stmt->executeStatement([
             'newId' => Uuid::randomBytes(),
             'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
         // change id to DEFAULT
-        $stmt->execute([
+        $stmt->executeStatement([
             'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'oldId' => $currentDeId,
         ]);

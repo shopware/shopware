@@ -1139,7 +1139,7 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($appEntity);
         static::assertEquals('test', $appEntity->getName());
 
-        $privileges = $connection->fetchColumn('
+        $privileges = $connection->fetchOne('
             SELECT `privileges`
             FROM `acl_role`
             WHERE `id` = :aclRoleId
@@ -1315,7 +1315,7 @@ class AppLifecycleTest extends TestCase
         $query->where('id = :id');
         $query->setParameter('id', Uuid::fromHexToBytes($sequenceId));
 
-        return $query->execute()->fetchOne() ?: null;
+        return $query->executeQuery()->fetchOne() ?: null;
     }
 
     private function createFlow(string $flowId): void
@@ -1351,7 +1351,7 @@ class AppLifecycleTest extends TestCase
         $query->where('app_id = :appId');
         $query->setParameter('appId', Uuid::fromHexToBytes($appId));
 
-        return $query->execute()->fetchAll() ?: null;
+        return $query->executeQuery()->fetchAllAssociative() ?: null;
     }
 
     private function getAppId(): ?string
@@ -1360,7 +1360,7 @@ class AppLifecycleTest extends TestCase
         $query->select('lower(hex(id))');
         $query->from('app');
 
-        return $query->execute()->fetchOne() ?: null;
+        return $query->executeQuery()->fetchOne() ?: null;
     }
 
     private function assertDefaultActionButtons(): void
@@ -1406,7 +1406,7 @@ class AppLifecycleTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $privileges = $connection->fetchColumn('
+        $privileges = $connection->fetchOne('
             SELECT `privileges`
             FROM `acl_role`
             WHERE `id` = :aclRoleId

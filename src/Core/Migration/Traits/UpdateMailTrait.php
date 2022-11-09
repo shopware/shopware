@@ -143,7 +143,7 @@ trait UpdateMailTrait
      */
     private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {
-        return $connection->fetchAll(
+        return $connection->fetchAllAssociative(
             '
             SELECT mail_template_translation.mail_template_id, mail_template_translation.language_id
 

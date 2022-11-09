@@ -858,7 +858,7 @@ class EntityRepositoryTest extends TestCase
         $repo->clone($id, $context, $newId);
 
         $childrenIds = $this->getContainer()->get(Connection::class)
-            ->fetchAll(
+            ->fetchAllAssociative(
                 'SELECT id FROM category WHERE parent_id IN (:ids)',
                 ['ids' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($newId)]],
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -942,7 +942,7 @@ class EntityRepositoryTest extends TestCase
         $repo->create([$data], $context);
 
         //check count of conditions
-        $conditions = $this->getContainer()->get(Connection::class)->fetchAll(
+        $conditions = $this->getContainer()->get(Connection::class)->fetchAllAssociative(
             'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -956,7 +956,7 @@ class EntityRepositoryTest extends TestCase
         $repo->clone($id, $context, $newId);
 
         //check that existing rule conditions are not touched
-        $conditions = $this->getContainer()->get(Connection::class)->fetchAll(
+        $conditions = $this->getContainer()->get(Connection::class)->fetchAllAssociative(
             'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -973,7 +973,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(7, $conditions);
 
         //check that existing rule conditions are not touched
-        $newConditions = $this->getContainer()->get(Connection::class)->fetchAll(
+        $newConditions = $this->getContainer()->get(Connection::class)->fetchAllAssociative(
             'SELECT id, parent_id FROM rule_condition WHERE rule_id = :id',
             ['id' => Uuid::fromHexToBytes($newId)]
         );
@@ -1080,7 +1080,7 @@ class EntityRepositoryTest extends TestCase
             ->clone($ids->get('parent'), Context::createDefaultContext(), $ids->create('parent-new'), new CloneBehavior([], false));
 
         $children = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM category WHERE parent_id = :parent', ['parent' => Uuid::fromHexToBytes($ids->get('parent-new'))]);
+            ->fetchAllAssociative('SELECT * FROM category WHERE parent_id = :parent', ['parent' => Uuid::fromHexToBytes($ids->get('parent-new'))]);
 
         static::assertCount(0, $children);
 
@@ -1088,7 +1088,7 @@ class EntityRepositoryTest extends TestCase
             ->clone($ids->get('parent'), Context::createDefaultContext(), $ids->create('parent-new-2'), new CloneBehavior([], true));
 
         $children = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM category WHERE parent_id = :parent', ['parent' => Uuid::fromHexToBytes($ids->get('parent-new-2'))]);
+            ->fetchAllAssociative('SELECT * FROM category WHERE parent_id = :parent', ['parent' => Uuid::fromHexToBytes($ids->get('parent-new-2'))]);
 
         static::assertCount(2, $children);
     }

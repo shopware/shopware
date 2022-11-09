@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
@@ -35,7 +35,7 @@ abstract class MigrationStep
     {
         try {
             $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
         }
     }
 
@@ -103,8 +103,6 @@ abstract class MigrationStep
 
     /**
      * @param mixed[] $params
-     *
-     * @throws \Doctrine\DBAL\DBALException
      */
     protected function createTrigger(Connection $connection, string $query, array $params = []): void
     {

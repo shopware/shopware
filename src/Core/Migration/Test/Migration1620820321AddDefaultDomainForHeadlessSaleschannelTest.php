@@ -39,12 +39,13 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
         $statement = $this->connection->prepare('SELECT COUNT(*) FROM `sales_channel_domain` WHERE `sales_channel_id` = :salesChannelId');
         $statement->bindValue('salesChannelId', Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL));
 
-        static::assertEquals(0, $statement->fetchOne());
+        $result = $statement->executeQuery();
+        static::assertEquals(0, $result->fetchOne());
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->executeQuery();
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery();
+        static::assertEquals(1, $result->fetchOne());
     }
 
     public function testItAddsDefaultDomainToMultipleApiSalesChannel(): void
@@ -57,17 +58,17 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
+        static::assertEquals(1, $result->fetchOne());
 
-        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
+        static::assertEquals(1, $result->fetchOne());
 
-        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($secondApiSalesChannelId)]);
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($secondApiSalesChannelId)]);
+        static::assertEquals(1, $result->fetchOne());
 
-        $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstStorefrontSalesChannelId)]);
-        static::assertEquals(0, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstStorefrontSalesChannelId)]);
+        static::assertEquals(0, $result->fetchOne());
     }
 
     public function testItDoesNotBreakIfNoHeadlessSalesChannelIsPresent(): void

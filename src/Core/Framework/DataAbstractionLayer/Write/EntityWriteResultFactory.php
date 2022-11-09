@@ -261,7 +261,7 @@ class EntityWriteResultFactory
             EntityDefinitionQueryHelper::escape($definition->getEntityName())
         );
 
-        $parentIds = $this->connection->fetchAll(
+        $parentIds = $this->connection->fetchAllAssociative(
             $fetchQuery,
             ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -532,7 +532,7 @@ class EntityWriteResultFactory
             $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
         }
 
-        $fk = $query->execute()->fetchColumn();
+        $fk = $query->executeQuery()->fetchOne();
 
         if (!$fk) {
             throw new \RuntimeException('Fk can not be detected');

@@ -64,7 +64,7 @@ class WriterTest extends TestCase
             $context
         );
 
-        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $exists = $this->connection->fetchAllAssociative('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($exists);
 
         $deleteResult = $this->getWriter()->delete(
@@ -75,7 +75,7 @@ class WriterTest extends TestCase
             $context
         );
 
-        $exists = $this->connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $exists = $this->connection->fetchAllAssociative('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertEmpty($exists);
         static::assertEmpty($deleteResult->getNotFound());
         static::assertNotEmpty($deleteResult->getDeleted());
@@ -97,7 +97,7 @@ class WriterTest extends TestCase
             $context
         );
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -105,7 +105,7 @@ class WriterTest extends TestCase
 
         static::assertCount(2, $categories);
 
-        $translations = $this->connection->fetchAll(
+        $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -124,7 +124,7 @@ class WriterTest extends TestCase
         static::assertEmpty($deleteResult->getNotFound());
         static::assertNotEmpty($deleteResult->getDeleted()[CategoryDefinition::ENTITY_NAME]);
 
-        $categories = $this->connection->fetchAll(
+        $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -132,7 +132,7 @@ class WriterTest extends TestCase
 
         static::assertEmpty($categories);
 
-        $translations = $this->connection->fetchAll(
+        $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -157,7 +157,7 @@ class WriterTest extends TestCase
             $context
         );
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -180,7 +180,7 @@ class WriterTest extends TestCase
         static::assertCount(3, $deleteResult->getNotFound()[CategoryDefinition::ENTITY_NAME]);
         static::assertCount(2, $deleteResult->getDeleted()[CategoryDefinition::ENTITY_NAME]);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
@@ -210,7 +210,7 @@ class WriterTest extends TestCase
             ],
         ], $context);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
             ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
         );
@@ -220,7 +220,7 @@ class WriterTest extends TestCase
             ['productId' => $productId, 'categoryId' => $categoryId],
         ], $context);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
             ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
         );
@@ -286,7 +286,7 @@ class WriterTest extends TestCase
             ],
         ], $context);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
             ['product' => Connection::PARAM_STR_ARRAY]
@@ -298,7 +298,7 @@ class WriterTest extends TestCase
             ['productId' => $productId2, 'categoryId' => $categoryId],
         ], $context);
 
-        $exists = $this->connection->fetchAll(
+        $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
             ['product' => Connection::PARAM_STR_ARRAY]
@@ -340,6 +340,7 @@ class WriterTest extends TestCase
         ]);
         static::assertIsArray($product);
 
+        static::assertIsArray($product);
         static::assertNotEmpty($product['id']);
     }
 
@@ -591,6 +592,7 @@ class WriterTest extends TestCase
 
         $product = $this->connection->fetchAssociative('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
         static::assertIsArray($product);
+
         $productTranslations = $this->connection->fetchAllAssociative('SELECT * FROM product_translation WHERE product_id= :id', ['id' => $this->idBytes]);
 
         static::assertNotEmpty($product);
@@ -779,6 +781,7 @@ class WriterTest extends TestCase
         );
         static::assertIsArray($translations);
 
+        static::assertIsArray($translations);
         static::assertNull($translations['name']);
         static::assertEquals('update', $translations['description']);
     }

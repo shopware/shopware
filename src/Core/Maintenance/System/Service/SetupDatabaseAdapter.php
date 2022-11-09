@@ -71,7 +71,7 @@ class SetupDatabaseAdapter
                 ->setParameter('ignoredSchemas', $ignoredSchemas, Connection::PARAM_STR_ARRAY);
         }
 
-        return $query->execute()->fetchFirstColumn();
+        return $query->executeQuery()->fetchFirstColumn();
     }
 
     private function getBaseSchema(): string

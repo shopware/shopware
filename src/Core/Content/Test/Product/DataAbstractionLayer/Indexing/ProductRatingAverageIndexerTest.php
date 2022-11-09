@@ -281,7 +281,7 @@ class ProductRatingAverageIndexerTest extends TestCase
         $sql = <<<'SQL'
             UPDATE product SET product.rating_average = 0;
 SQL;
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
         static::assertEquals(0, $products->get($productId)->getRatingAverage());

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -31,30 +29,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $wishlistRepository;
+    private EntityRepositoryInterface $wishlistRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -164,9 +147,8 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
         $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
-        /** @var Statement $stmt */
-        $stmt = $query->execute();
+        $result = $query->executeQuery();
 
-        return FetchModeHelper::keyPair($stmt->fetchAll());
+        return $result->fetchAllKeyValue();
     }
 }

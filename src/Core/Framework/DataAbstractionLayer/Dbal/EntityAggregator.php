@@ -200,7 +200,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $this->extendQuery($aggregation, $query, $definition, $context);
 
-        $rows = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = $query->executeQuery()->fetchAllAssociative();
 
         return $this->hydrateResult($aggregation, $definition, $rows, $context);
     }

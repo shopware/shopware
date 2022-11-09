@@ -64,7 +64,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             return true;
         }
 
-        return (bool) $this->connection->fetchColumn(
+        return (bool) $this->connection->fetchOne(
             'SELECT check_vat_id_pattern FROM `country` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
         );
@@ -72,7 +72,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
 
     private function getVatPattern(CustomerVatIdentification $constraint): string
     {
-        return (string) $this->connection->fetchColumn(
+        return (string) $this->connection->fetchOne(
             'SELECT vat_id_pattern FROM `country` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
         );

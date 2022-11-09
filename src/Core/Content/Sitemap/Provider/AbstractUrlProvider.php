@@ -29,7 +29,7 @@ abstract class AbstractUrlProvider implements UrlProviderInterface
                      AND `seo_url`.`language_id` =:languageId
                      AND (`seo_url`.`sales_channel_id` =:salesChannelId OR seo_url.sales_channel_id IS NULL)';
 
-        return $connection->fetchAll(
+        return $connection->fetchAllAssociative(
             $sql,
             [
                 'routeName' => $routeName,

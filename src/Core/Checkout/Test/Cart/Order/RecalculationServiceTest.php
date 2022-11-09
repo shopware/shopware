@@ -494,10 +494,9 @@ class RecalculationServiceTest extends TestCase
             ->merge($versionId, Context::createDefaultContext());
 
         $stocks = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT stock, available_stock FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+            ->fetchAssociative('SELECT stock, available_stock FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
 
-        $stocks = array_shift($stocks);
-
+        static::assertIsArray($stocks);
         static::assertEquals(5, $stocks['stock']);
         static::assertEquals(4, $stocks['available_stock']);
     }

@@ -79,7 +79,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
                 ->andWhere('ct.language_id = :englishLanguageId')
                 ->andWhere('ct.updated_at IS NOT NULL')
                 ->setParameters(['englishLanguageId' => $this->languageIdEnglish, 'kronaEnglishShort' => 'SEK']);
-            $swedishCurrencyName = $swedishCurrencyNameQuery->execute()->fetchOne();
+            $swedishCurrencyName = $swedishCurrencyNameQuery->executeQuery()->fetchOne();
             static::assertSame('Swedish krona', $swedishCurrencyName);
         }
     }

@@ -354,7 +354,7 @@ class SalesChannelContextPersisterTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result > 0;
     }
@@ -366,7 +366,7 @@ class SalesChannelContextPersisterTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchColumn();
+        )->fetchOne();
 
         return $result > 0;
     }

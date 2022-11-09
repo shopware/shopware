@@ -109,7 +109,7 @@ class RegisterControllerTest extends TestCase
         $response = $registerController->register($request, $data, $this->salesChannelContext);
 
         $customers = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
+            ->fetchAllAssociative('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -124,7 +124,7 @@ class RegisterControllerTest extends TestCase
         $response = $this->getContainer()->get(RegisterController::class)->register($request, $data, $this->salesChannelContext);
 
         $customers = $this->getContainer()->get(Connection::class)
-            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
+            ->fetchAllAssociative('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);

@@ -48,9 +48,9 @@ class CartServiceTest extends TestCase
 
     private EntityRepositoryInterface $customerRepository;
 
-    private ?AccountService $accountService;
+    private AccountService $accountService;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
     private string $productId;
 
@@ -367,7 +367,7 @@ class CartServiceTest extends TestCase
 
     private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
     {
-        $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
+        $this->connection->executeStatement('DELETE FROM customer WHERE email = :mail', [
             'mail' => $mail,
         ]);
 

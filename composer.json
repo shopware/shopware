@@ -417,6 +417,7 @@
     "autoload": {
         "files":[
             "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Adapter/Doctrine/Patch/QueryBuilder.php",
             "src/Core/Framework/Adapter/Twig/functions.php"
         ],
         "psr-4": {

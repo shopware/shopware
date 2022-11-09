@@ -121,7 +121,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query->setParameter('type', CategoryDefinition::TYPE_LINK);
 
-        $children = $query->execute()->fetchFirstColumn();
+        $children = $query->executeQuery()->fetchFirstColumn();
 
         if (!$children) {
             return [];

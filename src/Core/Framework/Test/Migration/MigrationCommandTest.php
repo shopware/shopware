@@ -276,6 +276,6 @@ class MigrationCommandTest extends TestCase
             $query->andWhere('`update` IS NOT NULL');
         }
 
-        return (int) $query->execute()->fetchColumn();
+        return (int) $query->executeQuery()->fetchOne();
     }
 }

@@ -50,7 +50,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssoc('SELECT * FROM import_export_file WHERE id = :id', ['id' => $id]);
+        $record = $this->connection->fetchAssociative('SELECT * FROM import_export_file WHERE id = :id', ['id' => $id]);
 
         $expect = $data[$id];
         static::assertNotEmpty($record);
@@ -88,7 +88,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount($num, $records);
 
@@ -185,7 +185,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount($num, $records);
 
@@ -227,7 +227,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($upsertData), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount($num, $records);
 
@@ -255,7 +255,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount(0, $records);
     }
@@ -273,7 +273,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
 
         static::assertCount($num, $records);
     }

@@ -1101,11 +1101,6 @@ parameters:
 			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
 
 		-
-			message: "#^PHPDoc tag @var for variable \\$stmt has no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\Statement\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:getDomainUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
@@ -1916,21 +1911,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Util/PromotionCodeService.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesLoader\" is marked as deprecated, but method \"loadIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodesLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesLoader\\:\\:loadIndividualCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodesLoader.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$result has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodesLoader.php
-
-		-
 			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesRemover\" is marked as deprecated, but method \"removeIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Util/PromotionCodesRemover.php
@@ -1971,11 +1951,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/CartServiceTest.php
 
 		-
-			message: "#^Cannot call method executeUpdate\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/CartServiceTest.php
-
-		-
 			message: "#^Cannot call method getCalculatedTaxes\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/CartServiceTest.php
@@ -1987,11 +1962,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/CartServiceTest.php
-
-		-
-			message: "#^Cannot call method login\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AccountService\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/CartServiceTest.php
 
@@ -13424,11 +13394,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/LastIdQuery.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\LastIdQuery\\:\\:\\$lastId \\(string\\|null\\) does not accept int\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/LastIdQuery.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\OffsetQuery\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/OffsetQuery.php
@@ -14014,17 +13979,7 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:__construct\\(\\) has parameter \\$param2 with no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\Statement\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:execute\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:getQuery\\(\\) return type has no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\Statement\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
 
@@ -14035,11 +13990,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:retryable\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableQuery\\:\\:\\$query type has no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\Statement\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
 
@@ -15115,11 +15065,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdater\\:\\:updateTree\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdater\\:\\:\\$updateEntityStatement type has no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\Statement\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
 
@@ -20839,16 +20784,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/TranslatedFieldSerializerTest.php
 
 		-
-			message: "#^Cannot access offset 'association' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/InheritanceIndexerTest.php
-
-		-
-			message: "#^Cannot access offset 'fk' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/InheritanceIndexerTest.php
-
-		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/InheritanceIndexerTest.php
@@ -21197,26 +21132,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriter\\:\\:insert\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, object\\|null given\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/SetNullOnDeleteTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:beginTransaction\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:executeQuery\\(\\)\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:executeUpdate\\(\\)\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:rollBack\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$exception of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\LockValidatorTest\\:\\:assertLockException\\(\\) expects Exception, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteException\\|null given\\.$#"
@@ -21582,96 +21497,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Migration/DynamicPrimaryKeyChangeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:checkMigrationForAvailableLanguage\\(\\) has parameter \\$expectedTranslation with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:checkMigrationForAvailableLanguage\\(\\) has parameter \\$languageId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:checkMigrationForAvailableLanguage\\(\\) has parameter \\$oldTranslation with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:checkMigrationForAvailableLanguage\\(\\) has parameter \\$oldUpdateDate with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:checkMigrationForUnavailableLanguage\\(\\) has parameter \\$languageId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:getUpdatedAt\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:migrationCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:setDB\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:testMigration\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$countryIdSlovakia has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$languageDE has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$languageDETranslationCode has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$languageDETranslationCode is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$languageEN has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$languageENTranslationCode has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$languageENTranslationCode is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$migration has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\Migration1599570560FixSlovakiaDisplayedAsSloveniaTest\\:\\:\\$resetData has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Migration1599570560FixSlovakiaDisplayedAsSloveniaTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\MigrationCollectionRuntimeTest\\:\\:getMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -22041,11 +21866,6 @@ parameters:
 		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 3
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:\\$resolver \\(Shopware\\\\Core\\\\Framework\\\\Routing\\\\ApiRequestContextResolver\\) does not accept Shopware\\\\Core\\\\Framework\\\\Routing\\\\SalesChannelRequestContextResolver\\.$#"
-			count: 1
 			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
 
 		-

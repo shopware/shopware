@@ -418,7 +418,7 @@ GROUP BY product_id;
         $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         /** @var list<array{referenced_id: string, quantity: string}> $result */
-        $result = $query->execute()->fetchAllAssociative();
+        $result = $query->executeQuery()->fetchAllAssociative();
 
         $filteredIds = $this->stockUpdateFilter->filterProductIdsForStockUpdates(\array_column($result, 'referenced_id'), $context);
 

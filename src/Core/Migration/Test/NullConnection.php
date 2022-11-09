@@ -4,10 +4,10 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ForwardCompatibility\DriverResultStatement;
 use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
-use Doctrine\DBAL\ForwardCompatibility\Result;
+use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Statement;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 
 /**
@@ -32,7 +32,7 @@ class NullConnection extends Connection
      *
      * @return DriverResultStatement<mixed>|DriverStatement<mixed>|Result
      */
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
         $matches = preg_match_all(DebugStack::$writeSqlRegex, $sql);
 
@@ -43,12 +43,12 @@ class NullConnection extends Connection
         return $this->originalConnection->executeQuery($sql, $params, $types, $qcp);
     }
 
-    public function prepare($statement)
+    public function prepare($statement): Statement
     {
         return $this->originalConnection->prepare($statement);
     }
 
-    public function executeUpdate($sql, array $params = [], array $types = [])
+    public function executeUpdate($sql, array $params = [], array $types = []): int
     {
         return 0;
     }
@@ -58,7 +58,7 @@ class NullConnection extends Connection
         return 0;
     }
 
-    public function exec($statement)
+    public function exec($statement): int
     {
         return 0;
     }
@@ -66,11 +66,11 @@ class NullConnection extends Connection
     /**
      * {@inheritdoc}
      *
-     * @return Statement<mixed>
+     * @return DriverResultStatement<mixed>|DriverStatement<mixed>|Result
      */
     public function query()
     {
-        return $this->originalConnection->query(...\func_get_args());
+        return $this->originalConnection->executeQuery(...\func_get_args());
     }
 
     public function insert($table, array $data, array $types = [])
@@ -91,15 +91,5 @@ class NullConnection extends Connection
     public function setOriginalConnection(Connection $originalConnection): void
     {
         $this->originalConnection = $originalConnection;
-    }
-
-    public function getWrappedConnection()
-    {
-        return $this->originalConnection;
-    }
-
-    public function getSchemaManager()
-    {
-        return $this->originalConnection->getSchemaManager();
     }
 }

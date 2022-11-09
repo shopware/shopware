@@ -16,20 +16,11 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 class CategoryBreadcrumbUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     /**
      * @internal
@@ -57,7 +48,7 @@ class CategoryBreadcrumbUpdater
         $query->setParameter('version', $versionId);
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
 
-        $paths = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $paths = $query->executeQuery()->fetchFirstColumn();
 
         $all = $ids;
         foreach ($paths as $path) {

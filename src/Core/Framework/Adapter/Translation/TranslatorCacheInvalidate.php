@@ -48,19 +48,13 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
         if ($event->getEntityName() === SnippetDefinition::ENTITY_NAME) {
             $snippetIds = $event->getIds();
 
-            $rows = $this->connection->fetchAll(
+            $setIds = $this->connection->fetchFirstColumn(
                 'SELECT LOWER(HEX(snippet_set_id)) id FROM snippet WHERE HEX(id) IN (:ids)',
                 ['ids' => $snippetIds],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
-            $setIds = [];
-            foreach ($rows as ['id' => $id]) {
-                $setIds[] = $id;
-            }
 
             $this->clearCache($setIds);
-
-            return;
         }
     }
 

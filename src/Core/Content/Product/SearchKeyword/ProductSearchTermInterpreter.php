@@ -221,7 +221,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 
-        return $query->execute()->fetchAllNumeric();
+        return $query->executeQuery()->fetchAllNumeric();
     }
 
     /**

@@ -292,7 +292,7 @@ class ProductIndexer extends EntityIndexer
 
     private function getChildrenIds(array $ids): array
     {
-        $childrenIds = $this->connection->fetchAll(
+        $childrenIds = $this->connection->fetchAllAssociative(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]

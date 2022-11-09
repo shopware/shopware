@@ -262,7 +262,7 @@ class NewsletterRecipientServiceTest extends TestCase
     private function getRandomId(string $table)
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM ' . $table);
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
     }
 
     private function installTestData(): void

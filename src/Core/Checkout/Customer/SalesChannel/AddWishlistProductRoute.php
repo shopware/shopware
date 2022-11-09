@@ -28,20 +28,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $wishlistRepository;
+    private EntityRepositoryInterface $wishlistRepository;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     private EventDispatcherInterface $eventDispatcher;
 

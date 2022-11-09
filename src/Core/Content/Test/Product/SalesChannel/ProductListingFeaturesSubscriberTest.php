@@ -832,7 +832,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
      */
     public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
     {
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );

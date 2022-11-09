@@ -166,7 +166,7 @@ class AdministrationController extends AbstractController
      */
     public function resetExcludedSearchTerm(Context $context)
     {
-        $searchConfigId = $this->connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
+        $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
         if ($searchConfigId === false) {
             throw new LanguageNotFoundException($context->getLanguageId());
@@ -190,7 +190,7 @@ class AdministrationController extends AbstractController
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `id` = :id',
             [
                 'excludedTerms' => json_encode($defaultExcludedTerm),
@@ -296,7 +296,7 @@ class AdministrationController extends AbstractController
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
     {
-        $languageId = $connection->fetchColumn(
+        $languageId = $connection->fetchOne(
             '
             SELECT `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id

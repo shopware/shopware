@@ -81,7 +81,7 @@ SQL;
         );
 
         RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 $resetSql,
                 $parameters,
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -89,7 +89,7 @@ SQL;
         });
 
         RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 $sql,
                 $parameters,
                 ['ids' => Connection::PARAM_STR_ARRAY, 'states' => Connection::PARAM_STR_ARRAY]
@@ -175,7 +175,7 @@ SQL;
 
         foreach ($parameters as $parameter) {
             RetryableQuery::retryable($this->connection, function () use ($parameter): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     'UPDATE newsletter_recipient SET email = (:email) WHERE id IN (:ids)',
                     ['ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']), 'email' => $parameter['email']],
                     ['ids' => Connection::PARAM_STR_ARRAY],
@@ -220,7 +220,7 @@ SQL;
 
         foreach ($parameters as $parameter) {
             RetryableQuery::retryable($this->connection, function () use ($parameter): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     'UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)',
                     [
                         'ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']),

@@ -28,9 +28,17 @@ class FakeQueryBuilder extends QueryBuilder
     }
 
     /**
-     * @return Result<mixed>|int
+     * @return \Doctrine\DBAL\Result|int
      */
     public function execute()
+    {
+        /** @deprecated tag:v6.5.0 - Return `Doctrine\DBAL\Cache\ArrayResult` after DBAL upgrade */
+        return new Result(
+            new ArrayStatement($this->dbRows)
+        );
+    }
+
+    public function executeQuery(): \Doctrine\DBAL\Result
     {
         /** @deprecated tag:v6.5.0 - Return `Doctrine\DBAL\Cache\ArrayResult` after DBAL upgrade */
         return new Result(

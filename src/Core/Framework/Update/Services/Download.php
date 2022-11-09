@@ -39,7 +39,7 @@ class Download
     }
 
     /**
-     * @throws \Exception
+     * @param non-empty-string $sourceUri
      */
     public function downloadFile(string $sourceUri, string $destinationUri, int $totalSize, string $hash): int
     {

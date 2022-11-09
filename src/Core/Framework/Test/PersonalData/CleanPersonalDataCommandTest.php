@@ -99,7 +99,7 @@ class CleanPersonalDataCommandTest extends TestCase
             $this->createGuest(false);
         }
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE customer set created_at = :createdAt where guest = true limit 1',
             ['createdAt' => (new \DateTime())->modify('-14 Day')->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
         );
@@ -271,7 +271,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private function clearTable(string $table): void
     {
-        $this->connection->executeUpdate("DELETE FROM {$table}");
+        $this->connection->executeStatement('DELETE FROM ' . $table);
     }
 
     private function createGuest(bool $isGuest = true): string
@@ -336,12 +336,12 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private function fetchAllCustomers(): array
     {
-        return $this->connection->fetchAll('SELECT * FROM customer');
+        return $this->connection->fetchAllAssociative('SELECT * FROM customer');
     }
 
     private function fetchAllCarts(): array
     {
-        return $this->connection->fetchAll('SELECT * FROM cart');
+        return $this->connection->fetchAllAssociative('SELECT * FROM cart');
     }
 
     private function createInputDefinition(): InputDefinition
@@ -355,7 +355,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        return Uuid::fromBytesToHex((string) $this->connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $this->connection->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 
     private function getCommand(): CleanPersonalDataCommand

@@ -24,20 +24,11 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $folderRepository;
+    private EntityRepositoryInterface $folderRepository;
 
     protected function setUp(): void
     {

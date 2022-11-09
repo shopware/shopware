@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff;
 use PhpCsFixer\Fixer\Basic\NonPrintableCharacterFixer;
 use PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer;
 use PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer;
@@ -20,8 +21,10 @@ use PhpCsFixer\Fixer\Phpdoc\PhpdocAlignFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocAnnotationWithoutDotFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocIndentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocLineSpanFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocNoPackageFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocTrimConsecutiveBlankLineSeparationFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer;
@@ -36,7 +39,6 @@ use PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer;
 use PhpCsFixer\Fixer\StringNotation\SingleQuoteFixer;
 use PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer;
 use PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer;
-use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer;
 use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
@@ -49,7 +51,6 @@ use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFi
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
-use PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff;
 
 return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->sets([
@@ -133,12 +134,13 @@ return static function (ECSConfig $ecsConfig): void {
         // would otherwise destroy markdown in the description of a route annotation, since markdown interpreted spaces/indents
         PhpdocIndentFixer::class => [
             'src/**/*Controller.php',
-            'src/**/*Route.php'
+            'src/**/*Route.php',
         ],
         // would otherwise remove lines in the description of route annotations
         PhpdocTrimConsecutiveBlankLineSeparationFixer::class => [
             'src/**/*Controller.php',
-            'src/**/*Route.php'
+            'src/**/*Route.php',
         ],
+        PhpdocNoPackageFixer::class => null,
     ]);
 };

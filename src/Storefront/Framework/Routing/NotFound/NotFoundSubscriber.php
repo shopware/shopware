@@ -145,7 +145,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            $response->setData(null);
+            $response->setData([]);
             $response->setContext(null);
 
             return $response;

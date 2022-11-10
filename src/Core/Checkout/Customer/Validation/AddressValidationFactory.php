@@ -70,7 +70,7 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('street', new NotBlank())
             ->add('zipcode', new NotBlank())
             ->add('city', new NotBlank())
-            ->add('countryId', new NotBlank());
+            ->add('countryId', new NotBlank(), new EntityExists(['entity' => 'country', 'context' => $frameworkContext]));
 
         if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required', $salesChannelId)) {

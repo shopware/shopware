@@ -36,6 +36,10 @@ class Migration1658786605AddAddressFormatIntoCountryTranslation extends Migratio
         $connection->update('country_translation', [
             'address_format' => $addressFormat,
         ], ['address_format' => null]);
+
+        $connection->executeStatement(
+            'ALTER TABLE `country_translation` MODIFY `address_format` JSON NOT NULL;'
+        );
     }
 
     public function updateDestructive(Connection $connection): void

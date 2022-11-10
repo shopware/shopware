@@ -1,27 +1,23 @@
 {% apply spaceless %}
-    {% set concatLineSymbol = ['-', '~'] %}
+    {% set concatSymbol = ['-', '~'] %}
     {% for line in format %}
-        {% set lineElements = [] %}
+        {% set lineSnippets = [] %}
 
-        {% for element in line %}
-            {% set elementValue %}
-                {% if element.type == 'plain' %}
-                    {% sw_include '@Framework/snippets/plain.html.twig' %}
-                {% else %}
-                    {% sw_include '@Framework/snippets/' ~ element.value ~ '.html.twig' ignore missing %}
-                {% endif %}
+        {% for snippetPath in line %}
+            {% set snippetRendered %}
+                {% sw_include '@Framework/snippets/' ~ snippetPath ~ '.html.twig' ignore missing %}
             {% endset %}
 
-            {% set elementValue = elementValue|trim %}
+            {% set snippetRendered = snippetRendered|trim %}
 
-            {% if elementValue|length > 0 and not (loop.last and elementValue in concatLineSymbol) %}
-                {% set lineElements = lineElements|merge([elementValue]) %}
+            {% if snippetRendered|length > 0 and not (loop.last and snippetRendered in concatSymbol) %}
+                {% set lineSnippets = lineSnippets|merge([snippetRendered]) %}
             {% endif %}
-            {# if the element value is empty and the previous element is a concat symbol, we can remove the previous symbol as well #}
-            {% if elementValue|length == 0 and lineElements|last in concatLineSymbol %}
-                {% set lineElements = lineElements|slice(0, -1) %}
+            {# if the rendered snippet is blank and the previous snippet is a concat symbol, we can remove the that symbol too #}
+            {% if snippetRendered|length == 0 and lineSnippets|last in concatSymbol %}
+                {% set lineSnippets = lineSnippets|slice(0, -1) %}
             {% endif %}
         {% endfor %}
-        {% if lineElements|length > 0 %}{{ lineElements|join(' ')|trim }}{% if not loop.last %}<br/>{% endif %}{% endif %}
+        {% if lineSnippets|length > 0 %}{{ lineSnippets|join(' ')|trim }}{% if not loop.last %}<br/>{% endif %}{% endif %}
     {% endfor %}
 {% endapply %}

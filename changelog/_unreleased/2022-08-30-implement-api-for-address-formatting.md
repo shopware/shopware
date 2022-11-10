@@ -10,10 +10,6 @@ issue: NEXT-22180
 * Changed the template `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig` and `src/Core/Framework/Resources/views/documents/delivery_note.html.twig` to render country address format using new structure
 * Added a new controller `Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController`
 ___
-# API
-* Added a new endpoint `GET: /api/_info/country/address/default-format` in `Shopware\Core\Framework\Api\Controller\InfoController` to get the default format of country
-* Added a new endpoint `/api/_info/country/address/default-format` in `Shopware\Core\Framework\Api\Controller\InfoController` to get the default format of country
-___
 # Storefront
 * Changed the template `src/Storefront/Resources/views/storefront/component/address/address.html.twig` to render country address format using new structure
 ___

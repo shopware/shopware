@@ -73,7 +73,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="country.repository"/>
             <tag name="validator.constraint_validator"/>
         </service>
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * @Annotation
@@ -14,25 +13,9 @@ class CustomerZipCode extends Constraint
 {
     public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
 
-    /**
-     * @var string
-     */
-    public $message = 'This value is not a valid ZIP code for country {{ iso }}';
+    public ?string $countryId;
 
-    /**
-     * @var string
-     */
-    public $messageRequired = 'Postal code is required for that country';
-
-    /**
-     * @var string
-     */
-    public $countryId;
-
-    /**
-     * @var bool
-     */
-    public $caseSensitiveCheck = true;
+    public bool $caseSensitiveCheck = true;
 
     /**
      * @var array<string, string>
@@ -41,6 +24,10 @@ class CustomerZipCode extends Constraint
         NotBlank::IS_BLANK_ERROR => 'IS_BLANK_ERROR',
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
+
+    private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
+
+    private string $messageRequired = 'Postal code is required for that country';
 
     /**
      * @param mixed $options
@@ -54,9 +41,15 @@ class CustomerZipCode extends Constraint
         }
 
         parent::__construct($options);
+    }
 
-        if ($this->countryId === null) {
-            throw new MissingOptionsException(sprintf('The option "countryId" must be given for constraint %s', __CLASS__), ['countryId']);
-        }
+    public function getMessageRequired(): string
+    {
+        return $this->messageRequired;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 }

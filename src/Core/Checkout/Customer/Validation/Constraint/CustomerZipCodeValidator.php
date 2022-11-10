@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
@@ -17,14 +18,14 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class CustomerZipCodeValidator extends ConstraintValidator
 {
-    private Connection $connection;
+    private EntityRepository $countryRepository;
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(EntityRepository $countryRepository)
     {
-        $this->connection = $connection;
+        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -36,11 +37,15 @@ class CustomerZipCodeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, CustomerZipCodeValidator::class);
         }
 
-        $addressConfigs = $this->getAddressConfig($constraint->countryId);
+        if ($constraint->countryId === null) {
+            return;
+        }
 
-        if ($addressConfigs->getPostalCodeRequired()) {
+        $country = $this->getCountry($constraint->countryId);
+
+        if ($country->getPostalCodeRequired()) {
             if ($value === null || $value === '') {
-                $this->context->buildViolation($constraint->messageRequired)
+                $this->context->buildViolation($constraint->getMessageRequired())
                     ->setCode(NotBlank::IS_BLANK_ERROR)
                     ->addViolation();
 
@@ -48,50 +53,40 @@ class CustomerZipCodeValidator extends ConstraintValidator
             }
         }
 
-        if (!$addressConfigs->getCheckPostalCodePattern() && !$addressConfigs->getCheckAdvancedPostalCodePattern()) {
+        if (!$country->getCheckPostalCodePattern() && !$country->getCheckAdvancedPostalCodePattern()) {
             return;
         }
 
-        $pattern = $addressConfigs->getAdvancedPostalCodePattern();
-        $iso = $addressConfigs->getIso();
+        $pattern = $country->getDefaultPostalCodePattern();
 
-        if ($addressConfigs->getCheckPostalCodePattern() && !$addressConfigs->getCheckAdvancedPostalCodePattern()) {
-            $pattern = $addressConfigs->getDefaultPostalCodePattern();
+        if ($country->getCheckAdvancedPostalCodePattern()) {
+            $pattern = $country->getAdvancedPostalCodePattern();
+        }
+
+        if ($pattern === null) {
+            return;
         }
 
         $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
 
-        try {
-            if ($pattern && !preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches)) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ iso }}', $this->formatValue($iso))
-                    ->setCode(CustomerZipCode::ZIP_CODE_INVALID)
-                    ->addViolation();
-            }
-        } catch (\Exception $e) {
+        if (preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches) === 1) {
             return;
         }
+
+        $this->context->buildViolation($constraint->getMessage())
+            ->setParameter('{{ iso }}', $this->formatValue($country->getIso()))
+            ->setCode(CustomerZipCode::ZIP_CODE_INVALID)
+            ->addViolation();
     }
 
-    private function getAddressConfig(string $countryId): CountryEntity
+    private function getCountry(string $countryId): CountryEntity
     {
-        $country = $this->connection->fetchAssociative(
-            'SELECT iso, postal_code_required, check_postal_code_pattern, check_advanced_postal_code_pattern, advanced_postal_code_pattern, default_postal_code_pattern FROM country WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($countryId)]
-        );
+        $country = $this->countryRepository->search(new Criteria([$countryId]), Context::createDefaultContext())->get($countryId);
 
-        if (empty($country)) {
-            throw new ConstraintDefinitionException(sprintf('Invalid country id "%s"', $countryId));
+        if ($country === null) {
+            throw new CountryNotFoundException($countryId);
         }
 
-        $addressConfig = new CountryEntity();
-        $addressConfig->setIso($country['iso']);
-        $addressConfig->setPostalCodeRequired((bool) $country['postal_code_required']);
-        $addressConfig->setCheckPostalCodePattern((bool) $country['check_postal_code_pattern']);
-        $addressConfig->setCheckAdvancedPostalCodePattern((bool) $country['check_advanced_postal_code_pattern']);
-        $addressConfig->setAdvancedPostalCodePattern($country['advanced_postal_code_pattern']);
-        $addressConfig->setDefaultPostalCodePattern($country['default_postal_code_pattern']);
-
-        return $addressConfig;
+        return $country;
     }
 }

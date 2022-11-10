@@ -63,7 +63,7 @@ class UpsertAddressRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                (string) \json_encode([
+                \json_encode([
                     'email' => $email,
                     'password' => 'shopware',
                 ], \JSON_THROW_ON_ERROR)
@@ -238,8 +238,6 @@ class UpsertAddressRouteTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
-        $countryId = Uuid::randomHex();
-
         $addressRepository
             ->method('upsert')
             ->with([
@@ -250,7 +248,7 @@ class UpsertAddressRouteTest extends TestCase
                     'street' => null,
                     'city' => null,
                     'zipcode' => null,
-                    'countryId' => $countryId,
+                    'countryId' => null,
                     'countryStateId' => null,
                     'company' => null,
                     'department' => null,
@@ -284,7 +282,6 @@ class UpsertAddressRouteTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId('test');
         $route->upsert('test', new RequestDataBag([
-            'countryId' => $countryId,
             'customFields' => [
                 'bla' => 'bla',
                 'mapped' => 1,

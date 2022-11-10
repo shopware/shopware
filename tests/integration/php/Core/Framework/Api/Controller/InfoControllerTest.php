@@ -184,24 +184,6 @@ class InfoControllerTest extends TestCase
         static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
     }
 
-    public function testGetCountryDefaultFormat(): void
-    {
-        $expected = CountryDefinition::DEFAULT_ADDRESS_FORMAT;
-
-        $url = '/api/_info/country/address/default-format';
-        $client = $this->getBrowser();
-        $client->request('GET', $url);
-
-        static::assertSame(200, $client->getResponse()->getStatusCode());
-
-        $content = $client->getResponse()->getContent();
-        static::assertIsString($content);
-        static::assertJson($content);
-        $content = json_decode($content, true);
-        static::assertArrayHasKey('data', $content);
-        static::assertEquals($expected, $content['data']);
-    }
-
     public function testGetShopwareVersionOldVersion(): void
     {
         $expected = [

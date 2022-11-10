@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 
+/***
+ * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed, as we use the default symfony retry mechanism
+ */
 class DeadMessageEntity extends Entity
 {
     use EntityIdTrait;

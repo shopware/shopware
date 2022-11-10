@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Enqueue\ConnectionFactoryFactoryInterface;
 use Interop\Queue\ConnectionFactory;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove enqueue
+ */
 class ConnectionFactoryFactory implements ConnectionFactoryFactoryInterface
 {
     /**

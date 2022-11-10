@@ -26,6 +26,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-subscriber',
         // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-decorator',
+        // Command methods are still called from symfony, the execute method should throw a deprecation though.
+        'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.

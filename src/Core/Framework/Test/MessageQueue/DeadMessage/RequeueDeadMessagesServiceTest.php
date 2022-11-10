@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
@@ -21,6 +22,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - can be removed
  */
 class RequeueDeadMessagesServiceTest extends TestCase
 {
@@ -38,6 +41,8 @@ class RequeueDeadMessagesServiceTest extends TestCase
 
     public function setUp(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->deadMessageRepository = $this->getContainer()->get('dead_message.repository');
         $this->bus = $this->createMock(MessageBusInterface::class);
         $this->encryptedBus = $this->createMock(MessageBusInterface::class);

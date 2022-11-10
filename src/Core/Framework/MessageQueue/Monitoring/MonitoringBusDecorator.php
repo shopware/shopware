@@ -9,6 +9,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\SentStamp;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony messenger
+ */
 class MonitoringBusDecorator implements MessageBusInterface
 {
     private MessageBusInterface $innerBus;

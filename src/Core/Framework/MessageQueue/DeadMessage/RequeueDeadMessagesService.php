@@ -8,9 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/***
+ * @deprecated tag:v6.5.0 - Will be removed, as we use the default symfony retry mechanism
+ */
 class RequeueDeadMessagesService
 {
     private const MAX_RETRIES = 3;
@@ -40,6 +44,11 @@ class RequeueDeadMessagesService
 
     public function requeue(?string $messageClass = null): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $criteria = $this->buildCriteria($messageClass);
         $context = Context::createDefaultContext();
         $messages = $this->deadMessageRepository->search($criteria, $context)->getEntities();

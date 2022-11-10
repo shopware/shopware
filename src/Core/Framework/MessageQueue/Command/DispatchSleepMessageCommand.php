@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\Message\SleepMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,6 +12,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-command - Will be removed, use default symfony:messenger commands instead
+ */
 class DispatchSleepMessageCommand extends Command
 {
     use ConsoleProgressTrait;
@@ -44,6 +48,11 @@ class DispatchSleepMessageCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $count = max(1, (int) $input->getOption('count'));
         $sleepTime = (float) $input->getArgument('time');
         $throwError = $input->getOption('throw-exception');

@@ -19,6 +19,7 @@ variables:
     SHOPWARE_ES_HOSTS: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
     NODE_VERSION: 16
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
 # for jobs which should run on each MR/Pipeline
 .base:

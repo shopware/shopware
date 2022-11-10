@@ -58,6 +58,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
             return array_map([$this, 'denormalize'], $data);
         }
 
+        /** @var class-string<object> $class */
         $class = $data['_class'];
         unset($data['_class']);
 
@@ -83,6 +84,9 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         return isset($argument['_class']);
     }
 
+    /**
+     * @param class-string<object> $class
+     */
     private function createInstance(string $class, array $arguments): Struct
     {
         try {
@@ -147,7 +151,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     }
 
     /**
-     * @throws \ReflectionException
+     * @param class-string<object> $class
      */
     private function getReflectionClass(string $class): \ReflectionClass
     {

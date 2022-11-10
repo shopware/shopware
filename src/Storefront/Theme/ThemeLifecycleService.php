@@ -345,7 +345,7 @@ class ThemeLifecycleService
             }
         }
 
-        $baseConfig = $pluginConfiguration->getThemeConfig();
+        $baseConfig = $pluginConfiguration->getThemeConfig() ?? [];
 
         if (\array_key_exists('fields', $baseConfig)) {
             foreach ($baseConfig['fields'] as $key => $field) {

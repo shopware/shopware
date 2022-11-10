@@ -30,9 +30,13 @@ class BasicCaptchaGeneratorTest extends TestCase
         static::assertIsString($basicCaptchaImage->getCode());
     }
 
-    private function isValid64base($string): bool
+    private function isValid64base(string $string): bool
     {
         $decoded = base64_decode($string, true);
+
+        if (!$decoded) {
+            return false;
+        }
 
         return base64_encode($decoded) === $string;
     }

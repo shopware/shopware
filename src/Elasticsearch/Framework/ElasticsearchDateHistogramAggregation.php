@@ -2,8 +2,8 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Type\BucketingTrait;
+use OpenSearchDSL\Aggregation\AbstractAggregation;
+use OpenSearchDSL\Aggregation\Type\BucketingTrait;
 
 /**
  * @package core

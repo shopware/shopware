@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @phpstan-type ComposerPackages array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}
  */
 class ComposerPluginLoaderTest extends TestCase
 {
@@ -19,7 +21,7 @@ class ComposerPluginLoaderTest extends TestCase
     /**
      * Backing up current InstalledVersions state to left it out as it was
      *
-     * @var array{root: array{name: string, version: string, reference: string, pretty_version: string, aliases: array<string>, dev: bool, install_path: string, type: string}, versions: array<string, array{dev_requirement: bool, pretty_version?: string, version?: string, aliases?: array<string>, reference?: string, replaced?: array<string>, provided?: array<string>, install_path?: string, type?: string}>}|null
+     * @var ComposerPackages|null
      */
     private ?array $packages = null;
 
@@ -62,8 +64,11 @@ class ComposerPluginLoaderTest extends TestCase
 
     public function testWithInvalidPlugins(): void
     {
-        $modified = InstalledVersions::getAllRawData();
-        $modified[0]['versions'] = [
+        $packages = InstalledVersions::getAllRawData();
+
+        $modified = $packages[0];
+        static::assertIsArray($modified);
+        $modified['versions'] = [
             // Points to path that does not exists
             'swag/broken1' => [
                 'dev_requirement' => false,
@@ -76,7 +81,8 @@ class ComposerPluginLoaderTest extends TestCase
                 'install_path' => __DIR__ . '/../_fixture/plugins/SwagTestInvalidComposerJson',
             ],
         ];
-        InstalledVersions::reload($modified[0]);
+
+        InstalledVersions::reload($modified);
 
         $loader = new ComposerPluginLoader($this->classLoader, null, []);
         $loader->initializePlugins(TEST_PROJECT_DIR);
@@ -90,15 +96,19 @@ class ComposerPluginLoaderTest extends TestCase
         // We assume that the class can be found from the autoloader without modifying them
         require_once __DIR__ . '/../_fixture/plugins/SwagTestComposerLoaded/src/SwagTestComposerLoaded.php';
 
-        $modified = InstalledVersions::getAllRawData();
-        $modified[0]['versions'] = [
+        $packages = InstalledVersions::getAllRawData();
+
+        $modified = $packages[0];
+        static::assertIsArray($modified);
+        $modified['versions'] = [
             'swag/composer-loaded' => [
                 'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,
                 'install_path' => __DIR__ . '/../_fixture/plugins/SwagTestComposerLoaded',
             ],
         ];
-        InstalledVersions::reload($modified[0]);
+
+        InstalledVersions::reload($modified);
 
         $loader = new ComposerPluginLoader($this->classLoader, null, []);
         $loader->initializePlugins(TEST_PROJECT_DIR);

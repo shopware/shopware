@@ -51,10 +51,7 @@ class ReverseProxyCache implements StoreInterface
         $this->gateway->invalidate($event->getKeys());
     }
 
-    /**
-     * @return Response|null
-     */
-    public function lookup(Request $request)
+    public function lookup(Request $request): ?Response
     {
         return null;
     }

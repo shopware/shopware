@@ -194,7 +194,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
                 'id' => $uuid,
                 'originalName' => sprintf('file%d.xml', $i),
                 'path' => $filePath,
-                'expireDate' => date('Y-m-d H:i:s', strtotime("+$i day")),
+                'expireDate' => date('Y-m-d H:i:s', (int) strtotime('+' . $i . ' day')),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];

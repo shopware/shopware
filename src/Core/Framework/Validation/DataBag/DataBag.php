@@ -25,28 +25,24 @@ class DataBag extends ParameterBag
     }
 
     /**
-     * @param string|null $key The name of the parameter to return or null to get them all
-     *
      * @return array<string|int, mixed>
      */
-    public function all(): array
+    public function all(?string $key = null): array
     {
-        $filterKey = \func_num_args() > 0 ? func_get_arg(0) : null;
-
         $data = $this->parameters;
 
-        foreach ($data as $key => $value) {
+        foreach ($data as $k => $value) {
             if ($value instanceof self) {
-                $data[$key] = $value->all();
+                $data[$k] = $value->all();
             }
         }
 
-        if ($filterKey === null) {
+        if ($key === null) {
             return $data;
         }
 
-        if (!\is_array($data = $data[$filterKey] ?? [])) {
-            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $filterKey, get_debug_type($data)));
+        if (!\is_array($data = $data[$key] ?? [])) {
+            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($data)));
         }
 
         return $data;

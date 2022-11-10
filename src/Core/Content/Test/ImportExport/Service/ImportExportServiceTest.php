@@ -132,6 +132,7 @@ class ImportExportServiceTest extends TestCase
 
         $path = tempnam(sys_get_temp_dir(), '');
 
+        static::assertIsString($path);
         copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $name = 'test';
@@ -176,6 +177,8 @@ class ImportExportServiceTest extends TestCase
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
         $path = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($path);
+
         copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
@@ -225,6 +228,7 @@ class ImportExportServiceTest extends TestCase
     {
         $this->profileRepository->create([$profile], Context::createDefaultContext());
         $path = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($path);
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
 
         if ($shouldThrowException) {

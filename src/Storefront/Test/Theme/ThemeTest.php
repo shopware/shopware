@@ -30,7 +30,10 @@ use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -571,7 +574,7 @@ class ThemeTest extends TestCase
                 $this->simpleTheme = new SimpleTheme();
             }
 
-            public function getBundles()
+            public function getBundles(): array
             {
                 $bundles = $this->kernel->getBundles();
                 $bundles[$this->simpleTheme->getName()] = $this->simpleTheme;
@@ -579,17 +582,17 @@ class ThemeTest extends TestCase
                 return $bundles;
             }
 
-            public function getBundle($name) /* @phpstan-ignore-line  */
+            public function getBundle(string $name): BundleInterface
             {
                 return $name === $this->simpleTheme->getName() ? $this->simpleTheme : $this->kernel->getBundle($name);
             }
 
-            public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+            public function handle(Request $request, int $type = self::MASTER_REQUEST, bool $catch = true): Response
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function registerBundles()
+            public function registerBundles(): iterable
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -609,7 +612,7 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function locateResource($name) /* @phpstan-ignore-line  */
+            public function locateResource(string $name): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -619,12 +622,12 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getEnvironment()
+            public function getEnvironment(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function isDebug()
+            public function isDebug(): bool
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -634,32 +637,37 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getProjectDir()
+            public function getProjectDir(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getContainer()
+            public function getContainer(): ContainerInterface
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getStartTime()
+            public function getStartTime(): float
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getCacheDir()
+            public function getCacheDir(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getLogDir()
+            public function getBuildDir(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            public function getCharset()
+            public function getLogDir(): string
+            {
+                return $this->kernel->{__FUNCTION__}(...\func_get_args());
+            }
+
+            public function getCharset(): string
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }

@@ -9,16 +9,13 @@ use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
  */
 class OpenSSLVerifier
 {
-    /**
-     * @var string
-     */
-    private $publicKeyPath;
+    private string $publicKeyPath;
+
+    private ?\OpenSSLAsymmetricKey $keyResource = null;
 
     /**
-     * @var resource
+     * @param list<string> $publicKeys
      */
-    private $keyResource;
-
     public function __construct(array $publicKeys)
     {
         foreach ($publicKeys as $publicKey) {
@@ -39,9 +36,12 @@ class OpenSSLVerifier
 
     public function isValid(string $message, string $signature): bool
     {
-        $pubkeyid = $this->getKeyResource();
+        $pubkeyid = $this->getKey();
 
         $signature = base64_decode($signature, true);
+        if ($signature === false) {
+            throw new StoreSignatureValidationException('Invalid signature');
+        }
 
         // State whether signature is okay or not
         $ok = openssl_verify($message, $signature, $pubkeyid);
@@ -58,22 +58,23 @@ class OpenSSLVerifier
         throw new StoreSignatureValidationException(sprintf("Error during private key read: \n%s", implode("\n", $errors)));
     }
 
-    private function getKeyResource()
+    private function getKey(): \OpenSSLAsymmetricKey
     {
         if ($this->keyResource !== null) {
             return $this->keyResource;
         }
 
-        $publicKey = trim(file_get_contents($this->publicKeyPath));
+        $publicKey = trim((string) file_get_contents($this->publicKeyPath));
 
-        $this->keyResource = openssl_pkey_get_public($publicKey);
-
-        if ($this->keyResource === false) {
+        $key = openssl_pkey_get_public($publicKey);
+        if ($key === false) {
             while ($errors[] = openssl_error_string()) {
             }
 
             throw new StoreSignatureValidationException(sprintf("Error during public key read: \n%s", implode("\n", $errors)));
         }
+
+        $this->keyResource = $key;
 
         return $this->keyResource;
     }

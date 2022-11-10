@@ -116,10 +116,6 @@ class CsvReader extends AbstractReader
         while (!feof($resource)) {
             $this->handleBom($resource);
             $record = fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);
-            if ($record === null) {
-                throw new \RuntimeException('resource invalid');
-            }
-
             // skip if it's an empty line
             if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;

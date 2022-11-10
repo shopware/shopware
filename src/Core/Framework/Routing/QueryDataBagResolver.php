@@ -17,7 +17,7 @@ class QueryDataBagResolver implements ArgumentValueResolverInterface
         return $argument->getType() === QueryDataBag::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): ?\Generator
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         yield new QueryDataBag($request->query->all());
     }

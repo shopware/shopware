@@ -75,9 +75,9 @@ class TestSessionStorage implements SessionStorageInterface
         }
     }
 
-    public function getBag(string $name): ?SessionBagInterface
+    public function getBag(string $name): SessionBagInterface
     {
-        return self::$data[$name] ?? null;
+        return self::$data[$name] ?? new FlashBag();
     }
 
     public function registerBag(SessionBagInterface $bag): void

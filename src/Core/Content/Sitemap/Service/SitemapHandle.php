@@ -23,7 +23,7 @@ class SitemapHandle implements SitemapHandleInterface
     private SalesChannelContext $context;
 
     /**
-     * @var resource|false
+     * @var resource
      */
     private $handle;
 
@@ -48,12 +48,8 @@ class SitemapHandle implements SitemapHandleInterface
         $this->context = $context;
 
         $filePath = $this->getTmpFilePath($context);
-        $this->handle = gzopen($filePath, 'ab');
+        $this->openGzip($filePath);
         $this->printHeader();
-
-        if ($this->handle === false) {
-            throw new FileNotReadableException($filePath);
-        }
 
         $this->tmpFiles[] = $filePath;
     }
@@ -72,7 +68,7 @@ class SitemapHandle implements SitemapHandleInterface
                 gzclose($this->handle);
                 ++$this->index;
                 $path = $this->getTmpFilePath($this->context);
-                $this->handle = gzopen($path, 'ab');
+                $this->openGzip($path);
                 $this->printHeader();
                 $this->tmpFiles[] = $path;
             }
@@ -171,5 +167,15 @@ class SitemapHandle implements SitemapHandleInterface
         }
 
         $this->domainName = $host . $path;
+    }
+
+    private function openGzip(string $filePath): void
+    {
+        $handle = gzopen($filePath, 'ab');
+        if ($handle === false) {
+            throw new FileNotReadableException($filePath);
+        }
+
+        $this->handle = $handle;
     }
 }

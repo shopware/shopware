@@ -103,6 +103,6 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
     {
         $input = str_replace('_', '-', $input);
 
-        return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 }

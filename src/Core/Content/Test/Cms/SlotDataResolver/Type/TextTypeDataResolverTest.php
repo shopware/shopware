@@ -348,6 +348,8 @@ class TextTypeDataResolverTest extends TestCase
         /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
-        static::assertNotFalse(strtotime($textStruct->getContent()));
+        $content = $textStruct->getContent();
+        static::assertIsString($content);
+        static::assertNotFalse(strtotime($content));
     }
 }

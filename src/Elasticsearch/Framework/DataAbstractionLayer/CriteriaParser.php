@@ -2,23 +2,22 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\ReverseNestedAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Metric;
-use ONGR\ElasticsearchDSL\Aggregation\Metric\ValueCountAggregation;
-use ONGR\ElasticsearchDSL\BuilderInterface;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\ExistsQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\PrefixQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\RangeQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
-use ONGR\ElasticsearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Aggregation\AbstractAggregation;
+use OpenSearchDSL\Aggregation\Bucketing;
+use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use OpenSearchDSL\Aggregation\Bucketing\NestedAggregation;
+use OpenSearchDSL\Aggregation\Metric;
+use OpenSearchDSL\Aggregation\Metric\ValueCountAggregation;
+use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\Query\TermLevel\ExistsQuery;
+use OpenSearchDSL\Query\TermLevel\PrefixQuery;
+use OpenSearchDSL\Query\TermLevel\RangeQuery;
+use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Query\TermLevel\TermsQuery;
+use OpenSearchDSL\Query\TermLevel\WildcardQuery;
+use OpenSearchDSL\Sort\FieldSort;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -120,7 +119,7 @@ class CriteriaParser
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
         if ($this->isCheapestPriceField($sorting->getField())) {
-            return new FieldSort('_script', $sorting->getDirection(), [
+            return new FieldSort('_script', $sorting->getDirection(), null, [
                 'type' => 'number',
                 'script' => [
                     'id' => 'cheapest_price',
@@ -130,7 +129,7 @@ class CriteriaParser
         }
 
         if ($this->isCheapestPriceField($sorting->getField(), true)) {
-            return new FieldSort('_script', $sorting->getDirection(), [
+            return new FieldSort('_script', $sorting->getDirection(), null, [
                 'type' => 'number',
                 'script' => [
                     'id' => 'cheapest_price_percentage',

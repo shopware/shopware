@@ -49,7 +49,7 @@ class JsonApiDecoder implements DecoderInterface
     {
         $this->validateResourceIdentifier($resource);
 
-        $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
+        $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
 
         if (!\array_key_exists($hash, $includes)) {
             throw new InvalidArgumentException(
@@ -167,7 +167,7 @@ class JsonApiDecoder implements DecoderInterface
 
     private function getIdentifierHash(array $resource): string
     {
-        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
+        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
     }
 
     private function decodeCollection(array $data, array $includes): array

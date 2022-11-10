@@ -14,6 +14,7 @@ class XmlFileWriter extends AbstractFileWriter
 
         $item = new \SimpleXMLElement('<item/>');
         $this->addDataToNode($item, $data);
+        /** @var string $xml */
         $xml = mb_strstr($item->asXML(), '<item>');
         fwrite($this->buffer, $xml);
     }

@@ -97,11 +97,9 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * @return \Generator<BundleInterface>
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change -  The return type will be native
+     * @return iterable<BundleInterface>
      */
-    public function registerBundles()/*: \Generator*/
+    public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
@@ -124,12 +122,7 @@ class Kernel extends HttpKernel
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
     }
 
-    /**
-     * @return string
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native
-     */
-    public function getProjectDir()/*: string*/
+    public function getProjectDir(): string
     {
         if ($this->projectDir === null) {
             if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {

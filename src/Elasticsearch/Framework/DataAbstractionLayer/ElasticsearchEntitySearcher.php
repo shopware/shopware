@@ -3,10 +3,10 @@
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
-use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\FilterAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Metric\CardinalityAggregation;
-use ONGR\ElasticsearchDSL\Search;
+use OpenSearchDSL\Aggregation\AbstractAggregation;
+use OpenSearchDSL\Aggregation\Bucketing\FilterAggregation;
+use OpenSearchDSL\Aggregation\Metric\CardinalityAggregation;
+use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

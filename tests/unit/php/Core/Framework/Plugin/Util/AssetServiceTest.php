@@ -25,10 +25,21 @@ class AssetServiceTest extends TestCase
 {
     public function testCopyAssetsFromBundlePluginDoesNotExists(): void
     {
+        $kernelMock = $this->createMock(KernelInterface::class);
+        $kernelMock->expects(static::once())
+            ->method('getBundle')
+            ->with('bundleName')
+            ->willThrowException(new \InvalidArgumentException());
+
+        $pluginLoaderMock = $this->createMock(KernelPluginLoader::class);
+        $pluginLoaderMock->expects(static::once())
+            ->method('getPluginInstances')
+            ->willReturn(new KernelPluginCollection([]));
+
         $assetService = new AssetService(
             new Filesystem(new MemoryAdapter()),
-            $this->createMock(KernelInterface::class),
-            $this->createMock(KernelPluginLoader::class),
+            $kernelMock,
+            $pluginLoaderMock,
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',

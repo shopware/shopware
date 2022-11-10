@@ -32,10 +32,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         $this->themePathBuilder = $themePathBuilder;
     }
 
-    /**
-     * @return string
-     */
-    public function getUrl(string $path)
+    public function getUrl(string $path): string
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',

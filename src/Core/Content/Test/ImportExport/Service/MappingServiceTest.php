@@ -116,6 +116,7 @@ class MappingServiceTest extends TestCase
         $filePath = tempnam(sys_get_temp_dir(), '');
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
             $file = fopen($filePath, 'wb');
+            static::assertIsResource($file);
             fwrite($file, $data['csvHeader']);
             fclose($file);
         }

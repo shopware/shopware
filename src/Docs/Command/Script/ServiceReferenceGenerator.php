@@ -13,7 +13,6 @@ use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\TagWithType;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\ServiceStubs;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig\Environment;
@@ -41,18 +40,18 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/Scripts/service-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/current/47-app-system-guide/';
 
-    private ContainerInterface $container;
-
     private DocBlockFactory $docFactory;
 
     private string $projectDir;
 
     private array $injectedServices = [];
 
-    public function __construct(ContainerInterface $container, string $projectDir)
+    private Environment $twig;
+
+    public function __construct(Environment $twig, string $projectDir)
     {
-        $this->container = $container;
         $this->projectDir = $projectDir;
+        $this->twig = $twig;
 
         $this->docFactory = DocBlockFactory::createInstance([
             'script-service' => Generic::class,
@@ -77,10 +76,8 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         $data = $this->getServicesData($scriptServices);
 
-        /** @var Environment $twig */
-        $twig = $this->container->get('twig');
-        $originalLoader = $twig->getLoader();
-        $twig->setLoader(new ArrayLoader([
+        $originalLoader = $this->twig->getLoader();
+        $this->twig->setLoader(new ArrayLoader([
             'service-reference.md.twig' => file_get_contents(self::TEMPLATE_FILE),
         ]));
 
@@ -88,10 +85,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         try {
             foreach ($data as $group) {
-                $result[self::GENERATED_DOC_FILE . $group['fileName']] = $twig->render('service-reference.md.twig', $group);
+                $result[self::GENERATED_DOC_FILE . $group['fileName']] = $this->twig->render('service-reference.md.twig', $group);
             }
         } finally {
-            $twig->setLoader($originalLoader);
+            $this->twig->setLoader($originalLoader);
         }
 
         return $result;

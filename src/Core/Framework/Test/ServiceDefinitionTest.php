@@ -76,7 +76,8 @@ class ServiceDefinitionTest extends TestCase
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 
-        set_error_handler(function (): void {// ignore symfony deprecations
+        set_error_handler(function (): bool {// ignore symfony deprecations
+            return true;
         }, \E_USER_DEPRECATED);
         $commandTester->execute([]);
         restore_error_handler();
@@ -144,6 +145,9 @@ class ServiceDefinitionTest extends TestCase
         return $errors;
     }
 
+    /**
+     * @param int<1, max> $position
+     */
     private function getLineNumber(string $content, int $position): int
     {
         list($before) = str_split($content, $position);

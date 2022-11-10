@@ -159,7 +159,7 @@ class MailActionControllerTest extends TestCase
         static::assertArrayHasKey('application/pdf', $partsByType);
 
         // Use strcmp() for binary safety
-        static::assertSame(0, strcmp($partsByType['application/pdf']->getBody(), file_get_contents(self::MEDIA_FIXTURE)));
+        static::assertSame(0, strcmp($partsByType['application/pdf']->getBody(), (string) file_get_contents(self::MEDIA_FIXTURE)));
     }
 
     public function testSendingMailWithFooterAndHeader(): void
@@ -223,7 +223,7 @@ class MailActionControllerTest extends TestCase
         static::assertArrayHasKey('application/pdf', $partsByType);
 
         // Use strcmp() for binary safety
-        static::assertSame(0, strcmp($partsByType['application/pdf']->getBody(), file_get_contents(self::MEDIA_FIXTURE)));
+        static::assertSame(0, strcmp($partsByType['application/pdf']->getBody(), (string) file_get_contents(self::MEDIA_FIXTURE)));
     }
 
     public function testBuildingRenderedMailTemplate(): void

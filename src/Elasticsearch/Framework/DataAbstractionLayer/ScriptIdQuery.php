@@ -2,8 +2,8 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use ONGR\ElasticsearchDSL\BuilderInterface;
-use ONGR\ElasticsearchDSL\ParametersTrait;
+use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\ParametersTrait;
 
 /**
  * @package core
@@ -23,10 +23,7 @@ class ScriptIdQuery implements BuilderInterface
         $this->setParameters($parameters);
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return 'script';
     }
@@ -36,7 +33,7 @@ class ScriptIdQuery implements BuilderInterface
      *
      * @return array<mixed>
      */
-    public function toArray()
+    public function toArray(): array
     {
         $query = ['id' => $this->id];
         $output = $this->processArray($query);

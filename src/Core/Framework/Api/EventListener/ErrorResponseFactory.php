@@ -97,12 +97,14 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
+            /** @var list<string> $encodings */
+            $encodings = mb_detect_order();
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart
             if (\is_string($value)) {
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
-                } elseif (!mb_detect_encoding($value, mb_detect_order(), true)) {
+                } elseif (!mb_detect_encoding($value, $encodings, true)) {
                     $array[$key] = utf8_encode($value);
                 }
             }

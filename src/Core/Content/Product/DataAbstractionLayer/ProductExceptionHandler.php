@@ -21,7 +21,9 @@ class ProductExceptionHandler implements ExceptionHandlerInterface
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product.product_number__version_id\'/', $e->getMessage())) {
             $number = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $number);
-            $number = substr($number[1], 0, strrpos($number[1], '-'));
+            /** @var int $position */
+            $position = strrpos($number[1], '-');
+            $number = substr($number[1], 0, $position);
 
             return new DuplicateProductNumberException($number, $e);
         }

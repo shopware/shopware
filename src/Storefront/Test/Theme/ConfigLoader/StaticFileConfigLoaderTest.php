@@ -33,7 +33,7 @@ class StaticFileConfigLoaderTest extends TestCase
         $id = Uuid::randomHex();
 
         $fs = new Filesystem(new MemoryAdapter());
-        $fs->write('theme-config/' . $id . '.json', file_get_contents(__DIR__ . '/../fixtures/ConfigLoader/theme-config.json'));
+        $fs->write('theme-config/' . $id . '.json', (string) file_get_contents(__DIR__ . '/../fixtures/ConfigLoader/theme-config.json'));
 
         $s = new StaticFileConfigLoader($fs);
         $config = $s->load($id, Context::createDefaultContext());
@@ -42,6 +42,8 @@ class StaticFileConfigLoaderTest extends TestCase
         static::assertInstanceOf(FileCollection::class, $config->getScriptFiles());
         static::assertInstanceOf(FileCollection::class, $config->getStyleFiles());
 
+        $themeConfig = $config->getThemeConfig();
+        static::assertIsArray($themeConfig);
         static::assertSame(
             [
                 'blocks',
@@ -67,7 +69,7 @@ class StaticFileConfigLoaderTest extends TestCase
                 'sw-logo-share',
                 'sw-logo-favicon',
             ],
-            array_keys($config->getThemeConfig())
+            array_keys($themeConfig)
         );
     }
 

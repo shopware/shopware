@@ -299,9 +299,13 @@ class DefinitionValidator
     }
 
     /**
+<<<<<<< HEAD
      * @param class-string<Entity> $struct
      *
      * @return array<int, mixed>
+=======
+     * @param class-string<object> $struct
+>>>>>>> 0278b89929 (NEXT-23917 - Update symfony)
      */
     private function findEntityNotices(string $struct, EntityDefinition $definition): array
     {
@@ -338,9 +342,13 @@ class DefinitionValidator
     }
 
     /**
+<<<<<<< HEAD
      * @param class-string<Entity> $struct
      *
      * @return array<int, mixed>
+=======
+     * @param class-string<object> $struct
+>>>>>>> 0278b89929 (NEXT-23917 - Update symfony)
      */
     private function validateStruct(string $struct, EntityDefinition $definition): array
     {
@@ -1070,18 +1078,12 @@ class DefinitionValidator
 
     private function getShortClassName(EntityDefinition $definition): string
     {
-        /** @var string $shortClassName */
-        $shortClassName = preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass());
-
-        return lcfirst($shortClassName);
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }
 
     private function getAggregateNamespace(EntityDefinition $definition): string
     {
-        /** @var string $aggregateName */
-        $aggregateName = preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass());
-
-        return lcfirst($aggregateName);
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
     }
 
     /**

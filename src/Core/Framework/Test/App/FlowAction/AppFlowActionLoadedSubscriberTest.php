@@ -36,7 +36,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
         $appFlowAction = $appFlowActionRepository->search(new Criteria([$idFlowAction]), Context::createDefaultContext())->get($idFlowAction);
         static::assertNotNull($appFlowAction);
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $appFlowAction->getIcon()
         );
     }

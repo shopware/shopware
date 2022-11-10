@@ -11,10 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class ShopwareStyle extends SymfonyStyle
 {
-    /**
-     * @return ProgressBar
-     */
-    public function createProgressBar(int $max = 0)
+    public function createProgressBar(int $max = 0): ProgressBar
     {
         $progressBar = parent::createProgressBar($max);
 

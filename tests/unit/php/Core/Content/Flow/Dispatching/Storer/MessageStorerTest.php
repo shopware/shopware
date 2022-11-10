@@ -72,10 +72,8 @@ class MessageStorerTest extends TestCase
     {
         $storer = new MessageStorer();
 
-        $serialize = \serialize(['text', 'text', 'text', 'text', 'text', ['text', 'text']]);
-
         $mail = new Email();
-        $mail->unserialize($serialize);
+        $mail->html('text/plain');
 
         /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
@@ -86,7 +84,7 @@ class MessageStorerTest extends TestCase
 
         $storable->expects(static::exactly(1))
             ->method('getStore')
-            ->willReturn($serialize);
+            ->willReturn(\serialize($mail));
 
         $storable->expects(static::exactly(1))
             ->method('setData')
@@ -98,11 +96,6 @@ class MessageStorerTest extends TestCase
     public function testRestoreEmptyStored(): void
     {
         $storer = new MessageStorer();
-
-        $serialize = \serialize(['text', 'text', 'text', 'text', 'text', ['text', 'text']]);
-
-        $mail = new Email();
-        $mail->unserialize($serialize);
 
         /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);

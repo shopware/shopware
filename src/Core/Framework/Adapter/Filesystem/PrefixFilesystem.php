@@ -9,10 +9,7 @@ use League\Flysystem\FilesystemInterface;
  */
 class PrefixFilesystem extends AbstractFilesystem
 {
-    /**
-     * @var string
-     */
-    private $prefix;
+    private string $prefix;
 
     /**
      * @internal
@@ -34,7 +31,7 @@ class PrefixFilesystem extends AbstractFilesystem
     public function stripPath(string $path): string
     {
         $prefix = rtrim($this->prefix, '/');
-        $path = preg_replace('#^' . preg_quote($prefix, '#') . '#', '', $path);
+        $path = (string) preg_replace('#^' . preg_quote($prefix, '#') . '#', '', $path);
         $path = ltrim($path, '/');
 
         return $path;

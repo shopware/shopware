@@ -25,8 +25,16 @@ class Tree extends Struct
 
     public function isSelected(CategoryEntity $category): bool
     {
+        if ($this->active === null) {
+            return false;
+        }
+
         if ($category->getId() === $this->active->getId()) {
             return true;
+        }
+
+        if (!$this->active->getPath()) {
+            return false;
         }
 
         $ids = explode('|', $this->active->getPath());

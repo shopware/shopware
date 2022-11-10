@@ -331,12 +331,7 @@ class ThumbnailService
         $media->setMediaFolder($folder);
     }
 
-    /**
-     * @throws ThumbnailNotSupportedException
-     *
-     * @return resource
-     */
-    private function getImageResource(MediaEntity $media)
+    private function getImageResource(MediaEntity $media): \GdImage
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         /** @var string $file */
@@ -381,10 +376,7 @@ class ThumbnailService
         return $image;
     }
 
-    /**
-     * @param resource $image
-     */
-    private function getOriginalImageSize($image): array
+    private function getOriginalImageSize(\GdImage $image): array
     {
         return [
             'width' => imagesx($image),
@@ -445,12 +437,7 @@ class ThumbnailService
         ];
     }
 
-    /**
-     * @param resource $mediaImage
-     *
-     * @return resource
-     */
-    private function createNewImage($mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize)
+    private function createNewImage(\GdImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): \GdImage
     {
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
@@ -482,12 +469,7 @@ class ThumbnailService
         return $thumbnail;
     }
 
-    /**
-     * @param resource $thumbnail
-     *
-     * @throws ThumbnailCouldNotBeSavedException
-     */
-    private function writeThumbnail($thumbnail, MediaEntity $media, string $url, int $quality): void
+    private function writeThumbnail(\GdImage $thumbnail, MediaEntity $media, string $url, int $quality): void
     {
         ob_start();
         switch ($media->getMimeType()) {

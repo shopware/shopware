@@ -26,6 +26,7 @@ class RoutesHaveSinceAnnotationTest extends TestCase
 
         foreach ($routes as $routeName => $route) {
             try {
+                /** @var class-string<object> $controllerClass */
                 $controllerClass = strtok($route->getDefault('_controller'), ':');
                 $refClass = new \ReflectionClass($controllerClass);
             } catch (\Throwable $e) {
@@ -34,7 +35,7 @@ class RoutesHaveSinceAnnotationTest extends TestCase
             }
 
             // File is not in Platform Directory
-            if (strpos($refClass->getFileName(), $platformDir) !== 0) {
+            if (strpos((string) $refClass->getFileName(), $platformDir) !== 0) {
                 continue;
             }
 

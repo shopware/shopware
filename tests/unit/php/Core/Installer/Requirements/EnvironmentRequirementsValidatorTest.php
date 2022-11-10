@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Requirements;
 
 use Composer\Composer;
 use Composer\Package\Link;
-use Composer\Package\Package;
+use Composer\Package\RootPackage;
 use Composer\Repository\InstalledArrayRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryManager;
@@ -32,7 +32,7 @@ class EnvironmentRequirementsValidatorTest extends TestCase
     {
         $systemEnvironment = new PlatformRepository([], $composerOverrides);
 
-        $corePackage = new Package($coreComposerName ?? 'shopware/platform', '1.0.0', '1.0.0');
+        $corePackage = new RootPackage($coreComposerName ?? 'shopware/platform', '1.0.0', '1.0.0');
         $corePackage->setRequires($requires);
 
         $repoManagerMock = $this->createMock(RepositoryManager::class);

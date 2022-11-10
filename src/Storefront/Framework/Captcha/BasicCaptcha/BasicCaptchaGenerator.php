@@ -21,10 +21,10 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
         $filesystem = new Filesystem();
 
         if ($filesystem->exists($this->backgroundPath)) {
-            /** @var resource $img */
+            /** @var \GdImage $img */
             $img = imagecreatefrompng($this->backgroundPath);
         } else {
-            /** @var resource $img */
+            /** @var \GdImage $img */
             $img = imagecreate(self::FALLBACK_WIDTH_IMAGE, self::FALLBACK_HEIGHT_IMAGE);
             imagecolorallocate($img, 255, 255, 255);
         }

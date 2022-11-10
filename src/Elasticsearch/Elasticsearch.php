@@ -42,10 +42,7 @@ class Elasticsearch extends Bundle
         $this->buildConfig($container);
     }
 
-    /**
-     * @return ExtensionInterface
-     */
-    public function createContainerExtension()
+    public function createContainerExtension(): ?ExtensionInterface
     {
         return new ElasticsearchExtension();
     }

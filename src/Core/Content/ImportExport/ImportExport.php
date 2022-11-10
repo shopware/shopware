@@ -342,6 +342,7 @@ class ImportExport
         $this->importExportService->saveProgress($progress);
 
         $tmpFile = tempnam(sys_get_temp_dir(), '');
+        /** @var resource $tmp */
         $tmp = fopen($tmpFile, 'w+b');
 
         $target = $logEntity->getFile()->getPath();
@@ -367,7 +368,11 @@ class ImportExport
 
         // concatenate all part files into a temporary file
         foreach ($partFiles as $partFile) {
-            if (stream_copy_to_stream($this->filesystem->readStream($partFile), $tmp) === false) {
+            $stream = $this->filesystem->readStream($partFile);
+            if (!$stream) {
+                throw new ProcessingException('Failed to merge files');
+            }
+            if (stream_copy_to_stream($stream, $tmp) === false) {
                 throw new ProcessingException('Failed to merge files');
             }
         }

@@ -19,18 +19,12 @@ class PrefixVersionStrategy implements VersionStrategyInterface
         $this->strategy = $strategy;
     }
 
-    /**
-     * @return string
-     */
-    public function getVersion(string $path)
+    public function getVersion(string $path): string
     {
         return $this->applyVersion($path);
     }
 
-    /**
-     * @return string
-     */
-    public function applyVersion(string $path)
+    public function applyVersion(string $path): string
     {
         $prefixLength = \strlen($this->prefix);
 

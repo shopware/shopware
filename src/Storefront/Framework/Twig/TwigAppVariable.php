@@ -19,10 +19,15 @@ class TwigAppVariable extends AppVariable
 
     private AppVariable $appVariable;
 
+    /**
+     * @var list<string>
+     */
     private array $allowList;
 
     /**
      * @internal
+     *
+     * @param list<string> $allowList
      */
     public function __construct(AppVariable $appVariable, array $allowList = [])
     {
@@ -30,10 +35,7 @@ class TwigAppVariable extends AppVariable
         $this->appVariable = $appVariable;
     }
 
-    /**
-     * @return Request|null
-     */
-    public function getRequest()
+    public function getRequest(): ?Request
     {
         if ($this->request !== null) {
             return $this->request;
@@ -80,50 +82,37 @@ class TwigAppVariable extends AppVariable
         $this->appVariable->setDebug($debug);
     }
 
-    /**
-     * @return TokenInterface|null
-     */
-    public function getToken()
+    public function getToken(): ?TokenInterface
     {
         return $this->appVariable->getToken();
     }
 
-    /**
-     * @return UserInterface|null
-     */
-    public function getUser()
+    public function getUser(): ?UserInterface
     {
         return $this->appVariable->getUser();
     }
 
-    /**
-     * @return Session|null
-     */
-    public function getSession()
+    public function getSession(): ?Session
     {
         return $this->appVariable->getSession();
     }
 
-    /**
-     * @return string
-     */
-    public function getEnvironment()
+    public function getEnvironment(): string
     {
         return $this->appVariable->getEnvironment();
     }
 
-    /**
-     * @return bool
-     */
-    public function getDebug()
+    public function getDebug(): bool
     {
         return $this->appVariable->getDebug();
     }
 
     /**
-     * @return array
+     * @param string|list<string>|null $types
+     *
+     * @return array<mixed>
      */
-    public function getFlashes($types = null)
+    public function getFlashes(string|array|null $types = null): array
     {
         return $this->appVariable->getFlashes($types);
     }

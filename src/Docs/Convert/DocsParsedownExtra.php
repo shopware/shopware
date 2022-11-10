@@ -92,6 +92,10 @@ class DocsParsedownExtra extends \ParsedownExtra
 
         $lines = file($includeFile);
 
+        if (!$lines) {
+            return [];
+        }
+
         foreach ($lines as $lineNumber => $line) {
             if (mb_strpos($line, sprintf(self::START_MARK, $namespace)) === 0) {
                 $start = 1 + $lineNumber;

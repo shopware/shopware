@@ -503,10 +503,14 @@ class PluginLifecycleServiceTest extends TestCase
         $containerMock = $this->createMock(Container::class);
         $containerMock->method('getParameter')->with('kernel.plugin_dir')->willReturn('tmp');
         $containerMock->method('get')->willReturn($this->eventDispatcherMock);
-        $kernelMock->method('getContainer')->willReturnOnConsecutiveCalls(
-            $containerMock,
-            false
-        );
+        $matcher = static::exactly(2);
+        $kernelMock->expects($matcher)->method('getContainer')->willReturnCallback(function () use ($matcher, $containerMock): Container {
+            if ($matcher->getInvocationCount() === 1) {
+                return $containerMock;
+            }
+
+            throw new \LogicException();
+        });
         $this->containerMock->method('get')->willReturnOnConsecutiveCalls(
             $kernelMock,
             new FakeKernelPluginLoader(

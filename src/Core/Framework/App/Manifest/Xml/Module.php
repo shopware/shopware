@@ -12,7 +12,7 @@ class Module extends XmlElement
     public const TRANSLATABLE_FIELDS = ['label'];
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected $label;
 
@@ -38,6 +38,9 @@ class Module extends XmlElement
      */
     protected $position = 1;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -50,6 +53,9 @@ class Module extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLabel(): array
     {
         return $this->label;
@@ -75,12 +81,17 @@ class Module extends XmlElement
         return $this->position;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
-            $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
+        if ($element->attributes instanceof \DOMNamedNodeMap) {
+            foreach ($element->attributes as $attribute) {
+                $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
+            }
         }
 
         foreach ($element->childNodes as $child) {

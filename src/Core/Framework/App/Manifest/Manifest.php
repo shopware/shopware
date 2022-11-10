@@ -165,6 +165,9 @@ class Manifest
         return $this->allowedHosts;
     }
 
+    /**
+     * @param array<string, string[]> $permission
+     */
     public function addPermissions(array $permission): void
     {
         if ($this->permissions === null) {

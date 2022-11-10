@@ -22,6 +22,7 @@ jobs:
       APP_SECRET: devsecret
       SHOPWARE_ES_HOSTS: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
     services:
       database:

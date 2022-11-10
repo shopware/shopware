@@ -219,7 +219,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $mailTemplate,
             $extension,
             $eventConfig,
-            $event instanceof OrderAware ? $event->getOrderId() : null
+            $mailEvent instanceof OrderAware ? $mailEvent->getOrderId() : null
         ), \SORT_REGULAR);
 
         if (!empty($attachments)) {

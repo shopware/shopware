@@ -219,7 +219,9 @@ base-uri 'self';
         </service>
 
         <!-- Custom Entity -->
-        <service id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
+        <service id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService">
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>
+        </service>
 
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"

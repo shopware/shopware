@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 
@@ -19,8 +19,7 @@ class ErrorResponseFactoryTest extends \PHPUnit\Framework\TestCase
         $response = $factory->getResponseFromException(new \Exception('test'), true);
         $data = json_decode($response->getContent());
         static::assertArrayHasKey('stack', $data);
-        static::assertIsArray($data['stack'], $data);
-
+        static::assertIsArray($data['stack']);
     }
 
     public function testNoStackTraceForExceptionNotInDebugMode(): void
@@ -30,7 +29,6 @@ class ErrorResponseFactoryTest extends \PHPUnit\Framework\TestCase
         /* @var \Symfony\Component\HttpFoundation\JsonResponse $response */
         $response = $factory->getResponseFromException(new \Exception('test'), false);
         $data = json_decode($response->getContent());
-        static::assertNull($data['stack'], $response);
-
+        static::assertNull($data['stack']);
     }
 }

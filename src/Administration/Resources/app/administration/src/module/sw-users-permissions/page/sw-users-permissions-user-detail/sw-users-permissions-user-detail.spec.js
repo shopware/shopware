@@ -11,7 +11,13 @@ import 'src/app/component/base/sw-button-process';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+let wrapper;
+
 async function createWrapper(privileges = []) {
+    if (wrapper) {
+        await wrapper.destroy();
+    }
+
     const localVue = createLocalVue();
     localVue.directive('tooltip', {
         bind(el, binding) {
@@ -28,7 +34,7 @@ async function createWrapper(privileges = []) {
         }
     });
 
-    const wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-detail'), {
+    wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-detail'), {
         localVue,
         provide: {
             acl: {
@@ -150,8 +156,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', () => {
-    let wrapper;
-
     beforeAll(() => {
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
@@ -238,6 +242,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should enable the tooltip warning when user is admin', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({
             user: {
@@ -260,6 +265,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should disable the tooltip warning when user is not admin', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({
             user: {
@@ -316,6 +322,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should enable all fields when user has not editor rights', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
 
         await wrapper.setData({
@@ -355,6 +362,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should change the password', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
@@ -370,6 +378,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should delete the password when input is empty', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
@@ -390,6 +399,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should send a request with the new password', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 
@@ -405,6 +415,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should not send a request when user clears the password field', async () => {
+        await wrapper.destroy();
         wrapper = await createWrapper('users_and_permissions.editor');
         await wrapper.setData({ isLoading: false });
 

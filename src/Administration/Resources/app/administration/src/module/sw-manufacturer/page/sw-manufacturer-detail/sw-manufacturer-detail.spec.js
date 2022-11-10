@@ -78,6 +78,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should be able to save edit', async () => {
@@ -88,6 +90,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         const addButton = wrapper.find('.sw-manufacturer-detail__save-action');
         expect(addButton.attributes().disabled).toBeUndefined();
+
+        wrapper.destroy();
     });
 
     it('should not be able to save edit', async () => {
@@ -96,6 +100,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         const addButton = wrapper.find('.sw-manufacturer-detail__save-action');
         expect(addButton.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 
 
@@ -118,6 +124,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeUndefined();
+
+        wrapper.destroy();
     });
 
     it('should not be able to edit the manufacture', async () => {
@@ -135,5 +143,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 });

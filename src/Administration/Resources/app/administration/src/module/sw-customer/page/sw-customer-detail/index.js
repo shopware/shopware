@@ -154,6 +154,11 @@ Component.register('sw-customer-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-customer-detail__customer',
+                path: 'customer',
+                scope: this,
+            });
             this.isLoading = true;
 
             this.customerRepository.get(

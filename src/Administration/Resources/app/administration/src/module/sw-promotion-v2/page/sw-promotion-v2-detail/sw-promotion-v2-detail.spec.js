@@ -97,6 +97,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -108,6 +110,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should enable the save button when privilege does not exist', async () => {
@@ -121,5 +125,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapper.destroy();
     });
 });

@@ -96,7 +96,7 @@ Component.register('sw-promotion-detail', {
 
         promotion: {
             get() {
-                return Shopware.State.get('swPromotionDetail').promotion;
+                return Shopware.State.get('swPromotionDetail')?.promotion;
             },
             set(promotion) {
                 Shopware.State.commit('swPromotionDetail/setPromotion', promotion);
@@ -152,6 +152,11 @@ Component.register('sw-promotion-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-promotion-detail__promotion',
+                path: 'promotion',
+                scope: this,
+            });
             this.isLoading = true;
             this.$root.$on('promotion-save-start', this.onShouldSave);
             if (!this.promotionId) {

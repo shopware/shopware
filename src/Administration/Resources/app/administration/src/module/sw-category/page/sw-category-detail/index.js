@@ -329,6 +329,11 @@ Component.register('sw-category-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-category-detail__category',
+                path: 'category',
+                scope: this,
+            });
             this.isLoading = true;
             this.checkViewport();
             this.registerListener();

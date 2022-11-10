@@ -110,6 +110,8 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should fetch custom product custom fields and add them to the condition select list', async () => {
@@ -119,5 +121,7 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const relatedCustomFields = wrapper.vm.productCustomFields;
         expect(relatedCustomFields).toHaveProperty('custom_field_1');
+
+        wrapper.destroy();
     });
 });

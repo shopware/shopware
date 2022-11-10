@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Currency;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<CurrencyEntity>
  */
 class CurrencyCollection extends EntityCollection

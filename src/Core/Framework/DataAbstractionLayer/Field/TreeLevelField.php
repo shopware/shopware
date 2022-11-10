@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 
+/**
+ * @package core
+ */
 class TreeLevelField extends IntField
 {
     public function __construct(string $storageName, string $propertyName)

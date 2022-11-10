@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class ConflictingPackageException extends RequirementException
 {
     public function __construct(string $conflictSource, string $conflictTarget, string $actualVersion)

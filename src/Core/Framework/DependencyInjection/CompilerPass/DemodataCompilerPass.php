@@ -7,6 +7,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class DemodataCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

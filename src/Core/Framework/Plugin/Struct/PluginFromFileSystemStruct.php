@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Struct;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class PluginFromFileSystemStruct extends Struct
 {
     /**

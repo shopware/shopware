@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Integration;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<IntegrationEntity>
  */
 class IntegrationCollection extends EntityCollection

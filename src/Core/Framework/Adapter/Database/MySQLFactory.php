@@ -10,6 +10,8 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Kernel;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class MySQLFactory

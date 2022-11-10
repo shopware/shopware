@@ -8,6 +8,9 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+/**
+ * @package core
+ */
 class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

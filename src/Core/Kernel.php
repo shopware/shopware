@@ -20,6 +20,9 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
+/**
+ * @package core
+ */
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;

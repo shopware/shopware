@@ -5,6 +5,8 @@ namespace Shopware\Core\Installer\Finish;
 use GuzzleHttp\Client;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Notifier

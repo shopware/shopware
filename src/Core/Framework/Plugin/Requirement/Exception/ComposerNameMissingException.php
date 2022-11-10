@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
+/**
+ * @package core
+ */
 class ComposerNameMissingException extends RequirementException
 {
     public function __construct(string $pluginName, ?\Throwable $e = null)

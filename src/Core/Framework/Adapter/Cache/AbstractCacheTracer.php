@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 /**
+ * @package core
  * @template TCachedContent
  */
 abstract class AbstractCacheTracer

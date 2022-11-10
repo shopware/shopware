@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class InconsistentCriteriaIdsException extends ShopwareHttpException
 {
     public function __construct()

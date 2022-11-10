@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Profiling extends Bundle

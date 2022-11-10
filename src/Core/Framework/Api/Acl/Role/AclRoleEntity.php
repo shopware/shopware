@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\User\UserCollection;
 
+/**
+ * @package core
+ */
 class AclRoleEntity extends Entity
 {
     use EntityIdTrait;

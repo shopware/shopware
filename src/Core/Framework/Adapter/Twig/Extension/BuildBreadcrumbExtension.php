@@ -12,6 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @package core
+ */
 class BuildBreadcrumbExtension extends AbstractExtension
 {
     /**

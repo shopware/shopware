@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+/**
+ * @package core
+ */
 class AppDeactivatedEvent extends AppChangedEvent
 {
     public const NAME = 'app.deactivated';

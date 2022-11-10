@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer;
 
+/**
+ * @package core
+ */
 class IdField extends Field implements StorageAware
 {
     /**

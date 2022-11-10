@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\RateLimiter;
 
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 
+/**
+ * @package core
+ */
 class RateLimiter
 {
     public const LOGIN_ROUTE = 'login';

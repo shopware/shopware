@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Locale;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<LocaleEntity>
  */
 class LocaleCollection extends EntityCollection

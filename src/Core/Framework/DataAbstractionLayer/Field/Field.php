@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 abstract class Field extends Struct
 {
     /**

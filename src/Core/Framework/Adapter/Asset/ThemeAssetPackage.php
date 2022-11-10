@@ -10,6 +10,8 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 use
  * @see \Shopware\Storefront\Theme\ThemeAssetPackage instead
  */

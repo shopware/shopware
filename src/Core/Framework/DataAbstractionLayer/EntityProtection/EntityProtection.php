@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
+/**
+ * @package core
+ */
 abstract class EntityProtection
 {
     /**

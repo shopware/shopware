@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 
 /**
+ * @package core
  * @implements Rule<MethodCall>
  *
  * @internal

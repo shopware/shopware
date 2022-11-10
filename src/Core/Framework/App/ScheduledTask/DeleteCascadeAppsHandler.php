@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
+/**
+ * @package core
+ */
 class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
     private const HARD_DELETE_AFTER_DAYS = 1;

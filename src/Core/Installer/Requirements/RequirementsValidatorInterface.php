@@ -5,6 +5,8 @@ namespace Shopware\Core\Installer\Requirements;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
+ * @package core
+ *
  * @internal
  */
 interface RequirementsValidatorInterface

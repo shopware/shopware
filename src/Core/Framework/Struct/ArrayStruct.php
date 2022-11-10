@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Struct;
 
 /**
+ * @package core
  * @template-covariant TKey
  * @template-covariant TValue
  *

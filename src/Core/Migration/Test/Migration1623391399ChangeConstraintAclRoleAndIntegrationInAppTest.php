@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1623391399ChangeConstraintAclRoleAndIntegrationInApp;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest extends TestCase

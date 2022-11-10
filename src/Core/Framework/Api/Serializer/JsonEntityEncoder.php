@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ * @package core
+ */
 class JsonEntityEncoder
 {
     /**

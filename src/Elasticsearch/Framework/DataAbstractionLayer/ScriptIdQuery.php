@@ -5,6 +5,9 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\ParametersTrait;
 
+/**
+ * @package core
+ */
 class ScriptIdQuery implements BuilderInterface
 {
     use ParametersTrait;

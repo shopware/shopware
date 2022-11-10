@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Changelog;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  *
  * @extends Collection<ChangelogFile>

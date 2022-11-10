@@ -39,6 +39,8 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class AppDefinition extends EntityDefinition

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 
+/**
+ * @package core
+ */
 trait InheritanceUpdaterTrait
 {
     protected function updateInheritance(Connection $connection, string $entity, string $propertyName): void

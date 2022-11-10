@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 
+/**
+ * @package core
+ */
 class ReferenceVersionField extends FkField
 {
     /**

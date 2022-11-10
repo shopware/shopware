@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
+/**
+ * @package core
+ */
 class ReverseInherited extends Flag
 {
     /**

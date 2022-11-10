@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package core
  * @extends EntityCollection<WebhookEntity>
  */
 class WebhookCollection extends EntityCollection

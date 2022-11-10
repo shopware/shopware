@@ -18,6 +18,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
 class SystemSetupCommand extends Command

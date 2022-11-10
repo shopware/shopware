@@ -15,6 +15,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package core
+ */
 class MigrationCommand extends Command
 {
     protected static $defaultName = 'database:migrate';

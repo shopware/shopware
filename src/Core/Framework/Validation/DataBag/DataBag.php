@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Validation\DataBag;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * @package core
+ */
 class DataBag extends ParameterBag
 {
     /**

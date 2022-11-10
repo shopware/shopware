@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue;
 
+/**
+ * @package core
+ */
 class RegisterScheduledTaskMessage
 {
 }

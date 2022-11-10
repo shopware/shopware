@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class FallbackController extends AbstractController
 {
     public function rootFallback(): Response

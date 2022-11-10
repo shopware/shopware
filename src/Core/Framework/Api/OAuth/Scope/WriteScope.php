@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\OAuth\Scope;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 
+/**
+ * @package core
+ */
 class WriteScope implements ScopeEntityInterface
 {
     public const IDENTIFIER = 'write';

@@ -7,6 +7,9 @@ use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @package core
+ */
 class SeoUrlFunctionExtension extends AbstractExtension
 {
     /**

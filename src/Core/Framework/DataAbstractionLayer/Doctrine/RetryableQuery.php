@@ -8,6 +8,9 @@ use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 class RetryableQuery
 {
     /**

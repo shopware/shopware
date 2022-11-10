@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\App\Hmac;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @package core
+ */
 class RequestSigner
 {
     public const SHOPWARE_APP_SIGNATURE = 'shopware-app-signature';

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 
+/**
+ * @package core
+ */
 class WebhookEventMessageHandler extends AbstractMessageHandler
 {
     private const TIMEOUT = 20;

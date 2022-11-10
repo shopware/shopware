@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+/**
+ * @package core
+ */
 abstract class ScheduledTask
 {
     protected ?string $taskId = null;

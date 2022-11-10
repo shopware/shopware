@@ -12,6 +12,9 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package core
+ */
 class CacheClearer extends AbstractMessageHandler
 {
     /**

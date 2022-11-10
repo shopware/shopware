@@ -58,6 +58,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
+/**
+ * @package core
+ */
 class CriteriaParser
 {
     private EntityDefinitionQueryHelper $helper;

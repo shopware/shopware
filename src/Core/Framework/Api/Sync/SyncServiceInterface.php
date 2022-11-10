@@ -6,6 +6,9 @@ use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package core
+ */
 interface SyncServiceInterface
 {
     /**

@@ -8,6 +8,9 @@ use Doctrine\DBAL\DriverManager;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
+/**
+ * @package core
+ */
 class DatabaseConnectionFactory
 {
     /**

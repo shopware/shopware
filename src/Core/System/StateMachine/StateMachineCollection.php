@@ -5,6 +5,7 @@ namespace Shopware\Core\System\StateMachine;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<StateMachineEntity>
  */
 class StateMachineCollection extends EntityCollection

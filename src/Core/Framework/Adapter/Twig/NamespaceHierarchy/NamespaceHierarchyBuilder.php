@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 
 /**
+ * @package core
  * @HandlerChain(
  *     serviceTag="shopware.twig.hierarchy_builder",
  *     handlerInterface="TemplateNamespaceHierarchyBuilderInterface"

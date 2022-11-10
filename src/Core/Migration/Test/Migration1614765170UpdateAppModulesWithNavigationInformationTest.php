@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1614765170UpdateAppModulesWithNavigationInformation;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends TestCase

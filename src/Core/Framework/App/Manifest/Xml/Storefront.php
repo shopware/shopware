@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+/**
+ * @package core
+ */
 class Storefront extends XmlElement
 {
     protected int $templateLoadPriority = 0;

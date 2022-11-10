@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Parameter;
 use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 
+/**
+ * @package core
+ */
 final class AdditionalBundleParameters
 {
     /**

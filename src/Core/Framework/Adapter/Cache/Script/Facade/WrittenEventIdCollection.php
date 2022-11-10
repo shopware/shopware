@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 
 /**
+ * @package core
  * @implements \IteratorAggregate<int, string|array>
  */
 class WrittenEventIdCollection implements \IteratorAggregate

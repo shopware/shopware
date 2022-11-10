@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Tag;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<TagEntity>
  */
 class TagCollection extends EntityCollection

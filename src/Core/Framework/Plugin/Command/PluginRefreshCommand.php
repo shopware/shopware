@@ -14,6 +14,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class PluginRefreshCommand extends Command
 {
     protected static $defaultName = 'plugin:refresh';

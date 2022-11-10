@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package core
+ */
 class PriceRuleEntity extends Entity
 {
     use EntityIdTrait;

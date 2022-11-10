@@ -6,6 +6,9 @@ use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class SearchRequestException extends ShopwareHttpException
 {
     /**

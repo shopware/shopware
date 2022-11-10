@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 
+/**
+ * @package core
+ */
 class BucketAggregation extends Aggregation
 {
     /**

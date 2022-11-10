@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @package core
+ */
 class SwSanitizeTwigFilter extends AbstractExtension
 {
     private HtmlSanitizer $sanitizer;

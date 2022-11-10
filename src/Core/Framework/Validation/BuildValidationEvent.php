@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
 {
     private DataValidationDefinition $definition;

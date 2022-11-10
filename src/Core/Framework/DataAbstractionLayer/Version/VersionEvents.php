@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version;
 
+/**
+ * @package core
+ */
 class VersionEvents
 {
     /**

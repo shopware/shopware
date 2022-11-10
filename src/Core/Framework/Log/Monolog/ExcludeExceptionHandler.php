@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Log\Monolog;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
 
+/**
+ * @package core
+ */
 class ExcludeExceptionHandler extends AbstractHandler
 {
     private HandlerInterface $handler;

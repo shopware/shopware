@@ -5,6 +5,7 @@ namespace Shopware\Core\Profiling\Doctrine;
 use Doctrine\DBAL\Logging\DebugStack as DoctrineDebugStack;
 
 /**
+ * @package core
  * Includes executed SQLs in a Debug Stack.
  */
 class DebugStack extends DoctrineDebugStack

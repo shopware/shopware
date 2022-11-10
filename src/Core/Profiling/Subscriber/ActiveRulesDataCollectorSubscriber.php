@@ -16,6 +16,8 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface

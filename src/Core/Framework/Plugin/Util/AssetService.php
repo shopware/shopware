@@ -14,6 +14,9 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @package core
+ */
 class AssetService
 {
     private FilesystemInterface $filesystem;

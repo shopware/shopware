@@ -2,6 +2,9 @@
 
 namespace Shopware\Core;
 
+/**
+ * @package core
+ */
 final class PlatformRequest
 {
     /**

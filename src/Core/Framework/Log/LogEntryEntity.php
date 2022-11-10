@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Log;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package core
+ */
 class LogEntryEntity extends Entity
 {
     use EntityIdTrait;

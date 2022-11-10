@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 
+/**
+ * @package core
+ */
 abstract class EntityExtension
 {
     /**

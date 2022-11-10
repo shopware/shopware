@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+/**
+ * @package core
+ */
 class HookableEntityWrittenEvent implements Hookable
 {
     /**

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFo
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @package core
+ */
 class DefinitionInstanceRegistry
 {
     /**

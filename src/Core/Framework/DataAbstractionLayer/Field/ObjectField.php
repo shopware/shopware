@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+/**
+ * @package core
+ */
 class ObjectField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)

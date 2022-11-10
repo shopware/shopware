@@ -7,6 +7,8 @@ use Doctrine\DBAL\Exception;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class BlueGreenDeploymentService

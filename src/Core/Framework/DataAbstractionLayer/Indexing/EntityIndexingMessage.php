@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package core
+ */
 class EntityIndexingMessage
 {
     protected $data;

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateFieldSerializer;
 
+/**
+ * @package core
+ */
 class DateField extends Field implements StorageAware
 {
     /**

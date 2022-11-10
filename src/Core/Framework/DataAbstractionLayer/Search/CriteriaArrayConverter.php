@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 
+/**
+ * @package core
+ */
 class CriteriaArrayConverter
 {
     private AggregationParser $aggregationParser;

@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 class EntityLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**

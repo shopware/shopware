@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643892702AddCaptureRefundTables;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1643892702AddCaptureRefundTablesTest extends TestCase

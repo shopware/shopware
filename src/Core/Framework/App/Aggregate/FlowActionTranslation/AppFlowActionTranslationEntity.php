@@ -6,6 +6,9 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package core
+ */
 class AppFlowActionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

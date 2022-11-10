@@ -11,6 +11,8 @@ use Doctrine\DBAL\Statement;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class NullConnection extends Connection

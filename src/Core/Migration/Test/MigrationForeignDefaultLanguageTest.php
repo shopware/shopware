@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package core
+ *
  * @internal
  * @group slow
  */

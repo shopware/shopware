@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class SyncService implements SyncServiceInterface
 {
     private DefinitionInstanceRegistry $definitionRegistry;

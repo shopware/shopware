@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonF
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TaxFreeConfigFieldSerializer;
 
+/**
+ * @package core
+ */
 class TaxFreeConfigField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)

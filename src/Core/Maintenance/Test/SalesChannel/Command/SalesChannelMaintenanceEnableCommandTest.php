@@ -12,6 +12,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class SalesChannelMaintenanceEnableCommandTest extends TestCase

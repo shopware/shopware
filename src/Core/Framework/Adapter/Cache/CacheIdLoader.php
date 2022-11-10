@@ -8,6 +8,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
+/**
+ * @package core
+ */
 class CacheIdLoader
 {
     private Connection $connection;

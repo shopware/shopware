@@ -19,6 +19,8 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
 use Shopware\Core\System\Integration\IntegrationEntity;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class AppEntity extends Entity

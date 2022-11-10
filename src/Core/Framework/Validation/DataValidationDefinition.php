@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Validation;
 
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @package core
+ */
 class DataValidationDefinition
 {
     /**

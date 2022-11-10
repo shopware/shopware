@@ -7,6 +7,7 @@ use Enqueue\ConnectionFactoryFactoryInterface;
 use Interop\Queue\ConnectionFactory;
 
 /**
+ * @package core
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove enqueue
  */
 class ConnectionFactoryFactory implements ConnectionFactoryFactoryInterface

@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
 class Migration1648031611AddOrderLineItemPromotionId extends MigrationStep

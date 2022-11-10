@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @package core
+ */
 class ContextTokenStruct extends Struct
 {
     /**

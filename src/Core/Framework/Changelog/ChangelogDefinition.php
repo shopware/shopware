@@ -7,6 +7,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
 class ChangelogDefinition

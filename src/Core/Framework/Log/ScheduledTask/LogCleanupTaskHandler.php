@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package core
+ */
 class LogCleanupTaskHandler extends ScheduledTaskHandler
 {
     /**

@@ -8,6 +8,9 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @package core
+ */
 class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 {
     private FilesystemInterface $filesystem;

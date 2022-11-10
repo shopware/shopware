@@ -2,6 +2,9 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+/**
+ * @package core
+ */
 class IndexingDto
 {
     protected array $ids;

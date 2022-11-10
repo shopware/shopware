@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
+/**
+ * @package core
+ */
 class PluginTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;

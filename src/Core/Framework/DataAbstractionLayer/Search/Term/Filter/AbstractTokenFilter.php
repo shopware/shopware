@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package core
+ */
 abstract class AbstractTokenFilter
 {
     abstract public function getDecorated(): AbstractTokenFilter;

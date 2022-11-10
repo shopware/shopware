@@ -49,6 +49,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class PluginLifecycleService

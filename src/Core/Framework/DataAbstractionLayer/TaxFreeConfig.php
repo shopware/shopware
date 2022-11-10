@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class TaxFreeConfig extends Struct
 {
     protected bool $enabled;

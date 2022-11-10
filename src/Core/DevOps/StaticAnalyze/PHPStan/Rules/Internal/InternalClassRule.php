@@ -16,6 +16,7 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package core
  * @implements Rule<InClassNode>
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0

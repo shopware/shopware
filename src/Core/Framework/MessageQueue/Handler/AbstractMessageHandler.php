@@ -6,6 +6,7 @@ use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
+ * @package core
  * @deprecated tag:v6.5.0 - reason:reason:class-hierarchy-change - will be removed, use default symfony MessageSubscriberInterface instead
  */
 abstract class AbstractMessageHandler implements MessageSubscriberInterface

@@ -7,6 +7,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
+/**
+ * @package core
+ */
 class MigrationRuntime
 {
     private Connection $connection;

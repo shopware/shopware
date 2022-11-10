@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+/**
+ * @package core
+ */
 class MultiFilter extends Filter
 {
     public const CONNECTION_AND = 'AND';

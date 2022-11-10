@@ -5,6 +5,8 @@ namespace Shopware\Core\Profiling\Integration;
 use DDTrace\GlobalTracer;
 
 /**
+ * @package core
+ *
  * @internal experimental atm
  */
 class Datadog implements ProfilerInterface

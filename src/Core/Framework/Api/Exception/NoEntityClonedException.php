@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class NoEntityClonedException extends ShopwareHttpException
 {
     public function __construct(string $entity, string $id)

@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
+/**
+ * @package core
+ */
 class RequirementsValidator
 {
     private EntityRepositoryInterface $pluginRepo;

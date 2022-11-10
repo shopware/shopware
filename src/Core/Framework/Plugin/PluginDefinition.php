@@ -23,6 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 
+/**
+ * @package core
+ */
 class PluginDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'plugin';

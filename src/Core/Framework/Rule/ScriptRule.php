@@ -16,6 +16,8 @@ use Twig\Cache\FilesystemCache;
 use Twig\Extension\DebugExtension;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ScriptRule extends Rule

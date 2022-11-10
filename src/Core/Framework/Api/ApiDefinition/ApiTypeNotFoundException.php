@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\ApiDefinition;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class ApiTypeNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $type)

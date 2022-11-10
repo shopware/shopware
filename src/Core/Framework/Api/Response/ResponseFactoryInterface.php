@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 interface ResponseFactoryInterface
 {
     public function supports(string $contentType, ContextSource $origin): bool;

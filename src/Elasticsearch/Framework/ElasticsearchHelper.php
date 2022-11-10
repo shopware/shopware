@@ -17,6 +17,9 @@ use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
+/**
+ * @package core
+ */
 class ElasticsearchHelper
 {
     // max for default configuration

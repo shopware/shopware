@@ -6,6 +6,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
+/**
+ * @package core
+ */
 class SystemConfigLimiter extends TimeBackoffLimiter
 {
     /**

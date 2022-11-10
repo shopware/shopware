@@ -19,6 +19,8 @@ use Shopware\Core\Migration\V6_4\Migration1620374229UpdateCustomFieldNameInProdu
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends TestCase

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class MigrationCollectionFactory

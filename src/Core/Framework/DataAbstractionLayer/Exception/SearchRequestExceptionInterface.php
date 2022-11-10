@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+/**
+ * @package core
+ */
 interface SearchRequestExceptionInterface
 {
 }

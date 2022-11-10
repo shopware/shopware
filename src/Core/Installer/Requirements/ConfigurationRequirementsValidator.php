@@ -8,6 +8,8 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ConfigurationRequirementsValidator implements RequirementsValidatorInterface

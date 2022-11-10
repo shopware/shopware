@@ -6,6 +6,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 
+/**
+ * @package core
+ */
 class DatabaseConnectionInformation extends Struct
 {
     protected string $hostname = '';

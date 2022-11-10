@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
+ * @package core
  * Enables cache busting depending on last modified timestamp.
  *
  * @deprecated tag:v6.5.0 - Use FlysystemLastModifiedVersionStrategy instead

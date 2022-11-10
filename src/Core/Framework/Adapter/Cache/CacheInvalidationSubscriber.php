@@ -75,6 +75,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package core
+ *
  * @internal - The functions inside this class are no public-api and can be changed without previous deprecation
  */
 class CacheInvalidationSubscriber implements EventSubscriberInterface

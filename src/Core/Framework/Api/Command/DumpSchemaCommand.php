@@ -11,6 +11,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class DumpSchemaCommand extends Command
 {
     protected static $defaultName = 'framework:schema';

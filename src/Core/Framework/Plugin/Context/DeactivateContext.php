@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Context;
 
+/**
+ * @package core
+ */
 class DeactivateContext extends InstallContext
 {
 }

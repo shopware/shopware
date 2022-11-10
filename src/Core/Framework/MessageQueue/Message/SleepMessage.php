@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Message;
 
 /**
+ * @package core
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, use default symfony queue commands
  */
 class SleepMessage

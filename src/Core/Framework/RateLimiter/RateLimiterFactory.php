@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\LimiterInterface;
@@ -12,19 +14,27 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 class RateLimiterFactory
 {
+    /**
+     * @var array<mixed>
+     */
     private array $config;
 
     private StorageInterface $storage;
 
     private ?LockFactory $lockFactory;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @internal
+     *
+     * @param array<string, array<int|string, array<string, int|string>|string>|bool|int|string> $config
      */
-    public function __construct(array $config, StorageInterface $storage, ?LockFactory $lockFactory = null)
+    public function __construct(array $config, StorageInterface $storage, SystemConfigService $systemConfigService, ?LockFactory $lockFactory = null)
     {
         $this->config = $config;
         $this->storage = $storage;
+        $this->systemConfigService = $systemConfigService;
         $this->lockFactory = $lockFactory;
     }
 
@@ -43,6 +53,10 @@ class RateLimiterFactory
 
         if ($this->config['policy'] === 'time_backoff') {
             return new TimeBackoffLimiter($id, $this->config['limits'], $this->config['reset'], $this->storage, $lock);
+        }
+
+        if ($this->config['policy'] === 'system_config') {
+            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock);
         }
 
         // prevent symfony errors due to customized values

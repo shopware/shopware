@@ -8,8 +8,10 @@ use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,6 +44,8 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      */
     private $lineItemFactory;
 
+    private RateLimiter $rateLimiter;
+
     /**
      * @internal
      */
@@ -49,12 +53,14 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         CartCalculator $cartCalculator,
         CartPersisterInterface $cartPersister,
         EventDispatcherInterface $eventDispatcher,
-        LineItemFactoryRegistry $lineItemFactory
+        LineItemFactoryRegistry $lineItemFactory,
+        RateLimiter $rateLimiter
     ) {
         $this->cartCalculator = $cartCalculator;
         $this->cartPersister = $cartPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->lineItemFactory = $lineItemFactory;
+        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractCartItemAddRoute
@@ -65,19 +71,26 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     /**
      * @Since("6.3.0.0")
      * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.add", methods={"POST"})
+     *
+     * @param array<LineItem> $items
      */
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
         if ($items === null) {
             $items = [];
 
-            /** @var array $item */
+            /** @var array<mixed> $item */
             foreach ($request->request->all('items') as $item) {
                 $items[] = $this->lineItemFactory->create($item, $context);
             }
         }
 
         foreach ($items as $item) {
+            if ($request->getClientIp() !== null) {
+                $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp();
+                $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey);
+            }
+
             $alreadyExists = $cart->has($item->getId());
             $cart->add($item);
 

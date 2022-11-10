@@ -198,6 +198,9 @@
                 },
                 "newsletter_form": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "cart_add_line_item_from": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"

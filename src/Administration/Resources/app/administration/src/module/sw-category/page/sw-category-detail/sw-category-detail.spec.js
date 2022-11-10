@@ -2,11 +2,11 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-category/page/sw-category-detail';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-category-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-category-detail'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -62,14 +62,14 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
         wrapper.destroy();
     });
 
     it('should disable the save button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {} });
         await wrapper.setData({
             isLoading: false
@@ -82,7 +82,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should enable the save button', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {
@@ -100,7 +100,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should not allow to edit', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -118,7 +118,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
@@ -138,7 +138,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should not allow to create', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -156,7 +156,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to create', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.creator'
         ]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
@@ -176,7 +176,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should not allow to delete', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -194,7 +194,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.deleter'
         ]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {

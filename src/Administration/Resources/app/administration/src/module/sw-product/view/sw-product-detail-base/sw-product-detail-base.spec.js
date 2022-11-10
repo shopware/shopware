@@ -8,11 +8,11 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-product-detail-base'), {
+    return shallowMount(await Shopware.Component.build('sw-product-detail-base'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -36,10 +36,10 @@ function createWrapper(privileges = []) {
             'sw-product-category-form': true,
             'sw-product-deliverability-form': true,
             'sw-product-price-form': true,
-            'sw-product-basic-form': Shopware.Component.build('sw-product-basic-form'),
+            'sw-product-basic-form': await Shopware.Component.build('sw-product-basic-form'),
             'sw-product-feature-set-form': true,
             'sw-product-settings-form': true,
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-empty-state': true,
             'sw-card': {
                 template: '<div><slot></slot><slot name="grid"></slot></div>'
@@ -47,7 +47,7 @@ function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-media-modal-v2': true,
             'sw-container': true,
-            'sw-field': Shopware.Component.build('sw-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
             'sw-text-editor': true,
             'sw-switch-field': true,
             'sw-product-media-form': true,
@@ -193,13 +193,13 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get media default folder id when component got created', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
@@ -213,7 +213,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should turn on media modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
@@ -227,7 +227,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should turn off media modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
@@ -240,7 +240,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should be able to add a new media', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.addMedia = jest.fn(() => Promise.resolve());
@@ -262,7 +262,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should not be able to add a new media', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
@@ -282,7 +282,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should set media as cover', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
@@ -292,29 +292,29 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(wrapper.vm.product.coverId).toBe(media.id);
     });
 
-    it('should show Promotion Switch of General card when advanced mode is on', () => {
-        const wrapper = createWrapper();
+    it('should show Promotion Switch of General card when advanced mode is on', async () => {
+        const wrapper = await createWrapper();
 
         const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
         expect(promotionSwitch.attributes().style).toBeFalsy();
     });
 
-    it('should show Labelling card when advanced mode is on', () => {
-        const wrapper = createWrapper();
+    it('should show Labelling card when advanced mode is on', async () => {
+        const wrapper = await createWrapper();
 
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
         expect(labellingCardElement.attributes().style).toBeFalsy();
     });
 
-    it('should show Media card when media mode is checked', () => {
-        const wrapper = createWrapper();
+    it('should show Media card when media mode is checked', async () => {
+        const wrapper = await createWrapper();
 
         const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
         expect(mediaCardElement.attributes().style).toBeFalsy();
     });
 
     it('should hide Promotion Switch when advanced mode is off', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -332,7 +332,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should hide Labelling card when commit when advanced mode is off', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -350,7 +350,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should hide Media card when media mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
@@ -362,7 +362,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should hide General card when general_information mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
@@ -374,7 +374,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should hide Prices card when prices mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
@@ -386,7 +386,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should hide Deliverability card when deliverability mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
@@ -398,7 +398,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     });
 
     it('should hide Visibility Structure card when prices mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [

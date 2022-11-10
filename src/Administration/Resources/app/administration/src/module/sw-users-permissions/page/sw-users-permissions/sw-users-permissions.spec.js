@@ -4,8 +4,8 @@ import 'src/module/sw-users-permissions/page/sw-users-permissions';
 describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-users-permissions'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-users-permissions'), {
             stubs: {
                 'sw-page': {
                     template: '<div><slot name="content"></slot></div>'

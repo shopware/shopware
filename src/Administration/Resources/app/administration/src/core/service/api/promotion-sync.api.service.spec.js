@@ -15,11 +15,11 @@ function getPromotionSyncApiService(client = null, loginService = null) {
 }
 
 describe('core/service/api/promotion-sync.api.service', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         expect(getPromotionSyncApiService()).toBeInstanceOf(PromotionSyncApiService);
     });
 
-    it('should fire the necessary requests for loadPackagers & loadSorters', () => {
+    it('should fire the necessary requests for loadPackagers & loadSorters', async () => {
         const client = createHTTPClient();
         const getMethod = jest.spyOn(client, 'get').mockImplementation(() => Promise.resolve({
             data: null

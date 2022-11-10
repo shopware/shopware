@@ -8,21 +8,21 @@ const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 
-function createWrapper(customProps = {}, domains = []) {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-detail-domains'), {
+async function createWrapper(customProps = {}, domains = []) {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-domains'), {
         stubs: {
             'sw-card': {
                 template: '<div><slot></slot><slot name="grid"></slot></div>'
             },
             'sw-button': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-context-menu-item': true,
             'sw-icon': true,
             'sw-context-button': true,
-            'sw-modal': Shopware.Component.build('sw-modal'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-entity-single-select': true,
             'sw-radio-field': true,
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
             'sw-url-field': true,
             'sw-select-base': true,
@@ -41,6 +41,7 @@ function createWrapper(customProps = {}, domains = []) {
                 })
             },
             shortcutService: {
+                startEventListener: () => {},
                 stopEventListener: () => {}
             }
 
@@ -95,13 +96,13 @@ function getExampleDomains() {
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have button enabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
 
@@ -109,7 +110,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should have button disabled', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disableEdit: true
         });
 
@@ -119,7 +120,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should have context menu item enabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
 
@@ -129,7 +130,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should have context menu item disabled', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disableEdit: true
         });
 
@@ -141,14 +142,14 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should list all domains', async () => {
-        const wrapper = createWrapper({}, getExampleDomains());
+        const wrapper = await createWrapper({}, getExampleDomains());
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(rows.length).toBe(2);
     });
 
     it('should sort all domains', async () => {
-        const wrapper = createWrapper({}, getExampleDomains());
+        const wrapper = await createWrapper({}, getExampleDomains());
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
@@ -156,7 +157,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should sort all domains descending', async () => {
-        const wrapper = createWrapper({}, getExampleDomains());
+        const wrapper = await createWrapper({}, getExampleDomains());
 
         await wrapper.setData({
             sortDirection: 'DESC'
@@ -172,7 +173,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         domains[0].url = 'http://0.0.0.2';
         domains[1].url = 'http://0.0.0.10';
 
-        const wrapper = createWrapper({}, domains);
+        const wrapper = await createWrapper({}, domains);
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
@@ -180,7 +181,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should sort by currency', async () => {
-        const wrapper = createWrapper({}, getExampleDomains());
+        const wrapper = await createWrapper({}, getExampleDomains());
 
         await wrapper.setData({
             sortBy: 'currencyId'
@@ -198,7 +199,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                 name: 'language1'
             }]);
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             salesChannel: {
                 languages,
                 currencies: [],
@@ -220,7 +221,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                 name: 'currency1'
             }]);
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             salesChannel: {
                 languages: [],
                 currencies,
@@ -237,7 +238,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
         const exampleDomains = getExampleDomains();
-        const wrapper = createWrapper({}, exampleDomains);
+        const wrapper = await createWrapper({}, exampleDomains);
         let localResult = false;
         let dbResult = false;
         wrapper.vm.domainExistsLocal = jest.fn(() => localResult);
@@ -255,9 +256,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(await wrapper.vm.verifyUrl(exampleDomains[0])).toBeFalsy();
     });
 
-    it('domainExistsLocal › checks if the given domains url already exists locally', () => {
+    it('domainExistsLocal › checks if the given domains url already exists locally', async () => {
         const exampleDomains = getExampleDomains();
-        const wrapper = createWrapper({}, exampleDomains);
+        const wrapper = await createWrapper({}, exampleDomains);
         const testedDomain = { id: '8a243080f92e4c719546314b577cf82b', url: 'http://foo.bar' };
 
         expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeFalsy();
@@ -268,26 +269,32 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeTruthy();
     });
 
-    it('isOriginalUrl › checks if "url" equals the backup domains url', () => {
+    it('isOriginalUrl › checks if "url" equals the backup domains url', async () => {
         const exampleDomains = getExampleDomains();
         const testedDomain = exampleDomains[0];
-        const wrapper = createWrapper({}, exampleDomains);
+        const wrapper = await createWrapper({}, exampleDomains);
 
-        wrapper.setData({ currentDomainBackup: exampleDomains[0] });
+        await wrapper.setData({ currentDomainBackup: exampleDomains[0] });
         expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeTruthy();
 
-        wrapper.setData({ currentDomainBackup: exampleDomains[1] });
+        await wrapper.setData({ currentDomainBackup: exampleDomains[1] });
         expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeFalsy();
     });
 
     it('onClickAddNewDomain › early returns, if a domain is saved with its original "url" value', async () => {
         const exampleDomains = getExampleDomains();
         const testedDomain = exampleDomains[0];
-        const wrapper = createWrapper({}, exampleDomains);
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: [],
+                domains: [],
+                currencies: [],
+            }
+        }, exampleDomains);
 
         wrapper.vm.isOriginalUrl = jest.fn(() => true);
         wrapper.vm.verifyUrl = jest.fn();
-        wrapper.setData({ currentDomain: testedDomain, currentDomainBackup: testedDomain });
+        await wrapper.setData({ currentDomain: testedDomain, currentDomainBackup: testedDomain });
 
         await wrapper.vm.onClickAddNewDomain();
 

@@ -1,15 +1,17 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-shortcut-overview-item';
 
-function wrapperFactory({ propsData, privileges = [] }) {
-    return shallowMount(Shopware.Component.build('sw-shortcut-overview-item'), {
+async function wrapperFactory({ propsData, privileges = [] }) {
+    return shallowMount(await Shopware.Component.build('sw-shortcut-overview-item'), {
         propsData: { ...propsData },
         stubs: {},
         mocks: {},
         provide: {
             acl: {
                 can: (key) => {
-                    if (!key) { return true; }
+                    if (!key) {
+                        return true;
+                    }
 
                     return privileges.includes(key);
                 }
@@ -20,7 +22,7 @@ function wrapperFactory({ propsData, privileges = [] }) {
 
 describe('app/component/utils/sw-shortcut-overview-item', () => {
     it('should show the shortcout overview item', async () => {
-        const wrapper = wrapperFactory({
+        const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',
                 content: 'ALT-C'
@@ -36,7 +38,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
     });
 
     it('should split the key combinations into multiple kbd´s', async () => {
-        const wrapper = wrapperFactory({
+        const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',
                 content: 'D C'
@@ -50,7 +52,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
     });
 
     it('should not show the item because the privilege does not exists', async () => {
-        const wrapper = wrapperFactory({
+        const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',
                 content: 'D C',
@@ -64,7 +66,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
     });
 
     it('should show the item because the privilege does exists', async () => {
-        const wrapper = wrapperFactory({
+        const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',
                 content: 'D C',

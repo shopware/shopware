@@ -92,7 +92,7 @@ const inactiveStorefront = {
     }
 };
 
-function createWrapper(salesChannels = [], privileges = []) {
+async function createWrapper(salesChannels = [], privileges = []) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -124,14 +124,14 @@ function createWrapper(salesChannels = [], privileges = []) {
         params: { id: '8106c8da-4528-406e-8b47-dcae65965f6b' }
     });
 
-    return mount(Shopware.Component.build('sw-sales-channel-menu'), {
+    return mount(await Shopware.Component.build('sw-sales-channel-menu'), {
         localVue,
         router,
         stubs: {
             // eslint does not allow vue js templating syntax when used in a string
             // eslint-disable-next-line no-template-curly-in-string
             'sw-icon': { props: ['name'], template: '<div :class="`sw-icon sw-icon--${name}`"></div>' },
-            'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
+            'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
             'sw-context-button': true,
             'sw-context-menu-item': true,
             'sw-loader': true,
@@ -178,13 +178,13 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
         wrapper.destroy();
     });
 
     it('should be able to create sales channels when user has the privilege', async () => {
-        const wrapper = createWrapper(
+        const wrapper = await createWrapper(
             [],
             [
                 'sales_channel.creator'
@@ -198,7 +198,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('should not be able to create sales channels when user has not the privilege', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
         expect(buttonCreateSalesChannel.exists()).toBeFalsy();
@@ -206,8 +206,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         wrapper.destroy();
     });
 
-    it('should search the right sales channels', () => {
-        const wrapper = createWrapper();
+    it('should search the right sales channels', async () => {
+        const wrapper = await createWrapper();
 
         const parsedCriteria = wrapper.vm.salesChannelCriteria.parse();
 
@@ -230,7 +230,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             inactiveStorefront
         ];
 
-        const wrapper = createWrapper(testSalesChannels);
+        const wrapper = await createWrapper(testSalesChannels);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -241,7 +241,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('It does not add a link to sales channel for non storefront sales channel', async () => {
-        const wrapper = createWrapper([headlessSalesChannel]);
+        const wrapper = await createWrapper([headlessSalesChannel]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -255,7 +255,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     it('should use link to default language if exists', async () => {
         window.open = jest.fn();
 
-        const wrapper = createWrapper([storeFrontWithStandardDomain]);
+        const wrapper = await createWrapper([storeFrontWithStandardDomain]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -273,7 +273,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     it('prefers link to domain with actual admin language over others', async () => {
         window.open = jest.fn();
 
-        const wrapper = createWrapper([storefrontWithoutDefaultDomain]);
+        const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -292,7 +292,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         window.open = jest.fn();
         Shopware.State.get('session').languageId = Shopware.Utils.createId();
 
-        const wrapper = createWrapper([storefrontWithoutDefaultDomain]);
+        const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -308,7 +308,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('does not pick a storefront domain if there is none', async () => {
-        const wrapper = createWrapper([storefrontWithoutDomains]);
+        const wrapper = await createWrapper([storefrontWithoutDomains]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -320,7 +320,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('does not show a storefront domain if storefront is not active', async () => {
-        const wrapper = createWrapper([inactiveStorefront]);
+        const wrapper = await createWrapper([inactiveStorefront]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -332,7 +332,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('shows just one saleschannel as selected', async () => {
-        const wrapper = createWrapper([storeFrontWithStandardDomain, headlessSalesChannel]);
+        const wrapper = await createWrapper([storeFrontWithStandardDomain, headlessSalesChannel]);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -367,7 +367,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             });
         }
 
-        const wrapper = createWrapper(salesChannels);
+        const wrapper = await createWrapper(salesChannels);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -401,7 +401,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
 
-        const wrapper = createWrapper(salesChannels);
+        const wrapper = await createWrapper(salesChannels);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -414,7 +414,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     it('hide "more" when less than 7 sales channels are available and no favourites are selected', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             storeFrontWithStandardDomain,
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
@@ -457,7 +457,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             inactiveStorefront
         ];
 
-        const wrapper = createWrapper(salesChannels);
+        const wrapper = await createWrapper(salesChannels);
 
         Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
 

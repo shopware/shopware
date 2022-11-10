@@ -52,6 +52,7 @@ module.exports = {
         'file-progress',
         'sw-core-rules',
         'sw-deprecation-rules',
+        'sw-test-rules',
     ],
 
     settings: {
@@ -172,6 +173,7 @@ module.exports = {
         }, {
             files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
+                'sw-test-rules/await-async-functions': 'error',
                 'no-console': 0,
                 'comma-dangle': 0,
                 'max-len': 0,

@@ -7,9 +7,9 @@ const productMock = {
     description: 'This product is awesome'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
-    return shallowMount(Shopware.Component.build('sw-cms-el-product-description-reviews'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-product-description-reviews'), {
         localVue,
         sync: false,
         provide: {
@@ -46,13 +46,13 @@ function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/product-description-reviews/component', () => {
-    it('should display placeholder when page type is not product page and no product is selected', () => {
-        const wrapper = createWrapper();
+    it('should display placeholder when page type is not product page and no product is selected', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail').exists()).toBeTruthy();
     });
 
     it('should display skeleton when page type is product page and no product is selected', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {
@@ -65,7 +65,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     });
 
     it('should display data when product is selected', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
                 data: {
@@ -82,7 +82,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     });
 
     it('should show current demo data if mapping entity is product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             cmsPageState: {
@@ -98,7 +98,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     });
 
     it('should show dummy data initially if mapping entity is not product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             cmsPageState: {

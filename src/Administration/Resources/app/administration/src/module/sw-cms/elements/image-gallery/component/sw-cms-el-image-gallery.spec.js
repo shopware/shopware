@@ -28,10 +28,10 @@ const sliderItemsDataMock = [
     }
 ];
 
-function createWrapper(propsOverride, dataOverride) {
+async function createWrapper(propsOverride, dataOverride) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-cms-el-image-gallery'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-image-gallery'), {
         localVue,
         sync: false,
         provide: {
@@ -111,8 +111,8 @@ function createWrapper(propsOverride, dataOverride) {
 }
 
 describe('src/module/sw-cms/elements/image-gallery/component', () => {
-    it('should map to product media if the component is in a product page', () => {
-        const wrapper = createWrapper(null, {
+    it('should map to product media if the component is in a product page', async () => {
+        const wrapper = await createWrapper(null, {
             cmsPageState: {
                 currentPage: {
                     type: 'product_detail'
@@ -124,8 +124,8 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
         expect(wrapper.vm.element.config.sliderItems.value).toBe('product.media');
     });
 
-    it('should not initially map to product media if the component is sliderItems data exists', () => {
-        const wrapper = createWrapper({
+    it('should not initially map to product media if the component is sliderItems data exists', async () => {
+        const wrapper = await createWrapper({
             element: {
                 config: {
                     sliderItems: {
@@ -154,8 +154,8 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
         expect(wrapper.vm.element.config.sliderItems.value).toEqual(sliderItemsConfigMock);
     });
 
-    it('should gallery empty if there is no slider items value', () => {
-        const wrapper = createWrapper();
+    it('should gallery empty if there is no slider items value', async () => {
+        const wrapper = await createWrapper();
 
         const imagePlaceHolders = wrapper.findAll('.sw-cms-el-image-gallery__item-placeholder');
         const mediaSelection = wrapper.findAll('sw-media-list-selection-item-v2-stub');
@@ -167,7 +167,7 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
     });
 
     it('should media items if there are slider items value', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {

@@ -19,11 +19,11 @@ const customerGroupMock = [
     }
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-change-customer-group-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-change-customer-group-modal'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -79,7 +79,7 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
     });
 
     it('should show validation if customer group field is empty', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const saveButton = wrapper.find('.sw-flow-change-customer-group-modal__save-button');
         await saveButton.trigger('click');
@@ -97,7 +97,7 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
     });
 
     it('should emit process-finish when customer group is selected', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const customerGroupInput = wrapper.find('.sw-entity-single-select__selection-input');
         await customerGroupInput.setValue('2');

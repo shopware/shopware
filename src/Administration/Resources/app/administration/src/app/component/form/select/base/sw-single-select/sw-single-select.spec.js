@@ -9,24 +9,24 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 
-function createSingleSelect(customOptions) {
+async function createSingleSelect(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div @click="$emit(\'click\', $event)"></div>'
             },
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text')
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
         },
         propsData: {
             value: null,
@@ -47,7 +47,7 @@ function createSingleSelect(customOptions) {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-single-select'), {
+    return shallowMount(await Shopware.Component.build('sw-single-select'), {
         ...options,
         ...customOptions
     });
@@ -55,13 +55,13 @@ function createSingleSelect(customOptions) {
 
 describe('components/sw-single-select', () => {
     it('should be a Vue.js component', async () => {
-        const swSingleSelect = createSingleSelect();
+        const swSingleSelect = await createSingleSelect();
 
         expect(swSingleSelect.vm).toBeTruthy();
     });
 
     it('should open the result list on click on .sw-select__selection', async () => {
-        const swSingleSelect = createSingleSelect();
+        const swSingleSelect = await createSingleSelect();
         await swSingleSelect.find('.sw-select__selection').trigger('click');
 
         const resultList = swSingleSelect.find('.sw-select-result-list__content');
@@ -69,7 +69,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should show the result items', async () => {
-        const swSingleSelect = createSingleSelect();
+        const swSingleSelect = await createSingleSelect();
         await swSingleSelect.find('.sw-select__selection').trigger('click');
 
         const entryOne = swSingleSelect.find('.sw-select-option--0');
@@ -85,7 +85,7 @@ describe('components/sw-single-select', () => {
     it('should emit the first option', async () => {
         const changeSpy = jest.fn();
 
-        const swSingleSelect = createSingleSelect({
+        const swSingleSelect = await createSingleSelect({
             listeners: {
                 change: changeSpy
             }
@@ -102,7 +102,7 @@ describe('components/sw-single-select', () => {
     it('should emit the second option', async () => {
         const changeSpy = jest.fn();
 
-        const swSingleSelect = createSingleSelect({
+        const swSingleSelect = await createSingleSelect({
             listeners: {
                 change: changeSpy
             }
@@ -117,7 +117,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should close the result list after clicking an item', async () => {
-        const swSingleSelect = createSingleSelect();
+        const swSingleSelect = await createSingleSelect();
 
         await swSingleSelect.find('.sw-select__selection').trigger('click');
         await swSingleSelect.find('.sw-select-option--0').trigger('click');
@@ -127,7 +127,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should show the label for the selected value property', async () => {
-        const swSingleSelect = createSingleSelect({
+        const swSingleSelect = await createSingleSelect({
             propsData: {
                 value: 'entryOneValue',
                 options: [
@@ -152,7 +152,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should fill the search term when you enter an input', async () => {
-        const swSingleSelect = createSingleSelect();
+        const swSingleSelect = await createSingleSelect();
 
         await swSingleSelect.find('.sw-select__selection').trigger('click');
 
@@ -163,7 +163,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should filter the entries from the search term', async () => {
-        const swSingleSelect = createSingleSelect();
+        const swSingleSelect = await createSingleSelect();
 
         await swSingleSelect.find('.sw-select__selection').trigger('click');
         await swSingleSelect.setData({ searchTerm: 'Entry 3' });
@@ -173,7 +173,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should not show the selected item on first entry', async () => {
-        const wrapper = createSingleSelect();
+        const wrapper = await createSingleSelect();
         await wrapper.setProps({
             value: 'entryThreeValue'
         });
@@ -186,7 +186,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should show the clearable icon in the single select', async () => {
-        const wrapper = createSingleSelect({
+        const wrapper = await createSingleSelect({
             attrs: {
                 showClearableButton: true
             }
@@ -197,7 +197,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should clear the selection when clicking on clear icon', async () => {
-        const wrapper = createSingleSelect({
+        const wrapper = await createSingleSelect({
             propsData: {
                 value: 'entryOneValue',
                 options: [

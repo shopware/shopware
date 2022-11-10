@@ -31,7 +31,7 @@ const exampleModule = {
 };
 
 describe('appModulesService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         // const appModulesService = Shopware.Service('appActionButton');
         const { appModulesService } = createAppModulesService();
 

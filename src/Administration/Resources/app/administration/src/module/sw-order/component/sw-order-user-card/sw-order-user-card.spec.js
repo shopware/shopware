@@ -1,7 +1,11 @@
 import 'src/module/sw-order/component/sw-order-user-card';
 
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {
-    const userCard = Shopware.Component.build('sw-order-user-card');
+    let userCard;
+
+    beforeAll(async () => {
+        userCard = await Shopware.Component.build('sw-order-user-card');
+    });
 
     const trackingCode = 'TR-4CK1N-GCD';
     const reservedCharacters = ';,/?:@&=+$';

@@ -50,11 +50,11 @@ const customMultipleField = {
     }
 };
 
-function createWrapper(customField = customNormalField) {
+async function createWrapper(customField = customNormalField) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-set-entity-custom-field-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-set-entity-custom-field-modal'), {
         localVue,
         provide: {
             flowBuilderService: {
@@ -122,16 +122,16 @@ function createWrapper(customField = customNormalField) {
         },
 
         stubs: {
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-field': {
                 template: '<div class="sw-select-field"></div>'
             },
@@ -205,7 +205,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show these fields on modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         fieldClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
@@ -213,7 +213,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show error if custom field set empty', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const buttonSave = wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button');
         await buttonSave.trigger('click');
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-set').classes())
@@ -221,7 +221,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show error if custom field select entity empty', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.entity = null;
         const buttonSave = wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button');
         await buttonSave.trigger('click');
@@ -230,7 +230,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show error if custom field empty', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const selection = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-set');
         await selection.find('.sw-select__selection').trigger('click');
@@ -247,7 +247,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show normal options select and value select', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const selectionSet = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-set');
         await selectionSet.find('.sw-select__selection').trigger('click');
@@ -278,7 +278,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show multiple options select and value select', async () => {
-        const wrapper = createWrapper(customMultipleField);
+        const wrapper = await createWrapper(customMultipleField);
 
         const selectionSet = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-set');
         await selectionSet.find('.sw-select__selection').trigger('click');
@@ -309,7 +309,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should save action', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const selectionSet = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-set');
         await selectionSet.find('.sw-select__selection').trigger('click');
@@ -345,7 +345,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should not able to show error message when input is refilled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button').trigger('click');
 
         wrapper.find(fieldClasses[0]);
@@ -370,7 +370,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
     });
 
     it('should show correctly the entity options', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.entityOptions).toHaveLength(2);
         wrapper.vm.entityOptions.forEach((option) => {

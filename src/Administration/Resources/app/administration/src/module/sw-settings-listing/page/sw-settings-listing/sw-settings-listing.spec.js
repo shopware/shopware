@@ -303,8 +303,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         return entities;
     }
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-settings-listing'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-settings-listing'), {
             provide: {
                 repositoryFactory: {
                     create: () => ({
@@ -338,10 +338,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 },
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-empty-state': true,
                 'sw-icon': true,
-                'sw-pagination': Shopware.Component.build('sw-pagination'),
+                'sw-pagination': await Shopware.Component.build('sw-pagination'),
                 'sw-single-select': true,
                 'sw-settings-listing-default-sales-channel': true,
                 'router-link': true
@@ -349,8 +349,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         });
     }
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         // sets the default sorting option
         wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };

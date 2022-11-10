@@ -4,8 +4,8 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import FilterService from 'src/app/service/filter.service';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-settings-rule-list'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-settings-rule-list'), {
         stubs: {
             'sw-page': {
                 template: `
@@ -24,7 +24,7 @@ function createWrapper(privileges = []) {
     </div>
     `
             },
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item')
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item')
         },
         provide: {
             repositoryFactory: {
@@ -80,14 +80,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const buttonAddRule = wrapper.find('sw-button-stub');
@@ -102,7 +102,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for creator', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -119,7 +119,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('only should have enabled fields for editor', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -136,7 +136,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for deleter', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.deleter'
         ]);
         await wrapper.vm.$nextTick();

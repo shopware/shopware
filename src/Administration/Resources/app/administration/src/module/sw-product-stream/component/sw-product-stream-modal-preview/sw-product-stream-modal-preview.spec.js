@@ -12,8 +12,8 @@ responses.addResponse({
     }
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-product-stream-modal-preview'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-product-stream-modal-preview'), {
         stubs: {
             'sw-modal': true,
             'sw-label': true,
@@ -99,14 +99,14 @@ function createWrapper() {
 }
 
 describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should map filters for search', () => {
-        const wrapper = createWrapper();
+    it('should map filters for search', async () => {
+        const wrapper = await createWrapper();
 
         const expected = [
             {

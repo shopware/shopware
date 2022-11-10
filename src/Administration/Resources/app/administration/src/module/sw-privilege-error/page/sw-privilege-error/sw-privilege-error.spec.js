@@ -4,11 +4,11 @@ import 'src/module/sw-privilege-error/page/sw-privilege-error';
 describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const localVue = createLocalVue();
         localVue.filter('asset', value => value);
 
-        wrapper = shallowMount(Shopware.Component.build('sw-privilege-error'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-privilege-error'), {
             localVue,
             stubs: {
                 'sw-page': {

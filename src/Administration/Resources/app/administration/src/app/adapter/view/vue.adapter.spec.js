@@ -405,7 +405,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(lifecycleSpy).toBeCalledTimes(1);
     });
 
-    it('should build & create a vue.js component', () => {
+    it('should build & create a vue.js component', async () => {
         const componentDefinition = {
             name: 'sw-foo',
 

@@ -58,17 +58,17 @@ responses.addResponse({
     response: { data: categoryData }
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-category-tree-field'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-category-tree-field'), {
         stubs: {
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-label': true,
             'sw-icon': true,
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-tree': Shopware.Component.build('sw-tree')
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-tree': await Shopware.Component.build('sw-tree')
         },
         propsData: {
             placeholder: 'some-placeholder',
@@ -81,14 +81,14 @@ function createWrapper() {
 
 describe('src/app/component/entity/sw-category-tree-field', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should close the dropdown when selecting in the single select mode', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setProps({
@@ -98,7 +98,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
 
         wrapper.vm.term = 'some-search-term';
-        wrapper.find('.sw-category-tree__input-field').trigger('focus');
+        await wrapper.find('.sw-category-tree__input-field').trigger('focus');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);

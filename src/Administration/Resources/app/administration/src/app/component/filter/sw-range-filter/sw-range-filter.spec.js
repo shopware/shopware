@@ -4,13 +4,13 @@ import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils
 
 const { Criteria } = Shopware.Data;
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-range-filter'), {
+    return shallowMount(await Shopware.Component.build('sw-range-filter'), {
         localVue,
         stubs: {
-            'sw-base-filter': Shopware.Component.build('sw-base-filter'),
+            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
@@ -35,7 +35,7 @@ enableAutoDestroy(afterEach);
 
 describe('src/app/component/filter/sw-range-filter', () => {
     it('should emit `filter-update` event when `From` value exits', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             value: {
@@ -50,7 +50,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
     });
 
     it('should emit `filter-update` event when `To` value exits', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             value: {
@@ -65,7 +65,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
     });
 
     it('should emit `filter-update` event when `From` and `To` value exits', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             value: {
@@ -79,8 +79,8 @@ describe('src/app/component/filter/sw-range-filter', () => {
         ]);
     });
 
-    it('should render From field and To field on the same line', () => {
-        const wrapper = createWrapper();
+    it('should render From field and To field on the same line', async () => {
+        const wrapper = await createWrapper();
 
         const container = wrapper.find('.sw-container');
         const divider = wrapper.find('.sw-range-filter__divider');
@@ -90,7 +90,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
     });
 
     it('should render From field and To field in different line', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             isShowDivider: false

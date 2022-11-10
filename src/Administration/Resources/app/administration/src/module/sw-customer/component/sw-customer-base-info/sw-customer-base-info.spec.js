@@ -29,8 +29,8 @@ responses.addResponse({
     }
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-customer-base-info'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-customer-base-info'), {
         propsData: {
             customer: {
                 birthday: '1992-12-22T00:00:00.000+00:00',
@@ -75,8 +75,8 @@ function createWrapper() {
 describe('module/sw-customer/page/sw-customer-base-info', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

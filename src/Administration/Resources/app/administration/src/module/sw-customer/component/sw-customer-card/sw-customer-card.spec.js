@@ -10,8 +10,8 @@ const customer = {
     ]
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-customer-card'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-customer-card'), {
         propsData: {
             customer: {},
             title: ''
@@ -40,7 +40,7 @@ function createWrapper() {
 
 describe('module/sw-customer/page/sw-customer-card', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
         const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
 
@@ -48,7 +48,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
     });
 
     it('should display the account type switcher', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             editMode: true
         });
@@ -57,7 +57,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
     });
 
     it('should display company and vat fields when switching to business type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             editMode: true,
             customer: {
@@ -70,7 +70,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
     });
 
     it('should hide company and vat fields when switching to private type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             editMode: true,
             customer: {

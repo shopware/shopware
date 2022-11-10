@@ -5,11 +5,11 @@ import 'src/module/sw-order/component/sw-order-create-initial-modal';
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-order-create-initial-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-initial-modal'), {
         localVue,
         propsData: {
             taxStatus: 'gross',
@@ -62,7 +62,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     });
 
     it('should disabled other tabs if customer is not selected', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         tabs.forEach(tab => {
             expect(wrapper.find(tab).attributes().disabled).toBeTruthy();
@@ -74,7 +74,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             id: '1234'
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         tabs.forEach(tab => {
             expect(wrapper.find(tab).attributes().disabled).toBeUndefined();

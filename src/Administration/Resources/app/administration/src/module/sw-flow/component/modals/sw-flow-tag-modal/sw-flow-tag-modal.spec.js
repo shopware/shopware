@@ -30,11 +30,11 @@ function getTagCollection(collection = []) {
     );
 }
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-tag-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-tag-modal'), {
         localVue,
         provide: {
             flowBuilderService: {
@@ -67,13 +67,13 @@ function createWrapper() {
         },
 
         stubs: {
-            'sw-entity-tag-select': Shopware.Component.build('sw-entity-tag-select'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+            'sw-entity-tag-select': await Shopware.Component.build('sw-entity-tag-select'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -137,7 +137,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should show these fields on modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         fieldClasses.forEach(elementClass => {
@@ -146,7 +146,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should show error if these fields are invalid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const removeEntity = wrapper.find('.sw-select__select-indicator-clear');
         await removeEntity.trigger('click');
         const buttonSave = wrapper.find('.sw-flow-tag-modal__save-button');
@@ -158,7 +158,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should remove error if these fields are valid ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const removeEntity = wrapper.find('.sw-select__select-indicator-clear');
         await removeEntity.trigger('click');
@@ -187,7 +187,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should show correctly the entity options', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.entityOptions).toHaveLength(2);
         wrapper.vm.entityOptions.forEach((option) => {
@@ -196,7 +196,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should display the title of tag correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             action: 'action.add.order.tag',
@@ -212,7 +212,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should display empty title of tag', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             action: 'action.delete.order.tag',

@@ -6,11 +6,11 @@ import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-detail'), {
         localVue,
 
         mocks: {
@@ -104,9 +104,9 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-card-view': Shopware.Component.build('sw-card-view'),
-            'sw-card': Shopware.Component.build('sw-card'),
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-card-view': await Shopware.Component.build('sw-card-view'),
+            'sw-card': await Shopware.Component.build('sw-card'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-language-switch': true,
             'sw-language-info': true,
             'sw-button': true,
@@ -136,8 +136,8 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'router-link': true,
             'router-view': true,
             'sw-skeleton': true,
@@ -152,14 +152,14 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be render tab', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
 
@@ -172,7 +172,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be able to save the country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -185,7 +185,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should not be able to save the country', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(

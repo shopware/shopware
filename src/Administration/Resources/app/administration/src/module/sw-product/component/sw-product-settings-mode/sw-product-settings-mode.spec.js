@@ -6,7 +6,7 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
 describe('module/sw-product/component/sw-product-settings-mode', () => {
-    function createWrapper() {
+    async function createWrapper() {
         const localVue = createLocalVue();
         localVue.directive('tooltip', {
             bind(el, binding) {
@@ -14,7 +14,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
             }
         });
 
-        return shallowMount(Shopware.Component.build('sw-product-settings-mode'), {
+        return shallowMount(await Shopware.Component.build('sw-product-settings-mode'), {
             localVue,
             mocks: {
                 $route: {
@@ -26,10 +26,10 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 'sw-context-button': true,
                 'sw-button': true,
                 'sw-icon': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-context-menu-divider': true,
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
                 'sw-loader': true
             },
@@ -59,15 +59,15 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
 
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

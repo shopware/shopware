@@ -3,11 +3,11 @@ import 'src/module/sw-settings-country/component/sw-settings-country-state';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-state'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-state'), {
         localVue,
 
         mocks: {
@@ -73,9 +73,9 @@ function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-button': true,
             'sw-icon': true,
             'sw-simple-search-field': true,
@@ -107,14 +107,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/component/sw-settings-country-state', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -125,7 +125,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should not be able to create a new country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-country-state__add-country-state-button');
@@ -134,7 +134,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should be able to edit a country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -144,7 +144,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should not be able to edit a country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
@@ -152,7 +152,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should be able to delete a country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -162,7 +162,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should not be able to delete a country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');

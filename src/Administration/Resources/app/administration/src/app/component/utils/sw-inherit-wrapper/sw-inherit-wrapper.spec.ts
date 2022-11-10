@@ -3,7 +3,7 @@ import 'src/app/component/utils/sw-inherit-wrapper';
 import type { ThisTypedShallowMountOptions } from '@vue/test-utils';
 
 async function createWrapper(options: ThisTypedShallowMountOptions<any> = {}) {
-    return shallowMount(Shopware.Component.build('sw-inherit-wrapper'), {
+    return shallowMount(await Shopware.Component.build('sw-inherit-wrapper'), {
         ...options,
     });
 }

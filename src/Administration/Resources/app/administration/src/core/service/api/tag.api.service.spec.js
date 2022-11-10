@@ -13,12 +13,12 @@ function getTagApiService() {
 }
 
 describe('tagApiService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { tagApiService } = getTagApiService();
         expect(tagApiService).toBeInstanceOf(TagApiService);
     });
 
-    it('is send filterIds request correctly', () => {
+    it('is send filterIds request correctly', async () => {
         const { tagApiService, clientMock } = getTagApiService();
         let didRequest = false;
 

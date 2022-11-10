@@ -3,8 +3,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/component/sw-cms-list-item';
 
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-cms-list-item'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-list-item'), {
         propsData: {
             page: {
                 name: 'My custom layout',
@@ -31,13 +31,13 @@ function createWrapper() {
 
 describe('module/sw-cms/page/sw-cms-list-item', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display whether the cms-page is set as default', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-list-item__is-default').exists()).toBe(false);
 

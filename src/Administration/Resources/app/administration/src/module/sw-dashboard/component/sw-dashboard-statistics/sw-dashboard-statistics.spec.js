@@ -4,7 +4,7 @@ import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
 import { currency } from 'src/core/service/utils/format.utils';
 import flushPromises from 'flush-promises';
 
-function createWrapper(privileges = [], orderSumToday = null) {
+async function createWrapper(privileges = [], orderSumToday = null) {
     const localVue = createLocalVue();
     localVue.filter('asset', v => v);
     localVue.filter('date', v => v);
@@ -69,7 +69,7 @@ function createWrapper(privileges = [], orderSumToday = null) {
         options.computed.orderSumToday = () => orderSumToday;
     }
 
-    return shallowMount(Shopware.Component.build('sw-dashboard-statistics'), options);
+    return shallowMount(await Shopware.Component.build('sw-dashboard-statistics'), options);
 }
 
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {

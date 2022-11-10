@@ -104,11 +104,11 @@ function getSequencesCollection(collection = []) {
     );
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-detail-flow'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-detail-flow'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -144,7 +144,7 @@ function createWrapper(privileges = []) {
             'sw-icon': {
                 template: '<div class="sw-icon" v-on="$listeners"></div>'
             },
-            'sw-flow-sequence': Shopware.Component.build('sw-flow-sequence'),
+            'sw-flow-sequence': await Shopware.Component.build('sw-flow-sequence'),
             'sw-flow-sequence-selector': true,
             'sw-flow-sequence-action': true,
             'sw-flow-sequence-condition': true,
@@ -193,7 +193,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should show create an selector when select initially', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
@@ -224,7 +224,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                 sequences: getSequencesCollection(sequencesFixture)
             });
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
@@ -245,7 +245,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                 sequences: getSequencesCollection(sequencesFixture)
             });
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
@@ -280,7 +280,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                 }]
             });
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 

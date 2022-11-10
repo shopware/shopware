@@ -4,8 +4,8 @@ import 'src/module/sw-users-permissions/components/sw-users-permissions-addition
 describe('module/sw-users-permissions/components/sw-users-permissions-additional-permissions', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-additional-permissions'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-users-permissions-additional-permissions'), {
             sync: false,
             stubs: {
                 'sw-card': true,

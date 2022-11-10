@@ -23,7 +23,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         invalid: false
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         localVue = createLocalVue();
         localVue.use(Vuex);
 
@@ -34,7 +34,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             }
         });
 
-        wrapper = shallowMount(Shopware.Component.build('sw-category-detail-products'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-products'), {
             localVue,
             stubs: {
                 'sw-icon': true,
@@ -60,7 +60,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                 }
             },
             mocks: {
-                placeholder: () => {}
+                placeholder: () => {
+                }
             },
             propsData: {
                 isLoading: false,

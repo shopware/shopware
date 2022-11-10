@@ -4,18 +4,18 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import flushPromises from 'flush-promises';
 
-function createWrapper(customOptions = {}) {
+async function createWrapper(customOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('droppable', {});
 
-    return shallowMount(Shopware.Component.build('sw-media-upload-v2'), {
+    return shallowMount(await Shopware.Component.build('sw-media-upload-v2'), {
         localVue,
         stubs: {
             'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-button': true,
             'sw-button-group': true,
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-media-url-form': true
         },
         provide: {
@@ -52,8 +52,8 @@ let fileInputValueSet;
 describe('src/app/component/media/sw-media-upload-v2', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
@@ -193,7 +193,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be enabled', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -204,7 +204,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be disabled', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -261,7 +261,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media button should have normal style shade when variant is regular', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -274,7 +274,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media button should have square shade when variant is compact', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }

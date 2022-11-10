@@ -6,7 +6,7 @@ import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/sta
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const promotionData = {
         name: 'Test Promotion',
         active: true,
@@ -49,7 +49,7 @@ function createWrapper(privileges = []) {
         hasOrders: false
     };
 
-    return shallowMount(Shopware.Component.build('sw-promotion-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-detail'), {
         stubs: {
             'sw-page': {
                 template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>'
@@ -99,7 +99,7 @@ describe('src/module/sw-promotion/page/sw-promotion-detail', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
@@ -108,7 +108,7 @@ describe('src/module/sw-promotion/page/sw-promotion-detail', () => {
     });
 
     it('should disable the save button when privilege does not exist', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false
@@ -121,7 +121,7 @@ describe('src/module/sw-promotion/page/sw-promotion-detail', () => {
     });
 
     it('should enable the save button when privilege does not exist', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

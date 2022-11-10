@@ -2,8 +2,8 @@ import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
 
 import 'src/module/sw-order/component/sw-order-credit-item';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-credit-item'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-credit-item'), {
         propsData: {
             taxStatus: 'gross',
             currency: {
@@ -35,7 +35,7 @@ enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-credit-item', () => {
     it('should convert credit to negative value', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const priceField = wrapper.find('.sw-order-credit-item__price');
 
         await priceField.setValue(100);

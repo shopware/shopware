@@ -48,8 +48,8 @@ orderMock.deliveries.first = () => ({
     }
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-details-state-card'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-details-state-card'), {
         propsData: {
             order: orderMock,
             isLoading: false,
@@ -134,21 +134,21 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         global.repositoryFactoryMock.showError = false;
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show history text', () => {
+    it('should show history text', async () => {
         const summary = wrapper.find('.sw-order-detail-state-card__state-history-text');
 
         expect(summary.exists()).toBeTruthy();

@@ -8,15 +8,15 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/utils/sw-popover';
 
-const createMultiDataIpSelect = (customOptions) => {
+const createMultiDataIpSelect = async (customOptions) => {
     const options = {
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-icon': {
                 template: '<div></div>'
             }
@@ -26,7 +26,7 @@ const createMultiDataIpSelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-multi-tag-ip-select'), {
+    return shallowMount(await Shopware.Component.build('sw-multi-tag-ip-select'), {
         ...options,
         ...customOptions
     });
@@ -34,7 +34,9 @@ const createMultiDataIpSelect = (customOptions) => {
 
 describe('components/sw-multi-tag-ip-select', () => {
     it('should be a Vue.js component', async () => {
-        expect(createMultiDataIpSelect().vm).toBeTruthy();
+        const wrapper = await createMultiDataIpSelect();
+
+        expect(wrapper.vm).toBeTruthy();
     });
 
     [

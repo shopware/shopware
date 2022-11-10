@@ -28,8 +28,8 @@ const productsMock = [
     }
 ];
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-dynamic-product-groups'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-dynamic-product-groups'), {
         stubs: {
             'sw-alert': true,
             'sw-card': {
@@ -67,19 +67,19 @@ function createWrapper() {
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should get product streams when component got created', () => {
+    it('should get product streams when component got created', async () => {
         wrapper.vm.getProductStreams = jest.fn(() => {
             return Promise.resolve();
         });
@@ -151,7 +151,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         wrapper.vm.getProductStreams.mockRestore();
     });
 
-    it('should get product streams when paginating', () => {
+    it('should get product streams when paginating', async () => {
         wrapper.vm.getProductStreams = jest.fn(() => {
             return Promise.resolve();
         });
@@ -165,7 +165,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         wrapper.vm.getProductStreams.mockRestore();
     });
 
-    it('should open product stream correctly', () => {
+    it('should open product stream correctly', async () => {
         window.open = jest.fn();
         wrapper.vm.$router.resolve = jest.fn(() => ({ href: 'href' }));
 
@@ -215,7 +215,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         wrapper.vm.createNotificationError.mockRestore();
     });
 
-    it('should exit the function when selecting product streams', () => {
+    it('should exit the function when selecting product streams', async () => {
         wrapper.vm.onSelect({});
 
         expect(wrapper.emitted()['selection-change'][0]).toEqual(

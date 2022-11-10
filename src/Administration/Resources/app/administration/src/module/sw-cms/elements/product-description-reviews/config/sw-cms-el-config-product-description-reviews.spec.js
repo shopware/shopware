@@ -7,9 +7,9 @@ const productMock = {
     description: 'This product is awesome'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
         localVue,
         sync: false,
         stubs: {
@@ -69,7 +69,7 @@ function createWrapper() {
 
 describe('src/module/sw-cms/elements/product-description-reviews/config', () => {
     it('should show product selector if page type is not product detail', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const productSelector = wrapper.find('sw-entity-single-select-stub');
         const alert = wrapper.find('sw-alert-stub');
 
@@ -78,7 +78,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
     });
 
     it('should show alert information if page type is product detail', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             cmsPageState: {

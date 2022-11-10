@@ -4,7 +4,7 @@ import 'src/app/component/context-menu/sw-context-button';
 
 const { Component } = Shopware;
 
-function createWrapper(additionalOptions = {}) {
+async function createWrapper(additionalOptions = {}) {
     const localVue = createLocalVue();
 
     return shallowMount(Component.build('sw-card'), {
@@ -28,7 +28,7 @@ describe('src/app/component/base/sw-card', () => {
                 title: 'test title'
             }
         };
-        const wrapper = createWrapper(options);
+        const wrapper = await createWrapper(options);
 
         expect(wrapper.find('.sw-card__title').exists()).toBeTruthy();
     });
@@ -39,7 +39,7 @@ describe('src/app/component/base/sw-card', () => {
                 subtitle: 'test subtitle'
             }
         };
-        const wrapper = createWrapper(options);
+        const wrapper = await createWrapper(options);
 
         expect(wrapper.find('.sw-card__subtitle').exists()).toBeTruthy();
     });
@@ -50,7 +50,7 @@ describe('src/app/component/base/sw-card', () => {
                 isLoading: true
             }
         };
-        const wrapper = createWrapper(options);
+        const wrapper = await createWrapper(options);
 
         expect(wrapper.find('sw-loader-stub').exists()).toBeTruthy();
     });
@@ -61,7 +61,7 @@ describe('src/app/component/base/sw-card', () => {
                 default: 'hello'
             }
         };
-        const emptyCard = createWrapper(options);
+        const emptyCard = await createWrapper(options);
 
         expect(emptyCard.find('.sw-context-button').exists()).toBe(false);
     });
@@ -72,7 +72,7 @@ describe('src/app/component/base/sw-card', () => {
                 'context-actions': '<div class="unscoped-slot">Unscoped</div>'
             }
         };
-        const wrapper = createWrapper(options);
+        const wrapper = await createWrapper(options);
         const buttonUnscopedCard = wrapper.find('.sw-context-button__button');
 
         expect(wrapper.find('.sw-context-button__button').exists()).toBeTruthy();
@@ -88,7 +88,7 @@ describe('src/app/component/base/sw-card', () => {
                 'context-actions': '<div class="scoped-slot">Scoped</div>'
             }
         };
-        const wrapper = createWrapper(options);
+        const wrapper = await createWrapper(options);
         const buttonScopedCard = wrapper.find('.sw-context-button__button');
 
         expect(wrapper.find('.sw-context-button__button').exists()).toBeTruthy();

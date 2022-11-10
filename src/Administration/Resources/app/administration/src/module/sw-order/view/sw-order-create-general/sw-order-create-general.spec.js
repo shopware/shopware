@@ -4,12 +4,12 @@ import 'src/module/sw-order/view/sw-order-create-general';
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.directive('tooltip', {});
     localVue.filter('currency', v => v);
-    return shallowMount(Shopware.Component.build('sw-order-create-general'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-general'), {
         localVue,
         stubs: {
             'sw-card-view': true,
@@ -55,7 +55,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should be show successful notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
@@ -81,7 +81,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should be show error notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -107,7 +107,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should be show warning notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
@@ -133,7 +133,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should only display Total row when status is tax free', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swOrder/setCart', {
             token: null,
@@ -152,7 +152,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swOrder/setCart', {
             token: null,

@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/page/sw-settings-tax-list';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-tax-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-tax-list'), {
         localVue,
         mocks: {
             $route: {
@@ -103,14 +103,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new tax', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'tax.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -121,7 +121,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should not be able to create a new tax', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-settings-tax-list__button-create');
@@ -130,7 +130,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to edit a tax', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'tax.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -141,7 +141,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should not be able to edit a tax', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-tax-list__edit-action');
@@ -150,7 +150,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to delete a tax', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'tax.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -161,7 +161,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should not be able to delete a tax', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-tax-list__delete-action');
@@ -170,7 +170,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to inline edit a tax', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'tax.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -182,7 +182,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should not be able to inline edit a tax', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-settings-tax-list-grid');

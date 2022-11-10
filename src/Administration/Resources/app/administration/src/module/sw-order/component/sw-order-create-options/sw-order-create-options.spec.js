@@ -66,11 +66,11 @@ const customerData = {
     ),
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-order-create-options'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-options'), {
         localVue,
         propsData: {
             promotionCodes: [],
@@ -88,12 +88,12 @@ function createWrapper() {
             'sw-popover': {
                 template: '<div class="sw-popover"><slot></slot></div>'
             },
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-order-customer-address-select': Shopware.Component.build('sw-order-customer-address-select'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-order-customer-address-select': await Shopware.Component.build('sw-order-customer-address-select'),
             'sw-switch-field': true,
             'sw-text-field': true,
             'sw-entity-single-select': true,
@@ -151,7 +151,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     });
 
     it('should show address option correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
@@ -163,7 +163,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     });
 
     it('should able to set billing address same as shipping address', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
@@ -182,7 +182,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     it('should able to set shipping address same as billing address', async () => {
         Shopware.State.commit('swOrder/setCustomer', { ...customerData });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const shippingAddressSelect = wrapper.find('.sw-order-create-options__shipping-address .sw-select__selection');

@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-tree-node';
 
-function createWrapper(customProps = {}) {
-    return shallowMount(Shopware.Component.build('sw-condition-tree-node'), {
+async function createWrapper(customProps = {}) {
+    return shallowMount(await Shopware.Component.build('sw-condition-tree-node'), {
         stubs: {
             'sw-demo': true
         },
@@ -26,13 +26,13 @@ function createWrapper(customProps = {}) {
 
 describe('src/app/component/rule/sw-condition-tree-node', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled component node', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const demoComponent = wrapper.find('sw-demo-stub');
 
@@ -40,7 +40,7 @@ describe('src/app/component/rule/sw-condition-tree-node', () => {
     });
 
     it('should have disabled component node', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });

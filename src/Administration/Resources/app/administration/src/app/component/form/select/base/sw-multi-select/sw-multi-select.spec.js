@@ -12,27 +12,27 @@ import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/base/sw-label';
 import 'src/app/component/base/sw-button';
 
-const createMultiSelect = (customOptions) => {
+const createMultiSelect = async (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div></div>'
             },
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-label': Shopware.Component.build('sw-label'),
-            'sw-button': Shopware.Component.build('sw-button')
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-button': await Shopware.Component.build('sw-button')
         },
         propsData: {
             value: [],
@@ -53,7 +53,7 @@ const createMultiSelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-multi-select'), {
+    return shallowMount(await Shopware.Component.build('sw-multi-select'), {
         ...options,
         ...customOptions
     });
@@ -61,13 +61,13 @@ const createMultiSelect = (customOptions) => {
 
 describe('components/sw-multi-select', () => {
     it('should be a Vue.js component', async () => {
-        const swMultiSelect = createMultiSelect();
+        const swMultiSelect = await createMultiSelect();
 
         expect(swMultiSelect.vm).toBeTruthy();
     });
 
     it('should open the result list on click on .sw-select__selection', async () => {
-        const swMultiSelect = createMultiSelect();
+        const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
 
         const resultList = swMultiSelect.find('.sw-select-result-list__content');
@@ -75,7 +75,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should show the result items', async () => {
-        const swMultiSelect = createMultiSelect();
+        const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
 
         const entryOne = swMultiSelect.find('.sw-select-option--0');
@@ -91,7 +91,7 @@ describe('components/sw-multi-select', () => {
     it('should emit the first option', async () => {
         const changeSpy = jest.fn();
 
-        const swMultiSelect = createMultiSelect({
+        const swMultiSelect = await createMultiSelect({
             listeners: {
                 change: changeSpy
             }
@@ -108,7 +108,7 @@ describe('components/sw-multi-select', () => {
     it('should emit the second option', async () => {
         const changeSpy = jest.fn();
 
-        const swMultiSelect = createMultiSelect({
+        const swMultiSelect = await createMultiSelect({
             listeners: {
                 change: changeSpy
             }
@@ -125,7 +125,7 @@ describe('components/sw-multi-select', () => {
     it('should emit two options', async () => {
         const changeSpy = jest.fn();
 
-        const swMultiSelect = createMultiSelect({
+        const swMultiSelect = await createMultiSelect({
             listeners: {
                 change: changeSpy
             }
@@ -146,7 +146,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should not close the result list after clicking an item', async () => {
-        const swMultiSelect = createMultiSelect();
+        const swMultiSelect = await createMultiSelect();
 
         await swMultiSelect.find('.sw-select__selection').trigger('click');
 
@@ -160,7 +160,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should show the label for the selected value property', async () => {
-        const swMultiSelect = createMultiSelect({
+        const swMultiSelect = await createMultiSelect({
             propsData: {
                 value: ['entryOneValue'],
                 options: [
@@ -185,7 +185,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should show multiple labels for the selected values properties', async () => {
-        const swMultiSelect = createMultiSelect({
+        const swMultiSelect = await createMultiSelect({
             propsData: {
                 value: ['entryOneValue', 'entryThreeValue'],
                 options: [
@@ -213,7 +213,7 @@ describe('components/sw-multi-select', () => {
 
 
     it('should save the filled searchTerm', async () => {
-        const swMultiSelect = createMultiSelect();
+        const swMultiSelect = await createMultiSelect();
 
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await swMultiSelect.setData({ searchTerm: 'Entry 3' });

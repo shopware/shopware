@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media';
 import flushPromises from 'flush-promises';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-product-media'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-media'), {
         stubs: {
             'sw-bulk-edit-product-media-form': true,
         },
@@ -33,7 +33,7 @@ describe('sw-bulk-edit-product-media', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await flushPromises();
     });
@@ -42,7 +42,7 @@ describe('sw-bulk-edit-product-media', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/tree/sw-tree-item';
 
-function createWrapper(customOptions = {}) {
+async function createWrapper(customOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {
         bind(el, binding) {
@@ -20,7 +20,7 @@ function createWrapper(customOptions = {}) {
     localVue.directive('droppable', {});
     localVue.directive('draggable', {});
 
-    return shallowMount(Shopware.Component.build('sw-tree-item'), {
+    return shallowMount(await Shopware.Component.build('sw-tree-item'), {
         localVue,
         stubs: {
             'sw-icon': true,
@@ -44,8 +44,8 @@ function createWrapper(customOptions = {}) {
 describe('src/app/component/tree/sw-tree-item', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

@@ -5,7 +5,7 @@ describe('src/module/sw-bulk-edit/state/sw-bulk-edit.state', () => {
         Shopware.State.registerModule('swBulkEdit', swBulkEditState);
     });
 
-    it('should be able to setIsFlowTriggered', () => {
+    it('should be able to setIsFlowTriggered', async () => {
         const state = Shopware.State.get('swBulkEdit');
 
         Shopware.State.commit('swBulkEdit/setIsFlowTriggered', true);
@@ -15,7 +15,7 @@ describe('src/module/sw-bulk-edit/state/sw-bulk-edit.state', () => {
         expect(state.isFlowTriggered).toBe(false);
     });
 
-    it('should be able to setOrderDocumentsIsChanged', () => {
+    it('should be able to setOrderDocumentsIsChanged', async () => {
         const state = Shopware.State.get('swBulkEdit');
 
         Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {

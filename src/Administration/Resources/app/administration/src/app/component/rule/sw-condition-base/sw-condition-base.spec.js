@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 
-function createWrapper(customProps = {}) {
-    return shallowMount(Shopware.Component.build('sw-condition-base'), {
+async function createWrapper(customProps = {}) {
+    return shallowMount(await Shopware.Component.build('sw-condition-base'), {
         stubs: {
             'sw-condition-type-select': true,
             'sw-text-field': true,
@@ -28,12 +28,12 @@ function createWrapper(customProps = {}) {
 
 describe('src/app/component/rule/sw-condition-base', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled condition type select', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const conditionTypeSelect = wrapper.find('sw-condition-type-select-stub');
 
@@ -41,7 +41,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
     });
 
     it('should have disabled condition type select', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 
@@ -51,7 +51,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
     });
 
     it('should have enabled context button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const contextButton = wrapper.find('sw-context-button-stub');
 
@@ -59,7 +59,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
     });
 
     it('should have disabled context button', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 
@@ -69,7 +69,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
     });
 
     it('should have enabled context menu item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
         contextMenuItems.wrappers.forEach(contextMenuItem => {
@@ -78,7 +78,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
     });
 
     it('should have disabled context menu item', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 

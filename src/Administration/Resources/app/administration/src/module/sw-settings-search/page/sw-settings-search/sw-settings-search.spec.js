@@ -25,7 +25,7 @@ const mockData = [
     }
 ];
 
-function createWrapper() {
+async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -38,14 +38,14 @@ function createWrapper() {
         routes: [{
             name: 'sw.settings.search.index.general',
             path: '/sw/settings/search/index/general',
-            component: Shopware.Component.build('sw-settings-search')
+            component: await Shopware.Component.build('sw-settings-search')
         }, {
             name: 'sw.settings.search.index.liveSearch',
             path: '/sw/settings/search/index/live-search/'
         }]
     });
 
-    return shallowMount(Shopware.Component.build('sw-settings-search'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search'), {
         localVue,
         router,
         provide: {
@@ -96,10 +96,10 @@ function createWrapper() {
                     </div>
                 `
             },
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
-            'sw-confirm-modal': Shopware.Component.build('sw-confirm-modal'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
+            'sw-confirm-modal': await Shopware.Component.build('sw-confirm-modal'),
             'sw-modal': true,
             'router-link': true,
             'router-view': true,
@@ -115,7 +115,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
@@ -124,7 +124,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     it('should not able to save product search config without editor privilege', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
@@ -134,7 +134,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     it('should able to save product search config if having editor privilege', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
@@ -144,7 +144,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     it('onSaveSearchSettings: should call to save function when the save button was clicked', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -168,7 +168,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     it('should be show successful notification when save configuration is succeed', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -191,7 +191,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     it('should be show error notification when save configuration is failed', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();

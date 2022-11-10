@@ -2,8 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-basic-information/component/sw-settings-captcha-select';
 
 describe('src/module/sw-settings-basic-information/component/sw-settings-captcha-select', () => {
-    function CaptchaSelect() {
-        return shallowMount(Shopware.Component.build('sw-settings-captcha-select'), {
+    async function CaptchaSelect() {
+        return shallowMount(await Shopware.Component.build('sw-settings-captcha-select'), {
             stubs: {
                 'sw-multi-select': {
                     template: '<div></div>'
@@ -26,8 +26,8 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
 
     let captchaSelect = null;
 
-    beforeEach(() => {
-        captchaSelect = new CaptchaSelect();
+    beforeEach(async () => {
+        captchaSelect = await new CaptchaSelect();
     });
 
     it('should be a vue js component', async () => {

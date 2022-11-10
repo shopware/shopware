@@ -67,27 +67,27 @@ const div = document.createElement('div');
 div.id = 'root';
 document.body.appendChild(div);
 
-function createWrapper(propsData) {
+async function createWrapper(propsData) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-trigger'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-trigger'), {
         localVue,
         stubs: {
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-container': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-tree': Shopware.Component.build('sw-tree'),
-            'sw-tree-item': Shopware.Component.build('sw-tree-item'),
+            'sw-tree': await Shopware.Component.build('sw-tree'),
+            'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
             'sw-loader': true,
             'sw-icon': {
                 template: '<div></div>'
             },
-            'sw-vnode-renderer': Shopware.Component.build('sw-vnode-renderer'),
+            'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-highlight-text': true,
             'sw-flow-event-change-confirm-modal': {
                 template: '<div class="sw-flow-event-change-confirm-modal"></div>'
@@ -570,7 +570,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await treeItem.trigger('click');
 
         const treeItemLink = await wrapper.find('.sw-tree-item__content .tree-link');
-        treeItemLink.trigger('click');
+        await treeItemLink.trigger('click');
 
         const treeItemContent = await wrapper.find('.sw-tree-item__content');
         expect(treeItemContent.attributes()['tooltip-id']).toBeTruthy();

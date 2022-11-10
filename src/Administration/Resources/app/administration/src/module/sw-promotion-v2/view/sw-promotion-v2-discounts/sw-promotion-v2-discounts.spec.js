@@ -31,13 +31,13 @@ const stubs = {
     'sw-radio-field': true
 };
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.filter('asset', ((key) => {
         return key;
     }));
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-discounts'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-discounts'), {
         localVue,
         stubs,
         provide: {
@@ -109,13 +109,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open and close the wizard', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             showDiscountModal: true
@@ -132,8 +132,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () =>
         expect(wrapper.findComponent({ name: 'sw-wizard' }).exists()).toBeFalsy();
     });
 
-    it('should disable adding discounts when privileges not set', () => {
-        const wrapper = createWrapper();
+    it('should disable adding discounts when privileges not set', async () => {
+        const wrapper = await createWrapper();
 
         const element = wrapper.find('sw-button-stub');
 
@@ -142,7 +142,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () =>
     });
 
     it('should enable adding discounts when privilege is set', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

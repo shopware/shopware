@@ -32,7 +32,7 @@ function getCollection() {
     );
 }
 
-const createSelect = (customOptions) => {
+const createSelect = async (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {});
@@ -40,20 +40,20 @@ const createSelect = (customOptions) => {
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div></div>'
             },
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-label': true,
-            'sw-loader': Shopware.Component.build('sw-loader'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
         },
         propsData: {
             entityCollection: getCollection()
@@ -70,7 +70,7 @@ const createSelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-many-to-many-select'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-many-to-many-select'), {
         ...options,
         ...customOptions
     });
@@ -78,7 +78,7 @@ const createSelect = (customOptions) => {
 
 describe('components/sw-entity-multi-select', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createSelect();
+        const wrapper = await createSelect();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -94,7 +94,7 @@ describe('components/sw-entity-multi-select', () => {
             expect(searchCriteria.associations[0].association).toEqual('testAssociation');
         });
 
-        const wrapper = createSelect({
+        const wrapper = await createSelect({
             propsData: {
                 entityCollection: entityCollection,
                 criteria: criteria,

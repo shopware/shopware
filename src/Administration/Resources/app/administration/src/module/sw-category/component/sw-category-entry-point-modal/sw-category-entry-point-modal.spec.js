@@ -4,7 +4,7 @@ import 'src/module/sw-category/component/sw-category-entry-point-modal';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-function createWrapper(privileges = [], additionalSalesChannels = []) {
+async function createWrapper(privileges = [], additionalSalesChannels = []) {
     const localVue = createLocalVue();
     const salesChannelCollection = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
         {
@@ -24,7 +24,7 @@ function createWrapper(privileges = [], additionalSalesChannels = []) {
         ...additionalSalesChannels
     ]);
 
-    return shallowMount(Shopware.Component.build('sw-category-entry-point-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-category-entry-point-modal'), {
         localVue,
         stubs: {
             'sw-modal': {
@@ -60,13 +60,13 @@ function createWrapper(privileges = [], additionalSalesChannels = []) {
 
 describe('src/module/sw-category/component/sw-category-entry-point-modal', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -85,7 +85,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -105,7 +105,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
 
 
     it('should have sales channel options which contain no changes', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -114,7 +114,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
     });
 
     it('should be able to apply its local changes', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 

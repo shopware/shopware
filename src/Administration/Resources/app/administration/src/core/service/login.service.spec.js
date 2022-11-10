@@ -381,7 +381,7 @@ describe('core/service/login.service.js', () => {
         expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
     });
 
-    it('should return CookieStorage', () => {
+    it('should return CookieStorage', async () => {
         const { loginService } = loginServiceFactory();
 
         expect(typeof loginService.getStorage).toBe('function');

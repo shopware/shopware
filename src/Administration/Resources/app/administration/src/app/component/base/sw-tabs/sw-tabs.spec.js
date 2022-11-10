@@ -18,7 +18,7 @@ const componentWithTabs = {
     props: ['routes']
 };
 
-function mountSwTabs(routes) {
+async function mountSwTabs(routes) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -38,8 +38,8 @@ function mountSwTabs(routes) {
             routes
         },
         stubs: {
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item')
         },
         attachTo: document.body,
     });
@@ -90,7 +90,7 @@ describe('sw-tabs', () => {
             path: '/starts/with'
         }];
 
-        const wrapper = mountSwTabs(routes);
+        const wrapper = await mountSwTabs(routes);
         await flushPromises();
 
         wrapper.vm.$router.push({ name: 'first.route' });
@@ -122,7 +122,7 @@ describe('sw-tabs', () => {
             path: '/route/first'
         }];
 
-        const wrapper = mountSwTabs(routes);
+        const wrapper = await mountSwTabs(routes);
         await flushPromises();
 
         const activeTabs = wrapper.findAll('.sw-tabs-item--active');

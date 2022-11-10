@@ -3,11 +3,11 @@ import 'src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal
 
 import Vuex from 'vuex';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-change-customer-status-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-change-customer-status-modal'), {
         localVue,
 
         propsData: {
@@ -50,7 +50,7 @@ function createWrapper() {
 
 describe('module/sw-flow/component/sw-flow-change-customer-status-modal', () => {
     it('should emit process-finish when customer status is selected', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const customerStatusInput = wrapper.find('.sw-single-select__selection-input');
         await customerStatusInput.setValue(false);

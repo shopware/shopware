@@ -6,8 +6,8 @@ const ruleConditionDataProviderService = {
     isRuleRestricted: jest.fn(),
 };
 
-function createWrapper(customProps = {}, customOptions = {}) {
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-rule-select'), {
+async function createWrapper(customProps = {}, customOptions = {}) {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-rule-select'), {
         stubs: {
             'sw-entity-many-to-many-select': true,
             'sw-arrow-field': true,
@@ -25,13 +25,13 @@ function createWrapper(customProps = {}, customOptions = {}) {
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should call the rule condition service with activated feature flag', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
 
         wrapper.vm.tooltipConfig({});
@@ -45,7 +45,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select', () 
      * @feature-deprecated (flag:FEATURE_NEXT_18215) Remove test when feature flag is removed
      */
     it('should have disabled tooltip and no restriction without tooltip', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         global.activeFeatureFlags = [];
 
         const tooltipConfig = wrapper.vm.tooltipConfig({});

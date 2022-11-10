@@ -41,11 +41,11 @@ const mediaRepository = {
 };
 
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-cms-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-detail'), {
         localVue,
         stubs: {
             'sw-page': true,
@@ -141,14 +141,14 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable all fields when acl rights are missing', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -179,7 +179,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             'cms.editor',
         ];
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({
             isLoading: false
@@ -205,7 +205,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should have warning message if there are more than 1 product page element in product page layout', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.createNotificationError = jest.fn();
@@ -235,7 +235,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             'cms.editor',
         ];
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
@@ -287,7 +287,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             'cms.editor',
         ];
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
         const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
@@ -331,7 +331,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             'cms.editor',
         ];
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
         const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
 
@@ -366,7 +366,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should show the missing element modal when saving a product detail page layout', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -394,7 +394,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should not show the missing element modal when saving a product detail page layout', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -424,7 +424,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should get preview entity for categories', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.createNotificationError = () => {};
@@ -468,7 +468,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should get preview entity for products', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.createNotificationError = () => {};
@@ -502,7 +502,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should allow setting the default layout', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         const idStub = 'some-id';
@@ -530,7 +530,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should allow setting the default layout', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         wrapper.vm.createNotificationError = () => {};
@@ -561,8 +561,8 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
     });
 
-    it('should limit association loading in the loadPageCriteria', () => {
-        wrapper = createWrapper();
+    it('should limit association loading in the loadPageCriteria', async () => {
+        wrapper = await createWrapper();
         const criteria = wrapper.vm.loadPageCriteria;
 
         ['categories', 'landingPages', 'products', 'products.manufacturer'].forEach((association) => {

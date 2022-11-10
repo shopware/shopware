@@ -17,7 +17,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
         isNew: () => false
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         localVue = createLocalVue();
         localVue.use(Vuex);
 
@@ -28,7 +28,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
             }
         });
 
-        wrapper = shallowMount(Shopware.Component.build('sw-category-detail-base'), {
+        wrapper = await shallowMount(await Shopware.Component.build('sw-category-detail-base'), {
             localVue,
             stubs: {
                 'sw-card': true,
@@ -46,7 +46,8 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 }
             },
             mocks: {
-                placeholder: () => {}
+                placeholder: () => {
+                }
             },
             propsData: {
                 isLoading: false,

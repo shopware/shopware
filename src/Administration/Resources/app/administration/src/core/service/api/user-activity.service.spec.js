@@ -12,7 +12,7 @@ function createUserActivityApiService() {
 }
 
 describe('userActivityApiService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { userActivityApiService } = createUserActivityApiService();
 
         expect(userActivityApiService).toBeInstanceOf(UserActivityApiService);

@@ -2,11 +2,11 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-settings-seo/component/sw-seo-main-category';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-seo-main-category'), {
+    return shallowMount(await Shopware.Component.build('sw-seo-main-category'), {
         localVue,
         stubs: {
             'sw-single-select': true
@@ -20,7 +20,7 @@ function createWrapper() {
 
 describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
     it('should not display main category label', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             overwriteLabel: true
         });
@@ -33,7 +33,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
     });
 
     it('should display main category label', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const singleSelect = wrapper.find('sw-single-select-stub');

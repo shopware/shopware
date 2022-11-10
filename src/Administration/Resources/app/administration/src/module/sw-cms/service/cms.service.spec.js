@@ -41,7 +41,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     };
 
     describe('registerCmsElement', () => {
-        it('registers cms element', () => {
+        it('registers cms element', async () => {
             const elementName = 'test';
             const expected = {
                 name: elementName,
@@ -73,7 +73,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(elementRegistry).toEqual({ [elementName]: expected });
         });
 
-        it('registers cms element with own collect function', () => {
+        it('registers cms element with own collect function', async () => {
             const elementName = 'test';
             const expected = {
                 name: elementName,
@@ -85,7 +85,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(expected.collect.mock).toBeTruthy();
         });
 
-        it('does not register cms element if component is missing', () => {
+        it('does not register cms element if component is missing', async () => {
             const elementName = 'testWithoutComponent';
             const expected = {
                 name: elementName,
@@ -107,7 +107,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     });
 
     describe('registerCmsBlock', () => {
-        it('registers cms block correctly', () => {
+        it('registers cms block correctly', async () => {
             const blockName = 'test';
             const expected = {
                 name: blockName,
@@ -135,7 +135,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(blockRegistry).toEqual({ [blockName]: expected });
         });
 
-        it('does not register cms block when name is not defined', () => {
+        it('does not register cms block when name is not defined', async () => {
             const blockName = 'testWithoutComponent';
             const expected = {
                 name: blockName,
@@ -158,7 +158,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     });
 
     describe('collect', () => {
-        it('adds multiple entity data when cms element defaultConfig properties have the same entity', () => {
+        it('adds multiple entity data when cms element defaultConfig properties have the same entity', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -208,7 +208,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual(expected);
         });
 
-        it('skips config key with source equal to "mapped" or "default"', () => {
+        it('skips config key with source equal to "mapped" or "default"', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -230,7 +230,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('skips config key if no entity is defined', () => {
+        it('skips config key if no entity is defined', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -251,7 +251,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('adds multiple value data if multiple entity values are given in a slot', () => {
+        it('adds multiple value data if multiple entity values are given in a slot', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -284,7 +284,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('uses given search criteria of cms element', () => {
+        it('uses given search criteria of cms element', async () => {
             const criteria = new Shopware.Data.Criteria(1, 10);
             criteria.setIds(['123']);
             // cms element components call the initElementConfig() function from cms-service mixin
@@ -319,7 +319,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('adds multiple value data if multiple entity values with mediaId are given in a slot', () => {
+        it('adds multiple value data if multiple entity values with mediaId are given in a slot', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -354,7 +354,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     });
 
     describe('enrich', () => {
-        it('uses given enrich function from cms element', () => {
+        it('uses given enrich function from cms element', async () => {
             const elementName = 'test';
             const expected = {
                 name: elementName,
@@ -366,7 +366,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(expected.enrich.mock).toBeTruthy();
         });
 
-        it('adds multiple entity data when cms element defaultConfig properties have the same entity', () => {
+        it('adds multiple entity data when cms element defaultConfig properties have the same entity', async () => {
             // cms element components call the initElementConfig() and initElementData() functions from cms-service mixin
             // to add the defaultConfig and defaultData properties to the config root level
             const element = {
@@ -407,7 +407,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('returns when element data is not defined', () => {
+        it('returns when element data is not defined', async () => {
             // cms element components call the initElementConfig() and initElementData() functions from cms-service mixin
             // to add the defaultConfig and defaultData properties to the config root level
             const element = {
@@ -422,7 +422,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(element.data).toEqual(undefined);
         });
 
-        it('adds no entity data when cms element defaultConfig property has no entity defined', () => {
+        it('adds no entity data when cms element defaultConfig property has no entity defined', async () => {
             // cms element components call the initElementConfig() and initElementData() functions from cms-service mixin
             // to add the defaultConfig and defaultData properties to the config root level
             const element = {
@@ -470,7 +470,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('returns if data has no fitting Object key', () => {
+        it('returns if data has no fitting Object key', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -494,7 +494,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(element.data).toEqual({ media: {} });
         });
 
-        it('adds multiple media data if value array defined', () => {
+        it('adds multiple media data if value array defined', async () => {
             // cms element components call the initElementConfig() and initElementData() functions from cms-service mixin
             // to add the defaultConfig and defaultData properties to the config root level
             const element = {
@@ -562,17 +562,17 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     describe('getEntityMappingTypes', () => {
         const entityFactory = Shopware.Application.getContainer('factory').entity;
 
-        it('does not return entity mapping types if entity name is null', () => {
+        it('does not return entity mapping types if entity name is null', async () => {
             const result = cmsService.getEntityMappingTypes();
             expect(result).toEqual({});
         });
 
-        it('does not return entity mapping types if entity schema is undefined', () => {
+        it('does not return entity mapping types if entity schema is undefined', async () => {
             const result = cmsService.getEntityMappingTypes('undefined');
             expect(result).toEqual({});
         });
 
-        it('does return entity mapping types direclty if already mapped', () => {
+        it('does return entity mapping types direclty if already mapped', async () => {
             const testAlreadyMappedType = {
                 properties: {
                     id: {
@@ -592,7 +592,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('does not return entity mapping types if property is read only', () => {
+        it('does not return entity mapping types if property is read only', async () => {
             const testReadOnly = {
                 properties: {
                     id: {
@@ -607,7 +607,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('does not return entity mapping types if property format is on block list', () => {
+        it('does not return entity mapping types if property format is on block list', async () => {
             const testFormatBlocklist = {
                 properties: {
                     id: {
@@ -622,7 +622,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('returns entity mapping types if property type is object and entity schema is undefined', () => {
+        it('returns entity mapping types if property type is object and entity schema is undefined', async () => {
             const testTypeObjectAndEntityUndefined = {
                 properties: {
                     id: {
@@ -641,7 +641,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('returns entity mapping types if property type is array and entity is already mapped', () => {
+        it('returns entity mapping types if property type is array and entity is already mapped', async () => {
             const testTypeArrayAlreadyMapped = {
                 properties: {
                     id: {
@@ -665,7 +665,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('does not return entity mapping types if type is array and no entity is defined', () => {
+        it('does not return entity mapping types if type is array and no entity is defined', async () => {
             const testTypeArrayNoEntity = {
                 properties: {
                     id: {
@@ -679,7 +679,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('returns entity mapping types if property type is not array nor object and type already mapped', () => {
+        it('returns entity mapping types if property type is not array nor object and type already mapped', async () => {
             const testTypeIsEntityAndAlreadyMapped = {
                 properties: {
                     property1: {
@@ -701,7 +701,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('returns entity mapping types if property type array and entity already mapped', () => {
+        it('returns entity mapping types if property type array and entity already mapped', async () => {
             const testTypeIsArrayAndAlreadyMapped = {
                 properties: {
                     property1: {
@@ -729,7 +729,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('returns entity mapping types if type is object and entity is not defined but nested properties', () => {
+        it('returns entity mapping types if type is object and entity is not defined but nested properties', async () => {
             const testOnlyProperties = {
                 properties: {
                     id: {
@@ -753,7 +753,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
-        it('does not return entity mapping types if type is object and entity nor nested properties are defined', () => {
+        it('does not return entity mapping types if type is object and entity nor nested properties are defined', async () => {
             const testWithoutPropertiesAndEntity = {
                 properties: {
                     id: {
@@ -767,7 +767,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('returns entity mapping types if property type is object and schema is defined', () => {
+        it('returns entity mapping types if property type is object and schema is defined', async () => {
             const testTypeObjectWithSchema = {
                 properties: {
                     id: {
@@ -798,7 +798,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     });
 
     describe('getPropertyByMappingPath', () => {
-        it('returns the property of a given entity by path', () => {
+        it('returns the property of a given entity by path', async () => {
             const entity = new Entity('test', 'product_manufacturer', {
                 description: 'manufacturer-description',
                 name: 'manufacturer',
@@ -812,14 +812,14 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual('abc');
         });
 
-        it('returns null if property is not defined', () => {
+        it('returns null if property is not defined', async () => {
             const entity = new Entity('test', 'product_manufacturer', {});
 
             const result = cmsService.getPropertyByMappingPath(entity, 'test.something');
             expect(result).toEqual(null);
         });
 
-        it('returns translated if exists', () => {
+        it('returns translated if exists', async () => {
             const entity = new Entity('test', 'product_manufacturer', {
                 description: 'manufacturer-description',
                 name: 'manufacturer',
@@ -837,7 +837,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             inheritance: true,
         };
 
-        it('adds multiple entity data when cms element defaultConfig properties have the same entity', () => {
+        it('adds multiple entity data when cms element defaultConfig properties have the same entity', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -890,7 +890,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual(expected);
         });
 
-        it('skips config key with source equal to "mapped" or "default"', () => {
+        it('skips config key with source equal to "mapped" or "default"', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -913,7 +913,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('skips config key if no entity is defined', () => {
+        it('skips config key if no entity is defined', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level
             const element = {
@@ -935,7 +935,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('uses given search criteria of cms element', () => {
+        it('uses given search criteria of cms element', async () => {
             const criteria = new Shopware.Data.Criteria(1, 10);
             criteria.setIds(['123']);
             // cms element components call the initElementConfig() function from cms-service mixin

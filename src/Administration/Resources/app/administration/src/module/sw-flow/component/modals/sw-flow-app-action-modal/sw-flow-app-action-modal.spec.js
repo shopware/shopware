@@ -66,11 +66,11 @@ const sequence = {
     }
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-app-action-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-app-action-modal'), {
         localVue,
         provide: {
             validationService: {},
@@ -87,13 +87,13 @@ function createWrapper() {
         propsData: sequence,
 
         stubs: {
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -115,7 +115,7 @@ function createWrapper() {
 
 describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     it('should show these fields on modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const fields = wrapper.findAll('.sw-form-field-renderer');
@@ -123,7 +123,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should show error if these fields are invalid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const buttonSave = wrapper.find('.sw-flow-app-action-modal__save-button');
         await buttonSave.trigger('click');
 
@@ -132,9 +132,9 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
     });
 
     it('should emit process-finish when save action', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             config: {
                 content: [1]
             }
@@ -151,14 +151,14 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         sequence.sequence.config = {
             content: [1, 2]
         };
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const title = wrapper.find('.sw-flow-app-action-modal__app-badge');
         expect(title.text()).toEqual('Flow Builder App');
     });
 
     it('should have headline and paragraph', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
 

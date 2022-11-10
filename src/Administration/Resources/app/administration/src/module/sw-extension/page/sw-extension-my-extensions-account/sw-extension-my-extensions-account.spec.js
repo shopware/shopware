@@ -11,17 +11,17 @@ const userInfo = {
     name: 'Max Muster'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('asset', key => key);
 
-    return shallowMount(Shopware.Component.build('sw-extension-my-extensions-account'), {
+    return shallowMount(await Shopware.Component.build('sw-extension-my-extensions-account'), {
         localVue,
         stubs: {
             'sw-avatar': true,
             'sw-loader': true,
-            'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-text-field': {
                 props: ['value'],
                 template: `

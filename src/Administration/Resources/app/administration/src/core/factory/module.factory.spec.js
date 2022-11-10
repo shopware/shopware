@@ -96,7 +96,7 @@ describe('core/factory/module.factory.js', () => {
         );
     });
 
-    xit('should not register a module without a component in the route definition', () => {
+    xit('should not register a module without a component in the route definition', async () => {
         const module = register('sw-foo', {
             routes: {
                 index: {

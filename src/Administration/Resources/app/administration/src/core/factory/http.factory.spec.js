@@ -13,7 +13,7 @@ describe('core/factory/http.factory.js', () => {
         mock = new MockAdapter(httpClient);
     });
 
-    it('should create a HTTP client with response interceptors', () => {
+    it('should create a HTTP client with response interceptors', async () => {
         expect(Object.getPrototypeOf(httpClient).isPrototypeOf(axios)).toBeTruthy();
     });
 

@@ -34,7 +34,7 @@ async function createWrapper(privileges = []) {
         }
     });
 
-    wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-detail'), {
+    wrapper = shallowMount(await Shopware.Component.build('sw-users-permissions-user-detail'), {
         localVue,
         provide: {
             acl: {
@@ -118,16 +118,16 @@ async function createWrapper(privileges = []) {
     </div>
     `
             },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
-            'sw-password-field': Shopware.Component.build('sw-text-field'),
+            'sw-password-field': await Shopware.Component.build('sw-text-field'),
             'sw-select-field': true,
             'sw-switch-field': true,
             'sw-entity-multi-select': true,

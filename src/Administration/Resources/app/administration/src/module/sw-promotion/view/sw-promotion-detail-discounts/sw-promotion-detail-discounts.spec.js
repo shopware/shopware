@@ -6,8 +6,8 @@ import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/sta
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-promotion-detail-discounts'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-promotion-detail-discounts'), {
         stubs: {
             'sw-card': true,
             'sw-button': true
@@ -42,13 +42,13 @@ describe('src/module/sw-promotion/view/sw-promotion-detail-discounts', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable adding discounts when privileges not set', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const element = wrapper.find('sw-button-stub');
 
@@ -57,7 +57,7 @@ describe('src/module/sw-promotion/view/sw-promotion-detail-discounts', () => {
     });
 
     it('should enable adding discounts when privilege is set', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

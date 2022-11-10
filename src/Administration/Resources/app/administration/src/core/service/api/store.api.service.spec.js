@@ -15,7 +15,7 @@ function getStoreApiService(client = null, loginService = null) {
 }
 
 describe('storeService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         expect(getStoreApiService()).toBeInstanceOf(StoreApiService);
     });
 

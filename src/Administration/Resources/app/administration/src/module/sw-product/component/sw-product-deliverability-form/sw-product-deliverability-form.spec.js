@@ -9,7 +9,7 @@ const { Utils } = Shopware;
 enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-deliverability-form', () => {
-    function createWrapper(productEntityOverride, parentProductOverride) {
+    async function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity =
             {
                 metaTitle: 'Product1',
@@ -22,7 +22,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
             ...parentProductOverride
         };
 
-        return shallowMount(Shopware.Component.build('sw-product-deliverability-form'), {
+        return shallowMount(await Shopware.Component.build('sw-product-deliverability-form'), {
             mocks: {
                 $route: {
                     name: 'sw.product.detail.base',
@@ -71,7 +71,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                 'sw-container': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-field': {
                     template: '<input class="sw-field">',
                 },
@@ -83,8 +83,8 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
 
     let wrapper;
 
-    it('should show Deliverability item fields when advanced mode is on', () => {
-        wrapper = createWrapper();
+    it('should show Deliverability item fields when advanced mode is on', async () => {
+        wrapper = await createWrapper();
 
         const deliveryFieldsClassName = [
             '.product-deliverability-form__delivery-time',
@@ -101,7 +101,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
     });
 
     it('should hide Deliverability item fields when advanced mode is off', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {
@@ -129,7 +129,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
     });
 
     it('should pre-fill stock value', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-field[name="sw-field--product-stock"]').element.value).toBe('0');
     });

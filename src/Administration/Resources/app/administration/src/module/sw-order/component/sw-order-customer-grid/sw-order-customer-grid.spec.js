@@ -36,11 +36,11 @@ function generateCustomers() {
     return items;
 }
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('currency', v => v);
 
-    return shallowMount(Shopware.Component.build('sw-order-customer-grid'), {
+    return shallowMount(await Shopware.Component.build('sw-order-customer-grid'), {
         localVue,
         propsData: {
             taxStatus: 'gross',
@@ -71,9 +71,9 @@ function createWrapper() {
                     value: false
                 }
             },
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
             'sw-product-variant-info': true,
             'sw-data-grid-settings': true,
             'sw-data-grid-skeleton': true,
@@ -124,7 +124,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     it('should show empty state view when there is no customer', async () => {
         setCustomerData([]);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const emptyState = wrapper.find('sw-empty-state-stub');
@@ -134,7 +134,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     it('should show customer grid', async () => {
         setCustomerData(customers);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const emptyState = wrapper.find('sw-empty-state-stub');
@@ -147,7 +147,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     it('should open add new customer modal', async () => {
         setCustomerData([]);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const buttonAddCustomer = wrapper.find('.sw-order-customer-grid__add-customer');

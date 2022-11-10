@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-and-container';
 
-function createWrapper(customProps = {}) {
-    return shallowMount(Shopware.Component.build('sw-condition-and-container'), {
+async function createWrapper(customProps = {}) {
+    return shallowMount(await Shopware.Component.build('sw-condition-and-container'), {
         stubs: {
             'sw-button': true,
             'sw-condition-tree-node': true
@@ -32,12 +32,12 @@ function createWrapper(customProps = {}) {
 
 describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled condition tree', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
 
@@ -45,7 +45,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     });
 
     it('should have disabled condition tree', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 
@@ -55,7 +55,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     });
 
     it('should have enabled buttons', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const buttons = wrapper.findAll('sw-button-stub');
 
@@ -65,7 +65,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     });
 
     it('should have enabled buttons', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             disabled: true
         });
 

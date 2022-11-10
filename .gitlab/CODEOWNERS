@@ -41,6 +41,7 @@ deprecation.ignore                                              @product/enginee
 /src/Administration/Resources/app/administration/config/                                @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/patches/                               @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/*                                  @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/test/*                                 @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/meta/*                             @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/app/                               @product/engineering/platform-group/admin
 /src/Administration/Resources/app/administration/src/core/                              @product/engineering/platform-group/admin

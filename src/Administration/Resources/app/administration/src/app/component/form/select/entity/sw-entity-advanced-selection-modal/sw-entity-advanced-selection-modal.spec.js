@@ -63,7 +63,7 @@ const EntityFiltersFixture = {
     },
 };
 
-const createAdvancedSelectionModal = (customOptions) => {
+const createAdvancedSelectionModal = async (customOptions) => {
     const localVue = createLocalVue();
 
     const options = {
@@ -116,8 +116,10 @@ const createAdvancedSelectionModal = (customOptions) => {
                 },
             },
             shortcutService: {
-                startEventListener() {},
-                stopEventListener() {}
+                startEventListener() {
+                },
+                stopEventListener() {
+                }
             },
             searchRankingService: {
                 getSearchFieldsByEntity() {
@@ -130,7 +132,7 @@ const createAdvancedSelectionModal = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-advanced-selection-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-advanced-selection-modal'), {
         ...options,
         ...customOptions
     });
@@ -138,13 +140,13 @@ const createAdvancedSelectionModal = (customOptions) => {
 
 describe('components/sw-entity-advanced-selection-modal', () => {
     it('should be a Vue.js component', async () => {
-        const searchModal = createAdvancedSelectionModal();
+        const searchModal = await createAdvancedSelectionModal();
 
         expect(searchModal.vm).toBeTruthy();
     });
 
-    it('should respect the entered search term in criteria', () => {
-        const searchModal = createAdvancedSelectionModal();
+    it('should respect the entered search term in criteria', async () => {
+        const searchModal = await createAdvancedSelectionModal();
 
         const searchTerm = 'custom search term';
         searchModal.vm.onSearch(searchTerm);
@@ -153,8 +155,8 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         expect(criteria.term).toBe(searchTerm);
     });
 
-    it('should have required associations based on columns and filters', () => {
-        const searchModal = createAdvancedSelectionModal();
+    it('should have required associations based on columns and filters', async () => {
+        const searchModal = await createAdvancedSelectionModal();
         const allEntityAssociations = searchModal.vm.allEntityAssociations;
 
         expect(allEntityAssociations).toEqual(new Set([
@@ -165,8 +167,8 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         ]));
     });
 
-    it('should have the correct filter number', () => {
-        const searchModal = createAdvancedSelectionModal();
+    it('should have the correct filter number', async () => {
+        const searchModal = await createAdvancedSelectionModal();
         expect(searchModal.vm.activeFilterNumber).toEqual(0);
 
         // simulate applied filters
@@ -179,8 +181,8 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         expect(searchModal.vm.activeFilterNumber).toEqual(appliedFilters.length);
     });
 
-    it('should emit the selected items on apply', () => {
-        const searchModal = createAdvancedSelectionModal();
+    it('should emit the selected items on apply', async () => {
+        const searchModal = await createAdvancedSelectionModal();
 
         // simulate a selection and click on apply
         searchModal.vm.onSelectionChange({
@@ -200,7 +202,7 @@ describe('components/sw-entity-advanced-selection-modal', () => {
     });
 
     it('should get assignment properties', async () => {
-        const searchModal = createAdvancedSelectionModal();
+        const searchModal = await createAdvancedSelectionModal();
 
         await searchModal.setProps({
             entityName: 'rule'

@@ -53,11 +53,11 @@ function getSequencesCollection(collection = []) {
     );
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-detail'), {
         localVue,
         provide: { repositoryFactory: {
             create: () => ({
@@ -142,15 +142,15 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         });
     });
 
-    it('should not be able to save a flow', () => {
-        const wrapper = createWrapper();
+    it('should not be able to save a flow', async () => {
+        const wrapper = await createWrapper();
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to save a flow ', () => {
-        const wrapper = createWrapper([
+    it('should be able to save a flow ', async () => {
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
@@ -159,7 +159,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     });
 
     it('should able to remove selector sequences before saving', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
@@ -181,7 +181,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     });
 
     it('should able to validate sequences before saving', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 

@@ -5,16 +5,16 @@ import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 import 'src/module/sw-order/component/sw-order-add-items-modal';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-order-add-items-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-order-add-items-modal'), {
         localVue,
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-order-product-grid': true,
             'sw-order-custom-item': true,
             'sw-order-credit-item': true,
@@ -72,20 +72,20 @@ function createWrapper() {
 describe('sw-order-add-items-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.vm.taxStatus).toBe('gross');
     });
 
-    it('should be able to update products', () => {
+    it('should be able to update products', async () => {
         wrapper.vm.onSelectProducts([{
             id: 'id',
             name: 'name',

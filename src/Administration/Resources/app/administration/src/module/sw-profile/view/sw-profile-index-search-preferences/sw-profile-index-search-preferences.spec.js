@@ -24,17 +24,17 @@ const swProfileStateMock = {
     }
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-profile-index-search-preferences'), {
+    return shallowMount(await Shopware.Component.build('sw-profile-index-search-preferences'), {
         localVue,
         stubs: {
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
-            'sw-container': Shopware.Component.build('sw-container'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-container': await Shopware.Component.build('sw-container'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-checkbox-field': true,
             'sw-loader': true,
             'sw-extension-component-section': true,
@@ -82,14 +82,14 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         Shopware.Application.view.deleteReactive = () => {};
     });
 
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get data source once component created', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.getDataSource = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.createdComponent();
@@ -99,7 +99,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should add event listeners once component created', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.addEventListeners = jest.fn();
 
         await wrapper.vm.createdComponent();
@@ -109,7 +109,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should remove event listeners before component destroyed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.removeEventListeners = jest.fn();
 
         await wrapper.vm.beforeDestroyComponent();
@@ -119,7 +119,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should get user search preferences once component created', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.searchPreferencesService.getUserSearchPreferences = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.createdComponent();
@@ -129,7 +129,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should be able to select all', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
@@ -166,7 +166,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should be able to deselect all', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
@@ -203,7 +203,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should be able to change search preference', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
@@ -243,7 +243,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should not be able to change search preference', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{

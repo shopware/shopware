@@ -69,8 +69,8 @@ responses.addResponse({
     }
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-product-stream-detail'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-product-stream-detail'), {
         stubs: {
             'sw-page': {
                 template: `
@@ -106,8 +106,8 @@ function createWrapper() {
 }
 
 describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
 
@@ -115,7 +115,7 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
     });
 
     it('should fetch custom product custom fields and add them to the condition select list', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await flushPromises();
 

@@ -12,7 +12,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-snippet-field-edit-modal';
 
-function createWrapper(roles = [], customOptions = {}) {
+async function createWrapper(roles = [], customOptions = {}) {
     Shopware.State.get('session').currentUser = {
         username: 'testUser'
     };
@@ -20,7 +20,7 @@ function createWrapper(roles = [], customOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-snippet-field-edit-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-snippet-field-edit-modal'), {
         localVue,
         sync: false,
         propsData: {
@@ -57,17 +57,17 @@ function createWrapper(roles = [], customOptions = {}) {
             ])
         },
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-loader': true,
             'icons-regular-times-s': true,
-            'sw-icon': Shopware.Component.build('sw-icon'),
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button')
+            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button')
         },
         provide: {
             validationService: {},
@@ -102,7 +102,7 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -116,7 +116,7 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
             username: 'testUser'
         };
         const roles = role.split(', ');
-        wrapper = createWrapper(roles);
+        wrapper = await createWrapper(roles);
 
         await wrapper.vm.$nextTick();
 
@@ -126,8 +126,8 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
         expect(secondInput.attributes('disabled')).toBe(state);
     });
 
-    it('should have a disabled save button', () => {
-        wrapper = createWrapper('snippet.viewer');
+    it('should have a disabled save button', async () => {
+        wrapper = await createWrapper('snippet.viewer');
         const saveButton = wrapper.find('.sw-snippet-field-edit-modal__save-action');
 
         expect(saveButton.attributes('disabled')).toContain('disabled');

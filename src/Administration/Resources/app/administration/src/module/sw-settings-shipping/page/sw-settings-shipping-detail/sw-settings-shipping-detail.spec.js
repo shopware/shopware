@@ -4,7 +4,7 @@ import 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
 
 enableAutoDestroy(afterEach);
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.use(Vuex);
@@ -16,7 +16,7 @@ function createWrapper(privileges = []) {
         add: () => {}
     };
 
-    return shallowMount(Shopware.Component.build('sw-settings-shipping-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-shipping-detail'), {
         localVue,
         provide: {
             ruleConditionDataProviderService: {},
@@ -67,7 +67,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     it('should have all fields disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             isProcessLoading: false
         });
@@ -102,7 +102,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     });
 
     it('should have all fields enabled', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'shipping.editor'
         ]);
         await wrapper.setData({

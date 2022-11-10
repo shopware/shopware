@@ -130,7 +130,7 @@ describe('core/common.js', () => {
         expect(WorkerNotification).toHaveProperty('initialize');
     });
 
-    it('should contain the necessary methods for the Data', () => {
+    it('should contain the necessary methods for the Data', async () => {
         expect(Data).toHaveProperty('ChangesetGenerator');
         expect(Data).toHaveProperty('Criteria');
         expect(Data).toHaveProperty('Entity');

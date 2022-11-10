@@ -2,11 +2,11 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
 
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return mount(Shopware.Component.build('sw-manufacturer-detail'), {
+    return mount(await Shopware.Component.build('sw-manufacturer-detail'), {
         localVue,
         data() {
             return {
@@ -75,7 +75,7 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
 
@@ -83,7 +83,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     });
 
     it('should be able to save edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_manufacturer.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -95,7 +95,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     });
 
     it('should not be able to save edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-manufacturer-detail__save-action');
@@ -106,7 +106,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
 
     it('should be able to edit the manufacturer', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_manufacturer.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -129,7 +129,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     });
 
     it('should not be able to edit the manufacture', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const logoUpload = wrapper.find('.sw-manufacturer-detail__logo-upload');

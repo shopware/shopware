@@ -27,7 +27,7 @@ class Module extends XmlElement
     protected $name;
 
     /**
-     * @deprecated manifest:v1.1 will be required in future versions
+     * @deprecated manifest:v2.0 will be required in future versions
      *
      * @var string|null
      */

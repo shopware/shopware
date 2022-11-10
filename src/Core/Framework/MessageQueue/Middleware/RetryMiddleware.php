@@ -19,6 +19,9 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony retry mechanism
+ */
 class RetryMiddleware implements MiddlewareInterface
 {
     private EntityRepositoryInterface $deadMessageRepository;

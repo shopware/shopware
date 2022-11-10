@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Message;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony retry mechanism
+ */
 class RetryMessage
 {
     /**

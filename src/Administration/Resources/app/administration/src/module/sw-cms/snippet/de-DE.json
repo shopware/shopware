@@ -671,7 +671,8 @@
         "form": {
           "label": "Formular"
         }
-      }
+      },
+      "blockDisableState": "Dieser Block ist auf keinem Gerät sichtbar. Sie können den Block bearbeiten, aber die Änderungen werden in Ihrem Shop nicht sichtbar sein. Bearbeiten Sie dieses Layout im Modul Einkaufserlebnisse, um die Sichtbarkeit des Blocks zu ändern."
     },
     "components": {
       "setDefaultLayoutModal": {

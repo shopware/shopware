@@ -15,6 +15,8 @@ use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class CustomEntityRegistrar
@@ -34,7 +36,7 @@ class CustomEntityRegistrar
 
         try {
             $entities = $this->container->get(Connection::class)->fetchAllAssociative('
-                SELECT custom_entity.name, custom_entity.fields 
+                SELECT custom_entity.name, custom_entity.fields
                 FROM custom_entity
                     LEFT JOIN app ON app.id = custom_entity.app_id
                 WHERE custom_entity.app_id IS NULL OR app.active = 1

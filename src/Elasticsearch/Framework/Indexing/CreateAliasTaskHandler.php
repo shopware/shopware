@@ -10,6 +10,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 
+/**
+ * @package core
+ */
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
     private Client $client;

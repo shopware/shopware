@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 /**
+ * @package core
  * Contains all registered RouteScopes in the system
  */
 class RouteScopeRegistry

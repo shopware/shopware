@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class ImpossibleWriteOrderException extends ShopwareHttpException
 {
     public function __construct(array $remaining)

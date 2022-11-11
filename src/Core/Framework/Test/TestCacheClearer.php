@@ -7,6 +7,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class TestCacheClearer

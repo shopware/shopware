@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package core
+ */
 class AppFlowActionTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'app_flow_action_translation';

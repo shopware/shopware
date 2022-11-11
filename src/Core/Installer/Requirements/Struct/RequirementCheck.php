@@ -5,6 +5,8 @@ namespace Shopware\Core\Installer\Requirements\Struct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package core
+ *
  * @internal
  */
 abstract class RequirementCheck extends Struct

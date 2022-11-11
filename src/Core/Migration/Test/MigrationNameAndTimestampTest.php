@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class MigrationNameAndTimestampTest extends TestCase

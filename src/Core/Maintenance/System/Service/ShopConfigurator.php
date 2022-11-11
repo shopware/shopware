@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Exception\ShopConfigurationException;
 use Symfony\Component\Intl\Currencies;
 
+/**
+ * @package core
+ */
 class ShopConfigurator
 {
     private Connection $connection;

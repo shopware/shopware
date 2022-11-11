@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
+/**
+ * @package core
+ */
 class ConnectionProfiler implements DataCollectorInterface
 {
     private array $data = [];

@@ -6,6 +6,9 @@ namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
+/**
+ * @package core
+ */
 class ComposerPluginLoader extends KernelPluginLoader
 {
     protected function loadPluginInfos(): void

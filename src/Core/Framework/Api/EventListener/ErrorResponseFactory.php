@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * @package core
+ */
 class ErrorResponseFactory
 {
     public function getResponseFromException(\Throwable $exception, bool $debug = false): Response

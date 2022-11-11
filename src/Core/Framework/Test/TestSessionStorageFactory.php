@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageFactoryInterf
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class TestSessionStorageFactory implements SessionStorageFactoryInterface

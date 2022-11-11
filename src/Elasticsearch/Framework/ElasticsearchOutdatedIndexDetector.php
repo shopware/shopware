@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Language\LanguageCollection;
 
+/**
+ * @package core
+ */
 class ElasticsearchOutdatedIndexDetector
 {
     private Client $client;

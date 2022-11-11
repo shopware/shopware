@@ -11,6 +11,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @package core
+ */
 class AssetInstallCommand extends Command
 {
     protected static $defaultName = 'assets:install';

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+/**
+ * @package core
+ */
 class PluginEvents
 {
     /**

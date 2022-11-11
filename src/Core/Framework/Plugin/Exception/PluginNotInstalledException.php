@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class PluginNotInstalledException extends ShopwareHttpException
 {
     public function __construct(string $pluginName)

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 
+/**
+ * @package core
+ */
 class PluginEntity extends Entity
 {
     use EntityIdTrait;

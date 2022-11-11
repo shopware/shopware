@@ -6,6 +6,7 @@ use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedI
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package core
  * @ReplaceDecoratedInterface(
  *     deprecatedInterface="ValidationServiceInterface",
  *     replacedBy="DataValidationFactoryInterface"

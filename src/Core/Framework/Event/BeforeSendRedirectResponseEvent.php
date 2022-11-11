@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
+/**
+ * @package core
+ */
 class BeforeSendRedirectResponseEvent extends BeforeSendResponseEvent
 {
 }

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package core
+ */
 class DeleteCascadeAppsTask extends ScheduledTask
 {
     public static function getTaskName(): string

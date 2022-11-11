@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+/**
+ * @package core
+ */
 class CloneBehavior
 {
     /**

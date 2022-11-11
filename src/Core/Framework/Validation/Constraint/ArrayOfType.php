@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Validation\Constraint;
 
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @package core
+ */
 class ArrayOfType extends Constraint
 {
     public const INVALID_MESSAGE = 'This value "{{ value }}" should be of type {{ type }}.';

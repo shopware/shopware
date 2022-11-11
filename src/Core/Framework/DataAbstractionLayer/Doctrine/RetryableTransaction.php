@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 
+/**
+ * @package core
+ */
 class RetryableTransaction
 {
     /**

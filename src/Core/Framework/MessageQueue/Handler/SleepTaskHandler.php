@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\MessageQueue\Message\SleepMessage;
 
 /**
+ * @package core
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, use default symfony queue commands
  */
 class SleepTaskHandler

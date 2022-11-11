@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\OAuth\User;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
 
+/**
+ * @package core
+ */
 class User implements UserEntityInterface
 {
     /**

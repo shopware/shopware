@@ -8,6 +8,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<SalesChannelEntity>
  */
 class SalesChannelCollection extends EntityCollection

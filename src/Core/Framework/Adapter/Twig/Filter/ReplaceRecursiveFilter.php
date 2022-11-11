@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @package core
+ */
 class ReplaceRecursiveFilter extends AbstractExtension
 {
     public function getFilters(): array

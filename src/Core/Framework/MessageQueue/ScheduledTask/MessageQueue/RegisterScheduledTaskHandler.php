@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 
+/**
+ * @package core
+ */
 class RegisterScheduledTaskHandler extends AbstractMessageHandler
 {
     /**

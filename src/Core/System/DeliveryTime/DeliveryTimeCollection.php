@@ -5,6 +5,7 @@ namespace Shopware\Core\System\DeliveryTime;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<DeliveryTimeEntity>
  */
 class DeliveryTimeCollection extends EntityCollection

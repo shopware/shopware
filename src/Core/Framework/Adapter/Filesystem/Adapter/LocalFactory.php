@@ -6,6 +6,9 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @package core
+ */
 class LocalFactory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface

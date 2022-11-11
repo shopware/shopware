@@ -8,6 +8,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
 class SystemGenerateAppSecretCommand extends Command

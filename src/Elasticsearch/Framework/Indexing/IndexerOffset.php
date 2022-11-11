@@ -5,6 +5,9 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
+/**
+ * @package core
+ */
 class IndexerOffset
 {
     /**

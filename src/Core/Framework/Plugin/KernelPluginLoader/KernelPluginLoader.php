@@ -13,6 +13,9 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * @package core
+ */
 abstract class KernelPluginLoader extends Bundle
 {
     protected array $pluginInfos = [];

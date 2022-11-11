@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Salutation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<SalutationEntity>
  */
 class SalutationCollection extends EntityCollection

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Increment;
 
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package core
+ */
 class RedisIncrementer extends AbstractIncrementer
 {
     private \Redis $redis;

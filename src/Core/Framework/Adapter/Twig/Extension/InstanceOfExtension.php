@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
+/**
+ * @package core
+ */
 class InstanceOfExtension extends AbstractExtension
 {
     public function getTests(): array

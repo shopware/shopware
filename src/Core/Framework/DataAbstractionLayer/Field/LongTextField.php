@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
 
+/**
+ * @package core
+ */
 class LongTextField extends Field implements StorageAware
 {
     /**

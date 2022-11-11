@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1664541794AddIndexForLogEntryTask extends MigrationStep

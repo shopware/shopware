@@ -8,6 +8,8 @@ use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * @phpstan-import-type Shop from ShopConfigurationController

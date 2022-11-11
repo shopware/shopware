@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\ShopwareRedisAdapter;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class RedisPrefixCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

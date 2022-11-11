@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\Util;
 
 use Shopware\Core\Framework\Util\Random;
 
+/**
+ * @package core
+ */
 class AccessKeyHelper
 {
     private const USER_IDENTIFIER = 'SWUA';

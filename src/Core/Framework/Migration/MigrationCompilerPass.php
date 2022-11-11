@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Migration;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class MigrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

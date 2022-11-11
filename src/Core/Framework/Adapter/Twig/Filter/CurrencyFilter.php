@@ -9,6 +9,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @package core
+ */
 class CurrencyFilter extends AbstractExtension
 {
     /**

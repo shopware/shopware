@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Webhook\Message;
 
+/**
+ * @package core
+ */
 class WebhookEventMessage
 {
     private array $payload;

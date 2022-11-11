@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
+/**
+ * @package core
+ */
 class FrameworkExtension extends Extension
 {
     private const ALIAS = 'shopware';

@@ -8,6 +8,9 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
     /**

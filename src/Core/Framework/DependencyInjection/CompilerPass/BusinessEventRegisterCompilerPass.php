@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class BusinessEventRegisterCompilerPass implements CompilerPassInterface
 {
     /**

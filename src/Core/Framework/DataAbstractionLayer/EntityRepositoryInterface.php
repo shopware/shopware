@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - will be removed, use EntityRepository type hint instead
  */
 interface EntityRepositoryInterface

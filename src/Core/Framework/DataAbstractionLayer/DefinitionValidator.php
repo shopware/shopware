@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
 /**
+ * @package core
  * @final tag:v6.5.0
  */
 class DefinitionValidator

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Migration\Test;
 
 /**
+ * @package core
+ *
  * @internal
  */
 trait MigrationUntouchedDbTestTrait

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
 
+/**
+ * @package core
+ */
 abstract class MappingEntityDefinition extends EntityDefinition
 {
     public function getCollectionClass(): string

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Routing\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class MissingRequestParameterException extends ShopwareHttpException
 {
     /**

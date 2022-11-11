@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+/**
+ * @package core
+ */
 class VersionSanitizer
 {
     public function sanitizePluginVersion(string $version): string

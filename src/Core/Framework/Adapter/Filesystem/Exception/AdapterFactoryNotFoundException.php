@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class AdapterFactoryNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $type)

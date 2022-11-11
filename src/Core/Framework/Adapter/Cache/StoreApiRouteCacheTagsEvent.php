@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class StoreApiRouteCacheTagsEvent extends Event
 {
     protected array $tags;

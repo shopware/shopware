@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
  *
  * @extends EntityCollection<MessageQueueStatsEntity>

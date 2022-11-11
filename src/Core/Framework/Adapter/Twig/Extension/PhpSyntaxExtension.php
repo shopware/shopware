@@ -28,6 +28,9 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
+/**
+ * @package core
+ */
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array

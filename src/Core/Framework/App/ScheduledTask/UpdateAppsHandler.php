@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
+/**
+ * @package core
+ */
 class UpdateAppsHandler extends ScheduledTaskHandler
 {
     private AbstractAppUpdater $appUpdater;

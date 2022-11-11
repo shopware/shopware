@@ -10,6 +10,7 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\SentStamp;
 
 /**
+ * @package core
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony messenger
  */
 class MonitoringBusDecorator implements MessageBusInterface

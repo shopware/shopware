@@ -13,6 +13,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class HttpKernelTest extends TestCase
@@ -44,6 +46,8 @@ class HttpKernelTest extends TestCase
 }
 
 /**
+ * @package core
+ *
  * @internal
  *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)

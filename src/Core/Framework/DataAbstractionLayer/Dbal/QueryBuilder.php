@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
 
+/**
+ * @package core
+ */
 class QueryBuilder extends DBALQueryBuilder
 {
     /**

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+/**
+ * @package core
+ */
 interface ApiContextRouteScopeDependant
 {
 }

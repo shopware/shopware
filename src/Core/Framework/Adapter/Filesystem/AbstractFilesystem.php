@@ -6,6 +6,9 @@ use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Handler;
 use League\Flysystem\PluginInterface;
 
+/**
+ * @package core
+ */
 abstract class AbstractFilesystem implements FilesystemInterface
 {
     /**

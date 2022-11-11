@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class Entity extends Struct
 {
     /**

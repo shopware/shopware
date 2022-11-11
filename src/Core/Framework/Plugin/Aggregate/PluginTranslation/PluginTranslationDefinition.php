@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
+/**
+ * @package core
+ */
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'plugin_translation';

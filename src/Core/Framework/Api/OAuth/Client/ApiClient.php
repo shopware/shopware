@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\OAuth\Client;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\ClientTrait;
 
+/**
+ * @package core
+ */
 class ApiClient implements ClientEntityInterface
 {
     use ClientTrait;

@@ -21,6 +21,9 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
+/**
+ * @package core
+ */
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;

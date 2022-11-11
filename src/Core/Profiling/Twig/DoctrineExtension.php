@@ -7,6 +7,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 /**
+ * @package core
  * This class contains the needed functions in order to do the query highlighting
  */
 class DoctrineExtension extends AbstractExtension

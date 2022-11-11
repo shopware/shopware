@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class TwigEnvironmentCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

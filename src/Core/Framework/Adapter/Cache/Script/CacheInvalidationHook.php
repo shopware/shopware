@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 /**
  * Triggered whenever an entity is written.
  *
+ * @package core
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0

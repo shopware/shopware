@@ -2,6 +2,9 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
+/**
+ * @package core
+ */
 class ElasticsearchIndexAliasSwitchedEvent
 {
     /**

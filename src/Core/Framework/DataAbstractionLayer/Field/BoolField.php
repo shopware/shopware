@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer;
 
+/**
+ * @package core
+ */
 class BoolField extends Field implements StorageAware
 {
     /**

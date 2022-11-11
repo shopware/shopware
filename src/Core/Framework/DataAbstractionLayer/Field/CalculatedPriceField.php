@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPriceFieldSerializer;
 
+/**
+ * @package core
+ */
 class CalculatedPriceField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)

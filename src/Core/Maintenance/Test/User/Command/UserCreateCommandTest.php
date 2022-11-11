@@ -8,6 +8,8 @@ use Shopware\Core\Maintenance\User\Command\UserCreateCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class UserCreateCommandTest extends TestCase

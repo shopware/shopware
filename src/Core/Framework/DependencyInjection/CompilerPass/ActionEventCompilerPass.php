@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class ActionEventCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+/**
+ * @package core
+ */
 class SearchTermInterpreter
 {
     /**

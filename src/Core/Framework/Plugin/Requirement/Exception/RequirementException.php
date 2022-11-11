@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 abstract class RequirementException extends ShopwareHttpException
 {
     public function getStatusCode(): int

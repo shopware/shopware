@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package core
+ */
 class RequestTransformer implements RequestTransformerInterface
 {
     public function transform(Request $request): Request

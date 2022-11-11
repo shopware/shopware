@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class OpenApiSchemaBuilder
 {
     public const API = [

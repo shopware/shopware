@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
+/**
+ * @package core
+ */
 class AclRoleEvents
 {
     /**

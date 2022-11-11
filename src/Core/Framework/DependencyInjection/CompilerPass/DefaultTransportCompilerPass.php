@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class DefaultTransportCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

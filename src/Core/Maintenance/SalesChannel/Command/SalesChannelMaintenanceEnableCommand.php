@@ -12,6 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
 class SalesChannelMaintenanceEnableCommand extends Command

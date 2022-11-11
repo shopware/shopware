@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Script\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class HookMethodException extends ShopwareHttpException
 {
     public static function outsideOfSalesChannelContext(string $method): self

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Migration\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class MigrateException extends ShopwareHttpException
 {
     public function __construct(string $message, \Exception $previous)

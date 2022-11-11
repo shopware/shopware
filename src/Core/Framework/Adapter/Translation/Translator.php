@@ -23,6 +23,9 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
+/**
+ * @package core
+ */
 class Translator extends AbstractTranslator
 {
     use TranslatorTrait;

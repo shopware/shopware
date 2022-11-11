@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class DatabaseMigrator

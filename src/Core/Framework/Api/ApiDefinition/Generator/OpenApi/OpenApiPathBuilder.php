@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class OpenApiPathBuilder
 {
     /**

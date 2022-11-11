@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package core
+ */
 class AclUserRoleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'acl_user_role';

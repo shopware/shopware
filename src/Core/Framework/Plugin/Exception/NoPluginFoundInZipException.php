@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class NoPluginFoundInZipException extends ShopwareHttpException
 {
     public function __construct(string $archive)

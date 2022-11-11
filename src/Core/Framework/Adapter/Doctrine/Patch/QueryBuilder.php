@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
+ * @package core
  * Forward compatibility adaption to add `executeQuery` and `executeStatement` methods to the Query Builder
  */
 
@@ -24,6 +25,7 @@ use function strtoupper;
 use function substr;
 
 /**
+ * @package core
  * QueryBuilder class is responsible to dynamically create SQL queries.
  *
  * Important: Verify that every feature you use will work with your database vendor.

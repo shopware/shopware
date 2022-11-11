@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class MissingReverseAssociation extends ShopwareHttpException
 {
     public function __construct(string $source, string $target)

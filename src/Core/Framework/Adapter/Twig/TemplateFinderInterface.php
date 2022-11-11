@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Twig\Error\LoaderError;
 
+/**
+ * @package core
+ */
 interface TemplateFinderInterface
 {
     public function getTemplateName(string $template): string;

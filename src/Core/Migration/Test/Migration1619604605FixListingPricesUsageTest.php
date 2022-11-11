@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1619604605FixListingPricesUsage;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1619604605FixListingPricesUsageTest extends TestCase

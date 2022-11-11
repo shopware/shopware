@@ -28,6 +28,9 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguage
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package core
+ */
 class ElasticsearchIndexer extends AbstractMessageHandler
 {
     private Connection $connection;

@@ -9,6 +9,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class S3FilesystemVisibilityCommand extends Command
 {
     protected static $defaultName = 's3:set-visibility';

@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class ManyToManyIdFieldUpdater
 {
     private DefinitionInstanceRegistry $registry;

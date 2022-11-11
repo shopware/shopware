@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class InstallerKernel extends HttpKernel

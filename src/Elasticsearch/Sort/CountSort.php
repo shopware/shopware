@@ -4,6 +4,9 @@ namespace Shopware\Elasticsearch\Sort;
 
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
 
+/**
+ * @package core
+ */
 class CountSort extends FieldSort
 {
     /**

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
+ * @package core
+ *
  * @internal only for use by the app-system
  */
 class ScriptEntity extends Entity

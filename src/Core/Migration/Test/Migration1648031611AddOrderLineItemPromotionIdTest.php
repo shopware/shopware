@@ -23,6 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase

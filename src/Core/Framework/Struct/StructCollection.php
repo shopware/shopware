@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Struct;
 
 /**
+ * @package core
  * @template TElement of Struct
  *
  * @extends Collection<TElement>

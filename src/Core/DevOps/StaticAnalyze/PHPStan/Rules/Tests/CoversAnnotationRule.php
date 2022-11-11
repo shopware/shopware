@@ -10,6 +10,8 @@ use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * @package core
+ *
  * @internal
  * @implements Rule<InClassNode>
  */

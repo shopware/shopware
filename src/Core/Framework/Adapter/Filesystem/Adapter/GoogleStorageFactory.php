@@ -7,6 +7,9 @@ use League\Flysystem\AdapterInterface;
 use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @package core
+ */
 class GoogleStorageFactory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface

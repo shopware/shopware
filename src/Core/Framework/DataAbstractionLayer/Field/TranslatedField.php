@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationF
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @package core
+ */
 class TranslatedField extends Field
 {
     public const PRIORITY = 100;

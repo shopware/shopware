@@ -7,6 +7,7 @@ use Elasticsearch\Connections\ConnectionInterface;
 use Elasticsearch\Namespaces\AbstractNamespace;
 
 /**
+ * @package core
  * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
  */
 class ClientProfiler extends Client

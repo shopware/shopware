@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Util;
 
 /**
+ * @package core
  * Flattens or expands arrays by concatenating string keys
  */
 class ArrayNormalizer

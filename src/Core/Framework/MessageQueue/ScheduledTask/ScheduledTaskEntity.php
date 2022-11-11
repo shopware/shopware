@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageCollection;
 
+/**
+ * @package core
+ */
 class ScheduledTaskEntity extends Entity
 {
     use EntityIdTrait;

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package core
  * @extends Collection<Rule>
  */
 class RuleCollection extends Collection

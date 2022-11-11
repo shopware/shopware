@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<PluginEntity>
  */
 class PluginCollection extends EntityCollection

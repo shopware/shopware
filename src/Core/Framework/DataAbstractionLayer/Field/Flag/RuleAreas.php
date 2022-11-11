@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
+/**
+ * @package core
+ */
 class RuleAreas extends Flag
 {
     public const PRODUCT_AREA = 'product';

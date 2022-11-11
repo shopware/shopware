@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+/**
+ * @package core
+ */
 class AclPrivilegeCollection
 {
     /**

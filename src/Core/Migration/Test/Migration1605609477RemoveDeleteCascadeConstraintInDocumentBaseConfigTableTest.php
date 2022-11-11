@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTable;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableTest extends TestCase

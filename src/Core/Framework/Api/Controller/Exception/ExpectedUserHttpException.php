@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\Controller\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class ExpectedUserHttpException extends ShopwareHttpException
 {
     public function __construct()

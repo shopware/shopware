@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * @package core
+ */
 class MigrationDestructiveCommand extends MigrationCommand
 {
     protected static $defaultName = 'database:migrate-destructive';

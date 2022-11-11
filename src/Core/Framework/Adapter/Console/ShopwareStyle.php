@@ -6,6 +6,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package core
+ */
 class ShopwareStyle extends SymfonyStyle
 {
     /**

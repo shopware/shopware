@@ -2,6 +2,9 @@
 
 namespace Shopware\Core;
 
+/**
+ * @package core
+ */
 final class SalesChannelRequest
 {
     public const ATTRIBUTE_IS_SALES_CHANNEL_REQUEST = '_is_sales_channel';

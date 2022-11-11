@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 /**
  * The `cache` service allows you to invalidate the cache if some entity is updated.
  *
+ * @package core
  * @script-service custom_endpoint
  **/
 class CacheInvalidatorFacade

@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +22,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CustomerGroupRegistrationActionController
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
+
+    private EntityRepository $customerGroupRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -33,16 +34,20 @@ class CustomerGroupRegistrationActionController
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
+        EntityRepository $customerGroupRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelContextRestorer $restorer
     ) {
         $this->customerRepository = $customerRepository;
+        $this->customerGroupRepository = $customerGroupRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->restorer = $restorer;
     }
 
     /**
+     * @throws Exception
+     *
      * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
@@ -63,10 +68,6 @@ class CustomerGroupRegistrationActionController
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
-        if (empty($customers)) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }
-
         $updateData = [];
 
         foreach ($customers as $customer) {
@@ -79,12 +80,20 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-            /** @var CustomerGroupEntity $customerRequestedGroup */
-            $customerRequestedGroup = $customer->getRequestedGroup();
+            /** @var CustomerEntity $customer */
+            $customer = $salesChannelContext->getCustomer();
+
+            $criteria = new Criteria([$customer->getGroupId()]);
+            $criteria->setLimit(1);
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            if ($customerRequestedGroup === null) {
+                throw new \RuntimeException('customer group not found');
+            }
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
                 $customer,
                 $customerRequestedGroup,
@@ -96,6 +105,8 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
+     * @throws Exception
+     *
      * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
@@ -116,10 +127,6 @@ class CustomerGroupRegistrationActionController
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
-        if (empty($customers)) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }
-
         $updateData = [];
 
         foreach ($customers as $customer) {
@@ -131,12 +138,20 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-            /** @var CustomerGroupEntity $customerRequestedGroup */
-            $customerRequestedGroup = $customer->getRequestedGroup();
+            /** @var CustomerEntity $customer */
+            $customer = $salesChannelContext->getCustomer();
+
+            $criteria = new Criteria([$customer->getGroupId()]);
+            $criteria->setLimit(1);
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            if ($customerRequestedGroup === null) {
+                throw new \RuntimeException('customer group not found');
+            }
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
                 $customerRequestedGroup,
@@ -149,6 +164,8 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @feature-deprecated tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
+     *
+     * @return array<string>
      */
     private function getRequestCustomerIds(Request $request): array
     {
@@ -175,13 +192,12 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @param array<string> $customerIds
+     *
+     * @return array<CustomerEntity>
      */
     private function fetchCustomers(array $customerIds, Context $context, bool $silentError = false): array
     {
         $criteria = new Criteria($customerIds);
-        $criteria->addAssociation('requestedGroup');
-        $criteria->addAssociation('salutation');
-
         $result = $this->customerRepository->search($criteria, $context);
 
         $customers = [];

@@ -906,16 +906,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Validator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Api\\\\CustomerGroupRegistrationActionController\\:\\:fetchCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Api/CustomerGroupRegistrationActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Api\\\\CustomerGroupRegistrationActionController\\:\\:getRequestCustomerIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Api/CustomerGroupRegistrationActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\:\\:getNewsletterSalesChannelIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/CustomerEntity.php
@@ -11914,8 +11904,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/App/ActionButton/Response/ReloadDataResponseFactory.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -12190,8 +12178,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Delta\\\\PermissionsDeltaProvider\\:\\:makePermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Delta/PermissionsDeltaProvider.php
-
-
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent\\:\\:getWebhookPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -24212,21 +24198,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\CachedBaseContextFactory\\:\\:create\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/CachedBaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorer\\:\\:getOrderById\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextRestorer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorer\\:\\:restoreByCustomer\\(\\) has parameter \\$overrideOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextRestorer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorer\\:\\:restoreByOrder\\(\\) has parameter \\$overrideOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextRestorer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"

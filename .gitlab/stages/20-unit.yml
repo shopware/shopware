@@ -80,9 +80,6 @@ PHP unit:
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
         -   name: redis
             alias: redis
-        -   name: opensearchproject/opensearch:2.2.0
-            alias: elasticsearch
-            command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"
@@ -113,8 +110,24 @@ PHP unit:
     parallel:
         matrix:
             - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance", "migration"]
-            - TESTSUITE: ["content", "checkout", "elasticsearch", "integration"]
+            - TESTSUITE: ["content", "checkout", "integration"]
               RUNNER_INSTANCE_TYPE: m5.large
+
+PHP unit Elasticsearch:
+  extends: PHP unit
+  services:
+    - name: mariadb:10.4
+      alias: database
+      entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    - name: redis
+      alias: redis
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
+  parallel:
+    matrix:
+      - TESTSUITE: ["elasticsearch"]
+        RUNNER_INSTANCE_TYPE: m5.large
 
 PHP bench:
     extends: .base-no-setup

@@ -25,9 +25,15 @@ ESLint (Administration):
         - !reference [.rules, run]
         - changes:
               - 'src/Administration/Resources/app/administration/**/*'
+    cache:
+      key:
+        files:
+          - src/Administration/Resources/app/administration/package-lock.json
+      paths:
+        - src/Administration/Resources/app/administration/node_modules/
     script:
+        - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
         - cd src/Administration/Resources/app/administration
-        - npm clean-install
         - npm run lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
         - npm run lint:types
     after_script:
@@ -48,6 +54,12 @@ ESLint (Storefront):
         - !reference [.rules, run]
         - changes:
               - 'src/Storefront/Resources/app/storefront/**/*'
+    cache:
+      key:
+        files:
+          - src/Storefront/Resources/app/storefront/package-lock.json
+      paths:
+        - src/Storefront/Resources/app/storefront/node_modules/
     script:
         - cd src/Storefront/Resources/app/storefront
         - npm clean-install
@@ -71,9 +83,15 @@ Stylelint (Administration):
         - changes:
               - 'src/Administration/Resources/app/administration/.stylelintrc'
               - 'src/Administration/Resources/app/administration/**/*.scss'
+    cache:
+      key:
+        files:
+          - src/Administration/Resources/app/administration/package-lock.json
+      paths:
+        - src/Administration/Resources/app/administration/node_modules/
     script:
+        - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
         - cd src/Administration/Resources/app/administration
-        - npm clean-install
         - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
     artifacts:
         reports:
@@ -89,9 +107,15 @@ Stylelint (Storefront):
         - changes:
               - 'src/Storefront/Resources/app/storefront/stylelint.config.js'
               - 'src/Storefront/Resources/app/storefront/**/*.scss'
+    cache:
+      key:
+        files:
+          - src/Storefront/Resources/app/storefront/package-lock.json
+      paths:
+        - src/Storefront/Resources/app/storefront/node_modules/
     script:
+        - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
         - cd src/Storefront/Resources/app/storefront
-        - npm clean-install
         - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
     artifacts:
         reports:

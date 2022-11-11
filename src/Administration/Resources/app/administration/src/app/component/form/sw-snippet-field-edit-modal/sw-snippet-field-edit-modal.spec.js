@@ -1,5 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
@@ -12,17 +11,8 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-snippet-field-edit-modal';
 
-async function createWrapper(roles = [], customOptions = {}) {
-    Shopware.State.get('session').currentUser = {
-        username: 'testUser'
-    };
-
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-snippet-field-edit-modal'), {
-        localVue,
-        sync: false,
         propsData: {
             translationKey: 'test.snippet',
             fieldType: 'text',
@@ -33,7 +23,7 @@ async function createWrapper(roles = [], customOptions = {}) {
                 origin: null,
                 resetTo: 'english',
                 translationKey: 'test.snippet',
-                setId: uuid.get('en-GB')
+                setId: 'en-GB-MOCK-ID'
             }, {
                 author: 'testUser',
                 id: null,
@@ -41,41 +31,36 @@ async function createWrapper(roles = [], customOptions = {}) {
                 origin: null,
                 resetTo: 'deutsch',
                 translationKey: 'test.snippet',
-                setId: uuid.get('de-DE')
+                setId: 'de-DE-MOCK-ID'
             }],
             snippetSets: createEntityCollection([
                 {
                     name: 'Base en-GB',
                     iso: 'en-GB',
-                    id: uuid.get('en-GB')
+                    id: 'en-GB-MOCK-ID'
                 },
                 {
                     name: 'Base de-DE',
                     iso: 'de-DE',
-                    id: uuid.get('de-DE')
+                    id: 'de-DE-MOCK-ID'
                 }
             ])
         },
         stubs: {
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-field': {
+                template: '<input class="sw-field"></input>',
+                props: ['value', 'disabled']
+            },
             'sw-loader': true,
-            'icons-regular-times-s': true,
-            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-icon': true,
             'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': await Shopware.Component.build('sw-button')
+            'sw-button': {
+                template: '<button class="sw-button"></button>',
+                props: ['disabled']
+            }
         },
         provide: {
             validationService: {},
-            acl: {
-                can: (identifier) => {
-                    return roles.includes(identifier);
-                }
-            },
             snippetService: {
                 save: () => {}
             },
@@ -84,7 +69,6 @@ async function createWrapper(roles = [], customOptions = {}) {
                 startEventListener: () => {}
             }
         },
-        ...customOptions
     });
 }
 
@@ -106,30 +90,37 @@ describe('src/app/component/form/sw-snippet-field-edit-modal', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.each([
-        ['disabled', 'snippet.viewer'],
-        [undefined, 'snippet.viewer, snippet.editor'],
-        [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
-        [undefined, 'snippet.viewer, snippet.editor, snippet.deleter']
-    ])('should only have disabled inputs', async (state, role) => {
-        Shopware.State.get('session').currentUser = {
-            username: 'testUser'
-        };
-        const roles = role.split(', ');
-        wrapper = await createWrapper(roles);
+    ([{
+        shouldBeDisabled: true,
+        roles: ['snippet.viewer']
+    }, {
+        shouldBeDisabled: false,
+        roles: ['snippet.viewer', 'snippet.editor']
+    }, {
+        shouldBeDisabled: false,
+        roles: ['snippet.viewer', 'snippet.editor', 'snippet.creator']
+    }, {
+        shouldBeDisabled: false,
+        roles: ['snippet.viewer', 'snippet.editor', 'snippet.deleter']
+    }]).forEach((testcase) => {
+        it(`should have ${testcase.shouldBeDisabled ? '' : 'not'} disabled inputs with roles ${testcase.roles.join(', ')}`, async () => {
+            global.activeAclRoles = testcase.roles;
+            wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
 
-        const [firstInput, secondInput] = wrapper.findAll('input[name=sw-field--snippet-value]').wrappers;
+            const [firstInput, secondInput] = wrapper.findAll('.sw-snippet-field-edit-modal__translation-field').wrappers;
 
-        expect(firstInput.attributes('disabled')).toBe(state);
-        expect(secondInput.attributes('disabled')).toBe(state);
+            expect(firstInput.props('disabled')).toBe(testcase.shouldBeDisabled);
+            expect(secondInput.props('disabled')).toBe(testcase.shouldBeDisabled);
+        });
     });
 
     it('should have a disabled save button', async () => {
-        wrapper = await createWrapper('snippet.viewer');
+        global.activeAclRoles = ['snippet.viewer'];
+        wrapper = await createWrapper();
         const saveButton = wrapper.find('.sw-snippet-field-edit-modal__save-action');
 
-        expect(saveButton.attributes('disabled')).toContain('disabled');
+        expect(saveButton.props('disabled')).toBe(true);
     });
 });

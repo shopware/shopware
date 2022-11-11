@@ -22,7 +22,6 @@ Component.register('sw-snippet-field-edit-modal', {
     template,
 
     inject: [
-        // @Jonas no usage found, still relevant?
         'acl',
         'repositoryFactory',
     ],

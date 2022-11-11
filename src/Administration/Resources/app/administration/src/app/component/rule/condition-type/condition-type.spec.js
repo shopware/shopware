@@ -3,7 +3,6 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
-import GenericConditionMixin from 'src/app/mixin/generic-condition.mixin';
 import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
@@ -100,9 +99,6 @@ async function createWrapperForComponent(componentName, props = {}) {
             condition: {},
             ...props
         },
-        mixins: ['sw-condition-generic', 'sw-condition-generic-line-item'].includes(componentName) ? [
-            Shopware.Mixin.getByName('generic-condition')
-        ] : []
     });
 }
 
@@ -133,11 +129,12 @@ function getAllFields(wrapper) {
 }
 
 describe('src/app/component/rule/condition-type/*.js', () => {
-    beforeAll(() => {
-        Shopware.Mixin.register('generic-condition', GenericConditionMixin);
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+    beforeAll(async () => {
+        await importAllConditionTypes();
+    });
 
-        return importAllConditionTypes();
+    beforeEach(() => {
+        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
     });
 
     it.each(conditionTypes)('The component "%s" should be a mounted successfully', async (conditionType) => {

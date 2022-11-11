@@ -1,15 +1,9 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/view/sw-order-create-base';
-import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('tooltip', {});
-    localVue.filter('currency', v => v);
     return shallowMount(await Shopware.Component.build('sw-order-create-base'), {
-        localVue,
         stubs: {
             'sw-card-view': true,
             'sw-card': {
@@ -36,31 +30,25 @@ async function createWrapper() {
             'sw-switch-field': true
         },
         provide: {
-
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        get: () => { }
+                    };
+                }
+            }
         }
     });
 }
 
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swOrder', orderStore);
-        Shopware.Service().register('repositoryFactory', () => {
-            return {
-                create: () => {
-                    return {
-                        get: () => { }
-                    };
-                }
-            };
-        });
-    });
+    beforeEach(() => {
+        if (Shopware.State.get('swOrder')) {
+            Shopware.State.unregisterModule('swOrder');
+        }
 
-    afterEach(() => {
-        Shopware.State.commit('swOrder/setCart', {
-            token: null,
-            lineItems: []
-        });
+        Shopware.State.registerModule('swOrder', orderStore);
     });
 
     it('should be show successful notification', async () => {

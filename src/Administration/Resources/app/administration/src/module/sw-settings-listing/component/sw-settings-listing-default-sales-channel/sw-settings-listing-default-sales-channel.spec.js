@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
 import 'src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel';
 
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
@@ -28,12 +27,12 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                                 {
                                     name: 'Storefront',
                                     translated: { name: 'Storefront' },
-                                    id: uuid.get('storefront')
+                                    id: 'STORE-FRONT-MOCK-ID'
                                 },
                                 {
                                     name: 'Headless',
                                     translated: { name: 'Headless' },
-                                    id: uuid.get('headless')
+                                    id: 'HEADLESS-MOCK-ID'
                                 }
                             ]));
                         }

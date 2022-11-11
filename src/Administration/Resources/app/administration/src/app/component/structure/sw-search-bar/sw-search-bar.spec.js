@@ -271,12 +271,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
         Module.getModuleRegistry().clear();
     });
 
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-        }
-    });
-
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper({
             initialSearchType: 'product'

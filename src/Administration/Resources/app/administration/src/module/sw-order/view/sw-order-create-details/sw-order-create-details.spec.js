@@ -24,6 +24,11 @@ async function createWrapper() {
         provide: {
             cartStoreService: {
             },
+            repositoryFactory: {
+                create: () => ({
+                    get: () => Promise.resolve()
+                })
+            },
         },
     });
 }
@@ -32,18 +37,6 @@ async function createWrapper() {
 describe('src/module/sw-order/view/sw-order-create-details', () => {
     beforeAll(() => {
         Shopware.State.registerModule('swOrder', orderStore);
-        Shopware.Service().register('repositoryFactory', () => {
-            return {
-                create: () => {
-                    return {
-                        get: () => { }
-                    };
-                }
-            };
-        });
-    });
-
-    afterEach(() => {
         Shopware.State.commit('swOrder/setCart', {
             token: null,
             lineItems: []

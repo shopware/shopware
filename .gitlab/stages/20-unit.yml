@@ -7,15 +7,21 @@ Jest (Administration):
     stage: unit
     needs: []
     services: []
+    cache:
+        key:
+          files:
+            - src/Administration/Resources/app/administration/package-lock.json
+        paths:
+            - src/Administration/Resources/app/administration/node_modules/
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
         - when: always
     before_script:
-      - composer install --no-scripts --no-plugins --quiet
+      - composer install --no-scripts --quiet
       - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json 2>/dev/null
       - !reference [ .scripts, install-node, script ]
-      - (cd $ADMIN_PATH && npm ci)
+      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
     script:
         - npm --prefix $ADMIN_PATH run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
@@ -40,11 +46,15 @@ Jest (Storefront):
         - when: always
     variables:
       NODE_VERSION: 12
+    cache:
+      key:
+        files:
+          - src/Storefront/Resources/app/storefront/package-lock.json
+      paths:
+        - src/Storefront/Resources/app/storefront/node_modules/
     before_script:
-      - composer install --no-scripts --no-plugins --quiet
-      - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
       - !reference [ .scripts, install-node, script ]
-      - (cd $STOREFRONT_PATH && npm ci)
+      - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
     script:
         - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

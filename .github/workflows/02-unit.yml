@@ -1,25 +1,26 @@
 name: Unit
 
 on:
-    push:
-        branches:
-            - trunk
-    pull_request:
+  push:
+    branches:
+      - trunk
+  pull_request:
 
 jobs:
   php:
     name: "PHPUnit with PHP ${{ matrix.php-version }}"
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         php-version: ["8.1", "8.2"]
     env:
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch unit integration migration-tests'
       APP_ENV: test
-      DATABASE_URL: mysql://root:root@database:3306/root
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      SHOPWARE_ES_HOSTS: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
@@ -27,42 +28,53 @@ jobs:
       database:
         image: mysql:5.7
         env:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: root
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: root
+        options: '--mount="type=tmpfs,destination=/var/lib/mysql" --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=2s --health-retries=3'
+        ports:
+          - "3306:3306"
       elasticsearch:
         image: elastic/elasticsearch:7.8.0
         env:
           discovery.type: single-node
+        ports:
+          - "9200:9200"
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
           fetch-depth: 0
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php-version }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: none, intl, mbstring, pdo_mysql, zip, gd, exif, bcmath, pcntl, dom, xml, simplexml, tokenizer, xmlwriter, xsl, json, iconv, curl, fileinfo, dom, redis, opcache, sodium, pcov
 
-    - name: Setup Composer
-      run: |
-        composer install
+      - name: PHP Info
+        run: |
+          php -m
+          php -v
 
-    - name: Run PHPUnit
-      if: matrix.php-version != '8.1'
-      run: |
-        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
+      - name: Setup Composer
+        run: |
+          composer install
 
-    - name: Run PHPUnit with Pcov
-      if: matrix.php-version == '8.1'
-      run: |
-        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~' vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined"  --testsuite "$TEST_SUITE" --coverage-cobertura "phpunit.coverage.$TEST_SUITE.xml"; done
+      - name: Run PHPUnit
+        if: matrix.php-version != '8.2'
+        run: |
+          for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
 
-    - uses: codecov/codecov-action@v2
-      if: matrix.php-version == '8.1'
-      with:
-        files: ./phpunit.coverage.administration.xml,./phpunit.coverage.storefront.xml,./phpunit.coverage.checkout.xml,./phpunit.coverage.content.xml,./phpunit.framework.administration.xml,./phpunit.coverage.profiling.xml,./phpunit.coverage.migration.xml,./phpunit.coverage.system.xml,./phpunit.coverage.elasticsearch.xml,./phpunit.coverage.docs.xml,./phpunit.coverage.unit.xml,./phpunit.coverage.integration.xml
+      - name: Run PHPUnit with Pcov
+        if: matrix.php-version == '8.2'
+        run: |
+          for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~' vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined"  --testsuite "$TEST_SUITE" --coverage-cobertura "phpunit.coverage.$TEST_SUITE.xml"; done
+
+      - uses: codecov/codecov-action@v2
+        if: matrix.php-version == '8.2'
+        with:
+          files: ./phpunit.coverage.administration.xml,./phpunit.coverage.storefront.xml,./phpunit.coverage.checkout.xml,./phpunit.coverage.content.xml,./phpunit.framework.administration.xml,./phpunit.coverage.profiling.xml,./phpunit.coverage.migration.xml,./phpunit.coverage.system.xml,./phpunit.coverage.elasticsearch.xml,./phpunit.coverage.docs.xml,./phpunit.coverage.unit.xml,./phpunit.coverage.integration.xml
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"
@@ -73,16 +85,6 @@ jobs:
       APP_SECRET: devsecret
       SHOPWARE_ES_HOSTS: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
-    services:
-      database:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: root
-      elasticsearch:
-        image: elasticsearch:7.8.0
-        env:
-          discovery.type: single-node
 
     steps:
       - name: Clone platform
@@ -92,15 +94,30 @@ jobs:
         with:
           node-version: 16
 
+      - name: Retrieve the cached "node_modules" directory (if present)
+        uses: actions/cache@v2
+        id: node-cache
+        with:
+          path: src/Administration/Resources/app/administration/node_modules
+          key: admin-node-modules-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json') }}
+
+      - name: Install dependencies (if the cached directory was not found)
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
 
+      - name: Setup Composer
+        run: composer install
+
+      - name: Generate Schema
+        run: bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
+
       - name: Run Jest Admin
-        run: |
-          bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
-          npm --prefix src/Administration/Resources/app/administration run unit -- --silent
+        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 
   storefront:
     name: "Jest Storefront"
@@ -112,16 +129,6 @@ jobs:
       APP_SECRET: devsecret
       SHOPWARE_ES_HOSTS: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
-    services:
-      database:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: root
-      elasticsearch:
-        image: elasticsearch:7.8.0
-        env:
-          discovery.type: single-node
 
     steps:
       - name: Clone platform
@@ -131,6 +138,16 @@ jobs:
         with:
           node-version: 16
 
+      - name: Retrieve the cached "node_modules" directory (if present)
+        uses: actions/cache@v2
+        id: node-cache
+        with:
+          path: src/Storefront/Resources/app/storefront/node_modules
+          key: storefront-node-modules-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/storefront/package-lock.json') }}
+
+      - name: Install dependencies (if the cached directory was not found)
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm --prefix src/Storefront/Resources/app/storefront ci
+
       - name: Run Jest Storefront
-        run: |
-          npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent
+        run: npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent

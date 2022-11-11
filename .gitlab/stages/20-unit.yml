@@ -60,7 +60,7 @@ Jest (Storefront):
 
 PHP unit:
     extends: .base-no-setup
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 30m
@@ -108,7 +108,7 @@ PHP unit:
 
 PHP bench:
     extends: .base-no-setup
-    image: shopware/development:8.0-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 30m
@@ -140,7 +140,7 @@ PHP bench:
 
 PHP unit coverage:
     extends: .base-no-setup
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 10m
@@ -175,7 +175,7 @@ PHP unit coverage:
 
 PHP migration coverage:
     extends: .base-no-setup
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     stage: unit
     needs: []
     timeout: 10m
@@ -252,29 +252,29 @@ PHP Full:
     parallel:
         matrix:
             -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:8.0-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
-                DEV_IMAGE: shopware/development:8.0-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: [ "false", "major" ]
             -   MYSQL_IMAGE:
                     - mysql:8.0
-                DEV_IMAGE: [ "shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2", "shopware/development:8.1-composer-2" ]
+                DEV_IMAGE: [ "shopware/development:8.1-composer-2" ]
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
             -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:7.4-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'
             -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:7.4-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
             -   MYSQL_IMAGE: mariadb:10.5
-                DEV_IMAGE: shopware/development:7.4-composer-2
+                DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
@@ -330,7 +330,7 @@ PHP Full quarantined:
     parallel:
         matrix:
             - MYSQL_IMAGE: mariadb:10.4
-              DEV_IMAGE: shopware/development:8.0-composer-2
+              DEV_IMAGE: shopware/development:8.1-composer-2
               FEATURE_ALL: 'false'
               ALLOW_FAILURE: 'true'
     script:

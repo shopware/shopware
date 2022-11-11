@@ -35,7 +35,7 @@ variables:
         value: trunk
         description: 'The shopware/platform branch that is used'
     DEV_IMAGE:
-        value: shopware/development:7.4-composer-2
+        value: shopware/development:8.1-composer-2
         description: 'base docker image used. Can be changed to test other php versions. Example: shopware/development:8.0-composer-2'
     THEME_SOURCE_DIR:
         value: ''

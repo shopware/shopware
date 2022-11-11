@@ -13,7 +13,7 @@ jobs:
     container: "shopware/development:${{ matrix.php-version }}-composer-2"
     strategy:
       matrix:
-        php-version: ["7.4", "8.0", "8.1"]
+        php-version: ["8.1"]
     env:
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs unit integration migration-tests'
       APP_ENV: test
@@ -46,23 +46,23 @@ jobs:
         composer run setup
 
     - name: Run PHPUnit
-      if: matrix.php-version != '8.0'
+      if: matrix.php-version != '8.1'
       run: |
         for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
 
     - name: Run PHPUnit with Pcov
-      if: matrix.php-version == '8.0'
+      if: matrix.php-version == '8.1'
       run: |
         for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~' vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined"  --testsuite "$TEST_SUITE" --coverage-cobertura "phpunit.coverage.$TEST_SUITE.xml"; done
 
     - uses: codecov/codecov-action@v2
-      if: matrix.php-version == '8.0'
+      if: matrix.php-version == '8.1'
       with:
         files: ./phpunit.coverage.administration.xml,./phpunit.coverage.storefront.xml,./phpunit.coverage.checkout.xml,./phpunit.coverage.content.xml,./phpunit.framework.administration.xml,./phpunit.coverage.profiling.xml,./phpunit.coverage.migration.xml,./phpunit.coverage.system.xml,./phpunit.coverage.elasticsearch.xml,./phpunit.coverage.docs.xml,./phpunit.coverage.unit.xml,./phpunit.coverage.integration.xml
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"
-    container: shopware/development:7.4-composer-2
+    container: shopware/development:8.1-composer-2
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
@@ -116,7 +116,7 @@ jobs:
   storefront:
     name: "Jest Storefront"
     runs-on: ubuntu-latest
-    container: shopware/development:7.4-composer-2
+    container: shopware/development:8.1-composer-2
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root

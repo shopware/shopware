@@ -23,7 +23,7 @@ variables:
 
 # for jobs which should run on each MR/Pipeline
 .base:
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     # we want our base pipeline to finish fast
     timeout: 30m
     interruptible: true

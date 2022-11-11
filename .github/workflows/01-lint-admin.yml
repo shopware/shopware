@@ -11,7 +11,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    container: shopware/development:7.4-composer-2
+    container: shopware/development:8.1-composer-2
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 

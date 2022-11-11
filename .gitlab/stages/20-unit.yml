@@ -212,7 +212,7 @@ PHP migration coverage:
           path: cobertura.xml
 
 PHP Full:
-    extends: .long-running
+    extends: .long-running-no-setup
     image: $DEV_IMAGE
     stage: unit
     needs: []
@@ -279,6 +279,9 @@ PHP Full:
                 DEPENDENCY_DEV: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
+    before_script:
+      - composer install --optimize-autoloader --no-interaction
+      - mkdir -p config/jwt || true
     script:
         - >
             if [ "$DEPENDENCY_DEV" == "true" ]; then

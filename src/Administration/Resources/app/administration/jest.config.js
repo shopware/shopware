@@ -15,6 +15,8 @@ module.exports = {
 
     globalTeardown: '<rootDir>test/globalTeardown.js',
 
+    testRunner: 'jest-jasmine2',
+
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
 
     collectCoverageFrom: [

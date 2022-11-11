@@ -26,6 +26,8 @@ async function createWrapper(customOptions = {}) {
             mediaService: {
                 addListener: () => {},
                 addUploads: () => null,
+                removeByTag: () => null,
+                removeListener: () => null,
             },
             configService: {
                 getConfig: () => Promise.resolve({

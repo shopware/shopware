@@ -43,6 +43,7 @@ export default class ExtensionSdkService extends ApiService {
         const cacheKey = `${appName}-${src}`;
 
         if (this.signedSourcesCache.has(cacheKey)) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             return this.signedSourcesCache.get(cacheKey)!;
         }
 
@@ -60,6 +61,7 @@ export default class ExtensionSdkService extends ApiService {
             return ApiService.handleResponse(response);
         }));
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.signedSourcesCache.get(cacheKey)!;
     }
 }

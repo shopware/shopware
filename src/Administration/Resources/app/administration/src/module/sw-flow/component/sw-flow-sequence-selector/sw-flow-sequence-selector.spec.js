@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-selector';
 import 'src/app/component/base/sw-button';
 
@@ -49,8 +49,6 @@ async function createWrapper() {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
     let wrapper;

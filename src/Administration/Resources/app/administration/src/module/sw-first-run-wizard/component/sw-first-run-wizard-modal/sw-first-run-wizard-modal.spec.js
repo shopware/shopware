@@ -23,13 +23,10 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 $route: { name: 'sw.first.run.wizard.index.welcome' }
             },
             provide: {
-                firstRunWizardService: {
-                    setFRWStart: () => {
-                    }
-                },
+                firstRunWizardService: { setFRWStart: () => {} },
                 shortcutService: {
-                    stopEventListener: () => {
-                    }
+                    stopEventListener: () => {},
+                    startEventListener: () => {}
                 }
             },
             props: {}

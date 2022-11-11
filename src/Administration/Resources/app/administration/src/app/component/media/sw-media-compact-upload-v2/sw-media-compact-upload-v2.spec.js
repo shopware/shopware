@@ -24,8 +24,9 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                     getConfig: () => Promise.resolve({ settings: { enableUrlFeature: false } }),
                 },
                 mediaService: {
-                    addListener: () => {
-                    },
+                    addListener: () => {},
+                    removeByTag: () => {},
+                    removeListener: () => {},
                 }
             },
             propsData: {

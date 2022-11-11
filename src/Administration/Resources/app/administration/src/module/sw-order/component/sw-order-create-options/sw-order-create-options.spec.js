@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 import 'src/module/sw-order/mixin/cart-notification.mixin';
@@ -126,7 +126,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-create-options', () => {
     beforeAll(() => {

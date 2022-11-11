@@ -43,7 +43,8 @@ describe('src/app/component/form/sw-text-field', () => {
         }
     });
 
-    const usageWrapper = shallowMount(Component.build('sw-text-field-mock'), {
+    let usageWrapper;
+    const createUsageWrapper = () => shallowMount(Component.build('sw-text-field-mock'), {
         localVue,
         stubs: {
             'sw-text-field': Component.build('sw-text-field'),
@@ -55,6 +56,10 @@ describe('src/app/component/form/sw-text-field', () => {
         provide: {
             validationService: {}
         }
+    });
+
+    beforeEach(() => {
+        usageWrapper = createUsageWrapper();
     });
 
     it('should be a Vue.js component', async () => {

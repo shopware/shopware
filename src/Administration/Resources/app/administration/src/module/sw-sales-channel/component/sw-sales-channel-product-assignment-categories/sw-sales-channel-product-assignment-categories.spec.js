@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -178,7 +178,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories', () => {
     it('should show category tree correctly', async () => {

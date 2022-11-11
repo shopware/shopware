@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-trigger';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -108,8 +108,6 @@ async function createWrapper(propsData) {
         attachTo: document.body
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     beforeAll(() => {

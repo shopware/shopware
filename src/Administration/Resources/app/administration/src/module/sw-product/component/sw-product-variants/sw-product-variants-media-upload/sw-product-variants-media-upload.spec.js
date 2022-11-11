@@ -46,7 +46,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     }
                 },
                 configService: {},
-                mediaService: {}
+                mediaService: {
+                    removeByTag: () => null,
+                    removeListener: () => null,
+                }
             },
             propsData: {
                 uploadTag: 'upload-tag',

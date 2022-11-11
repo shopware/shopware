@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-order/component/sw-order-custom-item';
 
@@ -23,7 +23,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-custom-item', () => {
     it('should price label and placeholder correctly', async () => {

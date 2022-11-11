@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variant-modal';
 
 function getOptions() {
@@ -281,7 +281,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-variant-modal', () => {
     let wrapper;

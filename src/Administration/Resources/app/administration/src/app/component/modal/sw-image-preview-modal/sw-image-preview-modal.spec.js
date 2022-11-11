@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/modal/sw-image-preview-modal';
 import 'src/app/component/media/sw-image-slider';
 
@@ -96,8 +96,6 @@ async function createWrapper(propsData = {}, listeners = {}) {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/app/component/modal/sw-image-preview-modal', () => {
     it('should navigate image slider correctly when clicking on thumbnail item', async () => {

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-action-error';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
@@ -30,8 +30,6 @@ async function createWrapper() {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 function getSequencesCollection(collection = []) {
     return new EntityCollection(

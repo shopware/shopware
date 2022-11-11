@@ -1,8 +1,7 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
 
-enableAutoDestroy(afterEach);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

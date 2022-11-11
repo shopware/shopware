@@ -35,7 +35,8 @@ async function createWrapper(privileges = []) {
         integrationService: {},
         validationService: {},
         shortcutService: {
-            stopEventListener: () => { }
+            stopEventListener: () => { },
+            startEventListener: () => { }
         },
 
         acl: {

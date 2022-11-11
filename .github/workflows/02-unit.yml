@@ -10,7 +10,6 @@ jobs:
   php:
     name: "PHPUnit with PHP ${{ matrix.php-version }}"
     runs-on: ubuntu-latest
-    container: "shopware/development:${{ matrix.php-version }}-composer-2"
     strategy:
       matrix:
         php-version: ["8.1", "8.2"]
@@ -41,9 +40,14 @@ jobs:
       with:
           fetch-depth: 0
 
-    - name: Install Shopware
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Setup Composer
       run: |
-        composer run setup
+        composer install
 
     - name: Run PHPUnit
       if: matrix.php-version != '8.1'
@@ -62,7 +66,6 @@ jobs:
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"
-    container: shopware/development:8.1-composer-2
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
@@ -82,31 +85,17 @@ jobs:
           discovery.type: single-node
 
     steps:
-      - name: Install node 16
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-          export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install 16
-          nvm use 16
-          nvm alias default 16
-
-      - name: Replace node binary
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          rm /usr/bin/npm
-          rm /usr/bin/node
-          ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/node /usr/bin/node
-          ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/npm /usr/bin/npm
-          npm config set --global user 0
-          npm config set --global unsafe-perm true
-
       - name: Clone platform
         uses: actions/checkout@v2
 
-      - name: Install Shopware
-        run: |
-          composer run setup
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
 
       - name: Run Jest Admin
         run: |
@@ -116,7 +105,6 @@ jobs:
   storefront:
     name: "Jest Storefront"
     runs-on: ubuntu-latest
-    container: shopware/development:8.1-composer-2
     env:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
@@ -139,9 +127,9 @@ jobs:
       - name: Clone platform
         uses: actions/checkout@v2
 
-      - name: Install Shopware
-        run: |
-          composer run setup
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
       - name: Run Jest Storefront
         run: |

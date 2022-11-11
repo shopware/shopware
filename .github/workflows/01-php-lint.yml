@@ -15,13 +15,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: "PHP Analyse"
-    container: shopware/development:8.1-composer-2
 
     steps:
     - name: Clone platform
       uses: actions/checkout@v2
       with:
         fetch-depth: '0'
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
 
     - name: Install Shopware
       run: |

@@ -28,8 +28,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,11 +42,6 @@ class StateMachineActionControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
-
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
 
     /**
      * @var EntityRepositoryInterface
@@ -67,7 +62,6 @@ class StateMachineActionControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->stateMachineHistoryRepository = $this->getContainer()->get('state_machine_history.repository');
@@ -78,6 +72,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('GET', '/api/order/' . Uuid::randomHex() . '/actions/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
         $response = json_decode($response, true);
 
         static::assertEquals(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
@@ -94,6 +89,7 @@ class StateMachineActionControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
         $response = json_decode($response, true);
 
         static::assertCount(2, $response['transitions']);
@@ -111,6 +107,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('GET', '/api/_action/state-machine/order/' . $orderId . '/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
         $response = json_decode($response, true);
 
         $actionUrl = $response['transitions'][0]['url'];
@@ -118,13 +115,14 @@ class StateMachineActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', $actionUrl);
 
-        $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $responseString = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($responseString);
+        $response = json_decode($responseString, true);
 
         static::assertEquals(
             Response::HTTP_OK,
             $this->getBrowser()->getResponse()->getStatusCode(),
-            $this->getBrowser()->getResponse()->getContent()
+            $responseString
         );
 
         $stateId = $response['data']['id'] ?? '';
@@ -144,7 +142,9 @@ class StateMachineActionControllerTest extends TestCase
         /** @var StateMachineHistoryEntity $historyEntry */
         $historyEntry = array_values($history->getElements())[0];
 
-        static::assertEquals($destinationStateTechnicalName, $historyEntry->getToStateMachineState()->getTechnicalName());
+        $toStateMachineState = $historyEntry->getToStateMachineState();
+        static::assertInstanceOf(StateMachineStateEntity::class, $toStateMachineState);
+        static::assertEquals($destinationStateTechnicalName, $toStateMachineState->getTechnicalName());
 
         static::assertEquals($this->getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
         static::assertEquals($orderId, $historyEntry->getEntityId()['id']);
@@ -160,6 +160,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_action/state-machine/order/' . $orderId . '/state/foo');
 
         $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
         $response = json_decode($response, true);
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
@@ -294,7 +295,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertEquals($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
     }
 
-    private function createShippingMethod()
+    private function createShippingMethod(): string
     {
         $rule = [
             'id' => Uuid::randomHex(),
@@ -311,6 +312,7 @@ class StateMachineActionControllerTest extends TestCase
         $shipping = [
             'id' => Uuid::randomHex(),
             'name' => 'test',
+            'active' => true,
             'prices' => [
                 [
                     'ruleId' => null,

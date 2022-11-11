@@ -25426,31 +25426,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Test/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\StateMachine\\\\Api\\\\StateMachineActionControllerTest\\:\\:createShippingMethod\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 5
-			path: src/Core/System/Test/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/System/Test/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\StateMachine\\\\Api\\\\StateMachineActionControllerTest\\:\\:\\$stateMachineRegistry is never read, only written\\.$#"
-			count: 1
-			path: src/Core/System/Test/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
 			count: 2
 			path: src/Core/System/Test/StateMachine/StateMachineRegistryTest.php
 

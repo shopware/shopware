@@ -3,7 +3,6 @@ import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/app/component/structure/sw-admin-menu-item';
 import createMenuService from 'src/app/service/menu.service';
-import flushPromises from 'flush-promises';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
 /** fixtures */

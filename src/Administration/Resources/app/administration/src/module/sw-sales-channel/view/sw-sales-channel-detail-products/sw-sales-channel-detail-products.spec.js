@@ -1,7 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
-import flushPromises from 'flush-promises';
 
 function mockCriteria() {
     return {

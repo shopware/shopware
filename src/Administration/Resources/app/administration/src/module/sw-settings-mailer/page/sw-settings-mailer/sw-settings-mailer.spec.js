@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-mailer/page/sw-settings-mailer';
-import flushPromises from 'flush-promises';
 
 describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     const CreateSettingsMailer = async function CreateSettingsMailer(emailAgent = null) {

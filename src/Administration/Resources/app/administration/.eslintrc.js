@@ -42,6 +42,7 @@ module.exports = {
         Cypress: true,
         cy: true,
         autoStub: true,
+        flushPromises: true,
     },
 
     plugins: [

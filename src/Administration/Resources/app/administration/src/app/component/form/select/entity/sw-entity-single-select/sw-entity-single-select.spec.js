@@ -1,6 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 import utils from 'src/core/service/util.service';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';

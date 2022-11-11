@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-product-stream/page/sw-product-stream-detail';
 
 const responses = global.repositoryFactoryMock.responses;

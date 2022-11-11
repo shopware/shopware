@@ -3,7 +3,6 @@ import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-users-permissions-user-create'), {

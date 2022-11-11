@@ -7,7 +7,6 @@ import 'src/app/component/data-grid/sw-data-grid';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';

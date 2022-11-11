@@ -1,6 +1,5 @@
 import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variant-modal';
-import flushPromises from 'flush-promises';
 
 function getOptions() {
     return [

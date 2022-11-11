@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/app/component/structure/sw-search-bar';
 import Criteria from 'src/core/data/criteria.data';
 

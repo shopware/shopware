@@ -18,7 +18,6 @@ import 'src/app/component/form/sw-list-price-field';
 import 'src/app/component/form/sw-price-field';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import Vuex from 'vuex';
-import flushPromises from 'flush-promises';
 
 const { EntityCollection } = Shopware.Data;
 

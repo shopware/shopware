@@ -3,7 +3,6 @@ import 'src/app/component/form/sw-datepicker';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
-import flushPromises from 'flush-promises';
 
 async function createWrapper(customOptions = {}) {
     return shallowMount(await Shopware.Component.build('sw-datepicker'), {

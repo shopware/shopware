@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-document/page/sw-settings-document-detail';
-import flushPromises from 'flush-promises';
 
 const documentBaseConfigRepositoryMock = {
     create: () => {

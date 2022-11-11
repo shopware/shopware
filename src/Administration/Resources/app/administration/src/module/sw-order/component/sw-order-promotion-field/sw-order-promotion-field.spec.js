@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-order/component/sw-order-promotion-field';
 
 const orderFixture = {

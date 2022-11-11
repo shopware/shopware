@@ -1,6 +1,5 @@
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import flushPromises from 'flush-promises';
 import 'src/app/component/structure/sw-desktop';
 
 const routes = [{

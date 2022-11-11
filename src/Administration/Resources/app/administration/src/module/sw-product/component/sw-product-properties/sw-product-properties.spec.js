@@ -3,7 +3,6 @@ import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-properties';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-card';
-import flushPromises from 'flush-promises';
 
 const { Component, State } = Shopware;
 

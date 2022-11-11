@@ -2,7 +2,6 @@ import ImportExportService from 'src/module/sw-import-export/service/importExpor
 import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import flushPromises from 'flush-promises';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/context-menu/sw-context-menu';

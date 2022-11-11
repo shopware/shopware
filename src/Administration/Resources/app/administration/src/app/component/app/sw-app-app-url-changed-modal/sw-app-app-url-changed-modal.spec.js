@@ -1,5 +1,4 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/app/component/app/sw-app-app-url-changed-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';

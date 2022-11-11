@@ -2,7 +2,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
 import uuid from 'src/../test/_helper_/uuid';
-import flushPromises from 'flush-promises';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-form-field-renderer';

@@ -2,7 +2,6 @@ import DocumentApiService from 'src/core/service/api/document.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
-import flushPromises from 'flush-promises';
 
 function getDocumentApiService() {
     const client = createHTTPClient();

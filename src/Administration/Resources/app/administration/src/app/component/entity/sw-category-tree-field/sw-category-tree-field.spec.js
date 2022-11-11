@@ -6,7 +6,6 @@ import 'src/app/component/tree/sw-tree';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import flushPromises from 'flush-promises';
 
 const categoryData = [{
     id: 'categoryId-0',

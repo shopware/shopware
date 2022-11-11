@@ -1,7 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
-
 import 'src/module/sw-order/component/sw-order-state-history-modal';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';

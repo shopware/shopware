@@ -1,7 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-profile/page/sw-profile-index';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 import TimezoneService from 'src/core/service/timezone.service';
 
 async function createWrapper(privileges = []) {

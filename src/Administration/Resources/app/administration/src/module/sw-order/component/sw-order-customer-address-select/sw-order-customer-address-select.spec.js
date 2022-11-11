@@ -1,9 +1,6 @@
 import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
 import 'src/module/sw-order/component/sw-order-customer-address-select';
-
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';

@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-extension/component/sw-extension-card-base';
 import 'src/module/sw-extension/component/sw-extension-card-bought';
 import 'src/module/sw-extension/component/sw-extension-removal-modal';

@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/app/component/utils/sw-error-boundary';
 
 describe('src/app/component/utils/sw-error-boundary', () => {

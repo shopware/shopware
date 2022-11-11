@@ -1,7 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import 'src/module/sw-media/component/sidebar/sw-media-folder-info';
-import flushPromises from 'flush-promises';
 
 const { Mixin } = Shopware;
 

@@ -16,7 +16,6 @@ import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-selection-list';
-import flushPromises from 'flush-promises';
 
 const responses = global.repositoryFactoryMock.responses;
 

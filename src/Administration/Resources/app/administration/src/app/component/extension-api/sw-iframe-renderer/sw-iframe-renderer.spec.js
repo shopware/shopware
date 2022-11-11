@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/extension-api/sw-iframe-renderer';
-import flushPromises from 'flush-promises';
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-iframe-renderer'), {

@@ -128,7 +128,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
         $request->attributes->set('_routeScope', ['api']);
 
-        $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, true);
+        $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, 'true');
 
         $this->resolver->resolve($request);
 

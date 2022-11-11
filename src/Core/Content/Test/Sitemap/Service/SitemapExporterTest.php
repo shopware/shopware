@@ -115,15 +115,19 @@ class SitemapExporterTest extends TestCase
             return $cacheItem;
         });
 
-        $cache->method('save')->willReturnCallback(function (CacheItemInterface $i) use (&$cacheItem): void {
+        $cache->method('save')->willReturnCallback(function (CacheItemInterface $i) use (&$cacheItem): bool {
             static::assertSame($cacheItem->getKey(), $i->getKey());
             $cacheItem = $this->createCacheItem($i->getKey(), $i->get(), true);
+
+            return true;
         });
 
-        $cache->method('deleteItem')->willReturnCallback(function (string $k) use (&$cacheItem): void {
+        $cache->method('deleteItem')->willReturnCallback(function (string $k) use (&$cacheItem): bool {
             static::assertNotNull($cacheItem, 'Was not locked');
             static::assertSame($cacheItem->getKey(), $k);
             static::assertTrue($cacheItem->isHit(), 'Was not locked');
+
+            return true;
         });
 
         $exporter = new SitemapExporter(

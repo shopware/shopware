@@ -37,7 +37,7 @@
         "doctrine/dbal": "~2.13.8",
         "elasticsearch/elasticsearch": "7.16.0",
         "shopware/core": "*",
-        "shyim/opensearch-php-dsl": "~1.0.0",
+        "shyim/opensearch-php-dsl": "~1.0.1",
         "symfony/http-foundation": "~6.1.0",
         "symfony/messenger": "~6.1.0"
     },

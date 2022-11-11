@@ -155,7 +155,7 @@ PHP lint:
               - composer.json
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
-              - '**.php'
+              - '**/*.php'
     before_script:
         - composer update --no-interaction
     script:

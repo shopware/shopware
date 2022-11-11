@@ -8,6 +8,7 @@ use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
 
 /**
  * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we use default symfony messenger
  */
 class DefaultSenderLocator implements SendersLocatorInterface

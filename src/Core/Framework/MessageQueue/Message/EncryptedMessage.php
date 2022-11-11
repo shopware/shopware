@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Message;
 
 /**
  * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove queue encryption
  */
 class EncryptedMessage

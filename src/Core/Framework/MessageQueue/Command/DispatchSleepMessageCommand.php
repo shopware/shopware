@@ -14,6 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:remove-command - Will be removed, use default symfony:messenger commands instead
  */
 class DispatchSleepMessageCommand extends Command

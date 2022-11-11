@@ -2,17 +2,42 @@
 
 # unit stage - This files contains all jobs belonging to the unit stage
 
+.administration-node-cache: &administration-node-cache
+  key:
+    files:
+      - src/Administration/Resources/app/administration/package-lock.json
+  paths:
+    - src/Administration/Resources/app/administration/node_modules/
+  policy: push
+
+.administration-jest-cache: &administration-jest-cache
+  key: 'jestcache-administration'
+  paths:
+    - src/Administration/Resources/app/administration/.jestcache
+  policy: push
+
+.storefront-node-cache: &storefront-node-cache
+  key:
+    files:
+      - src/Storefront/Resources/app/storefront/package-lock.json
+  paths:
+    - src/Storefront/Resources/app/storefront/node_modules/
+  policy: push
+
+.storefront-jest-cache: &storefront-jest-cache
+  key: 'jestcache-storefront'
+  paths:
+    - src/Storefront/Resources/app/storefront/.jestcache
+  policy: push
+
 Jest (Administration):
     extends: .base
     stage: unit
     needs: []
     services: []
     cache:
-        key:
-          files:
-            - src/Administration/Resources/app/administration/package-lock.json
-        paths:
-            - src/Administration/Resources/app/administration/node_modules/
+      - <<: *administration-node-cache
+        policy: pull
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
@@ -47,11 +72,8 @@ Jest (Storefront):
     variables:
       NODE_VERSION: 12
     cache:
-      key:
-        files:
-          - src/Storefront/Resources/app/storefront/package-lock.json
-      paths:
-        - src/Storefront/Resources/app/storefront/node_modules/
+      - <<: *storefront-node-cache
+        policy: pull
     before_script:
       - !reference [ .scripts, install-node, script ]
       - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
@@ -95,6 +117,8 @@ PHP unit:
     before_script:
         - composer install --optimize-autoloader --no-interaction
         - mkdir -p config/jwt || true
+        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
+        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     script:
         - php vendor/bin/phpunit
             --configuration phpunit.xml.dist
@@ -110,7 +134,7 @@ PHP unit:
     parallel:
         matrix:
             - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance", "migration"]
-            - TESTSUITE: ["content", "checkout", "integration"]
+            - TESTSUITE: ["content", "checkout"]
               RUNNER_INSTANCE_TYPE: m5.large
 
 PHP unit Elasticsearch:
@@ -126,7 +150,7 @@ PHP unit Elasticsearch:
       command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
   parallel:
     matrix:
-      - TESTSUITE: ["elasticsearch"]
+      - TESTSUITE: ["elasticsearch", "integration"]
         RUNNER_INSTANCE_TYPE: m5.large
 
 PHP bench:
@@ -235,7 +259,7 @@ PHP migration coverage:
           path: cobertura.xml
 
 PHP Full:
-    extends: .long-running-no-setup
+    extends: .long-running
     image: $DEV_IMAGE
     stage: unit
     needs: []
@@ -302,9 +326,6 @@ PHP Full:
                 DEPENDENCY_DEV: 'true'
                 TEST_SUITES: "checkout content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
-    before_script:
-      - composer install --optimize-autoloader --no-interaction
-      - mkdir -p config/jwt || true
     script:
         - >
             if [ "$DEPENDENCY_DEV" == "true" ]; then

@@ -48,14 +48,17 @@ jobs:
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
+        if: matrix.php-version != '8.0'
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: none, intl, mbstring, pdo_mysql, zip, gd, exif, bcmath, pcntl, dom, xml, simplexml, tokenizer, xmlwriter, xsl, json, iconv, curl, fileinfo, dom, redis, opcache, sodium, pcov
+          coverage: none
 
-      - name: PHP Info
-        run: |
-          php -m
-          php -v
+      - name: Setup PHP with Coverage
+        uses: shivammathur/setup-php@v2
+        if: matrix.php-version == '8.0'
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
 
       - name: Setup Composer
         run: |
@@ -66,7 +69,7 @@ jobs:
         run: |
           for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
 
-      - name: Run PHPUnit with Pcov
+      - name: Run PHPUnit with XDebug
         if: matrix.php-version == '8.2'
         run: |
           for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~' vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined"  --testsuite "$TEST_SUITE" --coverage-cobertura "phpunit.coverage.$TEST_SUITE.xml"; done
@@ -143,7 +146,7 @@ jobs:
         id: node-cache
         with:
           path: src/Storefront/Resources/app/storefront/node_modules
-          key: storefront-node-modules-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/storefront/package-lock.json') }}
+          key: storefront-node-modules-${{ runner.os }}-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
 
       - name: Install dependencies (if the cached directory was not found)
         if: steps.node-cache.outputs.cache-hit != 'true'

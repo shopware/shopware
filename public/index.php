@@ -15,6 +15,8 @@ if (!file_exists(__DIR__ . '/../.env')) {
     $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 
+$_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod', 'e2e'];
+
 return function (array $context) {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
@@ -71,7 +73,7 @@ return function (array $context) {
             $this->httpKernel = $httpKernel;
         }
 
-        public function handle(Request $request, int $type = self::MASTER_REQUEST, bool $catch = true)
+        public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
         {
             return $this->httpKernel->handle($request, $type, $catch)->getResponse();
         }

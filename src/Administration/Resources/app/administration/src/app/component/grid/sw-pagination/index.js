@@ -77,19 +77,19 @@ Component.register('sw-pagination', {
             const left = Math.floor(maxLength / 2);
             const right = (this.maxPage - left) + 1 + even;
 
-            if (currentPage === left) {
+            if (currentPage === left || (left === 1 && currentPage === left + 1)) {
                 return [
                     ...this.range(1, left + 1),
                     '...',
-                    ...this.range((this.maxPage - left) + 1 + even, this.maxPage),
+                    ...this.range(right, this.maxPage),
                 ];
             }
 
-            if (currentPage === right) {
+            if (currentPage === right || (right === this.maxPage && currentPage === this.maxPage - 1)) {
                 return [
                     ...this.range(1, left),
                     '...',
-                    ...this.range((this.maxPage - left) + even, this.maxPage),
+                    ...this.range(right - 1, this.maxPage),
                 ];
             }
 
@@ -97,13 +97,13 @@ Component.register('sw-pagination', {
                 const start = (currentPage - left) + 2;
                 const end = (currentPage + left) - 2 - even;
 
-                return [1, '...', ...this.range(start, end), '...', this.maxPage];
+                return [1, '...', ...start > end ? [currentPage] : this.range(start, end), '...', this.maxPage];
             }
 
             return [
                 ...this.range(1, left),
                 '...',
-                ...this.range((this.maxPage - left) + 1 + even, this.maxPage),
+                ...this.range(right, this.maxPage),
             ];
         },
 

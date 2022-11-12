@@ -76,9 +76,5 @@ $sw-pagination-border-radius: $border-radius-default;
         @media screen and (max-width: 900px) {
             display: none;
         }
-
-        .sw-field.sw-field--select {
-            grid-template-columns: 120px auto;
-        }
     }
 }

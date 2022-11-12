@@ -24,7 +24,7 @@ class FlowSendMailActionEvent implements ShopwareEvent
     /**
      * @deprecated tag:v6.5.0 Will be StorableFlow type
      */
-    private ?StorableFlow $flow;
+    private ?StorableFlow $flow = null;
 
     /**
      * @param FlowEvent|StorableFlow $event
@@ -50,7 +50,7 @@ class FlowSendMailActionEvent implements ShopwareEvent
     public function getContext(): Context
     {
         if ($this->flow) {
-            return $this->getContext();
+            return $this->flow->getContext();
         }
 
         return $this->flowEvent->getContext();

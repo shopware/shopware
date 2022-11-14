@@ -3,7 +3,10 @@ import './sw-flow-app-action-modal.scss';
 
 const { Mixin, Classes: { ShopwareError } } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

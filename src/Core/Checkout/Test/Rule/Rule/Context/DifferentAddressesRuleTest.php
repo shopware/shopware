@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Customer\Rule\DifferentAddressesRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class DifferentAddressesRuleTest extends TestCase

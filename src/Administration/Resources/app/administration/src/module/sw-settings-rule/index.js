@@ -15,7 +15,10 @@ Shopware.Component.register('sw-settings-rule-detail-base', () => import('./view
 Shopware.Component.register('sw-settings-rule-detail-assignments', () => import('./view/sw-settings-rule-detail-assignments'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Module.register('sw-settings-rule', {
     type: 'core',
     name: 'settings-rule',

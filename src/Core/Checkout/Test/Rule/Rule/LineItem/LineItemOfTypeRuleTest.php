@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class LineItemOfTypeRuleTest extends TestCase

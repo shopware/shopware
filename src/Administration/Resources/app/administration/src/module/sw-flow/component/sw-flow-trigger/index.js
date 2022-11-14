@@ -7,7 +7,10 @@ const utils = Shopware.Utils;
 const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

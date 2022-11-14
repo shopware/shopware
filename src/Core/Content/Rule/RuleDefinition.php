@@ -43,6 +43,9 @@ use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventAct
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package business-ops
+ */
 class RuleDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'rule';

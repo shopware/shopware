@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
+/**
+ * @package business-ops
+ */
 class UserStorer extends FlowStorer
 {
     private EntityRepository $userRecoveryRepository;

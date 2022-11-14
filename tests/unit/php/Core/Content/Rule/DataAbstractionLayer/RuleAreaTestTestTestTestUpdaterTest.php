@@ -37,6 +37,8 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstan
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater
  */
@@ -203,6 +205,8 @@ class RuleAreaUpdaterTest extends TestCase
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleAreaDefinitionTest extends RuleDefinition
@@ -225,6 +229,8 @@ class RuleAreaDefinitionTest extends RuleDefinition
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleAreaTestOneToOne extends EntityDefinition
@@ -243,6 +249,8 @@ class RuleAreaTestOneToOne extends EntityDefinition
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleAreaTestOneToMany extends EntityDefinition
@@ -262,6 +270,8 @@ class RuleAreaTestOneToMany extends EntityDefinition
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleAreaTestManyToOne extends EntityDefinition
@@ -280,6 +290,8 @@ class RuleAreaTestManyToOne extends EntityDefinition
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleAreaTestManyToMany extends EntityDefinition

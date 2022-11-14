@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package business-ops
+ */
 class ProductStreamTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'product_stream_translation';

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Framework\Rule\Rule;
 
+/**
+ * @package business-ops
+ */
 abstract class FilterRule extends Rule implements ContainerInterface
 {
     /**

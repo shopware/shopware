@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class LastNameRuleTest extends TestCase

@@ -1,7 +1,10 @@
 import template from './sw-flow-sequence.html.twig';
 import './sw-flow-sequence.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

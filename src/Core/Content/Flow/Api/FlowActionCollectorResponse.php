@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Api;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package business-ops
  * @extends Collection<FlowActionDefinition>
  */
 class FlowActionCollectorResponse extends Collection

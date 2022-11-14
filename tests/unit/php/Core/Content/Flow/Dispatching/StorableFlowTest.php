@@ -9,6 +9,8 @@ use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\StorableFlow

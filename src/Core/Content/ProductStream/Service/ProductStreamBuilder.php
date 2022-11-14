@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 
+/**
+ * @package business-ops
+ */
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**

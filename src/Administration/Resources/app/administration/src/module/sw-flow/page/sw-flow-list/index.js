@@ -2,7 +2,10 @@ import template from './sw-flow-list.html.twig';
 
 const { Mixin, Data: { Criteria } } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

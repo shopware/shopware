@@ -4,7 +4,10 @@ import './sw-flow-sequence-action-error.scss';
 const { Component, State } = Shopware;
 const { mapGetters } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

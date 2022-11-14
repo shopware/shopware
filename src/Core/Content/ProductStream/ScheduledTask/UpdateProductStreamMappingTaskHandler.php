@@ -11,6 +11,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler

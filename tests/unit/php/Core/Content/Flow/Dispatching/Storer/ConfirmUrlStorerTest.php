@@ -11,6 +11,8 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer

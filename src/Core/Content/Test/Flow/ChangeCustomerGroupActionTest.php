@@ -22,6 +22,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class ChangeCustomerGroupActionTest extends TestCase

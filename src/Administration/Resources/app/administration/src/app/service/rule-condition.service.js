@@ -5,12 +5,13 @@ const { Criteria } = Shopware.Data;
  */
 
 /**
+ * @private
+ * @package business-ops
  * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createConditionService() {
     const $store = {};
 

@@ -3,7 +3,10 @@ import './sw-settings-rule-category-tree.scss';
 
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

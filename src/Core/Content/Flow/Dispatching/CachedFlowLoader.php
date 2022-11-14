@@ -10,6 +10,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface

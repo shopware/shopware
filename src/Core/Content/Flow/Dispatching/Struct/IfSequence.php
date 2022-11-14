@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class IfSequence extends Sequence

@@ -1,7 +1,10 @@
 import template from './sw-promotion-v2-rule-select.html.twig';
 import './sw-promotion-v2-rule-select.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

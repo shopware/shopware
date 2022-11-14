@@ -1,6 +1,9 @@
 import template from './sw-settings-rule-assignment-listing.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

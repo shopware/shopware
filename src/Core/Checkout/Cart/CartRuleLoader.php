@@ -187,7 +187,7 @@ class CartRuleLoader implements ResetInterface
             return $this->rules;
         }
 
-        return $this->rules = $this->ruleLoader->load($context);
+        return $this->rules = $this->ruleLoader->load($context)->filterForContext();
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

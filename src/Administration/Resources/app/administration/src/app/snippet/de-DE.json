@@ -677,6 +677,7 @@
         "lineItemUnitPriceRule": "Positionsstückpreis",
         "lineItemTotalPriceRule": "Positionszwischensumme",
         "lineItemWithQuantityRule": "Positionsanzahl",
+        "orderTagRule": "Bestellung mit Tag",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",

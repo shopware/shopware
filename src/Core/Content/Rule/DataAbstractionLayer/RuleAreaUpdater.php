@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -34,13 +37,23 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
     private RuleDefinition $definition;
 
+    private RuleConditionRegistry $conditionRegistry;
+
+    private CacheInvalidator $cacheInvalidator;
+
     /**
      * @internal
      */
-    public function __construct(Connection $connection, RuleDefinition $definition)
-    {
+    public function __construct(
+        Connection $connection,
+        RuleDefinition $definition,
+        RuleConditionRegistry $conditionRegistry,
+        CacheInvalidator $cacheInvalidator
+    ) {
         $this->connection = $connection;
         $this->definition = $definition;
+        $this->conditionRegistry = $conditionRegistry;
+        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     public static function getSubscribedEvents(): array
@@ -101,6 +114,8 @@ class RuleAreaUpdater implements EventSubscriberInterface
         }
 
         $this->update(Uuid::fromBytesToHexList(array_unique(array_filter($ruleIds))));
+
+        $this->cacheInvalidator->invalidate([CachedRuleLoader::CACHE_KEY]);
     }
 
     /**
@@ -126,6 +141,12 @@ class RuleAreaUpdater implements EventSubscriberInterface
                     continue;
                 }
 
+                if ($propertyName === 'flowCondition') {
+                    $areas = array_unique(array_merge($areas, [RuleAreas::FLOW_CONDITION_AREA]));
+
+                    continue;
+                }
+
                 $field = $associationFields->get($propertyName);
 
                 if (!$field || !$flag = $field->getFlag(RuleAreas::class)) {
@@ -136,7 +157,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             }
 
             $update->execute([
-                'areas' => json_encode($areas),
+                'areas' => json_encode(array_values($areas)),
                 'id' => Uuid::fromHexToBytes($id),
             ]);
         }
@@ -189,10 +210,15 @@ class RuleAreaUpdater implements EventSubscriberInterface
         foreach ($associationFields->getElements() as $associationField) {
             $this->addSelect($query, $associationField);
         }
+        $this->addFlowConditionSelect($query);
 
         $query->setParameter(
             'ids',
             Uuid::fromHexToBytesList($ids),
+            Connection::PARAM_STR_ARRAY
+        )->setParameter(
+            'flowTypes',
+            $this->conditionRegistry->getFlowRuleNames(),
             Connection::PARAM_STR_ARRAY
         );
 
@@ -238,6 +264,17 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
             $query->addSelect(sprintf($template, $subQuery->getSQL(), $propertyName));
         }
+    }
+
+    private function addFlowConditionSelect(QueryBuilder $query): void
+    {
+        $subQuery = (new QueryBuilder($this->connection))
+            ->select('1')
+            ->from('rule_condition')
+            ->andWhere('`rule_id` = `rule`.`id`')
+            ->andWhere('`type` IN (:flowTypes)');
+
+        $query->addSelect(sprintf('EXISTS(%s) AS flowCondition', $subQuery->getSQL()));
     }
 
     private function escape(string $string): string

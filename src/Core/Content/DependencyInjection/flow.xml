@@ -23,9 +23,17 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
+            <argument type="tagged" tag="shopware.cart.collector"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowExecutor" public="true">
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder"/>
             <argument type="tagged_iterator" tag="flow.action" index-by="key" />
         </service>
 
@@ -283,6 +291,10 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowFactory" public="true">
             <argument type="tagged_iterator" tag="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderTagRule">
+            <tag name="shopware.rule.definition"/>
         </service>
     </services>
 </container>

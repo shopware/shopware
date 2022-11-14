@@ -155,6 +155,10 @@ export default function createConditionService() {
             id: 'promotion',
             name: 'sw-settings-rule.detail.groups.promotions',
         },
+        flow: {
+            id: 'flow',
+            name: 'sw-settings-rule.detail.groups.flow',
+        },
         misc: {
             id: 'misc',
             name: 'sw-settings-rule.detail.groups.misc',

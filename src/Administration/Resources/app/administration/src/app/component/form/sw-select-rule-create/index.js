@@ -146,6 +146,10 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
+            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
+                return true;
+            }
+
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
 
             if (!this.feature.isActive('FEATURE_NEXT_18215')) {

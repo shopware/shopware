@@ -1411,11 +1411,6 @@ parameters:
 			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponse.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\SetPaymentOrderRoute\\:\\:getOrderRules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/SetPaymentOrderRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\\:\\:resolveAppPaymentMethodHandler\\(\\) has parameter \\$appPaymentMethod with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php

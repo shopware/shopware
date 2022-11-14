@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -25,6 +26,24 @@ class RuleCollection extends EntityCollection
                 }
 
                 return $rule->getPayload()->match(new CartRuleScope($cart, $context));
+            }
+        );
+    }
+
+    public function filterForContext(): self
+    {
+        return $this->filter(
+            function (RuleEntity $rule) {
+                return !$rule->getAreas() || !\in_array(RuleAreas::FLOW_CONDITION_AREA, $rule->getAreas(), true);
+            }
+        );
+    }
+
+    public function filterForFlow(): self
+    {
+        return $this->filter(
+            function (RuleEntity $rule) {
+                return $rule->getAreas() && \in_array(RuleAreas::FLOW_AREA, $rule->getAreas(), true);
             }
         );
     }

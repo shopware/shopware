@@ -13,6 +13,8 @@ class RuleAreas extends Flag
     public const PROMOTION_AREA = 'promotion';
     public const CATEGORY_AREA = 'category';
     public const LANDING_PAGE_AREA = 'landing-page';
+    public const FLOW_AREA = 'flow';
+    public const FLOW_CONDITION_AREA = 'flow-condition';
 
     /**
      * @var string[]

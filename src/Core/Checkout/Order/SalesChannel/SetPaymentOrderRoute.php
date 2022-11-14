@@ -228,6 +228,9 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         return false;
     }
 
+    /**
+     * @return string[]
+     */
     private function getOrderRules(OrderEntity $order, SalesChannelContext $salesChannelContext): array
     {
         $convertedCart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
@@ -255,7 +258,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 $customer->getId()
             )
         );
-        $criteria->addAssociations(['lineItems', 'deliveries']);
+        $criteria->addAssociations(['lineItems', 'deliveries', 'orderCustomer', 'tags']);
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 

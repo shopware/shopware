@@ -140,7 +140,6 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="state_machine_state.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
         </service>
     </services>
 </container>

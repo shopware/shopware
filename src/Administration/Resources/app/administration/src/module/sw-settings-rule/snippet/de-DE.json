@@ -131,6 +131,7 @@
         "items": "Positionen im Warenkorb",
         "customers": "Kunden",
         "promotions": "Marketing & Rabattaktionen",
+        "flow": "Flow Builder",
         "misc": "Sonstige"
       },
       "textUnsavedConditions": "Es gibt ungespeicherte Änderungen in dieser Regel. Speichere die Änderungen, um Zuweisungen hinzufügen zu können."

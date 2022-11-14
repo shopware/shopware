@@ -97,6 +97,10 @@ Component.register('sw-promotion-v2-rule-select', {
 
         /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted(rule) {
+            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
+                return true;
+            }
+
             if (!this.feature.isActive('FEATURE_NEXT_18215')) {
                 return false;
             }

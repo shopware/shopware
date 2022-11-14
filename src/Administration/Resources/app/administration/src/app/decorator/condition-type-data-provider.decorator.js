@@ -7,6 +7,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             equalsAny: [
                 'customerBillingCountry',
@@ -32,6 +33,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             equalsAny: [
                 'customerOrderCount',
@@ -57,6 +59,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
@@ -67,6 +70,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
         },
@@ -77,6 +81,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },
@@ -87,6 +92,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
         },
@@ -97,8 +103,39 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'productPrices',
+        {
+            notEquals: [
+                'orderTag',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.productPrices',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'shippingMethods',
+        {
+            notEquals: [
+                'orderTag',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'paymentMethods',
+        {
+            notEquals: [
+                'orderTag',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
         },
     );
 
@@ -558,6 +595,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.customerBirthdayRule',
         scopes: ['checkout'],
         group: 'customer',
+    });
+
+    ruleConditionService.addCondition('orderTag', {
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-order-tag',
+        label: 'global.sw-condition.condition.orderTagRule',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     return ruleConditionService;

@@ -677,6 +677,7 @@
         "lineItemUnitPriceRule": "Item unit price",
         "lineItemTotalPriceRule": "Item subtotal",
         "lineItemWithQuantityRule": "Item quantity",
+        "orderTagRule": "Order with tag",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

@@ -80,6 +80,11 @@ Component.register('sw-settings-rule-detail', {
             criteria.addAssociation('cartPromotions');
             criteria.addAssociation('promotionDiscounts');
             criteria.addAssociation('promotionSetGroups');
+            criteria.addAssociation('shippingMethodPriceCalculations');
+            criteria.addAssociation('shippingMethodPrices');
+            criteria.addAssociation('productPrices');
+            criteria.addAssociation('shippingMethods');
+            criteria.addAssociation('paymentMethods');
 
             return criteria;
         },

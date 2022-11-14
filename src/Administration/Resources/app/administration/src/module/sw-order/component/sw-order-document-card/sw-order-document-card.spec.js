@@ -74,10 +74,10 @@ const documentTypeFixture = [
     },
     {
         id: '2',
-        name: 'Storno bill',
+        name: 'Cancellation invoice',
         technicalName: 'storno',
         translated: {
-            name: 'Storno bill',
+            name: 'Cancellation invoice',
         }
     },
     {
@@ -321,7 +321,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper.vm.createNotificationError.mockRestore();
     });
 
-    it('should show the error of storno bill number is existing', async () => {
+    it('should show the error of cancellation invoice number is existing', async () => {
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -403,10 +403,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await wrapper.setData({
             currentDocumentType: {
                 id: '2',
-                name: 'Storno bill',
+                name: 'Cancellation invoice',
                 technicalName: 'storno',
                 translated: {
-                    name: 'Storno bill',
+                    name: 'Cancellation invoice',
                 }
             },
         });

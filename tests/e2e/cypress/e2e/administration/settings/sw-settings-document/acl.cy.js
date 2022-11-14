@@ -41,7 +41,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
 
         // navigate to detail page and see if there are values
         cy.get(`${page.elements.gridRow}--3 a`).click();
-        cy.get('#sw-field--documentConfig-name').should('have.value', 'storno').should('be.disabled');
+        cy.get('#sw-field--documentConfig-name').should('have.value', 'invoice').should('be.disabled');
         cy.get('.sw-settings-document-detail__select-type').should('have.class', 'is--disabled');
         cy.get('.sw-settings-document-detail__save-action').should('be.disabled');
 
@@ -132,6 +132,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-settings-document-list-grid', 'very Document');
     });
+
     it('@catalogue: create, read and then edit document with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
 
@@ -200,6 +201,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-settings-document-list-grid', 'very Document1');
     });
+
     it('@catalogue: delete document with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
         cy.loginAsUserWithPermissions([
@@ -218,16 +220,17 @@ describe('Settings Documents: Test crud operations with ACL', () => {
 
         // Delete Document
         cy.get('.sw-grid__row--3').first().as('row');
-        cy.get('@row').find('.sw-context-button__button').click();
-        cy.get('.sw-document-list__delete-action').click();
-        cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
-            'Are you sure you want to delete the document "storno"?');
-        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
-        cy.get(page.elements.modal).should('not.exist');
+        cy.get('.sw-grid__body').children().its('length').then((length) => {
+            cy.get('@row').find('.sw-context-button__button').click();
+            cy.get('.sw-document-list__delete-action').click();
+            cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
+            cy.get(page.elements.modal).should('not.exist');
 
-        // verify successful delete request
-        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
-        cy.contains('storno').should('not.exist');
+            // verify successful delete request
+            cy.wait('@deleteData').its('response.statusCode').should('equal', 204).then(() => {
+                cy.get('.sw-grid__body').children().should('have.length', length - 1);
+            });
+        });
     });
 });
 

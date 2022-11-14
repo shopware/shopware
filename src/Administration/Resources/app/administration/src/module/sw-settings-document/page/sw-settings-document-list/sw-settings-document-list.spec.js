@@ -19,14 +19,14 @@ async function createWrapper(privileges = []) {
                 items: [
                     {
                         documentTypeId: '9bdea3067c7044a4a3011f8424e65dc5',
-                        name: 'storno',
-                        filenamePrefix: 'storno_',
+                        name: 'cancellation_invoice',
+                        filenamePrefix: 'cancellation_invoice_',
                         global: true,
                         id: 'e15ed1f5155945e1ace36d8837e2b36f',
                         documentType: {
-                            name: 'Storno bill',
+                            name: 'Cancellation invoice',
                             technicalName: 'storno',
-                            translated: { name: 'Storno bill', customFields: [] }
+                            translated: { name: 'Cancellation invoice', customFields: [] }
                         },
                         salesChannels: [{
                             documentBaseConfigId: 'e15ed1f5155945e1ace36d8837e2b36f',

@@ -66,10 +66,10 @@ const documentTypeFixture = [
     },
     {
         id: '2',
-        name: 'Storno bill',
+        name: 'Cancellation invoice',
         technicalName: 'storno',
         translated: {
-            name: 'Storno bill',
+            name: 'Cancellation invoice',
         }
     },
     {
@@ -137,7 +137,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(documentTypeRadioOptions.at(1).find('input')
             .attributes().disabled).toBeUndefined();
 
-        // Storno bill
+        // Cancellation invoice
         expect(documentTypeRadioOptions.at(2).find('input')
             .attributes().disabled).toBe('disabled');
 
@@ -154,7 +154,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
             .toEqual('sw-order.components.selectDocumentTypeModal.helpText.credit_note');
     });
 
-    it('should enable storno bill if there is at least one invoice exists', async () => {
+    it('should enable cancellation invoice if there is at least one invoice exists', async () => {
         const wrapper = await createWrapper({ documents: [documentFixture] });
         await flushPromises();
 
@@ -169,7 +169,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(documentTypeRadioOptions.at(1).find('input')
             .attributes().disabled).toBeUndefined();
 
-        // Storno bill
+        // Cancellation invoice
         expect(documentTypeRadioOptions.at(2).find('input')
             .attributes().disabled).toBeUndefined();
 

@@ -185,7 +185,7 @@ class StornoRendererTest extends TestCase
             function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertEquals('STORNO_9999', $rendered->getNumber());
-                static::assertEquals('storno_STORNO_9999', $rendered->getName());
+                static::assertEquals('cancellation_invoice_STORNO_9999', $rendered->getName());
             },
         ];
     }

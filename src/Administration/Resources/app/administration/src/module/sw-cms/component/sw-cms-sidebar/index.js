@@ -69,7 +69,15 @@ Component.register('sw-cms-sidebar', {
         },
 
         cmsBlocks() {
-            return this.cmsService.getCmsBlockRegistry();
+            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+
+            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
+                return block.category === this.currentBlockCategory &&
+                    block.hidden !== true &&
+                    this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+            });
+
+            return Object.fromEntries(blocks);
         },
 
         mediaRepository() {
@@ -123,7 +131,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockTypes() {
-            return Object.keys(this.cmsBlocks);
+            return Object.keys(this.cmsService.getCmsBlockRegistry());
         },
 
         pageConfigErrors() {
@@ -154,8 +162,8 @@ Component.register('sw-cms-sidebar', {
     },
 
     methods: {
-        onPageTypeChange() {
-            this.$emit('page-type-change');
+        onPageTypeChange(pageType) {
+            this.$emit('page-type-change', pageType);
         },
 
         onDemoEntityChange(demoEntityId) {
@@ -175,7 +183,8 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockIsRemovable(block) {
-            return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
+            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
+            return (cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block) {
@@ -405,8 +414,9 @@ Component.register('sw-cms-sidebar', {
                 return;
             }
 
+            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
             const section = dropData.section;
-            const blockConfig = this.cmsBlocks[dragData.block.name];
+            const blockConfig = cmsBlocks[dragData.block.name];
             const newBlock = this.blockRepository.create();
 
             newBlock.type = dragData.block.name;

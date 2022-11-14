@@ -51,7 +51,12 @@ Component.register('sw-cms-slot', {
         },
 
         cmsElements() {
-            return this.cmsService.getCmsElementRegistry();
+            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+
+            const blocks = Object.entries(this.cmsService.getCmsElementRegistry())
+                .filter(([name]) => this.cmsService.isElementAllowedInPageType(name, currentPageType));
+
+            return Object.fromEntries(blocks);
         },
 
         componentClasses() {

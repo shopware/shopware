@@ -17,18 +17,35 @@ async function createWrapper() {
         },
         provide: {
             cmsService: {
+                getCmsElementRegistry: () => {
+                    return {
+                        product_list_block: null,
+                        landing_block: null
+                    };
+                },
                 getCmsElementConfigByName: () => ({
                     component: 'foo-bar',
                     disabledConfigInfoTextKey: 'lorem',
                     defaultConfig: {
                         text: 'lorem'
                     }
-                })
+                }),
+                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType)
             }
         }
     });
 }
 describe('module/sw-cms/component/sw-cms-slot', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('cmsPageState', {
+            namespaced: true,
+            state: {
+                isSystemDefaultLanguage: true,
+                currentPageType: 'product_list'
+            }
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -143,5 +160,11 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             },
             locked: false,
         });
+    });
+
+    it('should filter blocks based on pageType compatibility', async () => {
+        const wrapper = await createWrapper();
+
+        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
     });
 });

@@ -6,6 +6,7 @@ Shopware.State.registerModule('cmsPageState', {
 
     state: {
         currentPage: null,
+        currentPageType: null,
         currentMappingEntity: null,
         currentMappingTypes: {},
         currentDemoEntity: null,
@@ -25,6 +26,10 @@ Shopware.State.registerModule('cmsPageState', {
 
         removeCurrentPage(state) {
             state.currentPage = null;
+        },
+
+        setCurrentPageType(state, type) {
+            state.currentPageType = type;
         },
 
         setCurrentMappingEntity(state, entity) {

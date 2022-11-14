@@ -12,6 +12,8 @@ Application.addServiceProvider('cmsService', () => {
         getEntityMappingTypes,
         getPropertyByMappingPath,
         getCollectFunction,
+        isBlockAllowedInPageType,
+        isElementAllowedInPageType,
     };
 });
 
@@ -283,4 +285,25 @@ function getCollectFunction() {
 
         return criteriaList;
     };
+}
+
+function isBlockAllowedInPageType(blockName, pageType) {
+    const allowedPageTypes = blockRegistry[blockName]?.allowedPageTypes;
+
+    if (!Array.isArray(allowedPageTypes)) {
+        return true;
+    }
+
+    return allowedPageTypes.includes(pageType);
+}
+
+
+function isElementAllowedInPageType(elementName, pageType) {
+    const allowedPageTypes = elementRegistry[elementName]?.allowedPageTypes;
+
+    if (!Array.isArray(allowedPageTypes)) {
+        return true;
+    }
+
+    return allowedPageTypes.includes(pageType);
 }

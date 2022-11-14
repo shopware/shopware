@@ -93,7 +93,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
         onWizardComplete() {
             if (this.page.type === 'product_list' || this.page.type === 'product_detail') {
-                this.onPageTypeChange();
+                this.onPageTypeChange(this.page.type);
             }
 
             this.wizardComplete = true;

@@ -1,8 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-sidebar';
-import 'src/app/component/base/sw-button';
-import Vuex from 'vuex';
 
 const { EntityCollection, Entity } = Shopware.Data;
 
@@ -21,7 +19,7 @@ function getBlockCollection(blocks) {
     return new EntityCollection(blocks, 'blocks', null, null, blocks);
 }
 
-async function createWrapper() {
+async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) {
     const localVue = createLocalVue();
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
@@ -37,7 +35,6 @@ async function createWrapper() {
         }
     });
 
-    localVue.use(Vuex);
     localStorage.clear();
 
     return shallowMount(await Shopware.Component.build('sw-cms-sidebar'), {
@@ -88,7 +85,9 @@ async function createWrapper() {
             }
         },
         stubs: {
-            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button': {
+                template: '<div class="sw-button" @click="$emit(`click`)"></div>'
+            },
             'sw-sidebar': true,
             'sw-sidebar-item': true,
             'sw-sidebar-collapse': true,
@@ -120,7 +119,7 @@ async function createWrapper() {
             },
             cmsService: {
                 getCmsBlockRegistry: () => {
-                    return {
+                    return cmsBlockRegistry ?? {
                         image: {
                             name: 'image',
                             label: 'sw-cms.blocks.image.image.label',
@@ -149,7 +148,8 @@ async function createWrapper() {
                             }
                         }
                     };
-                }
+                },
+                isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType)
             }
         }
     });
@@ -160,7 +160,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
-                isSystemDefaultLanguage: true
+                isSystemDefaultLanguage: true,
+                currentPageType: 'product_list'
             }
         });
     });
@@ -412,6 +413,33 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await wrapper.find('.sw-cms-sidebar__layout-set-as-default-open').trigger('click');
 
         expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([[]]);
+    });
+
+    it('should filter blocks based on pageType, category and visibility', async () => {
+        const wrapper = await createWrapper({
+            cmsBlockRegistry: {
+                product_list_block: {
+                    category: 'text',
+                    hidden: false,
+                },
+                listing_block: {
+                    category: 'text',
+                    hidden: false,
+                },
+                product_list_hidden_block: {
+                    category: 'text',
+                    hidden: true,
+                },
+                product_list_different_category: {
+                    category: 'product',
+                    hidden: false,
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(Object.keys(wrapper.vm.cmsBlocks)).toStrictEqual(['product_list_block']);
     });
 
     it('should apply default data when dropping new elements', async () => {

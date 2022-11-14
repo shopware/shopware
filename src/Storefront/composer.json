@@ -54,7 +54,6 @@
         "symfony/validator": "~6.1.0",
         "symfony/security-core": "~6.1.0",
         "symfony/mime": "~6.1.0",
-        "true/punycode": "2.1.1",
         "twig/intl-extra": "~3.3.5",
         "twig/string-extra": "~3.3.5",
         "twig/twig": "~3.4.3"

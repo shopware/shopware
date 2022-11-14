@@ -8,7 +8,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Request;
-use TrueBV\Punycode;
 
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
@@ -92,11 +91,6 @@ class RequestTransformer implements RequestTransformerInterface
     ];
 
     /**
-     * @var Punycode
-     */
-    private $punycode;
-
-    /**
      * @var AbstractSeoResolver
      */
     private $resolver;
@@ -124,7 +118,6 @@ class RequestTransformer implements RequestTransformerInterface
     ) {
         $this->decorated = $decorated;
         $this->resolver = $resolver;
-        $this->punycode = new Punycode();
         $this->registeredApiPrefixes = $registeredApiPrefixes;
         $this->domainLoader = $domainLoader;
     }
@@ -361,7 +354,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function getSchemeAndHttpHost(Request $request): string
     {
-        return $request->getScheme() . '://' . $this->punycode->decode($request->getHttpHost());
+        return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
     }
 
     /**

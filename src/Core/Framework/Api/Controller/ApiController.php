@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -57,9 +56,9 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
@@ -70,47 +69,26 @@ class ApiController extends AbstractController
     public const WRITE_CREATE = 'create';
     public const WRITE_DELETE = 'delete';
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
+    private DecoderInterface $serializer;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
+    private RequestCriteriaBuilder $criteriaBuilder;
 
-    /**
-     * @var CompositeEntitySearcher
-     */
-    private $compositeEntitySearcher;
+    private CompositeEntitySearcher $compositeEntitySearcher;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
+    private ApiVersionConverter $apiVersionConverter;
 
-    /**
-     * @var EntityProtectionValidator
-     */
-    private $entityProtectionValidator;
+    private EntityProtectionValidator $entityProtectionValidator;
 
-    /**
-     * @var AclCriteriaValidator
-     */
-    private $criteriaValidator;
+    private AclCriteriaValidator $criteriaValidator;
 
     /**
      * @internal
      */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        Serializer $serializer,
+        DecoderInterface $serializer,
         RequestCriteriaBuilder $criteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
         ApiVersionConverter $apiVersionConverter,

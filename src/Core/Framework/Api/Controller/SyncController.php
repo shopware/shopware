@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
@@ -28,14 +27,14 @@ class SyncController extends AbstractController
     public const ACTION_UPSERT = 'upsert';
     public const ACTION_DELETE = 'delete';
 
-    private Serializer $serializer;
+    private DecoderInterface $serializer;
 
     private SyncServiceInterface $syncService;
 
     /**
      * @internal
      */
-    public function __construct(SyncServiceInterface $syncService, Serializer $serializer)
+    public function __construct(SyncServiceInterface $syncService, DecoderInterface $serializer)
     {
         $this->serializer = $serializer;
         $this->syncService = $syncService;

@@ -177,6 +177,10 @@
         "symfony/var-dumper": "~6.1.0",
         "symfony/web-profiler-bundle": "~6.1.0"
     },
+    "conflict": {
+        "monolog/monolog": "^1.0",
+        "enqueue/enqueue": "<0.10.16"
+    },
     "scripts": {
         "post-install-cmd": [
             "@composer bin all install --ansi"

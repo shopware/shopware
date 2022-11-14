@@ -1,4 +1,114 @@
 # 6.5.0.0
+## Introduced in 6.4.17.0
+* In the next major, the flow actions are not executed over the symfony events anymore, we'll remove the dependence from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.
+* In the next major, the flow actions are not executed via symfony events anymore, we'll remove the dependency from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.
+That means, all the flow actions extending `FlowAction` get the "services" tag. 
+* The flow builder will execute the actions when calling the `handleFlow` function directly, instead of dispatching an action event.
+* To get an action service in flow builder, we need to define the tag action service with an unique key, which should be an action name.
+* The flow action data is stored in `StorableFlow $flow`, so you should use `$flow->getStore('order_id')` or `$flow->getData('order')` instead of `$flowEvent->getOrder`.
+  * Use `$flow->getStore($key)` if you want to get the data from `aware` interfaces. Example: `order_id` in `OrderAware` or `customer_id` from `CustomerAware`.
+  * Use `$flow->getData($key)` if you want to get the data from original events or additional data. Example: `order`, `customer` or `contactFormData`.
+
+**before**
+```xml
+ <service id="Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction">
+    ...
+    <tag name="flow.action"/>
+</service>
+```
+
+```php
+class FlowExecutor
+{
+    ...
+    
+    $this->dispatcher->dispatch($flowEvent, $actionname);
+    
+    ...
+}
+
+abstract class FlowAction implements EventSubscriberInterface
+{
+    ...
+}
+
+class SendMailAction extends FlowAction
+{
+    ...
+    public static function getSubscribedEvents()
+    {
+        return ['action.name' => 'handle'];
+    }
+    
+    public function handle(FlowEvent $event)
+    {
+        ...
+        
+        $orderId = $event->getOrderId();
+        
+        $contactFormData = $event->getConta();
+        
+        ...
+    }
+}
+```
+
+**after**
+```xml
+ <service id="Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction">
+    ...
+    <tag name="flow.action" key="action.mail.send" />
+</service>
+```
+
+```php
+class FlowExecutor
+{
+    ...
+    
+    $actionService = $actions[$actionName];
+    
+    $actionService->handleFlow($storableFlow);
+    
+    ...
+}
+
+abstract class FlowAction
+{
+    ...
+}
+
+class SendMailAction extends FlowAction
+{
+    ...
+    // The `getSubscribedEvents` function has been removed.
+    
+    public function handleFlow(StorableFlow $flow)
+    {
+        ...
+        
+        $orderId = $flow->getStore('order_id');
+        
+        $contactFormData = $event->getData('contactFormData');
+        
+        ...
+    }
+}
+```
+* The interface `Shopware\Core\System\Snippet\Files\SnippetFileInterface` is deprecated, please use `Shopware\Core\System\Snippet\Files\AbstractSnippetFile` instead.
+
+## Remove old database migration trigger logic
+The `addForwardTrigger()`, `addBackwardTrigger()` and `addTrigger()` methods of the `MigrationStep` class were removed, use `createTrigger()` instead.
+Do not rely on the state of already executed migrations in your database triggers anymore!
+Additionally, the `@MIGRATION_{migration}_IS_ACTIVE` DB connection variables are not set at kernel boot anymore.
+
+## Removal of `\Shopware\Core\Framework\Event\FlowEvent`
+We removed `\Shopware\Core\Framework\Event\FlowEvent`, since Flow Actions are not executed via symfony's event system anymore.
+You should implement the `handleFlow()` method in your `FlowAction` and tag your actions as `flow.action`.
+
+## Internal Migrations
+All DB migration steps are now considered `@internal`, as they never should be extended or adjusted afterwards.
+
 ## Introduced in 6.4.16.0
 ## Removal of `/api/_action/database`
 The `/api/_action/database` endpoint was removed, this means the following routes are not available anymore:

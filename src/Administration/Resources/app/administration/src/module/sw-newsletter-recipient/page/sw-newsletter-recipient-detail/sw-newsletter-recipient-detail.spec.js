@@ -1,6 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
-import flushPromises from 'flush-promises';
 
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';

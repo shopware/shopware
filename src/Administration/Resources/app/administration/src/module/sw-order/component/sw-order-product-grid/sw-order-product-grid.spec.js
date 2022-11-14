@@ -1,6 +1,4 @@
 import { shallowMount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
-
 import 'src/module/sw-order/component/sw-order-product-grid';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';

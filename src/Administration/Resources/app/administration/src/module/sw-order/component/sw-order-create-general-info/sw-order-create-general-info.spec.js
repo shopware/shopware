@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-create-general-info';
-import flushPromises from 'flush-promises';
 
 const cart = {
     price: {

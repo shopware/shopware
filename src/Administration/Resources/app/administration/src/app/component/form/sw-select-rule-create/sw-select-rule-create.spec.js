@@ -7,7 +7,6 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
-import flushPromises from 'flush-promises';
 
 describe('components/sw-select-rule-create', () => {
     let wrapper;

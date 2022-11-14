@@ -6,7 +6,6 @@ import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
 import 'src/app/component/tree/sw-tree-input-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
@@ -317,11 +316,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be enabled with edit permission', async () => {
         wrapper = await createWrapper(['mail_templates.editor']);
-        await flushPromises();
         await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock],
             isLoading: false,
         });
+        await flushPromises();
 
         [
             { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: undefined },

@@ -2,7 +2,6 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import flushPromises from 'flush-promises';
 import 'src/app/component/base/sw-empty-state';
 
 async function createWrapper(privileges = []) {

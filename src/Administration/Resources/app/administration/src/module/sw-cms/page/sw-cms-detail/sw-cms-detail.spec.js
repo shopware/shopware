@@ -5,7 +5,6 @@ import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/page/sw-cms-detail';
-import flushPromises from 'flush-promises';
 
 const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';

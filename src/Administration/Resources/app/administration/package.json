@@ -67,7 +67,6 @@
     "dompurify": "2.3.10",
     "eslint-friendly-formatter": "4.0.1",
     "flatpickr": "4.6.13",
-    "flush-promises": "1.0.2",
     "fork-ts-checker-webpack-plugin": "6.5.2",
     "fs-extra": "^10.1.0",
     "lighthouse": "9.6.3",

@@ -1,7 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
 import Vuex from 'vuex';
-import flushPromises from 'flush-promises';
 
 async function createWrapper(methods = [], cards = [], privileges = []) {
     const localVue = createLocalVue();

@@ -6,7 +6,6 @@ import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
-import flushPromises from 'flush-promises';
 
 const orderFixture = {
     id: 'order1',

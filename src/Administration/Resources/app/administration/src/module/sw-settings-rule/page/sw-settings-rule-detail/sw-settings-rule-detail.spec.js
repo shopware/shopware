@@ -1,7 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
-import flushPromises from 'flush-promises';
 
 const { EntityCollection } = Shopware.Data;
 

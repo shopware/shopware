@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 import 'src/module/sw-order/mixin/cart-notification.mixin';

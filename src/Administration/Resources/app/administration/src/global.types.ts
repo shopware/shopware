@@ -239,6 +239,8 @@ declare global {
             documentationLink?: string,
         }
     }
+
+    const flushPromises: () => Promise<void>;
 }
 
 /**

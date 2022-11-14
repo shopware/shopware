@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-result/';
-import flushPromises from 'flush-promises';
 
 describe('src/app/component/form/select/base/sw-select-result/', () => {
     let wrapper;

@@ -4,7 +4,6 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 const orderFixture = {
     id: '1234',

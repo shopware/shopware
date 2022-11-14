@@ -1,7 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-nested-line-items-modal';
 import 'src/module/sw-order/component/sw-order-nested-line-items-row';
-import flushPromises from 'flush-promises';
 
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');

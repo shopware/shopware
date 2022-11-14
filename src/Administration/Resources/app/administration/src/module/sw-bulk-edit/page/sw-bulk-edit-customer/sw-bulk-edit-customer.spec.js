@@ -1,5 +1,4 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';

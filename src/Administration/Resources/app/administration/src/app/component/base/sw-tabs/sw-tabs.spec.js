@@ -2,7 +2,6 @@ import { config, mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
-import flushPromises from 'flush-promises';
 
 const componentWithTabs = {
     name: 'componentWithTabs',

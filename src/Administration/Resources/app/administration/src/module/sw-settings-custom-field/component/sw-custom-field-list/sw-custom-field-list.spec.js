@@ -2,7 +2,6 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
-import flushPromises from 'flush-promises';
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',

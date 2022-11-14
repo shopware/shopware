@@ -12,7 +12,6 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
-import flushPromises from 'flush-promises';
 
 async function createWrapper(privileges = [], resetError = false) {
     const localVue = createLocalVue();

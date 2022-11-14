@@ -4,7 +4,6 @@ import 'src/module/sw-profile/view/sw-profile-index-search-preferences';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
-import flushPromises from 'flush-promises';
 
 const swProfileStateMock = {
     namespaced: true,

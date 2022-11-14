@@ -1,11 +1,8 @@
 import { shallowMount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
-
 import 'src/module/sw-order/component/sw-order-customer-grid';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
-
 import orderState from 'src/module/sw-order/state/order.store';
 
 let customerData = [];

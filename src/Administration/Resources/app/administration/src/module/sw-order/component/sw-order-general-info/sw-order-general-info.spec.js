@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-general-info';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const orderMock = {

@@ -1,5 +1,4 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/structure/sw-page';

@@ -2,7 +2,6 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal/';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 async function createWrapper() {
     const localVue = createLocalVue();

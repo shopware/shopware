@@ -3,7 +3,6 @@ import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
-import flushPromises from 'flush-promises';
 import Vue from 'vue';
 
 async function createWrapper(slotsData = {}) {

@@ -12,7 +12,6 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-help-text';
-import flushPromises from 'flush-promises';
 
 const classes = {
     root: 'sw-page__main-content',

@@ -1,6 +1,5 @@
 import '<component-path>';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import * as flushPromises from 'flush-promises';
 import type { Wrapper } from '@vue/test-utils';
 import type Vue from 'vue';
 
@@ -8,6 +7,7 @@ async function createWrapper(/* TODO: add or remove options = {} */): Promise<Wr
     // TODO: add or remove localVue
     const localVue = createLocalVue();
 
+    // TODO: adjust component name
     return shallowMount(await Shopware.Component.build('sw-your-component-for-test'), {
         // TODO: add or remove localVue
         localVue,

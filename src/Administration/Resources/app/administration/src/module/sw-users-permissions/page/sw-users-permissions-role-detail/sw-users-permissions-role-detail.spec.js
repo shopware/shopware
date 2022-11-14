@@ -3,7 +3,6 @@ import 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import PrivilegesService from 'src/app/service/privileges.service';
-import flushPromises from 'flush-promises';
 import AppAclService from 'src/app/service/app-acl.service';
 
 let privilegesService = new PrivilegesService();

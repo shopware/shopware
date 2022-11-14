@@ -1,7 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-error-summary/index';
 import 'src/app/component/base/sw-alert/index';
-import flushPromises from 'flush-promises';
 
 async function createWrapper(errors = {}, options = {}) {
     Shopware.State.registerModule('error', {

@@ -6,7 +6,6 @@ import 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 function getCollection(entity, collection) {
     return new EntityCollection(

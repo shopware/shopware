@@ -1,6 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-event-action/page/sw-event-action-detail';
-import flushPromises from 'flush-promises';
 
 const { Classes: { ShopwareError } } = Shopware;
 

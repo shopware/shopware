@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media';
-import flushPromises from 'flush-promises';
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-media'), {

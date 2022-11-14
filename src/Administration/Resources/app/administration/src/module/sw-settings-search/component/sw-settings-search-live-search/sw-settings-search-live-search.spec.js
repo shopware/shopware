@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-settings-search/component/sw-settings-search-live-search';
 import 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
 import 'src/app/component/base/sw-simple-search-field';

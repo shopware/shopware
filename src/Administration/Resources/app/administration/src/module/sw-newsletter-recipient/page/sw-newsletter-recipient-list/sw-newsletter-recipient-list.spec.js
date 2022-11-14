@@ -7,7 +7,6 @@ import 'src/app/component/context-menu/sw-context-menu-item';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import flushPromises from 'flush-promises';
 
 function mockApiCall(type) {
     switch (type) {

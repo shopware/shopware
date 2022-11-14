@@ -9,6 +9,7 @@ import failOnConsole from 'jest-fail-on-console';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
+import flushPromises from '../_helper_/flushPromises';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -101,6 +102,8 @@ config.mocks = {
 };
 
 global.allowedErrors = [];
+
+global.flushPromises = flushPromises;
 
 process.on('unhandledRejection', (err) => {
     // eslint-disable-next-line no-undef

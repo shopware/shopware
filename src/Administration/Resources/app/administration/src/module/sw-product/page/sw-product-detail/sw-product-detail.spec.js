@@ -3,7 +3,6 @@ import Vuex from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-product/page/sw-product-detail';
 import 'src/module/sw-product/component/sw-product-settings-mode';
-import flushPromises from 'flush-promises';
 
 const advancedModeSettings = {
     value: {

@@ -3,7 +3,6 @@ import 'src/module/sw-extension/page/sw-extension-my-extensions-account';
 import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-button';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
-import flushPromises from 'flush-promises';
 
 const userInfo = {
     avatarUrl: 'https://avatar.url',

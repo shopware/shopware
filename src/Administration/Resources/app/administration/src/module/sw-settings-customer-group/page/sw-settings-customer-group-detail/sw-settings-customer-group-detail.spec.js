@@ -1,5 +1,4 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';

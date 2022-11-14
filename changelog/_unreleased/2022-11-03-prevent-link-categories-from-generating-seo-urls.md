@@ -1,6 +1,6 @@
 ---
 title: Prevent link categories from generating seo urls
-issue: NEXT-21558
+issue: NEXT-24127
 author: Felix von WIRDUZEN
 author_email: felix@wirduzen.de
 author_github: wirduzen-felix

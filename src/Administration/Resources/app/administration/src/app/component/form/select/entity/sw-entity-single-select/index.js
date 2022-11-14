@@ -269,7 +269,7 @@ Component.register('sw-entity-single-select', {
             this.isLoading = true;
             return this.checkEntityExists(this.searchTerm).then(() => {
                 if (!this.entityExists && this.searchTerm) {
-                    const criteria = new Criteria(1, 25);
+                    const criteria = new Criteria(1, this.resultLimit);
                     criteria.addFilter(
                         Criteria.contains('name', this.searchTerm),
                     );
@@ -344,7 +344,7 @@ Component.register('sw-entity-single-select', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
                 [this.entity]: ['id', 'name'],
             });

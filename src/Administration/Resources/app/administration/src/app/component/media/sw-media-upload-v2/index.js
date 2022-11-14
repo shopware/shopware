@@ -466,7 +466,8 @@ Component.register('sw-media-upload-v2', {
                     return true;
                 }
 
-                return this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+                this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+                return this.isCorrectFileType;
             });
 
             if (this.isCorrectFileType) {

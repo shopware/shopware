@@ -133,7 +133,7 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
         } else {
             $intent = 'ajax';
         }
-        $csrfCookies = (array) $request->cookies->get('csrf');
+        $csrfCookies = $request->cookies->all('csrf');
         if (
             (!isset($csrfCookies[$intent]) || $csrfCookies[$intent] !== $submittedCSRFToken)
             && !$this->csrfTokenManager->isTokenValid(new CsrfToken($intent, $submittedCSRFToken))

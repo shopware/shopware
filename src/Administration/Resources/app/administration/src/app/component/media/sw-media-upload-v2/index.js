@@ -452,21 +452,21 @@ Component.register('sw-media-upload-v2', {
 
             const fileTypes = this.fileAccept.split(',');
 
-            fileTypes.forEach(fileType => {
-                const fileAcceptType = fileType.split('/');
+            fileTypes.some(fileType => {
+                const fileAcceptType = fileType.split('/').map(s => s.trim());
                 const currentFileType = file?.type?.split('/') || file?.mimeType?.split('/');
 
                 if (fileAcceptType[0] !== currentFileType[0]) {
                     this.isCorrectFileType = false;
-                    return;
+                    return false;
                 }
 
                 if (fileAcceptType[1] === '*') {
                     this.isCorrectFileType = true;
-                    return;
+                    return true;
                 }
 
-                this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+                return this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
             });
 
             if (this.isCorrectFileType) {

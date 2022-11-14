@@ -450,7 +450,7 @@ Component.register('sw-media-upload-v2', {
                 return true;
             }
 
-            const fileTypes = this.fileAccept.split(',');
+            const fileTypes = this.fileAccept.split(',').map(s => s.trim());
 
             // eslint-disable-next-line no-restricted-syntax
             for (const fileType of fileTypes) {

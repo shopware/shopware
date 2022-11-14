@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * @package business-ops
  * NotRule inverses the return value of the child rule. Only one child is possible
  */
 class NotRule extends Container

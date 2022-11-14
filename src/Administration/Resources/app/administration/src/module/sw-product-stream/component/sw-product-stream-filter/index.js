@@ -7,6 +7,9 @@ import './sw-product-stream-filter.scss';
 
 const { Component, EntityDefinition } = Shopware;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
 

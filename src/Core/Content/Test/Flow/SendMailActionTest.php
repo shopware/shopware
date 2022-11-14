@@ -49,6 +49,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class SendMailActionTest extends TestCase
@@ -838,6 +840,8 @@ class SendMailActionTest extends TestCase
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class TestMailSendSubscriber implements EventSubscriberInterface
@@ -864,6 +868,8 @@ class TestMailSendSubscriber implements EventSubscriberInterface
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class TestStopSendSubscriber implements EventSubscriberInterface
@@ -888,6 +894,8 @@ class TestStopSendSubscriber implements EventSubscriberInterface
 }
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class TestEmailService extends EMailService

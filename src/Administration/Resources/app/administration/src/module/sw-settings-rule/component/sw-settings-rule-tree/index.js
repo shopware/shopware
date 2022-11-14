@@ -1,5 +1,8 @@
 const { Component } = Shopware;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-settings-rule-tree', 'sw-tree', {
 
     data() {

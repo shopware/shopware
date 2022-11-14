@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
 
+/**
+ * @package business-ops
+ */
 class RuleEntity extends Entity
 {
     use EntityIdTrait;

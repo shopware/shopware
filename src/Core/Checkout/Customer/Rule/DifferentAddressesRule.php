@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @package business-ops
+ */
 class DifferentAddressesRule extends Rule
 {
     /**

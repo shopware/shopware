@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 
+/**
+ * @package business-ops
+ */
 class RuleEvents
 {
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductStream\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package business-ops
+ */
 class NoFilterException extends ShopwareHttpException
 {
     public function __construct(string $id)

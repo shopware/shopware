@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @covers \Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule
  *
  * @internal

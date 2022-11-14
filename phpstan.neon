@@ -302,6 +302,11 @@ services:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
 
     -
-            class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
-            tags:
-                - phpstan.rules.rule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
+        tags:
+            - phpstan.rules.rule

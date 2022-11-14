@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class Sequence extends Struct

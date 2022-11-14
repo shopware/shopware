@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ProductStream\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package business-ops
+ */
 class ProductStreamIndexerEvent extends NestedEvent
 {
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductStream\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package business-ops
+ */
 class UpdateProductStreamMappingTask extends ScheduledTask
 {
     public static function getTaskName(): string

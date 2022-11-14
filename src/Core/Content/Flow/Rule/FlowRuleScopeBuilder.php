@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Context;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class FlowRuleScopeBuilder implements ResetInterface

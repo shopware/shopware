@@ -8,7 +8,10 @@ import './sw-product-stream-modal-preview.scss';
 const { Component, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-product-stream-modal-preview', {
     template,
 

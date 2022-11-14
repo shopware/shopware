@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package business-ops
+ */
 class LineItemTagRule extends Rule
 {
     protected string $operator;

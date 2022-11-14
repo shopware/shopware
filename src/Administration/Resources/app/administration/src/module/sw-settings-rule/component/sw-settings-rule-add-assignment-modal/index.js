@@ -5,7 +5,10 @@ import './sw-settings-rule-assignment-modal.scss';
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-settings-rule-add-assignment-modal', {
     template,
 

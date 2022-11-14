@@ -4,7 +4,10 @@ import template from './sw-settings-rule-list.html.twig';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-settings-rule-list', {
     template,
 

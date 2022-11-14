@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Flow;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package business-ops
+ */
 class FlowException extends HttpException
 {
     public const METHOD_NOT_COMPATIBLE = 'METHOD_NOT_COMPATIBLE';

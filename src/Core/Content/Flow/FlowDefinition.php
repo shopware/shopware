@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package business-ops
+ */
 class FlowDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'flow';

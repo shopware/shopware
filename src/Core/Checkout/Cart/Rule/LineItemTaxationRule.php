@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @package business-ops
+ */
 class LineItemTaxationRule extends Rule
 {
     /**

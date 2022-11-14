@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
 /**
- * @package inventory
+ * @package business-ops
  */
 class CurrencyRule extends Rule
 {

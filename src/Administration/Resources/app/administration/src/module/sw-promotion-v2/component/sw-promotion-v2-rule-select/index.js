@@ -3,7 +3,10 @@ import './sw-promotion-v2-rule-select.scss';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-promotion-v2-rule-select', {
     template,
 

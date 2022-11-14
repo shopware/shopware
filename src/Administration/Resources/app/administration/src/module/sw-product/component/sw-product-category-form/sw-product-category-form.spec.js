@@ -1,4 +1,4 @@
-import { enableAutoDestroy, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-category-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
@@ -10,7 +10,6 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
 
-enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-category-form', () => {
     const defaultSalesChannelData = {};

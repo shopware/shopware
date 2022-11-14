@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/view/sw-customer-detail-order';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -65,8 +65,6 @@ async function createWrapper(orderData = []) {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
     let wrapper;

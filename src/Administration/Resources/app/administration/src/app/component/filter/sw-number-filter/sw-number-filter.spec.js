@@ -6,7 +6,7 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -44,8 +44,6 @@ async function createWrapper() {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('components/sw-number-filter', () => {
     it('should emit `filter-update` event when user input `From` field', async () => {

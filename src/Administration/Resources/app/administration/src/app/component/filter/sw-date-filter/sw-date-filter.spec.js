@@ -2,7 +2,7 @@ import 'src/app/component/filter/sw-date-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/filter/sw-range-filter';
 
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -38,8 +38,6 @@ async function createWrapper() {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/app/component/filter/sw-date-filter', () => {
     beforeAll(() => {

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-condition';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -106,8 +106,6 @@ async function createWrapper(propsData = {}) {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
     beforeAll(() => {

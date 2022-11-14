@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/view/sw-order-create-base';
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
@@ -41,7 +41,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
     beforeAll(() => {

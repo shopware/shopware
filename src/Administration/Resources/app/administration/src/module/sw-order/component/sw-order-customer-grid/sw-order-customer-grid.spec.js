@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-customer-grid';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -101,7 +101,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     beforeAll(() => {

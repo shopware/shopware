@@ -23,7 +23,11 @@ async function createWrapper() {
 describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
-    beforeAll(() => {
+    beforeEach(() => {
+        if (Shopware.State.get('swBulkEdit')) {
+            Shopware.State.unregisterModule('swBulkEdit');
+        }
+
         Shopware.State.registerModule('swBulkEdit', swBulkEditState);
     });
 

@@ -7,6 +7,7 @@ describe('src/component/grid/sw-pagination', () => {
     function getActivePage() {
         return wrapper.find('.sw-pagination__list-button.is-active');
     }
+
     function getButtonAtPosition(position) {
         const allPageButtons = wrapper.findAll('button.sw-pagination__list-button').wrappers;
 
@@ -201,7 +202,7 @@ describe('src/component/grid/sw-pagination', () => {
     it('should navigate through complete pagination only with page button', async () => {
         const startingPoint = wrapper.vm.currentPage;
 
-        checkNextPage(startingPoint, 'right');
+        await checkNextPage(startingPoint, 'right');
     });
 
     it('should navigate through complete pagination only with arrows', async () => {

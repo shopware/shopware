@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/view/detail/sw-flow-detail-flow';
 import 'src/module/sw-flow/component/sw-flow-sequence';
 import 'src/module/sw-flow/component/sw-flow-trigger';
@@ -164,8 +164,6 @@ async function createWrapper(privileges = []) {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     beforeAll(() => {

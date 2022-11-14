@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-price-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
@@ -35,7 +35,6 @@ const parentProductData = {
     }]
 };
 
-enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-price-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {

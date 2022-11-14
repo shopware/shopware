@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/view/detail/sw-flow-detail-general';
 
 import Vuex from 'vuex';
@@ -38,8 +38,6 @@ async function createWrapper(privileges = []) {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
     beforeAll(() => {

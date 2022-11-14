@@ -57,6 +57,8 @@ async function createWrapper() {
             },
             mediaService: {
                 addListener: () => {},
+                removeByTag: () => {},
+                removeListener: () => {}
             },
             repositoryFactory: {
                 create: () => ({

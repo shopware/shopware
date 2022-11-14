@@ -1,6 +1,6 @@
 import 'src/app/component/filter/sw-range-filter';
 import 'src/app/component/filter/sw-base-filter';
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -30,8 +30,6 @@ async function createWrapper() {
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/app/component/filter/sw-range-filter', () => {
     it('should emit `filter-update` event when `From` value exits', async () => {

@@ -41,8 +41,8 @@ async function createWrapper(customProps = {}, domains = []) {
                 })
             },
             shortcutService: {
-                startEventListener: () => {},
-                stopEventListener: () => {}
+                stopEventListener: () => {},
+                startEventListener: () => {}
             }
 
         },

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-layout';
 
@@ -59,7 +59,6 @@ async function createWrapper(privileges = []) {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     beforeAll(() => {

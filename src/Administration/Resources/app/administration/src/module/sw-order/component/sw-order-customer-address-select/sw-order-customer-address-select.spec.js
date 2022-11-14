@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-order/component/sw-order-customer-address-select';
 import 'src/app/component/form/select/base/sw-single-select';
@@ -120,7 +120,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/component/sw-order-customer-address-select', () => {
     beforeAll(() => {

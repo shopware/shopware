@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 import 'src/module/sw-order/component/sw-order-create-initial-modal';
 
@@ -40,7 +40,6 @@ async function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 const tabs = [
     '.sw-order-create-initial-modal__tab-product',

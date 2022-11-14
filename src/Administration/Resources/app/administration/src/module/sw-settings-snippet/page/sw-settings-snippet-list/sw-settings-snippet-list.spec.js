@@ -94,6 +94,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 searchRankingService: {},
                 userConfigService: {
                     search: () => ({ data: [] }),
+                    upsert: () => null,
                 },
             },
             mocks: {

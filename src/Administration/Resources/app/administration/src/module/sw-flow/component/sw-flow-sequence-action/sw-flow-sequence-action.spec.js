@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-action';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-grouped-single-select';
@@ -166,8 +166,6 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
         }
     });
 }
-
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     beforeAll(() => {

@@ -5,7 +5,6 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/field-base/sw-field-error';
 
 async function createWrapper(additionalOptions = {}) {
@@ -19,7 +18,7 @@ async function createWrapper(additionalOptions = {}) {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-icon': true,
             'icons-small-search': true
         },
         provide: {
@@ -37,7 +36,7 @@ describe('components/base/sw-simple-search-field', () => {
     /** @type Wrapper */
     let wrapper;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         wrapper = await createWrapper();
     });
 
@@ -48,6 +47,7 @@ describe('components/base/sw-simple-search-field', () => {
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
+
     it('should have `search term` as initial value', async () => {
         expect(wrapper.find('input[type="text"]').element.value).toBe('search term');
     });

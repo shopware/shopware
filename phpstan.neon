@@ -152,18 +152,6 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Checkout\\Cart\\Facade\\.*::getIterator\(\) return type with generic class ArrayIterator does not specify its types: TKey, TValue#'
             path: src/Core/Checkout/Cart/Facade/Traits/ItemsIteratorTrait.php
-
-        # Can be removed with Symfony 6.0 upgrade
-        -
-            message: "#^Parameter \\#1 \\$min \\(0\\) of function random_int expects lower number than parameter \\#2 \\$max \\(int\\<\\-3, max\\>\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
-        -
-            message: "#^Parameter \\#1 \\$min \\(int\\<0, 2\\>\\) of function random_int expects lower number than parameter \\#2 \\$max \\(int\\<0, 4\\>\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
         # Is in the new super class nullable as the extended class
         -
             message: "#^PHPDoc type string\\|null of property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\:\\:\\$storageName is not covariant with PHPDoc type string of overridden property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName\\.$#"

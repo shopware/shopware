@@ -22,9 +22,8 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludePaths:
+        - src/Docs/*
         - src/Recovery/*
-        - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
-        - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
         # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
         - src/Core/Framework/Compatibility/AnnotationReader.php

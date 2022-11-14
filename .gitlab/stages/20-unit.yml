@@ -102,7 +102,7 @@ PHP unit:
             junit: phpunit.junit.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,docs", "migration"]
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance", "migration"]
             - TESTSUITE: ["content", "checkout", "elasticsearch", "integration"]
               RUNNER_INSTANCE_TYPE: m5.large
 
@@ -228,7 +228,7 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
+        TEST_SUITES: "administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large

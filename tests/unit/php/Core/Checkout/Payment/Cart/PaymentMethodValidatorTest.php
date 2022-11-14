@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace SShopware\Tests\Unit\Core\Checkout\Payment\Cart;
+namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;

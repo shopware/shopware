@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -30,7 +30,7 @@ class DocumentGeneratorController extends AbstractController
 
     private DocumentGenerator $documentGenerator;
 
-    private Serializer $serializer;
+    private DecoderInterface $serializer;
 
     private DataValidator $dataValidator;
 
@@ -40,7 +40,7 @@ class DocumentGeneratorController extends AbstractController
     public function __construct(
         DocumentService $documentService,
         DocumentGenerator $documentGenerator,
-        Serializer $serializer,
+        DecoderInterface $serializer,
         DataValidator $dataValidator
     ) {
         $this->documentService = $documentService;

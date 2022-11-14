@@ -117,6 +117,10 @@ class CartItemAddRouteTest extends TestCase
             ],
         ];
 
+        if ($ip === null) {
+            return new Request([], $items);
+        }
+
         return new Request([], $items, [], [], [], ['REMOTE_ADDR' => $ip]);
     }
 }

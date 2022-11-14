@@ -13,14 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 class AdminSearchController extends AbstractController
 {
@@ -30,7 +29,7 @@ class AdminSearchController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    private Serializer $serializer;
+    private DecoderInterface $serializer;
 
     private AclCriteriaValidator $criteriaValidator;
 
@@ -45,7 +44,7 @@ class AdminSearchController extends AbstractController
         RequestCriteriaBuilder $requestCriteriaBuilder,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
         AdminSearcher $searcher,
-        Serializer $serializer,
+        DecoderInterface $serializer,
         AclCriteriaValidator $criteriaValidator,
         DefinitionInstanceRegistry $definitionRegistry,
         JsonEntityEncoder $entityEncoder

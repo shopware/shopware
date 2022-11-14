@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
@@ -147,10 +148,11 @@ class PaymentServiceTest extends TestCase
         static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
+        $transaction->setStateId(Uuid::randomHex());
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();
@@ -180,10 +182,11 @@ class PaymentServiceTest extends TestCase
         static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
+        $transaction->setStateId(Uuid::randomHex());
 
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
@@ -220,7 +223,11 @@ class PaymentServiceTest extends TestCase
     public function testFinalizeTransactionWithExpiredToken(): void
     {
         $request = new Request();
-        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction = new OrderTransactionEntity();
+        $transaction->setId(Uuid::randomHex());
+        $transaction->setOrderId(Uuid::randomHex());
+        $transaction->setPaymentMethodId(Uuid::randomHex());
+        $transaction->setStateId(Uuid::randomHex());
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -1);
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
@@ -244,10 +251,11 @@ class PaymentServiceTest extends TestCase
         static::assertNotNull($response);
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryV2Test::createTransaction();
+        $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
+        $transaction->setStateId(Uuid::randomHex());
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();

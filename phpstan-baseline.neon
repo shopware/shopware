@@ -3360,10 +3360,7 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Handler/V630/SyncTestPaymentHandler.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\JWTFactoryV2Test\\:\\:dataProviderExpiration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/JWTFactoryV2Test.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\PaymentMethodRepositoryTest\\:\\:createPaymentMethodDummyArray\\(\\) return type has no value type specified in iterable type array\\.$#"

@@ -42,6 +42,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('deletedAt', null));
+            criteria.addFilter(Criteria.equals('app.id', null));
             criteria.addSorting(Criteria.sort('label', 'ASC'));
             criteria.addAssociation('aclRoles');
 

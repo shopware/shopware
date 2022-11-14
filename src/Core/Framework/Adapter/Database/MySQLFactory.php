@@ -30,6 +30,7 @@ class MySQLFactory
             'charset' => 'utf8mb4',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
+                \PDO::ATTR_TIMEOUT => 5, // 5s connection timeout
             ],
         ];
 

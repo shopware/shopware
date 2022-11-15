@@ -4,7 +4,7 @@ import './sw-flow-trigger.scss';
 const { Component, State } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
 const utils = Shopware.Utils;
-const { capitalizeString } = Shopware.Utils.string;
+const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -96,7 +96,9 @@ Component.register('sw-flow-trigger', {
             const keyWords = value.split(/[\W_]+/ig);
 
             this.searchResult = this.events.filter(event => {
-                return keyWords.every(key => event.name.includes(key.toLowerCase()));
+                const eventName = this.getEventName(event.name).toLowerCase();
+
+                return keyWords.every(key => eventName.includes(key.toLowerCase()));
             });
 
             // set first item as focus
@@ -550,8 +552,7 @@ Component.register('sw-flow-trigger', {
         getLastEventName({ parentId = null, id }) {
             const [eventName] = parentId ? id.split('.').reverse() : [id];
 
-            // Replace '_' or '-' to blank space.
-            return eventName.replace(/_|-/g, ' ');
+            return this.$tc(`sw-flow.triggers.${camelCase(eventName)}`);
         },
 
         getDataByEvent(event) {
@@ -663,8 +664,11 @@ Component.register('sw-flow-trigger', {
                 return eventName;
             }
 
-            // Replace '.' to ' / ',  '_' or '-' to blank space.
-            return eventName.replace(/\./g, ' / ').replace(/_|-/g, ' ');
+            const keyWords = eventName.split('.');
+
+            return keyWords.map(key => {
+                return this.$tc(`sw-flow.triggers.${camelCase(key)}`);
+            }).join(' / ');
         },
 
         isSearchResultInFocus(item) {

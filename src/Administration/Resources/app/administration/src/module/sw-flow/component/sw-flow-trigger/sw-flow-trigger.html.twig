@@ -9,7 +9,7 @@
     <div class="sw-flow-trigger__select-toolbar">
         <sw-contextual-field
             v-tooltip="{
-                message: getBreadcrumb(eventName),
+                message: getEventName(eventName),
                 disabled: !eventName,
             }"
             class="sw-flow-trigger__search-field"
@@ -165,7 +165,7 @@
                             {% block sw_flow_trigger_search_list_item_name_highlight %}
                             <sw-highlight-text
                                 :search-term="searchTerm"
-                                :text="getBreadcrumb(item.name)"
+                                :text="getEventName(item.name)"
                             />
                             {% endblock %}
                         </span>

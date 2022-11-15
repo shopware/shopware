@@ -215,6 +215,14 @@
                 </template>
                 {% endblock %}
 
+                <template #column-createdAt="{ item }">
+                    {{ item.createdAt|date }}
+                </template>
+
+                <template #column-updatedAt="{ item }">
+                    {{ item.updatedAt|date }}
+                </template>
+
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_actions %}
                 <template #more-actions="{ item }">

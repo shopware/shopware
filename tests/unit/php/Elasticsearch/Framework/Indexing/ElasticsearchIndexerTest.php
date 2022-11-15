@@ -279,18 +279,6 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer->updateIds($this->createMock(EntityDefinition::class), ['1', '2']);
     }
 
-    public function testHandleInvalidMessage(): void
-    {
-        $this->helper = $this->createMock(ElasticsearchHelper::class);
-        $this->helper
-            ->expects(static::never())
-            ->method('allowIndexing');
-
-        $indexer = $this->getIndexer();
-
-        $indexer->handle(new \ArrayObject());
-    }
-
     public function testHandleESDisabled(): void
     {
         $this->helper = $this->createMock(ElasticsearchHelper::class);
@@ -299,7 +287,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $indexer->handle(new ElasticsearchLanguageIndexIteratorMessage('1'));
+        $indexer(new ElasticsearchLanguageIndexIteratorMessage('1'));
     }
 
     public function testHandleLanguageInvalidLanguage(): void
@@ -313,7 +301,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $indexer->handle(new ElasticsearchLanguageIndexIteratorMessage('invalid'));
+        $indexer(new ElasticsearchLanguageIndexIteratorMessage('invalid'));
     }
 
     public function testHandleLanguageMessage(): void
@@ -336,7 +324,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $indexer->handle($message);
+        $indexer($message);
     }
 
     public function testHandleIndexingInvalidDefinition(): void
@@ -356,7 +344,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Entity not_existing has no registered elasticsearch definition');
 
-        $indexer->handle($message);
+        $indexer($message);
     }
 
     public function testHandleIndexing(): void
@@ -391,7 +379,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        $indexer->handle($message);
+        $indexer($message);
     }
 
     public function testHandleIndexingFails(): void
@@ -441,7 +429,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         static::expectException(ElasticsearchIndexingException::class);
 
-        $indexer->handle($message);
+        $indexer($message);
     }
 
     private function getIndexer(?LoggerInterface $logger = null): ElasticsearchIndexer

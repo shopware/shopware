@@ -390,6 +390,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         ], $this->context);
     }
 
+    /**
+     * @return list<object>
+     */
     private function getDispatchedMessages(): array
     {
         /** @var TraceableMessageBus $bus */

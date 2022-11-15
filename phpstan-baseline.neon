@@ -4560,11 +4560,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExport\\:\\:logResults\\(\\) has parameter \\$overallResults with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$originalRecord has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExport.php
@@ -7413,11 +7408,6 @@ parameters:
 			message: "#^Offset 'b7d2554b0ce847cd82f…' does not exist on array\\|null\\.$#"
 			count: 3
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializerTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Monitoring\\\\MonitoringBusDecorator\\:\\:getDispatchedMessages\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Message/ImportExportHandlerTest.php
 
 		-
 			message: "#^Cannot call method getDefault\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\|null\\.$#"
@@ -15344,51 +15334,6 @@ parameters:
 			path: src/Core/Framework/Log/Monolog/ExcludeExceptionHandler.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\EncryptedBus\\:\\:__construct\\(\\) has parameter \\$publicKey with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/EncryptedBus.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Enqueue\\\\ConnectionFactory\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Enqueue/ConnectionFactory.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Enqueue\\\\ConnectionFactory\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Enqueue/ConnectionFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Enqueue\\\\ConnectionFactoryFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Enqueue/ConnectionFactoryFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Handler\\\\RetryMessageHandler\\:\\:__construct\\(\\) has parameter \\$handler with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Handler/RetryMessageHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Handler\\\\SleepTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Handler/SleepTaskHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Registry\\\\TaskRegistry\\:\\:__construct\\(\\) has parameter \\$tasks with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Registry\\\\TaskRegistry\\:\\:getDeletionPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Registry\\\\TaskRegistry\\:\\:\\$tasks type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php
@@ -17042,31 +16987,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Monitoring\\\\MonitoringBusDecorator\\:\\:getDispatchedMessages\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/CacheControllerTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Monitoring\\\\MonitoringBusDecorator\\:\\:reset\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/CacheControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/CacheControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Api/Controller/CacheControllerTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/CacheControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\IndexingControllerTest\\:\\:provideOffsets\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -19679,56 +19599,6 @@ parameters:
 			path: src/Core/Framework/Test/MessageQueue/Api/MessageQueueEndpointTest.php
 
 		-
-			message: "#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:expects\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/DeadMessage/RequeueDeadMessagesServiceTest.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\Messenger\\\\MessageBusInterface\\:\\:expects\\(\\)\\.$#"
-			count: 7
-			path: src/Core/Framework/Test/MessageQueue/DeadMessage/RequeueDeadMessagesServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable\\<string, Symfony\\\\Component\\\\Messenger\\\\Transport\\\\Sender\\\\SenderInterface\\> given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/MessageQueue/DefaultSenderLocatorTest.php
-
-		-
-			message: "#^Method League\\\\OAuth2\\\\Server\\\\CryptKey\\:\\:getKeyPath\\(\\) invoked with 1 parameter, 0 required\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Handler/EncryptedMessageHandlerTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$subscribedMessages has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Handler/EncryptedMessageHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\MessageQueue\\\\Handler\\\\RetryMessageHandlerTest\\:\\:insertDeadMessage\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Handler/RetryMessageHandlerTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$subscribedMessages has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Handler/RetryMessageHandlerTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Test\\\\MessageQueue\\\\fixtures\\\\TestMessage does not have a constructor and must be instantiated without any parameters\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/MessageQueue/Middleware/RetryMiddlewareTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\MessageQueue\\\\Middleware\\\\RetryMiddlewareTest\\:\\:getMessageFailedException\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Middleware/RetryMiddlewareTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$handledMessages has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/ScheduledTask/RequeueDeadMessagesHandlerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\MigrationCollectionRuntimeTest\\:\\:getMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Migration/MigrationCollectionRuntimeTest.php
@@ -20314,16 +20184,6 @@ parameters:
 			path: src/Core/Framework/Test/Rule/TimeRangeRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ScheduledTask\\\\ScheduledTaskHandlerTest\\:\\:allowedStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ScheduledTask/ScheduledTaskHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ScheduledTask\\\\ScheduledTaskHandlerTest\\:\\:notAllowedStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ScheduledTask/ScheduledTaskHandlerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 8
 			path: src/Core/Framework/Test/Script/Api/ScriptApiRouteTest.php
@@ -20792,11 +20652,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\Hookable\\\\HookableBusinessEventTest\\:\\:getTaxCollection\\(\\) should return Shopware\\\\Core\\\\System\\\\Tax\\\\TaxCollection but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\>\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Webhook/Hookable/HookableBusinessEventTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$deadMessage of class Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Event\\\\RetryWebhookMessageFailedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\DeadMessage\\\\DeadMessageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/Subscriber/RetryWebhookMessageFailedSubscriberTest.php
 
 		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"

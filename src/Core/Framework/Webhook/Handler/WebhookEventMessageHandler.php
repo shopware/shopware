@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -136,6 +137,9 @@ final class WebhookEventMessageHandler implements MessageHandlerInterface
         }
     }
 
+    /**
+     * @return iterable<class-string<AsyncMessageInterface>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [WebhookEventMessage::class];

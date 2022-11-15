@@ -22,15 +22,9 @@ class ScheduledTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $scheduledTaskRepo;
+    private EntityRepository $scheduledTaskRepo;
 
     public function setUp(): void
     {
@@ -43,7 +37,7 @@ class ScheduledTaskHandlerTest extends TestCase
      */
     public function testHandle(string $status): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $originalNextExecution = (new \DateTime())->modify('-10 seconds');
@@ -81,6 +75,9 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertNotEquals($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
     }
 
+    /**
+     * @return list<array{0: string}>
+     */
     public function allowedStatus(): array
     {
         return [
@@ -91,7 +88,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
     public function testHandleWhenNewNextExecutionTimeLessThanNowTime(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $originalNextExecution = (new \DateTime())->modify('-24 hours');
@@ -130,7 +127,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
     public function testHandleOnException(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $originalNextExecution = (new \DateTime())->modify('-10 seconds');
@@ -169,7 +166,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
     public function testHandleIgnoresIfTaskIsNotFound(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $task = new TestTask();
@@ -186,7 +183,7 @@ class ScheduledTaskHandlerTest extends TestCase
      */
     public function testHandleIgnoresWhenTaskIsNotAllowedForExecution(string $status): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $this->scheduledTaskRepo->create([
@@ -213,6 +210,9 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertEquals($status, $task->getStatus());
     }
 
+    /**
+     * @return list<array{0: string}>
+     */
     public function notAllowedStatus(): array
     {
         return [

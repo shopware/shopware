@@ -540,6 +540,11 @@ class ImportExport
         }
     }
 
+    /**
+     * @param array<string, mixed> $overallResults
+     *
+     * @return array<string, mixed>
+     */
     private function logResults(
         array $overallResults,
         ?EntityWrittenContainerEvent $result,
@@ -597,6 +602,7 @@ class ImportExport
                 $overallResults[$writeResult->getEntityName()] = $entityResult;
             }
         }
+
         return $overallResults;
     }
 }

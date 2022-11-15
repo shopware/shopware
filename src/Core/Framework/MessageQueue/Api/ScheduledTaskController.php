@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskScheduler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

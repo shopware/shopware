@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * @package core

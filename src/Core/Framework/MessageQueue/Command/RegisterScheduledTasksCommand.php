@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\Subscriber\UpdatePostFinishSubscriber;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 

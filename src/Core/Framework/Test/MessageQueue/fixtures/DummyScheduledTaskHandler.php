@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\fixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -27,6 +28,9 @@ final class DummyScheduledTaskHandler extends ScheduledTaskHandler
         $this->shouldThrowException = $shouldThrowException;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [

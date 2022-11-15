@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
-class SitemapMessage
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
+class SitemapMessage implements AsyncMessageInterface
 {
     /**
      * @var string

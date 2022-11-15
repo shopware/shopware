@@ -1,11 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
+namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 
 /**
  * @package core
@@ -14,17 +18,20 @@ class TaskRegistry
 {
     private EntityRepository $scheduledTaskRepository;
 
+    /**
+     * @var iterable<ScheduledTask>
+     */
     private iterable $tasks;
 
+    /**
+     * @internal
+     *
+     * @param iterable<ScheduledTask> $tasks
+     */
     public function __construct(iterable $tasks, EntityRepository $scheduledTaskRepository)
     {
         $this->tasks = $tasks;
         $this->scheduledTaskRepository = $scheduledTaskRepository;
-    }
-
-    public function __invoke(RegisterScheduledTaskMessage $message): void
-    {
-        $this->registerTasks();
     }
 
     public function registerTasks(): void
@@ -45,7 +52,6 @@ class TaskRegistry
 
     private function insertNewTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
     {
-        /** @var ScheduledTask $task */
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
@@ -74,6 +80,9 @@ class TaskRegistry
         }
     }
 
+    /**
+     * @return list<array{id: string}>
+     */
     private function getDeletionPayload(ScheduledTaskCollection $alreadyRegisteredTasks): array
     {
         $deletionPayload = [];

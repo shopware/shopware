@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;

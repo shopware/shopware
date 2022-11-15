@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\Subscriber;
 
 use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;

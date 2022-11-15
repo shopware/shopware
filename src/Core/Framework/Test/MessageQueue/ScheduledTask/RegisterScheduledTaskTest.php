@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Command\RegisterScheduledTasksCommand;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 

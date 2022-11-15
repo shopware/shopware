@@ -10,7 +10,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 class ScheduledTaskTooLowIntervalRule implements Rule
 {
     private const EXCEPTION_CLASSES = [
-        RequeueDeadMessagesTask::class, // Will be deleted in next major and replaced with Symfony default
         ProductExportGenerateTask::class, // Ticket: NEXT-21167
     ];
 

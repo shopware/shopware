@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEn
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
@@ -88,6 +89,9 @@ class EntityIndexerRegistry implements EventSubscriberInterface, MessageSubscrib
         return [];
     }
 
+    /**
+     * @return iterable<class-string<AsyncMessageInterface>>
+     */
     public static function getHandledMessages(): iterable
     {
         yield EntityIndexingMessage::class;

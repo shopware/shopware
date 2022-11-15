@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -69,7 +69,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
      *
      * @throws \Throwable
      */
-    public function __invoke(ScheduledTask $message): void
+    public function __invoke(AsyncMessageInterface $message): void
     {
         $sitemapRefreshStrategy = $this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy');
         if ($sitemapRefreshStrategy !== SitemapExporterInterface::STRATEGY_SCHEDULED_TASK) {
@@ -89,6 +89,9 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         }
     }
 
+    /**
+     * @return iterable<class-string<AsyncMessageInterface>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [

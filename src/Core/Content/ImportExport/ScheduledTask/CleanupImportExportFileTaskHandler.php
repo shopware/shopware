@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ImportExport\ScheduledTask;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -26,6 +27,9 @@ final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
         $this->deleteExpiredFilesService = $deleteExpiredFilesService;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         yield CleanupImportExportFileTask::class;

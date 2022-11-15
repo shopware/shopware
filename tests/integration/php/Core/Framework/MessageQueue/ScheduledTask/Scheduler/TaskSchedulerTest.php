@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
+namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -11,54 +11,48 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskScheduler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestTask;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler
  */
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $scheduledTaskRepo;
+    private EntityRepositoryInterface $scheduledTaskRepo;
 
     /**
-     * @var MockObject
+     * @var MessageBusInterface&MockObject
      */
     private $messageBus;
 
-    /**
-     * @var TaskScheduler
-     */
-    private $scheduler;
+    private TaskScheduler $scheduler;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function setUp(): void
     {
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
         $this->messageBus = $this->createMock(MessageBusInterface::class);
 
-        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus);
+        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag());
 
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testScheduleTasks(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $this->scheduledTaskRepo->create([
@@ -90,7 +84,7 @@ class TaskSchedulerTest extends TestCase
 
     public function testScheduleTasksDoesntScheduleFutureTask(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $this->scheduledTaskRepo->create([
@@ -119,7 +113,7 @@ class TaskSchedulerTest extends TestCase
      */
     public function testScheduleTasksDoesntScheduleNotScheduledTask(string $status): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $taskId = Uuid::randomHex();
         $this->scheduledTaskRepo->create([
@@ -143,6 +137,9 @@ class TaskSchedulerTest extends TestCase
         static::assertEquals($status, $task->getStatus());
     }
 
+    /**
+     * @return list<array{0: string}>
+     */
     public function nonScheduledStatus(): array
     {
         return [
@@ -160,7 +157,7 @@ class TaskSchedulerTest extends TestCase
             'Tried to schedule "%s", but class does not extend ScheduledTask',
             FooMessage::class
         ));
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $context = Context::createDefaultContext();
 
@@ -206,7 +203,7 @@ class TaskSchedulerTest extends TestCase
 
     public function testGetNextExecutionTime(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $nextExecutionTime = new \DateTime();
         $this->scheduledTaskRepo->create([
@@ -240,7 +237,7 @@ class TaskSchedulerTest extends TestCase
 
     public function testGetNextExecutionTimeIgnoresNotScheduledTasks(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $nextExecutionTime = new \DateTime();
         $this->scheduledTaskRepo->create([
@@ -261,7 +258,7 @@ class TaskSchedulerTest extends TestCase
 
     public function testGetMinRunInterval(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->scheduledTaskRepo->create([
             [
@@ -288,7 +285,7 @@ class TaskSchedulerTest extends TestCase
 
     public function testGetMinRunIntervalWhenEmpty(): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->messageBus->expects(static::never())
             ->method('dispatch');

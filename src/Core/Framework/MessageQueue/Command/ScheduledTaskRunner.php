@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskScheduler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

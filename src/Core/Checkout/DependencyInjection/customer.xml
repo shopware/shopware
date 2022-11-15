@@ -347,6 +347,13 @@
             <tag name="console.command" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
+
+            <tag name="messenger.message_handler" />
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />

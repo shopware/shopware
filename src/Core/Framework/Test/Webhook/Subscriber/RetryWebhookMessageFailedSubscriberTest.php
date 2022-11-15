@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -29,12 +28,9 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     private Context $context;
 
-    private EventDispatcherInterface $eventDispatcher;
-
     public function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
     }
 
     public function testHandleWebhookMessageFailed(): void

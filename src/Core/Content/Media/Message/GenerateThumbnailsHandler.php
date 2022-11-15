@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
@@ -52,6 +53,9 @@ final class GenerateThumbnailsHandler implements MessageSubscriberInterface
         }
     }
 
+    /**
+     * @return iterable<class-string<AsyncMessageInterface>>
+     */
     public static function getHandledMessages(): iterable
     {
         yield GenerateThumbnailsMessage::class;

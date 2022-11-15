@@ -22,7 +22,13 @@ class CreateAliasTaskHandlerTest extends TestCase
 {
     public function testHandledMessages(): void
     {
-        static::assertSame([CreateAliasTask::class], CreateAliasTaskHandler::getHandledMessages());
+        $messages = CreateAliasTaskHandler::getHandledMessages();
+
+        if ($messages instanceof \Traversable) {
+            $messages = iterator_to_array($messages);
+        }
+
+        static::assertSame([CreateAliasTask::class], $messages);
     }
 
     public function testHandleLogsErrors(): void

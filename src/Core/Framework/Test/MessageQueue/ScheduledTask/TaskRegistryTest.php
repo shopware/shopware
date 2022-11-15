@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestTask;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,15 +21,9 @@ class TaskRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $scheduledTaskRepo;
+    private EntityRepository $scheduledTaskRepo;
 
-    /**
-     * @var TaskRegistry
-     */
-    private $registry;
+    private TaskRegistry $registry;
 
     public function setUp(): void
     {
@@ -46,7 +40,7 @@ class TaskRegistryTest extends TestCase
     public function testOnNonRegisteredTask(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM scheduled_task');
+        $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->registry->registerTasks();
 
@@ -65,7 +59,7 @@ class TaskRegistryTest extends TestCase
     public function testOnAlreadyRegisteredTask(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM scheduled_task');
+        $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->scheduledTaskRepo->create([
             [
@@ -98,6 +92,7 @@ class TaskRegistryTest extends TestCase
             FooMessage::class
         ));
         $registry = new TaskRegistry(
+            /** @phpstan-ignore-next-line we want to test the exception that phpstan also reports */
             [
                 new FooMessage(),
             ],
@@ -110,7 +105,7 @@ class TaskRegistryTest extends TestCase
     public function testItDeletesNotAvailableTasks(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM scheduled_task');
+        $connection->executeStatement('DELETE FROM scheduled_task');
 
         $this->scheduledTaskRepo->create([
             [

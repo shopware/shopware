@@ -19,6 +19,9 @@ class DoctrineTransportFactory implements TransportFactoryInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
         unset($options['transport_name'], $options['use_notify']);
@@ -31,6 +34,9 @@ class DoctrineTransportFactory implements TransportFactoryInterface
         return new DoctrineTransport($connection, $serializer);
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function supports(string $dsn, array $options): bool
     {
         return strpos($dsn, 'doctrine://') === 0;

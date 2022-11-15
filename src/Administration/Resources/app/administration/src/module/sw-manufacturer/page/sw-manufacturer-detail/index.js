@@ -138,19 +138,22 @@ Component.register('sw-manufacturer-detail', {
             this.manufacturer = this.manufacturerRepository.create();
         },
 
-        loadEntityData() {
+        async loadEntityData() {
             this.isLoading = true;
 
-            this.manufacturerRepository.get(this.manufacturerId).then((manufacturer) => {
-                this.isLoading = false;
-                this.manufacturer = manufacturer;
-            });
+            try {
+                this.manufacturer = await this.manufacturerRepository.get(this.manufacturerId);
 
-            this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
-                .then((result) => {
-                    this.customFieldSets = result;
+                this.customFieldSets = await this.customFieldSetRepository.search(this.customFieldSetCriteria);
+            } catch (e) {
+                this.createNotificationError({
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessage', 0, { entityName: this.identifier },
+                    ),
                 });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         abortOnLanguageChange() {

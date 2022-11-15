@@ -111,7 +111,7 @@
       "navigationCategoryDepth": "Navigation levels",
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
-      "serviceCategory": "Entry point service navigation",
+      "serviceCategory": "Entry point footer service navigation",
       "titleOptionsApiKey": "API access",
       "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
       "buttonCopyApiKeyButton": "Copy API key",

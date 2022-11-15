@@ -111,7 +111,7 @@
       "navigationCategoryDepth": "Hauptnavigations-Ebenen",
       "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
       "footerCategory": "Einstiegspunkt für die Footer-Navigation",
-      "serviceCategory": "Einstiegspunkt für die Service-Navigation",
+      "serviceCategory": "Einstiegspunkt für die Footer-Service-Navigation",
       "titleOptionsApiKey": "API-Zugang",
       "textDeleteSalesChannelWarning": "Das Entfernen dieses Verkaufskanals kann nicht wieder rückgängig gemacht werden.",
       "buttonCopyApiKeyButton": "API-Schlüssel kopieren",

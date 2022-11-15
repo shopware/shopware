@@ -66,7 +66,7 @@
           "helpTextMainNavigation": "The entry point for the main navigation is a mandatory field for Sales Channels. If you assign this category as the entry point for the Main navigation to one or more Sales Channels, you can only change this assignment on the sales channel itself.",
           "labelFooterNavigation": "Footer navigation",
           "helpTextFooterNavigation": "If you assign this category as the entry point for the Footer navigation to one or more Sales Channels, the categories on the next level will be columns. This allows you to divide your footer navigation into several areas.",
-          "labelServiceNavigation": "Service navigation",
+          "labelServiceNavigation": "Footer service navigation",
           "helpTextServiceNavigation": "If you assign this category as the entry point for the Service navigation to one or more Sales Channels, the categories on the next level will be displayed as a second navigation in the footer area."
         }
       },

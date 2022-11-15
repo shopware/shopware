@@ -21,7 +21,7 @@ With the upcoming major release we are going to release a new XML-schema for Sho
    Please make sure that every of your admin modules has this attribute set like described in [our documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-modules)
 2. attribute `openNewTab` for element `action-button` will be removed.
 
-    Make sure to remove the attribute `openNewTab` from your `action-button` elements in your `manifest.xml` and use ACtionButtonResponses as described in our [documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-action-button) instead.
+    Make sure to remove the attribute `openNewTab` from your `action-button` elements in your `manifest.xml` and use ActionButtonResponses as described in our [documentation](https://developer.shopware.com/docs/guides/plugins/apps/administration/add-custom-action-button) instead.
 3. Deprecation of `manifest-1.0.xsd`
 
     Update the `xsi:noNamespaceSchemaLocation` attribute of your `manifest` root element. to `https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd`

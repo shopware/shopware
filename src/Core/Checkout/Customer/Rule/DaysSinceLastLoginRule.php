@@ -3,28 +3,25 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-class DaysSinceLastOrderRule extends Rule
+/**
+ * @package business-ops
+ */
+class DaysSinceLastLoginRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator = Rule::OPERATOR_EQ;
 
-    /**
-     * @var int
-     */
-    protected $daysPassed;
+    protected ?int $daysPassed = null;
 
     public function getName(): string
     {
-        return 'customerDaysSinceLastOrder';
+        return 'customerDaysSinceLastLogin';
     }
 
     public function match(RuleScope $scope): bool
@@ -34,30 +31,26 @@ class DaysSinceLastOrderRule extends Rule
         }
 
         $currentDate = $scope->getCurrentTime()->setTime(0, 0, 0, 0);
-        $customer = $scope->getSalesChannelContext()->getCustomer();
-
-        if (!$customer) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
+        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $lastOrderDate = $customer->getLastOrderDate();
+        if ($this->daysPassed === null && $this->operator !== self::OPERATOR_EMPTY) {
+            throw new UnsupportedValueException(\gettype($this->daysPassed), self::class);
+        }
 
-        if ($lastOrderDate === null) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return $this->operator === self::OPERATOR_EMPTY;
-            }
-
+        if (!$customerLastLogin = $customer->getLastLogin()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        if (method_exists($lastOrderDate, 'setTime')) {
-            $lastOrderDate = $lastOrderDate->setTime(0, 0, 0, 0);
+        if ($this->daysPassed === null) {
+            return false;
         }
-        $interval = $lastOrderDate->diff($currentDate);
+
+        if (method_exists($customerLastLogin, 'setTime')) {
+            $customerLastLogin = $customerLastLogin->setTime(0, 0, 0, 0);
+        }
+        $interval = $customerLastLogin->diff($currentDate);
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return false;
@@ -69,7 +62,7 @@ class DaysSinceLastOrderRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => RuleConstraints::numericOperators(),
+            'operator' => RuleConstraints::numericOperators(true),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {

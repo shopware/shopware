@@ -1,5 +1,6 @@
 ---
-title: Corrected parameters for new EntitySearchResult  
+title: Corrected parameters for new EntitySearchResult
+issue: NEXT-24001
 author: Alexander Schmidt
 author_email: support@kiplingi.de
 author_github: @kiplingi

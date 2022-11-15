@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
@@ -105,28 +103,5 @@ class CustomerLoggedInRuleTest extends TestCase
             true,
             true,
         ];
-    }
-}
-
-/**
- * @internal
- */
-class TestRuleScope extends RuleScope
-{
-    private SalesChannelContext $salesChannelContext;
-
-    public function __construct(SalesChannelContext $salesChannelContext)
-    {
-        $this->salesChannelContext = $salesChannelContext;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->salesChannelContext->getContext();
-    }
-
-    public function getSalesChannelContext(): SalesChannelContext
-    {
-        return $this->salesChannelContext;
     }
 }

@@ -66,6 +66,9 @@ class RuleComparison
         }
     }
 
+    /**
+     * @param list<string> $ruleValue
+     */
     public static function stringArray(?string $itemValue, array $ruleValue, string $operator): bool
     {
         if ($itemValue === null) {
@@ -84,6 +87,10 @@ class RuleComparison
         }
     }
 
+    /**
+     * @param list<string|null>|null $itemValue
+     * @param list<string|null>|null $ruleValue
+     */
     public static function uuids(?array $itemValue, ?array $ruleValue, string $operator): bool
     {
         if (!$itemValue) {

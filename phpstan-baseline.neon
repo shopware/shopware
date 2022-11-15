@@ -2746,11 +2746,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Rule/CustomerTagRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\EmailRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/EmailRuleTest.php
@@ -17283,21 +17278,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\ZipCodeRule\\:\\:getMatches\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/Container/ZipCodeRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:stringArray\\(\\) has parameter \\$ruleValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleComparison.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) has parameter \\$itemValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleComparison.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) has parameter \\$ruleValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleComparison.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleConfig\\:\\:booleanField\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"

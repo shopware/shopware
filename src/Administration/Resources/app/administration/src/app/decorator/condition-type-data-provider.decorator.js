@@ -152,6 +152,64 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
+
+    if (isMajorFlagActive) {
+        ruleConditionService.addCondition('customerBillingCity', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.billingCityRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerBillingState', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.billingStateRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerIsActive', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.customerIsActiveRule',
+            scopes: ['global'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerShippingCity', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.shippingCityRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerShippingState', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.shippingStateRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerAge', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.customerAgeRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerDaysSinceLastLogin', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.customerDaysSinceLastLogin',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerAffiliateCode', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.customerAffiliateCodeRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+        ruleConditionService.addCondition('customerCampaignCode', {
+            component: 'sw-condition-generic',
+            label: 'global.sw-condition.condition.customerCampaignCodeRule',
+            scopes: ['checkout'],
+            group: 'customer',
+        });
+    }
+
     ruleConditionService.addCondition('cartCartAmount', {
         component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-cart-amount',
         label: 'global.sw-condition.condition.cartAmountRule',
@@ -472,6 +530,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             equalsAny: ruleConditionService.getRestrictionsByGroup('customer'),
@@ -484,6 +543,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             equalsAny: ruleConditionService.getRestrictionsByGroup('customer'),
@@ -496,6 +556,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
@@ -507,6 +568,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
@@ -518,6 +580,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
@@ -529,6 +592,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
@@ -540,6 +604,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
@@ -550,6 +615,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'productPrices',
         {
             notEquals: [
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.productPrices',
@@ -560,6 +626,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'shippingMethods',
         {
             notEquals: [
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
@@ -570,6 +637,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         'paymentMethods',
         {
             notEquals: [
+                'customerIsActive',
                 'orderTag',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',

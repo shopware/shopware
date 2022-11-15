@@ -1,0 +1,91 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Customer\Rule;
+
+use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
+/**
+ * @package business-ops
+ */
+class ShippingStateRule extends Rule
+{
+    /**
+     * @var string[]
+     */
+    protected ?array $stateIds;
+
+    protected string $operator;
+
+    /**
+     * @internal
+     *
+     * @param list<string>|null $stateIds
+     */
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $stateIds = null)
+    {
+        parent::__construct();
+        $this->operator = $operator;
+        $this->stateIds = $stateIds;
+    }
+
+    /**
+     * @throws UnsupportedOperatorException
+     */
+    public function match(RuleScope $scope): bool
+    {
+        if (!$scope instanceof CheckoutRuleScope) {
+            return false;
+        }
+
+        if (!$state = $scope->getSalesChannelContext()->getShippingLocation()->getState()) {
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
+        $stateId = $state->getId();
+        $parameter = [$stateId];
+        if ($stateId === '') {
+            $parameter = [];
+        }
+
+        return RuleComparison::uuids($parameter, $this->stateIds, $this->operator);
+    }
+
+    public function getConstraints(): array
+    {
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+            ],
+        ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['stateIds'] = [new NotBlank(), new ArrayOfUuid()];
+
+        return $constraints;
+    }
+
+    public function getName(): string
+    {
+        return 'customerShippingState';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->entitySelectField('stateIds', CountryStateDefinition::ENTITY_NAME, true);
+    }
+}

@@ -23,6 +23,7 @@ export default {
         customFieldSets: [],
         customFields: [],
         customerGroups: [],
+        restrictedRules: [],
     },
 
     mutations: {
@@ -236,6 +237,15 @@ export default {
             commit('removeCurrentFlow');
             commit('removeInvalidSequences');
             commit('removeTriggerEvent');
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        setRestrictedRules({ commit }, id) {
+            Shopware.Service('ruleConditionDataProviderService')
+                .getRestrictedRules(`flowTrigger.${id}`)
+                .then((result) => {
+                    commit('setRestrictedRules', result);
+                });
         },
     },
 };

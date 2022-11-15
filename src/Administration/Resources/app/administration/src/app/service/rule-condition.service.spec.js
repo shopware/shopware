@@ -364,4 +364,70 @@ describe('src/app/service/rule-condition.service.js', () => {
         const result = ruleConditionService.isRuleRestricted([], undefined);
         expect(result).toBeFalsy();
     });
+
+    it('should have the correct operators for date', async () => {
+        const ruleConditionService = createConditionService();
+
+        const expected = [
+            {
+                identifier: '=',
+                label: 'global.sw-condition.operator.equals'
+            },
+            {
+                identifier: '>',
+                label: 'global.sw-condition.operator.greaterThan'
+            },
+            {
+                identifier: '>=',
+                label: 'global.sw-condition.operator.greaterThanEquals'
+            },
+            {
+                identifier: '<',
+                label: 'global.sw-condition.operator.lowerThan'
+            },
+            {
+                identifier: '<=',
+                label: 'global.sw-condition.operator.lowerThanEquals'
+            },
+            {
+                identifier: '!=',
+                label: 'global.sw-condition.operator.notEquals'
+            }
+        ];
+
+        const operators = ruleConditionService.getOperatorSet('date');
+
+        expect(operators).toEqual(expected);
+    });
+
+    it('should get the restrictedConditions', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('flowTrigger.someFlow', {
+            notEquals: ['cartCartAmount'],
+            snippet: 'someFlowSnippet'
+        });
+
+        const rule = {
+            id: 'random-id',
+            flowSequences: [
+                {
+                    flow: { eventName: 'someFlow', }
+                },
+                {
+                    flow: { eventName: 'anotherFlow', }
+                }
+            ]
+        };
+        const result = ruleConditionService.getRestrictedConditions(rule);
+
+        expect(result).toStrictEqual({
+            cartCartAmount: [
+                {
+                    associationName: 'flowTrigger.someFlow',
+                    snippet: 'someFlowSnippet'
+                }
+            ]
+        });
+    });
 });

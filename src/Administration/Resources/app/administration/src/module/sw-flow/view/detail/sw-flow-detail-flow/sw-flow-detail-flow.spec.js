@@ -123,7 +123,6 @@ async function createWrapper(privileges = []) {
                     })
                 })
             },
-
             acl: {
                 can: (identifier) => {
                     if (!identifier) {
@@ -137,7 +136,10 @@ async function createWrapper(privileges = []) {
                 getActions: jest.fn(() => {
                     return Promise.resolve([]);
                 })
-            }
+            },
+            ruleConditionDataProviderService: {
+                getRestrictedRules: () => Promise.resolve([])
+            },
         },
 
         stubs: {

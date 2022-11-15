@@ -1398,7 +1398,11 @@
       "equalsAnyViolationTooltip": "Diese Regel muss mindestens eine der folgenden Bedingungen verwenden, um {entityLabel} zugewiesen zu werden: {conditions}."
     },
     "restrictedConditions": {
-      "restrictedPromotionConditionTooltip": "Die aktuelle Regel ist einer Rabattaktion als {assignments} zugeordnet. Der Gebrauch dieser Bedingung ist daher nicht zulässig."
+      "restrictedConditionTooltip": "Diese Regel ist an folgenden Stellen zugewiesen:<br/><br/>{assignments}<br/><br/>Die Verwendung dieser Bedingung ist in diesem Zusammenhang nicht möglich.",
+      "relation": {
+        "flowTrigger": "Flows mit Trigger: {assignments}",
+        "promotion": "Rabattaktionen als: {assignments}"
+      }
     },
     "and": "und",
     "or": "oder"

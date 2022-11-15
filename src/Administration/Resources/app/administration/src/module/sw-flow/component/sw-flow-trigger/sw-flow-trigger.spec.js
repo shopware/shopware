@@ -99,7 +99,7 @@ async function createWrapper(propsData) {
                     return Promise.resolve(mockBusinessEvents);
                 })
             },
-            repositoryFactory: {}
+            repositoryFactory: {},
         },
         propsData: {
             eventName: '',
@@ -111,6 +111,12 @@ async function createWrapper(propsData) {
 
 describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     beforeAll(() => {
+        Shopware.Service().register('ruleConditionDataProviderService', () => {
+            return {
+                getRestrictedRules: () => Promise.resolve([])
+            };
+        });
+
         Shopware.State.registerModule('swFlowState', flowState);
     });
 

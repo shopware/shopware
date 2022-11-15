@@ -36,7 +36,7 @@
         "doctrine/dbal": "~2.13.8",
         "meyfa/php-svg": "~0.11.3",
         "padaliyajay/php-autoprefixer": "1.3",
-        "scssphp/scssphp": "1.10.0",
+        "scssphp/scssphp": "v1.11.0",
         "shopware/core": "*",
         "symfony/cache": "~5.4.0",
         "symfony/cache-contracts": "v2.5.2",

@@ -25,14 +25,16 @@ class AdminTest extends TestCase
         static::assertEquals('order', $firstActionButton->getEntity());
         static::assertEquals('detail', $firstActionButton->getView());
         static::assertEquals('https://swag-test.com/your-order', $firstActionButton->getUrl());
+
         /*
          * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
          * It will no longer be used in the manifest.xml file
          * and will be processed in the Executor with an OpenNewTabResponse response instead.
          */
         if (!Feature::isActive('FEATURE_NEXT_14360')) {
-            static::assertTrue($firstActionButton->isOpenNewTab());
+            static::assertFalse($firstActionButton->isOpenNewTab());
         }
+
         static::assertEquals([
             'en-GB' => 'View Order',
             'de-DE' => 'Zeige Bestellung',
@@ -43,6 +45,7 @@ class AdminTest extends TestCase
         static::assertEquals('product', $secondActionButton->getEntity());
         static::assertEquals('list', $secondActionButton->getView());
         static::assertEquals('https://swag-test.com/do-stuff', $secondActionButton->getUrl());
+
         /*
          * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
          * It will no longer be used in the manifest.xml file
@@ -51,6 +54,7 @@ class AdminTest extends TestCase
         if (!Feature::isActive('FEATURE_NEXT_14360')) {
             static::assertFalse($secondActionButton->isOpenNewTab());
         }
+
         static::assertEquals([
             'en-GB' => 'Do Stuff',
             'de-DE' => 'Mache Dinge',
@@ -76,14 +80,25 @@ class AdminTest extends TestCase
         static::assertEquals('sw-catalogue', $secondModule->getParent());
         static::assertEquals(50, $secondModule->getPosition());
 
-        $mainModule = $manifest->getAdmin()->getMainModule();
+        $admin = $manifest->getAdmin();
+
+        static::assertNotNull($admin);
+
+        $mainModule = $admin->getMainModule();
+
+        static::assertNotNull($mainModule);
         static::assertEquals('https://main-module', $mainModule->getSource());
     }
 
     public function testModulesWithStructureElements(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithStructureElement.xml');
-        $moduleWithStructureElement = $manifest->getAdmin()->getModules()[0];
+
+        $admin = $manifest->getAdmin();
+
+        static::assertNotNull($admin);
+
+        $moduleWithStructureElement = $admin->getModules()[0];
 
         static::assertNull($moduleWithStructureElement->getSource());
         static::assertEquals('sw-catalogue', $moduleWithStructureElement->getParent());
@@ -94,7 +109,10 @@ class AdminTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithoutMainModule.xml');
 
-        static::assertNull($manifest->getAdmin()->getMainModule());
+        $admin = $manifest->getAdmin();
+
+        static::assertNotNull($admin);
+        static::assertNull($admin->getMainModule());
     }
 
     public function testManifestWithMultipleMainmodulesIsInvalid(): void

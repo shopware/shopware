@@ -17,14 +17,14 @@
                 {% set sectionClasses = ['bg-color']|merge(sectionClasses) %}
             {% endif %}
 
-            {% if block.visibility is null %}
+            {% if section.visibility is null %}
                 {% set visibility = {
                     mobile: true,
                     tablet: true,
                     desktop: true
                 } %}
             {% else %}
-                {% set visibility = block.visibility %}
+                {% set visibility = section.visibility %}
             {% endif %}
 
             {% if not visibility.mobile %}

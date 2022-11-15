@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @deprecated tag:v6.5.0 - Remove with manifest-1.0.xsd -->
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>private</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for private App authentication</description>
+        <description lang="de-DE">Test für die private App Authentifizierung</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/private/registration</registrationUrl>
+    </setup>
+    <admin>
+        <action-button
+            action="some-action"
+            entity="product"
+            view="detail"
+            url="https://my-app-server/my-action"
+            openNewTab="true"
+        >
+            <label>Action button with openNewTab set</label>
+            <label lang="de-DE">Actionbutton mit openNewTab</label>
+        </action-button>
+    </admin>
+</manifest>

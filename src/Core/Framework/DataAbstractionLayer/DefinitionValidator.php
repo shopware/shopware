@@ -299,13 +299,9 @@ class DefinitionValidator
     }
 
     /**
-<<<<<<< HEAD
      * @param class-string<Entity> $struct
      *
      * @return array<int, mixed>
-=======
-     * @param class-string<object> $struct
->>>>>>> 0278b89929 (NEXT-23917 - Update symfony)
      */
     private function findEntityNotices(string $struct, EntityDefinition $definition): array
     {
@@ -342,13 +338,9 @@ class DefinitionValidator
     }
 
     /**
-<<<<<<< HEAD
      * @param class-string<Entity> $struct
      *
      * @return array<int, mixed>
-=======
-     * @param class-string<object> $struct
->>>>>>> 0278b89929 (NEXT-23917 - Update symfony)
      */
     private function validateStruct(string $struct, EntityDefinition $definition): array
     {

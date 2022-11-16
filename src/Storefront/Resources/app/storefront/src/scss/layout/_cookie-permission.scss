@@ -26,6 +26,10 @@ Shows a cookie permission alert at the bottom of the page.
     }
 }
 
+.cookie-permission-actions {
+    gap: 0.5rem;
+}
+
 @include media-breakpoint-up(md) {
     .cookie-permission-content {
         text-align: left;

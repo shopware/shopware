@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-property-detail-base.html.twig';
 
 const { Component, Mixin } = Shopware;

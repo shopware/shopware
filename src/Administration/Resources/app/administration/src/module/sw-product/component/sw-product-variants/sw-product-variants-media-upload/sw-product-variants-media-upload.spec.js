@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 import swProductVariantsMediaUpload from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';

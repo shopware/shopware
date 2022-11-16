@@ -22,6 +22,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 class ProductVisibilityEntityTest extends TestCase
 {

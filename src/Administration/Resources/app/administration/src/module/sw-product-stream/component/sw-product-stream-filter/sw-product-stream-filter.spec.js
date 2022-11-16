@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swProductStreamFilter from 'src/module/sw-product-stream/component/sw-product-stream-filter';
 import 'src/app/component/rule/sw-condition-base';

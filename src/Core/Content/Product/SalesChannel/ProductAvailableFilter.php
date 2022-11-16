@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
+/**
+ * @package inventory
+ */
 class ProductAvailableFilter extends MultiFilter
 {
     public function __construct(string $salesChannelId, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL)

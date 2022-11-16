@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import Plugin from 'src/plugin-system/plugin.class';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import Iterator from 'src/helper/iterator.helper';

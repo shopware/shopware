@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 

@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProductAddPropertiesModal from 'src/module/sw-product/component/sw-product-add-properties-modal';
 

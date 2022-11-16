@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package inventory
+ */
 class IsNewDetector extends AbstractIsNewDetector
 {
     private SystemConfigService $systemConfigService;

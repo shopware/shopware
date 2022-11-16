@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProductStreamValue from 'src/module/sw-product-stream/component/sw-product-stream-value';
 import 'src/app/component/rule/sw-condition-base';

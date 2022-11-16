@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package inventory
+ */
 class ProductListResponse extends StoreApiResponse
 {
     /**

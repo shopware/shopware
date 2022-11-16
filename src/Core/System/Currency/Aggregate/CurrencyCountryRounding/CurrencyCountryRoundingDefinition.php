@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @package inventory
+ */
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'currency_country_rounding';

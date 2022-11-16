@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swProductPriceForm from 'src/module/sw-product/component/sw-product-price-form';

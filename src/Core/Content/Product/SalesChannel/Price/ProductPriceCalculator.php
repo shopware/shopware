@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package inventory
+ */
 class ProductPriceCalculator extends AbstractProductPriceCalculator implements ResetInterface
 {
     private EntityRepository $unitRepository;

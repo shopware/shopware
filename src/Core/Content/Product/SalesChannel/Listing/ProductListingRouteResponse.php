@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package inventory
+ */
 class ProductListingRouteResponse extends StoreApiResponse
 {
     /**

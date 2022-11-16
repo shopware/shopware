@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import swProductFeatureSetForm from 'src/module/sw-product/component/sw-product-feature-set-form';

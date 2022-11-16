@@ -1,3 +1,7 @@
+/**
+ * @package inventory
+ */
+
 const { Filter } = Shopware;
 
 Filter.register('stockColorVariant', (value) => {

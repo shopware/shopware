@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swProductStreamFieldSelect from 'src/module/sw-product-stream/component/sw-product-stream-field-select';
 import 'src/app/component/form/select/base/sw-single-select';

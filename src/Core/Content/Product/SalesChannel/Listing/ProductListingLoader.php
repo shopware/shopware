@@ -25,6 +25,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package inventory
+ */
 class ProductListingLoader
 {
     private SalesChannelRepository $repository;

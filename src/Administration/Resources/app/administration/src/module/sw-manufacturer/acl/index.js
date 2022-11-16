@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',

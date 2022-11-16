@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/data-grid/sw-data-grid';

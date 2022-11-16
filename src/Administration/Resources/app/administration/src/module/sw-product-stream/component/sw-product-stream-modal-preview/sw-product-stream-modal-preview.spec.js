@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swProductStreamModalPreview from 'src/module/sw-product-stream/component/sw-product-stream-modal-preview';
 

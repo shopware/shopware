@@ -8,7 +8,7 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 /**
  * @internal
  */
-class TestMessageHandler implements MessageSubscriberInterface
+final class TestMessageHandler implements MessageSubscriberInterface
 {
     public function __invoke(): void
     {

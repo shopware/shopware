@@ -28,10 +28,7 @@ class TranslatorCacheInvalidateTest extends TestCase
      */
     private Connection $connection;
 
-    /**
-     * @var CacheInvalidator&MockObject
-     */
-    private CacheInvalidator $cacheInvalidator;
+    private mixed $cacheInvalidator;
 
     private TranslatorCacheInvalidate $translatorCacheInvalidate;
 

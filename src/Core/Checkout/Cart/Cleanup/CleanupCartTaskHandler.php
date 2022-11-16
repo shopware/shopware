@@ -11,7 +11,6 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 /**
  * @internal
  */
-
 final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
     private Connection $connection;

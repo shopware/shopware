@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -24,6 +25,9 @@ final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
         $this->delay = $delay;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [InvalidateCacheTask::class];

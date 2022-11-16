@@ -3,8 +3,6 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 /**
@@ -41,27 +39,16 @@ class IndexerOffset
     protected ?string $definition;
 
     /**
-     * @deprecated tag:v6.5.0 - parameter $langauges will expect the language Ids as flat list and will be typed as array only, passing a LanguageCollection is deprecated
-     *
-     * @param list<string>|LanguageCollection $languages
+     * @param list<string> $languages
      * @param iterable<AbstractElasticsearchDefinition> $definitions
      * @param Offset|null $lastId
      */
     public function __construct(
-        $languages,
+        array $languages,
         iterable $definitions,
         ?int $timestamp,
         ?array $lastId = null
     ) {
-        if (!\is_array($languages)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Passing a LanguageCollection as first parameter "$langauges" is deprecated and will be removed in v6.5.0.0, pass the language Ids as flat array list instead.'
-            );
-
-            $languages = array_values($languages->getIds());
-        }
-
         $this->languages = $languages;
 
         $mapping = [];

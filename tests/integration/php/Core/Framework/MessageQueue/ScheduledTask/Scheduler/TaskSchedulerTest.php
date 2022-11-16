@@ -7,7 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
@@ -29,7 +29,7 @@ class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $scheduledTaskRepo;
+    private EntityRepository $scheduledTaskRepo;
 
     /**
      * @var MessageBusInterface&MockObject

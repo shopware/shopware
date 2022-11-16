@@ -27,11 +27,24 @@ $sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
     &.is--active {
         background: $sw-sidebar-navigation-item-active-color-background;
         color: $sw-sidebar-navigation-item-icon-color-active;
+        width: 64px;
+        height: 64px;
     }
 
     &.is--disabled {
         cursor: not-allowed;
         opacity: 0.3;
+        width: 64px;
+        height: 64px;
+    }
+
+    .sw-icon {
+        width: 20px;
+        height: 20px;
+        padding-top: 1px;
+        padding-right: 1px;
+        padding-bottom: 1px;
+        padding-left: 1px;
     }
 
     .sidebar-item-badge {

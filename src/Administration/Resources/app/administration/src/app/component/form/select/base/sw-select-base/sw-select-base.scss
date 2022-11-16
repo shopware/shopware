@@ -70,9 +70,21 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     .sw-select__select-indicator {
         flex-shrink: 0;
         cursor: pointer;
+
+        &.sw-select__select-indicator-expand {
+            width: 16px;
+            height: 16px;
+            padding-top: 6px;
+            padding-right: 3px;
+            padding-bottom: 4px;
+            padding-left: 3px;
+        }
     }
 
     .sw-select__select-indicator-clear {
+        width: 16px;
+        height: 16px;
+        padding: 3px;
         transition: 0.1s opacity ease;
         opacity: 0;
         pointer-events: none;

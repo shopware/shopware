@@ -236,7 +236,7 @@ describe('Product: Bulk edit variants', () => {
 
         // Custom fields
         cy.get('.sw-bulk-edit-custom-fields__change [type]').click();
-        cy.get('.sw-container .icon--custom-inherited.sw-icon.sw-icon--multicolor > svg').last().click();
+        cy.get('.sw-container .icon--regular-link-horizontal.sw-icon.sw-icon--multicolor > svg').last().click();
         cy.get('input#custom_text').clearTypeAndCheck(bulkEditVariants.custom);
 
         // Save and apply changes

@@ -49,6 +49,12 @@ $sw-alert-size-close: 40px;
         border: 0 none;
         outline: none;
         cursor: pointer;
+
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            padding: 3px;
+        }
     }
 
     &__title {

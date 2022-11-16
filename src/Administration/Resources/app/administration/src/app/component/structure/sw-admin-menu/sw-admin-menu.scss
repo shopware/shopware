@@ -348,6 +348,15 @@ $sw-admin-menu-active-text: $color-white;
         margin-top: -8px;
         color: $sw-admin-menu-color-text-primary;
 
+        &.sw-icon {
+            width: 16px;
+            height: 16px;
+            padding-top: 4px;
+            padding-right: 3px;
+            padding-bottom: 6px;
+            padding-left: 3px;
+        }
+
         &:hover {
             color: $sw-admin-menu-active-text;
         }

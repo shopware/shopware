@@ -2,17 +2,6 @@
 {% block sw_icon %}
 <component
     :is="iconName"
-    v-if="!replacementName || !useIconKit"
-    class="sw-icon"
-    :class="classes"
-    :style="styles"
-    :aria-hidden="decorative"
-    v-on="$listeners"
-/>
-
-<component
-    :is="replacementName"
-    v-else
     class="sw-icon"
     :class="classes"
     :style="styles"

@@ -136,7 +136,13 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             font-size: $font-size-xs;
 
             .sw-icon {
+                width: 16px;
+                height: 16px;
                 margin-left: 10px;
+                padding-top: 6px;
+                padding-right: 3px;
+                padding-bottom: 4px;
+                padding-left: 3px;
             }
         }
     }

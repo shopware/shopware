@@ -89,6 +89,24 @@
         right: 10px;
         top: calc(50% - 15px);
         color: $color-darkgray-200;
+
+        .icon--regular-chevron-up-xxs {
+            width: 16px;
+            height: 16px;
+            padding-top: 5px;
+            padding-right: 4px;
+            padding-bottom: 6px;
+            padding-left: 4px;
+        }
+
+        .icon--regular-chevron-down-xxs {
+            width: 16px;
+            height: 16px;
+            padding-top: 6px;
+            padding-right: 4px;
+            padding-bottom: 5px;
+            padding-left: 4px;
+        }
     }
 
     &__actions {

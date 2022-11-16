@@ -34,6 +34,12 @@ $sw-sidebar-item-width-content: 400px;
         border: none;
         outline: none;
         cursor: pointer;
+
+        .sw-icon {
+            width: 20px;
+            height: 20px;
+            padding: 4px;
+        }
     }
 
     .sw-sidebar-item__content {

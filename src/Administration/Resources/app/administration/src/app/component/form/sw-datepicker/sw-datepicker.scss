@@ -31,6 +31,9 @@ $sw-datepicker-color-text-selected: $color-white;
     }
 
     .sw-field--datepicker__button-reset-value {
+        width: 16px;
+        height: 16px;
+        padding: 3px;
         position: absolute;
         cursor: pointer;
         right: 63px;

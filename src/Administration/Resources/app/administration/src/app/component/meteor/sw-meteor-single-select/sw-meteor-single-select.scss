@@ -22,6 +22,12 @@
         .sw-icon {
             margin-top: 2px;
             margin-left: 2px;
+
+            &.icon--regular-chevron-down-xxs {
+                width: 16px;
+                height: 16px;
+                padding: 5px 4px;
+            }
         }
     }
 

@@ -39,6 +39,15 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         grid-area: b;
     }
 
+    .sw-select-result__result-item-checkmark {
+        width: 16px;
+        height: 16px;
+        padding-top: 4px;
+        padding-right: 2px;
+        padding-bottom: 3px;
+        padding-left: 2px;
+    }
+
     &.is--active {
         background: $sw-select-result-active-color-background;
         color: $sw-select-result-active-color-text;

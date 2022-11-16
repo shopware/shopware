@@ -1,0 +1,26 @@
+@import '~bootstrap5/scss/functions';
+@import '~bootstrap5/scss/variables';
+@import '~bootstrap5/scss/mixins';
+
+$utilities: (
+    'gap': (
+        property: gap,
+        class: gap,
+        responsive: false,
+        values: $spacers
+    ),
+    'col-gap': (
+        property: column-gap,
+        class: col-gap,
+        responsive: false,
+        values: $spacers,
+    ),
+    'row-gap': (
+        property: row-gap,
+        class: row-gap,
+        responsive: false,
+        values: $spacers,
+    )
+);
+
+@import '~bootstrap5/scss/utilities/api';

@@ -99,10 +99,6 @@ export default class PseudoModalUtil {
             this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
             this._modal.addEventListener('shown.bs.modal', cb);
 
-            this._modalInstance = new bootstrap.Modal(this._modal, {
-                backdrop: this._useBackdrop,
-            });
-
             this._modalInstance.show();
         } else {
             this._$modal.on('hidden.bs.modal', this._modalWrapper.remove);
@@ -127,7 +123,11 @@ export default class PseudoModalUtil {
         this._modal = this._createModalMarkup();
 
         /** @deprecated tag:v6.5.0 -  this._$modal will be removed. Bootstrap v5 uses native HTML elements */
-        if (!Feature.isActive('v6.5.0.0')) {
+        if (Feature.isActive('v6.5.0.0')) {
+            this._modalInstance = new bootstrap.Modal(this._modal, {
+                backdrop: this._useBackdrop,
+            });
+        } else {
             this._$modal = $(this._modal);
         }
         document.body.insertAdjacentElement('beforeend', this._modalWrapper);

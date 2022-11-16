@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ProductCrossSellingTranslationEntity>
+ *
+ * @package inventory
  */
 class ProductCrossSellingTranslationCollection extends EntityCollection
 {

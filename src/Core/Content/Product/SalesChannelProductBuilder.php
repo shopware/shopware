@@ -9,6 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, call the AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector by using the respective services instead.
+ *
+ * @package inventory
  */
 class SalesChannelProductBuilder extends AbstractSalesChannelProductBuilder
 {

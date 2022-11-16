@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Store\Struct;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @package inventory
  */
 class VariantCollection extends StoreCollection
 {

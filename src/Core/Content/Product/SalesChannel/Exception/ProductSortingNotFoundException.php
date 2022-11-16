@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package inventory
+ */
 class ProductSortingNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $key)

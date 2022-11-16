@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/view/sw-product-detail-base';
 import 'src/module/sw-product/component/sw-product-basic-form';

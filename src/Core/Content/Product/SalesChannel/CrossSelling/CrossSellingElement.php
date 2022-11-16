@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package inventory
+ */
 class CrossSellingElement extends Struct
 {
     protected ProductCrossSellingEntity $crossSelling;

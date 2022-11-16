@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import EventEmitter from 'events';
 
 const { deepCopyObject } = Shopware.Utils.object;

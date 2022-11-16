@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
 import './acl';

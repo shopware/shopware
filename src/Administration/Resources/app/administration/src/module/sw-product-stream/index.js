@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import './acl';
 import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';

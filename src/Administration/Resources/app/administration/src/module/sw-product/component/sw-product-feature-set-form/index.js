@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-feature-set-form.html.twig';
 import './sw-product-feature-set-form.scss';
 

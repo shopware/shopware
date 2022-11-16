@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package inventory
+ */
 class ProductSortingExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 class ProductVisibilityTest extends TestCase
 {

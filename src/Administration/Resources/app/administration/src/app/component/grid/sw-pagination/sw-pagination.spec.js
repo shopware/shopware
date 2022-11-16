@@ -105,7 +105,7 @@ describe('src/component/grid/sw-pagination', () => {
         expect(activeButton.length).toBe(1);
     });
 
-    it('should have right amount of elements when on fourth page', async () => {
+    it('should have right amount of elements when on third page', async () => {
         await wrapper.vm.changePageByPageNumber(3);
 
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
@@ -256,5 +256,24 @@ describe('src/component/grid/sw-pagination', () => {
     it('should be visible when autoHide is set to false', async () => {
         expect(wrapper.props('autoHide')).toBe(false);
         expect(wrapper.exists()).toBe(true);
+    });
+
+    it('should have right amount of elements when setting the prop totalVisible to 3', async () => {
+        await wrapper.setProps({
+            totalVisible: 3
+        });
+
+        await wrapper.vm.changePageByPageNumber(2);
+
+        expect(wrapper.findAll('.sw-pagination__list-button').length).toBe(3);
+        expect(wrapper.findAll('.sw-pagination__list-separator').length).toBe(1);
+
+        expect(wrapper.find('.sw-pagination__list-button.is-active').exists()).toBe(true);
+
+        const rightArrow = wrapper.find('div.icon[name="regular-chevron-right-xs"]');
+        await rightArrow.trigger('click');
+
+        expect(wrapper.findAll('.sw-pagination__list-button').length).toBe(3);
+        expect(wrapper.findAll('.sw-pagination__list-separator').length).toBe(2);
     });
 });

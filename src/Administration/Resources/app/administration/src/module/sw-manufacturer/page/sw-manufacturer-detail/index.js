@@ -141,19 +141,28 @@ Component.register('sw-manufacturer-detail', {
         async loadEntityData() {
             this.isLoading = true;
 
-            try {
-                this.manufacturer = await this.manufacturerRepository.get(this.manufacturerId);
+            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
+                this.manufacturerRepository.get(this.manufacturerId),
+                this.customFieldSetRepository.search(this.customFieldSetCriteria),
+            ]);
 
-                this.customFieldSets = await this.customFieldSetRepository.search(this.customFieldSetCriteria);
-            } catch (e) {
+            if (manufacturerResponse.status === 'fulfilled') {
+                this.manufacturer = manufacturerResponse.value;
+            }
+
+            if (customFieldResponse.status === 'fulfilled') {
+                this.customFieldSets = customFieldResponse.value;
+            }
+
+            if (manufacturerResponse.status === 'rejected' || customFieldResponse.status === 'rejected') {
                 this.createNotificationError({
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessage', 0, { entityName: this.identifier },
                     ),
                 });
-            } finally {
-                this.isLoading = false;
             }
+
+            this.isLoading = false;
         },
 
         abortOnLanguageChange() {

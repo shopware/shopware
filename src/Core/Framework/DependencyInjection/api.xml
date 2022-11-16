@@ -355,7 +355,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController" public="true">
-            <argument type="service" id="kernel.bundles" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection" />
             <argument type="service" id="twig"/>
         </service>
     </services>

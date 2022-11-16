@@ -2,40 +2,36 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
 /**
+ * @internal
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class CustomSnippetFormatController
 {
-    /**
-     * @var iterable<string, BundleInterface>
-     */
-    private iterable $bundles;
+    private KernelPluginCollection $plugins;
 
     private Environment $twig;
 
     /**
-     * @param iterable<string, BundleInterface> $bundles
-     *
      * @internal
      */
-    public function __construct(iterable $bundles, Environment $twig)
+    public function __construct(KernelPluginCollection $plugins, Environment $twig)
     {
-        $this->bundles = $bundles;
+        $this->plugins = $plugins;
         $this->twig = $twig;
     }
 
     /**
-     * @Since("6.4.17.0")
+     * @Since("6.4.18.0")
      * @Route("/api/_action/custom-snippet", name="api.action.custom-snippet", methods={"GET"})
      */
     public function snippets(): JsonResponse
@@ -45,12 +41,12 @@ class CustomSnippetFormatController
         // NEXT-24122 - Allow app to define address formatting snippet
 
         return new JsonResponse([
-            'data' => array_merge($coreSnippets, $pluginSnippets),
+            'data' => array_values(array_unique(array_merge($coreSnippets, $pluginSnippets))),
         ]);
     }
 
     /**
-     * @Since("6.4.17.0")
+     * @Since("6.4.18.0")
      * @Route("/api/_action/custom-snippet/render", name="api.action.custom-snippet.render", methods={"POST"})
      */
     public function render(Request $request): JsonResponse
@@ -81,12 +77,8 @@ class CustomSnippetFormatController
     {
         $snippets = [];
 
-        foreach ($this->bundles as $bundle) {
-            if (!$bundle instanceof Bundle) {
-                continue;
-            }
-
-            $snippetDir = $bundle->getPath() . '/Resources/views/snippets/';
+        foreach ($this->plugins->getActives() as $plugin) {
+            $snippetDir = $plugin->getPath() . '/Resources/views/snippets/';
 
             if (!is_dir($snippetDir)) {
                 continue;
@@ -107,6 +99,7 @@ class CustomSnippetFormatController
         $finder->files()
             ->in($directory)
             ->name('*.html.twig')
+            ->sortByName()
             ->notName('render.html.twig')
             ->ignoreUnreadableDirs();
 

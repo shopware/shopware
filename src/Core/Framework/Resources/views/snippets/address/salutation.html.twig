@@ -1,3 +1,4 @@
+{# @internal #}
 {% block sw_snippet_element_salutation %}
     {% if address.salutation and address.salutation.salutationKey != 'not_specified' and address.salutation.id is not same as(constant('Shopware\\Core\\Defaults::SALUTATION')) %}
         {% block component_address_salutation %}

@@ -4036,31 +4036,6 @@ parameters:
 			path: src/Core/Content/ProductStream/Aggregate/ProductStreamTranslation/ProductStreamTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:buildNested\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:buildNested\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:buildPayload\\(\\) has parameter \\$filter with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:wrapIdFilter\\(\\) has parameter \\$originalQuery with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:wrapIdFilter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Event\\\\ProductStreamIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/Event/ProductStreamIndexerEvent.php

@@ -12,6 +12,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexi
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -189,9 +190,10 @@ class ProductStreamUpdaterTest extends TestCase
         ], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
-        $productStreamIndexer->handle(
-            $productStreamIndexer->update($writtenEvent)
-        );
+        $update = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(EntityIndexingMessage::class, $update);
+
+        $productStreamIndexer->handle($update);
 
         $productId = Uuid::randomHex();
         $products = [$this->getProductData($productId)];
@@ -238,18 +240,26 @@ class ProductStreamUpdaterTest extends TestCase
         static::assertEquals(
             3,
             $activeProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
-                return $product->getStreams()
-                    ->filterByProperty('id', $activeStreamId)
-                    ->first();
+                $streams = $product->getStreams();
+                if ($streams) {
+                    return $streams->filterByProperty('id', $activeStreamId)
+                        ->first();
+                }
+
+                return null;
             })->count()
         );
         // Check and ensure the opposite product_stream (inactive) weren't added
         static::assertEquals(
             0,
             $activeProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
-                return $product->getStreams()
-                    ->filterByProperty('id', $inActiveStreamId)
-                    ->first();
+                $streams = $product->getStreams();
+                if ($streams) {
+                    return $streams->filterByProperty('id', $inActiveStreamId)
+                        ->first();
+                }
+
+                return null;
             })->count()
         );
 
@@ -265,18 +275,26 @@ class ProductStreamUpdaterTest extends TestCase
         static::assertEquals(
             1,
             $inActiveProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
-                return $product->getStreams()
-                    ->filterByProperty('id', $inActiveStreamId)
-                    ->first();
+                $streams = $product->getStreams();
+                if ($streams) {
+                    return $streams->filterByProperty('id', $inActiveStreamId)
+                        ->first();
+                }
+
+                return null;
             })->count()
         );
         // Check and ensure the opposite product_stream (active) weren't added
         static::assertEquals(
             0,
             $inActiveProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
-                return $product->getStreams()
-                    ->filterByProperty('id', $activeStreamId)
-                    ->first();
+                $streams = $product->getStreams();
+                if ($streams) {
+                    return $streams->filterByProperty('id', $activeStreamId)
+                        ->first();
+                }
+
+                return null;
             })->count()
         );
     }
@@ -285,48 +303,56 @@ class ProductStreamUpdaterTest extends TestCase
     {
         $this->productRepository->create(
             [
+                $this->getProductData($productId),
+            ],
+            $this->salesChannel->getContext()
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getProductData(string $productId): array
+    {
+        return [
+            'id' => $productId,
+            'productNumber' => $productId,
+            'stock' => 1,
+            'name' => 'Test',
+            'active' => true,
+            'price' => [
                 [
-                    'id' => $productId,
-                    'productNumber' => $productId,
-                    'stock' => 1,
-                    'name' => 'Test',
-                    'active' => true,
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 100,
+                    'net' => 9, 'linked' => false,
+                    'listPrice' => ['gross' => 200, 'net' => 200, 'linked' => false],
+                ],
+            ],
+            'prices' => [
+                [
+                    'quantityStart' => 1,
+                    'rule' => [
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                    ],
                     'price' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'gross' => 100,
+                            'gross' => 50,
                             'net' => 9, 'linked' => false,
-                            'listPrice' => ['gross' => 200, 'net' => 200, 'linked' => false],
+                            'listPrice' => ['gross' => 60, 'net' => 60, 'linked' => false],
                         ],
-                    ],
-                    'prices' => [
-                        [
-                            'quantityStart' => 1,
-                            'rule' => [
-                                'name' => 'Test rule',
-                                'priority' => 1,
-                            ],
-                            'price' => [
-                                [
-                                    'currencyId' => Defaults::CURRENCY,
-                                    'gross' => 50,
-                                    'net' => 9, 'linked' => false,
-                                    'listPrice' => ['gross' => 60, 'net' => 60, 'linked' => false],
-                                ],
-                            ],
-                        ],
-                    ],
-                    'manufacturer' => ['name' => 'test'],
-                    'tax' => ['taxRate' => 19, 'name' => 'with id'],
-                    'visibilities' => [
-                        ['salesChannelId' => $this->salesChannel->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                    ],
-                    'categories' => [
-                        ['id' => Uuid::randomHex(), 'name' => 'Clothing'],
                     ],
                 ],
             ],
-            $this->salesChannel->getContext()
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 19, 'name' => 'with id'],
+            'visibilities' => [
+                ['salesChannelId' => $this->salesChannel->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+            'categories' => [
+                ['id' => Uuid::randomHex(), 'name' => 'Clothing'],
+            ],
         ];
     }
 }

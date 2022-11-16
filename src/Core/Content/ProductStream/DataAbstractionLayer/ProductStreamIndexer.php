@@ -44,6 +44,9 @@ class ProductStreamIndexer extends EntityIndexer
         return 'product_stream.indexer';
     }
 
+    /**
+     * @param array<string, mixed>|null $offset
+     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
@@ -126,6 +129,9 @@ class ProductStreamIndexer extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $filter
+     */
     private function buildPayload(array $filter): string
     {
         usort($filter, static fn (array $a, array $b) => $a['position'] <=> $b['position']);
@@ -147,6 +153,11 @@ class ProductStreamIndexer extends EntityIndexer
         return $this->serializer->serialize($streamFilter, 'json');
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $entities
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function buildNested(array $entities, ?string $parentId): array
     {
         $nested = [];
@@ -187,6 +198,11 @@ class ProductStreamIndexer extends EntityIndexer
         return $field === 'id' || $field === $this->productDefinition->getEntityName() . '.id';
     }
 
+    /**
+     * @param array<string, mixed> $originalQuery
+     *
+     * @return array<string, mixed>
+     */
     private function wrapIdFilter(array $originalQuery): array
     {
         return [

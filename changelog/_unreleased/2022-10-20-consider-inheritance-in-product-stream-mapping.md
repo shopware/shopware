@@ -1,6 +1,6 @@
 ---
 title: Consider Inheritance in Product Stream Mapping
-issue: NEXT-23788
+issue: NEXT-24157
 author: Thomas Holm Thomsen
 author_email: thomas@wexo.dk
 author_github: @wexotht

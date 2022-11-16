@@ -56,6 +56,7 @@
                                               data-form-ajax-submit="true"
                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                            {# @deprecated tag:v6.5.0 - Block page_account_orders_paging_csrf will be removed. #}
                                             {% block page_account_orders_paging_csrf %}
                                                 {{ sw_csrf('frontend.account.order.page') }}
                                             {% endblock %}

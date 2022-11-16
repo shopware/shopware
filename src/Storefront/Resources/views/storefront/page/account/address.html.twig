@@ -18,6 +18,7 @@
 
                                 {% block page_account_overview_billing_address_actions %}
                                     <div class="card-actions">
+                                        {# @deprecated tag:v6.5.0 - Option addressEditorOptions.csrfToken will be removed. #}
                                         {% set addressEditorOptions = {
                                             changeBilling: true,
                                             csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
@@ -61,6 +62,7 @@
 
                                 {% block page_account_overview_shipping_address_actions %}
                                     <div class="card-actions">
+                                        {# @deprecated tag:v6.5.0 - Option addressEditorOptions.csrfToken will be removed. #}
                                         {% set addressEditorOptions = {
                                             changeShipping: true,
                                             csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})

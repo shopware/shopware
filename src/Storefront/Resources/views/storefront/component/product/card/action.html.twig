@@ -13,6 +13,7 @@
                       class="buy-widget"
                       data-add-to-cart="true">
 
+                    {# @deprecated tag:v6.5.0 - Block component_product_box_action_buy_csrf will be removed. #}
                     {% block component_product_box_action_buy_csrf %}
                         {{ sw_csrf('frontend.checkout.line-item.add') }}
                     {% endblock %}

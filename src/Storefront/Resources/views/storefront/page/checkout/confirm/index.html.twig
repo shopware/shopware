@@ -202,6 +202,7 @@
               data-form-add-history-options='{{ formAddHistoryOptions|json_encode }}'
               method="post">
 
+            {# @deprecated tag:v6.5.0 - Block page_checkout_aside_actions_csrf will be removed. #}
             {% block page_checkout_aside_actions_csrf %}
                 {{ sw_csrf('frontend.checkout.finish.order') }}
             {% endblock %}

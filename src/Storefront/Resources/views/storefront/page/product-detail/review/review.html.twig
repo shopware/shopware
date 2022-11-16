@@ -86,6 +86,7 @@
                                                                   data-form-ajax-submit="true"
                                                                   data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                                                {# @deprecated tag:v6.5.0 - Block page_product_detail_review_list_action_language_csrf will be removed. #}
                                                                 {% block page_product_detail_review_list_action_language_csrf %}
                                                                     {{ sw_csrf('frontend.product.reviews') }}
                                                                 {% endblock %}
@@ -135,6 +136,7 @@
                                                                       data-form-ajax-submit="true"
                                                                       data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                                                    {# @deprecated tag:v6.5.0 - Block page_product_detail_review_list_action_sortby_form_csrf will be removed. #}
                                                                     {% block page_product_detail_review_list_action_sortby_form_csrf %}
                                                                         {{ sw_csrf('frontend.product.reviews') }}
                                                                     {% endblock %}
@@ -223,6 +225,7 @@
                                                               data-form-ajax-submit="true"
                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                                            {# @deprecated tag:v6.5.0 - Block page_product_detail_review_list_paging_csrf will be removed. #}
                                                             {% block page_product_detail_review_list_paging_csrf %}
                                                                 {{ sw_csrf('frontend.product.reviews') }}
                                                             {% endblock %}

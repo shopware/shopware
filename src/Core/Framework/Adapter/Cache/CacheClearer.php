@@ -14,41 +14,30 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0
  */
 class CacheClearer extends AbstractMessageHandler
 {
-    /**
-     * @var CacheClearerInterface
-     */
-    protected $cacheClearer;
+    protected CacheClearerInterface $cacheClearer;
 
-    /**
-     * @var string
-     */
-    protected $cacheDir;
+    protected string $cacheDir;
 
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
+    protected Filesystem $filesystem;
 
     /**
      * @var CacheItemPoolInterface[]
      */
-    protected $adapters;
+    protected array $adapters;
 
-    /**
-     * @var string
-     */
-    protected $environment;
+    protected string $environment;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     /**
      * @internal
+     *
+     * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
         array $adapters,
@@ -100,6 +89,9 @@ class CacheClearer extends AbstractMessageHandler
         $this->messageBus->dispatch(new CleanupOldCacheFolders());
     }
 
+    /**
+     * @param list<string> $keys
+     */
     public function deleteItems(array $keys): void
     {
         foreach ($this->adapters as $adapter) {

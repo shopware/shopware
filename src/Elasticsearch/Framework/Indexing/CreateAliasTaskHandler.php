@@ -12,6 +12,8 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitc
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
  */
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {

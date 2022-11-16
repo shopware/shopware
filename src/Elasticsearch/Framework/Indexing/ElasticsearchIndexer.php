@@ -30,6 +30,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
 class ElasticsearchIndexer extends AbstractMessageHandler
 {
@@ -265,7 +267,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         }
 
         return new IndexerOffset(
-            $languages,
+            array_values($languages->getIds()),
             $this->registry->getDefinitions(),
             $timestamp->getTimestamp()
         );
@@ -452,6 +454,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private function handleLanguageIndexIteratorMessage(ElasticsearchLanguageIndexIteratorMessage $message): void
     {
+        /** @var LanguageEntity|null $language */
         $language = $this->languageRepository->search(new Criteria([$message->getLanguageId()]), Context::createDefaultContext())->first();
 
         if ($language === null) {
@@ -461,7 +464,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $timestamp = new \DateTime();
         $this->createLanguageIndex($language, $timestamp);
 
-        $offset = new IndexerOffset(new LanguageCollection([$language]), $this->registry->getDefinitions(), $timestamp->getTimestamp());
+        $offset = new IndexerOffset([$language->getId()], $this->registry->getDefinitions(), $timestamp->getTimestamp());
         while ($message = $this->iterate($offset)) {
             $offset = $message->getOffset();
 

@@ -11,6 +11,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0
  */
 class CacheInvalidator extends ScheduledTaskHandler
 {
@@ -31,6 +33,8 @@ class CacheInvalidator extends ScheduledTaskHandler
 
     /**
      * @internal
+     *
+     * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
         int $delay,
@@ -70,6 +74,9 @@ class CacheInvalidator extends ScheduledTaskHandler
         }
     }
 
+    /**
+     * @param list<string> $tags
+     */
     public function invalidate(array $tags, bool $force = false): void
     {
         $tags = array_filter(array_unique($tags));
@@ -115,6 +122,9 @@ class CacheInvalidator extends ScheduledTaskHandler
         $this->purge($invalidate);
     }
 
+    /**
+     * @param list<string> $logs
+     */
     private function log(array $logs): void
     {
         $item = $this->cache->getItem(self::CACHE_KEY);
@@ -131,6 +141,9 @@ class CacheInvalidator extends ScheduledTaskHandler
         $this->cache->save($item);
     }
 
+    /**
+     * @param list<string> $keys
+     */
     private function purge(array $keys): void
     {
         $keys = array_unique(array_filter($keys));

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only implement MessageHandlerInterface
  */
 abstract class ScheduledTaskHandler extends AbstractMessageHandler
 {

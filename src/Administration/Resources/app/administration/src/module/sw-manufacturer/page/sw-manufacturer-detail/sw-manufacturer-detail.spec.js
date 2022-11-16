@@ -191,7 +191,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toBeCalledWith({
-            message: 'global.notification.notificationSaveErrorMessage'
+            message: 'global.notification.notificationLoadingDataErrorMessage'
         });
 
         expect(wrapper.vm.manufacturer).toBeNull();
@@ -210,11 +210,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toBeCalledWith({
-            message: 'global.notification.notificationSaveErrorMessage'
+            message: 'global.notification.notificationLoadingDataErrorMessage'
         });
-
-        expect(wrapper.vm.manufacturer).toEqual({ id: 'MOCK_MANUFACTURER_ID' });
-        expect(wrapper.vm.customFieldSets).toEqual([]);
     });
 
     it('should set loading to false if both requests fail', async () => {
@@ -229,7 +226,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toBeCalledWith({
-            message: 'global.notification.notificationSaveErrorMessage'
+            message: 'global.notification.notificationLoadingDataErrorMessage'
         });
 
         expect(wrapper.vm.manufacturer).toBeNull();

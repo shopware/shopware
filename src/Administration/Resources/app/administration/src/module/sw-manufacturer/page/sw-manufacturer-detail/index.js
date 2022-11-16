@@ -157,7 +157,7 @@ Component.register('sw-manufacturer-detail', {
             if (manufacturerResponse.status === 'rejected' || customFieldResponse.status === 'rejected') {
                 this.createNotificationError({
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage', 0, { entityName: this.identifier },
+                        'global.notification.notificationLoadingDataErrorMessage',
                     ),
                 });
             }

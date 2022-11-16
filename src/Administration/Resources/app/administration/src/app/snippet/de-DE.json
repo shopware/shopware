@@ -50,7 +50,8 @@
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
       "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: ",
       "noTitle": "Ein Titel wurde nicht definiert",
-      "noMessage": "Eine Nachricht wurde nicht definiert"
+      "noMessage": "Eine Nachricht wurde nicht definiert",
+      "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
     "notification-center": {
       "title": "Mitteilungen",

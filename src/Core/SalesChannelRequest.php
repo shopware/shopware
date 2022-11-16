@@ -31,6 +31,9 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_STOREFRONT_URL = 'sw-storefront-url';
 
+    /**
+     * @deprecated tag:v6.5.0 - will be removed as the csrf system will be removed in favor for the samesite approach
+     */
     public const ATTRIBUTE_CSRF_PROTECTED = 'csrf_protected';
 
     /**

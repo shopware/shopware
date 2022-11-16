@@ -142,11 +142,13 @@
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension">
             <tag name="twig.extension"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Csrf\SessionProvider" lazy="true">
             <deprecated package="shopware/storefront" version="6.5.0.0">This service %service_id% is deprecated. Please inject request_stack and use the session from current request</deprecated>
             <argument type="service" id="session"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler" public="true">
@@ -155,6 +157,7 @@
             <argument>%storefront.csrf.mode%</argument>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="session.storage.factory"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
@@ -212,6 +215,7 @@
 
             <tag name="kernel.event_subscriber"/>
             <tag name="kernel.reset" method="reset"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">

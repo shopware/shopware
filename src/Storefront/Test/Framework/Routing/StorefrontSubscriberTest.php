@@ -61,6 +61,8 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testExpiredToken(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $token = Uuid::randomHex();
 
         $id = Uuid::randomHex();
@@ -83,7 +85,7 @@ class StorefrontSubscriberTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEquals($token, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }

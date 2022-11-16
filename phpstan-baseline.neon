@@ -26303,11 +26303,6 @@ parameters:
 			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\CsrfFunctionExtension\\:\\:createCsrfPlaceholder\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/CsrfFunctionExtension.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php
@@ -26836,16 +26831,6 @@ parameters:
 			message: "#^Parameter \\#7 \\$content of class Symfony\\\\Component\\\\HttpFoundation\\\\Request constructor expects resource\\|string\\|null, array given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/HoneypotCaptchaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Csrf\\\\CsrfPlaceholderHandlerTest\\:\\:createCsrfPlaceholderHandler\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Csrf/CsrfPlaceholderHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Csrf\\\\CsrfPlaceholderHandlerTest\\:\\:generateToken\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Csrf/CsrfPlaceholderHandlerTest.php
 
 		-
 			message: "#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#"

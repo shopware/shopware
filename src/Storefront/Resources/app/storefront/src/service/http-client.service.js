@@ -1,3 +1,5 @@
+import Feature from 'src/helper/feature.helper';
+
 export default class HttpClient {
 
     constructor() {
@@ -51,7 +53,7 @@ export default class HttpClient {
         const request = this._createPreparedRequest('POST', url, contentType);
 
         /** @deprecated tag:v6.5.0 - CSRF implementation will be removed. Remove if-condition. */
-        if (csrfProtected && this._csrfEnabled && this._csrfMode === 'ajax') {
+        if (!Feature.isActive('v6.5.0.0') && csrfProtected && this._csrfEnabled && this._csrfMode === 'ajax') {
             this.fetchCsrfToken((csrfToken) => {
                 if (data instanceof FormData) {
                     data.append('_csrf_token', csrfToken);

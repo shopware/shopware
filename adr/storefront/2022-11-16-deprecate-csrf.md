@@ -8,7 +8,7 @@
 
 ## Decision
 
-* We remove the CSRF protection in favor of SameSite cookies which are already used and prevent CSRF attacks already.
+* We remove the CSRF protection in favor of SameSite cookies which are used and prevent CSRF attacks already.
 
 ## Consequences
 

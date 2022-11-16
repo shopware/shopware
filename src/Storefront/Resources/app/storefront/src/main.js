@@ -197,7 +197,7 @@ if (window.wishlistEnabled) {
 }
 
 /** @deprecated tag:v6.5.0 - CSRF will be removed */
-if (window.csrf.enabled && window.csrf.mode === 'ajax') {
+if (!Feature.isActive('v6.5.0.0') && window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
 }
 

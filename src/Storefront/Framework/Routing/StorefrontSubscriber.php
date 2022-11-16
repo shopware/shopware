@@ -109,7 +109,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
                     'updateSessionAfterLogout',
                 ],
                 BeforeSendResponseEvent::class => [
-                    ['replaceCsrfToken'],
                     ['setCanonicalUrl'],
                 ],
                 StorefrontRenderEvent::class => [
@@ -336,8 +335,20 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - replaceCsrfToken method will be removed as the csrf system will be removed in favor for the samesite approach
+     */
     public function replaceCsrfToken(BeforeSendResponseEvent $event): void
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $event->setResponse(
             $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse(), $event->getRequest())
         );

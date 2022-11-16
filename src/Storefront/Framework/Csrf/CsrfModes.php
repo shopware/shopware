@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
+/**
+ * @deprecated tag:v6.5.0 - class will be removed as the csrf system will be removed in favor for the samesite approach
+ */
 final class CsrfModes
 {
     public const MODE_TWIG = 'twig';

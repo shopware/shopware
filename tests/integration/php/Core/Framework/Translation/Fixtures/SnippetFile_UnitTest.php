@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Translation\_fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\Translation\Fixtures;
 
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 

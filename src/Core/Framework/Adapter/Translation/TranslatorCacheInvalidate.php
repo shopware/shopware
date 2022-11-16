@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Translation;
 
 use Doctrine\DBAL\Connection;
-use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
@@ -17,17 +17,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class TranslatorCacheInvalidate implements EventSubscriberInterface
 {
-    private CacheItemPoolInterface $cache;
-
     private Connection $connection;
+
+    private CacheInvalidator $cacheInvalidator;
 
     /**
      * @internal
      */
-    public function __construct(CacheItemPoolInterface $cache, Connection $connection)
+    public function __construct(CacheInvalidator $cacheInvalidator, Connection $connection)
     {
-        $this->cache = $cache;
         $this->connection = $connection;
+        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     public static function getSubscribedEvents(): array
@@ -51,7 +51,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
             $snippetIds = $event->getIds();
 
             $setIds = $this->connection->fetchFirstColumn(
-                'SELECT LOWER(HEX(snippet_set_id)) id FROM snippet WHERE HEX(id) IN (:ids)',
+                'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
                 ['ids' => $snippetIds],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
@@ -67,8 +67,10 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     {
         $snippetSetIds = array_unique($snippetSetIds);
 
-        foreach ($snippetSetIds as $id) {
-            $this->cache->deleteItem('translation.catalog.' . $id);
-        }
+        $snippetSetCacheKeys = array_map(function (string $setId) {
+            return 'translation.catalog.' . $setId;
+        }, $snippetSetIds);
+
+        $this->cacheInvalidator->invalidate($snippetSetCacheKeys, true);
     }
 }

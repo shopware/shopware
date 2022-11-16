@@ -240,7 +240,7 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate">
-            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>

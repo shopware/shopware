@@ -70,12 +70,34 @@ commercial trunk:
 
 create downstream branch:
   extends: .downstream-release-branch-creation
+  rules: # TODO: Remove this rules section after the last 6.4.x version has been released
+    - !reference [ .rules, skip ]
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
+    - if: $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
+    - when: never
   parallel:
     matrix:
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
         DOWNSTREAM_PARENT_BRANCH: 'trunk'
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
         DOWNSTREAM_PARENT_BRANCH: 'trunk'
+      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
+        DOWNSTREAM_PARENT_BRANCH: 'trunk'
+
+# TODO: Remove this job after the last 6.4.x version has been released.
+create downstream branch legacy:
+  extends: .downstream-release-branch-creation
+  rules:
+    - !reference [ .rules, skip ]
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([0-4])\.\d+\.\d+/
+    - if: $CI_COMMIT_BRANCH =~ /^6\.([0-4])\.\d+\.\d+/
+    - when: never
+  parallel:
+    matrix:
+      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
+        DOWNSTREAM_PARENT_BRANCH: 'trunk' # TODO: Change to 6.4 after split in commercial repo
+      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
+        DOWNSTREAM_PARENT_BRANCH: 'trunk' # TODO: Change to 6.4 after split in rufus repo
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
         DOWNSTREAM_PARENT_BRANCH: '6.4'
 
@@ -84,6 +106,26 @@ trigger downstream build:
   needs:
     - job: 'create downstream branch'
       artifacts: false
+  rules: # TODO: Remove this rules section after the last 6.4.x version has been released
+    - !reference [ .rules, skip ]
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
+    - if: $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
+    - when: never
+  parallel:
+    matrix:
+      - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]
+
+# TODO: Remove this job after the last 6.4.x version has been released.
+trigger downstream build legacy:
+  extends: .downstream-release
+  needs:
+    - job: 'create downstream branch legacy'
+      artifacts: false
+  rules:
+    - !reference [ .rules, skip ]
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([0-4])\.\d+\.\d+/
+    - if: $CI_COMMIT_BRANCH =~ /^6\.([0-4])\.\d+\.\d+/
+    - when: never
   parallel:
     matrix:
       - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]

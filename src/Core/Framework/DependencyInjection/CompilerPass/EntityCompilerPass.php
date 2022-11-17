@@ -59,10 +59,6 @@ class EntityCompilerPass implements CompilerPassInterface
 
             try {
                 $repository = $container->getDefinition($repositoryId);
-                //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
-                if (!Feature::isActive('v6.5.0.0')) {
-                    $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
-                }
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     EntityRepository::class,

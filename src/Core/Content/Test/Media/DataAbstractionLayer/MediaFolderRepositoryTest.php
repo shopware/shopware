@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @group slow
  * @group skip-paratest
  */
-class MediaFolderRepositoryDecoratorTest extends TestCase
+class MediaFolderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;

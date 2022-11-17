@@ -87,8 +87,6 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
             try {
                 $repository = $container->getDefinition($repositoryId);
-                //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
-                $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
                 $repository->setPublic(true);
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(

@@ -36,7 +36,7 @@ use Shopware\Core\Test\TestDefaults;
  * @group slow
  * @group skip-paratest
  */
-class MediaRepositoryDecoratorTest extends TestCase
+class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;

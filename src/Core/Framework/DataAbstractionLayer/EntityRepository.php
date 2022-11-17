@@ -28,9 +28,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package core
- * @final tag:v6.5.0
  */
-class EntityRepository implements EntityRepositoryInterface
+final class EntityRepository
 {
     private EntityReaderInterface $reader;
 
@@ -44,12 +43,10 @@ class EntityRepository implements EntityRepositoryInterface
 
     private EntityDefinition $definition;
 
-    private ?EntityLoadedEventFactory $eventFactory = null;
+    private EntityLoadedEventFactory $eventFactory;
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.5.0 - parameter $eventFactory will be required
      */
     public function __construct(
         EntityDefinition $definition,
@@ -58,7 +55,7 @@ class EntityRepository implements EntityRepositoryInterface
         EntitySearcherInterface $searcher,
         EntityAggregatorInterface $aggregator,
         EventDispatcherInterface $eventDispatcher,
-        ?EntityLoadedEventFactory $eventFactory = null
+        EntityLoadedEventFactory $eventFactory
     ) {
         $this->reader = $reader;
         $this->searcher = $searcher;
@@ -66,31 +63,6 @@ class EntityRepository implements EntityRepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->versionManager = $versionManager;
         $this->definition = $definition;
-
-        if ($eventFactory !== null) {
-            $this->eventFactory = $eventFactory;
-        } else {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                sprintf('EntityRepository constructor for definition %s requires the event factory as required 7th parameter in v6.5.0.0', $definition->getEntityName())
-            );
-        }
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, inject entity loaded event factory in __construct
-     */
-    public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
-    {
-        if (isset($this->eventFactory)) {
-            return;
-        }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            sprintf('Repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName())
-        );
-
         $this->eventFactory = $eventFactory;
     }
 
@@ -254,10 +226,6 @@ class EntityRepository implements EntityRepositoryInterface
         $criteria = clone $criteria;
 
         $entities = $this->reader->read($this->definition, $criteria, $context);
-
-        if ($this->eventFactory === null) {
-            throw new \RuntimeException('Event loaded factory was not injected');
-        }
 
         if ($criteria->getFields() === []) {
             $event = $this->eventFactory->create($entities->getElements(), $context);

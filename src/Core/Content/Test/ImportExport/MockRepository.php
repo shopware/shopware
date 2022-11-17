@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,9 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
 /**
- * @internal
+ * @internal can only be used in test setups where bypass finals is activated
  */
-class MockRepository implements EntityRepositoryInterface
+class MockRepository extends EntityRepository
 {
     public $createCalls = 0;
 

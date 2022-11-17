@@ -47,7 +47,15 @@ Component.register('sw-cms-page-form', {
 
                         return positionA - positionB;
                     });
+
+                    if (!block.visibility) {
+                        block.visibility = { mobile: true, tablet: true, desktop: true };
+                    }
                 });
+
+                if (!section.visibility) {
+                    section.visibility = { mobile: true, tablet: true, desktop: true };
+                }
             });
         },
 
@@ -98,12 +106,21 @@ Component.register('sw-cms-page-form', {
                 this.$tc('sw-cms.section.positionLeft');
         },
 
-        getDeviceActive(block, viewport) {
-            if (!block.visibility) {
-                block.visibility = { mobile: true, tablet: true, desktop: true };
-            }
+        getDeviceActive(viewport, section, block = null) {
+            const isActive = block
+                ? section?.visibility?.[viewport] && block?.visibility?.[viewport]
+                : section?.visibility?.[viewport];
 
-            return block?.visibility?.[viewport] ? 'is__active' : 'is__inactive';
+            return isActive
+                ? `regular-${viewport}`
+                : `regular-${viewport}-slash`;
+        },
+
+        displayNotification(section, block) {
+            const isSectionDisplay = !(Object.values(section?.visibility).indexOf(true) > -1);
+            const isBlockDisplay = !(Object.values(block?.visibility).indexOf(true) > -1);
+
+            return isSectionDisplay || isBlockDisplay;
         },
     },
 });

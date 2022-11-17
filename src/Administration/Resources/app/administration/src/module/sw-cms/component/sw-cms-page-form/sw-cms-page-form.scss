@@ -169,22 +169,4 @@
         align-items: center;
         justify-content: flex-end;
     }
-
-    &__device-action-icon.is__inactive {
-        position: relative;
-
-        &::before {
-            content: "";
-            width: 0.095rem;
-            height: 142%;
-            display: block;
-            background-color: $color-gray-500;
-            transform: rotate(45deg) translate(-50%, -50%);
-            position: absolute;
-            border-radius: 8px;
-            top: 5px;
-            left: 1px;
-            scale: 90%;
-        }
-    }
 }

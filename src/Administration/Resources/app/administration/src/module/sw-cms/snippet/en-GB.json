@@ -671,7 +671,8 @@
         "form": {
           "label": "Form"
         }
-      }
+      },
+      "blockDisableState": "This block is not visible on any device. You can edit the block but the changes will not be visible in your shop. Edit this layout in shopping experiences module to change the block visibility."
     },
     "components": {
       "setDefaultLayoutModal": {

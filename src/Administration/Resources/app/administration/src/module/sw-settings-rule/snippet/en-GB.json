@@ -94,7 +94,7 @@
       "placeholderTags": "Enter a tag...",
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
-      "messageSaveError": "An error occurred while saving rule \"{name}\".",
+      "messageSaveError": "An error occurred while saving rule",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
       "buttonAddAssignment":  "Add assignment",

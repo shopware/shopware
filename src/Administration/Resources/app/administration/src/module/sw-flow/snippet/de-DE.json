@@ -140,8 +140,8 @@
       "rule": {
         "labelAddNewRule": "Neue Regel hinzufügen",
         "labelEditRule": "Regel bearbeiten",
-        "tabRule": "Regel",
-        "tabDetail": "Details",
+        "tabRule": "Bedingung",
+        "tabDetail": "Allgemein",
         "buttonAddRule": "Speichern und anwenden",
         "labelName": "Name",
         "placeholderName": "Regelnamen eingeben ...",

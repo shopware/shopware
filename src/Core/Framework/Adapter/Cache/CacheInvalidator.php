@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -12,7 +13,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0
+ * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0 and won't extend ScheduledTaskHandler anymore
  */
 class CacheInvalidator extends ScheduledTaskHandler
 {
@@ -53,13 +54,26 @@ class CacheInvalidator extends ScheduledTaskHandler
         $this->count = $count;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed use InvalidateCacheTaskHandler instead
+     *
+     * @return iterable<string>
+     */
     public static function getHandledMessages(): iterable
     {
-        return [InvalidateCacheTask::class];
+        return [];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be removed use InvalidateCacheTaskHandler instead
+     */
     public function run(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', InvalidateCacheTaskHandler::class)
+        );
+
         try {
             if ($this->delay <= 0) {
                 $this->invalidateExpired(null);

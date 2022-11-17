@@ -18226,30 +18226,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Asset/AssetInstallCommandTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\CacheInvalidatorTest\\:\\:testDemandValidation\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\CacheInvalidatorTest\\:\\:testDemandValidation\\(\\) has parameter \\$logs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\TracedCacheAdapter\\:\\:getInvalidated\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\TracedCacheAdapter\\:\\:\\$invalidated type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
-
-		-
-			message: "#^Return type \\(void\\) of method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\TracedCacheAdapter\\:\\:invalidateTags\\(\\) should be compatible with return type \\(bool\\) of method Symfony\\\\Component\\\\Cache\\\\Adapter\\\\TagAwareAdapterInterface\\:\\:invalidateTags\\(\\)$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

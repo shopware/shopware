@@ -97,7 +97,7 @@ create downstream branch legacy:
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
         DOWNSTREAM_PARENT_BRANCH: 'trunk' # TODO: Change to 6.4 after split in commercial repo
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk' # TODO: Change to 6.4 after split in rufus repo
+        DOWNSTREAM_PARENT_BRANCH: '6.4'
       - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
         DOWNSTREAM_PARENT_BRANCH: '6.4'
 

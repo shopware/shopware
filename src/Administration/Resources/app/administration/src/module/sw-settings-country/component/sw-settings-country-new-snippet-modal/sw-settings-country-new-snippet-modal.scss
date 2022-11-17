@@ -36,16 +36,24 @@
         }
     }
 
-    .sw-tree-item .icon--regular-circle-xxs {
+    .sw-tree-item {
         padding: 3px;
-    }
 
-    .sw-tree-item .sw-tree-item__toggle span {
-        padding: 5px;
-    }
+        .icon--regular-circle-xxs {
+            padding: 3px;
+        }
 
-    .sw-tree-item .sw-tree-item__label {
-        text-transform: capitalize;
+        .sw-tree-item__toggle span {
+            padding: 5px;
+        }
+
+        .sw-tree-item__label {
+            text-transform: capitalize;
+        }
+
+        .sw-field--checkbox {
+            display: none;
+        }
     }
 
     &__search-field {

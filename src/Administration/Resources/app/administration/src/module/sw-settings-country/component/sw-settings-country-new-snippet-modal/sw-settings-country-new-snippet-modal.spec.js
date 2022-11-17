@@ -110,6 +110,7 @@ async function createWrapper(customPropsData = {}) {
             },
             'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-skeleton': true,
+            'sw-checkbox-field': true,
         }
     });
 }

@@ -60,6 +60,7 @@ async function createWrapper() {
             searchPreferencesService: {
                 getDefaultSearchPreferences: () => {},
                 getUserSearchPreferences: () => {},
+                processSearchPreferences: () => [],
                 createUserSearchPreferences: () => {
                     return {
                         key: 'search.preferences',
@@ -279,5 +280,52 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 ])
             })])
         );
+    });
+
+    it('should be merged with the default value when exists user search preferences', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.searchPreferencesService.getDefaultSearchPreferences = jest.fn(() => [
+            {
+                order: {
+                    documents: {
+                        documentNumber: { _score: 80, _searchable: false },
+                        documentInvoice: { _score: 80, _searchable: false },
+                    }
+                }
+            }
+        ]);
+
+        await flushPromises();
+
+        expect(wrapper.vm.defaultSearchPreferences).toEqual([
+            {
+                order: {
+                    documents: {
+                        documentNumber: { _score: 80, _searchable: false },
+                        documentInvoice: { _score: 80, _searchable: false },
+                    }
+                }
+            }
+        ]);
+
+        await Shopware.State.commit('swProfile/setUserSearchPreferences', [
+            {
+                order: {
+                    documents: { documentNumber: { _score: 80, _searchable: true } }
+                }
+            }
+        ]);
+
+        expect(wrapper.vm.defaultSearchPreferences).toEqual([
+            {
+                order: {
+                    documents: {
+                        documentNumber: { _score: 80, _searchable: true },
+                        documentInvoice: { _score: 80, _searchable: false },
+                    }
+                }
+            }
+        ]);
     });
 });

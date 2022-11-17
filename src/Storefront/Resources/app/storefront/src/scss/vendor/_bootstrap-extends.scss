@@ -1,26 +1,20 @@
-@import '~bootstrap5/scss/functions';
-@import '~bootstrap5/scss/variables';
-@import '~bootstrap5/scss/mixins';
+/*
+@deprecated tag:v6.5.0 - Bootstrap v5 will support utilities class `gap` - `_bootstrap-extends.scss` will be remove.
+@see https://getbootstrap.com/docs/5.2/utilities/spacing/#gap
+*/
 
-$utilities: (
-    'gap': (
-        property: gap,
-        class: gap,
-        responsive: false,
-        values: $spacers
-    ),
-    'col-gap': (
-        property: column-gap,
-        class: col-gap,
-        responsive: false,
-        values: $spacers,
-    ),
-    'row-gap': (
-        property: row-gap,
-        class: row-gap,
-        responsive: false,
-        values: $spacers,
-    )
+$spacer: 1rem;
+$spacers: (
+    0: 0,
+    1: $spacer * .25,
+    2: $spacer * .5,
+    3: $spacer,
+    4: $spacer * 1.5,
+    5: $spacer * 3,
 );
 
-@import '~bootstrap5/scss/utilities/api';
+@each $key, $value in $spacers {
+    .gap-#{$key} {
+        gap: $value;
+    }
+}

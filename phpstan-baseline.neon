@@ -3355,8 +3355,6 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Handler/V630/SyncTestPaymentHandler.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\PaymentMethodRepositoryTest\\:\\:createPaymentMethodDummyArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -5851,10 +5849,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\:\\:\\$metadataLoader \\(array\\<Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\MetadataLoaderInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Metadata/MetadataLoader.php
-
-
-
-
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\AbstractPathNameStrategy\\:\\:\\$blacklist type has no value type specified in iterable type array\\.$#"
@@ -28485,6 +28479,16 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
+
+		-
+			message: "#^Property Shopware\\\\Tests\\\\Migration\\\\Storefront\\\\V6_4\\\\Migration1641476963ThemeDependentIdsTest\\:\\:\\$connection is never read, only written\\.$#"
+			count: 1
+			path: tests/migration/Storefront/V6_4/Migration1641476963ThemeDependentIdsTest.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: tests/migration/Storefront/V6_4/Migration1641476963ThemeDependentIdsTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RedisCartPersisterTest\\:\\:dataProviderInvalidData\\(\\) return type has no value type specified in iterable type iterable\\.$#"

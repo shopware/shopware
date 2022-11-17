@@ -694,10 +694,6 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/app/component/form/sw-custom-field-set-renderer', () => {
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();

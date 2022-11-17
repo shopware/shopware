@@ -1,19 +1,15 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/view/sw-product-detail-base';
 import 'src/module/sw-product/component/sw-product-basic-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-field';
-import Vuex from 'vuex';
+
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-detail-base'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: `
@@ -83,21 +79,16 @@ async function createWrapper(privileges = []) {
                     })
                 })
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
-            }
         }
     });
 }
 
 describe('src/module/sw-product/view/sw-product-detail-base', () => {
-    beforeAll(() => {
+    beforeEach(() => {
+        if (Shopware.State.get('swProductDetail')) {
+            Shopware.State.unregisterModule('swProductDetail');
+        }
+
         Shopware.State.registerModule('swProductDetail', {
             ...productStore,
             state: {
@@ -201,7 +192,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await wrapper.vm.$nextTick();
 
         wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
-            return Promise.resolve(Shopware.Utils.createId());
+            return Promise.resolve('SOME-ID');
         });
 
         wrapper.vm.createdComponent();
@@ -315,7 +306,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -324,6 +315,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 }
             }
         });
+
+        await wrapper.vm.$nextTick();
 
         const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
         expect(promotionSwitch.attributes().style).toBe('display: none;');
@@ -333,7 +326,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
-        await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -343,6 +336,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             }
         });
 
+        await wrapper.vm.$nextTick();
+
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
         expect(labellingCardElement.attributes().style).toBe('display: none;');
     });
@@ -351,9 +346,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        await Shopware.State.commit('swProductDetail/setModeSettings', [
+        Shopware.State.commit('swProductDetail/setModeSettings', [
             ...modeSettings.filter(item => item !== 'media')
         ]);
+
+        await wrapper.vm.$nextTick();
 
         const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
         expect(mediaCardElement.attributes().style).toBe('display: none;');
@@ -363,9 +360,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        await Shopware.State.commit('swProductDetail/setModeSettings', [
+        Shopware.State.commit('swProductDetail/setModeSettings', [
             ...modeSettings.filter(item => item !== 'general_information')
         ]);
+
+        await wrapper.vm.$nextTick();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__info');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -375,9 +374,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        await Shopware.State.commit('swProductDetail/setModeSettings', [
+        Shopware.State.commit('swProductDetail/setModeSettings', [
             ...modeSettings.filter(item => item !== 'prices')
         ]);
+
+        await wrapper.vm.$nextTick();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__prices');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -387,9 +388,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        await Shopware.State.commit('swProductDetail/setModeSettings', [
+        Shopware.State.commit('swProductDetail/setModeSettings', [
             ...modeSettings.filter(item => item !== 'deliverability')
         ]);
+
+        await wrapper.vm.$nextTick();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__deliverability');
         expect(infoCardElement.attributes().style).toBe('display: none;');
@@ -399,9 +402,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
-        await Shopware.State.commit('swProductDetail/setModeSettings', [
+        Shopware.State.commit('swProductDetail/setModeSettings', [
             ...modeSettings.filter(item => item !== 'visibility_structure')
         ]);
+
+        await wrapper.vm.$nextTick();
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__visibility-structure');
         expect(infoCardElement.attributes().style).toBe('display: none;');

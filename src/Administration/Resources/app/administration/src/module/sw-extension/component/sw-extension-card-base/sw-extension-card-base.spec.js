@@ -41,10 +41,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await flushPromises();
     });
 
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });

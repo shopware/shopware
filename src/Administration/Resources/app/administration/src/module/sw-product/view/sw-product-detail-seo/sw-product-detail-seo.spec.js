@@ -1,6 +1,5 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
-import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-seo';
 import 'src/module/sw-settings-seo/component/sw-seo-url';
 import 'src/app/component/utils/sw-inherit-wrapper';
@@ -104,13 +103,7 @@ const repositoryMockFactory = (entity) => {
 };
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('tooltip', {});
-    localVue.directive('popover', {});
-
     return shallowMount(Component.build('sw-product-detail-seo'), {
-        localVue,
         provide: {
             acl: {
                 can: (identifier) => {
@@ -169,7 +162,11 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-product/view/sw-product-detail-seo', () => {
-    beforeAll(() => {
+    beforeEach(() => {
+        if (Shopware.State.get('swProductDetail')) {
+            Shopware.State.unregisterModule('swProductDetail');
+        }
+
         State.registerModule('swProductDetail', {
             namespaced: true,
             state: {

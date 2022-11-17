@@ -524,10 +524,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         Shopware.Utils.debounce = () => {};
     });
 
-    afterEach(async () => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper({
             entity: {},

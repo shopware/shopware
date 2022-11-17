@@ -73,17 +73,13 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have the right amount of region labels', async () => {
-        wrapper = await await createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const amountOfRegionLabels = wrapper.findAll('.sw-label-region').length;
@@ -91,7 +87,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
     });
 
     it('should show category labels when clicking on a region label', async () => {
-        wrapper = await await createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         // there should not be a single category label before clicking on a region label
@@ -107,7 +103,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
     });
 
     it('should show plugins when clicking on a category label', async () => {
-        wrapper = await await createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         /** @type Wrapper */

@@ -5,13 +5,17 @@ jest.useFakeTimers('modern');
 
 describe('src/app/state/marketing.store', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('marketing', marketingStore);
         Shopware.Service().register('shopwareDiscountCampaignService', () => {
             return new ShopwareDiscountCampaignService();
         });
     });
 
     beforeEach(() => {
+        if (Shopware.State.get('marketing')) {
+            Shopware.State.unregisterModule('marketing');
+        }
+        Shopware.State.registerModule('marketing', marketingStore);
+
         Shopware.State.get('marketing').campaign = marketingStore.state().campaign;
         jest.setSystemTime(new Date('2000-01-31').getTime());
     });

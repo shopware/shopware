@@ -33,15 +33,10 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('components/base/sw-simple-search-field', () => {
-    /** @type Wrapper */
     let wrapper;
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterAll(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

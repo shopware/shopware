@@ -1,16 +1,11 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-language-info';
 
 describe('src/app/component/structure/sw-language-info', () => {
     let wrapper = null;
 
-    beforeAll(() => {});
 
     beforeEach(async () => {
-        const localVue = createLocalVue();
-        localVue.use(Vuex);
-
         Shopware.State.commit('context/setApiLanguageId', '123456789');
         Shopware.State.commit('context/setApiSystemLanguageId', '123456789');
         Shopware.State.commit('context/setApiLanguage', {
@@ -18,8 +13,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: '456'
         });
 
-        wrapper = await shallowMount(await Shopware.Component.build('sw-language-info'), {
-            localVue,
+        wrapper = shallowMount(await Shopware.Component.build('sw-language-info'), {
             stubs: {},
             mocks: {
                 $tc: (v1, v2, v3) => ({ v1, v2, v3 })
@@ -43,18 +37,22 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should not render the infoText when no language is set', async () => {
-        await Shopware.State.commit('context/setApiLanguage', null);
+        Shopware.State.commit('context/setApiLanguage', null);
+
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.html()).toBe('');
     });
 
     it('should not render the infoText when user is in default language', async () => {
-        await Shopware.State.commit('context/setApiLanguage', {
+        Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: null
         });
-        await Shopware.State.commit('context/setApiLanguageId', '123');
-        await Shopware.State.commit('context/setApiSystemLanguageId', '123');
+        Shopware.State.commit('context/setApiLanguageId', '123');
+        Shopware.State.commit('context/setApiSystemLanguageId', '123');
+
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.html()).toBe('');
     });
@@ -87,11 +85,13 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should render the infoText for a root language', async () => {
-        await Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        await Shopware.State.commit('context/setApiLanguage', {
+        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
+        Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: null
         });
+
+        await wrapper.vm.$nextTick();
 
         const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
         expect(infoText.v1).toBe('sw-language-info.infoTextRootLanguage');

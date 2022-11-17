@@ -17,7 +17,6 @@ import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-selection-list';
-import GenericConditionMixin from 'src/app/mixin/generic-condition.mixin';
 import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -117,8 +116,7 @@ async function createWrapper(condition = {}) {
 }
 
 describe('components/rule/condition-type/sw-condition-generic', () => {
-    beforeAll(() => {
-        Shopware.Mixin.register('generic-condition', GenericConditionMixin);
+    beforeEach(() => {
         Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
     });
 

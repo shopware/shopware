@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/component/sw-customer-default-addresses/index';
+import SwCustomerDefaultAddresses from 'src/module/sw-customer/component/sw-customer-default-addresses/index';
 import 'src/app/component/base/sw-address';
+
+Shopware.Component.register('sw-customer-default-addresses', SwCustomerDefaultAddresses);
 
 async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {
     return shallowMount(await Shopware.Component.build('sw-customer-default-addresses'), {
@@ -31,7 +33,7 @@ async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress 
     });
 }
 
-describe('module/sw-customer/page/sw-customer-base-info', () => {
+describe('module/sw-customer-default-addresses', () => {
     let wrapper;
 
     it('should be a Vue.JS component', async () => {

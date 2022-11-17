@@ -257,7 +257,9 @@ Component.register('sw-entity-multi-select', {
         },
 
         resetActiveItem() {
-            this.$refs.swSelectResultList.setActiveItemIndex(0);
+            if (this.$refs.swSelectResultList) {
+                this.$refs.swSelectResultList.setActiveItemIndex(0);
+            }
         },
 
         resetCriteria() {

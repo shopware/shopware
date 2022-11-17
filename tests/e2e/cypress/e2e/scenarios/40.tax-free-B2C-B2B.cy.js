@@ -54,6 +54,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
         // Set tax free for customers - B2C
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.contains('.sw-page__smart-bar-amount', '250');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
@@ -156,6 +157,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
         // Set tax free for companies - B2B
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.contains('.sw-page__smart-bar-amount', '250');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');

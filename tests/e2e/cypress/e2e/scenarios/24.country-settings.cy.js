@@ -124,13 +124,19 @@ describe('Storefront: test registration with country settings & invalid inputs',
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.goToSalesChannelDetail('E2E install test')
-            .selectCountryForSalesChannel('Germany');
+
+        cy.goToSalesChannelDetail('E2E install test');
+        cy.contains('.smart-bar__header', 'E2E install test');
+        cy.selectCountryForSalesChannel('Germany');
+
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.contains('.sw-page__smart-bar-amount', '250');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Germany');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');

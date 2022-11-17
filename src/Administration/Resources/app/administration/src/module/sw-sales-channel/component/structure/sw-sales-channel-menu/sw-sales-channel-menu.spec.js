@@ -1,13 +1,11 @@
 import { mount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import swSalesChannelMenu from 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
+import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/structure/sw-admin-menu-item';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
-
-Shopware.Component.register('sw-sales-channel-menu', swSalesChannelMenu);
 
 const defaultAdminLanguageId = '6a357734-afe4-4f17-a814-fb89ce9724fc';
 

@@ -80,6 +80,7 @@ describe('Create a variant product using default customer and buy it via cash on
 
         // Navigate to variant generator listing and start
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-product-list').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');

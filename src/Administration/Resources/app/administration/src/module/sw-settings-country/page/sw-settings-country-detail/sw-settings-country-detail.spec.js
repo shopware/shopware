@@ -6,9 +6,9 @@ import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-Shopware.Component.register('sw-settings-country-detail', swSettingsCountryDetail);
-
 import VueRouter from 'vue-router';
+
+Shopware.Component.register('sw-settings-country-detail', swSettingsCountryDetail);
 
 const routes = [
     {

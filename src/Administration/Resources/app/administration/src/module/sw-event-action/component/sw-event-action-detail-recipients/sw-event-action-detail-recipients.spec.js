@@ -1,8 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swEventActionDetailRecipients from 'src/module/sw-event-action/component/sw-event-action-detail-recipients';
+import 'src/module/sw-event-action/component/sw-event-action-detail-recipients';
 import 'src/app/component/data-grid/sw-data-grid';
-
-Shopware.Component.register('sw-event-action-detail-recipients', swEventActionDetailRecipients);
 
 async function createWrapper(configRecipients = null, privileges = []) {
     const localVue = createLocalVue();

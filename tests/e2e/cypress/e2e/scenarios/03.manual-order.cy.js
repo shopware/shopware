@@ -108,11 +108,15 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         // make manual order
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.contains('.sw-empty-state__title', 'Nog geen bestellingen');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
-
         cy.get('.sw-button.sw-button--primary.sw-order-list__add-order').click();
+
+        cy.contains('.sw-order-create__card', 'Details');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-container > .sw-field .sw-entity-single-select__selection-text').type('Martin Maxwell');
         cy.contains('Martin Maxwell').click();
         cy.contains('Product toevoegen').click();

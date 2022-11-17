@@ -1,10 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swEventActionList from 'src/module/sw-event-action/page/sw-event-action-list';
+import 'src/module/sw-event-action/page/sw-event-action-list';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/mixin/listing.mixin';
-
-Shopware.Component.register('sw-event-action-list', swEventActionList);
 
 function mockEventActionData(criteria) {
     const eventActions = [

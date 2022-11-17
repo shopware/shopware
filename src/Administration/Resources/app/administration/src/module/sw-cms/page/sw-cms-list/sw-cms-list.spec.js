@@ -6,15 +6,12 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import swCmsList from 'src/module/sw-cms/page/sw-cms-list';
 import swCmsListItem from 'src/module/sw-cms/component/sw-cms-list-item';
-import swContextButton from 'src/app/component/context-menu/sw-context-button';
-import swContextMenuItem from 'src/app/component/context-menu/sw-context-menu-item';
-import swDataGrid from 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/data-grid/sw-data-grid';
 
 Shopware.Component.register('sw-cms-list', swCmsList);
 Shopware.Component.register('sw-cms-list-item', swCmsListItem);
-Shopware.Component.register('sw-context-button', swContextButton);
-Shopware.Component.register('sw-context-menu-item', swContextMenuItem);
-Shopware.Component.register('sw-data-grid', swDataGrid);
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';

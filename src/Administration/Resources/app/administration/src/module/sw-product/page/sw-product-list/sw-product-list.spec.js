@@ -1,15 +1,15 @@
 import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import swProductList from 'src/module/sw-product/page/sw-product-list';
-import swDataGrid from 'src/app/component/data-grid/sw-data-grid';
-import swDataGridSettings from 'src/app/component/data-grid/sw-data-grid-settings';
-import swEntityListing from 'src/app/component/entity/sw-entity-listing';
-import swContextButton from 'src/app/component/context-menu/sw-context-button';
-import swContextMenuItem from 'src/app/component/context-menu/sw-context-menu-item';
-import swButton from 'src/app/component/base/sw-button';
-import swPagination from 'src/app/component/grid/sw-pagination';
-import swEmptyState from 'src/app/component/base/sw-empty-state';
-import swPage from 'src/app/component/structure/sw-page';
+import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/data-grid/sw-data-grid-settings';
+import 'src/app/component/entity/sw-entity-listing';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/base/sw-button';
+import 'src/app/component/grid/sw-pagination';
+import 'src/app/component/base/sw-empty-state';
+import 'src/app/component/structure/sw-page';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
@@ -19,15 +19,6 @@ const CURRENCY_ID = {
 };
 
 Shopware.Component.register('sw-product-list', swProductList);
-Shopware.Component.register('sw-data-grid', swDataGrid);
-Shopware.Component.register('sw-data-grid-settings', swDataGridSettings);
-Shopware.Component.register('sw-entity-listing', swEntityListing);
-Shopware.Component.register('sw-context-button', swContextButton);
-Shopware.Component.register('sw-context-menu-item', swContextMenuItem);
-Shopware.Component.register('sw-button', swButton);
-Shopware.Component.register('sw-pagination', swPagination);
-Shopware.Component.register('sw-empty-state', swEmptyState);
-Shopware.Component.register('sw-page', swPage);
 
 function mockContext() {
     return {

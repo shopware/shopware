@@ -2,14 +2,11 @@ import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import swCmsLayoutAssignmentModal from 'src/module/sw-cms/component/sw-cms-layout-assignment-modal';
-import swTabs from 'src/app/component/base/sw-tabs';
-import swTabsItem from 'src/app/component/base/sw-tabs-item';
-import swModal from 'src/app/component/base/sw-modal';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
+import 'src/app/component/base/sw-modal';
 
 Shopware.Component.register('sw-cms-layout-assignment-modal', swCmsLayoutAssignmentModal);
-Shopware.Component.register('sw-tabs', swTabs);
-Shopware.Component.register('sw-tabs-item', swTabsItem);
-Shopware.Component.register('sw-modal', swModal);
 
 const mockCategories = [
     {

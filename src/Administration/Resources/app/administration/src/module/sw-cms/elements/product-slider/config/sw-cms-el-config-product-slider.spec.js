@@ -1,16 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigProductSlider from 'src/module/sw-cms/elements/product-slider/config';
-import swSelectBase from 'src/app/component/form/select/base/sw-select-base';
-import swEntityMultiSelect from 'src/app/component/form/select/entity/sw-entity-multi-select';
-import swSelectSelectionList from 'src/app/component/form/select/base/sw-select-selection-list';
-import swSelectResultList from 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/entity/sw-entity-multi-select';
+import 'src/app/component/form/select/base/sw-select-selection-list';
+import 'src/app/component/form/select/base/sw-select-result-list';
 
 Shopware.Component.register('sw-cms-el-config-product-slider', swCmsElConfigProductSlider);
-Shopware.Component.register('sw-select-base', swSelectBase);
-Shopware.Component.register('sw-entity-multi-select', swEntityMultiSelect);
-Shopware.Component.register('sw-select-selection-list', swSelectSelectionList);
-Shopware.Component.register('sw-select-result-list', swSelectResultList);
 
 const productMock = [{
     id: 'de8de156da134dabac24257f81ff282f',

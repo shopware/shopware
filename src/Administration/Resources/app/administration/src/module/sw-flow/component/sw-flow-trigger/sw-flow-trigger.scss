@@ -20,10 +20,6 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
                 cursor: pointer;
             }
         }
-
-        .sw-tree-item__label {
-            text-transform: capitalize;
-        }
     }
 
     .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
@@ -57,7 +53,6 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
         .sw-block-field__block input {
             text-overflow: ellipsis;
-            text-transform: capitalize;
 
             &::placeholder {
                 text-transform: none;

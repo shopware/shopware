@@ -63,6 +63,17 @@ const mockBusinessEvents = [
     }
 ];
 
+const mockTranslations = {
+    'sw-flow.triggers.before': 'Before',
+    'sw-flow.triggers.mail': 'Mail',
+    'sw-flow.triggers.send': 'Send',
+    'sw-flow.triggers.checkout': 'Checkout',
+    'sw-flow.triggers.customer': 'Customer',
+    'sw-flow.triggers.login': 'Login',
+    'sw-flow.triggers.changedPaymentMethod': 'Changed payment method',
+    'sw-flow.triggers.deleted': 'Deleted'
+};
+
 const div = document.createElement('div');
 div.id = 'root';
 document.body.appendChild(div);
@@ -73,6 +84,11 @@ async function createWrapper(propsData) {
 
     return shallowMount(await Shopware.Component.build('sw-flow-trigger'), {
         localVue,
+        mocks: {
+            $tc(translationKey) {
+                return mockTranslations[translationKey] ? mockTranslations[translationKey] : translationKey;
+            },
+        },
         stubs: {
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
@@ -139,7 +155,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         });
 
         const searchField = wrapper.find('.sw-flow-trigger__input-field');
-        expect(searchField.element.value).toEqual('mail / before / send');
+        expect(searchField.element.value).toEqual('Mail / Before / Send');
     });
 
     it('should get event tree data correctly', async () => {
@@ -149,7 +165,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 1,
                 id: 'checkout',
-                name: 'checkout',
+                name: 'Checkout',
                 parentId: null,
                 disabled: false,
                 disabledToolTipText: null,
@@ -157,7 +173,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 3,
                 id: 'checkout.customer',
-                name: 'customer',
+                name: 'Customer',
                 parentId: 'checkout',
                 disabled: false,
                 disabledToolTipText: null,
@@ -165,7 +181,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 1,
                 id: 'checkout.customer.before',
-                name: 'before',
+                name: 'Before',
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
@@ -173,7 +189,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 0,
                 id: 'checkout.customer.before.login',
-                name: 'login',
+                name: 'Login',
                 parentId: 'checkout.customer.before',
                 disabled: false,
                 disabledToolTipText: null,
@@ -181,7 +197,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 0,
                 id: 'checkout.customer.changed-payment-method',
-                name: 'changed payment method',
+                name: 'Changed payment method',
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
@@ -189,7 +205,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 0,
                 id: 'checkout.customer.deleted',
-                name: 'deleted',
+                name: 'Deleted',
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
@@ -337,7 +353,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         let treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(1);
         expect(treeItems.at(0).classes()).toContain('is--focus');
-        expect(treeItems.at(0).text()).toEqual('checkout');
+        expect(treeItems.at(0).text()).toEqual('Checkout');
 
         // Press arrow right to open checkout tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -347,7 +363,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await wrapper.vm.$nextTick();
         treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(2);
-        expect(treeItems.at(1).text()).toEqual('customer');
+        expect(treeItems.at(1).text()).toEqual('Customer');
 
         // Move down to customer item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -368,9 +384,9 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(5);
-        expect(treeItems.at(2).text()).toEqual('before');
-        expect(treeItems.at(3).text()).toEqual('changed payment method');
-        expect(treeItems.at(4).text()).toEqual('deleted');
+        expect(treeItems.at(2).text()).toEqual('Before');
+        expect(treeItems.at(3).text()).toEqual('Changed payment method');
+        expect(treeItems.at(4).text()).toEqual('Deleted');
 
         // close customer tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -447,9 +463,9 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(5);
-        expect(treeItems.at(2).text()).toEqual('before');
-        expect(treeItems.at(3).text()).toEqual('changed payment method');
-        expect(treeItems.at(4).text()).toEqual('deleted');
+        expect(treeItems.at(2).text()).toEqual('Before');
+        expect(treeItems.at(3).text()).toEqual('Changed payment method');
+        expect(treeItems.at(4).text()).toEqual('Deleted');
 
         // move down to changed payment method item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {

@@ -1,6 +1,12 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.4.17.2
+*  [NEXT-24130 - Add default value for flow in FlowSendMailActionEvent](/changelog/release-6-4-17-2/2022-11-12-add-default-value-for-flow-in-flowsendmailactionevent.md)
+
+## 6.4.17.1
+*  [NEXT-24073 - Fix invoice attachments in SendMailAction](/changelog/release-6-4-17-1/2022-11-10-fix-invoice-attachments-in-sendmailaction.md)
+
 ## 6.4.17.0
 *  [NEXT-9559 - Check APP_URL configuration](/changelog/release-6-4-17-0/2022-04-14-check-app-url-configuration.md)
 *  [NEXT-16838 - Add CMS Element support for App System](/changelog/release-6-4-17-0/2022-06-01-add-cms-element-support-for-app-system.md)

@@ -16,10 +16,15 @@ describe('Minimal auto update', () => {
 
         cy.visit('/admin');
 
-        cy.get('.sw-login__content').should('be.visible');
-        cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-        cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-        cy.get('.sw-button__content').click();
+        cy.getCookie('bearerAuth')
+            .then((val) => {
+                if (!val) {
+                    cy.get('.sw-login__content').should('be.visible');
+                    cy.get('#sw-field--username').clear().type(Cypress.env('user'));
+                    cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
+                    cy.get('.sw-button__content').click();
+                }
+            })
 
         let tag = Cypress.env('expectedVersion');
         let version = tag[0] === 'v' ? tag.slice(1) : tag;
@@ -30,13 +35,11 @@ describe('Minimal auto update', () => {
 
         // TODO: plugin step
 
-        cy.get('.sw-button__content')
-            .contains('Update starten')
+        cy.get('.smart-bar__actions button.sw-button--primary')
             .should('be.visible')
             .click();
 
-        cy.get('.sw-field--checkbox label')
-            .contains('Ja, ich habe ein Backup erstellt.')
+        cy.get('.sw-settings-shopware-updates-check__start-update .sw-field--checkbox label')
             .should('be.visible')
             .click();
 

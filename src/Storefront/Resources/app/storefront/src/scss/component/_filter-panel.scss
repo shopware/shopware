@@ -37,6 +37,7 @@ This file contains the generic styling for all filter items.
         font-weight: $font-weight-normal;
     }
 
+    // @deprecated tag:v6.5.0 - Bootstrap v5 adds `show` class for dropdown directly on trigger element instead of the `dropdown` wrapper. Remove `&.show` and the inner selectors.
     &.show {
         .filter-panel-item-toggle {
             color: $primary;
@@ -49,6 +50,17 @@ This file contains the generic styling for all filter items.
         }
     }
 }
+
+.filter-panel-item-toggle.show {
+    color: $primary;
+    border-color: $primary;
+
+    .icon-filter-panel-item-toggle svg {
+        color: $primary;
+        transform: rotate(180deg);
+    }
+}
+
 
 .filter-panel-item-dropdown {
     min-width: 240px;

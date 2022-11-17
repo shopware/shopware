@@ -28,7 +28,7 @@ jest.mock('src/service/http-client.service', () => {
         </div>
     `;
 
-    return (() => {
+    return function () {
         return {
             post: (url, data, callback) => {
                 return callback('<div class="offcanvas-content-container">Content after update</div>');
@@ -37,7 +37,7 @@ jest.mock('src/service/http-client.service', () => {
                 return callback(offCanvasCartTemplate);
             },
         };
-    });
+    };
 });
 
 // Mock ES module import of PluginManager

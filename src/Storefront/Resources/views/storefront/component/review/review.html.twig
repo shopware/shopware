@@ -100,10 +100,10 @@
                                                                     <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
                                                                 {% endif %}
 
-                                                                <div class="custom-control custom-switch">
+                                                                <div class="{{ formSwitchWrapperClass }}">
                                                                     {# TODO NEXT-16994 - set checked and disabled state #}
                                                                     <input type="checkbox"
-                                                                           class="custom-control-input"
+                                                                           class="{{ formCheckInputClass }}"
                                                                            id="showForeignReviews"
                                                                            value="filter-language"
                                                                            name="language"

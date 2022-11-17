@@ -135,7 +135,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute"/>
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute" public="true"/>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
             <argument type="service" id="payment_method.repository"/>

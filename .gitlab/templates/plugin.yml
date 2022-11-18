@@ -142,6 +142,10 @@ default:
         # run php as root to prevent permission issues
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/plugins/$PLUGIN_NAME
+        - composer dump-autoload
+        - mkdir -p vendor/shopware
+        - ln -s $PROJECT_ROOT/src/Core vendor/shopware/core
+        - ln -s $PROJECT_ROOT/src/Storefront vendor/shopware/storefront
 
 .build-js: &build-js
     - $CI_PROJECT_DIR/bin/console bundle:dump
@@ -212,10 +216,9 @@ phpunit:
         - exists:
               - phpunit.xml*
     script:
-        - *install-dev-tools
         - php
             -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|tests|node_modules)~'
-            vendor/bin/phpunit
+            ${PROJECT_ROOT}/vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit ${CI_PROJECT_DIR}/phpunit.junit.xml
             --colors=never
@@ -237,13 +240,13 @@ phpstan:
         - exists:
               - phpstan.neon*
     script:
-        - *install-dev-tools
+        - composer dump-autoload
         - >
           if [[ -r tests/TestBootstrap.php ]]; then
               php tests/TestBootstrap.php
           fi
-        - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
-        - vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
+        - php ${PROJECT_ROOT}/src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - ${PROJECT_ROOT}/vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
     artifacts:
         when: always
         reports:

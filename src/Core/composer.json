@@ -11,6 +11,7 @@
     "autoload": {
         "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "Framework/Adapter/Doctrine/Patch/QueryBuilder.php",
             "Framework/Adapter/Twig/functions.php"
         ],
         "exclude-from-classmap": [

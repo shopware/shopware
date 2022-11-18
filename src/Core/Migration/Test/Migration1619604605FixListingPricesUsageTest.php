@@ -49,6 +49,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
 
         $criteria = (new Criteria())->setLimit(1);
 
+        /** @var string $categoryId */
         $categoryId = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
 
         $repository->update([
@@ -91,6 +92,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
 
         $criteria = (new Criteria())->setLimit(1);
 
+        /** @var string $categoryId */
         $categoryId = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
 
         $repository->update([

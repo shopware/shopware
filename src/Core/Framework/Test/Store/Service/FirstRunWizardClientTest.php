@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
+use Shopware\Core\Framework\Store\Services\TrackingEventClient;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -515,7 +516,8 @@ class FirstRunWizardClientTest extends TestCase
             $this->getContainer()->get('shopware.store_client'),
             $this->getContainer()->get(FrwRequestOptionsProvider::class),
             $this->getContainer()->get(InstanceService::class),
-            $this->getContainer()->get('user_config.repository')
+            $this->getContainer()->get('user_config.repository'),
+            $this->getContainer()->get(TrackingEventClient::class)
         );
     }
 
@@ -530,7 +532,8 @@ class FirstRunWizardClientTest extends TestCase
             $this->getContainer()->get('shopware.store_client'),
             $this->getContainer()->get(FrwRequestOptionsProvider::class),
             $this->getContainer()->get(InstanceService::class),
-            $this->getContainer()->get('user_config.repository')
+            $this->getContainer()->get('user_config.repository'),
+            $this->getContainer()->get(TrackingEventClient::class)
         );
     }
 

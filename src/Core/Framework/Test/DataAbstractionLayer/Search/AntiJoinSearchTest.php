@@ -330,12 +330,14 @@ class AntiJoinSearchTest extends TestCase
         $enGbContext = Context::createDefaultContext();
         $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
 
+        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertEmpty($ids);
 
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria())->addFilter($notGreenFilter);
 
+        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -343,6 +345,7 @@ class AntiJoinSearchTest extends TestCase
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
 
+        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $deContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -352,6 +355,7 @@ class AntiJoinSearchTest extends TestCase
         $enGbContext = Context::createDefaultContext();
         $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
 
+        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -359,12 +363,14 @@ class AntiJoinSearchTest extends TestCase
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
 
+        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertEmpty($ids);
 
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $criteria = (new Criteria())->addFilter($notGruenFilter);
 
+        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $deContext)->getIds();
         static::assertContains($onlyGreenId, $ids);
         static::assertCount(1, $ids);
@@ -410,6 +416,20 @@ class AntiJoinSearchTest extends TestCase
         static::assertCount(1, $result);
     }
 
+    /**
+     * @param string[] $tags
+     *
+     * @return array{
+     *     id: string,
+     *     productNumber: string,
+     *     name: string,
+     *     stock: int,
+     *     price: array{currencyId: string, gross: int, net: int, linked: bool}[],
+     *     manufacturer: array{name: string},
+     *     tax: array{name: string, taxRate: int},
+     *     tags: array{name: string}[]
+     * }
+     */
     private function getTaggedProduct(string $id, string $name, array $tags = []): array
     {
         return [

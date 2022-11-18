@@ -1,5 +1,3 @@
-import CMS from '../../constant/sw-cms.constant';
-
 import './component';
 import './config';
 
@@ -11,7 +9,6 @@ Shopware.Service('cmsService').registerCmsElement({
     label: 'sw-cms.elements.productHeading.name.label',
     component: 'sw-cms-el-product-name',
     configComponent: 'sw-cms-el-config-product-name',
-    allowedPageTypes: [CMS.PAGE_TYPES.PRODUCT_DETAIL],
     defaultConfig: {
         content: {
             source: 'static',

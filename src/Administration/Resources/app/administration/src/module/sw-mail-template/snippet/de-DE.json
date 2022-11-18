@@ -6,7 +6,8 @@
       "placeholderSearchBar": "Durchsuche E-Mail-Templates ...",
       "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus",
       "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
-      "notificationTestMailSuccessMessage": "Die Test-Mail ist erfolgreich versandt worden."
+      "notificationTestMailSuccessMessage": "Die Test-Mail ist erfolgreich versandt worden.",
+      "notificationValidationErrorMessage": "Ungültiges Template, überprüfe die Syntax."
     },
     "list": {
       "textMailTemplateOverview": "E-Mail-Templates",

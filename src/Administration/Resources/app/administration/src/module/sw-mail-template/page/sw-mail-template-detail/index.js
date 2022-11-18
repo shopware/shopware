@@ -332,7 +332,16 @@ export default {
                 this.mailPreviewContent(),
                 this.mailTemplateMedia,
                 this.testMailSalesChannelId,
-            ).then(() => {
+            ).then((response) => {
+                // Size is the length of the mail message, if the size is zero then no mail was sent
+                const isMailSent = response?.size !== 0;
+                if (!isMailSent) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.notificationValidationErrorMessage'),
+                    });
+                    return;
+                }
+
                 this.createNotificationSuccess(notificationTestMailSuccess);
             }).catch((exception) => {
                 this.createNotificationError(notificationTestMailError);
@@ -348,6 +357,11 @@ export default {
                 this.mailPreviewContent(),
             ).then((response) => {
                 this.mailPreview = response;
+            }).catch(() => {
+                this.mailPreview = null;
+                this.createNotificationError({
+                    message: this.$tc('sw-mail-template.general.notificationValidationErrorMessage'),
+                });
             }).finally(() => {
                 this.isLoading = false;
             });

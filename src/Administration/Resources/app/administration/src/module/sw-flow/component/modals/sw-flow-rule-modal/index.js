@@ -1,3 +1,4 @@
+import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
@@ -91,6 +92,17 @@ export default {
                 this.rule.moduleTypes = { types: value };
             },
         },
+
+        scopesOfRuleAwarenessKey() {
+            const ruleAwarenessKey = `flowTrigger.${this.flow.eventName}`;
+            const awarenessConfig = this.ruleConditionDataProviderService
+                .getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
+
+
+            return awarenessConfig?.scopes ?? undefined;
+        },
+
+        ...mapState('swFlowState', ['flow']),
 
         ...mapPropertyErrors('rule', ['name', 'priority']),
     },

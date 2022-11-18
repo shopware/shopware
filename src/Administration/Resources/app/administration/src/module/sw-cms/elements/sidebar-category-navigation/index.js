@@ -1,5 +1,3 @@
-import CMS from '../../constant/sw-cms.constant';
-
 import './component';
 import './config';
 import './preview';
@@ -13,6 +11,5 @@ Shopware.Service('cmsService').registerCmsElement({
     component: 'sw-cms-el-category-navigation',
     configComponent: 'sw-cms-el-config-category-navigation',
     previewComponent: 'sw-cms-el-preview-category-navigation',
-    allowedPageTypes: [CMS.PAGE_TYPES.LISTING],
     disabledConfigInfoTextKey: 'sw-cms.elements.sidebarCategoryNavigation.infoText.navigationElement',
 });

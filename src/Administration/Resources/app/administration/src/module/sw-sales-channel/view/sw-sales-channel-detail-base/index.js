@@ -434,6 +434,14 @@ Component.register('sw-sales-channel-detail-base', {
         salesChannelFavoritesService() {
             return Shopware.Service('salesChannelFavorites');
         },
+
+        currencyCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
     },
 
     watch: {

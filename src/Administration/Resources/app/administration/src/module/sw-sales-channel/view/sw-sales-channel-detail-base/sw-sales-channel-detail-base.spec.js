@@ -1081,4 +1081,16 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(field.attributes().disabled).toBeUndefined();
     });
+
+    it('should have currency criteria with sort', async () => {
+        const wrapper = await createWrapper();
+
+        const criteria = wrapper.vm.currencyCriteria;
+
+        expect(criteria.parse()).toEqual(expect.objectContaining({
+            sort: expect.arrayContaining([
+                { field: 'name', order: 'ASC', naturalSorting: false }
+            ])
+        }));
+    });
 });

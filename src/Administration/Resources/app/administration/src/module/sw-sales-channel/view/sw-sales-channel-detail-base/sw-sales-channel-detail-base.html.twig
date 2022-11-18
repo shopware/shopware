@@ -298,6 +298,7 @@
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
             property-name-in-domain="currencyId"
+            :criteria="currencyCriteria"
         />
         {% endblock %}
 

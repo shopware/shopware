@@ -203,7 +203,8 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
-            criteria.addAssociation('currencies');
+            criteria.getAssociation('currencies')
+                .addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
             criteria.addAssociation('languages');
             criteria.addAssociation('analytics');

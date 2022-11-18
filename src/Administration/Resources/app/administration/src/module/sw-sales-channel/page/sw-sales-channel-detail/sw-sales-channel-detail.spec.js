@@ -137,4 +137,20 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         wrapper.destroy();
     });
+
+    it('should have currency criteria with sort', async () => {
+        const wrapper = await createWrapper();
+
+        const criteria = wrapper.vm.getLoadSalesChannelCriteria();
+
+        expect(criteria.parse()).toEqual(expect.objectContaining({
+            associations: expect.objectContaining({
+                currencies: expect.objectContaining({
+                    sort: expect.arrayContaining([
+                        { field: 'name', order: 'ASC', naturalSorting: false }
+                    ])
+                }),
+            })
+        }));
+    });
 });

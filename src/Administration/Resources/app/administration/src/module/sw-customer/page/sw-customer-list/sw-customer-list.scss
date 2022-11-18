@@ -23,6 +23,11 @@ $sw-customer-list-color-success: $color-emerald-500;
         text-align: center;
     }
 
+    .sw-customer-list__created-by-admin-label {
+        margin: 0 0 0 12px;
+        text-align: center;
+    }
+
     .sw-label.sw-customer-list__requested-group-label {
         background: $color-module-orange-500;
         color: $color-white;

@@ -32,7 +32,7 @@
       "buttonDelete": "Delete",
       "buttonCancel": "Cancel",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
-      "labelManualOrder": "Manual order"
+      "labelManualOrder": "Created by admin"
     },
     "detail": {
       "buttonCancel": "Discard changes",
@@ -46,7 +46,7 @@
       "messageRecalculationError": "An error occurred while calculating the price: <br>",
       "messageSaveError": "An error occurred during saving",
       "messageShippingNotAvailable": "Delivery to the selected country not possible.",
-      "labelManualOrder": "Manual order"
+      "labelManualOrder": "Created by admin"
     },
     "create": {
       "textNewOrder": "New order",

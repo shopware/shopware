@@ -1051,6 +1051,8 @@
     "customer.tagIds",
     "customer.createdAt",
     "customer.updatedAt",
+    "customer.createdById",
+    "customer.updatedById",
     "customer_group_translation.name",
     "customer_group_translation.registrationTitle",
     "customer_group_translation.registrationIntroduction",

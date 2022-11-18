@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -74,7 +75,7 @@ class UserEntity extends Entity
     protected $admin;
 
     /**
-     * @var AclRoleCollection|null
+     * @var AclRoleCollection
      */
     protected $aclRoles;
 
@@ -139,6 +140,16 @@ class UserEntity extends Entity
      * @var OrderCollection|null
      */
     protected $updatedOrders;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $createdCustomers;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $updatedCustomers;
 
     protected string $timeZone;
 
@@ -376,6 +387,26 @@ class UserEntity extends Entity
     public function setUpdatedOrders(OrderCollection $updatedOrders): void
     {
         $this->updatedOrders = $updatedOrders;
+    }
+
+    public function getCreatedCustomers(): ?CustomerCollection
+    {
+        return $this->createdCustomers;
+    }
+
+    public function setCreatedCustomers(CustomerCollection $createdCustomers): void
+    {
+        $this->createdCustomers = $createdCustomers;
+    }
+
+    public function getUpdatedCustomers(): ?CustomerCollection
+    {
+        return $this->updatedCustomers;
+    }
+
+    public function setUpdatedCustomers(CustomerCollection $updatedCustomers): void
+    {
+        $this->updatedCustomers = $updatedCustomers;
     }
 
     public function getLastUpdatedPasswordAt(): ?\DateTimeInterface

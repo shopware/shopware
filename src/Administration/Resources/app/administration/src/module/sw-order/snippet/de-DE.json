@@ -32,7 +32,7 @@
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
-      "labelManualOrder": "Manuelle Bestellung"
+      "labelManualOrder": "Erstellt von Admin"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",
@@ -46,7 +46,7 @@
       "messageRecalculationError": "Bei der Preisberechnung ist ein Fehler aufgetreten: <br>",
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
-      "labelManualOrder": "Manuelle Bestellung"
+      "labelManualOrder": "Erstellt von Admin"
     },
     "create": {
       "textNewOrder": "Neue Bestellung",

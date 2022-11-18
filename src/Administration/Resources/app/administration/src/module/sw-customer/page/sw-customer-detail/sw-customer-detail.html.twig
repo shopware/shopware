@@ -6,6 +6,15 @@
     <template #smart-bar-header>
         <h2 v-if="customer && customer.salutation">
             {{ salutation(customer) }}
+
+            <sw-label
+                v-if="customer.createdById"
+                appearance="pill"
+                size="small"
+                class="sw-customer-detail__created-by-admin-label"
+            >
+                {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
+            </sw-label>
         </h2>
     </template>
     {% endblock %}

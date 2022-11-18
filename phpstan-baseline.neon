@@ -27626,11 +27626,6 @@ parameters:
 			path: src/Storefront/Test/Theme/Command/ThemeCreateCommandTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Command\\\\ThemeFileResolverMock\\:\\:resolveFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Command/ThemeDumpCommandTest.php
-
-		-
 			message: "#^Offset 0 does not exist on array\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/Command/ThemeDumpCommandTest.php
@@ -27709,26 +27704,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Subscriber\\\\UpdateSubscriberTest\\:\\:setupThemes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/Subscriber/UpdateSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeCompilerTest\\:\\:copyToLiveData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeCompilerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeCompilerTest\\:\\:getConfigurationService\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeCompilerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeCompilerTest\\:\\:getConfigurationServiceDbException\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeCompilerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeCompilerTest\\:\\:getStorefrontPluginRegistry\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeCompilerTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$filePath of method Shopware\\\\Storefront\\\\Theme\\\\ThemeFileImporter\\:\\:fileExists\\(\\) expects string, string\\|false given\\.$#"
@@ -28279,16 +28254,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:\\$labels type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeFileResolver\\:\\:resolve\\(\\) has parameter \\$included with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeFileResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeFileResolver\\:\\:resolveFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeFileResolver.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleHandler\\:\\:changeThemeActive\\(\\) has parameter \\$themeData with no value type specified in iterable type array\\.$#"

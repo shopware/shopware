@@ -191,3 +191,4 @@ E2E install NL:
             - var/log/*
         reports:
             junit: var/log/e2e/*.xml
+    allow_failure: true # TODO: Remove this line as soon as the extensions involved are compatible with the new trunk branch

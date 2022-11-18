@@ -17,6 +17,7 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
+use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
@@ -53,7 +54,7 @@ class FlowExecutorTest extends TestCase
      * @param array<int, mixed> $actionSequencesTrueCase
      * @param array<int, mixed> $actionSequencesFalseCase
      *
-     * @throws \Shopware\Core\Content\Flow\Exception\ExecuteSequenceException
+     * @throws ExecuteSequenceException
      */
     public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
     {

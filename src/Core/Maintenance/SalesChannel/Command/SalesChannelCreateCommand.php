@@ -5,7 +5,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -29,24 +29,24 @@ class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $shippingMethodRepository;
+    private EntityRepository $shippingMethodRepository;
 
-    private EntityRepositoryInterface $countryRepository;
+    private EntityRepository $countryRepository;
 
-    private EntityRepositoryInterface $snippetSetRepository;
+    private EntityRepository $snippetSetRepository;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     private SalesChannelCreator $salesChannelCreator;
 
     public function __construct(
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $snippetSetRepository,
-        EntityRepositoryInterface $categoryRepository,
+        EntityRepository $paymentMethodRepository,
+        EntityRepository $shippingMethodRepository,
+        EntityRepository $countryRepository,
+        EntityRepository $snippetSetRepository,
+        EntityRepository $categoryRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;

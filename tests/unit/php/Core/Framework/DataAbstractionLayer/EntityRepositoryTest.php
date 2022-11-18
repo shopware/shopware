@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -41,54 +40,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class EntityRepositoryTest extends TestCase
 {
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testConstructorOld(): void
-    {
-        $text = '';
-        set_error_handler(static function ($errno, $errstr) use (&$text): bool {
-            $text = $errstr;
-
-            return true;
-        });
-
-        $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
-            new EventDispatcher()
-        );
-
-        restore_error_handler();
-
-        $repo->setEntityLoadedEventFactory($this->createMock(EntityLoadedEventFactory::class));
-
-        static::assertSame('Since shopware/core : EntityRepository constructor for definition  requires the event factory as required 7th parameter in v6.5.0.0', $text);
-    }
-
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testEventFactoryNotInjected(): void
-    {
-        $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
-            new EventDispatcher()
-        );
-
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Event loaded factory was not injected');
-
-        $repo->search(new Criteria(), Context::createDefaultContext());
-    }
-
     public function testSearchWithoutFilterDoesNotSearch(): void
     {
         $eventDispatcher = new EventDispatcher();
@@ -116,8 +67,6 @@ class EntityRepositoryTest extends TestCase
             $eventDispatcher,
             $this->createMock(EntityLoadedEventFactory::class),
         );
-
-        $repo->setEntityLoadedEventFactory($this->createMock(EntityLoadedEventFactory::class));
 
         $repo->search(new Criteria(), Context::createDefaultContext());
 
@@ -156,8 +105,6 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        $repo->setEntityLoadedEventFactory($this->createMock(EntityLoadedEventFactory::class));
-
         $criteria = new Criteria();
         $criteria->setTitle('foo');
         $criteria->addAggregation(new TermsAggregation('test', 'test'));
@@ -194,8 +141,6 @@ class EntityRepositoryTest extends TestCase
             $eventDispatcher,
             $this->createMock(EntityLoadedEventFactory::class),
         );
-
-        $repo->setEntityLoadedEventFactory($this->createMock(EntityLoadedEventFactory::class));
 
         $criteria = new Criteria();
         $criteria->setTerm('foo');
@@ -259,8 +204,6 @@ class EntityRepositoryTest extends TestCase
             $eventDispatcher,
             $this->createMock(EntityLoadedEventFactory::class),
         );
-
-        $repo->setEntityLoadedEventFactory($this->createMock(EntityLoadedEventFactory::class));
 
         $criteria = new Criteria();
         $criteria->setTerm('foo');

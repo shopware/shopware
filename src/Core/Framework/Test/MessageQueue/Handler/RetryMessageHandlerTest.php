@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
@@ -25,7 +25,7 @@ class RetryMessageHandlerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $deadMessageRepository;
 

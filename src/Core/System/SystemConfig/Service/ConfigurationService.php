@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -34,7 +34,7 @@ class ConfigurationService
     private $appLoader;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $appRepository;
 
@@ -49,7 +49,7 @@ class ConfigurationService
         iterable $bundles,
         ConfigReader $configReader,
         AbstractAppLoader $appLoader,
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         SystemConfigService $systemConfigService
     ) {
         $this->bundles = $bundles;

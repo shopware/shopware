@@ -6,7 +6,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,14 +16,14 @@ use Shopware\Core\System\Language\LanguageEntity;
 class TranslationsSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $languageRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $languageRepository)
+    public function __construct(EntityRepository $languageRepository)
     {
         $this->languageRepository = $languageRepository;
     }

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
@@ -16,11 +16,11 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 abstract class ScheduledTaskHandler extends AbstractMessageHandler
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $scheduledTaskRepository;
 
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository)
+    public function __construct(EntityRepository $scheduledTaskRepository)
     {
         $this->scheduledTaskRepository = $scheduledTaskRepository;
     }

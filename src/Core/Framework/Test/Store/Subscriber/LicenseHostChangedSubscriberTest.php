@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Store\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -47,7 +47,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t');
 
-        /** @var EntityRepositoryInterface $userRepository */
+        /** @var EntityRepository $userRepository */
         $userRepository = $this->getContainer()->get('user.repository');
 
         /** @var UserEntity $adminUser */

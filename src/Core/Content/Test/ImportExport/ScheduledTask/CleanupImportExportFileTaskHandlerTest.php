@@ -9,7 +9,7 @@ use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTask
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -18,9 +18,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 {
-    private EntityRepositoryInterface $logRepository;
+    private EntityRepository $logRepository;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
     private FilesystemInterface $filesystem;
 

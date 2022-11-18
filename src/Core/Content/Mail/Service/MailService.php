@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -28,55 +28,25 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class MailService extends AbstractMailService
 {
-    /**
-     * @var DataValidator
-     */
-    private $dataValidator;
+    private DataValidator $dataValidator;
 
-    /**
-     * @var StringTemplateRenderer
-     */
-    private $templateRenderer;
+    private StringTemplateRenderer $templateRenderer;
 
-    /**
-     * @var AbstractMailFactory
-     */
-    private $mailFactory;
+    private AbstractMailFactory $mailFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    /**
-     * @var SalesChannelDefinition
-     */
-    private $salesChannelDefinition;
+    private SalesChannelDefinition $salesChannelDefinition;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @var AbstractMailSender
-     */
-    private $mailSender;
+    private AbstractMailSender $mailSender;
 
     /**
      * @internal
@@ -86,9 +56,9 @@ class MailService extends AbstractMailService
         StringTemplateRenderer $templateRenderer,
         AbstractMailFactory $mailFactory,
         AbstractMailSender $emailSender,
-        EntityRepositoryInterface $mediaRepository,
+        EntityRepository $mediaRepository,
         SalesChannelDefinition $salesChannelDefinition,
-        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepository $salesChannelRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,7 +47,7 @@ class ImportExportActionController extends AbstractController
 
     private DownloadService $downloadService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private DataValidator $dataValidator;
 
@@ -70,7 +70,7 @@ class ImportExportActionController extends AbstractController
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,
         DownloadService $downloadService,
-        EntityRepositoryInterface $profileRepository,
+        EntityRepository $profileRepository,
         DataValidator $dataValidator,
         ImportExportLogDefinition $logDefinition,
         ApiVersionConverter $apiVersionConverter,

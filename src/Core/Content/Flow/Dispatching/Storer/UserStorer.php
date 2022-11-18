@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
@@ -11,12 +11,12 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
 class UserStorer extends FlowStorer
 {
-    private EntityRepositoryInterface $userRecoveryRepository;
+    private EntityRepository $userRecoveryRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $userRecoveryRepository)
+    public function __construct(EntityRepository $userRecoveryRepository)
     {
         $this->userRecoveryRepository = $userRecoveryRepository;
     }

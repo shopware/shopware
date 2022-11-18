@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class LandingPageRoute extends AbstractLandingPageRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $landingPageRepository;
 
@@ -43,7 +43,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $landingPageRepository,
+        SalesChannelRepository $landingPageRepository,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         LandingPageDefinition $landingPageDefinition
     ) {

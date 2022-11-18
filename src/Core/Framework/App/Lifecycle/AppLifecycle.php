@@ -35,7 +35,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -56,7 +56,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class AppLifecycle extends AbstractAppLifecycle
 {
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private PermissionPersister $permissionPersister;
 
@@ -84,7 +84,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private CmsBlockPersister $cmsBlockPersister;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private SystemConfigService $systemConfigService;
 
@@ -92,9 +92,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private string $projectDir;
 
-    private EntityRepositoryInterface $integrationRepository;
+    private EntityRepository $integrationRepository;
 
-    private EntityRepositoryInterface $aclRoleRepository;
+    private EntityRepository $aclRoleRepository;
 
     private AssetService $assetService;
 
@@ -111,7 +111,7 @@ class AppLifecycle extends AbstractAppLifecycle
     private ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister;
 
     public function __construct(
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         PermissionPersister $permissionPersister,
         CustomFieldPersister $customFieldPersister,
         ActionButtonPersister $actionButtonPersister,
@@ -125,11 +125,11 @@ class AppLifecycle extends AbstractAppLifecycle
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
         AppStateService $appStateService,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $languageRepository,
         SystemConfigService $systemConfigService,
         ConfigValidator $configValidator,
-        EntityRepositoryInterface $integrationRepository,
-        EntityRepositoryInterface $aclRoleRepository,
+        EntityRepository $integrationRepository,
+        EntityRepository $aclRoleRepository,
         AssetService $assetService,
         ScriptExecutor $scriptExecutor,
         string $projectDir,

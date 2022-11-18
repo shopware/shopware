@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -49,7 +49,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = array_column($products, 'id');
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -108,7 +108,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = array_column($products, 'id');
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -140,7 +140,7 @@ class AntiJoinSearchTest extends TestCase
             $this->getTaggedProduct($greenBlueId, 'green blue', ['blue', 'green']),
         ];
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -194,7 +194,7 @@ class AntiJoinSearchTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $categoryRepository->create($categories, Context::createDefaultContext());
 
@@ -268,7 +268,7 @@ class AntiJoinSearchTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $manufacturerRepository */
+        /** @var EntityRepository $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $manufacturerRepository->create($manufacturers, Context::createDefaultContext());
 
@@ -321,7 +321,7 @@ class AntiJoinSearchTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -386,7 +386,7 @@ class AntiJoinSearchTest extends TestCase
             $this->getTaggedProduct($withTagId, 'green', ['green']),
         ];
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 

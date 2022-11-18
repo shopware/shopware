@@ -32,7 +32,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
@@ -304,7 +304,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
         $customerRepository->delete([['id' => $this->customerId]], $this->context);
 
@@ -950,7 +950,7 @@ class RecalculationServiceTest extends TestCase
 
     protected function getValidCountryIdWithTaxes(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country.repository');
 
         $countryId = $this->getValidCountryId();

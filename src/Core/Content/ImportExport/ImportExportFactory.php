@@ -16,7 +16,7 @@ use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -30,7 +30,7 @@ class ImportExportFactory
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $logRepository;
+    private EntityRepository $logRepository;
 
     private Connection $connection;
 
@@ -59,7 +59,7 @@ class ImportExportFactory
         DefinitionInstanceRegistry $definitionInstanceRegistry,
         FilesystemInterface $filesystem,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $logRepository,
+        EntityRepository $logRepository,
         Connection $connection,
         AbstractFileService $fileService,
         \IteratorAggregate $readerFactories,
@@ -113,7 +113,7 @@ class ImportExportFactory
         return $logEntity;
     }
 
-    private function getRepository(ImportExportLogEntity $logEntity): EntityRepositoryInterface
+    private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
         return $this->definitionInstanceRegistry->getRepository($logEntity->getProfile()->getSourceEntity());
     }

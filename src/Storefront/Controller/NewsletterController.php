@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -34,7 +34,7 @@ class NewsletterController extends StorefrontController
     private $newsletterConfirmRegisterPageLoader;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      *
      * @deprecated tag:v6.5.0 - $customerRepository is no longer used and will be removed
      */
@@ -66,7 +66,7 @@ class NewsletterController extends StorefrontController
      */
     public function __construct(
         NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
         AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
         AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,

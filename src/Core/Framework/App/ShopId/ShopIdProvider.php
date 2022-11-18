@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -19,9 +19,9 @@ class ShopIdProvider
 
     private SystemConfigService $systemConfigService;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
-    public function __construct(SystemConfigService $systemConfigService, EntityRepositoryInterface $appRepository)
+    public function __construct(SystemConfigService $systemConfigService, EntityRepository $appRepository)
     {
         $this->systemConfigService = $systemConfigService;
         $this->appRepository = $appRepository;

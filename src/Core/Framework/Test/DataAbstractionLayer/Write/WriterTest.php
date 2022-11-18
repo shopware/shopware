@@ -12,7 +12,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
@@ -821,7 +821,7 @@ class WriterTest extends TestCase
         return $this->getContainer()->get(EntityWriter::class);
     }
 
-    private function getMediaRepository(): EntityRepositoryInterface
+    private function getMediaRepository(): EntityRepository
     {
         return $this->getContainer()->get('media.repository');
     }

@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEv
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -32,9 +32,9 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $wishlistRepository;
+    private EntityRepository $wishlistRepository;
 
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private SystemConfigService $systemConfigService;
 
@@ -44,8 +44,8 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
+        EntityRepository $wishlistRepository,
+        SalesChannelRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
         AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory

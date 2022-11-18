@@ -14,7 +14,7 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,18 +28,18 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class ImportExportService
 {
-    private EntityRepositoryInterface $logRepository;
+    private EntityRepository $logRepository;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private AbstractFileService $fileService;
 
     public function __construct(
-        EntityRepositoryInterface $logRepository,
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $profileRepository,
+        EntityRepository $logRepository,
+        EntityRepository $userRepository,
+        EntityRepository $profileRepository,
         AbstractFileService $fileService
     ) {
         $this->logRepository = $logRepository;

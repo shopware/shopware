@@ -192,7 +192,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
+            <argument type="service" id="media_thumbnail.repository"/>
 
             <tag name="console.command"/>
         </service>

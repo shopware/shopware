@@ -7,7 +7,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFi
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,9 +20,9 @@ class DownloadService
 {
     private FilesystemInterface $filesystem;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
-    public function __construct(FilesystemInterface $filesystem, EntityRepositoryInterface $fileRepository)
+    public function __construct(FilesystemInterface $filesystem, EntityRepository $fileRepository)
     {
         $this->filesystem = $filesystem;
         $this->fileRepository = $fileRepository;

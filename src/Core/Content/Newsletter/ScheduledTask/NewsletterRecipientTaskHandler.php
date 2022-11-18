@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -15,14 +15,14 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $newsletterRecipientRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, EntityRepositoryInterface $newsletterRecipientRepository)
+    public function __construct(EntityRepository $scheduledTaskRepository, EntityRepository $newsletterRecipientRepository)
     {
         parent::__construct($scheduledTaskRepository);
 

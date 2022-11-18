@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
@@ -17,17 +17,17 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     protected static $defaultName = 'sales-channel:create:storefront';
 
-    private EntityRepositoryInterface $snippetSetRepository;
+    private EntityRepository $snippetSetRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $snippetSetRepository,
-        EntityRepositoryInterface $categoryRepository,
+        EntityRepository $paymentMethodRepository,
+        EntityRepository $shippingMethodRepository,
+        EntityRepository $countryRepository,
+        EntityRepository $snippetSetRepository,
+        EntityRepository $categoryRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         parent::__construct(

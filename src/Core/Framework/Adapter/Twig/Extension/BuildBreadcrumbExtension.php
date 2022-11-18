@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,14 +23,14 @@ class BuildBreadcrumbExtension extends AbstractExtension
     private $categoryBreadcrumbBuilder;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
     /**
      * @internal
      */
-    public function __construct(CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder, EntityRepositoryInterface $categoryRepository)
+    public function __construct(CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder, EntityRepository $categoryRepository)
     {
         $this->categoryBreadcrumbBuilder = $categoryBreadcrumbBuilder;
         $this->categoryRepository = $categoryRepository;

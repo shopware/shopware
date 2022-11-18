@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -72,7 +72,7 @@ class TranslatorTest extends TestCase
             $this->createMock(MessageFormatterInterface::class),
             $snippetServiceMock,
             'prod',
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $localeCodeProvider
         );
 

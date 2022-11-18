@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -44,7 +44,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -63,7 +63,7 @@ class RegisterRoute extends AbstractRegisterRoute
 {
     protected Connection $connection;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -79,7 +79,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private SalesChannelContextPersister $contextPersister;
 
-    private SalesChannelRepositoryInterface $countryRepository;
+    private SalesChannelRepository $countryRepository;
 
     private SalesChannelContextServiceInterface $contextService;
 
@@ -95,9 +95,9 @@ class RegisterRoute extends AbstractRegisterRoute
         DataValidationFactoryInterface $accountValidationFactory,
         DataValidationFactoryInterface $addressValidationFactory,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelRepositoryInterface $countryRepository,
+        SalesChannelRepository $countryRepository,
         Connection $connection,
         SalesChannelContextServiceInterface $contextService,
         StoreApiCustomFieldMapper $customFieldMapper

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Language;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +24,7 @@ class LanguageValidatorTest extends TestCase
     private $defaultContext;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $languageRepository;
 

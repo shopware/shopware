@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -15,14 +15,14 @@ use Twig\TwigFunction;
 class MediaExtension extends AbstractExtension
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $mediaRepository)
+    public function __construct(EntityRepository $mediaRepository)
     {
         $this->mediaRepository = $mediaRepository;
     }

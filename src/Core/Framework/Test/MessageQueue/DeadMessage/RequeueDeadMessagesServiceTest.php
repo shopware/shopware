@@ -6,7 +6,7 @@ use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
@@ -29,7 +29,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $deadMessageRepository;
+    private EntityRepository $deadMessageRepository;
 
     private MessageBusInterface $bus;
 

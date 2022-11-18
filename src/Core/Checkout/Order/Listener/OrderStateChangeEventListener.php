@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
@@ -26,13 +26,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class OrderStateChangeEventListener implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $stateRepository;
+    private EntityRepository $stateRepository;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $transactionRepository;
+    private EntityRepository $transactionRepository;
 
-    private EntityRepositoryInterface $deliveryRepository;
+    private EntityRepository $deliveryRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -42,12 +42,12 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $transactionRepository,
-        EntityRepositoryInterface $deliveryRepository,
+        EntityRepository $orderRepository,
+        EntityRepository $transactionRepository,
+        EntityRepository $deliveryRepository,
         EventDispatcherInterface $eventDispatcher,
         BusinessEventCollector $businessEventCollector,
-        EntityRepositoryInterface $stateRepository
+        EntityRepository $stateRepository
     ) {
         $this->orderRepository = $orderRepository;
         $this->transactionRepository = $transactionRepository;

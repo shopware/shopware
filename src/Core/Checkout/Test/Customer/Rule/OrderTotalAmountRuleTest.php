@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Customer\Rule\OrderTotalAmountRule;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
@@ -36,12 +36,12 @@ class OrderTotalAmountRuleTest extends TestCase
     use OrderFixture;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $ruleRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $conditionRepository;
 
@@ -164,9 +164,9 @@ class OrderTotalAmountRuleTest extends TestCase
 
     public function testCustomerMetaFieldSubscriberWithCompletedOrder(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
         $defaultContext = Context::createDefaultContext();
         $orderId = Uuid::randomHex();
@@ -227,9 +227,9 @@ class OrderTotalAmountRuleTest extends TestCase
 
     public function testCustomerMetaFieldSubscriberWithDeletedOrder(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
         $defaultContext = Context::createDefaultContext();
         $orderId = Uuid::randomHex();

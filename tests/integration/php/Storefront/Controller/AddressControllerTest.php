@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -36,7 +36,7 @@ class AddressControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private string $addressId;
 
@@ -69,7 +69,7 @@ class AddressControllerTest extends TestCase
 
         $criteria = new Criteria([$id2]);
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('customer_address.repository');
         $address = $repository->search($criteria, $context->getContext())
             ->get($id2);
@@ -80,7 +80,7 @@ class AddressControllerTest extends TestCase
 
         $criteria = new Criteria([$id1]);
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('customer_address.repository');
         $exists = $repository
             ->search($criteria, $context->getContext())
@@ -537,7 +537,7 @@ class AddressControllerTest extends TestCase
 
     private function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)

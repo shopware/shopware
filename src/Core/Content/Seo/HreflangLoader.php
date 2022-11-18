@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -18,7 +18,7 @@ class HreflangLoader implements HreflangLoaderInterface
 {
     private RouterInterface $router;
 
-    private EntityRepositoryInterface $salesChannelDomainRepository;
+    private EntityRepository $salesChannelDomainRepository;
 
     private Connection $connection;
 
@@ -27,7 +27,7 @@ class HreflangLoader implements HreflangLoaderInterface
      */
     public function __construct(
         RouterInterface $router,
-        EntityRepositoryInterface $salesChannelDomainRepository,
+        EntityRepository $salesChannelDomainRepository,
         Connection $connection
     ) {
         $this->router = $router;

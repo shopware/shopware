@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -14,7 +14,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 class CountrySerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $countryRepository;
+    private EntityRepository $countryRepository;
 
     /**
      * @var array<string>|null[]
@@ -24,7 +24,7 @@ class CountrySerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $countryRepository)
+    public function __construct(EntityRepository $countryRepository)
     {
         $this->countryRepository = $countryRepository;
     }

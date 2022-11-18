@@ -4,13 +4,12 @@ namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
-use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -24,7 +23,7 @@ class PaymentMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private PaymentMethodRepositoryDecorator $paymentRepository;
+    private EntityRepository $paymentRepository;
 
     private string $paymentMethodId;
 
@@ -271,7 +270,7 @@ class PaymentMethodRepositoryTest extends TestCase
     {
         $pluginId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $pluginRepo */
+        /** @var EntityRepository $pluginRepo */
         $pluginRepo = $this->getContainer()->get('plugin.repository');
         $pluginRepo->create([[
             'id' => $pluginId,

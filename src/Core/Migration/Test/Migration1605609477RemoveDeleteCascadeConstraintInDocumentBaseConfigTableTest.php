@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,17 +42,17 @@ class Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableT
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(new Criteria(), $context)->firstId();
         $documentConfigId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        /** @var EntityRepository $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
 
         $mediaId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $mediaRepository */
+        /** @var EntityRepository $mediaRepository */
         $mediaRepository = $this->getContainer()->get('media.repository');
 
         $mediaRepository->create([

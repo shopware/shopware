@@ -211,7 +211,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $installContext = $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
 
-        static::assertInstanceOf(Plugin\Context\InstallContext::class, $installContext);
+        static::assertInstanceOf(InstallContext::class, $installContext);
     }
 
     // ------ InstallPlugin -----

@@ -8,16 +8,16 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Contracts\Service\ResetInterface;
 
 class PromotionIndividualCodeSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $promoCodeRepository;
+    private EntityRepository $promoCodeRepository;
 
-    private EntityRepositoryInterface $promoRepository;
+    private EntityRepository $promoRepository;
 
     /**
      * @var array<string, string|null>
@@ -33,8 +33,8 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $promoCodeRepository,
-        EntityRepositoryInterface $promoRepository
+        EntityRepository $promoCodeRepository,
+        EntityRepository $promoRepository
     ) {
         $this->promoCodeRepository = $promoCodeRepository;
         $this->promoRepository = $promoRepository;

@@ -10,7 +10,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -20,9 +20,9 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $promoRepository;
+    private EntityRepository $promoRepository;
 
-    private EntityRepositoryInterface $promoCodeRepository;
+    private EntityRepository $promoCodeRepository;
 
     private PromotionIndividualCodeSerializer $serializer;
 

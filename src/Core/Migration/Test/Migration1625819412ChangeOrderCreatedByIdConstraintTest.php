@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -90,7 +90,7 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
         static::assertNull($order->getUpdatedById());
     }
 
-    private function createUserWithId(string $userId): EntityRepositoryInterface
+    private function createUserWithId(string $userId): EntityRepository
     {
         $userRepository = $this->getContainer()->get('user.repository');
         $userRepository->create([

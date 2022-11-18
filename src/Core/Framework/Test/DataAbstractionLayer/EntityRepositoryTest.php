@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -60,14 +60,10 @@ class EntityRepositoryTest extends TestCase
     {
         Feature::skipTestIfActive('FEATURE_NEXT_16155', $this);
 
-        $repository = $this->createRepository(LocaleDefinition::class, false);
-
         $factory = $this->createMock(EntityLoadedEventFactory::class);
         $factory->expects(static::once())->method('create')->willReturn($this->createMock(EntityLoadedContainerEvent::class));
 
-        $repository->setEntityLoadedEventFactory(
-            $factory
-        );
+        $repository = $this->createRepository(LocaleDefinition::class, $factory);
 
         $repository->search(new Criteria(), Context::createDefaultContext());
     }
@@ -1186,7 +1182,7 @@ class EntityRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('media_folder.repository');
 
         $event = $repository->create([$data], $context)->getEventByEntityName(MediaFolderDefinition::ENTITY_NAME);
@@ -1326,23 +1322,21 @@ class EntityRepositoryTest extends TestCase
         );
     }
 
+    /**
+     * @param class-string<EntityDefinition> $definition
+     */
     protected function createRepository(
         string $definition,
-        bool $loadWithEventFactory = true
+        ?EntityLoadedEventFactory $eventFactory = null
     ): EntityRepository {
-        $arguments = [
+        return new EntityRepository(
             $this->getContainer()->get($definition),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get('event_dispatcher'),
-        ];
-
-        if ($loadWithEventFactory) {
-            $arguments[] = $this->getContainer()->get(EntityLoadedEventFactory::class);
-        }
-
-        return new EntityRepository(...$arguments);
+            $eventFactory ?: $this->getContainer()->get(EntityLoadedEventFactory::class)
+        );
     }
 }

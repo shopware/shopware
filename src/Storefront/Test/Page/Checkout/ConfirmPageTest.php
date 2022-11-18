@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -52,7 +52,7 @@ class ConfirmPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
-        /** @var EntityRepositoryInterface $shippingMethodRepository */
+        /** @var EntityRepository $shippingMethodRepository */
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $shippingMethods = $shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
 
@@ -87,7 +87,7 @@ class ConfirmPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
-        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        /** @var EntityRepository $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */

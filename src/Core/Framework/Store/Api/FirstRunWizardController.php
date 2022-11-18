@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -27,11 +27,11 @@ class FirstRunWizardController extends AbstractController
 {
     private FirstRunWizardClient $frwClient;
 
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     public function __construct(
         FirstRunWizardClient $frwClient,
-        EntityRepositoryInterface $pluginRepo
+        EntityRepository $pluginRepo
     ) {
         $this->frwClient = $frwClient;
         $this->pluginRepo = $pluginRepo;

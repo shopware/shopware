@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -19,9 +19,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CustomerNewsletterSubscriber implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    public function __construct(EntityRepositoryInterface $customerRepository)
+    public function __construct(EntityRepository $customerRepository)
     {
         $this->customerRepository = $customerRepository;
     }

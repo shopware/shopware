@@ -8,7 +8,7 @@ use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -29,7 +29,7 @@ class CategoryIndexer extends EntityIndexer
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private ChildCountUpdater $childCountUpdater;
 
@@ -45,7 +45,7 @@ class CategoryIndexer extends EntityIndexer
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         ChildCountUpdater $childCountUpdater,
         TreeUpdater $treeUpdater,
         CategoryBreadcrumbUpdater $breadcrumbUpdater,

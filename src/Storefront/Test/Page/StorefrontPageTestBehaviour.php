@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\PageLoadedEvent;
@@ -141,7 +141,7 @@ trait StorefrontPageTestBehaviour
         $productRepository->create([$data], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $data['tax']);
 
-        /** @var SalesChannelRepositoryInterface $storefrontProductRepository */
+        /** @var SalesChannelRepository $storefrontProductRepository */
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
         $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
 

@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\FlowEvent;
@@ -23,14 +23,14 @@ class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableA
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $customerGroupRepository
+        EntityRepository $customerGroupRepository
     ) {
         $this->connection = $connection;
         $this->customerGroupRepository = $customerGroupRepository;

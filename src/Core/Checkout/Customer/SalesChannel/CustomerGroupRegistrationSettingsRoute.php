@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -18,14 +18,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegistrationSettingsRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerGroupRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $customerGroupRepository)
+    public function __construct(EntityRepository $customerGroupRepository)
     {
         $this->customerGroupRepository = $customerGroupRepository;
     }

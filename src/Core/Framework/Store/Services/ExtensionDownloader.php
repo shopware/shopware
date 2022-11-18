@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 class ExtensionDownloader
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $pluginRepository;
 
@@ -34,7 +34,7 @@ class ExtensionDownloader
     private $pluginManagementService;
 
     public function __construct(
-        EntityRepositoryInterface $pluginRepository,
+        EntityRepository $pluginRepository,
         StoreClient $storeClient,
         PluginManagementService $pluginManagementService
     ) {

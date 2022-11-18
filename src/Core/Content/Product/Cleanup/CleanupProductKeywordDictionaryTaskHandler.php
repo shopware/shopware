@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Cleanup;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -17,7 +17,7 @@ class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         Connection $connection
     ) {
         parent::__construct($repository);

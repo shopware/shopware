@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,14 +18,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class SeoUrlRoute extends AbstractSeoUrlRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $salesChannelRepository;
 
     /**
      * @internal
      */
-    public function __construct(SalesChannelRepositoryInterface $salesChannelRepository)
+    public function __construct(SalesChannelRepository $salesChannelRepository)
     {
         $this->salesChannelRepository = $salesChannelRepository;
     }

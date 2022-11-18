@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -16,11 +16,11 @@ use Symfony\Contracts\Service\ResetInterface;
 
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
      * @var array<string>|null[]
@@ -41,9 +41,9 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerGroupRepository,
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $customerGroupRepository,
+        EntityRepository $paymentMethodRepository,
+        EntityRepository $salesChannelRepository
     ) {
         $this->customerGroupRepository = $customerGroupRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;

@@ -5,7 +5,7 @@ namespace Shopware\Core\Profiling\Subscriber;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
@@ -22,14 +22,14 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface
 {
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
     /**
      * @var array<string>
      */
     private array $ruleIds = [];
 
-    public function __construct(EntityRepositoryInterface $ruleRepository)
+    public function __construct(EntityRepository $ruleRepository)
     {
         $this->ruleRepository = $ruleRepository;
     }

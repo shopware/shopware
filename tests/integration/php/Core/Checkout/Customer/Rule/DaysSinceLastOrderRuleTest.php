@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -34,9 +34,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
     use DatabaseTransactionBehaviour;
     use OrderFixture;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -154,9 +154,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     public function testCustomerMetaFieldSubscriber(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
         $defaultContext = Context::createDefaultContext();
         $orderId = Uuid::randomHex();
@@ -208,7 +208,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     private function createTestOrderAndReturnCustomer(): CustomerEntity
     {
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
         $orderRepository = $this->getContainer()->get('order.repository');
 

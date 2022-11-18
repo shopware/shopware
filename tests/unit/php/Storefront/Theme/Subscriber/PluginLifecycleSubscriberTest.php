@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -78,7 +79,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function testSkipPostCompile(): void
     {
         $context = Context::createDefaultContext();
-        $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         $activateContextMock = $this->createMock(ActivateContext::class);
         $activateContextMock->expects(static::once())->method('getContext')->willReturn($context);
         $eventMock = $this->createMock(PluginPostActivateEvent::class);

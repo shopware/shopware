@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Cms\DataResolver\Element;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult>
+ * @implements \IteratorAggregate<array-key, EntitySearchResult>
  */
 class ElementDataCollection implements \IteratorAggregate, \Countable
 {

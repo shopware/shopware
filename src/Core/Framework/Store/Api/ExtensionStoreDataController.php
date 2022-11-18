@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Api;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
@@ -26,14 +26,14 @@ class ExtensionStoreDataController extends AbstractController
 {
     private AbstractExtensionDataProvider $extensionDataProvider;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     public function __construct(
         AbstractExtensionDataProvider $extensionListingProvider,
-        EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $languageRepository
+        EntityRepository $userRepository,
+        EntityRepository $languageRepository
     ) {
         $this->extensionDataProvider = $extensionListingProvider;
         $this->languageRepository = $languageRepository;

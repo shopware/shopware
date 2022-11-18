@@ -18,7 +18,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\PriceField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\SingleEntitySelectField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\SingleSelectField;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -37,14 +37,14 @@ class RuleConditionPersister
 
     private ScriptFileReaderInterface $scriptReader;
 
-    private EntityRepositoryInterface $appScriptConditionRepository;
+    private EntityRepository $appScriptConditionRepository;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public function __construct(
         ScriptFileReaderInterface $scriptReader,
-        EntityRepositoryInterface $appScriptConditionRepository,
-        EntityRepositoryInterface $appRepository
+        EntityRepository $appScriptConditionRepository,
+        EntityRepository $appRepository
     ) {
         $this->scriptReader = $scriptReader;
         $this->appScriptConditionRepository = $appScriptConditionRepository;

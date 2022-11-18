@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -24,7 +25,7 @@ class Migration1594886773LogEntryPK extends MigrationStep
                 ALTER TABLE `log_entry`
                 ADD PRIMARY KEY (`id`);
             ');
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             // PK already exists
         }
     }

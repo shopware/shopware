@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedExcept
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -28,12 +28,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $wishlistRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -48,8 +48,8 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        EntityRepositoryInterface $productRepository,
+        EntityRepository $wishlistRepository,
+        EntityRepository $productRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher
     ) {

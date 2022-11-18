@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
@@ -20,14 +20,14 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $customerRepository
+        EntityRepository $customerRepository
     ) {
         $this->connection = $connection;
         $this->customerRepository = $customerRepository;

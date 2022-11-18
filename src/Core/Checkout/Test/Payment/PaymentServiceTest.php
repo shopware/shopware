@@ -27,7 +27,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as 
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler as SyncTestPaymentHandlerV630;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -56,19 +56,19 @@ class PaymentServiceTest extends TestCase
 
     private JWTFactoryV2 $tokenFactory;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $orderTransactionRepository;
+    private EntityRepository $orderTransactionRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     private Context $context;
 
-    private EntityRepositoryInterface $stateMachineRepository;
+    private EntityRepository $stateMachineRepository;
 
-    private EntityRepositoryInterface $stateMachineStateRepository;
+    private EntityRepository $stateMachineStateRepository;
 
     protected function setUp(): void
     {
@@ -492,10 +492,10 @@ class PaymentServiceTest extends TestCase
         return $id;
     }
 
-    private function getRepository(string $entityName): EntityRepositoryInterface
+    private function getRepository(string $entityName): EntityRepository
     {
         $repository = $this->getContainer()->get(\sprintf('%s.repository', $entityName));
-        static::assertInstanceOf(EntityRepositoryInterface::class, $repository);
+        static::assertInstanceOf(EntityRepository::class, $repository);
 
         return $repository;
     }

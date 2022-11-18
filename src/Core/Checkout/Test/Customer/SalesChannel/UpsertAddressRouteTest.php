@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -41,7 +40,7 @@ class UpsertAddressRouteTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private EntityRepositoryInterface $addressRepository;
+    private EntityRepository $addressRepository;
 
     protected function setUp(): void
     {

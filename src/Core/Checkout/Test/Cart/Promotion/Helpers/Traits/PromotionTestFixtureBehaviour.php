@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -45,7 +45,7 @@ trait PromotionTestFixtureBehaviour
      */
     private function createTestFixtureProduct(string $productId, float $grossPrice, float $taxRate, ContainerInterface $container, SalesChannelContext $context): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $container->get('product.repository');
 
         $tax = ['id' => Uuid::randomHex(), 'taxRate' => $taxRate, 'name' => 'with id'];
@@ -86,7 +86,7 @@ trait PromotionTestFixtureBehaviour
      */
     private function createTestFixtureAbsolutePromotion(string $promotionId, string $code, float $value, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART): string
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -106,7 +106,7 @@ trait PromotionTestFixtureBehaviour
      */
     private function createTestFixturePercentagePromotion(string $promotionId, ?string $code, float $percentage, ?float $maxValue, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART): string
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -126,7 +126,7 @@ trait PromotionTestFixtureBehaviour
      */
     private function createTestFixtureSetGroupPromotion(string $promotionId, ?string $code, ContainerInterface $container): void
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -155,7 +155,7 @@ trait PromotionTestFixtureBehaviour
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        /** @var EntityRepositoryInterface $discountRepository */
+        /** @var EntityRepository $discountRepository */
         $discountRepository = $container->get('promotion_discount.repository');
 
         $discountId = Uuid::randomHex();
@@ -187,7 +187,7 @@ trait PromotionTestFixtureBehaviour
      */
     private function createTestFixtureAdvancedPrice(string $discountId, string $currency, float $price, ContainerInterface $container): void
     {
-        /** @var EntityRepositoryInterface $pricesRepository */
+        /** @var EntityRepository $pricesRepository */
         $pricesRepository = $container->get('promotion_discount_prices.repository');
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -242,7 +242,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * function creates a promotion
      */
-    private function createPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
+    private function createPromotion(string $promotionId, ?string $code, EntityRepository $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
     {
         $data = [
             'id' => $promotionId,
@@ -259,7 +259,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * @param array<string, mixed> $data
      */
-    private function createPromotionWithCustomData(array $data, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
+    private function createPromotionWithCustomData(array $data, EntityRepository $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
     {
         $data = array_merge([
             'id' => Uuid::randomHex(),
@@ -278,7 +278,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * function creates an individual promotion code
      */
-    private function createIndividualCode(string $promotionId, ?string $code, EntityRepositoryInterface $promotionIndividualRepository, Context $context): EntityWrittenContainerEvent
+    private function createIndividualCode(string $promotionId, ?string $code, EntityRepository $promotionIndividualRepository, Context $context): EntityWrittenContainerEvent
     {
         $data = [
             'id' => Uuid::randomHex(),
@@ -289,7 +289,7 @@ trait PromotionTestFixtureBehaviour
         return $promotionIndividualRepository->create([$data], $context);
     }
 
-    private function createSetGroupPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): void
+    private function createSetGroupPromotion(string $promotionId, ?string $code, EntityRepository $promotionRepository, SalesChannelContext $context): void
     {
         $data = [
             'id' => $promotionId,
@@ -321,7 +321,7 @@ trait PromotionTestFixtureBehaviour
         SalesChannelContext $context,
         ?string $code
     ): string {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $this->createPromotion(
@@ -357,7 +357,7 @@ trait PromotionTestFixtureBehaviour
         SalesChannelContext $context,
         bool $considerAdvancedRules = false
     ): string {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $this->createPromotion(
@@ -387,7 +387,7 @@ trait PromotionTestFixtureBehaviour
      */
     private function createTestFixtureFixedDiscountPromotion(string $promotionId, float $fixedPrice, string $scope, ?string $code, ContainerInterface $container, SalesChannelContext $context): string
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $this->createPromotion(

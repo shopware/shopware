@@ -5,13 +5,11 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -75,7 +73,7 @@ class EntityCompilerPass implements CompilerPassInterface
                 $container->setDefinition($repositoryId, $repository);
             }
             $repository->setPublic(true);
-            $container->registerAliasForArgument($repositoryId, EntityRepositoryInterface::class);
+            $container->registerAliasForArgument($repositoryId, EntityRepository::class);
             $container->registerAliasForArgument($repositoryId, EntityRepository::class);
 
             $repositoryNameMap[$entity] = $repositoryId;

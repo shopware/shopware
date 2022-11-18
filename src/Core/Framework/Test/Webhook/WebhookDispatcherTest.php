@@ -23,7 +23,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -53,7 +53,7 @@ class WebhookDispatcherTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    private EntityRepositoryInterface $webhookRepository;
+    private EntityRepository $webhookRepository;
 
     private string $shopUrl;
 

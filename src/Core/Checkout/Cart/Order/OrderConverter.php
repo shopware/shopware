@@ -38,7 +38,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -70,7 +70,7 @@ class OrderConverter
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
     ];
 
-    protected EntityRepositoryInterface $customerRepository;
+    protected EntityRepository $customerRepository;
 
     protected AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
@@ -80,7 +80,7 @@ class OrderConverter
 
     private OrderDefinition $orderDefinition;
 
-    private EntityRepositoryInterface $orderAddressRepository;
+    private EntityRepository $orderAddressRepository;
 
     private InitialStateIdLoader $initialStateIdLoader;
 
@@ -88,12 +88,12 @@ class OrderConverter
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         OrderDefinition $orderDefinition,
-        EntityRepositoryInterface $orderAddressRepository,
+        EntityRepository $orderAddressRepository,
         InitialStateIdLoader $initialStateIdLoader
     ) {
         $this->customerRepository = $customerRepository;

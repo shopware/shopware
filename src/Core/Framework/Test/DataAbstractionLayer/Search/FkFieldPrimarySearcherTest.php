@@ -9,7 +9,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,7 +28,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private string $productId;
 
@@ -64,7 +63,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        /** @var EntityRepositoryInterface $fkFieldPrimaryRepository */
+        /** @var EntityRepository $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = $this->getContainer()->get($definition->getEntityName() . '.repository');
 
         $fkFieldPrimaryRepository->create(
@@ -78,7 +77,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         );
 
         $criteria = new Criteria([$this->productId]);
-        /** @var EntityRepositoryInterface $fkFieldPrimaryRepository */
+        /** @var EntityRepository $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = $this->getContainer()->get('fk_field_primary.repository');
         /** @var array<string, ArrayEntity> $fkFieldPrimaryTupel */
         $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
@@ -91,7 +90,7 @@ class FkFieldPrimarySearcherTest extends TestCase
     {
         $this->addMultiPrimaryFkField();
 
-        /** @var EntityRepositoryInterface $multiPrimaryRepository */
+        /** @var EntityRepository $multiPrimaryRepository */
         $multiPrimaryRepository = $this->getContainer()->get('multi_fk_field_primary.repository');
         $firstId = Uuid::randomHex();
         $secondId = Uuid::randomHex();

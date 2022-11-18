@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
+ * @implements \IteratorAggregate<array-key, LineItem>
  */
 class ProductsFacade implements \IteratorAggregate
 {

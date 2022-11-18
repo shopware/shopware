@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class IntegrationController extends AbstractController
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $integrationRepository;
 
@@ -30,7 +30,7 @@ class IntegrationController extends AbstractController
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $integrationRepository
+        EntityRepository $integrationRepository
     ) {
         $this->integrationRepository = $integrationRepository;
     }

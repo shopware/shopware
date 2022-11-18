@@ -9,7 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,14 +21,14 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private ProductConfiguratorLoader $configuratorLoader;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     /**
      * @internal
      */
     public function __construct(
         ProductConfiguratorLoader $configuratorLoader,
-        EntityRepositoryInterface $repository
+        EntityRepository $repository
     ) {
         $this->configuratorLoader = $configuratorLoader;
         $this->repository = $repository;

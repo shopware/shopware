@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -36,7 +36,7 @@ class LoginRoute extends AbstractLoginRoute
 {
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private LegacyPasswordVerifier $legacyPasswordVerifier;
 
@@ -51,7 +51,7 @@ class LoginRoute extends AbstractLoginRoute
      */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         CartRestorer $restorer,
         RequestStack $requestStack,

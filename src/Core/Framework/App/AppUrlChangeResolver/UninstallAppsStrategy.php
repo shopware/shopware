@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -25,12 +25,12 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     private SystemConfigService $systemConfigService;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private ?ThemeAppLifecycleHandler $themeLifecycleHandler;
 
     public function __construct(
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         SystemConfigService $systemConfigService,
         ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {

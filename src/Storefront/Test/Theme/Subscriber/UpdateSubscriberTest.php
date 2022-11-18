@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -32,7 +31,7 @@ class UpdateSubscriberTest extends TestCase
     {
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
@@ -77,7 +76,7 @@ class UpdateSubscriberTest extends TestCase
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();

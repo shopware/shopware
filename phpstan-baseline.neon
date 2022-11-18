@@ -1391,31 +1391,6 @@ parameters:
 			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodRepositoryDecorator\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodRepositoryDecorator\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodRepositoryDecorator\\:\\:internalDelete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodRepositoryDecorator\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodRepositoryDecorator\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodRepositoryDecorator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Event\\\\PaymentMethodIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Event/PaymentMethodIndexerEvent.php
@@ -5456,69 +5431,9 @@ parameters:
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaThumbnailRepositoryDecorator\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaThumbnailRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaThumbnailRepositoryDecorator\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaThumbnailRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaThumbnailRepositoryDecorator\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaThumbnailRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaThumbnailRepositoryDecorator\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaThumbnailRepositoryDecorator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Event\\\\MediaFileExtensionWhitelistEvent\\:\\:__construct\\(\\) has parameter \\$whitelist with no value type specified in iterable type array\\.$#"
@@ -7726,41 +7641,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Message/ImportExportHandlerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:\\$createCalls has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:\\$updateCalls has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\MockRepository\\:\\:\\$upsertCalls has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-		-
 			message: "#^Cannot call method getDefault\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Processing/Mapping/MappingCollectionTest.php
@@ -8551,41 +8431,6 @@ parameters:
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:getRelativeMediaUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 9
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaFolderRepositoryDecoratorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 9
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaFolderRepositoryDecoratorTest.php
-
-		-
-			message: "#^Cannot call method getDocumentMediaFile\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecoratorTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:getRelativeMediaUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:getRelativeThumbnailUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\MediaThumbnailRepositoryTest\\:\\:createThumbnailWithMedia\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaThumbnailRepositoryTest.php
@@ -8647,11 +8492,6 @@ parameters:
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaEntityTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:\\$repository \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\) does not accept Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/MediaEntityTest.php
 
@@ -9949,11 +9789,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Validator\\\\XmlValidatorTest\\:\\:createTestXmlFixture\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Validator/XmlValidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexerTest\\:\\:\\$productStreamRepository \\(PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\) does not accept Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductStream/DataAbstractionLayer/ProductStreamIndexerTest.php
 
 		-
 			message: "#^Cannot call method filterByProperty\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\|null\\.$#"
@@ -13599,26 +13434,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityProtection\\\\WriteProtection\\:\\:getAllowedScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityProtection/WriteProtection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityTranslationDefinition\\:\\:getParentDefinition\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
@@ -19123,11 +18938,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
 
 		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/Registration/AppRegistrationServiceTest.php
-
-		-
 			message: "#^Cannot call method getAccessKey\\(\\) on Shopware\\\\Core\\\\System\\\\Integration\\\\IntegrationEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/Lifecycle/Registration/AppRegistrationServiceTest.php
@@ -19140,11 +18950,6 @@ parameters:
 		-
 			message: "#^Cannot call method getSecret\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\|null\\.$#"
 			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/Registration/AppRegistrationServiceTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
 			path: src/Core/Framework/Test/App/Lifecycle/Registration/AppRegistrationServiceTest.php
 
 		-
@@ -21596,16 +21401,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Service/ExtensionDownloaderTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Store/Service/ExtensionLifecycleServiceTest.php
 
 		-
 			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -20,7 +20,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItAddsAppNamespace(): void
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -63,7 +63,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItExcludesInactiveApps(): void
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -99,7 +99,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItExcludesInactiveAppTemplates(): void
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -136,7 +136,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItExcludesAppNamespacesWithNoTemplates(): void
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([

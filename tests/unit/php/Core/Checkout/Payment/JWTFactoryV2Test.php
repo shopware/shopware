@@ -7,6 +7,7 @@ use Lcobucci\Clock\FrozenClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
@@ -84,7 +85,7 @@ class JWTFactoryV2Test extends TestCase
     public function testExpiredToken(): void
     {
         $configuration = Configuration::forUnsecuredSigner();
-        $configuration->setValidationConstraints(new Constraint\StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
+        $configuration->setValidationConstraints(new StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
         $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
 
         $transaction = self::createTransaction();

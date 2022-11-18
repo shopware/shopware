@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,7 +30,7 @@ class GenerateMediaTypesCommand extends Command
     private $typeDetector;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
@@ -42,7 +42,7 @@ class GenerateMediaTypesCommand extends Command
     /**
      * @internal
      */
-    public function __construct(TypeDetector $typeDetector, EntityRepositoryInterface $mediaRepository)
+    public function __construct(TypeDetector $typeDetector, EntityRepository $mediaRepository)
     {
         parent::__construct();
 

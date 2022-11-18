@@ -9,7 +9,7 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -37,7 +37,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private RulePayloadUpdater $payloadUpdater;
 
@@ -53,7 +53,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         RulePayloadUpdater $payloadUpdater,
         RuleAreaUpdater $areaUpdater,
         CartRuleLoader $cartRuleLoader,

@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Test\CustomEntity;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
@@ -243,7 +242,7 @@ class CustomEntityTest extends TestCase
 
     private function testEventSystem(IdsCollection $ids, ContainerInterface $container): void
     {
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
 
         $blogRepository->create([self::blog('blog-4', $ids)], Context::createDefaultContext());
@@ -389,7 +388,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ArrayEntity::class, $blog);
         static::assertEquals($blog2['id'], $blog->getId());
 
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->delete([['id' => $ids->get('inh.blog.2')]], $context);
 
@@ -459,7 +458,7 @@ class CustomEntityTest extends TestCase
         static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
 
         $context->addState('debug');
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->delete([['id' => $ids->get('inh.one-to-one.2')]], $context);
 
@@ -530,7 +529,7 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedTopSeller')->first());
         static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
 
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->delete([['id' => $ids->get('inh.many-to-one.2')]], $context);
 
@@ -846,7 +845,7 @@ class CustomEntityTest extends TestCase
 
     private function testStoreApiAware(IdsCollection $ids, ContainerInterface $container): void
     {
-        /** @var EntityRepositoryInterface $blogRepository */
+        /** @var EntityRepository $blogRepository */
         $blogRepository = $container->get('custom_entity_blog.repository');
         $blogRepository->create([self::blog('blog-3', $ids)], Context::createDefaultContext());
 
@@ -987,7 +986,7 @@ class CustomEntityTest extends TestCase
 
         try {
             $container->get(Connection::class)->executeStatement('DELETE FROM custom_entity_blog');
-        } catch (Exception\TableNotFoundException $e) {
+        } catch (TableNotFoundException $e) {
         }
 
         $container->get(Connection::class)->executeStatement('DELETE FROM product');

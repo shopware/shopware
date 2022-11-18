@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -88,7 +88,7 @@ class AppActionControllerTest extends TestCase
 
     public function testRunAction(): void
     {
-        /** @var EntityRepositoryInterface $actionRepo */
+        /** @var EntityRepository $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -147,7 +147,7 @@ class AppActionControllerTest extends TestCase
 
     public function testRunActionEmpty(): void
     {
-        /** @var EntityRepositoryInterface $actionRepo */
+        /** @var EntityRepository $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 

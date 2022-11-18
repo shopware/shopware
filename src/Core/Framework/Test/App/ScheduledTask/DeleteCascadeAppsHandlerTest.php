@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,11 +25,11 @@ class DeleteCascadeAppsHandlerTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $scheduledTaskRepo;
+    private EntityRepository $scheduledTaskRepo;
 
-    private EntityRepositoryInterface $aclRoleRepo;
+    private EntityRepository $aclRoleRepo;
 
-    private EntityRepositoryInterface $integrationRepo;
+    private EntityRepository $integrationRepo;
 
     public function setUp(): void
     {

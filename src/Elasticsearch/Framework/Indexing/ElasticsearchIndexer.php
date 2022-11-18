@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -49,9 +49,9 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private LoggerInterface $logger;
 
-    private EntityRepositoryInterface $currencyRepository;
+    private EntityRepository $currencyRepository;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -70,8 +70,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         IteratorFactory $iteratorFactory,
         Client $client,
         LoggerInterface $logger,
-        EntityRepositoryInterface $currencyRepository,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $currencyRepository,
+        EntityRepository $languageRepository,
         EventDispatcherInterface $eventDispatcher,
         int $indexingBatchSize,
         MessageBusInterface $bus

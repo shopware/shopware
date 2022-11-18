@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -23,12 +23,12 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $addressRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -40,7 +40,7 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $addressRepository, EntityRepositoryInterface $customerRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepository $addressRepository, EntityRepository $customerRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->addressRepository = $addressRepository;
         $this->customerRepository = $customerRepository;

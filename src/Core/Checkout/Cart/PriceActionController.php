@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PriceActionController extends AbstractController
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $taxRepository;
 
@@ -44,7 +44,7 @@ class PriceActionController extends AbstractController
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $taxRepository,
+        EntityRepository $taxRepository,
         NetPriceCalculator $netCalculator,
         GrossPriceCalculator $grossCalculator
     ) {

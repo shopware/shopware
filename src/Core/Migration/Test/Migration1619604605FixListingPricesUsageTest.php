@@ -14,7 +14,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -33,7 +33,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $cmsPageRepository;
+    private EntityRepository $cmsPageRepository;
 
     public function setUp(): void
     {
@@ -44,7 +44,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
     {
         $cmsIds = $this->createCmsPage();
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $criteria = (new Criteria())->setLimit(1);
@@ -87,7 +87,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
     {
         $cmsIds = $this->createCmsPage();
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $criteria = (new Criteria())->setLimit(1);
@@ -239,7 +239,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         $migration = new Migration1619604605FixListingPricesUsage();
         $migration->update($this->getContainer()->get(Connection::class));
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('cms_slot.repository');
 
         /** @var CmsSlotEntity $cmsSlot */
@@ -267,7 +267,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
             'label' => 'test',
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('product_sorting.repository');
         $repository->create([$data], Context::createDefaultContext());
 

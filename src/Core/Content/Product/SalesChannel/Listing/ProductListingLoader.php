@@ -20,14 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingLoader
 {
-    private SalesChannelRepositoryInterface $repository;
+    private SalesChannelRepository $repository;
 
     private SystemConfigService $systemConfigService;
 
@@ -41,7 +41,7 @@ class ProductListingLoader
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $repository,
+        SalesChannelRepository $repository,
         SystemConfigService $systemConfigService,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,

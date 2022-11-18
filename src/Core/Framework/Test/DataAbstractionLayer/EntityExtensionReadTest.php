@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -39,12 +39,12 @@ class EntityExtensionReadTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
@@ -220,7 +220,7 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$extendableId]);
         $criteria->addAssociation('products');
 
-        /** @var EntityRepositoryInterface $manyToOneRepo */
+        /** @var EntityRepository $manyToOneRepo */
         $manyToOneRepo = $this->getContainer()->get('many_to_one_product.repository');
         $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
 

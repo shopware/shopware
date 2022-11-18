@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -140,7 +140,7 @@ class ExtensionLoaderTest extends TestCase
 
         $time = new \DateTime();
 
-        /** @var EntityRepositoryInterface $pluginRepository */
+        /** @var EntityRepository $pluginRepository */
         $pluginRepository = $this->getContainer()->get('plugin.repository');
         $pluginRepository->update([
             [

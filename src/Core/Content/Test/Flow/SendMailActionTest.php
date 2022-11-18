@@ -47,6 +47,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -907,7 +908,7 @@ class TestEmailService extends EMailService
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function send(array $data, Context $context, array $templateData = []): ?\Symfony\Component\Mime\Email
+    public function send(array $data, Context $context, array $templateData = []): ?Email
     {
         $this->data = $data;
         ++$this->calls;

@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -73,7 +73,7 @@ class SalesChannelProxyController extends AbstractController
 
     private KernelInterface $kernel;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private SalesChannelRequestContextResolver $requestContextResolver;
 
@@ -96,7 +96,7 @@ class SalesChannelProxyController extends AbstractController
      */
     public function __construct(
         KernelInterface $kernel,
-        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepository $salesChannelRepository,
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,
         SalesChannelRequestContextResolver $requestContextResolver,

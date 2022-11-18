@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -30,7 +31,7 @@ class Migration1592978289ProductCustomFieldSets extends MigrationStep
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     private function createAssociation(Connection $connection): void
     {
@@ -52,7 +53,7 @@ SQL;
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     private function addGlobalFlag(Connection $connection): void
     {

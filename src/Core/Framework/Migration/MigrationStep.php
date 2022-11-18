@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -138,7 +139,7 @@ abstract class MigrationStep
     /**
      * @param array<string, array<string>> $privileges
      *
-     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws ConnectionException
      * @throws \Doctrine\DBAL\Exception
      * @throws \JsonException
      */

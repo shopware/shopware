@@ -12,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -32,37 +32,37 @@ use function array_unique;
  */
 class BaseContextFactory extends AbstractBaseContextFactory
 {
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private EntityRepositoryInterface $currencyRepository;
+    private EntityRepository $currencyRepository;
 
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
-    private EntityRepositoryInterface $countryRepository;
+    private EntityRepository $countryRepository;
 
-    private EntityRepositoryInterface $taxRepository;
+    private EntityRepository $taxRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $shippingMethodRepository;
+    private EntityRepository $shippingMethodRepository;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $countryStateRepository;
+    private EntityRepository $countryStateRepository;
 
-    private EntityRepositoryInterface $currencyCountryRepository;
+    private EntityRepository $currencyCountryRepository;
 
     public function __construct(
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $currencyRepository,
-        EntityRepositoryInterface $customerGroupRepository,
-        EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $taxRepository,
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
+        EntityRepository $salesChannelRepository,
+        EntityRepository $currencyRepository,
+        EntityRepository $customerGroupRepository,
+        EntityRepository $countryRepository,
+        EntityRepository $taxRepository,
+        EntityRepository $paymentMethodRepository,
+        EntityRepository $shippingMethodRepository,
         Connection $connection,
-        EntityRepositoryInterface $countryStateRepository,
-        EntityRepositoryInterface $currencyCountryRepository
+        EntityRepository $countryStateRepository,
+        EntityRepository $currencyCountryRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->currencyRepository = $currencyRepository;

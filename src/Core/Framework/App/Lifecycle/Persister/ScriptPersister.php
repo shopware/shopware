@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\ScriptCollection;
@@ -18,14 +18,14 @@ class ScriptPersister
 {
     private ScriptFileReaderInterface $scriptReader;
 
-    private EntityRepositoryInterface $scriptRepository;
+    private EntityRepository $scriptRepository;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public function __construct(
         ScriptFileReaderInterface $scriptReader,
-        EntityRepositoryInterface $scriptRepository,
-        EntityRepositoryInterface $appRepository
+        EntityRepository $scriptRepository,
+        EntityRepository $appRepository
     ) {
         $this->scriptReader = $scriptReader;
         $this->scriptRepository = $scriptRepository;

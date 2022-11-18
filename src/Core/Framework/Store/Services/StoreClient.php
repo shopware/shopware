@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -46,7 +46,7 @@ class StoreClient
      */
     protected array $endpoints;
 
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private SystemConfigService $configService;
 
@@ -64,7 +64,7 @@ class StoreClient
     public function __construct(
         array $endpoints,
         StoreService $storeService,
-        EntityRepositoryInterface $pluginRepo,
+        EntityRepository $pluginRepo,
         SystemConfigService $configService,
         AbstractStoreRequestOptionsProvider $optionsProvider,
         ExtensionLoader $extensionLoader,

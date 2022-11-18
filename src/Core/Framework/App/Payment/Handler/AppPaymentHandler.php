@@ -26,7 +26,7 @@ use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
@@ -47,13 +47,13 @@ class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymen
 
     protected PayloadService $payloadService;
 
-    protected EntityRepositoryInterface $refundRepository;
+    protected EntityRepository $refundRepository;
 
     public function __construct(
         OrderTransactionStateHandler $transactionStateHandler,
         StateMachineRegistry $stateMachineRegistry,
         PayloadService $payloadService,
-        EntityRepositoryInterface $refundRepository
+        EntityRepository $refundRepository
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
         $this->stateMachineRegistry = $stateMachineRegistry;

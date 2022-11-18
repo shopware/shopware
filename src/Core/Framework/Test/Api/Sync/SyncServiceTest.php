@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperationResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -454,7 +454,7 @@ class SyncServiceTest extends TestCase
         $deprecatedDefinition = new DeprecatedDefinition();
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
-        $repoMock = $this->createMock(EntityRepositoryInterface::class);
+        $repoMock = $this->createMock(EntityRepository::class);
         $repoMock->expects(static::once())
             ->method('upsert')
             ->with(

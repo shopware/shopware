@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
@@ -9,7 +10,7 @@ use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,7 +19,7 @@ class FileService extends AbstractFileService
 {
     private FilesystemInterface $filesystem;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
     private CsvFileWriter $writer;
 
@@ -27,7 +28,7 @@ class FileService extends AbstractFileService
      */
     public function __construct(
         FilesystemInterface $filesystem,
-        EntityRepositoryInterface $fileRepository
+        EntityRepository $fileRepository
     ) {
         $this->filesystem = $filesystem;
         $this->fileRepository = $fileRepository;
@@ -41,7 +42,7 @@ class FileService extends AbstractFileService
 
     /**
      * @throws FileNotReadableException
-     * @throws \League\Flysystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {

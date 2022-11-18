@@ -3,7 +3,7 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Command\Command;
@@ -21,12 +21,12 @@ class SalesChannelUpdateDomainCommand extends Command
 
     public static $defaultDescription = 'Changes the domain of all sales channels';
 
-    private EntityRepositoryInterface $salesChannelDomainRepository;
+    private EntityRepository $salesChannelDomainRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $salesChannelDomainRepository)
+    public function __construct(EntityRepository $salesChannelDomainRepository)
     {
         parent::__construct();
         $this->salesChannelDomainRepository = $salesChannelDomainRepository;

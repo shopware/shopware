@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -41,7 +41,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private IdsCollection $ids;
 
@@ -55,7 +55,7 @@ class SetPaymentOrderRouteTest extends TestCase
     {
         parent::setUp();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
         $this->customerRepository = $customerRepository;
         $this->ids = new TestDataCollection();
@@ -390,7 +390,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private function getAvailablePaymentMethodId($offset = 0): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())

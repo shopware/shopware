@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -43,7 +43,7 @@ class FileServiceTest extends TestCase
 
     public function testStoreFile(): void
     {
-        /** @var EntityRepositoryInterface $fileRepository */
+        /** @var EntityRepository $fileRepository */
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
         $fileService = new FileService(
             $this->getContainer()->get('shopware.filesystem.private'),

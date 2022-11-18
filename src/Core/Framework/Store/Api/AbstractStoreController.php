@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
@@ -22,11 +22,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 abstract class AbstractStoreController extends AbstractController
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $userRepository;
 
-    public function __construct(EntityRepositoryInterface $userRepository)
+    public function __construct(EntityRepository $userRepository)
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',

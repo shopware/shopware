@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -24,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ListAddressRoute extends AbstractListAddressRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $addressRepository;
 
@@ -36,7 +36,7 @@ class ListAddressRoute extends AbstractListAddressRoute
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $addressRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepository $addressRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->addressRepository = $addressRepository;
         $this->eventDispatcher = $eventDispatcher;

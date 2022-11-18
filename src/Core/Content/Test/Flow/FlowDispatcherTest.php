@@ -10,7 +10,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -24,7 +24,7 @@ class FlowDispatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private EventDispatcherInterface $dispatcher;
 

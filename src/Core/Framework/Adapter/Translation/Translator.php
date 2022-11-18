@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Translation;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -68,7 +68,7 @@ class Translator extends AbstractTranslator
      */
     private array $traces = [];
 
-    private EntityRepositoryInterface $snippetSetRepository;
+    private EntityRepository $snippetSetRepository;
 
     /**
      * @var array<string, string>
@@ -87,7 +87,7 @@ class Translator extends AbstractTranslator
         MessageFormatterInterface $formatter,
         SnippetService $snippetService,
         string $environment,
-        EntityRepositoryInterface $snippetSetRepository,
+        EntityRepository $snippetSetRepository,
         LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->translator = $translator;

@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -23,7 +23,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
@@ -78,7 +78,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $service = $this->createMock(CategoryBreadcrumbBuilder::class);
         $service->expects(static::once())->method('build')->with($category, $salesChannelEntity, $navigationCategoryId);
 
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
 
         $extension = new BuildBreadcrumbExtension($service, $repository);
         $extension->buildSeoBreadcrumb(['context' => $context], $category, $navigationCategoryId);

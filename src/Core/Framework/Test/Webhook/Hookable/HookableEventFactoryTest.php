@@ -8,7 +8,7 @@ use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
@@ -74,7 +74,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $writtenEvent = $this->insertProduct($id, $productRepository);
 
@@ -123,7 +123,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -175,7 +175,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -196,7 +196,7 @@ class HookableEventFactoryTest extends TestCase
     public function testDoesNotCreateHookableNotHookableEntity(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $createdEvent = $taxRepository->upsert([
@@ -233,7 +233,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -274,7 +274,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
         $productPriceId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
@@ -350,14 +350,14 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
         $ruleRepository = $this->getContainer()->get('rule.repository');
         $ruleId = $ruleRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
 
-        /** @var EntityRepositoryInterface $productPriceRepository */
+        /** @var EntityRepository $productPriceRepository */
         $productPriceRepository = $this->getContainer()->get('product_price.repository');
         $writtenEvent = $productPriceRepository->upsert([
             [
@@ -399,7 +399,7 @@ class HookableEventFactoryTest extends TestCase
         ]], $event->getWebhookPayload());
     }
 
-    private function insertProduct(string $id, EntityRepositoryInterface $productRepository): EntityWrittenContainerEvent
+    private function insertProduct(string $id, EntityRepository $productRepository): EntityWrittenContainerEvent
     {
         return $productRepository->upsert([
             [

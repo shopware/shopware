@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Store\Authentication;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -23,7 +23,7 @@ class FrwRequestOptionsProviderTest extends TestCase
 
     private FrwRequestOptionsProvider $optionsProvider;
 
-    private EntityRepositoryInterface $userConfigRepository;
+    private EntityRepository $userConfigRepository;
 
     public function setUp(): void
     {

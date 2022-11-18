@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -36,7 +36,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $addressRepository;
 
@@ -66,7 +66,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $addressRepository,
+        EntityRepository $addressRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         DataValidationFactoryInterface $addressValidationFactory,

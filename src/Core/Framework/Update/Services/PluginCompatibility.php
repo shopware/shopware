@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Update\Services;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -32,7 +32,7 @@ class PluginCompatibility
     public const PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE = 'notCompatible';
     public const PLUGIN_DEACTIVATION_FILTER_NONE = '';
 
-    private EntityRepositoryInterface $pluginRepository;
+    private EntityRepository $pluginRepository;
 
     private StoreClient $storeClient;
 
@@ -43,7 +43,7 @@ class PluginCompatibility
      */
     public function __construct(
         StoreClient $storeClient,
-        EntityRepositoryInterface $pluginRepository,
+        EntityRepository $pluginRepository,
         AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;

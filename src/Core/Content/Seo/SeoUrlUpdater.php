@@ -7,7 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class SeoUrlUpdater
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $languageRepository;
 
@@ -44,7 +44,7 @@ class SeoUrlUpdater
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
@@ -52,12 +52,12 @@ class SeoUrlUpdater
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $languageRepository,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         SeoUrlGenerator $seoUrlGenerator,
         SeoUrlPersister $seoUrlPersister,
         Connection $connection,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $salesChannelRepository
     ) {
         $this->languageRepository = $languageRepository;
         $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;

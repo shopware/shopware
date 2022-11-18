@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -21,7 +21,7 @@ class RepositoryIterator
     private $criteria;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -32,7 +32,7 @@ class RepositoryIterator
 
     private bool $autoIncrement = false;
 
-    public function __construct(EntityRepositoryInterface $repository, Context $context, ?Criteria $criteria = null)
+    public function __construct(EntityRepository $repository, Context $context, ?Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();

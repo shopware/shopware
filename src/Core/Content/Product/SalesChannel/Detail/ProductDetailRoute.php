@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Profiling\Profiler;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +32,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private SystemConfigService $config;
 
@@ -50,7 +50,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $productRepository,
+        SalesChannelRepository $productRepository,
         SystemConfigService $config,
         ProductConfiguratorLoader $configuratorLoader,
         CategoryBreadcrumbBuilder $breadcrumbBuilder,

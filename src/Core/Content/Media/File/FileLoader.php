@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\Exception\StreamNotReadableException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class FileLoader
@@ -23,7 +23,7 @@ class FileLoader
 
     private FileNameValidator $fileNameValidator;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     private StreamFactoryInterface $streamFactory;
 
@@ -34,7 +34,7 @@ class FileLoader
         FilesystemInterface $filesystemPublic,
         FilesystemInterface $filesystemPrivate,
         UrlGeneratorInterface $urlGenerator,
-        EntityRepositoryInterface $mediaRepository,
+        EntityRepository $mediaRepository,
         StreamFactoryInterface $streamFactory
     ) {
         $this->filesystemPublic = $filesystemPublic;

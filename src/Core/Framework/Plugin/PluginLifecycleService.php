@@ -6,7 +6,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -57,7 +57,7 @@ class PluginLifecycleService
 {
     public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -80,7 +80,7 @@ class PluginLifecycleService
     private SystemConfigService $systemConfigService;
 
     public function __construct(
-        EntityRepositoryInterface $pluginRepo,
+        EntityRepository $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
         KernelPluginCollection $pluginCollection,
         ContainerInterface $container,

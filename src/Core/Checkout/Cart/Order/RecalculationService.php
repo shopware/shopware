@@ -31,7 +31,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -41,17 +41,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class RecalculationService
 {
-    protected EntityRepositoryInterface $orderRepository;
+    protected EntityRepository $orderRepository;
 
     protected OrderConverter $orderConverter;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
-    protected EntityRepositoryInterface $orderAddressRepository;
+    protected EntityRepository $orderAddressRepository;
 
-    protected EntityRepositoryInterface $customerAddressRepository;
+    protected EntityRepository $customerAddressRepository;
 
     protected Processor $processor;
 
@@ -63,12 +63,12 @@ class RecalculationService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         OrderConverter $orderConverter,
         CartService $cartService,
-        EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $orderAddressRepository,
-        EntityRepositoryInterface $customerAddressRepository,
+        EntityRepository $productRepository,
+        EntityRepository $orderAddressRepository,
+        EntityRepository $customerAddressRepository,
         Processor $processor,
         CartRuleLoader $cartRuleLoader,
         PromotionItemBuilder $promotionItemBuilder

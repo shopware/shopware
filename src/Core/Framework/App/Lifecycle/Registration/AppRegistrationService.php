@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
@@ -25,7 +25,7 @@ class AppRegistrationService
 
     private Client $httpClient;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private string $shopUrl;
 
@@ -36,7 +36,7 @@ class AppRegistrationService
     public function __construct(
         HandshakeFactory $handshakeFactory,
         Client $httpClient,
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         string $shopUrl,
         ShopIdProvider $shopIdProvider,
         string $shopwareVersion

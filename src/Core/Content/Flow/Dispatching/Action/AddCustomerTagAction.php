@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
@@ -16,12 +16,12 @@ use Shopware\Core\Framework\Feature;
  */
 class AddCustomerTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $customerRepository)
+    public function __construct(EntityRepository $customerRepository)
     {
         $this->customerRepository = $customerRepository;
     }

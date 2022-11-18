@@ -17,7 +17,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
@@ -40,7 +40,7 @@ class SendMailActionTest extends TestCase
     private $mailService;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     private $mailTemplateRepository;
 
@@ -70,7 +70,7 @@ class SendMailActionTest extends TestCase
     {
         $this->mailTemplate = new MailTemplateEntity();
         $this->mailService = $this->createMock(AbstractMailService::class);
-        $this->mailTemplateRepository = $this->createMock(EntityRepositoryInterface::class);
+        $this->mailTemplateRepository = $this->createMock(EntityRepository::class);
         $documentGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->translator = $this->createMock(Translator::class);
@@ -80,13 +80,13 @@ class SendMailActionTest extends TestCase
             $this->mailService,
             $this->mailTemplateRepository,
             $this->createMock(MediaService::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(DocumentService::class),
             $documentGenerator,
             $this->createMock(LoggerInterface::class),
             $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->translator,
             $this->createMock(Connection::class),
             $this->languageLocaleProvider,

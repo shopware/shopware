@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -22,7 +22,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 {
     private EntityWriterInterface $writer;
 
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
@@ -43,7 +43,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
     public function __construct(
         EntityWriterInterface $writer,
         Connection $connection,
-        EntityRepositoryInterface $customerGroupRepository,
+        EntityRepository $customerGroupRepository,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         CustomerDefinition $customerDefinition
     ) {

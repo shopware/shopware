@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Store;
 use GuzzleHttp\Handler\MockHandler;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
@@ -138,7 +138,7 @@ trait StoreClientBehaviour
         return $version === Kernel::SHOPWARE_FALLBACK_VERSION ? '___VERSION___' : $version;
     }
 
-    protected function getUserRepository(): EntityRepositoryInterface
+    protected function getUserRepository(): EntityRepository
     {
         return $this->getContainer()->get('user.repository');
     }

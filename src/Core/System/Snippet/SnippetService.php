@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,13 +30,13 @@ class SnippetService
 
     private SnippetFileCollection $snippetFileCollection;
 
-    private EntityRepositoryInterface $snippetRepository;
+    private EntityRepository $snippetRepository;
 
-    private EntityRepositoryInterface $snippetSetRepository;
+    private EntityRepository $snippetSetRepository;
 
     private SnippetFilterFactory $snippetFilterFactory;
 
-    private EntityRepositoryInterface $salesChannelDomain;
+    private EntityRepository $salesChannelDomain;
 
     private RequestStack $requestStack;
 
@@ -52,9 +52,9 @@ class SnippetService
     public function __construct(
         Connection $connection,
         SnippetFileCollection $snippetFileCollection,
-        EntityRepositoryInterface $snippetRepository,
-        EntityRepositoryInterface $snippetSetRepository,
-        EntityRepositoryInterface $salesChannelDomain,
+        EntityRepository $snippetRepository,
+        EntityRepository $snippetSetRepository,
+        EntityRepository $salesChannelDomain,
         SnippetFilterFactory $snippetFilterFactory,
         RequestStack $requestStack,
         ContainerInterface $container

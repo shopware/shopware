@@ -5,18 +5,18 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
 class OrderTransactionStorer extends FlowStorer
 {
-    private EntityRepositoryInterface $orderTransactionRepository;
+    private EntityRepository $orderTransactionRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $orderTransactionRepository)
+    public function __construct(EntityRepository $orderTransactionRepository)
     {
         $this->orderTransactionRepository = $orderTransactionRepository;
     }

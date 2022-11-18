@@ -21,7 +21,7 @@ use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -39,13 +39,13 @@ class PaymentService
 
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    private EntityRepositoryInterface $orderTransactionRepository;
+    private EntityRepository $orderTransactionRepository;
 
     private OrderTransactionStateHandler $transactionStateHandler;
 
     private LoggerInterface $logger;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private SalesChannelContextServiceInterface $contextService;
 
@@ -56,10 +56,10 @@ class PaymentService
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterfaceV2 $tokenFactory,
         PaymentHandlerRegistry $paymentHandlerRegistry,
-        EntityRepositoryInterface $orderTransactionRepository,
+        EntityRepository $orderTransactionRepository,
         OrderTransactionStateHandler $transactionStateHandler,
         LoggerInterface $logger,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         SalesChannelContextServiceInterface $contextService
     ) {
         $this->paymentProcessor = $paymentProcessor;

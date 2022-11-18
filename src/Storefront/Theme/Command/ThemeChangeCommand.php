@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -27,13 +27,13 @@ class ThemeChangeCommand extends Command
 
     private StorefrontPluginRegistryInterface $pluginRegistry;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private Context $context;
 
     private SymfonyStyle $io;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
     /**
      * @internal
@@ -41,8 +41,8 @@ class ThemeChangeCommand extends Command
     public function __construct(
         ThemeService $themeService,
         StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $themeRepository
+        EntityRepository $salesChannelRepository,
+        EntityRepository $themeRepository
     ) {
         parent::__construct();
 

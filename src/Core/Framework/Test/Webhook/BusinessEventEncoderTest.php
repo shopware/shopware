@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Webhook;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -83,7 +83,7 @@ class BusinessEventEncoderTest extends TestCase
 
     private function getTaxEntity(): TaxEntity
     {
-        /** @var EntityRepositoryInterface $taxRepo */
+        /** @var EntityRepository $taxRepo */
         $taxRepo = $this->getContainer()->get('tax.repository');
 
         return $taxRepo->search(new Criteria(), Context::createDefaultContext())->first();
@@ -91,7 +91,7 @@ class BusinessEventEncoderTest extends TestCase
 
     private function getTaxCollection(): TaxCollection
     {
-        /** @var EntityRepositoryInterface $taxRepo */
+        /** @var EntityRepository $taxRepo */
         $taxRepo = $this->getContainer()->get('tax.repository');
 
         $taxes = $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();

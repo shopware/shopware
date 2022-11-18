@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
@@ -16,12 +16,12 @@ use Shopware\Core\Framework\Feature;
  */
 class AddOrderTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $orderRepository)
+    public function __construct(EntityRepository $orderRepository)
     {
         $this->orderRepository = $orderRepository;
     }

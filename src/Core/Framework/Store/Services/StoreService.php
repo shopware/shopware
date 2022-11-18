@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
@@ -18,12 +18,12 @@ class StoreService
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     private TrackingEventClient $trackingEventClient;
 
     final public function __construct(
-        EntityRepositoryInterface $userRepository,
+        EntityRepository $userRepository,
         TrackingEventClient $trackingEventClient
     ) {
         $this->userRepository = $userRepository;

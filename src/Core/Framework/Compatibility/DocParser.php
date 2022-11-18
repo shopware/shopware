@@ -152,7 +152,7 @@ class DocParser
      * @var array<class-string, mixed[]>
      */
     private static $annotationMetadata = [
-        Annotation\Target::class => [
+        Target::class => [
             'is_annotation'                  => true,
             'has_constructor'                => true,
             'has_named_argument_constructor' => false,
@@ -169,7 +169,7 @@ class DocParser
                 ],
             ],
         ],
-        Annotation\Attribute::class => [
+        Attribute::class => [
             'is_annotation'                  => true,
             'has_constructor'                => false,
             'has_named_argument_constructor' => false,
@@ -199,7 +199,7 @@ class DocParser
                 ],
             ],
         ],
-        Annotation\Attributes::class => [
+        Attributes::class => [
             'is_annotation'                  => true,
             'has_constructor'                => false,
             'has_named_argument_constructor' => false,
@@ -211,12 +211,12 @@ class DocParser
                 'value' => [
                     'type'      => 'array',
                     'required'  => true,
-                    'array_type' => Annotation\Attribute::class,
-                    'value'     => 'array<' . Annotation\Attribute::class . '>',
+                    'array_type' => Attribute::class,
+                    'value'     => 'array<' . Attribute::class . '>',
                 ],
             ],
         ],
-        Annotation\Enum::class => [
+        Enum::class => [
             'is_annotation'                  => true,
             'has_constructor'                => true,
             'has_named_argument_constructor' => false,
@@ -235,7 +235,7 @@ class DocParser
                 ],
             ],
         ],
-        Annotation\NamedArgumentConstructor::class => [
+        NamedArgumentConstructor::class => [
             'is_annotation'                  => true,
             'has_constructor'                => false,
             'has_named_argument_constructor' => false,

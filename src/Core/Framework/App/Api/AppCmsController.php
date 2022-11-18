@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Api;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -23,10 +23,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AppCmsController extends AbstractController
 {
-    private EntityRepositoryInterface $cmsBlockRepository;
+    private EntityRepository $cmsBlockRepository;
 
     public function __construct(
-        EntityRepositoryInterface $cmsBlockRepository
+        EntityRepository $cmsBlockRepository
     ) {
         $this->cmsBlockRepository = $cmsBlockRepository;
     }

@@ -5,18 +5,18 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
 class NewsletterRecipientStorer extends FlowStorer
 {
-    private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $newsletterRecipientRepository)
+    public function __construct(EntityRepository $newsletterRecipientRepository)
     {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
     }

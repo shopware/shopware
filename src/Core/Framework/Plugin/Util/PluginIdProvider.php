@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
@@ -13,14 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class PluginIdProvider
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $pluginRepo;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $pluginRepo)
+    public function __construct(EntityRepository $pluginRepo)
     {
         $this->pluginRepo = $pluginRepo;
     }

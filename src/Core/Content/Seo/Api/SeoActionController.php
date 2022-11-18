@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -53,7 +53,7 @@ class SeoActionController extends AbstractController
 
     private DataValidator $validator;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private RequestCriteriaBuilder $requestCriteriaBuilder;
 
@@ -69,7 +69,7 @@ class SeoActionController extends AbstractController
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         SeoUrlDataValidationFactoryInterface $seoUrlValidation,
         DataValidator $validator,
-        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepository $salesChannelRepository,
         RequestCriteriaBuilder $requestCriteriaBuilder,
         DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
@@ -345,7 +345,7 @@ class SeoActionController extends AbstractController
         return iterator_to_array($result);
     }
 
-    private function getRepository(SeoUrlRouteConfig $config): EntityRepositoryInterface
+    private function getRepository(SeoUrlRouteConfig $config): EntityRepository
     {
         return $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
     }

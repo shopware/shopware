@@ -7,7 +7,7 @@ use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -21,7 +21,7 @@ class FlowActionCollector
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $appFlowActionRepo;
+    private EntityRepository $appFlowActionRepo;
 
     /**
      * @internal
@@ -31,7 +31,7 @@ class FlowActionCollector
     public function __construct(
         iterable $actions,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $appFlowActionRepo
+        EntityRepository $appFlowActionRepo
     ) {
         $this->actions = $actions;
         $this->eventDispatcher = $eventDispatcher;

@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -73,7 +73,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $config = $this->getContainer()->get(SystemConfigService::class);
@@ -134,7 +134,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -188,7 +188,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -246,7 +246,7 @@ class RegisterControllerTest extends TestCase
     {
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);

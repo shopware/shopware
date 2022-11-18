@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Handler;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\MessageQueue\Message\RetryMessage;
 class RetryMessageHandler extends AbstractMessageHandler
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $deadMessageRepository;
 
@@ -35,7 +35,7 @@ class RetryMessageHandler extends AbstractMessageHandler
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $deadMessageRepository,
+        EntityRepository $deadMessageRepository,
         iterable $handler,
         LoggerInterface $logger
     ) {

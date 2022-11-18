@@ -17,7 +17,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,8 +42,8 @@ class MediaSerializerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->createMock(EntityRepositoryInterface::class);
-        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaFolderRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -95,8 +95,8 @@ class MediaSerializerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->createMock(EntityRepositoryInterface::class);
-        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaFolderRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -156,7 +156,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -203,7 +203,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -225,7 +225,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -245,7 +245,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);

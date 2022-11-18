@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -50,9 +50,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
-    private EntityRepositoryInterface $optionRepository;
+    private EntityRepository $optionRepository;
 
-    private EntityRepositoryInterface $sortingRepository;
+    private EntityRepository $sortingRepository;
 
     private Connection $connection;
 
@@ -65,8 +65,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $optionRepository,
-        EntityRepositoryInterface $productSortingRepository,
+        EntityRepository $optionRepository,
+        EntityRepository $productSortingRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $dispatcher
     ) {

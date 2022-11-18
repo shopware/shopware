@@ -6,7 +6,7 @@ use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -31,14 +31,14 @@ class StoreLoginCommand extends Command
 
     private SystemConfigService $configService;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     /**
      * @internal
      */
     public function __construct(
         StoreClient $storeClient,
-        EntityRepositoryInterface $userRepository,
+        EntityRepository $userRepository,
         SystemConfigService $configService
     ) {
         $this->storeClient = $storeClient;

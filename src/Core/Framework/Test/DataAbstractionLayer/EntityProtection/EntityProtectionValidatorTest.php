@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection\_fixtures\PluginProtectionExtension;
@@ -186,7 +186,7 @@ class EntityProtectionValidatorTest extends TestCase
 
     public function testItDoesNotValidateCascadeDeletes(): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $countBefore = $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal();
 

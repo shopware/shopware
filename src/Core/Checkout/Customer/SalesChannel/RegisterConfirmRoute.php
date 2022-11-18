@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -34,7 +34,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -59,7 +59,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,

@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityE
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,22 +27,22 @@ class ProductSerializer extends EntitySerializer
         ProductVisibilityDefinition::VISIBILITY_SEARCH => 'search',
     ];
 
-    private EntityRepositoryInterface $visibilityRepository;
+    private EntityRepository $visibilityRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private EntityRepositoryInterface $productMediaRepository;
+    private EntityRepository $productMediaRepository;
 
-    private EntityRepositoryInterface $productConfiguratorSettingRepository;
+    private EntityRepository $productConfiguratorSettingRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $visibilityRepository,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $productMediaRepository,
-        EntityRepositoryInterface $productConfiguratorSettingRepository
+        EntityRepository $visibilityRepository,
+        EntityRepository $salesChannelRepository,
+        EntityRepository $productMediaRepository,
+        EntityRepository $productConfiguratorSettingRepository
     ) {
         $this->visibilityRepository = $visibilityRepository;
         $this->salesChannelRepository = $salesChannelRepository;

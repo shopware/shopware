@@ -3,9 +3,10 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -24,11 +25,11 @@ class MediaFolderRepositoryTest extends TestCase
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     private Context $context;
 
-    private EntityRepositoryInterface $folderRepository;
+    private EntityRepository $folderRepository;
 
     protected function setUp(): void
     {
@@ -109,10 +110,13 @@ class MediaFolderRepositoryTest extends TestCase
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $file = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertIsResource($file);
+        $this->getPublicFilesystem()->putStream($mediaPath, $file);
 
         $this->folderRepository->delete([['id' => $folderId]], $this->context);
 
@@ -168,11 +172,19 @@ class MediaFolderRepositoryTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
+        $childMedia = $media->get($childMediaId);
+        static::assertInstanceOf(MediaEntity::class, $childMedia);
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $parentMedia = $media->get($parentMediaId);
+        static::assertInstanceOf(MediaEntity::class, $parentMedia);
+
+        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
+        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+
+        $file = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertIsResource($file);
+        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $parentFolderId]], $this->context);
 
@@ -229,11 +241,19 @@ class MediaFolderRepositoryTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
+        $childMedia = $media->get($childMediaId);
+        static::assertInstanceOf(MediaEntity::class, $childMedia);
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $parentMedia = $media->get($parentMediaId);
+        static::assertInstanceOf(MediaEntity::class, $parentMedia);
+
+        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
+        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+
+        $file = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertIsResource($file);
+        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $childFolderId]], $this->context);
 
@@ -290,11 +310,19 @@ class MediaFolderRepositoryTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
+        $childMedia = $media->get($childMediaId);
+        static::assertInstanceOf(MediaEntity::class, $childMedia);
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $parentMedia = $media->get($parentMediaId);
+        static::assertInstanceOf(MediaEntity::class, $parentMedia);
+
+        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
+        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+
+        $file = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertIsResource($file);
+        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $parentFolderId], ['id' => $childFolderId]], $this->context);
 
@@ -351,11 +379,19 @@ class MediaFolderRepositoryTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context);
 
-        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
-        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
+        $childMedia = $media->get($childMediaId);
+        static::assertInstanceOf(MediaEntity::class, $childMedia);
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $parentMedia = $media->get($parentMediaId);
+        static::assertInstanceOf(MediaEntity::class, $parentMedia);
+
+        $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($childMedia);
+        $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($parentMedia);
+
+        $file = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertIsResource($file);
+        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $childFolderId], ['id' => $parentFolderId]], $this->context);
 

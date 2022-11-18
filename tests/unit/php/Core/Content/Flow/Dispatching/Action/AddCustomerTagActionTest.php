@@ -9,7 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Test\Flow\fixtures\CustomerAwareEvent;
 use Shopware\Core\Content\Test\Flow\fixtures\RawFlowEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AddCustomerTagActionTest extends TestCase
 {
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     private $repository;
 
@@ -37,7 +37,7 @@ class AddCustomerTagActionTest extends TestCase
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new AddCustomerTagAction($this->repository);
 
         $this->flow = $this->createMock(StorableFlow::class);
@@ -101,7 +101,7 @@ class AddCustomerTagActionTest extends TestCase
     {
         Feature::skipTestIfActive('v6.5.0.0', $this);
 
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
 
         if (!empty($expected)) {
             static::assertInstanceOf(CustomerAwareEvent::class, $event->getEvent());

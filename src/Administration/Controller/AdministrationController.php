@@ -11,7 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -58,9 +58,9 @@ class AdministrationController extends AbstractController
 
     private string $shopwareCoreDir;
 
-    private EntityRepositoryInterface $customerRepo;
+    private EntityRepository $customerRepo;
 
-    private EntityRepositoryInterface $currencyRepository;
+    private EntityRepository $currencyRepository;
 
     private HtmlSanitizer $htmlSanitizer;
 
@@ -78,8 +78,8 @@ class AdministrationController extends AbstractController
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         string $shopwareCoreDir,
-        EntityRepositoryInterface $customerRepo,
-        EntityRepositoryInterface $currencyRepository,
+        EntityRepository $customerRepo,
+        EntityRepository $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
         DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {

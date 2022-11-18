@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Framework;
 
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Language\LanguageCollection;
 
@@ -17,7 +17,7 @@ class ElasticsearchOutdatedIndexDetector
 
     private ElasticsearchRegistry $registry;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private ElasticsearchHelper $helper;
 
@@ -27,7 +27,7 @@ class ElasticsearchOutdatedIndexDetector
     public function __construct(
         Client $client,
         ElasticsearchRegistry $esRegistry,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $languageRepository,
         ElasticsearchHelper $helper
     ) {
         $this->client = $client;

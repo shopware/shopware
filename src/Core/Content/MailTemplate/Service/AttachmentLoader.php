@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class AttachmentLoader
 {
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private DocumentGenerator $documentGenerator;
 
@@ -25,7 +25,7 @@ class AttachmentLoader
     private DocumentService $documentService;
 
     public function __construct(
-        EntityRepositoryInterface $documentRepository,
+        EntityRepository $documentRepository,
         DocumentGenerator $documentGenerator,
         DocumentService $documentService,
         EventDispatcherInterface $eventDispatcher

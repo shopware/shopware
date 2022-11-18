@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -33,7 +33,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 {
     private CartCalculator $cartCalculator;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private OrderPersisterInterface $orderPersister;
 
@@ -48,7 +48,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
      */
     public function __construct(
         CartCalculator $cartCalculator,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         OrderPersisterInterface $orderPersister,
         CartPersisterInterface $cartPersister,
         EventDispatcherInterface $eventDispatcher,

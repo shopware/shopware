@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -21,7 +22,7 @@ class Migration1592466717AddKeywordIndex extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `product_search_keyword` ADD INDEX `idx.product_search_keyword.keyword_language` (`keyword`, `language_id`);');
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             // index already exists
         }
     }

@@ -24,7 +24,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -61,7 +61,7 @@ class ProductRepositoryTest extends TestCase
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
     public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private EventDispatcherInterface $eventDispatcher;
 

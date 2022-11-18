@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,7 +36,7 @@ class CustomerIndexerTest extends TestCase
 
         $indexer = new CustomerIndexer(
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(ManyToManyIdFieldUpdater::class),
             $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
             $eventDispatcher
@@ -69,7 +69,7 @@ class CustomerIndexerTest extends TestCase
 
         $indexer = new CustomerIndexer(
             $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(ManyToManyIdFieldUpdater::class),
             $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
             $eventDispatcher

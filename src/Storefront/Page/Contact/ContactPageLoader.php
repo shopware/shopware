@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Contact;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,7 +27,7 @@ class ContactPageLoader
     private $eventDispatcher;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salutationRepository;
 
@@ -37,7 +37,7 @@ class ContactPageLoader
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $salutationRepository
+        EntityRepository $salutationRepository
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->genericLoader = $genericLoader;

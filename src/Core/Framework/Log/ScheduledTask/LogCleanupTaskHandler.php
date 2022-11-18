@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Log\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -29,7 +29,7 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
+        EntityRepository $scheduledTaskRepository,
         SystemConfigService $systemConfigService,
         Connection $connection
     ) {

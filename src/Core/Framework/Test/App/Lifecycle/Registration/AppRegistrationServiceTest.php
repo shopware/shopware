@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle\Registration;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
@@ -33,31 +34,19 @@ class AppRegistrationServiceTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    /**
-     * @var AppRegistrationService
-     */
-    private $registrator;
+    private AppRegistrationService $registrator;
 
-    /**
-     * @var string
-     */
-    private $shopUrl;
+    private string $shopUrl;
 
-    /**
-     * @var EntityRepositoryInterface|null
-     */
-    private $appRepository;
+    private EntityRepository $appRepository;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
 
     public function setup(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->registrator = $this->getContainer()->get(AppRegistrationService::class);
-        $this->shopUrl = $_SERVER['APP_URL'];
+        $this->shopUrl = (string) EnvironmentHelper::getVariable('APP_URL');
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
     }
 

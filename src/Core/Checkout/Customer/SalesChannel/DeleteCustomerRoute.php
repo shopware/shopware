@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -17,13 +17,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository
+        EntityRepository $customerRepository
     ) {
         $this->customerRepository = $customerRepository;
     }

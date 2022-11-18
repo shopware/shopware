@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -53,7 +53,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
 
@@ -485,7 +485,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepositoryInterface $pluginRepository */
+        /** @var EntityRepository $pluginRepository */
         $pluginRepository = $this->getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion\Validator;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -135,7 +136,7 @@ class PromotionValidator implements EventSubscriberInterface
      * @param list<WriteCommand> $writeCommands
      *
      * @throws ResourceNotFoundException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     private function collect(array $writeCommands): void
     {

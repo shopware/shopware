@@ -39,7 +39,7 @@ class LoggingServiceTest extends TestCase
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     protected function tearDown(): void
     {

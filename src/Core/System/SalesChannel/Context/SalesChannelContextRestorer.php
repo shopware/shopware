@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -33,7 +33,7 @@ class SalesChannelContextRestorer
 
     private OrderConverter $orderConverter;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private Connection $connection;
 
@@ -46,7 +46,7 @@ class SalesChannelContextRestorer
         AbstractSalesChannelContextFactory $factory,
         CartRuleLoader $cartRuleLoader,
         OrderConverter $orderConverter,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         Connection $connection,
         CartRestorer $cartRestorer,
         EventDispatcherInterface $eventDispatcher

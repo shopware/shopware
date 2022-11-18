@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -32,7 +32,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
     private string $rootDir;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
@@ -44,7 +44,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         DocumentConfigLoader $documentConfigLoader,
         EventDispatcherInterface $eventDispatcher,
         DocumentTemplateRenderer $documentTemplateRenderer,

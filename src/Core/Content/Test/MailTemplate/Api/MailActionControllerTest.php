@@ -15,7 +15,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -321,7 +321,7 @@ class MailActionControllerTest extends TestCase
 
     private function getDocumentId(): string
     {
-        /** @var EntityRepositoryInterface $documentRepo */
+        /** @var EntityRepository $documentRepo */
         $documentRepo = $this->getContainer()->get('document.repository');
         $context = Context::createDefaultContext();
         $orderId = $this->getOrderId($context);
@@ -350,7 +350,7 @@ class MailActionControllerTest extends TestCase
 
     private function getOrderId(Context $context): string
     {
-        /** @var EntityRepositoryInterface $orderRepo */
+        /** @var EntityRepository $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();

@@ -7,7 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +24,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     private $connection;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     private $repository;
 
@@ -38,7 +38,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     public function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new AddCustomerAffiliateAndCampaignCodeAction($this->connection, $this->repository);
 
         $this->flow = $this->createMock(StorableFlow::class);

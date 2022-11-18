@@ -21,7 +21,6 @@ use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -39,7 +38,7 @@ class FileSaverTest extends TestCase
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
     public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     private FileSaver $fileSaver;
 

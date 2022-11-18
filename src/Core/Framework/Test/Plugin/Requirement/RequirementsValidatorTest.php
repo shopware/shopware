@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Plugin\Requirement;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -217,7 +217,7 @@ class RequirementsValidatorTest extends TestCase
 
     private function createValidator(): RequirementsValidator
     {
-        $pluginRepo = $this->createMock(EntityRepositoryInterface::class);
+        $pluginRepo = $this->createMock(EntityRepository::class);
         $pluginRepo->method('search')->willReturn(new EntitySearchResult(
             'plugin',
             0,

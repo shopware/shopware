@@ -13,7 +13,7 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -31,7 +31,7 @@ class ImportEntityCommand extends Command
 
     private ImportExportService $initiationService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private ImportExportFactory $importExportFactory;
 
@@ -44,7 +44,7 @@ class ImportEntityCommand extends Command
      */
     public function __construct(
         ImportExportService $initiationService,
-        EntityRepositoryInterface $profileRepository,
+        EntityRepository $profileRepository,
         ImportExportFactory $importExportFactory,
         Connection $connection,
         FilesystemInterface $filesystem

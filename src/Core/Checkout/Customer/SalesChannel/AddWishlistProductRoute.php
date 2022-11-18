@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -28,9 +28,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 {
-    private EntityRepositoryInterface $wishlistRepository;
+    private EntityRepository $wishlistRepository;
 
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private SystemConfigService $systemConfigService;
 
@@ -40,8 +40,8 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
+        EntityRepository $wishlistRepository,
+        SalesChannelRepository $productRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher
     ) {

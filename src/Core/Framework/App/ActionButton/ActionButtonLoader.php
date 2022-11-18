@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
@@ -16,11 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class ActionButtonLoader
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $actionButtonRepository;
 
-    public function __construct(EntityRepositoryInterface $actionButtonRepository)
+    public function __construct(EntityRepository $actionButtonRepository)
     {
         $this->actionButtonRepository = $actionButtonRepository;
     }

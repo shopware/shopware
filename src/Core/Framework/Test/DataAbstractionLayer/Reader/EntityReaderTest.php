@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -51,11 +51,11 @@ class EntityReaderTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     private string $deLanguageId;
 
@@ -2157,7 +2157,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
@@ -2184,7 +2184,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
@@ -2214,7 +2214,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());

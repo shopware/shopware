@@ -14,7 +14,7 @@ use Shopware\Core\Content\Test\Flow\FlowActionTestSubscriber;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -33,7 +33,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private ?EventDispatcherInterface $dispatcher;
 
@@ -60,7 +60,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $customerId = $this->createCustomer($context);
         $this->createFlow(CustomerChangedPaymentMethodEvent::EVENT_NAME);
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())

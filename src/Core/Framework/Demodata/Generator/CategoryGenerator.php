@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -24,9 +24,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
      */
     private array $categories = [];
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    private EntityRepositoryInterface $cmsPageRepository;
+    private EntityRepository $cmsPageRepository;
 
     private Generator $faker;
 
@@ -36,8 +36,8 @@ class CategoryGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $categoryRepository,
-        EntityRepositoryInterface $cmsPageRepository,
+        EntityRepository $categoryRepository,
+        EntityRepository $cmsPageRepository,
         Connection $connection
     ) {
         $this->categoryRepository = $categoryRepository;

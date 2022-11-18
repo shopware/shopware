@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomerRoute extends AbstractCustomerRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -28,7 +28,7 @@ class CustomerRoute extends AbstractCustomerRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository
+        EntityRepository $customerRepository
     ) {
         $this->customerRepository = $customerRepository;
     }

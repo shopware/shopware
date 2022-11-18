@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -239,7 +240,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<string, mixed>
      */

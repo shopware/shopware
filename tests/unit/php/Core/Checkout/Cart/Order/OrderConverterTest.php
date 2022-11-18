@@ -42,7 +42,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -607,7 +607,7 @@ class OrderConverterTest extends TestCase
             $salesChannelContextFactory->method('create')->willReturnCallback($salesChannelContextFactoryCreateCallable);
         }
 
-        $customerRepository = $this->createMock(EntityRepositoryInterface::class);
+        $customerRepository = $this->createMock(EntityRepository::class);
         if ($customerRepositoryResultArray !== null) {
             $customerRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -621,7 +621,7 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $orderAddressRepository = $this->createMock(EntityRepositoryInterface::class);
+        $orderAddressRepository = $this->createMock(EntityRepository::class);
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(

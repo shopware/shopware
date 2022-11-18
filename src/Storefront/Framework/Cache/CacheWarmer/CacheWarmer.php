@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
@@ -19,7 +19,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class CacheWarmer extends AbstractMessageHandler
 {
-    private EntityRepositoryInterface $domainRepository;
+    private EntityRepository $domainRepository;
 
     private MessageBusInterface $bus;
 
@@ -33,7 +33,7 @@ class CacheWarmer extends AbstractMessageHandler
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $domainRepository,
+        EntityRepository $domainRepository,
         MessageBusInterface $bus,
         CacheRouteWarmerRegistry $registry,
         CacheIdLoader $cacheIdLoader,

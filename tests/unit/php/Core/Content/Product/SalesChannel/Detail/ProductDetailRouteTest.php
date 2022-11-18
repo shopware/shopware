@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,9 +36,9 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductDetailRouteTest extends TestCase
 {
     /**
-     * @var MockObject|SalesChannelRepositoryInterface
+     * @var MockObject|SalesChannelRepository
      */
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     /**
      * @var MockObject|SystemConfigService
@@ -76,7 +76,7 @@ class ProductDetailRouteTest extends TestCase
         parent::setUp();
         $this->context = $this->createMock(SalesChannelContext::class);
         $this->idsCollection = new IdsCollection();
-        $this->productRepository = $this->createMock(SalesChannelRepositoryInterface::class);
+        $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
         $this->configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
         $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);

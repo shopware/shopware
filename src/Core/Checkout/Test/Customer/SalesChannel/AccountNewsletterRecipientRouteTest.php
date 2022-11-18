@@ -5,11 +5,12 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -20,13 +21,13 @@ class AccountNewsletterRecipientRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    private \Symfony\Bundle\FrameworkBundle\KernelBrowser $browser;
+    private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
 
     protected function setUp(): void
     {

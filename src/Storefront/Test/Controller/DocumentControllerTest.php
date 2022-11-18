@@ -40,15 +40,9 @@ class DocumentControllerTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {

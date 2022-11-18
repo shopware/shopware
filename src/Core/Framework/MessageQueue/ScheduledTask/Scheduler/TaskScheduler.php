@@ -21,6 +21,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be final starting with v6.5.0.0
  */
 class TaskScheduler
 {

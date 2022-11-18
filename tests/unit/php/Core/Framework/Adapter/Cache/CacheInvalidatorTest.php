@@ -1,31 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Cache;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  * @group cache
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Cache\CacheInvalidator
  */
 class CacheInvalidatorTest extends TestCase
 {
-    use KernelTestBehaviour;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     /**
      * @dataProvider demandInvalidationProvider
+     *
+     * @param array<string, string> $logs
+     * @param list<string> $expected
      */
     public function testDemandValidation(array $logs, ?\DateTime $time, int $delay, array $expected): void
     {
@@ -47,8 +46,8 @@ class CacheInvalidatorTest extends TestCase
             150,
             [$adapter],
             $storage,
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get('scheduled_task.repository')
+            new EventDispatcher(),
+            $this->createMock(EntityRepository::class)
         );
 
         $logger->invalidateExpired($time);
@@ -167,13 +166,24 @@ class CacheInvalidatorTest extends TestCase
  */
 class TracedCacheAdapter extends ArrayAdapter implements TagAwareAdapterInterface
 {
+    /**
+     * @var list<string>
+     */
     private array $invalidated = [];
 
-    public function invalidateTags(array $tags): void
+    /**
+     * @param list<string> $tags
+     */
+    public function invalidateTags(array $tags): bool
     {
         $this->invalidated = array_merge($this->invalidated, $tags);
+
+        return true;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getInvalidated(): array
     {
         return $this->invalidated;

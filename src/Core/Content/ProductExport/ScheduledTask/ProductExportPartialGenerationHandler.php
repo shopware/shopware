@@ -26,6 +26,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
+ */
 class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 {
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;

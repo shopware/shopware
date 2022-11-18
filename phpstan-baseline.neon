@@ -10376,16 +10376,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer\\:\\:__construct\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheClearer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer\\:\\:deleteItems\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheClearer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheDecorator\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/CacheDecorator.php
@@ -10474,26 +10464,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidationSubscriber\\:\\:getProductCategoryIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/CacheInvalidationSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:__construct\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:invalidate\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:log\\(\\) has parameter \\$logs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:purge\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/CacheInvalidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheTagCollection\\:\\:add\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
@@ -13196,39 +13166,9 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IterableQuery\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IterableQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IterableQuery\\:\\:getOffset\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IterableQuery.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IteratorFactory\\:\\:createIterator\\(\\) has parameter \\$lastId with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/IteratorFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\LastIdQuery\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/LastIdQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\LastIdQuery\\:\\:getOffset\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/LastIdQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\OffsetQuery\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/OffsetQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\OffsetQuery\\:\\:getOffset\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/Common/OffsetQuery.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\RepositoryIterator\\:\\:fetchIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -18230,30 +18170,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Asset/AssetInstallCommandTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\CacheInvalidatorTest\\:\\:testDemandValidation\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\CacheInvalidatorTest\\:\\:testDemandValidation\\(\\) has parameter \\$logs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\TracedCacheAdapter\\:\\:getInvalidated\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\TracedCacheAdapter\\:\\:\\$invalidated type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
-
-		-
-			message: "#^Return type \\(void\\) of method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Cache\\\\TracedCacheAdapter\\:\\:invalidateTags\\(\\) should be compatible with return type \\(bool\\) of method Symfony\\\\Component\\\\Cache\\\\Adapter\\\\TagAwareAdapterInterface\\:\\:invalidateTags\\(\\)$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Cache/CacheInvalidatorTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -21229,11 +21146,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$handledMessages has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/ScheduledTask/RequeueDeadMessagesHandlerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\MessageQueue\\\\fixtures\\\\DummyHandler\\:\\:\\$lastMessage has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/fixtures/DummyHandler.php
 
 		-
 			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
@@ -26039,41 +25951,6 @@ parameters:
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchDateHistogramAggregation\\:\\:getArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:__construct\\(\\) has parameter \\$definitions with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:__construct\\(\\) has parameter \\$lastId with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:getDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:getLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:getLastId\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:setLastId\\(\\) has parameter \\$lastId with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:\\$lastId type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexingDto\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"

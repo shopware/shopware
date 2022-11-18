@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
+use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,41 +16,52 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0 and won't extend AbstractMessageHandler anymore
  */
 class CacheClearer extends AbstractMessageHandler
 {
     /**
+     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
+     *
      * @var CacheClearerInterface
      */
     protected $cacheClearer;
 
     /**
+     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
+     *
      * @var string
      */
     protected $cacheDir;
 
     /**
+     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
+     *
      * @var Filesystem
      */
     protected $filesystem;
 
     /**
+     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
+     *
      * @var CacheItemPoolInterface[]
      */
     protected $adapters;
 
     /**
+     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
+     *
      * @var string
      */
     protected $environment;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     /**
      * @internal
+     *
+     * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
         array $adapters,
@@ -80,7 +93,7 @@ class CacheClearer extends AbstractMessageHandler
         $this->filesystem->remove($this->cacheDir . '/twig');
         $this->cleanupUrlGeneratorCacheFiles();
 
-        $this->cleanupOldCacheDirectories();
+        $this->cleanupOldContainerCacheDirectories();
     }
 
     public function clearContainerCache(): void
@@ -100,6 +113,9 @@ class CacheClearer extends AbstractMessageHandler
         $this->messageBus->dispatch(new CleanupOldCacheFolders());
     }
 
+    /**
+     * @param list<string> $keys
+     */
     public function deleteItems(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
@@ -116,22 +132,7 @@ class CacheClearer extends AbstractMessageHandler
         }
     }
 
-    /**
-     * @param object $message
-     */
-    public function handle($message): void
-    {
-        $this->cleanupOldCacheDirectories();
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            CleanupOldCacheFolders::class,
-        ];
-    }
-
-    private function cleanupOldCacheDirectories(): void
+    public function cleanupOldContainerCacheDirectories(): void
     {
         // Don't delete other folders while paratest is running
         if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
@@ -157,6 +158,31 @@ class CacheClearer extends AbstractMessageHandler
         if ($remove !== []) {
             $this->filesystem->remove($remove);
         }
+    }
+
+    /**
+     * @param object $message
+     *
+     * @deprecated tag:v6.5.0 - will be removed, used `CleanUpOldCacheFoldersHandler` instead
+     */
+    public function handle($message): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', CleanupOldCacheFoldersHandler::class)
+        );
+
+        $this->cleanupOldContainerCacheDirectories();
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed, used `CleanUpOldCacheFoldersHandler` instead
+     *
+     * @return iterable<string>
+     */
+    public static function getHandledMessages(): iterable
+    {
+        return [];
     }
 
     private function cleanupUrlGeneratorCacheFiles(): void

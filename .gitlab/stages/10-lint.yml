@@ -162,7 +162,8 @@ PHP lint:
         - composer run ecs -- --no-progress-bar
         - composer run lint:changelog
         - composer run lint:snippets
-        - composer run bc-check
+        # TODO: Re-Enable BC-Check ASAP
+        # - composer run bc-check
 
 NPM CI:
     extends: .base-no-setup

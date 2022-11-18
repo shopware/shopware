@@ -6126,36 +6126,6 @@ parameters:
 			path: src/Core/Content/Product/Cart/ProductLineItemFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:fetchMapping\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:fetchMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:insertTree\\(\\) has parameter \\$inserts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:mapCategories\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:mapCategories\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:filterVariants\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php

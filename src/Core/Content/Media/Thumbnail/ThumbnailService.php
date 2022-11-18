@@ -86,9 +86,9 @@ class ThumbnailService
         if (!empty($delete)) {
             $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
 
-            $delete = \array_map(function (string $id) {
+            $delete = \array_values(\array_map(function (string $id) {
                 return ['id' => $id];
-            }, $delete);
+            }, $delete));
 
             $this->thumbnailRepository->delete($delete, $context);
         }
@@ -233,9 +233,9 @@ class ThumbnailService
             }
         }
 
-        $delete = \array_map(static function (string $id) {
+        $delete = \array_values(\array_map(static function (string $id) {
             return ['id' => $id];
-        }, $toBeDeletedThumbnails->getIds());
+        }, $toBeDeletedThumbnails->getIds()));
 
         $this->thumbnailRepository->delete($delete, $context);
 
@@ -556,9 +556,9 @@ class ThumbnailService
 
         $delete = $media->getThumbnails()->getIds();
 
-        $delete = \array_map(static function (string $id) {
+        $delete = \array_values(\array_map(static function (string $id) {
             return ['id' => $id];
-        }, $delete);
+        }, $delete));
 
         $this->thumbnailRepository->delete($delete, $context);
     }

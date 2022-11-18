@@ -59,9 +59,9 @@ class DeleteUnusedGuestCustomerService
         $criteria->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
 
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
-        $ids = \array_map(static function ($id) {
+        $ids = \array_values(\array_map(static function ($id) {
             return ['id' => $id];
-        }, $ids);
+        }, $ids));
 
         $this->customerRepository->delete($ids, $context);
 

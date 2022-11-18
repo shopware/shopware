@@ -2,7 +2,7 @@
   <configuration default="false" name="Administration Cypress" type="ComposerRunConfigurationType" factoryName="Composer Script">
     <option name="commandLineParameters" value="" />
     <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
-    <option name="script" value="e2e:storefront:open" />
+    <option name="script" value="e2e:admin:open" />
     <method v="2" />
   </configuration>
 </component>

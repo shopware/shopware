@@ -330,6 +330,7 @@
             <sw-context-menu-item
                 v-if="feature.isActive('FEATURE_NEXT_7530')"
                 variant="danger"
+                class="sw_order_line_items_grid-item__delete-action"
                 @click="onDeleteItem(item)"
             >
 
@@ -349,6 +350,36 @@
         <template #action-modals="{ item }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_actions_modals_items %}{% endblock %}
+            <sw-modal
+                v-if="showDeleteModal === item.id"
+                :title="$tc('global.default.warning')"
+                variant="small"
+                @modal-close="onCloseDeleteModal"
+            >
+                <p class="sw-order-list__confirm-delete-text">
+                    {{ $tc('sw-order.detailBase.textDeleteLineItemConfirm', 0, { label: `${item.label}` }) }}
+                </p>
+
+                <template #modal-footer>
+                    <sw-button
+                        size="small"
+                        class="sw_order_line_items_grid-actions_modal__close-action"
+                        @click="onCloseDeleteModal"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+
+                    <sw-button
+                        variant="danger"
+                        size="small"
+
+                        class="sw_order_line_items_grid-actions_modal__confirm-action"
+                        @click="onConfirmDelete(item.id)"
+                    >
+                        {{ $tc('global.default.delete') }}
+                    </sw-button>
+                </template>
+            </sw-modal>
         </template>
         {% endblock %}
 

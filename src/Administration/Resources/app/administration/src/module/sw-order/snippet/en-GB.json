@@ -255,7 +255,8 @@
       "textMissingProductLineItems": "The following items are associated to products that have been deleted:",
       "textMissingProductLineItemsDescription": "Prices of these products cannot be recalculated. Therefore, these items will be converted to custom items when saving this order.",
       "textConvertedProductLineItems": "The following items were associated to products that have been deleted:",
-      "textConvertedProductLineItemsDescription": "Prices of these products cannot be recalculated. Please take extra care when editing the order."
+      "textConvertedProductLineItemsDescription": "Prices of these products cannot be recalculated. Please take extra care when editing the order.",
+      "textDeleteLineItemConfirm": "Are you sure you want to delete the position ({label})?"
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Item: {lineItemLabel} - {price}",

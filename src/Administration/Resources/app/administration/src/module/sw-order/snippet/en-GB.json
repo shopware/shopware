@@ -198,6 +198,7 @@
       "columnTotalPrice": "Total",
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
+      "columnProductNumber": "Product number",
       "contextMenuShowProduct": "Show product",
       "contextMenuDelete": "Remove from order",
       "summaryLabelAmount": "Total",

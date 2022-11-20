@@ -1,13 +1,13 @@
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
-const {Component, Mixin, Context, Defaults} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component, Mixin, Context, Defaults } = Shopware;
+const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
-const {mapPropertyErrors} = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-detail-base', {
     template,
@@ -305,7 +305,7 @@ Component.register('sw-sales-channel-detail-base', {
         invalidFileNameError() {
             if (this.invalidFileName && !this.isFileNameChecking) {
                 this.$emit('invalid-file-name');
-                return new ShopwareError({code: 'DUPLICATED_PRODUCT_EXPORT_FILE_NAME'});
+                return new ShopwareError({ code: 'DUPLICATED_PRODUCT_EXPORT_FILE_NAME' });
             }
 
             this.$emit('valid-file-name');
@@ -591,7 +591,7 @@ Component.register('sw-sales-channel-detail-base', {
                 ),
             );
 
-            this.productExportRepository.search(criteria).then(({total}) => {
+            this.productExportRepository.search(criteria).then(({ total }) => {
                 this.invalidFileName = total > 0;
                 this.isFileNameChecking = false;
             }).catch(() => {
@@ -654,7 +654,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         buildDisabledPaymentAlert(snippet, collection, property = 'name') {
-            const route = {name: 'sw.settings.payment.index'};
+            const route = { name: 'sw.settings.payment.index' };
             const routeData = this.$router.resolve(route);
 
             const data = {
@@ -671,7 +671,7 @@ Component.register('sw-sales-channel-detail-base', {
             const data = {
                 name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition: collection.length > 2
-                    ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, {amount: collection.length - 1})
+                    ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
                     : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 

@@ -44,6 +44,8 @@
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
       "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
+      "messageSalesChannelDeletedSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gelöscht.",
+      "messageSalesChannelDeletedError": "Der Verkaufskanal \"{name}\" konnte nicht gelöscht werden.",
       "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
       "buttonSave": "Speichern",
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",

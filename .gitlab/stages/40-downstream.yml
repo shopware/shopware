@@ -60,6 +60,7 @@ rufus trunk:
     project: shopware/6/product/rufus
     branch: trunk
     strategy: depend
+  allow_failure: true # TODO: Remove this line as soon as rufus is compatible with the new trunk branch
 
 commercial trunk:
   extends: .downstream-trunk
@@ -67,6 +68,7 @@ commercial trunk:
     project: shopware/6/product/commercial
     branch: trunk
     strategy: depend
+  allow_failure: true # TODO: Remove this line as soon as commercial is compatible with the new trunk branch
 
 create downstream branch:
   extends: .downstream-release-branch-creation
@@ -129,3 +131,4 @@ trigger downstream build legacy:
   parallel:
     matrix:
       - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]
+  allow_failure: true # TODO: Remove this line as soon as the projects involved are compatible with the new trunk branch

@@ -194,7 +194,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
             message: 'global.notification.notificationLoadingDataErrorMessage'
         });
 
-        expect(wrapper.vm.manufacturer).toBeNull();
         expect(wrapper.vm.customFieldSets).toEqual([{ id: 'MOCK_CUSTOM_FIELD_SET_ID' }]);
     });
 
@@ -229,7 +228,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
             message: 'global.notification.notificationLoadingDataErrorMessage'
         });
 
-        expect(wrapper.vm.manufacturer).toBeNull();
         expect(wrapper.vm.customFieldSets).toEqual([]);
     });
 });

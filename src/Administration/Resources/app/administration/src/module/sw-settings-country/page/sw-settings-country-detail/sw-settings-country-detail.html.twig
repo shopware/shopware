@@ -160,6 +160,21 @@
                     {{ $tc('sw-settings-country.page.stateTab') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_setting_country_tabs_address_handling %}
+                <sw-tabs-item
+                    v-if="feature.isActive('v6.5.0.0')"
+                    v-bind="$props"
+                    class="sw-settings-country__address-handling-tab"
+                    :route="{ name: isNewCountry ? 'sw.settings.country.create.address-handling' : 'sw.settings.country.detail.address-handling' }"
+                >
+                    {{ $tc('sw-settings-country.page.addressHandlingTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_setting_country_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 

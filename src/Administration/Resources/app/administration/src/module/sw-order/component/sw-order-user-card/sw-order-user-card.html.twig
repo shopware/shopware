@@ -148,7 +148,10 @@
                     </dt>
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <dd @click="onEditBillingAddress">
-                        <sw-address :address="billingAddress" />
+                        <sw-address
+                            :address="billingAddress"
+                            :formatting-address="formattingAddress"
+                        />
                     </dd>
                     {% endblock %}
 
@@ -226,7 +229,10 @@
                         v-else-if="hasDeliveries"
                         @click="$emit('onEditDeliveryAddress',$event)"
                     >
-                        <sw-address :address="delivery.shippingOrderAddress" />
+                        <sw-address
+                            :address="delivery.shippingOrderAddress"
+                            :formatting-address="formattingAddress"
+                        />
                     </dd>
 
                     <dd v-else>

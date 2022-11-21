@@ -46,7 +46,7 @@ class CustomerAddressEntity extends Entity
     protected $lastName;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $zipcode;
 
@@ -170,14 +170,25 @@ class CustomerAddressEntity extends Entity
         $this->lastName = $lastName;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will change to ?string
+     */
     public function getZipcode(): string
     {
+        if ($this->zipcode === null) {
+            return '';
+        }
+
         return $this->zipcode;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Parameter type of $zipcode will be changed to ?string
+     * @phpstan-ignore-next-line
+     */
     public function setZipcode(string $zipcode): void
     {
-        $this->zipcode = $zipcode;
+        $this->zipcode = empty($zipcode) ? null : $zipcode;
     }
 
     public function getCity(): string

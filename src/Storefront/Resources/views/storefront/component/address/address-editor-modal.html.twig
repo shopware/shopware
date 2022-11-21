@@ -151,17 +151,21 @@
                             {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                 'address': address,
                                 'addresses': page.addresses,
-                                'typePrefix': typePrefix
+                                'typePrefix': typePrefix,
+                                'postedData': postedData,
                             } %}
                         {% endblock %}
 
-                        {% block component_address_address_editor_modal_accordion_create_include %}
-                            {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
-                                'address': page.address,
-                                'addresses': page.addresses,
-                                'typePrefix': typePrefix
-                            } %}
-                        {% endblock %}
+                        {% if not page.address %}
+                            {% block component_address_address_editor_modal_accordion_create_include %}
+                                {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
+                                    'address': page.address,
+                                    'addresses': page.addresses,
+                                    'typePrefix': typePrefix,
+                                    'postedData': postedData,
+                                } %}
+                            {% endblock %}
+                        {% endif %}
 
                     {% endblock %}
                 </div>

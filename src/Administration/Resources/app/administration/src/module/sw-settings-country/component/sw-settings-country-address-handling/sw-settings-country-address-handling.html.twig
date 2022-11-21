@@ -1,0 +1,116 @@
+<div class="sw-settings-country-address-handling">
+    <sw-card
+        position-identifier="sw-settings-country-address-handling-options"
+        :title="$tc('sw-settings-country.detail.titleOptions')"
+        :is-loading="isLoading"
+    >
+        <sw-container class="sw-settings-country-address-handling__options-container">
+            <sw-switch-field
+                v-model="country.forceStateInRegistration"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
+            />
+
+            <sw-switch-field
+                v-model="country.postalCodeRequired"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
+            />
+
+            <sw-switch-field
+                v-model="country.checkPostalCodePattern"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
+                :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
+                :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
+            />
+
+            <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
+                <sw-switch-field
+                    v-model="country.checkAdvancedPostalCodePattern"
+                    class="sw-settings-country-address-handling__option-items"
+                    :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern"
+                    :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
+                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', 0, {5: '{5}', 4: '{4}', 2: '{2}'})"
+                />
+
+                <sw-text-field
+                    v-model="country.advancedPostalCodePattern"
+                    class="sw-settings-country-address-handling__text-field"
+                    :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
+                    :disabled="!acl.can('country.editor')"
+                    :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
+                />
+            </div>
+        </sw-container>
+    </sw-card>
+
+    <sw-card
+        position-identifier="sw-settings-country-address-handling-formatting"
+        :title="$tc('sw-settings-country.detail.titleFormatting')"
+        :is-loading="isLoading"
+    >
+        <sw-container class="sw-settings-country-address-handling__options-container">
+            <div class="sw-settings-country-address-handling__address-markup">
+                <sw-multi-snippet-drag-and-drop
+                    v-for="(snippet, index) in addressFormat"
+                    :key="index"
+                    v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
+                    v-draggable="{ ...dragConf, data: { snippet, index }}"
+                    :value="snippet"
+                    :line-position="index"
+                    :get-label-property="getLabelProperty"
+                    :total-lines="addressFormat.length"
+                    @change="change"
+                    @drop-end="onDropEnd"
+                    @position-move="moveToNewPosition"
+                    @add-new-line="addNewLineAt"
+                    @open-snippet-modal="openSnippetModal"
+                />
+            </div>
+
+            <div class="sw-settings-country-address-handling__address-preview">
+                <div class="sw-card__title">
+                    {{ $tc('sw-settings-country.detail.previewTitle') }}
+                </div>
+
+                <sw-entity-single-select
+                    v-model="customerId"
+                    class="sw-settings-country-address-handling__customer-select"
+                    :label="$tc('sw-settings-country.detail.labelCustomer')"
+                    :placeholder="$tc('sw-settings-country.detail.placeholderSelectCustomer')"
+                    entity="customer"
+                    show-clearable-button
+                    :criteria="customerCriteria"
+                    :label-callback="customerLabel"
+                    @change="onChangeCustomer"
+                />
+
+                <sw-settings-country-preview-template :formatting-address="formattingAddress" />
+
+                <sw-button
+                    class="sw-settings-country-address-handling__button-reset"
+                    variant="ghost-danger"
+                    @click="resetMarkup"
+                >
+                    {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
+                </sw-button>
+            </div>
+        </sw-container>
+    </sw-card>
+
+    <sw-settings-country-new-snippet-modal
+        v-if="isOpenModal"
+        :selections="snippets"
+        :current-position="currentPosition"
+        :address-format="addressFormat"
+        :get-label-property="getLabelProperty"
+        @change="change"
+        @modal-close="onCloseModal"
+    />
+</div>

@@ -13,6 +13,7 @@ Component.register('sw-settings-country-general', {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [

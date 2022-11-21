@@ -258,9 +258,11 @@
             />
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - will be removed #}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_force_state_on_registration %}
             <sw-switch-field
+                v-if="!feature.isActive('v6.5.0.0')"
                 v-model="country.forceStateInRegistration"
                 class="sw-settings-country-general__option-items"
                 bordered

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
+namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -279,6 +279,8 @@ class RegisterRouteTest extends TestCase
 
     /**
      * @dataProvider registerWithDomainAndLeadingSlashProvider
+     *
+     * @param array<string, string> $domainUrlTest
      */
     public function testRegistrationWithTrailingSlashUrl(array $domainUrlTest): void
     {
@@ -660,6 +662,9 @@ class RegisterRouteTest extends TestCase
         static::assertNotSame('test', $context->getToken());
     }
 
+    /**
+     * @return array<int, array<int, bool|int>>
+     */
     public function customerBoundToSalesChannelProvider(): array
     {
         $isCustomerScoped = true;
@@ -1079,7 +1084,9 @@ class RegisterRouteTest extends TestCase
 
         $data = [
             'email' => 'test@test.de',
-            'billingAddress' => [],
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
             'customFields' => [
                 'test' => 1,
                 'mapped' => 1,
@@ -1092,6 +1099,9 @@ class RegisterRouteTest extends TestCase
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getRegistrationData(string $storefrontUrl = 'http://localhost'): array
     {
         return [

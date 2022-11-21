@@ -23,8 +23,21 @@
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_address_formatting %}
+    <div
+        v-if="feature.isActive('v6.5.0.0')"
+        class="sw-address__formatting"
+        v-html="displayFormattingAddress"
+    ></div>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - Block will be removed completely #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_address_body %}
-    <div class="sw-address__body">
+    <div
+        v-if="!feature.isActive('v6.5.0.0')"
+        class="sw-address__body"
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_address_company %}
         <div

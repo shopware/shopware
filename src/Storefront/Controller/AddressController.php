@@ -218,26 +218,40 @@ class AddressController extends StorefrontController
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $viewData = new AddressEditorModalStruct();
-        $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
-        $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
-        $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
+        $params = [];
 
-        $page = $this->addressListingPageLoader->load($request, $context, $customer);
+        try {
+            $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
+            $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
+            $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
 
-        $this->hook(new AddressBookWidgetLoadedHook($page, $context));
+            $page = $this->addressListingPageLoader->load($request, $context, $customer);
 
-        $viewData->setPage($page);
-        if (Feature::isActive('FEATURE_NEXT_15957')) {
-            $this->handleCustomerVatIds($dataBag, $context, $customer);
+            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
+
+            $viewData->setPage($page);
+            if (Feature::isActive('FEATURE_NEXT_15957')) {
+                $this->handleCustomerVatIds($dataBag, $context, $customer);
+            }
+        } catch (ConstraintViolationException $formViolations) {
+            $params['formViolations'] = $formViolations;
+            $params['postedData'] = $dataBag->get('address');
+        } catch (\Exception $exception) {
+            $viewData->setSuccess(false);
+            $viewData->setMessages([
+                'type' => self::DANGER,
+                'text' => $this->trans('error.message-default'),
+            ]);
         }
 
         if ($request->get('redirectTo') || $request->get('forwardTo')) {
             return $this->createActionResponse($request);
         }
+        $params = array_merge($params, $viewData->getVars());
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/component/address/address-editor-modal.html.twig',
-            $viewData->getVars()
+            $params
         );
 
         $response->headers->set('x-robots-tag', 'noindex');
@@ -253,48 +267,39 @@ class AddressController extends StorefrontController
     ): void {
         /** @var DataBag|null $addressData */
         $addressData = $dataBag->get('address');
-        $addressId = null;
 
         if ($addressData === null) {
             return;
         }
 
-        try {
-            $response = $this->updateAddressRoute->upsert(
-                $addressData->get('id'),
-                $addressData->toRequestDataBag(),
-                $context,
-                $customer
-            );
+        $response = $this->updateAddressRoute->upsert(
+            $addressData->get('id'),
+            $addressData->toRequestDataBag(),
+            $context,
+            $customer
+        );
 
-            $addressId = $response->getAddress()->getId();
+        $addressId = $response->getAddress()->getId();
 
-            $addressType = null;
+        $addressType = null;
 
-            if ($viewData->isChangeBilling()) {
-                $addressType = self::ADDRESS_TYPE_BILLING;
-            } elseif ($viewData->isChangeShipping()) {
-                $addressType = self::ADDRESS_TYPE_SHIPPING;
-            }
+        if ($viewData->isChangeBilling()) {
+            $addressType = self::ADDRESS_TYPE_BILLING;
+        } elseif ($viewData->isChangeShipping()) {
+            $addressType = self::ADDRESS_TYPE_SHIPPING;
+        }
 
-            // prepare data to set newly created address as customers default
-            if ($addressType) {
-                $dataBag->set('selectAddress', new RequestDataBag([
-                    'id' => $addressId,
-                    'type' => $addressType,
-                ]));
-            }
-
-            $success = true;
-            $messages = ['type' => 'success', 'text' => $this->trans('account.addressSaved')];
-        } catch (\Exception $exception) {
-            $success = false;
-            $messages = ['type' => 'danger', 'text' => $this->trans('error.message-default')];
+        // prepare data to set newly created address as customers default
+        if ($addressType) {
+            $dataBag->set('selectAddress', new RequestDataBag([
+                'id' => $addressId,
+                'type' => $addressType,
+            ]));
         }
 
         $viewData->setAddressId($addressId);
-        $viewData->setSuccess($success);
-        $viewData->setMessages($messages);
+        $viewData->setSuccess(true);
+        $viewData->setMessages(['type' => 'success', 'text' => $this->trans('account.addressSaved')]);
     }
 
     private function handleChangeableAddresses(
@@ -349,11 +354,11 @@ class AddressController extends StorefrontController
         try {
             if ($addressType === self::ADDRESS_TYPE_SHIPPING) {
                 $address = $this->getById($addressId, $context, $customer);
-                $context->getCustomer()->setDefaultShippingAddress($address);
+                $customer->setDefaultShippingAddress($address);
                 $this->accountService->setDefaultShippingAddress($addressId, $context, $customer);
             } elseif ($addressType === self::ADDRESS_TYPE_BILLING) {
                 $address = $this->getById($addressId, $context, $customer);
-                $context->getCustomer()->setDefaultBillingAddress($address);
+                $customer->setDefaultBillingAddress($address);
                 $this->accountService->setDefaultBillingAddress($addressId, $context, $customer);
             } else {
                 $success = false;

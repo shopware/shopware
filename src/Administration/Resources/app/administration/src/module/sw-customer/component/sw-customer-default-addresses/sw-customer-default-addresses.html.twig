@@ -18,6 +18,7 @@
             :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')"
             :show-edit-button="customerEditMode"
             :edit-link="defaultShippingAddressLink"
+            :formatting-address="formattingShippingAddress"
         />
         {% endblock %}
     </sw-card-section>
@@ -33,6 +34,7 @@
             :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')"
             :show-edit-button="customerEditMode"
             :edit-link="defaultBillingAddressLink"
+            :formatting-address="formattingBillingAddress"
         />
         {% endblock %}
     </sw-card-section>

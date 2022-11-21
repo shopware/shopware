@@ -119,7 +119,10 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
 
         load() {
             return this.repository.search(this.result.criteria, this.result.context)
-                .then(this.applyResult);
+                .then((response) => {
+                    this.applyResult(response);
+                    this.$emit('load-finish');
+                });
         },
 
         deleteItem(id) {

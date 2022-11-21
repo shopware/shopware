@@ -188,7 +188,8 @@ export default class AddressEditorPlugin extends Plugin {
     }
 
     /**
-     * callback to close the modal after address selection
+     * callback to close the modal after address selection success
+     * callback to display the validation message nearby the invalid field
      * callback to register the modal events after ajax submit
      *
      * @param {PseudoModalUtil} pseudoModal
@@ -208,6 +209,16 @@ export default class AddressEditorPlugin extends Plugin {
                 if (FormAjaxSubmitInstance) {
                     FormAjaxSubmitInstance.addCallback(() => {
                         this._registerAjaxSubmitCallback(pseudoModal);
+
+                        const invalidFields = DomAccess.querySelectorAll(
+                            modal,
+                            `${FormAjaxSubmitInstance.options.replaceSelectors[0]}.is-invalid`,
+                            false
+                        );
+
+                        if (invalidFields) {
+                            return;
+                        }
 
                         const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
                         if (shouldBeClosed) {

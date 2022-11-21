@@ -178,6 +178,7 @@
 
             {% block component_address_form_zipcode_city %}
                 {% set zipcodeField %}
+                {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
                     {% if formViolations.getViolations("/zipcode") is not empty %}
                         {% set violationPath = "/zipcode" %}
                     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
@@ -189,7 +190,7 @@
                     {% block component_address_form_zipcode_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressZipcode">
-                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}<span class="d-none" id="zipcodeLabel">{{ "general.required"|trans|sw_sanitize }}</span>
                         </label>
                     {% endblock %}
 
@@ -199,10 +200,9 @@
                                id="{{ idPrefix ~ prefix }}AddressZipcode"
                                placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
-                               value="{{ data.get('zipcode') }}"
-                               data-form-validation-required
-                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
-                               required="required">
+                               value="{{ zipcodeValue }}"
+                               data-input-name="zipcodeInput"
+                        >
                     {% endblock %}
 
                     {% block component_address_form_zipcode_error %}
@@ -379,6 +379,7 @@
                                         selected="selected"
                                         {% endif %}
                                         value="{{ country.id }}"
+                                        data-zipcode-required="{{ country.postalCodeRequired }}"
                                         data-vat-id-required="{{ country.vatIdRequired }}"
                                         data-state-required="{{ country.forceStateInRegistration }}"
                                         {% if feature('FEATURE_NEXT_15707') and  not country.shippingAvailable and disableNonShippableCountries %}

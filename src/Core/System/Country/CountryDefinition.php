@@ -38,6 +38,14 @@ class CountryDefinition extends EntityDefinition
 
     public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
 
+    public const DEFAULT_ADDRESS_FORMAT = [
+        ['address/company', 'symbol/dash', 'address/department'],
+        ['address/first_name', 'address/last_name'],
+        ['address/street'],
+        ['address/zipcode', 'address/city'],
+        ['address/country'],
+    ];
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -63,6 +71,9 @@ class CountryDefinition extends EntityDefinition
 
         return [
             'vatIdRequired' => false,
+            'postalCodeRequired' => false,
+            'checkPostalCodePattern' => false,
+            'checkAdvancedPostalCodePattern' => false,
             'customerTax' => $defaultTax,
             'companyTax' => $defaultTax,
         ];
@@ -95,6 +106,12 @@ class CountryDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('company_tax', 'companyTax'))->addFlags(new ApiAware()),
+            (new BoolField('postal_code_required', 'postalCodeRequired'))->addFlags(new ApiAware()),
+            (new BoolField('check_postal_code_pattern', 'checkPostalCodePattern'))->addFlags(new ApiAware()),
+            (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware()),
+            (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware()),
+            (new TranslatedField('addressFormat'))->addFlags(new ApiAware()),
+            (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern'))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),

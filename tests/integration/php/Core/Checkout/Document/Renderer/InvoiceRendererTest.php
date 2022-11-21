@@ -23,6 +23,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -262,7 +263,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
                 static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
-                static::assertStringContainsString('VAT-123123', $rendered);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    static::assertStringContainsString('VAT-123123', $rendered);
+                }
                 static::assertStringContainsString('123123123', $rendered);
             },
         ];
@@ -276,7 +279,6 @@ class InvoiceRendererTest extends TestCase
                 /** @var OrderEntity $order */
                 $order = $this->getContainer()->get('order.repository')
                     ->search($criteria, $this->context)->get($orderId);
-
                 static::assertNotNull($order->getOrderCustomer());
                 $this->getContainer()->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
@@ -310,8 +312,10 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
                 static::assertStringContainsString($orderAddress->getCity(), $rendered);
                 static::assertStringContainsString($orderAddress->getCountry()->getName(), $rendered);
-                static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
-                static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
+                    static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
+                }
             },
         ];
 
@@ -329,6 +333,9 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
+                if (Feature::isActive('v6.5.0.0')) {
+                    static::markTestSkipped('Company address in invoice will be removed');
+                }
                 static::assertInstanceOf(RenderedDocument::class, $rendered);
 
                 $rendered = $rendered->getHtml();

@@ -2,11 +2,19 @@
   "sw-settings-country": {
     "page": {
       "generalTab": "Einstellungen",
-      "stateTab": "Länder/Regionen"
+      "stateTab": "Länder/Regionen",
+      "addressHandlingTab": "Adress-Verwaltung"
     },
     "general": {
       "mainMenuItemGeneral": "Länder",
-      "placeholderSearchBar": "Durchsuche Länder ..."
+      "placeholderSearchBar": "Durchsuche Länder ...",
+      "actions": {
+        "newSnippet": "Neuer Textbaustein hinzufügen",
+        "createBefore": "Neue Zeile davor",
+        "createAfter": "Neue Zeile danach",
+        "moveTop": "Zeile nach oben verschieben",
+        "moveBottom": "Zeile nach unten verschieben"
+      }
     },
     "list": {
       "textHeadline": "Länder",
@@ -57,7 +65,23 @@
       "labelVatIdRequired": "USt-ID ist Pflichtfeld",
       "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
       "titleOptions": "Optionen",
-      "currencyDependentValues": "Währungsabhängige Werte"
+      "currencyDependentValues": "Währungsabhängige Werte",
+      "labelPostalCodeRequired": "Postleitzahl ist Pflichtfeld",
+      "labelCheckPostalCodePattern": "Postleitzahl validieren",
+      "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
+      "placeholderAdvancedPostalCodePattern": "Gib ein Postleitzahl-Format an...",
+      "helpTextAdvancedPostalCodePattern": "Mögliche Formate: <br><br> ^\\d{5}$ - Genau 5 Ziffern, z. B. 12345 <br>^(\\d{4})\\s*([A-Z]{2})$ - Genau 4 Ziffern und 2 Buchstaben, z. B. 1234 AB",
+      "labelCheckDefaultAddressFormat": "Benutzerdefiniertes Adressformat",
+      "labelAddressFormatPlain": "Format",
+      "titleFormatting": "Addressformat",
+      "helpTextCheckPostalCodePattern": "Erlaubt die Validierung von Postleitzahlen für eine Auswahl an Ländern",
+      "previewTitle": "Vorschau",
+      "labelCustomer": "Kunde",
+      "placeholderSelectCustomer": "Wähle einen Kunden aus...",
+      "buttonResetMarkup": "Addressformat zurücksetzen",
+      "newSnippetModalTitle": "Werte einfügen",
+      "buttonInsertSnippet": "Wert einfügen",
+      "placeholderSearchSnippet": "Werte durchsuchen..."
     }
   },
   "sw-country-state-detail": {
@@ -78,6 +102,27 @@
       "country": {
         "label": "Länder/Regionen"
       }
+    }
+  },
+  "sw-custom-snippet": {
+    "address": {
+      "countryState": "Bundesland",
+      "salutation": "Anrede",
+      "country": "Land",
+      "zipcode": "Postleitzahl",
+      "lastName": "Nachname",
+      "firstName": "Vorname",
+      "street": "Straße",
+      "city": "Stadt",
+      "company": "Firma",
+      "phoneNumber": "Telefonnummer",
+      "department": "Abteilung",
+      "title": "Titel"
+    },
+    "symbol": {
+      "tilde": ".",
+      "dash": "-",
+      "comma": ","
     }
   }
 }

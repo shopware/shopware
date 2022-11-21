@@ -7,6 +7,8 @@ const { Component } = Shopware;
 Component.register('sw-order-delivery-metadata', {
     template,
 
+    inject: ['customSnippetApiService'],
+
     props: {
         delivery: {
             type: Object,
@@ -27,6 +29,32 @@ Component.register('sw-order-delivery-metadata', {
             type: Boolean,
             required: false,
             default: false,
+        },
+    },
+
+    data() {
+        return {
+            formattingAddress: '',
+        };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.renderFormattingAddress();
+        },
+
+        renderFormattingAddress() {
+            this.customSnippetApiService
+                .render(
+                    this.delivery.shippingOrderAddress,
+                    this.delivery.shippingOrderAddress.country.addressFormat,
+                ).then((res) => {
+                    this.formattingAddress = res.rendered;
+                });
         },
     },
 });

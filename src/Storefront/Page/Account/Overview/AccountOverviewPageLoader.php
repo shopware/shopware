@@ -133,6 +133,8 @@ class AccountOverviewPageLoader
     {
         $criteria = new Criteria();
         $criteria->addAssociation('requestedGroup');
+        $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.country');
 
         return $this->customerRoute->load(new Request(), $context, $criteria, $customer)->getCustomer();
     }

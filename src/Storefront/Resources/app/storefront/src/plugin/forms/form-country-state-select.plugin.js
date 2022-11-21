@@ -12,8 +12,11 @@ export default class CountryStateSelectPlugin extends Plugin {
         initialCountryStateAttribute: 'initial-country-state-id',
         countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
         vatIdFieldInput: '#vatIds',
+        zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
         vatIdRequired: 'vat-id-required',
         stateRequired: 'state-required',
+        zipcodeRequired: 'zipcode-required',
+        zipcodeLabel: '#zipcodeLabel',
     };
 
     init() {
@@ -35,6 +38,9 @@ export default class CountryStateSelectPlugin extends Plugin {
         const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
         const stateRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.stateRequired, false);
+        const zipcodeLabel = DomAccess.querySelector(document, this.options.zipcodeLabel, false);
+        const zipcodeInput = DomAccess.querySelector(document, this.options.zipcodeFieldInput, false);
+        const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.zipcodeRequired, false);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
@@ -42,6 +48,10 @@ export default class CountryStateSelectPlugin extends Plugin {
             return;
         }
         this.requestStateData(initialCountryId, initialCountryStateId, stateRequired);
+
+        if (zipcodeRequired) {
+            this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired);
+        }
 
         if (!vatIdInput) {
             return;
@@ -57,6 +67,12 @@ export default class CountryStateSelectPlugin extends Plugin {
         this.requestStateData(countryId, null, stateRequired);
         const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
+
+        const zipcodeLabel = DomAccess.querySelector(document, this.options.zipcodeLabel, false);
+        const zipcodeInput = DomAccess.querySelector(document, this.options.zipcodeFieldInput, false);
+        const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.zipcodeRequired, false);
+
+        this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired)
 
         if (vatIdInput) {
             this._updateRequiredVatId(vatIdInput, vatIdRequired);
@@ -103,6 +119,21 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
 
         vatIdFieldInput.removeAttribute('required');
+    }
+
+    _updateZipcodeRequired(label, input, required) {
+        if (!label || !input) {
+            return;
+        }
+
+        label.className = required ? '' : 'd-none';
+
+        if (required) {
+            input.setAttribute('required', 'required');
+            return;
+        }
+
+        input.removeAttribute('required');
     }
 }
 
@@ -162,7 +193,7 @@ function updateRequiredState(countryStateSelect, stateRequired, placeholderQuery
         return;
     }
 
-    if (label.innerText.substr(-1, 1) === '*') {
+    if (label.innerText && label.innerText.substr(-1, 1) === '*') {
         label.innerText = label.innerText.substr(0, label.innerText.length -1);
     }
 

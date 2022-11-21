@@ -12,7 +12,7 @@ export default class SettingsPageObject {
                 countryStateListContent: '.sw-settings-country-state-list__content',
                 countryStateSaveAction: '.sw-country-state-detail__save-button',
                 countryStateAddAction: '.sw-settings-country-detail__add-country-state-button',
-                countryStateColumnName: '.sw-data-grid__cell--translated-name',
+                countryStateColumnName: '.sw-data-grid__cell--name',
 
                 currencySaveAction: '.sw-settings-currency-detail__save-action',
                 currencyColumnName: '.sw-data-grid__cell--name',

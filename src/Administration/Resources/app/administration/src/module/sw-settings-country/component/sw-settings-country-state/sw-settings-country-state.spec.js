@@ -25,7 +25,7 @@ async function createWrapper(privileges = []) {
 
         propsData: {
             country: {
-                isNew: () => false,
+                isNew: () => true,
                 active: true,
                 apiAlias: null,
                 createdAt: '2020-08-12T02:49:39.974+00:00',
@@ -67,9 +67,6 @@ async function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-            feature: {
-                isActive: () => true
-            }
         },
 
         stubs: {
@@ -82,10 +79,10 @@ async function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-extension-component-section': true,
             'sw-one-to-many-grid': {
-                props: ['columns', 'allowDelete'],
+                props: ['allowDelete', 'collection'],
                 template: `
-                    <div>
-                        <template v-for="item in columns">
+                    <div class="sw-one-to-many-grid">
+                        <template v-for="item in collection">
                             <slot name="more-actions" v-bind="{ item }"></slot>
                             <slot name="delete-action" :item="item">
                                 <sw-context-menu-item
@@ -113,6 +110,11 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should show empty state', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+    });
+
     it('should be able to create a new country state', async () => {
         const wrapper = await createWrapper([
             'country.editor'
@@ -137,7 +139,23 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         const wrapper = await createWrapper([
             'country.editor'
         ]);
-        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
 
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -147,6 +165,22 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
@@ -157,6 +191,22 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         ]);
         await wrapper.vm.$nextTick();
 
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
@@ -165,6 +215,22 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });

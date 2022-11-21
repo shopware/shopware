@@ -20,7 +20,9 @@ async function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-modal': true,
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+            },
             'sw-container': true,
             'sw-field': true,
             'sw-button': true,

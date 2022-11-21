@@ -4,6 +4,9 @@ import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creatio
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
 import 'src/app/component/form/sw-gtc-checkbox';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal', () => {
     /** @type Wrapper */
     let wrapper;

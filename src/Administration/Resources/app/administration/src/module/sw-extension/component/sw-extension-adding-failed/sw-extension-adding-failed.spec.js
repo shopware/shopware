@@ -28,6 +28,9 @@ async function createWrapper() {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     let wrapper;
 

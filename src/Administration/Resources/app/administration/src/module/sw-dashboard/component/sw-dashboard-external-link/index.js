@@ -4,6 +4,8 @@ import './sw-dashboard-external-link.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - Use sw-external-link instead
  * @status deprecated
  */

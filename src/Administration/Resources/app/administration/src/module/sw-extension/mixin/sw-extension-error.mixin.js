@@ -1,4 +1,5 @@
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Will be private
  */
 Shopware.Mixin.register('sw-extension-error', {

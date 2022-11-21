@@ -33,6 +33,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 final class FirstRunWizardClient

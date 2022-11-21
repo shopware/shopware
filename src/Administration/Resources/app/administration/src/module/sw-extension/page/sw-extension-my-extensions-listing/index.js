@@ -5,6 +5,7 @@ const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-my-extensions-listing', {

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 /**
+ * @package merchant-services
+ *
  * @codeCoverageIgnore
  */
 class FaqCollection extends StoreCollection

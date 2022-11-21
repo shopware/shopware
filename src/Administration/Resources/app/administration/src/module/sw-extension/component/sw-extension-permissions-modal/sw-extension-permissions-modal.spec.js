@@ -29,7 +29,9 @@ async function createWrapper(propsData) {
     });
 }
 
-
+/**
+ * @package merchant-services
+ */
 describe('sw-extension-permissions-modal', () => {
     /** @type Wrapper */
     let wrapper;

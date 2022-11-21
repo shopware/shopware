@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp';
 
+/**
+ * @package merchant-services
+ */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () => {
     const CreateFirstRunWizardMailerSmtp = async function CreateFirstRunWizardMailerSmtp() {
         return shallowMount(await Shopware.Component.build('sw-first-run-wizard-mailer-smtp'), {

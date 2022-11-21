@@ -6,6 +6,9 @@ use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package merchant-services
+ */
 class StoreApiException extends ShopwareHttpException
 {
     /**

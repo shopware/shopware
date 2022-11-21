@@ -4,6 +4,7 @@ import './sw-extension-uninstall-modal.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-uninstall-modal', {

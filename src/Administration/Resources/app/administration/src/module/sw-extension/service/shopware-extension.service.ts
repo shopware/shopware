@@ -23,6 +23,7 @@ interface LabeledLocation extends Location {
 }
 
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

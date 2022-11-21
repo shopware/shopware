@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-reply';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply', () => {
     /** @type Wrapper */
     let wrapper;

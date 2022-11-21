@@ -5,6 +5,7 @@ const { date } = Shopware.Utils.format;
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-review', {

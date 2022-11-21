@@ -16,6 +16,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in future versions
  */
 class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider

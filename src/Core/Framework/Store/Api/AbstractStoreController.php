@@ -15,6 +15,8 @@ use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  *
  * @deprecated tag:v6.5.0 - Will be removed. Use AbstractStoreRequestOptionsProvider provide store token.

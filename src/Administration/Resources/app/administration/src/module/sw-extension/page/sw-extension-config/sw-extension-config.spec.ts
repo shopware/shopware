@@ -6,6 +6,9 @@ import 'src/module/sw-extension/page/sw-extension-config';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import Vue from 'vue';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     let wrapper: Wrapper<Vue>;
     let SwExtensionConfig;

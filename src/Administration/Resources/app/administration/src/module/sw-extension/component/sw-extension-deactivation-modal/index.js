@@ -4,6 +4,7 @@ import './sw-extension-deactivation-modal.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-deactivation-modal', {

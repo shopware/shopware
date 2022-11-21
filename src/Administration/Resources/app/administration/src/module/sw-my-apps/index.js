@@ -3,6 +3,9 @@ import './page/sw-my-apps-page';
 
 const { Module } = Shopware;
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-my-apps', {
     type: 'core',

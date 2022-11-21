@@ -97,6 +97,9 @@ async function createWrapper(extension) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     /** @type Wrapper */
     let wrapper;

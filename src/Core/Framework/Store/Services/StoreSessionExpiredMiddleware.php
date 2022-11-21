@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class StoreSessionExpiredMiddleware implements MiddlewareInterface

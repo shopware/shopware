@@ -67,6 +67,7 @@
         "setasign/fpdi": "2.3.6",
         "opensearch-project/opensearch-php": "~2.0",
         "ezyang/htmlpurifier": "~4.16",
+        "erusev/parsedown-extra": "0.8.1",
         "guzzlehttp/guzzle": "~7.4.5",
         "guzzlehttp/psr7": "^1.8.0",
         "jdorn/sql-formatter": "1.2.17",

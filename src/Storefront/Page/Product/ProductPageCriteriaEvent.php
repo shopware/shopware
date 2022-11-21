@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package storefront
+ */
 class ProductPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     protected string $productId;

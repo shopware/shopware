@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class GuestWishListPageletProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     private Criteria $criteria;

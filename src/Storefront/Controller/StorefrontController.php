@@ -25,6 +25,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Twig\Environment;
 
+/**
+ * @package storefront
+ */
 abstract class StorefrontController extends AbstractController
 {
     public const SUCCESS = 'success';

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Storefront\Framework\Twig\TokenParser\ThumbnailTokenParser;
 use Twig\Extension\AbstractExtension;
 
+/**
+ * @package storefront
+ */
 class ThumbnailExtension extends AbstractExtension
 {
     /**

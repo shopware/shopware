@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class CheckoutCartPage extends Page
 {
     /**

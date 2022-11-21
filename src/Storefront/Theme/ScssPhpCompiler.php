@@ -6,6 +6,8 @@ use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
 
 /**
+ * @package storefront
+ *
  * @internal - may be changed in the future
  */
 class ScssPhpCompiler extends AbstractScssCompiler

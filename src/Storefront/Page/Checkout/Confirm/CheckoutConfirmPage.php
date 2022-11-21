@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class CheckoutConfirmPage extends Page
 {
     /**

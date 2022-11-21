@@ -18,6 +18,8 @@ use Shopware\Storefront\Page\Page;
 /**
  * Triggered when the storefront endpoint /storefront/script/{hook} is called
  *
+ * @package core
+ *
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0

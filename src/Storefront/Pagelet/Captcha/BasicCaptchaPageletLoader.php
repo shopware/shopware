@@ -7,6 +7,9 @@ use Shopware\Storefront\Framework\Captcha\BasicCaptcha\AbstractBasicCaptchaGener
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class BasicCaptchaPageletLoader extends AbstractBasicCaptchaPageletLoader
 {
     private EventDispatcherInterface $eventDispatcher;

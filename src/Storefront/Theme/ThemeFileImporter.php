@@ -11,6 +11,8 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Finder\Finder;
 
 /**
+ * @package storefront
+ *
  * @Decoratable
  */
 class ThemeFileImporter implements ThemeFileImporterInterface

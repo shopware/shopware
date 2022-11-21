@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class NotFoundPageTagsEvent implements ShopwareEvent
 {
     private array $tags;

@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @package storefront
+ */
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**

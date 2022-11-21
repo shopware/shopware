@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package storefront
+ *
  * @extends EntityCollection<ThemeEntity>
  */
 class ThemeCollection extends EntityCollection

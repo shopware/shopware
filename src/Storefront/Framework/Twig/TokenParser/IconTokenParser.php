@@ -9,6 +9,9 @@ use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @package storefront
+ */
 final class IconTokenParser extends AbstractTokenParser
 {
     /**

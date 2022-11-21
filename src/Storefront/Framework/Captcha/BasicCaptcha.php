@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @package storefront
+ */
 class BasicCaptcha extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'basicCaptcha';

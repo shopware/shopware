@@ -11,4 +11,3 @@ issue: NEXT-23972
   - `symfony/inflector`
   - `enqueue/redis`
   - `marc1706/fast-image-size`
-  - `erusev/parsedown-extra`

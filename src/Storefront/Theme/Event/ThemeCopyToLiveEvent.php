@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package storefront
+ */
 class ThemeCopyToLiveEvent extends Event
 {
     private string $themeId;

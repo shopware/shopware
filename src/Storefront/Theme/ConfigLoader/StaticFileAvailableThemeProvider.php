@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use const JSON_THROW_ON_ERROR;
 
+/**
+ * @package storefront
+ */
 class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     public const THEME_INDEX = 'theme-config/index.json';

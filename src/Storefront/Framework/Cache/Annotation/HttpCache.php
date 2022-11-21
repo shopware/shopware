@@ -6,6 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
 
 /**
+ * @package storefront
+ *
  * @Annotation
  */
 class HttpCache extends ConfigurationAnnotation

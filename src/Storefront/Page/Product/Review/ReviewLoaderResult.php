@@ -7,6 +7,9 @@ use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix as CoreRating
 use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
+/**
+ * @package storefront
+ */
 class ReviewLoaderResult extends StorefrontSearchResult
 {
     /**

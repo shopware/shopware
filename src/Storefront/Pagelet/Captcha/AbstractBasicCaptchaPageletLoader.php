@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Pagelet\Captcha;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 abstract class AbstractBasicCaptchaPageletLoader
 {
     abstract public function load(Request $request, SalesChannelContext $context): BasicCaptchaPagelet;

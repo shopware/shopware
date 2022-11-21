@@ -12,6 +12,9 @@ use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class LandingPageLoader
 {
     /**

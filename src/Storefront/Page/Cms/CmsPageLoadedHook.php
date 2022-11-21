@@ -12,6 +12,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @hook-use-case data_loading
  *
+ * @package content
+ *
  * @since 6.4.8.0
  */
 class CmsPageLoadedHook extends PageLoadedHook

@@ -6,6 +6,7 @@ use OpenSearchDSL\Aggregation\AbstractAggregation;
 use OpenSearchDSL\Aggregation\Bucketing;
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use OpenSearchDSL\Aggregation\Bucketing\NestedAggregation;
+use OpenSearchDSL\Aggregation\Bucketing\ReverseNestedAggregation;
 use OpenSearchDSL\Aggregation\Metric;
 use OpenSearchDSL\Aggregation\Metric\ValueCountAggregation;
 use OpenSearchDSL\BuilderInterface;

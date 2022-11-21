@@ -299,7 +299,7 @@ class CustomSnippetFormatControllerTest extends TestCase
  */
 class BundleWithCustomSnippet extends Plugin
 {
-    public function getPath()
+    public function getPath(): string
     {
         $reflected = new \ReflectionObject($this);
 

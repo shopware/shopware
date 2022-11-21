@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -29,12 +29,12 @@ class CustomFieldProtectionSubscriberTest extends TestCase
     use AppSystemTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customFieldSetRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $appRepo;
 

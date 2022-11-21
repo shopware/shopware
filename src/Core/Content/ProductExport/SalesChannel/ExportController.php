@@ -13,7 +13,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -47,7 +47,7 @@ class ExportController
     private $eventDispatcher;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productExportRepository;
 
@@ -69,7 +69,7 @@ class ExportController
         ProductExportFileHandlerInterface $productExportFileHandler,
         FilesystemInterface $fileSystem,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $productExportRepository,
+        EntityRepository $productExportRepository,
         AbstractSalesChannelContextFactory $contextFactory
     ) {
         $this->productExportService = $productExportService;

@@ -24,7 +24,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -40,7 +40,7 @@ class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private AbstractPipe $pipe;
 
@@ -80,7 +80,7 @@ class ImportExport
         FilesystemInterface $filesystem,
         EventDispatcherInterface $eventDispatcher,
         Connection $connection,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         AbstractPipe $pipe,
         AbstractReader $reader,
         AbstractWriter $writer,

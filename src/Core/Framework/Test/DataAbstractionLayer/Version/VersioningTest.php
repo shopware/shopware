@@ -30,7 +30,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
@@ -72,13 +71,13 @@ class VersioningTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
@@ -145,7 +144,7 @@ class VersioningTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $priceRepository */
+        /** @var EntityRepository $priceRepository */
         $priceRepository = $this->getContainer()->get('product_price.repository');
 
         $event = $priceRepository->create([$price], $context);
@@ -162,7 +161,7 @@ class VersioningTest extends TestCase
         $commits = $this->getCommits('product', $id, $versionId);
         static::assertCount(1, $commits);
 
-        /** @var EntityRepositoryInterface $mappingRepository */
+        /** @var EntityRepository $mappingRepository */
         $mappingRepository = $this->getContainer()->get('product_category.repository');
 
         $event = $mappingRepository->delete([['productId' => $id, 'categoryId' => $categoryId]], $version);

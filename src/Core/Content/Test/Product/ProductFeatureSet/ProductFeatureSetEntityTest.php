@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -78,7 +78,7 @@ class ProductFeatureSetEntityTest extends TestCase
 
     public function testRepositoryIsWorking(): void
     {
-        static::assertInstanceOf(EntityRepositoryInterface::class, $this->getContainer()->get('product_feature_set.repository'));
+        static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('product_feature_set.repository'));
     }
 
     public function testTranslationReferenceFieldIsCorrect(): void

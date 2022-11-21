@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Middleware;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
@@ -26,7 +26,7 @@ use Symfony\Component\Messenger\Middleware\StackInterface;
  */
 class RetryMiddleware implements MiddlewareInterface
 {
-    private EntityRepositoryInterface $deadMessageRepository;
+    private EntityRepository $deadMessageRepository;
 
     private Context $context;
 
@@ -35,7 +35,7 @@ class RetryMiddleware implements MiddlewareInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $deadMessageRepository, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityRepository $deadMessageRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->deadMessageRepository = $deadMessageRepository;
         $this->context = Context::createDefaultContext();

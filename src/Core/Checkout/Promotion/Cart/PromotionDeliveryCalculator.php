@@ -5,6 +5,11 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
@@ -59,11 +64,11 @@ class PromotionDeliveryCalculator
      * after that it is calculating the shipping costs respecting absolute, fixed or percentage discounts
      *
      * @throws InvalidPriceDefinitionException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws PayloadKeyNotFoundException
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $toCalculate, SalesChannelContext $context): void
     {
@@ -476,10 +481,10 @@ class PromotionDeliveryCalculator
     /**
      * if we have a discount with scope delivery we add a lineItem in cart with price 0
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     private function addFakeLineitem(Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
     {

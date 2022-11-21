@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,7 +15,7 @@ class DeleteUnusedGuestCustomerService
 {
     public const DELETE_CUSTOMERS_BATCH_SIZE = 100;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private SystemConfigService $systemConfigService;
 
@@ -23,7 +23,7 @@ class DeleteUnusedGuestCustomerService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         SystemConfigService $systemConfigService
     ) {
         $this->customerRepository = $customerRepository;
@@ -59,9 +59,9 @@ class DeleteUnusedGuestCustomerService
         $criteria->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
 
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
-        $ids = \array_map(static function ($id) {
+        $ids = \array_values(\array_map(static function ($id) {
             return ['id' => $id];
-        }, $ids);
+        }, $ids));
 
         $this->customerRepository->delete($ids, $context);
 

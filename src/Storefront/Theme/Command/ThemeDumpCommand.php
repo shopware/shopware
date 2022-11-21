@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
@@ -25,7 +25,7 @@ class ThemeDumpCommand extends Command
 
     private ThemeFileResolver $themeFileResolver;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
     private string $projectDir;
 
@@ -41,7 +41,7 @@ class ThemeDumpCommand extends Command
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         ThemeFileResolver $themeFileResolver,
-        EntityRepositoryInterface $themeRepository,
+        EntityRepository $themeRepository,
         string $projectDir,
         StaticFileConfigDumper $staticFileConfigDumper
     ) {

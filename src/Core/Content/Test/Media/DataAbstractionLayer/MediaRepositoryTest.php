@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderEvents;
@@ -19,7 +20,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -36,32 +37,20 @@ use Shopware\Core\Test\TestDefaults;
  * @group slow
  * @group skip-paratest
  */
-class MediaRepositoryDecoratorTest extends TestCase
+class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $documentRepository;
+    private EntityRepository $documentRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -168,7 +157,7 @@ class MediaRepositoryDecoratorTest extends TestCase
                         'name' => 'test',
                     ],
                     'id' => $documentId,
-                    'order' => $this->getOrderData($orderId, $this->context)[0],
+                    'order' => $this->getOrderData($orderId),
                     'fileType' => 'pdf',
                     'config' => [],
                     'deepLinkCode' => 'deeplink',
@@ -220,10 +209,14 @@ class MediaRepositoryDecoratorTest extends TestCase
         });
         static::assertNotNull($document);
         static::assertEquals(1, $document->count());
-        static::assertEquals($mediaId, $document->get($documentId)->getDocumentMediaFile()->getId());
-        static::assertEquals('', $document->get($documentId)->getDocumentMediaFile()->getUrl());
+        $document = $document->get($documentId);
+        static::assertInstanceOf(DocumentEntity::class, $document);
+        $media = $document->getDocumentMediaFile();
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertEquals($mediaId, $media->getId());
+        static::assertEquals('', $media->getUrl());
         // currently there shouldn't be loaded any thumbnails for private media, but if, the urls should be blank
-        foreach ($document->get($documentId)->getDocumentMediaFile()->getThumbnails() as $thumbnail) {
+        foreach ($media->getThumbnails() ?? [] as $thumbnail) {
             static::assertEquals('', $thumbnail->getUrl());
         }
     }
@@ -247,6 +240,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
+        static::assertInstanceOf(MediaEntity::class, $media);
         static::assertEquals($mediaId, $media->getId());
     }
 
@@ -267,6 +261,7 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
@@ -306,6 +301,7 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
@@ -363,7 +359,9 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $firstMedia = $read->get($firstId);
+        static::assertInstanceOf(MediaEntity::class, $firstMedia);
         $secondMedia = $read->get($secondId);
+        static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
@@ -417,6 +415,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $read = $this->mediaRepository->search(new Criteria([$secondId]), $this->context);
         $secondMedia = $read->get($secondId);
+        static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
@@ -507,6 +506,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         $read = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context);
 
         $media = $read->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaUrl = $urlGenerator->getRelativeMediaUrl($media);
@@ -544,9 +544,9 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
 
-        $order = $this->getOrderData($orderId, $this->context, $mediaId);
+        $order = $this->getOrderData($orderId, $mediaId);
 
-        $this->orderRepository->create($order, $this->context);
+        $this->orderRepository->create([$order], $this->context);
 
         $event = $this->mediaRepository->delete([['id' => $mediaId]], $this->context)->getEventByEntityName(OrderLineItemDefinition::ENTITY_NAME);
 
@@ -559,127 +559,125 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertNull($payload['coverId']);
     }
 
-    private function getOrderData(string $orderId, Context $context, ?string $mediaId = null): array
+    /**
+     * @return array<string, mixed>
+     */
+    private function getOrderData(string $orderId, ?string $mediaId = null): array
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
-        $order = [
-            [
-                'id' => $orderId,
-                'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
-                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
-                'paymentMethodId' => $this->getValidPaymentMethodId(),
-                'currencyId' => Defaults::CURRENCY,
-                'currencyFactor' => 1,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'deliveries' => [
-                    [
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
-                        'shippingMethodId' => $this->getValidShippingMethodId(),
-                        'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(\DATE_ISO8601),
-                        'shippingDateLatest' => date(\DATE_ISO8601),
-                        'shippingOrderAddress' => [
-                            'salutationId' => $salutation,
-                            'firstName' => 'Floy',
-                            'lastName' => 'Glover',
-                            'zipcode' => '59438-0403',
-                            'city' => 'Stellaberg',
-                            'street' => 'street',
-                            'country' => [
-                                'name' => 'kasachstan',
-                                'id' => $this->getValidCountryId(),
-                            ],
-                        ],
-                        'positions' => [
-                            [
-                                'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                                'orderLineItemId' => $orderLineItemId,
-                            ],
-                        ],
-                    ],
-                ],
-                'lineItems' => [
-                    [
-                        'id' => $orderLineItemId,
-                        'identifier' => 'test',
-                        'quantity' => 1,
-                        'type' => 'test',
-                        'label' => 'test',
-                        'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
-                        'good' => true,
-                        'coverId' => $mediaId,
-                    ],
-                ],
-                'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
-                'orderCustomer' => [
-                    'email' => 'test@example.com',
-                    'firstName' => 'Noe',
-                    'lastName' => 'Hill',
-                    'salutationId' => $salutation,
-                    'title' => 'Doc',
-                    'customerNumber' => 'Test',
-                    'customer' => [
-                        'email' => 'test@example.com',
-                        'firstName' => 'Noe',
-                        'lastName' => 'Hill',
-                        'salutationId' => $salutation,
-                        'title' => 'Doc',
-                        'customerNumber' => 'Test',
-                        'guest' => true,
-                        'group' => ['name' => 'testse2323'],
-                        'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                        'defaultBillingAddressId' => $addressId,
-                        'defaultShippingAddressId' => $addressId,
-                        'addresses' => [
-                            [
-                                'id' => $addressId,
-                                'salutationId' => $salutation,
-                                'firstName' => 'Floy',
-                                'lastName' => 'Glover',
-                                'zipcode' => '59438-0403',
-                                'city' => 'Stellaberg',
-                                'street' => 'street',
-                                'countryStateId' => $countryStateId,
-                                'country' => [
-                                    'name' => 'kasachstan',
-                                    'id' => $this->getValidCountryId(),
-                                    'states' => [
-                                        [
-                                            'id' => $countryStateId,
-                                            'name' => 'oklahoma',
-                                            'shortCode' => 'OH',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'billingAddressId' => $addressId,
-                'addresses' => [
-                    [
+        return [
+            'id' => $orderId,
+            'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'deliveries' => [
+                [
+                    'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                    'shippingMethodId' => $this->getValidShippingMethodId(),
+                    'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'shippingDateEarliest' => date(\DATE_ISO8601),
+                    'shippingDateLatest' => date(\DATE_ISO8601),
+                    'shippingOrderAddress' => [
                         'salutationId' => $salutation,
                         'firstName' => 'Floy',
                         'lastName' => 'Glover',
                         'zipcode' => '59438-0403',
                         'city' => 'Stellaberg',
                         'street' => 'street',
-                        'countryId' => $this->getValidCountryId(),
-                        'id' => $addressId,
+                        'country' => [
+                            'name' => 'kasachstan',
+                            'id' => $this->getValidCountryId(),
+                        ],
+                    ],
+                    'positions' => [
+                        [
+                            'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                            'orderLineItemId' => $orderLineItemId,
+                        ],
                     ],
                 ],
             ],
-        ]
-        ;
-
-        return $order;
+            'lineItems' => [
+                [
+                    'id' => $orderLineItemId,
+                    'identifier' => 'test',
+                    'quantity' => 1,
+                    'type' => 'test',
+                    'label' => 'test',
+                    'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
+                    'good' => true,
+                    'coverId' => $mediaId,
+                ],
+            ],
+            'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
+            'orderCustomer' => [
+                'email' => 'test@example.com',
+                'firstName' => 'Noe',
+                'lastName' => 'Hill',
+                'salutationId' => $salutation,
+                'title' => 'Doc',
+                'customerNumber' => 'Test',
+                'customer' => [
+                    'email' => 'test@example.com',
+                    'firstName' => 'Noe',
+                    'lastName' => 'Hill',
+                    'salutationId' => $salutation,
+                    'title' => 'Doc',
+                    'customerNumber' => 'Test',
+                    'guest' => true,
+                    'group' => ['name' => 'testse2323'],
+                    'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'defaultBillingAddressId' => $addressId,
+                    'defaultShippingAddressId' => $addressId,
+                    'addresses' => [
+                        [
+                            'id' => $addressId,
+                            'salutationId' => $salutation,
+                            'firstName' => 'Floy',
+                            'lastName' => 'Glover',
+                            'zipcode' => '59438-0403',
+                            'city' => 'Stellaberg',
+                            'street' => 'street',
+                            'countryStateId' => $countryStateId,
+                            'country' => [
+                                'name' => 'kasachstan',
+                                'id' => $this->getValidCountryId(),
+                                'states' => [
+                                    [
+                                        'id' => $countryStateId,
+                                        'name' => 'oklahoma',
+                                        'shortCode' => 'OH',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'billingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'salutationId' => $salutation,
+                    'firstName' => 'Floy',
+                    'lastName' => 'Glover',
+                    'zipcode' => '59438-0403',
+                    'city' => 'Stellaberg',
+                    'street' => 'street',
+                    'countryId' => $this->getValidCountryId(),
+                    'id' => $addressId,
+                ],
+            ],
+        ];
     }
 }

@@ -22,7 +22,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -57,22 +57,22 @@ class DocumentService
     protected $fileGeneratorRegistry;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $orderRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $documentRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $documentTypeRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $documentConfigRepository;
 
@@ -95,10 +95,10 @@ class DocumentService
         Connection $connection,
         DocumentGeneratorRegistry $documentGeneratorRegistry,
         FileGeneratorRegistry $fileGeneratorRegistry,
-        EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $documentRepository,
-        EntityRepositoryInterface $documentTypeRepository,
-        EntityRepositoryInterface $documentConfigRepository,
+        EntityRepository $orderRepository,
+        EntityRepository $documentRepository,
+        EntityRepository $documentTypeRepository,
+        EntityRepository $documentConfigRepository,
         MediaService $mediaService,
         EventDispatcherInterface $eventDispatcher
     ) {

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -41,7 +41,7 @@ class RegisterConfirmRouteTest extends TestCase
     protected $eventDispatcher;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     protected $customerRepository;
 
@@ -70,7 +70,7 @@ class RegisterConfirmRouteTest extends TestCase
         parent::setUp();
         $this->context = $this->createMock(SalesChannelContext::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->customerRepository = $this->createMock(EntityRepositoryInterface::class);
+        $this->customerRepository = $this->createMock(EntityRepository::class);
         $this->validator = $this->createMock(DataValidator::class);
         $this->salesChannelContextPersister = $this->createMock(SalesChannelContextPersister::class);
 

@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -24,7 +24,7 @@ class ApiAwareFlagTest extends TestCase
     public function testReadWithoutPermissionForAdminSourceWithJsonApiType(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('media.repository');
 
         $data = [
@@ -50,7 +50,7 @@ class ApiAwareFlagTest extends TestCase
     public function testReadWithoutPermissionForAdminSourceWithJsonType(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('media.repository');
 
         $data = [
@@ -78,7 +78,7 @@ class ApiAwareFlagTest extends TestCase
     public function testReadWithoutPermissionForSalesChannelSourceWithJsonType(): void
     {
         $id = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('product.repository');
 
         // when we create a salesChannelBrowser we also create a new SalesChannel,

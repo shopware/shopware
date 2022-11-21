@@ -8,7 +8,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -366,7 +366,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

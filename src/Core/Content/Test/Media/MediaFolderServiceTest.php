@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaFolderService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,17 +28,17 @@ class MediaFolderServiceTest extends TestCase
     private $mediaFolderService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderConfigRepo;
 

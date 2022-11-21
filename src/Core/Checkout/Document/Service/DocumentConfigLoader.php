@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,12 +23,12 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private array $configs = [];
 
-    private EntityRepositoryInterface $documentConfigRepository;
+    private EntityRepository $documentConfigRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $documentConfigRepository)
+    public function __construct(EntityRepository $documentConfigRepository)
     {
         $this->documentConfigRepository = $documentConfigRepository;
     }

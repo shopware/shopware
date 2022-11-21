@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -30,11 +30,11 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private AbstractAppLifecycle $appLifecycle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private ?EntityRepositoryInterface $themeRepository;
+    private ?EntityRepository $themeRepository;
 
     private AppStateService $appStateService;
 
@@ -49,9 +49,9 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         StoreClient $storeClient,
         AbstractAppLoader $appLoader,
         AbstractAppLifecycle $appLifecycle,
-        EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $salesChannelRepository,
-        ?EntityRepositoryInterface $themeRepository,
+        EntityRepository $appRepository,
+        EntityRepository $salesChannelRepository,
+        ?EntityRepository $themeRepository,
         AppStateService $appStateService,
         AppConfirmationDeltaProvider $appDeltaService
     ) {
@@ -190,7 +190,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private function getThemeIdByTechnicalName(string $technicalName, Context $context): ?string
     {
-        if (!$this->themeRepository instanceof EntityRepositoryInterface) {
+        if (!$this->themeRepository instanceof EntityRepository) {
             return null;
         }
 

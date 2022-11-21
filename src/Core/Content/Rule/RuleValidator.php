@@ -7,7 +7,7 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -37,9 +37,9 @@ class RuleValidator implements EventSubscriberInterface
 
     private RuleConditionRegistry $ruleConditionRegistry;
 
-    private EntityRepositoryInterface $ruleConditionRepository;
+    private EntityRepository $ruleConditionRepository;
 
-    private EntityRepositoryInterface $appScriptConditionRepository;
+    private EntityRepository $appScriptConditionRepository;
 
     /**
      * @internal
@@ -47,8 +47,8 @@ class RuleValidator implements EventSubscriberInterface
     public function __construct(
         ValidatorInterface $validator,
         RuleConditionRegistry $ruleConditionRegistry,
-        EntityRepositoryInterface $ruleConditionRepository,
-        EntityRepositoryInterface $appScriptConditionRepository
+        EntityRepository $ruleConditionRepository,
+        EntityRepository $appScriptConditionRepository
     ) {
         $this->validator = $validator;
         $this->ruleConditionRegistry = $ruleConditionRegistry;

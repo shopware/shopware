@@ -14,7 +14,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -29,7 +29,7 @@ class MappingService extends AbstractMappingService
 {
     private AbstractFileService $fileService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
@@ -38,7 +38,7 @@ class MappingService extends AbstractMappingService
      */
     public function __construct(
         AbstractFileService $fileService,
-        EntityRepositoryInterface $profileRepository,
+        EntityRepository $profileRepository,
         DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->fileService = $fileService;

@@ -18,48 +18,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
-class SalesChannelRepository implements SalesChannelRepositoryInterface
+class SalesChannelRepository
 {
-    /**
-     * @var EntityDefinition
-     */
-    protected $definition;
+    private EntityDefinition $definition;
 
-    /**
-     * @var EntityReaderInterface
-     */
-    protected $reader;
+    private EntityReaderInterface $reader;
 
-    /**
-     * @var EntitySearcherInterface
-     */
-    protected $searcher;
+    private EntitySearcherInterface $searcher;
 
-    /**
-     * @var EntityAggregatorInterface
-     */
-    protected $aggregator;
+    private EntityAggregatorInterface $aggregator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    private ?EntityLoadedEventFactory $eventFactory;
+    private EntityLoadedEventFactory $eventFactory;
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.5.0 - $eventFactory parameter will be required
      */
     public function __construct(
         EntityDefinition $definition,
@@ -67,34 +49,13 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         EntitySearcherInterface $searcher,
         EntityAggregatorInterface $aggregator,
         EventDispatcherInterface $eventDispatcher,
-        ?EntityLoadedEventFactory $eventFactory
+        EntityLoadedEventFactory $eventFactory
     ) {
         $this->definition = $definition;
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
-
-        if ($eventFactory !== null) {
-            $this->eventFactory = $eventFactory;
-        } else {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                sprintf('SalesChannelRepository constructor for definition %s requires the event factory as required 6th parameter in v6.5.0.0', $definition->getEntityName())
-            );
-        }
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
         $this->eventFactory = $eventFactory;
     }
 
@@ -191,10 +152,6 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         $criteria = clone $criteria;
 
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
-
-        if ($this->eventFactory === null) {
-            throw new \RuntimeException('Event loaded factory was not injected');
-        }
 
         if ($criteria->getFields() === []) {
             $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);

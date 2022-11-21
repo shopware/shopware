@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -36,7 +36,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     private $eventDispatcher;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
@@ -51,7 +51,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         ProductListingLoader $listingLoader,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $categoryRepository,
+        EntityRepository $categoryRepository,
         ProductStreamBuilderInterface $productStreamBuilder
     ) {
         $this->eventDispatcher = $eventDispatcher;

@@ -752,6 +752,7 @@ class ApiController extends AbstractController
 
         $association = $child['field'];
 
+        /** @var EntityDefinition $parentDefinition */
         $parentDefinition = $parent['definition'];
 
         if ($association instanceof OneToManyAssociationField) {
@@ -783,6 +784,7 @@ class ApiController extends AbstractController
             $entityIds = $event->getIds();
             $entityId = array_pop($entityIds);
 
+            /** @var Field $foreignKey */
             $foreignKey = $parentDefinition->getFields()->getByStorageName($association->getStorageName());
 
             $payload = [

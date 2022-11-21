@@ -22,7 +22,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -38,7 +38,7 @@ final class DocumentGenerator
 
     private MediaService $mediaService;
 
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private Connection $connection;
 
@@ -49,7 +49,7 @@ final class DocumentGenerator
         DocumentRendererRegistry $rendererRegistry,
         PdfRenderer $pdfRenderer,
         MediaService $mediaService,
-        EntityRepositoryInterface $documentRepository,
+        EntityRepository $documentRepository,
         Connection $connection
     ) {
         $this->rendererRegistry = $rendererRegistry;

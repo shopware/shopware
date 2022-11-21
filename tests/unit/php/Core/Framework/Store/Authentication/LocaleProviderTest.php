@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Authentication;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -23,14 +23,14 @@ class LocaleProviderTest extends TestCase
 {
     public function testGetLocaleFromContextReturnsEnGbInSystemSource(): void
     {
-        $provider = new LocaleProvider(static::createMock(EntityRepositoryInterface::class));
+        $provider = new LocaleProvider(static::createMock(EntityRepository::class));
 
         static::assertEquals('en-GB', $provider->getLocaleFromContext(Context::createDefaultContext()));
     }
 
     public function testGetLocaleFromContextReturnsEnGbIfNoUserIsAssociated(): void
     {
-        $provider = new LocaleProvider(static::createMock(EntityRepositoryInterface::class));
+        $provider = new LocaleProvider(static::createMock(EntityRepository::class));
 
         static::assertEquals(
             'en-GB',
@@ -51,7 +51,7 @@ class LocaleProviderTest extends TestCase
         $user->setUniqueIdentifier('user-identifier');
         $user->setLocale($userLocale);
 
-        $userRepository = static::createMock(EntityRepositoryInterface::class);
+        $userRepository = static::createMock(EntityRepository::class);
         $userRepository->expects(static::once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
@@ -72,7 +72,7 @@ class LocaleProviderTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id', null));
 
-        $userRepository = static::createMock(EntityRepositoryInterface::class);
+        $userRepository = static::createMock(EntityRepository::class);
         $userRepository->expects(static::once())
             ->method('search')
             ->willReturn(new EntitySearchResult(

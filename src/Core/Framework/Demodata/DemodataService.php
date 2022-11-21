@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Demodata;
 
 use Faker\Factory;
 use Faker\Generator;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -93,8 +94,8 @@ class DemodataService
         /*
          * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
          */
-        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $faker->addProvider(new \Maltyxx\ImagesGenerator\ImagesGeneratorProvider($faker));
+        if (\class_exists(ImagesGeneratorProvider::class)) {
+            $faker->addProvider(new ImagesGeneratorProvider($faker));
         } else {
             $faker->addProvider(new \bheller\ImagesGenerator\ImagesGeneratorProvider($faker));
         }

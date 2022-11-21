@@ -15,7 +15,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,7 +30,7 @@ class ProductExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 
@@ -107,7 +107,7 @@ class ProductExporterTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -115,7 +115,7 @@ class ProductExporterTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();

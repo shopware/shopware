@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +28,7 @@ class UpdatedByFieldTest extends TestCase
 
     public function testUpdatedByNotUpdateWithWrongScope(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $userId = $this->fetchFirstIdFromTable('user');
         $context = $this->getAdminContext($userId);
@@ -53,7 +53,7 @@ class UpdatedByFieldTest extends TestCase
 
     public function testUpdatedByNotUpdateWithWrongSource(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $context = Context::createDefaultContext();
 
@@ -79,7 +79,7 @@ class UpdatedByFieldTest extends TestCase
 
     public function testCreateUpdatedBy(): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $userId = $this->fetchFirstIdFromTable('user');
         $context = $this->getAdminContext($userId);

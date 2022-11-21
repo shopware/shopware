@@ -5,18 +5,18 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class PaymentDistinguishableNameGenerator
 {
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $paymentMethodRepository
+        EntityRepository $paymentMethodRepository
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
     }

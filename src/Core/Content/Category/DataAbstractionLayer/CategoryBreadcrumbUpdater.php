@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -18,14 +18,14 @@ class CategoryBreadcrumbUpdater
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $languageRepository)
+    public function __construct(Connection $connection, EntityRepository $categoryRepository, EntityRepository $languageRepository)
     {
         $this->connection = $connection;
         $this->categoryRepository = $categoryRepository;

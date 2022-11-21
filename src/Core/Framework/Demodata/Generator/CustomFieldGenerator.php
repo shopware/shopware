@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,7 +17,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
  */
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {
-    private EntityRepositoryInterface $attributeSetRepository;
+    private EntityRepository $attributeSetRepository;
 
     private Connection $connection;
 
@@ -31,7 +31,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection, DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(EntityRepository $attributeSetRepository, Connection $connection, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->attributeSetRepository = $attributeSetRepository;
         $this->connection = $connection;

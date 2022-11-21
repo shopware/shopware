@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
@@ -45,17 +45,17 @@ class ThemeLifecycleServiceTest extends TestCase
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $themeRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepository;
 
@@ -407,7 +407,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function deleteLanguageForLocale(string $locale): void
     {
-        /** @var EntityRepositoryInterface $languageRepository */
+        /** @var EntityRepository $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
@@ -423,7 +423,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function changeDefaultLanguageLocale(string $locale): void
     {
-        /** @var EntityRepositoryInterface $languageRepository */
+        /** @var EntityRepository $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
@@ -433,7 +433,7 @@ class ThemeLifecycleServiceTest extends TestCase
         /** @var LanguageEntity $language */
         $language = $languageRepository->search($criteria, $context)->first();
 
-        /** @var EntityRepositoryInterface $localeRepository */
+        /** @var EntityRepository $localeRepository */
         $localeRepository = $this->getContainer()->get('locale.repository');
 
         $localeRepository->upsert([

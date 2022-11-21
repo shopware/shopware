@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -39,7 +39,7 @@ class ProductIndexer extends EntityIndexer
 
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Connection $connection;
 
@@ -72,7 +72,7 @@ class ProductIndexer extends EntityIndexer
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         Connection $connection,
         VariantListingUpdater $variantListingUpdater,
         ProductCategoryDenormalizer $categoryDenormalizer,

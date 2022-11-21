@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -32,7 +32,7 @@ class OrderConverterController extends AbstractController
     private $cartPersister;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $orderRepository;
 
@@ -42,7 +42,7 @@ class OrderConverterController extends AbstractController
     public function __construct(
         OrderConverter $orderConverter,
         CartPersisterInterface $cartPersister,
-        EntityRepositoryInterface $orderRepository
+        EntityRepository $orderRepository
     ) {
         $this->orderConverter = $orderConverter;
         $this->cartPersister = $cartPersister;

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -16,14 +16,14 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class AppLocaleProvider
 {
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $userRepository, LanguageLocaleCodeProvider $languageLocaleProvider)
+    public function __construct(EntityRepository $userRepository, LanguageLocaleCodeProvider $languageLocaleProvider)
     {
         $this->userRepository = $userRepository;
         $this->languageLocaleProvider = $languageLocaleProvider;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Subscriber;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -22,7 +22,7 @@ class UpdateSubscriber implements EventSubscriberInterface
 
     private ThemeLifecycleService $themeLifecycleService;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
      * @internal
@@ -30,7 +30,7 @@ class UpdateSubscriber implements EventSubscriberInterface
     public function __construct(
         ThemeService $themeService,
         ThemeLifecycleService $themeLifecycleService,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepository $salesChannelRepository
     ) {
         $this->themeService = $themeService;
         $this->themeLifecycleService = $themeLifecycleService;

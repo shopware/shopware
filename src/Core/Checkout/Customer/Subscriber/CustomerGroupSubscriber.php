@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerG
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,23 +25,23 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
 
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
     private SeoUrlPersister $persister;
 
     private SlugifyInterface $slugify;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerGroupRepository,
-        EntityRepositoryInterface $seoUrlRepository,
-        EntityRepositoryInterface $languageRepository,
+        EntityRepository $customerGroupRepository,
+        EntityRepository $seoUrlRepository,
+        EntityRepository $languageRepository,
         SeoUrlPersister $persister,
         SlugifyInterface $slugify
     ) {

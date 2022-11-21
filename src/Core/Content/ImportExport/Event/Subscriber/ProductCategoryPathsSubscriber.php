@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
 {
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     private SyncServiceInterface $syncService;
 
@@ -35,7 +35,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $categoryRepository, SyncServiceInterface $syncService)
+    public function __construct(EntityRepository $categoryRepository, SyncServiceInterface $syncService)
     {
         $this->categoryRepository = $categoryRepository;
         $this->syncService = $syncService;

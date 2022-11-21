@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,9 +25,9 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private IdsCollection $ids;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     public function setUp(): void
     {

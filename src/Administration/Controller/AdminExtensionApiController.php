@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,14 +34,14 @@ class AdminExtensionApiController extends AbstractController
 
     private ShopIdProvider $shopIdProvider;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private QuerySigner $querySigner;
 
     public function __construct(
         Executor $executor,
         ShopIdProvider $shopIdProvider,
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         QuerySigner $querySigner
     ) {
         $this->executor = $executor;

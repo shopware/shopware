@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -51,7 +51,7 @@ class ThemeTest extends TestCase
     protected $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $themeRepository;
 
@@ -61,7 +61,7 @@ class ThemeTest extends TestCase
     private $createdStorefrontTheme = '';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 

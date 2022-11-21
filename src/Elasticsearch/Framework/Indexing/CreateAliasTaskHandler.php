@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
@@ -36,7 +36,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
      * @param array<mixed> $config
      */
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
+        EntityRepository $scheduledTaskRepository,
         Client $client,
         Connection $connection,
         ElasticsearchHelper $elasticsearchHelper,

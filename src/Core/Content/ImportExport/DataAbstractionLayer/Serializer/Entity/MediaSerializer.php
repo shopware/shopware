@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -31,9 +31,9 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
     private MediaService $mediaService;
 
-    private EntityRepositoryInterface $mediaFolderRepository;
+    private EntityRepository $mediaFolderRepository;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     /**
      * @var array<string, array{media: MediaFile, destination: string}>
@@ -46,8 +46,8 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     public function __construct(
         MediaService $mediaService,
         FileSaver $fileSaver,
-        EntityRepositoryInterface $mediaFolderRepository,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepository $mediaFolderRepository,
+        EntityRepository $mediaRepository
     ) {
         $this->mediaService = $mediaService;
         $this->fileSaver = $fileSaver;

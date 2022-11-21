@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
-    private EntityRepositoryInterface $cmsPageRepository;
+    private EntityRepository $cmsPageRepository;
 
     private CmsSlotsDataResolver $slotDataResolver;
 
@@ -29,7 +29,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $cmsPageRepository,
+        EntityRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
         EventDispatcherInterface $eventDispatcher
     ) {

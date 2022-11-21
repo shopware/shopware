@@ -11,7 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
@@ -24,13 +24,13 @@ class NewsletterRecipientStorerTest extends TestCase
     private NewsletterRecipientStorer $storer;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     private $repository;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->storer = new NewsletterRecipientStorer($this->repository);
     }
 

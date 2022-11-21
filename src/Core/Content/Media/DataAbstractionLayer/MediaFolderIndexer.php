@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -25,7 +25,7 @@ class MediaFolderIndexer extends EntityIndexer
 
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $folderRepository;
+    private EntityRepository $folderRepository;
 
     private Connection $connection;
 
@@ -40,7 +40,7 @@ class MediaFolderIndexer extends EntityIndexer
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         ChildCountUpdater $childCountUpdater,

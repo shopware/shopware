@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Api;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
@@ -202,7 +203,7 @@ class OrderActionController extends AbstractController
     /**
      * @param array<string> $documentTypes
      *
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      *
      * @return array<string>

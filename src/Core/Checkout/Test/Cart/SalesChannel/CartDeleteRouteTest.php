@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -27,7 +29,7 @@ class CartDeleteRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -37,7 +39,7 @@ class CartDeleteRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     private $productRepository;
 

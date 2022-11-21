@@ -7,7 +7,7 @@ use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -18,14 +18,14 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
  */
 class CmsBlockPersister
 {
-    private EntityRepositoryInterface $cmsBlockRepository;
+    private EntityRepository $cmsBlockRepository;
 
     private AbstractBlockTemplateLoader $blockTemplateLoader;
 
     private HtmlSanitizer $htmlSanitizer;
 
     public function __construct(
-        EntityRepositoryInterface $cmsBlockRepository,
+        EntityRepository $cmsBlockRepository,
         AbstractBlockTemplateLoader $blockTemplateLoader,
         HtmlSanitizer $htmlSanitizer
     ) {

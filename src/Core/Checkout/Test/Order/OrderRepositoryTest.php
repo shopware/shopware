@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -41,13 +41,13 @@ class OrderRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private OrderPersister $orderPersister;
 
     private Processor $processor;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 

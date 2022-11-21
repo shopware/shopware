@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -42,12 +41,12 @@ class OneToOneAssociationFieldTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $subRepository;
 

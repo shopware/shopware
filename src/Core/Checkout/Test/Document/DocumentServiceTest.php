@@ -33,7 +33,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -339,7 +339,7 @@ class DocumentServiceTest extends TestCase
             $this->context
         );
 
-        /** @var EntityRepositoryInterface $documentRepository */
+        /** @var EntityRepository $documentRepository */
         $documentRepository = $this->getContainer()->get('document.repository');
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
@@ -387,7 +387,7 @@ class DocumentServiceTest extends TestCase
             $this->context
         );
 
-        /** @var EntityRepositoryInterface $documentRepository */
+        /** @var EntityRepository $documentRepository */
         $documentRepository = $this->getContainer()->get('document.repository');
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
@@ -573,14 +573,14 @@ class DocumentServiceTest extends TestCase
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
         )->firstId();
 
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        /** @var EntityRepository $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
 
         $criteria = new Criteria();
@@ -602,7 +602,7 @@ class DocumentServiceTest extends TestCase
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
@@ -634,7 +634,7 @@ class DocumentServiceTest extends TestCase
             ];
         }
 
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        /** @var EntityRepository $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }

@@ -4,14 +4,13 @@ namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\DataResolver\Element;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\HttpFoundation\Request;
 
-class FormCmsElementResolver extends Element\AbstractCmsElementResolver
+class FormCmsElementResolver extends AbstractCmsElementResolver
 {
     private AbstractSalutationRoute $salutationRoute;
 

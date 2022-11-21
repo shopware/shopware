@@ -11,7 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -28,13 +28,13 @@ class FlowActionCollectorTest extends TestCase
 {
     public function testCollect(): void
     {
-        $addCustomerTag = new AddCustomerTagAction($this->createMock(EntityRepositoryInterface::class));
-        $removeOrderTag = new RemoveOrderTagAction($this->createMock(EntityRepositoryInterface::class));
+        $addCustomerTag = new AddCustomerTagAction($this->createMock(EntityRepository::class));
+        $removeOrderTag = new RemoveOrderTagAction($this->createMock(EntityRepository::class));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects(static::once())->method('dispatch');
 
-        $appFlowActionRepo = $this->createMock(EntityRepositoryInterface::class);
+        $appFlowActionRepo = $this->createMock(EntityRepository::class);
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects(static::once())
             ->method('getEntities')

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +28,7 @@ class ChangeEmailRouteTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {

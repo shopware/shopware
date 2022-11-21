@@ -9,7 +9,7 @@ use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductExporter implements ProductExporterInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productExportRepository;
 
@@ -42,7 +42,7 @@ class ProductExporter implements ProductExporterInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $productExportRepository,
+        EntityRepository $productExportRepository,
         ProductExportGeneratorInterface $productExportGenerator,
         EventDispatcherInterface $eventDispatcher,
         ProductExportFileHandlerInterface $productExportFileHandler

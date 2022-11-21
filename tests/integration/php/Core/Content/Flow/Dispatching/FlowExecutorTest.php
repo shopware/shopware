@@ -17,7 +17,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -42,15 +42,15 @@ class FlowExecutorTest extends TestCase
 
     private CartService $cartService;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $orderTransactionRepository;
+    private EntityRepository $orderTransactionRepository;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
-    private EntityRepositoryInterface $tagRepository;
+    private EntityRepository $tagRepository;
 
     private OrderTransactionStateHandler $orderTransactionStateHandler;
 

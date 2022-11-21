@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1632215760MoveDataFromEventActionToFlow;
@@ -26,7 +26,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $eventActionRepository;
+    private EntityRepository $eventActionRepository;
 
     public function setUp(): void
     {

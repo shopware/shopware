@@ -11,7 +11,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -33,12 +33,12 @@ class GenerateThumbnailsCommandTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepository;
 

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +32,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private AdminExtensionApiController $adminExtensionApiController;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     /**
      * @var Executor|MockObject

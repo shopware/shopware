@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -43,7 +43,7 @@ class CacheInvalidator extends ScheduledTaskHandler
         array $adapters,
         TagAwareAdapterInterface $cache,
         EventDispatcherInterface $dispatcher,
-        EntityRepositoryInterface $scheduledTaskRepository
+        EntityRepository $scheduledTaskRepository
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->dispatcher = $dispatcher;

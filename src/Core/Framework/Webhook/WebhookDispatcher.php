@@ -16,7 +16,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -400,7 +400,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
     {
-        /** @var EntityRepositoryInterface $webhookEventLogRepository */
+        /** @var EntityRepository $webhookEventLogRepository */
         $webhookEventLogRepository = $this->container->get('webhook_event_log.repository');
 
         $webhookEventLogRepository->create([

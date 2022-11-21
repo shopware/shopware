@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -29,9 +29,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $groupRepository;
+    private EntityRepository $groupRepository;
 
-    private EntityRepositoryInterface $optionRepository;
+    private EntityRepository $optionRepository;
 
     /**
      * @var array<string, string>
@@ -49,8 +49,8 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
     public function __construct(
         SyncServiceInterface $syncService,
         Connection $connection,
-        EntityRepositoryInterface $groupRepository,
-        EntityRepositoryInterface $optionRepository
+        EntityRepository $groupRepository,
+        EntityRepository $optionRepository
     ) {
         $this->syncService = $syncService;
         $this->connection = $connection;

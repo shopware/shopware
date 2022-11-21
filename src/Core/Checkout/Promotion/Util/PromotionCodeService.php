@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -18,16 +18,16 @@ class PromotionCodeService
     public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
     public const CODE_COMPLEXITY_FACTOR = 0.5;
 
-    private EntityRepositoryInterface $individualCodesRepository;
+    private EntityRepository $individualCodesRepository;
 
-    private EntityRepositoryInterface $promotionRepository;
+    private EntityRepository $promotionRepository;
 
     private Connection $connection;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $promotionRepository, EntityRepositoryInterface $individualCodesRepository, Connection $connection)
+    public function __construct(EntityRepository $promotionRepository, EntityRepository $individualCodesRepository, Connection $connection)
     {
         $this->promotionRepository = $promotionRepository;
         $this->individualCodesRepository = $individualCodesRepository;

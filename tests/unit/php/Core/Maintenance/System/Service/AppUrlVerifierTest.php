@@ -10,7 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,14 +29,14 @@ class AppUrlVerifierTest extends TestCase
     private $guzzleMock;
 
     /**
-     * @var EntityRepositoryInterface&MockObject
+     * @var EntityRepository&MockObject
      */
     private $appRepository;
 
     public function setUp(): void
     {
         $this->guzzleMock = $this->createMock(Client::class);
-        $this->appRepository = $this->createMock(EntityRepositoryInterface::class);
+        $this->appRepository = $this->createMock(EntityRepository::class);
     }
 
     public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void

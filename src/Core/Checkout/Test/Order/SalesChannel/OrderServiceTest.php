@@ -20,7 +20,7 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -59,7 +59,7 @@ class OrderServiceTest extends TestCase
     private $orderService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $orderRepository;
 
@@ -544,7 +544,7 @@ class OrderServiceTest extends TestCase
         $firstDomain = 'http://shopware.first-domain';
         $this->setDomainForSalesChannel($firstDomain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EntityRepositoryInterface $languageRepository */
+        /** @var EntityRepository $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
 
         $criteria = new Criteria();
@@ -721,7 +721,7 @@ class OrderServiceTest extends TestCase
 
     private function setDomainForSalesChannel(string $domain, string $languageId): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $data = [

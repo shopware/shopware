@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
@@ -13,11 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 class DeleteExpiredFilesService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $fileRepository;
 
-    public function __construct(EntityRepositoryInterface $fileRepository)
+    public function __construct(EntityRepository $fileRepository)
     {
         $this->fileRepository = $fileRepository;
     }

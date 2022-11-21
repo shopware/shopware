@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
@@ -27,7 +27,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class TaskScheduler
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $scheduledTaskRepository;
 
@@ -42,7 +42,7 @@ class TaskScheduler
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
+        EntityRepository $scheduledTaskRepository,
         MessageBusInterface $bus,
         ParameterBagInterface $parameterBag
     ) {

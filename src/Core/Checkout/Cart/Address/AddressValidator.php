@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,7 +18,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 class AddressValidator implements CartValidatorInterface, ResetInterface
 {
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     /**
      * @var array<string, bool>
@@ -28,7 +28,7 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $repository)
+    public function __construct(EntityRepository $repository)
     {
         $this->repository = $repository;
     }

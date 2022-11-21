@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -16,7 +16,7 @@ final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 
     private int $delay;
 
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, CacheInvalidator $cacheInvalidator, int $delay)
+    public function __construct(EntityRepository $scheduledTaskRepository, CacheInvalidator $cacheInvalidator, int $delay)
     {
         parent::__construct($scheduledTaskRepository);
 

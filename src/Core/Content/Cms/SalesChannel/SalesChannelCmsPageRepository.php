@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\CmsPageCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -16,12 +16,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class SalesChannelCmsPageRepository
 {
-    private EntityRepositoryInterface $cmsPageRepository;
+    private EntityRepository $cmsPageRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $repository)
+    public function __construct(EntityRepository $repository)
     {
         $this->cmsPageRepository = $repository;
     }

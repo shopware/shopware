@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -17,7 +17,7 @@ trait AggregationTestBehaviour
      */
     public function setupFixtures(Context $context): array
     {
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $payload = [
@@ -41,9 +41,9 @@ trait AggregationTestBehaviour
      */
     public function setupGroupByFixtures(Context $context): array
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
 
         $category1 = Uuid::randomHex();

@@ -7,7 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -24,12 +24,12 @@ class CustomerGroupSubscriberTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerGroupRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $seoRepository;
 
@@ -234,7 +234,7 @@ class CustomerGroupSubscriberTest extends TestCase
      */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
         $salesChannel = array_merge([

@@ -15,14 +15,14 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,11 +36,11 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $crossSellingRepository;
+    private EntityRepository $crossSellingRepository;
 
     private ProductStreamBuilderInterface $productStreamBuilder;
 
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private SystemConfigService $systemConfigService;
 
@@ -52,10 +52,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $crossSellingRepository,
+        EntityRepository $crossSellingRepository,
         EventDispatcherInterface $eventDispatcher,
         ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepositoryInterface $productRepository,
+        SalesChannelRepository $productRepository,
         SystemConfigService $systemConfigService,
         ProductListingLoader $listingLoader,
         AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory

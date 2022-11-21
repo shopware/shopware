@@ -13,13 +13,13 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
 
 final class DocumentMerger
 {
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private Fpdi $fpdi;
 
@@ -31,7 +31,7 @@ final class DocumentMerger
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $documentRepository,
+        EntityRepository $documentRepository,
         MediaService $mediaService,
         DocumentGenerator $documentGenerator,
         Fpdi $fpdi

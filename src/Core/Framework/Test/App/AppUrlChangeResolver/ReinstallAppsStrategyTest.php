@@ -11,7 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -154,7 +154,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
     private function getInstalledApp(Context $context): AppEntity
     {
-        /** @var EntityRepositoryInterface $appRepo */
+        /** @var EntityRepository $appRepo */
         $appRepo = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();

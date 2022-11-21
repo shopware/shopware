@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -19,7 +19,7 @@ class PaymentMethodIndexer extends EntityIndexer
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     private PaymentDistinguishableNameGenerator $distinguishableNameGenerator;
 
@@ -29,7 +29,7 @@ class PaymentMethodIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepository $paymentMethodRepository,
         PaymentDistinguishableNameGenerator $distinguishableNameGenerator
     ) {
         $this->iteratorFactory = $iteratorFactory;

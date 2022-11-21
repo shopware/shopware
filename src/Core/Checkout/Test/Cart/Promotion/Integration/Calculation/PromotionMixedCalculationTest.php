@@ -3,6 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -10,7 +14,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,11 +31,11 @@ class PromotionMixedCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionSetGroupTestFixtureBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {
@@ -50,10 +54,10 @@ class PromotionMixedCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testMixedAbsoluteAndPercentageDiscount(): void
     {
@@ -90,10 +94,10 @@ class PromotionMixedCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testRemoveDiscountByCode(): void
     {
@@ -137,9 +141,9 @@ class PromotionMixedCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testProportionalTaxDistribution(): void
     {

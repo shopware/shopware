@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetD
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
@@ -17,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductFeatureBuilder
 {
-    private EntityRepositoryInterface $customFieldRepository;
+    private EntityRepository $customFieldRepository;
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
@@ -25,7 +25,7 @@ class ProductFeatureBuilder
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customFieldRepository,
+        EntityRepository $customFieldRepository,
         LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->customFieldRepository = $customFieldRepository;

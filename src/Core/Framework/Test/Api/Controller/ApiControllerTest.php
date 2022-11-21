@@ -12,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -587,7 +587,7 @@ EOF;
 
         $this->assertEntityExists($browser, 'product', $id);
 
-        /** @var EntityRepositoryInterface $productRepo */
+        /** @var EntityRepository $productRepo */
         $productRepo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
@@ -2295,7 +2295,7 @@ EOF;
 
     private function getNonSystemLanguageId(): string
     {
-        /** @var EntityRepositoryInterface $languageRepository */
+        /** @var EntityRepository $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(

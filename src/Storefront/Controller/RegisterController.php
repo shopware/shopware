@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -55,7 +55,7 @@ class RegisterController extends StorefrontController
 
     private SystemConfigService $systemConfigService;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     private AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
 
@@ -63,7 +63,7 @@ class RegisterController extends StorefrontController
 
     private AbstractRegisterConfirmRoute $registerConfirmRoute;
 
-    private EntityRepositoryInterface $domainRepository;
+    private EntityRepository $domainRepository;
 
     /**
      * @internal
@@ -75,9 +75,9 @@ class RegisterController extends StorefrontController
         CartService $cartService,
         CheckoutRegisterPageLoader $registerPageLoader,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader,
-        EntityRepositoryInterface $domainRepository
+        EntityRepository $domainRepository
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->cartService = $cartService;

@@ -46,6 +46,9 @@ parameters:
         # class behind feature flags
         - src/Core/Checkout/Cart/Exception/InvalidCartException.php
 
+        # extends final class, which is ok for mocks
+        - src/Core/Content/Test/ImportExport/MockRepository.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -252,6 +255,11 @@ parameters:
         -
             message: "#^Return type of call to method PHPUnit\\\\Framework\\\\TestCase\\:\\:createPartialMock\\(\\) contains unresolvable type.$#"
             path: tests/unit/php/Core/Content/Mail/Service/MailerTransportLoaderTest.php
+
+        - # MockRepo extends final EntityRepository class, with is ok for tests
+            message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
+            count: 1
+            path: src/Core/Content/Test/ImportExport/MockRepository.php
 
 services:
     -

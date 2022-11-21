@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,9 +30,9 @@ class SearchKeywordUpdater implements ResetInterface
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private ProductSearchKeywordAnalyzerInterface $analyzer;
 
@@ -46,8 +46,8 @@ class SearchKeywordUpdater implements ResetInterface
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $productRepository,
+        EntityRepository $languageRepository,
+        EntityRepository $productRepository,
         ProductSearchKeywordAnalyzerInterface $analyzer
     ) {
         $this->connection = $connection;

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -28,7 +28,7 @@ final class FileLoaderTest extends TestCase
 
     private FileSaver $fileSaver;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
     protected function setUp(): void
     {

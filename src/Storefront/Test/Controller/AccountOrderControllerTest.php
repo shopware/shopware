@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -70,7 +70,7 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
         $orderData[0]['lineItems'][0]['productId'] = $productId;
 
-        /** @var EntityRepositoryInterface $orderRepo */
+        /** @var EntityRepository $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
@@ -170,7 +170,7 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity|null $salesChannel */
@@ -304,7 +304,7 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
@@ -345,7 +345,7 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */

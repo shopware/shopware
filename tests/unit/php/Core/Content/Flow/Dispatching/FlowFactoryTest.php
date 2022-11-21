@@ -9,7 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
@@ -27,7 +27,7 @@ class FlowFactoryTest extends TestCase
         $order->setId($ids->get('orderId'));
 
         $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, Defaults::SALES_CHANNEL);
-        $orderStorer = new OrderStorer($this->createMock(EntityRepositoryInterface::class));
+        $orderStorer = new OrderStorer($this->createMock(EntityRepository::class));
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
 
@@ -45,7 +45,7 @@ class FlowFactoryTest extends TestCase
             ->method('get')
             ->willReturn($order);
 
-        $orderRepo = $this->createMock(EntityRepositoryInterface::class);
+        $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo->expects(static::once())
             ->method('search')
             ->willReturn($entitySearchResult);

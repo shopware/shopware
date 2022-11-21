@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\ScheduledTask\fixtures;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -30,7 +30,7 @@ final class DummyScheduledTaskHandler extends ScheduledTaskHandler
      */
     private $wasCalled = false;
 
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, string $taskId, bool $shouldThrowException = false)
+    public function __construct(EntityRepository $scheduledTaskRepository, string $taskId, bool $shouldThrowException = false)
     {
         parent::__construct($scheduledTaskRepository);
         $this->taskId = $taskId;

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -31,13 +31,13 @@ use Shopware\Core\Test\TestDefaults;
  */
 class RuleGenerator implements DemodataGeneratorInterface
 {
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
     private EntityWriterInterface $writer;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $shippingMethodRepository;
+    private EntityRepository $shippingMethodRepository;
 
     private RuleDefinition $ruleDefinition;
 
@@ -47,10 +47,10 @@ class RuleGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $ruleRepository,
+        EntityRepository $ruleRepository,
         EntityWriterInterface $writer,
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
+        EntityRepository $paymentMethodRepository,
+        EntityRepository $shippingMethodRepository,
         RuleDefinition $ruleDefinition
     ) {
         $this->ruleRepository = $ruleRepository;

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -47,7 +47,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $context = Context::createDefaultContext();
 

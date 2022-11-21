@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -34,9 +34,9 @@ class CartLoadRouteTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelFactory;
 

@@ -255,7 +255,7 @@ class AggregationParserTest extends TestCase
 
         $entity = $criteria->getAggregation('entity_test');
 
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation $entity */
+        /** @var EntityAggregation $entity */
         static::assertInstanceOf(EntityAggregation::class, $entity);
         static::assertEquals('product.manufacturerId', $entity->getField());
         static::assertEquals(ProductManufacturerDefinition::ENTITY_NAME, $entity->getEntity());

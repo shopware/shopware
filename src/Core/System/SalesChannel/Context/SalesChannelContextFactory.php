@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -31,13 +31,13 @@ use function array_unique;
 
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $customerGroupRepository;
+    private EntityRepository $customerGroupRepository;
 
-    private EntityRepositoryInterface $addressRepository;
+    private EntityRepository $addressRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     private TaxDetector $taxDetector;
 
@@ -48,7 +48,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $currencyCountryRepository;
+    private EntityRepository $currencyCountryRepository;
 
     private AbstractBaseContextFactory $baseContextFactory;
 
@@ -58,14 +58,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerGroupRepository,
-        EntityRepositoryInterface $addressRepository,
-        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepository $customerRepository,
+        EntityRepository $customerGroupRepository,
+        EntityRepository $addressRepository,
+        EntityRepository $paymentMethodRepository,
         TaxDetector $taxDetector,
         iterable $taxRuleTypeFilter,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $currencyCountryRepository,
+        EntityRepository $currencyCountryRepository,
         AbstractBaseContextFactory $baseContextFactory
     ) {
         $this->customerRepository = $customerRepository;

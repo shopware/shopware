@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
@@ -23,7 +23,7 @@ abstract class AbstractAppUrlChangeStrategy
     private $appLoader;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $appRepository;
 
@@ -34,7 +34,7 @@ abstract class AbstractAppUrlChangeStrategy
 
     public function __construct(
         AbstractAppLoader $appLoader,
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         AppRegistrationService $registrationService
     ) {
         $this->appLoader = $appLoader;

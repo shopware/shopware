@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -73,7 +73,7 @@ class EditOrderPageTest extends TestCase
         static::assertCount(1, $page->getPaymentMethods());
 
         // set Payment active to false and assert it will not be loaded
-        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        /** @var EntityRepository $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */
@@ -221,7 +221,7 @@ class EditOrderPageTest extends TestCase
 
     private function getOrder(string $orderId, SalesChannelContext $context): OrderEntity
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');

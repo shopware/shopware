@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -52,7 +52,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $reviewRepository,
+        EntityRepository $reviewRepository,
         DataValidator $validator,
         SystemConfigService $config
     ) {

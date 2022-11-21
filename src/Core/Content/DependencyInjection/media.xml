@@ -75,20 +75,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <!--Repository Decorators-->
-
-        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" decorates="media.repository">
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" decorates="media_thumbnail.repository">
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator" decorates="media_folder.repository">
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator.inner"/>
-        </service>
-
         <!--File Services-->
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
             <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface" />

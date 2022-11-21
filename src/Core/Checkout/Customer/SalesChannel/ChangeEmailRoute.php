@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -34,7 +34,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ChangeEmailRoute extends AbstractChangeEmailRoute
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -52,7 +52,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator
     ) {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 
@@ -21,7 +21,7 @@ class RequeueDeadMessagesHandler extends ScheduledTaskHandler
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, RequeueDeadMessagesService $requeueService)
+    public function __construct(EntityRepository $scheduledTaskRepository, RequeueDeadMessagesService $requeueService)
     {
         parent::__construct($scheduledTaskRepository);
         $this->requeueService = $requeueService;

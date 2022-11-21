@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,7 +21,7 @@ class ImportExportFileRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 

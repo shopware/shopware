@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
@@ -42,7 +42,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             $context
         );
 
-        $userConfigRepositoryMock = static::createMock(EntityRepositoryInterface::class);
+        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
         $userConfigRepositoryMock->expects(static::once())
             ->method('search')
             ->willReturn($result);
@@ -76,7 +76,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             $context
         );
 
-        $userConfigRepositoryMock = static::createMock(EntityRepositoryInterface::class);
+        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
         $userConfigRepositoryMock->expects(static::once())
             ->method('search')
             ->willReturn($result);
@@ -104,7 +104,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             $context
         );
 
-        $userConfigRepositoryMock = static::createMock(EntityRepositoryInterface::class);
+        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
         $userConfigRepositoryMock->expects(static::once())
             ->method('search')
             ->willReturn($result);
@@ -123,7 +123,7 @@ class FrwRequestOptionsProviderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $userConfigRepositoryMock = static::createMock(EntityRepositoryInterface::class);
+        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
         $userConfigRepositoryMock->expects(static::never())
             ->method('search');
 
@@ -146,7 +146,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         $context = Context::createDefaultContext();
         $language = 'en-GB';
 
-        $userConfigRepositoryMock = static::createMock(EntityRepositoryInterface::class);
+        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
 
         $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
         $innerOptionsProvider->expects(static::once())
@@ -172,7 +172,7 @@ class FrwRequestOptionsProviderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $userConfigRepositoryMock = static::createMock(EntityRepositoryInterface::class);
+        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
 
         $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
         $innerOptionsProvider->expects(static::once())

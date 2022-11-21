@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -124,7 +124,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function createPromotionsAndOrder(): void
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
         $voucherA = $this->ids->create('voucherA');

@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -27,7 +27,7 @@ class PaymentTransactionChainProcessor
 {
     private TokenFactoryInterfaceV2 $tokenFactory;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private RouterInterface $router;
 
@@ -42,7 +42,7 @@ class PaymentTransactionChainProcessor
      */
     public function __construct(
         TokenFactoryInterfaceV2 $tokenFactory,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry,
         SystemConfigService $systemConfigService,

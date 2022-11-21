@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Authentication;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -21,14 +21,14 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
     private AbstractStoreRequestOptionsProvider $optionsProvider;
 
-    private EntityRepositoryInterface $userConfigRepository;
+    private EntityRepository $userConfigRepository;
 
     /**
      * @internal
      */
     public function __construct(
         AbstractStoreRequestOptionsProvider $optionsProvider,
-        EntityRepositoryInterface $userConfigRepository
+        EntityRepository $userConfigRepository
     ) {
         $this->optionsProvider = $optionsProvider;
         $this->userConfigRepository = $userConfigRepository;

@@ -9,7 +9,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -28,7 +28,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $productStreamRepository;
+    private EntityRepository $productStreamRepository;
 
     public function setUp(): void
     {

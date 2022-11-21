@@ -23,7 +23,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -634,7 +634,7 @@ class CheckoutControllerTest extends TestCase
 
         $orderId = mb_substr($response->getTargetUrl(), -self::UUID_LENGTH);
 
-        /** @var EntityRepositoryInterface $orderRepo */
+        /** @var EntityRepository $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
 
         /** @var OrderEntity|null $order */

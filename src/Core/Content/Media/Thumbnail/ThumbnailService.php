@@ -18,13 +18,13 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 
 class ThumbnailService
 {
-    private EntityRepositoryInterface $thumbnailRepository;
+    private EntityRepository $thumbnailRepository;
 
     private FilesystemInterface $filesystemPublic;
 
@@ -32,17 +32,17 @@ class ThumbnailService
 
     private UrlGeneratorInterface $urlGenerator;
 
-    private EntityRepositoryInterface $mediaFolderRepository;
+    private EntityRepository $mediaFolderRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $thumbnailRepository,
+        EntityRepository $thumbnailRepository,
         FilesystemInterface $fileSystemPublic,
         FilesystemInterface $fileSystemPrivate,
         UrlGeneratorInterface $urlGenerator,
-        EntityRepositoryInterface $mediaFolderRepository
+        EntityRepository $mediaFolderRepository
     ) {
         $this->thumbnailRepository = $thumbnailRepository;
         $this->filesystemPublic = $fileSystemPublic;
@@ -86,9 +86,9 @@ class ThumbnailService
         if (!empty($delete)) {
             $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
 
-            $delete = \array_map(function (string $id) {
+            $delete = \array_values(\array_map(function (string $id) {
                 return ['id' => $id];
-            }, $delete);
+            }, $delete));
 
             $this->thumbnailRepository->delete($delete, $context);
         }
@@ -152,7 +152,12 @@ class ThumbnailService
 
         /** @var MediaThumbnailCollection $toBeDeletedThumbnails */
         $toBeDeletedThumbnails = $media->getThumbnails();
-        $this->thumbnailRepository->delete($toBeDeletedThumbnails->getIds(), $context);
+        /** @var list<string> $ids */
+        $ids = $toBeDeletedThumbnails->getIds();
+        $ids = array_map(function (string $id) {
+            return ['id' => $id];
+        }, $ids);
+        $this->thumbnailRepository->delete($ids, $context);
 
         $update = $this->createThumbnailsForSizes($media, $config, $config->getMediaThumbnailSizes());
 
@@ -228,9 +233,9 @@ class ThumbnailService
             }
         }
 
-        $delete = \array_map(static function (string $id) {
+        $delete = \array_values(\array_map(static function (string $id) {
             return ['id' => $id];
-        }, $toBeDeletedThumbnails->getIds());
+        }, $toBeDeletedThumbnails->getIds()));
 
         $this->thumbnailRepository->delete($delete, $context);
 
@@ -551,9 +556,9 @@ class ThumbnailService
 
         $delete = $media->getThumbnails()->getIds();
 
-        $delete = \array_map(static function (string $id) {
+        $delete = \array_values(\array_map(static function (string $id) {
             return ['id' => $id];
-        }, $delete);
+        }, $delete));
 
         $this->thumbnailRepository->delete($delete, $context);
     }

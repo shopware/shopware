@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -14,12 +14,12 @@ use Shopware\Storefront\Theme\ThemeCollection;
 
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $salesChannelRepository)
+    public function __construct(EntityRepository $salesChannelRepository)
     {
         $this->salesChannelRepository = $salesChannelRepository;
     }

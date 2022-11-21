@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
@@ -67,7 +67,7 @@ class UpdateController extends AbstractController
 
     private bool $isUpdateTest;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     private AbstractExtensionLifecycle $extensionLifecycleService;
 
@@ -82,7 +82,7 @@ class UpdateController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfig,
         AbstractExtensionLifecycle $extensionLifecycleService,
-        EntityRepositoryInterface $userRepository,
+        EntityRepository $userRepository,
         string $shopwareVersion,
         bool $isUpdateTest = false
     ) {

@@ -189,7 +189,6 @@ namespace DocsTest {
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
     use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
     use Shopware\Core\Defaults;
-    use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
     use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
     use Shopware\Core\Framework\Uuid\Uuid;
     use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -299,7 +298,7 @@ namespace DocsTest {
 
         private function ensureProduct(string $id): void
         {
-            /** @var EntityRepositoryInterface $repo */
+            /** @var EntityRepository $repo */
             $repo = $this->getContainer()->get('product.repository');
             $repo->upsert([[
                 'id' => $id,

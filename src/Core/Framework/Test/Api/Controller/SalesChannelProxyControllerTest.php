@@ -16,7 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -46,7 +46,7 @@ class SalesChannelProxyControllerTest extends TestCase
     use PromotionTestFixtureBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $promotionRepository;
 
@@ -56,12 +56,12 @@ class SalesChannelProxyControllerTest extends TestCase
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 

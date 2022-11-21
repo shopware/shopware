@@ -32,7 +32,7 @@ class AnnotationReader implements Reader
      * @var array<string, class-string>
      */
     private static $globalImports = [
-        'ignoreannotation' => Annotation\IgnoreAnnotation::class,
+        'ignoreannotation' => IgnoreAnnotation::class,
     ];
 
     /**

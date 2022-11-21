@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Command\Command;
@@ -24,9 +24,9 @@ class UninstallAppCommand extends Command
 
     private AbstractAppLifecycle $appLifecycle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
-    public function __construct(AbstractAppLifecycle $appLifecycle, EntityRepositoryInterface $appRepository)
+    public function __construct(AbstractAppLifecycle $appLifecycle, EntityRepository $appRepository)
     {
         parent::__construct();
         $this->appLifecycle = $appLifecycle;

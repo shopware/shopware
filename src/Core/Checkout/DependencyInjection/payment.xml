@@ -139,11 +139,6 @@
             <argument type="service" id="payment_method.repository"/>
         </service>
 
-        <!--Repository Decorators-->
-        <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator" decorates="payment_method.repository">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator.inner"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator">
             <tag name="shopware.cart.validator"/>
         </service>

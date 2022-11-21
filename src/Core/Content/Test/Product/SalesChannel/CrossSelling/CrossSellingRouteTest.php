@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,7 +40,7 @@ class CrossSellingRouteTest extends TestCase
     private $salesChannelContext;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -49,7 +50,7 @@ class CrossSellingRouteTest extends TestCase
     private $route;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -434,7 +435,7 @@ class CrossSellingRouteTest extends TestCase
 
     private function createProductStream(?bool $includesIsCloseoutProducts = false, ?bool $noStock = false): string
     {
-        /** @var EntityRepositoryInterface $streamRepository */
+        /** @var EntityRepository $streamRepository */
         $streamRepository = $this->getContainer()->get('product_stream.repository');
         $id = Uuid::randomHex();
         $randomProductIds = implode('|', array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id'));

@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -17,28 +17,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
  */
 class SalesChannelCreator
 {
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
-    private EntityRepositoryInterface $shippingMethodRepository;
+    private EntityRepository $shippingMethodRepository;
 
-    private EntityRepositoryInterface $countryRepository;
+    private EntityRepository $countryRepository;
 
     private DefinitionInstanceRegistry $definitionRegistry;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     /**
      * @internal
      */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $categoryRepository
+        EntityRepository $salesChannelRepository,
+        EntityRepository $paymentMethodRepository,
+        EntityRepository $shippingMethodRepository,
+        EntityRepository $countryRepository,
+        EntityRepository $categoryRepository
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->salesChannelRepository = $salesChannelRepository;

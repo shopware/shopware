@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,7 +27,7 @@ class AppLoadedSubscriberTest extends TestCase
 
     public function testUnserialize(): void
     {
-        /** @var EntityRepositoryInterface $appRepository */
+        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $id = Uuid::randomHex();

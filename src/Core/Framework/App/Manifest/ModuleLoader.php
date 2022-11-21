@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -19,14 +19,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
  */
 class ModuleLoader
 {
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private ShopIdProvider $shopIdProvider;
 
     private QuerySigner $querySigner;
 
     public function __construct(
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         ShopIdProvider $shopIdProvider,
         QuerySigner $signer
     ) {

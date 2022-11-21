@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,7 +37,7 @@ class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
 
-    private ?EntityRepositoryInterface $themeRepository;
+    private ?EntityRepository $themeRepository;
 
     /**
      * @var array<string>|null
@@ -53,7 +53,7 @@ class ExtensionLoader
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
-        ?EntityRepositoryInterface $themeRepository,
+        ?EntityRepository $themeRepository,
         AbstractAppLoader $appLoader,
         ConfigurationService $configurationService,
         LocaleProvider $localeProvider,
@@ -212,7 +212,7 @@ class ExtensionLoader
      */
     private function getInstalledThemeNames(Context $context): array
     {
-        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepositoryInterface) {
+        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepository) {
             $themeNameAggregationName = 'theme_names';
             $criteria = new Criteria();
             $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));

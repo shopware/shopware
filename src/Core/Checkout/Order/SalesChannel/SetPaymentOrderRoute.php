@@ -17,7 +17,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -42,7 +42,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private AbstractPaymentMethodRoute $paymentRoute;
 
@@ -61,7 +61,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      */
     public function __construct(
         OrderService $orderService,
-        EntityRepositoryInterface $orderRepository,
+        EntityRepository $orderRepository,
         AbstractPaymentMethodRoute $paymentRoute,
         OrderConverter $orderConverter,
         CartRuleLoader $cartRuleLoader,

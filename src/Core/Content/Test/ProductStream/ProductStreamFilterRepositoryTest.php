@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ProductStream;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -19,7 +19,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -34,7 +34,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productStreamRepository;
 

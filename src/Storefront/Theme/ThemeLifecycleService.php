@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
@@ -23,13 +23,13 @@ class ThemeLifecycleService
 {
     private StorefrontPluginRegistryInterface $pluginRegistry;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    private EntityRepositoryInterface $mediaFolderRepository;
+    private EntityRepository $mediaFolderRepository;
 
-    private EntityRepositoryInterface $themeMediaRepository;
+    private EntityRepository $themeMediaRepository;
 
     private FileSaver $fileSaver;
 
@@ -37,9 +37,9 @@ class ThemeLifecycleService
 
     private FileNameProvider $fileNameProvider;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
-    private EntityRepositoryInterface $themeChildRepository;
+    private EntityRepository $themeChildRepository;
 
     private Connection $connection;
 
@@ -48,15 +48,15 @@ class ThemeLifecycleService
      */
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepositoryInterface $themeRepository,
-        EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $mediaFolderRepository,
-        EntityRepositoryInterface $themeMediaRepository,
+        EntityRepository $themeRepository,
+        EntityRepository $mediaRepository,
+        EntityRepository $mediaFolderRepository,
+        EntityRepository $themeMediaRepository,
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
         ThemeFileImporterInterface $themeFileImporter,
-        EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $themeChildRepository,
+        EntityRepository $languageRepository,
+        EntityRepository $themeChildRepository,
         Connection $connection
     ) {
         $this->pluginRegistry = $pluginRegistry;
@@ -123,8 +123,12 @@ class ThemeLifecycleService
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context);
-        $this->themeChildRepository->delete($toDeleteIds->getIds(), $context);
+        /** @var list<string> $toDeleteIds */
+        $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
+        $toDeleteIds = array_map(function (string $id) {
+            return ['id' => $id];
+        }, $toDeleteIds);
+        $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
     }
 

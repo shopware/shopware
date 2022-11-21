@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Struct;
@@ -27,7 +27,7 @@ class PreparedPaymentService
 {
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    private EntityRepositoryInterface $appPaymentMethodRepository;
+    private EntityRepository $appPaymentMethodRepository;
 
     private LoggerInterface $logger;
 
@@ -38,7 +38,7 @@ class PreparedPaymentService
      */
     public function __construct(
         PaymentHandlerRegistry $paymentHandlerRegistry,
-        EntityRepositoryInterface $appPaymentMethodRepository,
+        EntityRepository $appPaymentMethodRepository,
         LoggerInterface $logger,
         InitialStateIdLoader $initialStateIdLoader
     ) {

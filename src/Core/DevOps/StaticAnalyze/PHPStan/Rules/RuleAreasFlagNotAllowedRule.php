@@ -4,7 +4,9 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
@@ -90,8 +92,8 @@ class RuleAreasFlagNotAllowedRule implements Rule
     private function resolveClassName(Node $node): ?string
     {
         switch (true) {
-            case $node instanceof Node\Expr\New_:
-                if ($node->class instanceof Node\Name) {
+            case $node instanceof New_:
+                if ($node->class instanceof Name) {
                     return (string) $node->class;
                 }
 

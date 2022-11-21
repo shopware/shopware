@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -39,7 +39,7 @@ class DocumentController extends AbstractController
 
     private DocumentMerger $documentMerger;
 
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     /**
      * @internal
@@ -48,7 +48,7 @@ class DocumentController extends AbstractController
         DocumentService $documentService,
         DocumentGenerator $documentGenerator,
         DocumentMerger $documentMerger,
-        EntityRepositoryInterface $documentRepository
+        EntityRepository $documentRepository
     ) {
         $this->documentService = $documentService;
         $this->documentGenerator = $documentGenerator;

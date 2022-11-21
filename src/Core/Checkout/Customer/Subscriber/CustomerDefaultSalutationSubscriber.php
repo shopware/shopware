@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -21,14 +21,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CustomerDefaultSalutationSubscriber implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $salutationRepository;
+    private EntityRepository $salutationRepository;
 
     private ?SalutationEntity $defaultSalutation = null;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $salutationRepository)
+    public function __construct(EntityRepository $salutationRepository)
     {
         $this->salutationRepository = $salutationRepository;
     }

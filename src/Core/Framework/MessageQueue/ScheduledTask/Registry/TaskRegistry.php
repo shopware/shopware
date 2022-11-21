@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 class TaskRegistry
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $scheduledTaskRepository;
 
@@ -31,7 +31,7 @@ class TaskRegistry
      */
     public function __construct(
         iterable $tasks,
-        EntityRepositoryInterface $scheduledTaskRepository
+        EntityRepository $scheduledTaskRepository
     ) {
         $this->tasks = $tasks;
         $this->scheduledTaskRepository = $scheduledTaskRepository;

@@ -167,9 +167,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadPercentageWithoutAdvancedPricesWithCurrencyFactor(): void
     {
@@ -391,9 +391,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadMaxValueUsesCurrencyFactor(): void
     {

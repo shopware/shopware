@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,14 +20,14 @@ class CustomLineItemFactory implements LineItemFactoryInterface
     private $priceDefinitionFactory;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory, EntityRepositoryInterface $mediaRepository)
+    public function __construct(PriceDefinitionFactory $priceDefinitionFactory, EntityRepository $mediaRepository)
     {
         $this->priceDefinitionFactory = $priceDefinitionFactory;
         $this->mediaRepository = $mediaRepository;

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group\Packager;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
@@ -19,9 +22,9 @@ class LineItemGroupUnitPriceGrossPackager implements LineItemGroupPackagerInterf
      * This packager adds all items to a bundle, until the sum of their item prices (gross)
      * reaches the provided minimum value for the package.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function buildGroupPackage(float $minPackageValue, LineItemFlatCollection $sortedItems, SalesChannelContext $context): LineItemGroup
     {

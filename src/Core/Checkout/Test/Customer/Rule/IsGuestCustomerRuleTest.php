@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\IsGuestCustomerRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -22,9 +22,9 @@ class IsGuestCustomerRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 

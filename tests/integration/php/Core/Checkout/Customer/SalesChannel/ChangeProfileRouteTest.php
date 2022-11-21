@@ -9,13 +9,14 @@ use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -26,7 +27,7 @@ class ChangeProfileRouteTest extends TestCase
     use CustomerTestTrait;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -36,7 +37,7 @@ class ChangeProfileRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 

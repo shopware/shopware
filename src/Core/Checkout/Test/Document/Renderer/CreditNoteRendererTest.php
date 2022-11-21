@@ -26,7 +26,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -49,7 +49,7 @@ class CreditNoteRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private CreditNoteRenderer $creditNoteRenderer;
 

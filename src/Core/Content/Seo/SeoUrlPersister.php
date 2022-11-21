@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -19,7 +19,7 @@ class SeoUrlPersister
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -28,7 +28,7 @@ class SeoUrlPersister
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $seoUrlRepository,
+        EntityRepository $seoUrlRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->connection = $connection;

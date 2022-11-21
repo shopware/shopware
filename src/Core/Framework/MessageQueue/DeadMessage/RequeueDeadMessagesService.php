@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -20,7 +20,7 @@ class RequeueDeadMessagesService
 {
     private const MAX_RETRIES = 3;
 
-    private EntityRepositoryInterface $deadMessageRepository;
+    private EntityRepository $deadMessageRepository;
 
     private MessageBusInterface $bus;
 
@@ -32,7 +32,7 @@ class RequeueDeadMessagesService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $deadMessageRepository,
+        EntityRepository $deadMessageRepository,
         MessageBusInterface $bus,
         MessageBusInterface $encryptedBus,
         LoggerInterface $logger

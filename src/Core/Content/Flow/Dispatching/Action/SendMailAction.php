@@ -24,7 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
@@ -49,13 +49,13 @@ class SendMailAction extends FlowAction implements DelayableAction
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
 
-    private EntityRepositoryInterface $mailTemplateRepository;
+    private EntityRepository $mailTemplateRepository;
 
     private MediaService $mediaService;
 
-    private EntityRepositoryInterface $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private LoggerInterface $logger;
 
@@ -63,7 +63,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $mailTemplateTypeRepository;
+    private EntityRepository $mailTemplateTypeRepository;
 
     private Translator $translator;
 
@@ -82,15 +82,15 @@ class SendMailAction extends FlowAction implements DelayableAction
      */
     public function __construct(
         AbstractMailService $emailService,
-        EntityRepositoryInterface $mailTemplateRepository,
+        EntityRepository $mailTemplateRepository,
         MediaService $mediaService,
-        EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $documentRepository,
+        EntityRepository $mediaRepository,
+        EntityRepository $documentRepository,
         DocumentService $documentService,
         DocumentGenerator $documentGenerator,
         LoggerInterface $logger,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $mailTemplateTypeRepository,
+        EntityRepository $mailTemplateTypeRepository,
         Translator $translator,
         Connection $connection,
         LanguageLocaleCodeProvider $languageLocaleProvider,

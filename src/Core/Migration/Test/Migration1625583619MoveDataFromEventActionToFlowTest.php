@@ -9,7 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -29,9 +29,9 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $eventActionRepository;
+    private EntityRepository $eventActionRepository;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     public function setUp(): void
     {

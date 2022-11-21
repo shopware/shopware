@@ -13,7 +13,7 @@ use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -37,12 +37,12 @@ class SeoUrlIndexerTest extends TestCase
     use QueueTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $templateRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -577,7 +577,7 @@ class SeoUrlIndexerTest extends TestCase
             ->get(SeoUrlUpdater::class)
             ->update(ProductPageSeoUrlRoute::ROUTE_NAME, [$id]);
 
-        /** @var EntityRepositoryInterface $productRepo */
+        /** @var EntityRepository $productRepo */
         $productRepo = $this->getContainer()->get('product.repository');
 
         $criteria = new Criteria([$id]);
@@ -620,7 +620,7 @@ class SeoUrlIndexerTest extends TestCase
 
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection
     {
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url.repository');
 
         $criteria = new Criteria();

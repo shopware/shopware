@@ -11,7 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,7 +25,7 @@ class RefreshAppCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public function setUp(): void
     {

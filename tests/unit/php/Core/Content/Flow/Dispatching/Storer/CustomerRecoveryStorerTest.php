@@ -11,7 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
@@ -24,13 +24,13 @@ class CustomerRecoveryStorerTest extends TestCase
     private CustomerRecoveryStorer $storer;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var MockObject|EntityRepository
      */
     private $repository;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->storer = new CustomerRecoveryStorer($this->repository);
     }
 

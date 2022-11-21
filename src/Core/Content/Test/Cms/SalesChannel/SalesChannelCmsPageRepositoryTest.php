@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -37,7 +37,7 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
     private $salesChannelContext;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $cmsPageRepository;
 

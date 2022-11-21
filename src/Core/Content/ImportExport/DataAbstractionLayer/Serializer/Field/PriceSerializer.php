@@ -6,7 +6,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
@@ -20,14 +20,14 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 class PriceSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $currencyRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $currencyRepository)
+    public function __construct(EntityRepository $currencyRepository)
     {
         $this->currencyRepository = $currencyRepository;
     }

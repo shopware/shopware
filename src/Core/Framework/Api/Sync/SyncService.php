@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -193,7 +193,7 @@ class SyncService implements SyncServiceInterface
     private function upsertRecords(
         SyncOperation $operation,
         Context $context,
-        EntityRepositoryInterface $repository
+        EntityRepository $repository
     ): SyncOperationResult {
         $results = [];
 
@@ -229,7 +229,7 @@ class SyncService implements SyncServiceInterface
     private function deleteRecords(
         SyncOperation $operation,
         Context $context,
-        EntityRepositoryInterface $repository
+        EntityRepository $repository
     ): SyncOperationResult {
         $results = [];
 

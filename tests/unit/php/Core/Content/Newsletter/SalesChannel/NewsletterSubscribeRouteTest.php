@@ -7,7 +7,6 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -134,7 +133,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $idSearchResult = $this->createMock(IdSearchResult::class);
         $idSearchResult->expects(static::once())->method('firstId')->willReturn($newsletterRecipientEntity->getId());
 
-        $entityRepositoryMock = $this->createMock(EntityRepositoryInterface::class);
+        $entityRepositoryMock = $this->createMock(EntityRepository::class);
         $entityRepositoryMock->expects(static::once())->method('searchIds')->willReturn($idSearchResult);
         $entityRepositoryMock->expects(static::once())->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('newsletter_recipient', 1, new NewsletterRecipientCollection([$newsletterRecipientEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),

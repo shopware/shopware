@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -39,7 +39,7 @@ class EntityWriteGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     private IdsCollection $ids;
 

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -24,7 +24,7 @@ class RepositoryIteratorTest extends TestCase
     public function testIteratedSearch(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $systemConfigRepository */
+        /** @var EntityRepository $systemConfigRepository */
         $systemConfigRepository = $this->getContainer()->get('system_config.repository');
 
         $criteria = new Criteria();
@@ -49,7 +49,7 @@ class RepositoryIteratorTest extends TestCase
     public function testFetchIdsIsNotRunningInfinitely(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $systemConfigRepository */
+        /** @var EntityRepository $systemConfigRepository */
         $systemConfigRepository = $this->getContainer()->get('system_config.repository');
 
         $iterator = new RepositoryIterator($systemConfigRepository, $context, new Criteria());
@@ -64,7 +64,7 @@ class RepositoryIteratorTest extends TestCase
 
     public function testFetchIdAutoIncrement(): void
     {
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();

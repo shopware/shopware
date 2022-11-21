@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserExcept
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
@@ -315,13 +315,13 @@ class StoreRequestOptionsProviderTest extends TestCase
     }
 
     /**
-     * @return EntityRepositoryInterface|MockObject
+     * @return EntityRepository|MockObject
      */
     private function setUpUserRepositorySearch(
         UserCollection $collection,
         InvokedCount $invokedCount
     ) {
-        $entityRepository = static::createMock(EntityRepositoryInterface::class);
+        $entityRepository = static::createMock(EntityRepository::class);
         $entityRepository->expects($invokedCount)
             ->method('search')
             ->willReturn(new EntitySearchResult(

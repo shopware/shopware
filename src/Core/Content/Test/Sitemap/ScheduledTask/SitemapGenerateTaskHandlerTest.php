@@ -11,7 +11,7 @@ use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -35,12 +35,12 @@ class SitemapGenerateTaskHandlerTest extends TestCase
     private SitemapGenerateTaskHandler $sitemapHandler;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelDomainRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 

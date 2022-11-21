@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -20,11 +20,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ThemeService
 {
-    private StorefrontPluginRegistryInterface $extensionRegistery;
+    private StorefrontPluginRegistryInterface $extensionRegistry;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
-    private EntityRepositoryInterface $themeSalesChannelRepository;
+    private EntityRepository $themeSalesChannelRepository;
 
     private ThemeCompilerInterface $themeCompiler;
 
@@ -39,14 +39,14 @@ class ThemeService
      */
     public function __construct(
         StorefrontPluginRegistryInterface $extensionRegistry,
-        EntityRepositoryInterface $themeRepository,
-        EntityRepositoryInterface $themeSalesChannelRepository,
+        EntityRepository $themeRepository,
+        EntityRepository $themeSalesChannelRepository,
         ThemeCompilerInterface $themeCompiler,
         EventDispatcherInterface $dispatcher,
         AbstractConfigLoader $configLoader,
         Connection $connection
     ) {
-        $this->extensionRegistery = $extensionRegistry;
+        $this->extensionRegistry = $extensionRegistry;
         $this->themeRepository = $themeRepository;
         $this->themeSalesChannelRepository = $themeSalesChannelRepository;
         $this->themeCompiler = $themeCompiler;
@@ -71,7 +71,7 @@ class ThemeService
             $salesChannelId,
             $themeId,
             $this->configLoader->load($themeId, $context),
-            $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
+            $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
             $withAssets,
             $context
         );
@@ -98,7 +98,7 @@ class ThemeService
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),
                 $this->configLoader->load($mapping->getThemeId(), $context),
-                $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
+                $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
                 $withAssets,
                 $context
             );
@@ -420,7 +420,7 @@ class ThemeService
 
         $pluginConfig = null;
         if ($theme->getTechnicalName()) {
-            $pluginConfig = $this->extensionRegistery->getConfigurations()->getByTechnicalName($theme->getTechnicalName());
+            $pluginConfig = $this->extensionRegistry->getConfigurations()->getByTechnicalName($theme->getTechnicalName());
         }
 
         if ($pluginConfig !== null) {

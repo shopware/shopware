@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -31,7 +31,7 @@ class ProductStreamUpdater extends EntityIndexer
 
     private ProductDefinition $productDefinition;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private MessageBusInterface $messageBus;
 
@@ -43,7 +43,7 @@ class ProductStreamUpdater extends EntityIndexer
     public function __construct(
         Connection $connection,
         ProductDefinition $productDefinition,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         MessageBusInterface $messageBus,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {

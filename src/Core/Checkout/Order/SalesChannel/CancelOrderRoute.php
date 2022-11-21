@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,12 +24,12 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     private OrderService $orderService;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     /**
      * @internal
      */
-    public function __construct(OrderService $orderService, EntityRepositoryInterface $orderRepository)
+    public function __construct(OrderService $orderService, EntityRepository $orderRepository)
     {
         $this->orderService = $orderService;
         $this->orderRepository = $orderRepository;

@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,7 +33,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url_template.repository');
         $events = $repo->create([$template], $context);
         static::assertCount(1, $events->getEvents());
@@ -49,7 +49,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
     public function testUpdate(string $id, array $template): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url_template.repository');
         $repo->create([$template], $context);
 
@@ -80,7 +80,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url_template.repository');
         $repo->create([$template], $context);
 

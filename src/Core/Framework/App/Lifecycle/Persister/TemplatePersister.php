@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
@@ -18,14 +18,14 @@ class TemplatePersister
 {
     private AbstractTemplateLoader $templateLoader;
 
-    private EntityRepositoryInterface $templateRepository;
+    private EntityRepository $templateRepository;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     public function __construct(
         AbstractTemplateLoader $templateLoader,
-        EntityRepositoryInterface $templateRepository,
-        EntityRepositoryInterface $appRepository
+        EntityRepository $templateRepository,
+        EntityRepository $appRepository
     ) {
         $this->templateLoader = $templateLoader;
         $this->templateRepository = $templateRepository;

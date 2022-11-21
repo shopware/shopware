@@ -8,7 +8,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderCo
 use Shopware\Core\Content\Media\Event\MediaFolderConfigurationIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -22,7 +22,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Connection $connection;
 
@@ -33,7 +33,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher
     ) {

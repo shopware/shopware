@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -152,11 +152,11 @@ class AddressValidatorTest extends TestCase
     }
 
     /**
-     * @return EntityRepositoryInterface|MockObject
+     * @return EntityRepository|MockObject
      */
     private function getRepositoryMock(?IdSearchResult $result)
     {
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
 
         $repository->method('searchIds')
             ->willReturn($result);

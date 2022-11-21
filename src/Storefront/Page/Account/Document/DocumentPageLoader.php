@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -39,7 +39,7 @@ class DocumentPageLoader
     private $documentService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $documentRepository;
 
@@ -50,7 +50,7 @@ class DocumentPageLoader
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         DocumentService $documentService,
-        EntityRepositoryInterface $documentRepository
+        EntityRepository $documentRepository
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;

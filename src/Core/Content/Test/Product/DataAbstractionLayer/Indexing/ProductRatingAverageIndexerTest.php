@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,12 +27,12 @@ class ProductRatingAverageIndexerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $reviewRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -42,7 +42,7 @@ class ProductRatingAverageIndexerTest extends TestCase
     private $salesChannel;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 

@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -24,13 +24,13 @@ class AppUrlVerifier
 {
     private Client $guzzle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private string $appEnv;
 
     private bool $appUrlCheckDisabled;
 
-    public function __construct(Client $guzzle, EntityRepositoryInterface $appRepository, string $appEnv, bool $appUrlCheckDisabled)
+    public function __construct(Client $guzzle, EntityRepository $appRepository, string $appEnv, bool $appUrlCheckDisabled)
     {
         $this->guzzle = $guzzle;
         $this->appRepository = $appRepository;

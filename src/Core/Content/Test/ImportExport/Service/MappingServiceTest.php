@@ -13,7 +13,7 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\MappingService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -29,9 +29,9 @@ class MappingServiceTest extends TestCase
 
     private MappingService $mappingService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
     private FilesystemInterface $fileSystem;
 

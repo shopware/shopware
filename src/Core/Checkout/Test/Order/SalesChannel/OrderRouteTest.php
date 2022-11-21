@@ -32,7 +32,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -74,7 +74,7 @@ class OrderRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private string $orderId;
 
@@ -94,7 +94,7 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -847,7 +847,7 @@ class OrderRouteTest extends TestCase
 
     protected function getValidPaymentMethods(): EntitySearchResult
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -859,7 +859,7 @@ class OrderRouteTest extends TestCase
 
     protected function getValidCountries(): EntitySearchResult
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())

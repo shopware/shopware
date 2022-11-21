@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
-    private SalesChannelRepositoryInterface $salesChannelRepository;
+    private SalesChannelRepository $salesChannelRepository;
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
@@ -44,7 +44,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        SalesChannelRepositoryInterface $salesChannelRepository,
+        SalesChannelRepository $salesChannelRepository,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
         SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry

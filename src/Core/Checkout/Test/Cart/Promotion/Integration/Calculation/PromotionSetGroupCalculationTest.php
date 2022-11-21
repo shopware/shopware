@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\PromotionFixtureBuilder;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,11 +30,11 @@ class PromotionSetGroupCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     private SalesChannelContext $context;
 

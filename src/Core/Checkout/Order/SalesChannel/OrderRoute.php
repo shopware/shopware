@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -34,9 +34,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderRoute extends AbstractOrderRoute
 {
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
-    private EntityRepositoryInterface $promotionRepository;
+    private EntityRepository $promotionRepository;
 
     private RateLimiter $rateLimiter;
 
@@ -44,8 +44,8 @@ class OrderRoute extends AbstractOrderRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $promotionRepository,
+        EntityRepository $orderRepository,
+        EntityRepository $promotionRepository,
         RateLimiter $rateLimiter
     ) {
         $this->orderRepository = $orderRepository;

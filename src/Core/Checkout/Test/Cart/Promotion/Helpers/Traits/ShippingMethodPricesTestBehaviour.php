@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 
 trait ShippingMethodPricesTestBehaviour
@@ -16,7 +17,7 @@ trait ShippingMethodPricesTestBehaviour
      * read all shipping method prices from db, store them in oldValues variable
      * and update all prices to $price value
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function setNewShippingPrices(Connection $conn, float $price): void
     {
@@ -50,7 +51,7 @@ trait ShippingMethodPricesTestBehaviour
     /**
      * restore all prices that have been stored in $oldValues
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     private function restorePrices(Connection $conn): void
     {

@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -22,21 +22,21 @@ class MediaIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Connection $connection;
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private EntityRepositoryInterface $thumbnailRepository;
+    private EntityRepository $thumbnailRepository;
 
     /**
      * @internal
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        EntityRepositoryInterface $thumbnailRepository,
+        EntityRepository $repository,
+        EntityRepository $thumbnailRepository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher
     ) {

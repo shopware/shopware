@@ -3,8 +3,9 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -27,7 +28,7 @@ class SnippetServiceTest extends TestCase
     private SnippetFileCollection $snippetCollection;
 
     /**
-     * @var Connection&\PHPUnit\Framework\MockObject\MockObject
+     * @var Connection&MockObject
      */
     private $connection;
 
@@ -61,9 +62,9 @@ class SnippetServiceTest extends TestCase
         $snippetService = new SnippetService(
             $this->connection,
             $this->snippetCollection,
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $requestStack,
             $container
@@ -104,9 +105,9 @@ class SnippetServiceTest extends TestCase
         $snippetService = new SnippetService(
             $this->connection,
             $this->snippetCollection,
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $requestStack,
             $container

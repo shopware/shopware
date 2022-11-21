@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
@@ -34,9 +34,9 @@ class LineItemGoodsTotalRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,11 +31,11 @@ class PromotionDiscountCompositionTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {

@@ -11,7 +11,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -43,7 +43,7 @@ class MailServiceTest extends TestCase
             $renderer,
             $this->getContainer()->get(MailFactory::class),
             $this->createMock(AbstractMailSender::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->getContainer()->get(SalesChannelDefinition::class),
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
@@ -112,7 +112,7 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get(StringTemplateRenderer::class),
             $this->getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->getContainer()->get(SalesChannelDefinition::class),
             $this->getContainer()->get('sales_channel.repository'),
             $systemConfig,
@@ -163,7 +163,7 @@ class MailServiceTest extends TestCase
             $this->createMock(StringTemplateRenderer::class),
             $this->getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->getContainer()->get(SalesChannelDefinition::class),
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
@@ -203,7 +203,7 @@ class MailServiceTest extends TestCase
             $templateRenderer,
             $this->getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->getContainer()->get(SalesChannelDefinition::class),
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
@@ -249,7 +249,7 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get(StringTemplateRenderer::class),
             $this->getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->getContainer()->get(SalesChannelDefinition::class),
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),

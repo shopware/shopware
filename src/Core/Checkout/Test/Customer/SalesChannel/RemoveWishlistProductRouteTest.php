@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -23,7 +24,7 @@ class RemoveWishlistProductRouteTest extends TestCase
     use CustomerTestTrait;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -14,14 +14,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class FlowActionPersister
 {
-    private EntityRepositoryInterface $flowActionsRepository;
+    private EntityRepository $flowActionsRepository;
 
     private AbstractAppLoader $appLoader;
 
     private Connection $connection;
 
     public function __construct(
-        EntityRepositoryInterface $flowActionsRepository,
+        EntityRepository $flowActionsRepository,
         AbstractAppLoader $appLoader,
         Connection $connection
     ) {

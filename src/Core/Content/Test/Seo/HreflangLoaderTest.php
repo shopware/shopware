@@ -10,7 +10,7 @@ use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,9 +27,9 @@ class HreflangLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $seoUrlRepository;
+    private EntityRepository $seoUrlRepository;
 
-    private EntityRepositoryInterface $salesChannelDomainRepository;
+    private EntityRepository $salesChannelDomainRepository;
 
     private SalesChannelContext $salesChannelContext;
 

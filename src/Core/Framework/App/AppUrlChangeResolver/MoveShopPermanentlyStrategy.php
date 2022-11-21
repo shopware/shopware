@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -34,7 +34,7 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 
     public function __construct(
         AbstractAppLoader $appLoader,
-        EntityRepositoryInterface $appRepository,
+        EntityRepository $appRepository,
         AppRegistrationService $registrationService,
         SystemConfigService $systemConfigService
     ) {

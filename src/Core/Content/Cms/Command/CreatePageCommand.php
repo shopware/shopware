@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Cms\Command;
 
 use Faker\Factory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
@@ -17,12 +17,12 @@ class CreatePageCommand extends Command
     protected static $defaultName = 'cms:page:create';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $cmsPageRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
@@ -37,7 +37,7 @@ class CreatePageCommand extends Command
     private $categories;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $categoryRepository;
 
@@ -47,15 +47,15 @@ class CreatePageCommand extends Command
     private $media;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     public function __construct(
-        EntityRepositoryInterface $cmsPageRepository,
-        EntityRepositoryInterface $productRepository,
-        EntityRepositoryInterface $categoryRepository,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepository $cmsPageRepository,
+        EntityRepository $productRepository,
+        EntityRepository $categoryRepository,
+        EntityRepository $mediaRepository
     ) {
         parent::__construct();
         $this->cmsPageRepository = $cmsPageRepository;

@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\File;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -14,14 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 abstract class FileNameProvider
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $mediaRepository)
+    public function __construct(EntityRepository $mediaRepository)
     {
         $this->mediaRepository = $mediaRepository;
     }

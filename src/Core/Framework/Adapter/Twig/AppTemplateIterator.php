@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,14 +17,14 @@ class AppTemplateIterator implements \IteratorAggregate
     private $templateIterator;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $templateRepository;
 
     /**
      * @internal
      */
-    public function __construct(\IteratorAggregate $templateIterator, EntityRepositoryInterface $templateRepository)
+    public function __construct(\IteratorAggregate $templateIterator, EntityRepository $templateRepository)
     {
         $this->templateIterator = $templateIterator;
         $this->templateRepository = $templateRepository;

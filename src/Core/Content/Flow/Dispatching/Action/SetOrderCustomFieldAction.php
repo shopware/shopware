@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -23,14 +23,14 @@ class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $orderRepository
+        EntityRepository $orderRepository
     ) {
         $this->connection = $connection;
         $this->orderRepository = $orderRepository;

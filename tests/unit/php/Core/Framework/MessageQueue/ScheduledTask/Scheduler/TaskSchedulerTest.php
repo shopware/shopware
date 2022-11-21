@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Schedule
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -32,7 +32,7 @@ class TaskSchedulerTest extends TestCase
      */
     public function testGetNextExecutionTime(array $aggregationResult, ?\DateTime $time): void
     {
-        $scheduledTaskRepository = $this->createMock(EntityRepositoryInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
         $scheduledTaskRepository->method('aggregate')->willReturn(new AggregationResultCollection($aggregationResult));
 
         $scheduler = new TaskScheduler(
@@ -80,7 +80,7 @@ class TaskSchedulerTest extends TestCase
      */
     public function testGetMinRunInterval(array $aggregationResult, ?int $time): void
     {
-        $scheduledTaskRepository = $this->createMock(EntityRepositoryInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
         $scheduledTaskRepository->method('aggregate')->willReturn(new AggregationResultCollection($aggregationResult));
 
         $scheduler = new TaskScheduler(
@@ -123,7 +123,7 @@ class TaskSchedulerTest extends TestCase
 
     public function testScheduleNothingMatches(): void
     {
-        $scheduledTaskRepository = $this->createMock(EntityRepositoryInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
         $scheduledTaskRepository->expects(static::never())->method('update');
 
         $bus = $this->createMock(MessageBusInterface::class);
@@ -149,7 +149,7 @@ class TaskSchedulerTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
 
-        $scheduledTaskRepository = $this->createMock(EntityRepositoryInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
         $scheduledTaskRepository
             ->method('search')
             ->willReturn($result);
@@ -193,7 +193,7 @@ class TaskSchedulerTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
 
-        $scheduledTaskRepository = $this->createMock(EntityRepositoryInterface::class);
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
         $scheduledTaskRepository
             ->method('search')
             ->willReturn($result);

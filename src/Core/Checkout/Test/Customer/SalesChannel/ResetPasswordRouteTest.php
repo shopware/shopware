@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryE
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -26,7 +27,7 @@ class ResetPasswordRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -36,7 +37,7 @@ class ResetPasswordRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customerRepository;
 
@@ -89,7 +90,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('customer_recovery.repository');
 
         /** @var CustomerRecoveryEntity $recovery */
@@ -144,7 +145,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('customer_recovery.repository');
 
         /** @var CustomerRecoveryEntity $recovery */

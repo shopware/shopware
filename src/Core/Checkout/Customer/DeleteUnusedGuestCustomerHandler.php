@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -14,7 +14,7 @@ class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
     private DeleteUnusedGuestCustomerService $unusedGuestCustomerService;
 
     public function __construct(
-        EntityRepositoryInterface $scheduledTaskRepository,
+        EntityRepository $scheduledTaskRepository,
         DeleteUnusedGuestCustomerService $unusedGuestCustomerService
     ) {
         parent::__construct($scheduledTaskRepository);

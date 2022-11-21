@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -46,7 +46,7 @@ class RulePayloadIndexerTest extends TestCase
     private $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 

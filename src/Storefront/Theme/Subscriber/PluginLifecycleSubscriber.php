@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
@@ -199,6 +200,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     private function skipCompile(Context $context): bool
     {
-        return $context->hasState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        return $context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
     }
 }

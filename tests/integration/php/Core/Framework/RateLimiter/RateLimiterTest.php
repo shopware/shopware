@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 
+use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
 use PHPUnit\Framework\TestCase;
@@ -182,7 +183,7 @@ class RateLimiterTest extends TestCase
         $psrFactory->method('createResponse')->willReturn($this->createMock(ResponseInterface::class));
 
         $authorizationServer = $this->createMock(AuthorizationServer::class);
-        $authorizationServer->method('respondToAccessTokenRequest')->willReturn(new \GuzzleHttp\Psr7\Response());
+        $authorizationServer->method('respondToAccessTokenRequest')->willReturn(new Response());
 
         $controller = new AdminAuthController(
             $authorizationServer,

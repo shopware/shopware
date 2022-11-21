@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,7 +23,7 @@ class AppLifecycleSubscriberTest extends TestCase
 
     private AppLifecycle $appLifecycle;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private Context $context;
 

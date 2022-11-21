@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -48,7 +48,7 @@ class OrderService
 
     private CartService $cartService;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
+    private EntityRepository $paymentMethodRepository;
 
     private StateMachineRegistry $stateMachineRegistry;
 
@@ -60,7 +60,7 @@ class OrderService
         DataValidationFactoryInterface $orderValidationFactory,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
-        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepository $paymentMethodRepository,
         StateMachineRegistry $stateMachineRegistry
     ) {
         $this->dataValidator = $dataValidator;

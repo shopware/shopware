@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
@@ -28,7 +28,7 @@ class RuleTest extends TestCase
     use IntegrationTestBehaviour;
     use CartRuleHelperTrait;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private RuleConditionRegistry $conditionRegistry;
 

@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -20,7 +20,7 @@ class SalesChannelIndexer extends EntityIndexer
 
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -31,7 +31,7 @@ class SalesChannelIndexer extends EntityIndexer
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         EventDispatcherInterface $eventDispatcher,
         ManyToManyIdFieldUpdater $manyToManyUpdater
     ) {

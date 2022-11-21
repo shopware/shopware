@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -27,7 +26,7 @@ class AddCustomerTagActionTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private Connection $connection;
 

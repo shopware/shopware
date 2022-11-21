@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Api\Acl\AclAnnotationValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
@@ -28,7 +28,7 @@ class AclAnnotationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private Connection $connection;
 

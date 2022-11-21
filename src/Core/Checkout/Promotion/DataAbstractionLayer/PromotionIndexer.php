@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
@@ -22,7 +22,7 @@ class PromotionIndexer extends EntityIndexer
 
     private IteratorFactory $iteratorFactory;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private PromotionExclusionUpdater $exclusionUpdater;
 
@@ -35,7 +35,7 @@ class PromotionIndexer extends EntityIndexer
      */
     public function __construct(
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         PromotionExclusionUpdater $exclusionUpdater,
         PromotionRedemptionUpdater $redemptionUpdater,
         EventDispatcherInterface $eventDispatcher

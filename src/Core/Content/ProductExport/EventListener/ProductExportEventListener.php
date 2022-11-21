@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductExport\EventListener;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ProductExportEventListener implements EventSubscriberInterface
 {
-    private EntityRepositoryInterface $productExportRepository;
+    private EntityRepository $productExportRepository;
 
     private ProductExportFileHandlerInterface $productExportFileHandler;
 
@@ -25,7 +25,7 @@ class ProductExportEventListener implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $productExportRepository,
+        EntityRepository $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,
         FilesystemInterface $fileSystem
     ) {

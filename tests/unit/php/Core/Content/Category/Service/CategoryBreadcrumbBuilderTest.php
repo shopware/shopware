@@ -13,7 +13,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -122,9 +122,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      * @param array<CategoryEntity> $categoryEntityCollection1
      * @param array<CategoryEntity> $categoryEntityCollection2
      */
-    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepositoryInterface
+    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository
     {
-        $categoryRepositoryMock = $this->createMock(EntityRepositoryInterface::class);
+        $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->context->getContext()),
             new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->context->getContext()),

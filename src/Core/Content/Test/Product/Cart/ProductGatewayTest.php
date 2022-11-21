@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -27,7 +27,7 @@ class ProductGatewayTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $repository = $this->createMock(SalesChannelRepositoryInterface::class);
+        $repository = $this->createMock(SalesChannelRepository::class);
         $emptySearchResult = new EntitySearchResult(
             'product',
             0,

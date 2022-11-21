@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\Random;
@@ -42,7 +42,7 @@ class DocumentMergerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepositoryInterface $documentRepository;
+    private EntityRepository $documentRepository;
 
     private DocumentMerger $documentMerger;
 

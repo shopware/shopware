@@ -5,7 +5,7 @@ namespace Shopware\Core\System\User\Recovery;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
@@ -22,12 +22,12 @@ use Symfony\Component\Routing\RouterInterface;
 class UserRecoveryService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRecoveryRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepo;
 
@@ -47,8 +47,8 @@ class UserRecoveryService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $userRecoveryRepo,
-        EntityRepositoryInterface $userRepo,
+        EntityRepository $userRecoveryRepo,
+        EntityRepository $userRepo,
         RouterInterface $router,
         BusinessEventDispatcher $dispatcher,
         SalesChannelContextServiceInterface $salesChannelContextService

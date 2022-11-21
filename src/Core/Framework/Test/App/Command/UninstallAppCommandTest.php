@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Command;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -17,7 +17,7 @@ class UninstallAppCommandTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $appRepository;
 

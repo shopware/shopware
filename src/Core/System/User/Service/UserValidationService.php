@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\User\Service;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 class UserValidationService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepo;
 
@@ -21,7 +21,7 @@ class UserValidationService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $userRepo
+        EntityRepository $userRepo
     ) {
         $this->userRepo = $userRepo;
     }

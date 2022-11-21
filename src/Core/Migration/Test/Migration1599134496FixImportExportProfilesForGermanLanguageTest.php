@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1599134496FixImportExportProfilesForGermanLanguage;
@@ -23,7 +23,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $importExportProfileRepository;
+    private EntityRepository $importExportProfileRepository;
 
     protected function setUp(): void
     {

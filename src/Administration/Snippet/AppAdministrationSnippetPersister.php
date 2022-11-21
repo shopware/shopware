@@ -4,7 +4,7 @@ namespace Shopware\Administration\Snippet;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -16,13 +16,13 @@ use Shopware\Core\System\Locale\LocaleException;
  */
 class AppAdministrationSnippetPersister
 {
-    private EntityRepositoryInterface $appAdministrationSnippetRepository;
+    private EntityRepository $appAdministrationSnippetRepository;
 
-    private EntityRepositoryInterface $localeRepository;
+    private EntityRepository $localeRepository;
 
     public function __construct(
-        EntityRepositoryInterface $appAdministrationSnippetRepository,
-        EntityRepositoryInterface $localeRepository
+        EntityRepository $appAdministrationSnippetRepository,
+        EntityRepository $localeRepository
     ) {
         $this->appAdministrationSnippetRepository = $appAdministrationSnippetRepository;
         $this->localeRepository = $localeRepository;

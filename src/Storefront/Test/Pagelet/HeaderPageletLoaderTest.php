@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Test\Pagelet;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -20,7 +20,7 @@ class HeaderPageletLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private EntityRepositoryInterface $languageRepository;
+    private EntityRepository $languageRepository;
 
     public function setUp(): void
     {

@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -27,7 +27,7 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $productStreamRepository, EntityDefinition $productDefinition)
+    public function __construct(EntityRepository $productStreamRepository, EntityDefinition $productDefinition)
     {
         $this->repository = $productStreamRepository;
         $this->productDefinition = $productDefinition;

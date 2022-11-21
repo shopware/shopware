@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\LandingPage\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,17 +23,17 @@ class LandingPageRepositoryTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $cmsPageRepo;
 

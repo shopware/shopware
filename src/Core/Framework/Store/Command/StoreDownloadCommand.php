@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Command;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -34,7 +34,7 @@ class StoreDownloadCommand extends Command
     private $storeClient;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $pluginRepo;
 
@@ -49,7 +49,7 @@ class StoreDownloadCommand extends Command
     private $pluginLifecycleService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepository;
 
@@ -58,10 +58,10 @@ class StoreDownloadCommand extends Command
      */
     public function __construct(
         StoreClient $storeClient,
-        EntityRepositoryInterface $pluginRepo,
+        EntityRepository $pluginRepo,
         PluginManagementService $pluginManagementService,
         PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $userRepository
+        EntityRepository $userRepository
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;

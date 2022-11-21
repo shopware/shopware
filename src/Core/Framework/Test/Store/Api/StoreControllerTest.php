@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
@@ -43,7 +42,7 @@ class StoreControllerTest extends TestCase
 
     private Context $defaultContext;
 
-    private EntityRepositoryInterface $userRepository;
+    private EntityRepository $userRepository;
 
     protected function setUp(): void
     {
@@ -269,7 +268,7 @@ class StoreControllerTest extends TestCase
 
     private function getStoreController(
         ?StoreClient $storeClient = null,
-        ?EntityRepositoryInterface $pluginRepo = null,
+        ?EntityRepository $pluginRepo = null,
         ?PluginManagementService $pluginManagementService = null
     ): StoreController {
         return new StoreController(
@@ -304,9 +303,9 @@ class StoreControllerTest extends TestCase
     }
 
     /**
-     * @return EntityRepositoryInterface|MockObject
+     * @return EntityRepository|MockObject
      */
-    private function getPluginRepositoryMock(): EntityRepositoryInterface
+    private function getPluginRepositoryMock(): EntityRepository
     {
         $pluginRepository = $this->getMockBuilder(EntityRepository::class)
             ->disableOriginalConstructor()

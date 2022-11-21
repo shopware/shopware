@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,7 +26,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 
     private Migration1636362839FlowBuilderGenerateMultipleDoc $migration;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private TestDataCollection $ids;
 

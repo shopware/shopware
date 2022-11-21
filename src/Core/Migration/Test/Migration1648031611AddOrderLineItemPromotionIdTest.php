@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -65,7 +65,7 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
 
         $this->buildPromotionLineItem($context, $promotionExists);
 
-        /** @var EntityRepositoryInterface $orderLineItemRepository */
+        /** @var EntityRepository $orderLineItemRepository */
         $orderLineItemRepository = $this->getContainer()->get('order_line_item.repository');
 
         $lineItem = $orderLineItemRepository->search(new Criteria([$this->ids->get('line-item')]), $context)->first();
@@ -101,11 +101,11 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
 
     public function removeEntities(Context $context): void
     {
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $orderRepository->delete([['id' => $this->ids->get('order')]], $context);
 
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
         $promotionRepository->delete([['id' => $this->ids->get('promotion')]], $context);
     }
@@ -173,7 +173,7 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
             'type' => PromotionProcessor::LINE_ITEM_TYPE,
         ];
 
-        /** @var EntityRepositoryInterface $orderRepository */
+        /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
 
         $orderRepository->create($orderData, $context);

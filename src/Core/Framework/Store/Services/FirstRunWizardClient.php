@@ -8,7 +8,7 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -61,7 +61,7 @@ final class FirstRunWizardClient
 
     private InstanceService $instanceService;
 
-    private EntityRepositoryInterface $userConfigRepository;
+    private EntityRepository $userConfigRepository;
 
     private TrackingEventClient $trackingEventClient;
 
@@ -74,7 +74,7 @@ final class FirstRunWizardClient
         Client $client,
         AbstractStoreRequestOptionsProvider $optionsProvider,
         InstanceService $instanceService,
-        EntityRepositoryInterface $userConfigRepository,
+        EntityRepository $userConfigRepository,
         TrackingEventClient $trackingEventClient
     ) {
         $this->storeService = $storeService;

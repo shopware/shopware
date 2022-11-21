@@ -8,7 +8,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -80,7 +80,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
-    private EntityRepositoryInterface $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
 
     private DataValidator $validator;
 
@@ -96,7 +96,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $newsletterRecipientRepository,
+        EntityRepository $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,

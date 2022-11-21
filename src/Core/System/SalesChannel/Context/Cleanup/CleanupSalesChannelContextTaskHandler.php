@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -20,7 +20,7 @@ class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         Connection $connection,
         int $days
     ) {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -20,7 +20,7 @@ class ActivateAppCommand extends AbstractAppActivationCommand
      */
     private $appStateService;
 
-    public function __construct(EntityRepositoryInterface $appRepo, AppStateService $appStateService)
+    public function __construct(EntityRepository $appRepo, AppStateService $appStateService)
     {
         $this->appStateService = $appStateService;
 

@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class OrderPersister implements OrderPersisterInterface
 {
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private OrderConverter $converter;
 
@@ -23,7 +23,7 @@ class OrderPersister implements OrderPersisterInterface
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $repository,
+        EntityRepository $repository,
         OrderConverter $converter
     ) {
         $this->orderRepository = $repository;

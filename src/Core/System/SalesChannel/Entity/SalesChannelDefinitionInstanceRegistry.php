@@ -31,11 +31,11 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     /**
      * @throws SalesChannelRepositoryNotFoundException
      */
-    public function getSalesChannelRepository(string $entityName): SalesChannelRepositoryInterface
+    public function getSalesChannelRepository(string $entityName): SalesChannelRepository
     {
         $salesChannelRepositoryClass = $this->getSalesChannelRepositoryClassByEntityName($entityName);
 
-        /** @var SalesChannelRepositoryInterface $salesChannelRepository */
+        /** @var SalesChannelRepository $salesChannelRepository */
         $salesChannelRepository = $this->container->get($salesChannelRepositoryClass);
 
         return $salesChannelRepository;

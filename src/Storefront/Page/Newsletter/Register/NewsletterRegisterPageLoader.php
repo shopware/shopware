@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -30,7 +30,7 @@ class NewsletterRegisterPageLoader
     private $eventDispatcher;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $salutationRepository;
 
@@ -40,7 +40,7 @@ class NewsletterRegisterPageLoader
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelRepositoryInterface $salutationRepository
+        SalesChannelRepository $salutationRepository
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;

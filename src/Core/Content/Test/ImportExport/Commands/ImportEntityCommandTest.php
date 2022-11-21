@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Commands;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,12 +27,12 @@ class ImportEntityCommandTest extends TestCase
     private const TEST_INVALID_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/products_with_invalid.csv';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $fileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $profileRepository;
 

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -50,7 +50,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $taskHandler = $this->getTaskHandler();
         $taskHandler->run();
 
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 

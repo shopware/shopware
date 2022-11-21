@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,7 +30,7 @@ class PromotionPercentageCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $productRepository;
 
@@ -40,7 +40,7 @@ class PromotionPercentageCalculationTest extends TestCase
     protected $cartService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     protected $promotionRepository;
 

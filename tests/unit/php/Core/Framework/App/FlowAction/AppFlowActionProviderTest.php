@@ -12,7 +12,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
@@ -120,7 +120,7 @@ class AppFlowActionProviderTest extends TestCase
             ->method('get')
             ->willReturn($order);
 
-        $orderRepo = $this->createMock(EntityRepositoryInterface::class);
+        $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo->expects(static::once())
             ->method('search')
             ->willReturn($entitySearchResult);

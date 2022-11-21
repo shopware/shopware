@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -28,12 +28,12 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     private const CUSTOM_FIELDS = 'customFields';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productSearchConfigRepository;
 

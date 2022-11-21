@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,14 +17,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class CategoryListRoute extends AbstractCategoryListRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalesChannelRepository
      */
     private $categoryRepository;
 
     /**
      * @internal
      */
-    public function __construct(SalesChannelRepositoryInterface $categoryRepository)
+    public function __construct(SalesChannelRepository $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;
     }

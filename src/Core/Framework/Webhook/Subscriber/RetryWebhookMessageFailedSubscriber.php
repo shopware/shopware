@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Subscriber;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Webhook\Event\RetryWebhookMessageFailedEvent;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -19,19 +19,19 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
     private const MAX_WEBHOOK_ERROR_COUNT = 10;
     private const MAX_DEAD_MESSAGE_ERROR_COUNT = 2;
 
-    private EntityRepositoryInterface $deadMessageRepository;
+    private EntityRepository $deadMessageRepository;
 
-    private EntityRepositoryInterface $webhookRepository;
+    private EntityRepository $webhookRepository;
 
-    private EntityRepositoryInterface $webhookEventLogRepository;
+    private EntityRepository $webhookEventLogRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $deadMessageRepository,
-        EntityRepositoryInterface $webhookRepository,
-        EntityRepositoryInterface $webhookEventLogRepository
+        EntityRepository $deadMessageRepository,
+        EntityRepository $webhookRepository,
+        EntityRepository $webhookEventLogRepository
     ) {
         $this->deadMessageRepository = $deadMessageRepository;
         $this->webhookRepository = $webhookRepository;

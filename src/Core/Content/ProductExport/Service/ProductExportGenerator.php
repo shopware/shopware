@@ -28,7 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -38,7 +38,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
     private int $readBufferSize;
 
-    private SalesChannelRepositoryInterface $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private ProductExportRendererInterface $productExportRender;
 
@@ -67,7 +67,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
      */
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepositoryInterface $productRepository,
+        SalesChannelRepository $productRepository,
         ProductExportRendererInterface $productExportRender,
         EventDispatcherInterface $eventDispatcher,
         ProductExportValidatorInterface $productExportValidator,

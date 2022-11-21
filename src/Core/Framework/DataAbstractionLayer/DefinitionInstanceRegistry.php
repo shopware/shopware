@@ -51,11 +51,11 @@ class DefinitionInstanceRegistry
     /**
      * @throws EntityRepositoryNotFoundException
      */
-    public function getRepository(string $entityName): EntityRepositoryInterface
+    public function getRepository(string $entityName): EntityRepository
     {
         $entityRepositoryClass = $this->getEntityRepositoryClassByEntityName($entityName);
 
-        /** @var EntityRepositoryInterface $entityRepository */
+        /** @var EntityRepository $entityRepository */
         $entityRepository = $this->container->get($entityRepositoryClass);
 
         return $entityRepository;

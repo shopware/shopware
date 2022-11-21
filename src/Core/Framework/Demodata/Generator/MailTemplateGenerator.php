@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -22,14 +22,14 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
 
     private MailTemplateDefinition $mailTemplateDefinition;
 
-    private EntityRepositoryInterface $mailTemplateTypeRepository;
+    private EntityRepository $mailTemplateTypeRepository;
 
     /**
      * @internal
      */
     public function __construct(
         EntityWriterInterface $writer,
-        EntityRepositoryInterface $mailTemplateTypeRepository,
+        EntityRepository $mailTemplateTypeRepository,
         MailTemplateDefinition $mailTemplateDefinition
     ) {
         $this->writer = $writer;

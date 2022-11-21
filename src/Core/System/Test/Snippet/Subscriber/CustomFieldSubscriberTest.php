@@ -7,7 +7,7 @@ use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -19,12 +19,12 @@ class CustomFieldSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customFieldSetRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $customFieldRepository;
 
@@ -44,7 +44,7 @@ class CustomFieldSubscriberTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $snippetSetRepository;
 

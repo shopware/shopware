@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\Error\GenericCartError;
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\Error\Error>
+ * @implements \IteratorAggregate<array-key, Error>
  */
 class ErrorsFacade implements \IteratorAggregate
 {

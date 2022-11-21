@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,17 +14,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class MediaFolderService
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderRepo;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaFolderConfigRepo;
 
@@ -32,9 +32,9 @@ class MediaFolderService
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $mediaRepo,
-        EntityRepositoryInterface $mediaFolderRepo,
-        EntityRepositoryInterface $mediaFolderConfigRepo
+        EntityRepository $mediaRepo,
+        EntityRepository $mediaFolderRepo,
+        EntityRepository $mediaFolderConfigRepo
     ) {
         $this->mediaRepo = $mediaRepo;
         $this->mediaFolderRepo = $mediaFolderRepo;

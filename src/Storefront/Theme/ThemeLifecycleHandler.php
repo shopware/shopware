@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
@@ -18,7 +18,7 @@ class ThemeLifecycleHandler
 
     private ThemeService $themeService;
 
-    private EntityRepositoryInterface $themeRepository;
+    private EntityRepository $themeRepository;
 
     private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
 
@@ -30,7 +30,7 @@ class ThemeLifecycleHandler
     public function __construct(
         ThemeLifecycleService $themeLifecycleService,
         ThemeService $themeService,
-        EntityRepositoryInterface $themeRepository,
+        EntityRepository $themeRepository,
         StorefrontPluginRegistryInterface $storefrontPluginRegistry,
         Connection $connection
     ) {

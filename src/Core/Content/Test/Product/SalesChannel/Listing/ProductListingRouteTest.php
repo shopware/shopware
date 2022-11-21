@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -46,20 +46,20 @@ class ProductListingRouteTest extends TestCase
      */
     private array $variantIds;
 
-    private EntityRepositoryInterface $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    private EntityRepositoryInterface $productRepository;
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->salesChannelContext = $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
 
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $this->categoryRepository = $categoryRepository;
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
     }

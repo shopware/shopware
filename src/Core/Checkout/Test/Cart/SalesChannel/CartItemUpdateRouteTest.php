@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -28,7 +30,7 @@ class CartItemUpdateRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -38,7 +40,7 @@ class CartItemUpdateRouteTest extends TestCase
     private $ids;
 
     /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     * @var EntityRepository
      */
     private $productRepository;
 

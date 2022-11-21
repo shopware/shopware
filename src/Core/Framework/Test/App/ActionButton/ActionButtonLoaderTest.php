@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\App\ActionButton;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\ActionButtonLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -17,7 +17,7 @@ class ActionButtonLoaderTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $appRepository;
 

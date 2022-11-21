@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryE
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -38,9 +38,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private EntityRepositoryInterface $customerRecoveryRepository;
+    private EntityRepository $customerRecoveryRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -56,8 +56,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerRecoveryRepository,
+        EntityRepository $customerRepository,
+        EntityRepository $customerRecoveryRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         SystemConfigService $systemConfigService,

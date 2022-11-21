@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
+use Doctrine\DBAL\Exception;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
@@ -681,10 +682,10 @@ PHP_EOL;
 class ConfigurationServiceException extends ConfigurationService
 {
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function checkConfiguration(string $domain, Context $context): bool
     {
-        throw \Doctrine\DBAL\Exception::invalidPlatformType('any');
+        throw Exception::invalidPlatformType('any');
     }
 }

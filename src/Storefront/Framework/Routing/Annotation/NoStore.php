@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Framework\Routing\Annotation;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
+ * @package storefront
+ *
  * @Annotation
  */
 class NoStore extends ConfigurationAnnotation

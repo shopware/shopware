@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @package storefront
+ */
 class MaintenanceModeResolver
 {
     /**

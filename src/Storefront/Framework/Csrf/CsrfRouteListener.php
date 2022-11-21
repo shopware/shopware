@@ -19,6 +19,8 @@ use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * @package storefront
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be removed
  */
 class CsrfRouteListener implements EventSubscriberInterface, ResetInterface

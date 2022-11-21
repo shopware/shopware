@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * @package storefront
+ *
  * @Decoratable
  */
 class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, ResetInterface

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package storefront
+ */
 class ThemeCompilerEnrichScssVariablesEvent extends Event implements ShopwareEvent
 {
     private array $variables;

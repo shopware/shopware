@@ -7,6 +7,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package storefront
+ */
 class ThemeAssignmentException extends ShopwareHttpException
 {
     private array $stillAssignedSalesChannels;

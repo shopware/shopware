@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Theme\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package storefront
+ */
 class ThemeIndexerEvent extends NestedEvent
 {
     /**

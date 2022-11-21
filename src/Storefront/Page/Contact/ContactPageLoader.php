@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package storefront
+ *
  * @deprecated tag:v6.5.0 the according controller was already removed, use store-api ContactRoute instead
  */
 class ContactPageLoader

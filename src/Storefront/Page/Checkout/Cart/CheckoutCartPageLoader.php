@@ -18,6 +18,9 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class CheckoutCartPageLoader
 {
     private GenericPageLoaderInterface $genericLoader;

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 
+/**
+ * @package storefront
+ */
 class ThemeConfigFieldFactory
 {
     public function create(string $name, array $configFieldArray): ThemeConfigField

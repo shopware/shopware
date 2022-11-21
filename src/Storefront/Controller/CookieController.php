@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package storefront
+ *
  * Returns the cookie-configuration.html.twig template including all cookies returned by the "getCookieGroup"-method
  *
  * Cookies are returned within groups, groups require the "group" attribute

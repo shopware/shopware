@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
+/**
+ * @package storefront
+ */
 class ThemeSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'theme_sales_channel';

@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package storefront
+ *
  * @Decoratable()
  */
 class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface

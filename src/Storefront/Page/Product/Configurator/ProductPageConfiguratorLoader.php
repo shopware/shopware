@@ -8,6 +8,9 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package storefront
+ */
 class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
 {
     /**

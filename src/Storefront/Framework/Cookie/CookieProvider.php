@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
+/**
+ * @package storefront
+ */
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [

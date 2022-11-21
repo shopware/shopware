@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class GenericPageLoadedEvent extends PageLoadedEvent
 {
     /**

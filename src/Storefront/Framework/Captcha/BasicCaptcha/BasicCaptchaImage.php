@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class BasicCaptchaImage extends Struct
 {
     private string $code;

@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Maintenance;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class MaintenancePage extends Page
 {
     /**

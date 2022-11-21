@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
+ * @package storefront
+ *
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
 class DomainLoader extends AbstractDomainLoader

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
+/**
+ * @package storefront
+ */
 class ThemeMediaDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'theme_media';

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
@@ -278,7 +278,7 @@ class TestBootstrapper
             return $this->output;
         }
 
-        return $this->output = new NullOutput();
+        return $this->output = new ConsoleOutput();
     }
 
     public function setOutput(?OutputInterface $output): TestBootstrapper

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\Api\Controller\Fixtures\BundleWithCustomSnippet\BundleWithCustomSnippet;
 
 /**
  * @internal
@@ -292,5 +291,18 @@ class CustomSnippetFormatControllerTest extends TestCase
             ],
             'expectedHtml' => '',
         ];
+    }
+}
+
+/**
+ * @internal
+ */
+class BundleWithCustomSnippet extends Plugin
+{
+    public function getPath()
+    {
+        $reflected = new \ReflectionObject($this);
+
+        return \dirname($reflected->getFileName() ?: '') . '/Fixtures/BundleWithCustomSnippet';
     }
 }

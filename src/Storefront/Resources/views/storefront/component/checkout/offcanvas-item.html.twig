@@ -117,6 +117,7 @@
                                                               class="cart-item-quantity-container"
                                                               method="post">
 
+                                                            {# @deprecated tag:v6.5.0 - Block component_offcanvas_product_quantity_form_csrf will be removed. #}
                                                             {% block component_offcanvas_product_quantity_form_csrf %}
                                                                 {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
                                                             {% endblock %}
@@ -196,6 +197,7 @@
                                       class="cart-item-remove js-offcanvas-cart-remove-product"
                                       method="post">
 
+                                    {# @deprecated tag:v6.5.0 - Block component_offcanvas_product_remove_form_csrf will be removed. #}
                                     {% block component_offcanvas_product_remove_form_csrf %}
                                         {{ sw_csrf('frontend.checkout.line-item.delete') }}
                                     {% endblock %}

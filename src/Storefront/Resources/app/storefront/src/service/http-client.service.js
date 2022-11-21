@@ -1,9 +1,17 @@
+import Feature from 'src/helper/feature.helper';
+
 export default class HttpClient {
 
     constructor() {
         this._request = null;
+
+        /** @deprecated tag:v6.5.0 - Field _csrfEnabled will be removed. */
         this._csrfEnabled = window.csrf.enabled;
+
+        /** @deprecated tag:v6.5.0 - Field _csrfMode will be removed. */
         this._csrfMode = window.csrf.mode;
+
+        /** @deprecated tag:v6.5.0 - Field _generateUrl will be removed. */
         this._generateUrl = window.router['frontend.csrf.generateToken'];
     }
 
@@ -38,12 +46,14 @@ export default class HttpClient {
         data,
         callback,
         contentType = 'application/json',
+        /** @deprecated tag:v6.5.0 - Parameter csrfProtected will be removed. */
         csrfProtected = true
     ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('POST', url, contentType);
 
-        if (csrfProtected && this._csrfEnabled && this._csrfMode === 'ajax') {
+        /** @deprecated tag:v6.5.0 - CSRF implementation will be removed. Remove if-condition. */
+        if (!Feature.isActive('v6.5.0.0') && csrfProtected && this._csrfEnabled && this._csrfMode === 'ajax') {
             this.fetchCsrfToken((csrfToken) => {
                 if (data instanceof FormData) {
                     data.append('_csrf_token', csrfToken);
@@ -140,6 +150,9 @@ export default class HttpClient {
         return request;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Method fetchCsrfToken will be removed.
+     */
     fetchCsrfToken(callback) {
         return this.post(
             this._generateUrl,

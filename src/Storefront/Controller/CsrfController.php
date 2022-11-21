@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Storefront\Framework\Csrf\CsrfModes;
@@ -15,7 +16,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - class will be removed as the csrf system will be removed in favor for the samesite approach
  */
 class CsrfController extends StorefrontController
 {
@@ -50,6 +51,11 @@ class CsrfController extends StorefrontController
      */
     public function generateCsrf(Request $request): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         if (!$this->csrfEnabled) {
             throw new CsrfNotEnabledException();
         }

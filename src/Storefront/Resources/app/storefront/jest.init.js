@@ -15,6 +15,7 @@ global.$.fn.tooltip = jest.fn();
 global.$.fn.popover = jest.fn();
 
 // Global mocks for common window properties
+/** @deprecated tag:v6.5.0 - window property csrf will be removed */
 global.csrf = {
     enabled: false,
 };

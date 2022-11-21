@@ -56,6 +56,7 @@
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                            {# @deprecated tag:v6.5.0 - Block component_review_filter_csrf will be removed. #}
                             {% block component_review_filter_csrf %}
                                 {{ sw_csrf('frontend.product.reviews') }}
                             {% endblock %}

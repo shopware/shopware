@@ -50,6 +50,7 @@
                                     <form action="{{ path('frontend.account.order.cancel') }}"
                                           method="post">
 
+                                        {# @deprecated tag:v6.5.0 - Block page_checkout_aside_cancel_order_modal_footer_form_csrf will be removed. #}
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_csrf %}
                                             {{ sw_csrf('frontend.account.order.cancel') }}
                                         {% endblock %}

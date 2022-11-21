@@ -77,6 +77,7 @@ export default class BasicCaptchaPlugin extends Plugin {
         const data = JSON.stringify({
             formId: this.options.formId,
             shopware_basic_captcha_confirm: this.el.querySelector(this.options.basicCaptchaInputId).value,
+            /** @deprecated tag:v6.5.0 - Property _csrf_token will be removed. */
             _csrf_token: this.options.preCheckRoute.token,
         });
         this._httpClient.post(this.options.preCheckRoute.path, data, (res) => {

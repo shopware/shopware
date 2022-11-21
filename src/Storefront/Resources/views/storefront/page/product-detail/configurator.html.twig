@@ -7,6 +7,7 @@
         {% block page_product_detail_configurator_form %}
             <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
 
+                {# @deprecated tag:v6.5.0 - Block page_product_detail_configurator_csrf will be removed. #}
                 {% block page_product_detail_configurator_csrf %}
                     {{ sw_csrf('frontend.detail.switch') }}
                 {% endblock %}

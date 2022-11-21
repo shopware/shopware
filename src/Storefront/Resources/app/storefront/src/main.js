@@ -77,6 +77,7 @@ import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 import ListingSortingPlugin from 'src/plugin/listing/listing-sorting.plugin';
 import DatePickerPlugin from 'src/plugin/date-picker/date-picker.plugin';
+/** @deprecated tag:v6.5.0 - FormCsrfHandler will be removed without replacement */
 import FormCsrfHandlerPlugin from 'src/plugin/forms/form-csrf-handler.plugin';
 import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
 import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
@@ -195,7 +196,8 @@ if (window.wishlistEnabled) {
     PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
 }
 
-if (window.csrf.enabled && window.csrf.mode === 'ajax') {
+/** @deprecated tag:v6.5.0 - CSRF will be removed */
+if (!Feature.isActive('v6.5.0.0') && window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
 }
 

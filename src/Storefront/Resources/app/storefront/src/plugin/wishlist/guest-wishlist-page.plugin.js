@@ -36,6 +36,7 @@ export default class GuestWishlistPagePlugin extends Plugin {
             .map(item => item.productId);
 
         this.httpClient.post(this.options.pageletRouter.path, JSON.stringify({
+            /** @deprecated tag:v6.5.0 - Property _csrf_token will be removed. */
             _csrf_token: this.options.pageletRouter.token,
             productIds,
         }), response => {

@@ -74,7 +74,6 @@ class StorefrontSubscriberTest extends TestCase
                     'updateSessionAfterLogout',
                 ],
                 BeforeSendResponseEvent::class => [
-                    ['replaceCsrfToken'],
                     ['setCanonicalUrl'],
                 ],
                 StorefrontRenderEvent::class => [

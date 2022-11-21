@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar';
+import swSettingsSnippetSidebar from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar';
+
+Shopware.Component.register('sw-settings-snippet-sidebar', swSettingsSnippetSidebar);
 
 async function createWrapper() {
     const localVue = createLocalVue();

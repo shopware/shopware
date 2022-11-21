@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-salutation/page/sw-settings-salutation-list';
+import swSettingsSalutationList from 'src/module/sw-settings-salutation/page/sw-settings-salutation-list';
+
+Shopware.Component.register('sw-settings-salutation-list', swSettingsSalutationList);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

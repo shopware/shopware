@@ -6,7 +6,7 @@ describe('src/module/sw-settings-basic-information/service/captcha.service.js', 
 
     let captchaService = null;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const httpClient = {
             get: jest.fn(() => Promise.resolve({
                 data: response

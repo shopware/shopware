@@ -6,7 +6,7 @@ const Criteria = Shopware.Data.Criteria;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-edit-profile-modal-identifiers', {
+export default {
     template,
 
     inject: [
@@ -142,4 +142,4 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-identifiers', {
             this.importExportUpdateByMapping.updateMapping(this.profile, mappedKey, entityName);
         },
     },
-});
+};

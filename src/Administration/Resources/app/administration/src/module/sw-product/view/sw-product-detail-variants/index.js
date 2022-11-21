@@ -1,12 +1,11 @@
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-variants', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -239,4 +238,4 @@ Component.register('sw-product-detail-variants', {
         },
 
     },
-});
+};

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card';
+import swExtensionRatingsCard from 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card';
+
+Shopware.Component.register('sw-extension-ratings-card', swExtensionRatingsCard);
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
     /** @type Wrapper */

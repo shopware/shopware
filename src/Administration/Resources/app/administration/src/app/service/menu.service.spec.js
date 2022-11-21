@@ -11,7 +11,7 @@ describe('src/app/service/menu.service', () => {
         Shopware.Module.getModuleRegistry().clear();
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         clearModules();
     });
 

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product-stream/component/sw-product-stream-modal-preview';
+import swProductStreamModalPreview from 'src/module/sw-product-stream/component/sw-product-stream-modal-preview';
+
+Shopware.Component.register('sw-product-stream-modal-preview', swProductStreamModalPreview);
 
 const responses = global.repositoryFactoryMock.responses;
 

@@ -1,9 +1,7 @@
 import template from './sw-order-customer-comment.html.twig';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-customer-comment', {
+export default {
     template,
 
     props: {
@@ -18,4 +16,4 @@ Component.register('sw-order-customer-comment', {
             default: false,
         },
     },
-});
+};

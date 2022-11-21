@@ -1,11 +1,10 @@
 import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-select-document-type-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -139,4 +138,4 @@ Component.register('sw-order-select-document-type-modal', {
             this.$emit('change', this.documentTypeCollection.get(this.documentType));
         },
     },
-});
+};

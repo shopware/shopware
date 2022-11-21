@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-units/page/sw-settings-units-list';
+import swSettingsUnitsList from 'src/module/sw-settings-units/page/sw-settings-units-list';
+
+Shopware.Component.register('sw-settings-units-list', swSettingsUnitsList);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

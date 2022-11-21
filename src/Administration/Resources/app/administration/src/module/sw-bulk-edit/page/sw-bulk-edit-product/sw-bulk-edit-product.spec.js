@@ -34,21 +34,34 @@ import 'src/app/component/form/select/base/sw-multi-tag-select';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/module/sw-bulk-edit/page/sw-bulk-edit-product';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
-import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
-import 'src/module/sw-product/component/sw-product-visibility-select';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
+import swBulkEditProduct from 'src/module/sw-bulk-edit/page/sw-bulk-edit-product';
+import swBulkEditCustomFields from 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
+import swBulkEditChangeTypeFieldRenderer from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
+import swBulkEditFormFieldRenderer from 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
+import swBulkEditChangeType from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
+import swBulkEditProductVisibility from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
+import swProductVisibilitySelect from 'src/module/sw-product/component/sw-product-visibility-select';
+import swBulkEditSaveModal from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+import swBulkEditSaveModalConfirm from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
+import swBulkEditSaveModalProcess from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
+import swBulkEditSaveModalSuccess from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+import swBulkEditSaveModalError from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+
+Shopware.Component.register('sw-bulk-edit-product', swBulkEditProduct);
+Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', swBulkEditCustomFields);
+Shopware.Component.register('sw-bulk-edit-change-type-field-renderer', swBulkEditChangeTypeFieldRenderer);
+Shopware.Component.extend('sw-bulk-edit-form-field-renderer', 'sw-form-field-renderer', swBulkEditFormFieldRenderer);
+Shopware.Component.register('sw-bulk-edit-change-type', swBulkEditChangeType);
+Shopware.Component.register('sw-bulk-edit-product-visibility', swBulkEditProductVisibility);
+Shopware.Component.register('sw-product-visibility-select', swProductVisibilitySelect);
+Shopware.Component.register('sw-bulk-edit-save-modal', swBulkEditSaveModal);
+Shopware.Component.register('sw-bulk-edit-save-modal-confirm', swBulkEditSaveModalConfirm);
+Shopware.Component.register('sw-bulk-edit-save-modal-process', swBulkEditSaveModalProcess);
+Shopware.Component.register('sw-bulk-edit-save-modal-success', swBulkEditSaveModalSuccess);
+Shopware.Component.register('sw-bulk-edit-save-modal-error', swBulkEditSaveModalError);
 
 let bulkEditResponse = {
     data: {}
@@ -327,7 +340,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',

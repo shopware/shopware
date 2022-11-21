@@ -1,10 +1,8 @@
 import template from './sw-promotion-v2-rule-select.html.twig';
 import './sw-promotion-v2-rule-select.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-promotion-v2-rule-select', {
+export default {
     template,
 
     inject: [
@@ -108,4 +106,4 @@ Component.register('sw-promotion-v2-rule-select', {
             return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
         },
     },
-});
+};

@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
+import swUsersPermissionsPermissionsGrid from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
 import 'src/app/component/form/sw-checkbox-field';
 import PrivilegesService from 'src/app/service/privileges.service';
+
+Shopware.Component.register('sw-users-permissions-permissions-grid', swUsersPermissionsPermissionsGrid);
 
 async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
     const localVue = createLocalVue();

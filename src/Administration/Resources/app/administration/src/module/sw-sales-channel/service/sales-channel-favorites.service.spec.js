@@ -25,7 +25,7 @@ responses.addResponse({
 describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.js', () => {
     let service;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
             id: '8fe88c269c214ea68badf7ebe678ab96'
         };

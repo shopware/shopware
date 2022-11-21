@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal';
+import swSettingsCountryCurrencyDependentModal from 'src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal';
+
+Shopware.Component.register('sw-settings-country-currency-dependent-modal', swSettingsCountryCurrencyDependentModal);
 
 async function createWrapper(privileges = [], isBasedItem = true) {
     const localVue = createLocalVue();

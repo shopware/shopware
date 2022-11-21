@@ -1,9 +1,8 @@
 import './sw-settings-logging-mail-sent-info.scss';
 import template from './sw-settings-logging-mail-sent-info.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entry-info', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -31,4 +30,4 @@ Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entr
             this.activeTab = 'html';
         },
     },
-});
+};

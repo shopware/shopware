@@ -1,11 +1,11 @@
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tax-detail', {
+export default {
     template,
 
     inject: [
@@ -245,4 +245,4 @@ Component.register('sw-settings-tax-detail', {
             this.changeDefaultTaxRate = false;
         },
     },
-});
+};

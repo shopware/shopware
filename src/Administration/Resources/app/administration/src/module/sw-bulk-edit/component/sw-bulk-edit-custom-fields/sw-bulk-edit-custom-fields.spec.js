@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
+import swBulkEditCustomFields from 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-form-field-renderer';
@@ -30,6 +30,8 @@ import 'src/app/component/media/sw-media-field';
 import 'src/app/component/media/sw-media-media-item';
 import 'src/app/component/media/sw-media-base-item';
 import 'src/app/component/media/sw-media-preview-v2';
+
+Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', swBulkEditCustomFields);
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
@@ -124,7 +126,7 @@ async function createWrapper(customProps = {}) {
 describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.Utils.debounce = () => {};
     });
 

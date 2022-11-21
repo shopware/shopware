@@ -1,11 +1,14 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-document-settings-storno-modal';
-import 'src/module/sw-order/component/sw-order-document-settings-modal';
+import swOrderDocumentSettingsStornoModal from 'src/module/sw-order/component/sw-order-document-settings-storno-modal';
+import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
+
+Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
+Shopware.Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsStornoModal);
 
 const orderFixture = {
     id: 'order1',
@@ -144,7 +147,7 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-storno-modal', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
     });
 

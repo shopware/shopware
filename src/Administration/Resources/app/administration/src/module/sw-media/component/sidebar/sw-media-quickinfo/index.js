@@ -1,11 +1,11 @@
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
-const { Component, Mixin, Context, Utils } = Shopware;
+const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-quickinfo', {
+export default {
     template,
 
     inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -211,4 +211,4 @@ Component.register('sw-media-quickinfo', {
             this.fileNameError = null;
         },
     },
-});
+};

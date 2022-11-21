@@ -1,11 +1,11 @@
 import template from './sw-order-nested-line-items-modal.html.twig';
 import './sw-order-nested-line-items-modal.scss';
 
-const { Component, Filter } = Shopware;
+const { Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-nested-line-items-modal', {
+export default {
     template,
 
     inject: [
@@ -111,4 +111,4 @@ Component.register('sw-order-nested-line-items-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

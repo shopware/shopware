@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-number-range/page/sw-settings-number-range-detail';
+import swSettingsNumberRangeDetail from 'src/module/sw-settings-number-range/page/sw-settings-number-range-detail';
+
+Shopware.Component.register('sw-settings-number-range-detail', swSettingsNumberRangeDetail);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

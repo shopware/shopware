@@ -1,13 +1,13 @@
 import template from './sw-order-user-card.html.twig';
 import './sw-order-user-card.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const ApiService = Shopware.Classes.ApiService;
 const format = Shopware.Utils.format;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-user-card', {
+export default {
     template,
 
     inject: [
@@ -237,4 +237,4 @@ Component.register('sw-order-user-card', {
         },
     },
 
-});
+};

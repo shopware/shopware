@@ -1,8 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/page/sw-extension-store-landing-page';
+import swExtensionStoreLandingPage from 'src/module/sw-extension/page/sw-extension-store-landing-page';
 import 'src/app/component/base/sw-button';
 
 let successfulActivation = true;
+
+Shopware.Component.register('sw-extension-store-landing-page', swExtensionStoreLandingPage);
 
 async function createWrapper() {
     const localVue = createLocalVue();

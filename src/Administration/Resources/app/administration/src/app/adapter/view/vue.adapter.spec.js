@@ -13,7 +13,7 @@ Shopware.Service().register('localeHelper', () => {
 describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     let vueAdapter;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_19822'];
 
         // delete global $router and $routes mocks

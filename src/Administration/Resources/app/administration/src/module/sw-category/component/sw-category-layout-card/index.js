@@ -1,10 +1,8 @@
 import template from './sw-category-layout-card.html.twig';
 import './sw-category-layout-card.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-layout-card', {
+export default {
     template,
 
     inject: ['acl', 'feature'],
@@ -88,4 +86,4 @@ Component.register('sw-category-layout-card', {
             this.showLayoutSelectionModal = false;
         },
     },
-});
+};

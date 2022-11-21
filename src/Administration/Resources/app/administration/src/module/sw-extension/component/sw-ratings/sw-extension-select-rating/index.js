@@ -1,11 +1,9 @@
 import template from './sw-extension-select-rating.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.extend('sw-extension-select-rating', 'sw-text-field', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -19,4 +17,4 @@ Component.extend('sw-extension-select-rating', 'sw-text-field', {
             this.$emit('change', value);
         },
     },
-});
+};

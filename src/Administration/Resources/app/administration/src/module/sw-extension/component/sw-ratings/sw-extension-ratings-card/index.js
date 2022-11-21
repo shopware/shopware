@@ -4,7 +4,7 @@ import './sw-extension-ratings-card.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-extension-ratings-card', {
+export default {
     template,
 
     mixins: ['sw-extension-error'],
@@ -107,4 +107,4 @@ Shopware.Component.register('sw-extension-ratings-card', {
             );
         },
     },
-});
+};

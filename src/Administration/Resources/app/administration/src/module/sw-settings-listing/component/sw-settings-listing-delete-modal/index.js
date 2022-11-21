@@ -2,7 +2,7 @@ import template from './sw-settings-listing-delete-modal.html.twig';
 import './sw-settings-listing-delete-modal.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-settings-listing-delete-modal', {
+export default {
     template,
 
     props: {
@@ -26,4 +26,4 @@ Shopware.Component.register('sw-settings-listing-delete-modal', {
             this.$emit('delete');
         },
     },
-});
+};

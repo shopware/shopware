@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/page/sw-extension-my-extensions-listing';
+import swExtensionMyExtensionsListing from 'src/module/sw-extension/page/sw-extension-my-extensions-listing';
 import 'src/app/component/grid/sw-pagination';
 import 'src/app/component/base/sw-alert';
 import 'src/app/component/base/sw-button';
@@ -9,13 +9,15 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-select-field';
-
-import 'src/module/sw-extension/component/sw-extension-my-extensions-listing-controls';
+import swExtensionMyExtensionsListingControls from 'src/module/sw-extension/component/sw-extension-my-extensions-listing-controls';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
 
 const shopwareService = new ShopwareService({}, {}, {}, {});
 shopwareService.updateExtensionData = jest.fn();
 const routerReplaceMock = jest.fn();
+
+Shopware.Component.register('sw-extension-my-extensions-listing', swExtensionMyExtensionsListing);
+Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExtensionMyExtensionsListingControls);
 
 async function createWrapper() {
     const localVue = createLocalVue();

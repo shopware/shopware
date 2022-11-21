@@ -174,6 +174,8 @@ describe('Search bar: Check search module with short keyword', () => {
             '',
             true
         );
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Upload image in folder
         cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
@@ -188,9 +190,11 @@ describe('Search bar: Check search module with short keyword', () => {
 
         cy.get('.sw-loader')
             .should('not.exist');
-
         cy.get('.sw-skeleton')
             .should('not.exist');
+
+        cy.get('.sw-dashboard-index__content')
+            .should('be.visible');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Med');

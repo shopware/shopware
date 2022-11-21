@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/component/sw-product-seo-form';
+import swProductSeoForm from 'src/module/sw-product/component/sw-product-seo-form';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -11,6 +11,8 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
+
+Shopware.Component.register('sw-product-seo-form', swProductSeoForm);
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {

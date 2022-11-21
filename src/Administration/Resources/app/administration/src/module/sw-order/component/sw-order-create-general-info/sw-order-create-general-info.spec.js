@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-create-general-info';
+import swOrderCreateGeneralInfo from 'src/module/sw-order/component/sw-order-create-general-info';
 
 const cart = {
     price: {
@@ -32,6 +32,8 @@ const context = {
         },
     },
 };
+
+Shopware.Component.register('sw-order-create-general-info', swOrderCreateGeneralInfo);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-create-general-info'), {

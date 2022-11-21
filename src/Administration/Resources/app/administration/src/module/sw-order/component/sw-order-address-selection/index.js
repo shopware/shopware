@@ -2,13 +2,13 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
-const { Component, EntityDefinition, Mixin } = Shopware;
+const { EntityDefinition, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-address-selection', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -256,4 +256,4 @@ Component.register('sw-order-address-selection', {
                 });
         },
     },
-});
+};

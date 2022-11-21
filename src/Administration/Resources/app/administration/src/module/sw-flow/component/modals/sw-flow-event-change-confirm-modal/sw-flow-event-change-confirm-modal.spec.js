@@ -1,10 +1,12 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal';
+import swFlowEventChangeConfirmModal from 'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-flow-event-change-confirm-modal', swFlowEventChangeConfirmModal);
 
 const fieldClasses = [
     '.sw-flow-event-change-confirm-modal__title',

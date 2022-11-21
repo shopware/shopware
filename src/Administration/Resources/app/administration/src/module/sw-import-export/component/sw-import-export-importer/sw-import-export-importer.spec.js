@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/component/sw-import-export-importer';
+import swImportExportImporter from 'src/module/sw-import-export/component/sw-import-export-importer';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -7,6 +7,8 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
+
+Shopware.Component.register('sw-import-export-importer', swImportExportImporter);
 
 const repositoryMockFactory = () => {
     return {

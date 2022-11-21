@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero';
+import swPromotionV2EmptyStateHero from 'src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero';
+
+Shopware.Component.register('sw-promotion-v2-empty-state-hero', swPromotionV2EmptyStateHero);
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero', () => {
     async function createWrapper(data = {}) {

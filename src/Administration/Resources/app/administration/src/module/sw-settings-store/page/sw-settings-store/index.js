@@ -1,12 +1,12 @@
 import template from './sw-settings-store.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @deprecated tag:v6.5.0 - Will be private in future versions
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-store', {
+export default {
     template,
 
     mixins: [
@@ -64,4 +64,4 @@ Component.register('sw-settings-store', {
             this.isLoading = loading;
         },
     },
-});
+};

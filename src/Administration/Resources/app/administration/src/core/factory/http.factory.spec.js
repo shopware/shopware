@@ -8,7 +8,7 @@ describe('core/factory/http.factory.js', () => {
     let httpClient;
     let mock;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         httpClient = createHTTPClient();
         mock = new MockAdapter(httpClient);
     });

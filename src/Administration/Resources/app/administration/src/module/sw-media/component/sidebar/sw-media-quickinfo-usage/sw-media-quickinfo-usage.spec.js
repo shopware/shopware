@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
+import swMediaQuickinfoUsage from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
+
+Shopware.Component.register('sw-media-quickinfo-usage', swMediaQuickinfoUsage);
 
 const { Module } = Shopware;
 const ModuleFactory = Module;

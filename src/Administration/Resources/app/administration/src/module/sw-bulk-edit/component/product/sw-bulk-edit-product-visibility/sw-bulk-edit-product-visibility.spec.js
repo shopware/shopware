@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
+import swBulkEditProductVisibility from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
+
+Shopware.Component.register('sw-bulk-edit-product-visibility', swBulkEditProductVisibility);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-visibility'), {

@@ -2,13 +2,13 @@ import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Component, Mixin, Feature } = Shopware;
+const { Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-order', {
+export default {
     template,
 
     inject: [
@@ -547,4 +547,4 @@ Component.register('sw-bulk-edit-order', {
             });
         },
     },
-});
+};

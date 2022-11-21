@@ -1,20 +1,24 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings/page/sw-settings-index';
-import 'src/module/sw-settings/component/sw-settings-item';
+import swSettingsIndex from 'src/module/sw-settings/page/sw-settings-index';
+import swSettingsItem from 'src/module/sw-settings/component/sw-settings-item';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
+Shopware.Component.register('sw-settings-index', swSettingsIndex);
+Shopware.Component.register('sw-settings-item', swSettingsItem);
 
-async function createWrapper(privileges = [
-    'store.viewer',
-    'user.viewer',
-    'foo.viewer',
-    'snippet.viewer',
-    'store.viewer',
-    'listing.viewer',
-    'shipping.viewer'
-]) {
+async function createWrapper(
+    privileges = [
+        'store.viewer',
+        'user.viewer',
+        'foo.viewer',
+        'snippet.viewer',
+        'store.viewer',
+        'listing.viewer',
+        'shipping.viewer'
+    ]
+) {
     const settingsItemsMock = [
         {
             group: 'system',
@@ -151,7 +155,7 @@ async function createWrapper(privileges = [
 }
 
 describe('module/sw-settings/page/sw-settings-index', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('settingsItems').settingsGroups = {};
     });
 

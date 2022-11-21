@@ -5,7 +5,9 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import 'src/module/sw-cms/page/sw-cms-detail';
+import swCmsDetail from 'src/module/sw-cms/page/sw-cms-detail';
+
+Shopware.Component.register('sw-cms-detail', swCmsDetail);
 
 const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
@@ -124,9 +126,8 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         jest.spyOn(global.console, 'warn').mockImplementation(() => {});
-
         Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
     });
 
@@ -149,7 +150,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     it('should disable all fields when ACL rights are missing', async () => {
         wrapper = await createWrapper();
         await flushPromises();
-
         await wrapper.setData({
             isLoading: false
         });
@@ -236,7 +236,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         wrapper = await createWrapper();
         await flushPromises();
-
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
 
         await wrapper.vm.$nextTick();

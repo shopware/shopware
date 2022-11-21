@@ -1,48 +1,54 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/image/component';
-import 'src/module/sw-cms/elements/manufacturer-logo/component';
+import swCmsElImage from 'src/module/sw-cms/elements/image/component';
+import swCmsElManufacturerLogo from 'src/module/sw-cms/elements/manufacturer-logo/component';
 
-async function createWrapper(propsOverride) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-manufacturer-logo'), {
-        propsData: {
-            element: {
-                config: {
-                    media: {
-                        source: 'static',
-                        value: null,
-                        required: true,
-                        entity: {
-                            name: 'media'
-                        }
-                    },
-                    displayMode: {
-                        source: 'static',
-                        value: 'cover'
-                    },
-                    url: {
-                        source: 'static',
-                        value: null
-                    },
-                    newTab: {
-                        source: 'static',
-                        value: true
-                    },
-                    minHeight: {
-                        source: 'static',
-                        value: null
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null
-                    }
-                },
-                data: {
-                    media: ''
+Shopware.Component.register('sw-cms-el-image', swCmsElImage);
+Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', swCmsElManufacturerLogo);
+
+const defaultProps = {
+    element: {
+        config: {
+            media: {
+                source: 'static',
+                value: null,
+                required: true,
+                entity: {
+                    name: 'media'
                 }
             },
+            displayMode: {
+                source: 'static',
+                value: 'cover'
+            },
+            url: {
+                source: 'static',
+                value: null
+            },
+            newTab: {
+                source: 'static',
+                value: true
+            },
+            minHeight: {
+                source: 'static',
+                value: null
+            },
+            verticalAlign: {
+                source: 'static',
+                value: null
+            }
+        },
+        data: {
+            media: ''
+        }
+    }
+};
+
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-manufacturer-logo'), {
+        propsData: {
             defaultConfig: {},
-            ...propsOverride
+            ...defaultProps,
         },
         data() {
             return {
@@ -67,26 +73,20 @@ async function createWrapper(propsOverride) {
 }
 
 describe('module/sw-cms/elements/manufacturer-logo/component', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should map to a product manufacturer media if the component is in a product page', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.element.config.media.source).toBe('mapped');
         expect(wrapper.vm.element.config.media.value).toBe('product.manufacturer.media');
     });
 
     it('should not initially map to a product manufacturer media if element translated config', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
             element: {
                 config: {
-                    ...wrapper.props().element.config,
+                    ...defaultProps.element.config,
                     media: {
                         source: 'static',
                         value: '1',
@@ -118,6 +118,8 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
     });
 
     it('should update style regarding to config value', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.styles).toEqual({
             'max-width': '180px',
             'min-height': '40px',
@@ -127,7 +129,7 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
         await wrapper.setProps({
             element: {
                 config: {
-                    ...wrapper.props().element.config,
+                    ...defaultProps.element.config,
                     displayMode: {
                         source: 'statics',
                         value: 'cover'
@@ -150,7 +152,7 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
         await wrapper.setProps({
             element: {
                 config: {
-                    ...wrapper.props().element.config,
+                    ...defaultProps.element.config,
                     displayMode: {
                         source: 'statics',
                         value: 'standard'

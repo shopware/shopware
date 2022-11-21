@@ -1,7 +1,7 @@
 import template from './sw-settings-search-view-live-search.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-settings-search-view-live-search', {
+export default {
     template,
 
     inject: ['feature'],
@@ -33,4 +33,4 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
             default: false,
         },
     },
-});
+};

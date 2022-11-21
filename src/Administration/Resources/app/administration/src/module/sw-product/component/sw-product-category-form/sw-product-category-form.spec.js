@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/component/sw-product-category-form';
+import swProductCategoryForm from 'src/module/sw-product/component/sw-product-category-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
@@ -10,6 +10,8 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
 
+
+Shopware.Component.register('sw-product-category-form', swProductCategoryForm);
 
 describe('module/sw-product/component/sw-product-category-form', () => {
     const defaultSalesChannelData = {};

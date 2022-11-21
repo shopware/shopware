@@ -8,7 +8,7 @@ const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-options', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory'],

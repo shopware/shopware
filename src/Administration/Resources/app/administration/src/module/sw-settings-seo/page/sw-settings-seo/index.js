@@ -1,9 +1,7 @@
 import template from './sw-settings-seo.html.twig';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-seo', {
+export default {
     template,
 
     data() {
@@ -28,4 +26,4 @@ Component.register('sw-settings-seo', {
             this.isLoading = loading;
         },
     },
-});
+};

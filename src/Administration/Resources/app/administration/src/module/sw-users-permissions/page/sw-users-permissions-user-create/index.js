@@ -3,7 +3,8 @@ import template from './sw-users-permissions-user-create.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -37,4 +38,4 @@ Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-
             this.$super('onSave');
         },
     },
-});
+};

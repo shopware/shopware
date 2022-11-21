@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-mail-send-modal';
+import swFlowMailSendModal from 'src/module/sw-flow/component/modals/sw-flow-mail-send-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -12,6 +12,8 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+
+Shopware.Component.register('sw-flow-mail-send-modal', swFlowMailSendModal);
 
 const recipientEmailInputClass = '.sw-flow-mail-send-modal__recipient-email #sw-field--item-email';
 const recipientNameInputClass = '.sw-flow-mail-send-modal__recipient-name #sw-field--item-name';

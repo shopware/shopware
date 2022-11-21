@@ -2,11 +2,11 @@ import utils from 'src/core/service/util.service';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tag-detail-assignments', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -473,4 +473,4 @@ Component.register('sw-settings-tag-detail-assignments', {
             this.getList();
         },
     },
-});
+};

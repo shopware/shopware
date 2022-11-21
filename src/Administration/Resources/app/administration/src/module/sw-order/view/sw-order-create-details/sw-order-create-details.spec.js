@@ -1,8 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import 'src/module/sw-order/view/sw-order-create-details';
+import swOrderCreateDetails from 'src/module/sw-order/view/sw-order-create-details';
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
+
+Shopware.Component.register('sw-order-create-details', swOrderCreateDetails);
 
 async function createWrapper() {
     const localVue = createLocalVue();

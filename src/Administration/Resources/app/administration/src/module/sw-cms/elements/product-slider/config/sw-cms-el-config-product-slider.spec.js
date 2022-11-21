@@ -1,11 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/product-slider/config';
+import swCmsElConfigProductSlider from 'src/module/sw-cms/elements/product-slider/config';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/form/select/base/sw-select-result-list';
 
+Shopware.Component.register('sw-cms-el-config-product-slider', swCmsElConfigProductSlider);
 
 const productMock = [{
     id: 'de8de156da134dabac24257f81ff282f',

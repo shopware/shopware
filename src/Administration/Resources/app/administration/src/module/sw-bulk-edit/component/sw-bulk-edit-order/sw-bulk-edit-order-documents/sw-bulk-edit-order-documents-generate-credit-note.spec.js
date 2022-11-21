@@ -1,7 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note';
+import swBulkEditOrderDocumentsGenerateInvoice from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
+import swBulkEditOrderDocumentsGenerateCreditNode from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note';
+
+Shopware.Component.register('sw-bulk-edit-order-documents-generate-invoice', swBulkEditOrderDocumentsGenerateInvoice);
+Shopware.Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-edit-order-documents-generate-invoice', swBulkEditOrderDocumentsGenerateCreditNode);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-order-documents-generate-credit-note'), {

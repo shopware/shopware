@@ -1,8 +1,8 @@
-import './component';
-import './config';
+Shopware.Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', () => import('./component'));
+Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', () => import('./config'));
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-name',

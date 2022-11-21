@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-listing/component/sw-settings-listing-option-general-info';
+import swSettingsListingOptionGeneralInfo from 'src/module/sw-settings-listing/component/sw-settings-listing-option-general-info';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/sw-switch-field';
@@ -8,6 +8,8 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-field-error';
+
+Shopware.Component.register('sw-settings-listing-option-general-info', swSettingsListingOptionGeneralInfo);
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-general-info', () => {
     async function createWrapper() {

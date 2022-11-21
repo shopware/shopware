@@ -7,7 +7,7 @@ const { array } = Shopware.Utils;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-detail-details', {
+export default {
     template,
 
     inject: [
@@ -277,4 +277,4 @@ Component.register('sw-order-detail-details', {
             State.commit('swOrderDetail/setOrderAddressIds', value);
         },
     },
-});
+};

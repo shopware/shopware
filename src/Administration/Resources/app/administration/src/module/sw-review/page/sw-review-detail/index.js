@@ -1,11 +1,10 @@
 import template from './sw-review-detail.html.twig';
 import './sw-review-detail.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-review-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -166,4 +165,4 @@ Component.register('sw-review-detail', {
             this.$router.push({ name: 'sw.review.index' });
         },
     },
-});
+};

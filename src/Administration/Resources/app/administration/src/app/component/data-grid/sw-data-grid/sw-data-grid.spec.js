@@ -66,6 +66,22 @@ describe('components/data-grid/sw-data-grid', () => {
             props = { ...defaultProps, ...props };
         }
 
+        stubs = {
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
+            'sw-icon': true,
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': true,
+            'sw-context-menu-divider': true,
+            'sw-button-group': true
+        };
+
         return shallowMount(await Shopware.Component.build('sw-data-grid'), {
             localVue,
             stubs,

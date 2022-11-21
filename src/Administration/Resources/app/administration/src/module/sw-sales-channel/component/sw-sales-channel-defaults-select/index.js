@@ -1,10 +1,10 @@
 import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-defaults-select', {
+export default {
     template,
 
     inject: ['feature'],
@@ -215,4 +215,4 @@ Component.register('sw-sales-channel-defaults-select', {
             return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
         },
     },
-});
+};

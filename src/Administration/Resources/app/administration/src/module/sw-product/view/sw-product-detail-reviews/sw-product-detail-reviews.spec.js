@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/view/sw-product-detail-reviews';
+import swProductDetailReviews from 'src/module/sw-product/view/sw-product-detail-reviews';
+
+Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews);
 
 const { Component, State } = Shopware;
 
@@ -8,7 +10,7 @@ async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Component.build('sw-product-detail-reviews'), {
+    return shallowMount(await Component.build('sw-product-detail-reviews'), {
         localVue,
         provide: {
             repositoryFactory: {

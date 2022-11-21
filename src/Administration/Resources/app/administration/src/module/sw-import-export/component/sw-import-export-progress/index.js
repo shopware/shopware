@@ -4,7 +4,7 @@ import './sw-import-export-progress.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-progress', {
+export default {
     template,
 
     inject: ['feature'],
@@ -34,4 +34,4 @@ Shopware.Component.register('sw-import-export-progress', {
             default: true,
         },
     },
-});
+};

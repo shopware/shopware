@@ -94,10 +94,6 @@ Component.register('sw-multi-tag-select', {
         },
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     beforeDestroy() {
         this.beforeDestroyComponent();
     },

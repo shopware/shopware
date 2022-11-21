@@ -1,11 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
+import swExtensionReviewCreation from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation';
+import swExtensionReviewCreationInputs from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/form/sw-gtc-checkbox';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-select-rating';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
+import swExtensionSelectRating from 'src/module/sw-extension/component/sw-ratings/sw-extension-select-rating';
+import swExtensionRatingStars from 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -13,6 +13,11 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/utils/sw-external-link';
+
+Shopware.Component.register('sw-extension-review-creation', swExtensionReviewCreation);
+Shopware.Component.register('sw-extension-review-creation-inputs', swExtensionReviewCreationInputs);
+Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', swExtensionSelectRating);
+Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     /** @type Wrapper */

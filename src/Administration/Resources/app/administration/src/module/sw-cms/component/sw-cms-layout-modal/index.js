@@ -1,13 +1,13 @@
 import template from './sw-cms-layout-modal.html.twig';
 import './sw-cms-layout-modal.scss';
 
-const { Component, Mixin, Feature } = Shopware;
+const { Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-layout-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
@@ -228,4 +228,4 @@ Component.register('sw-cms-layout-modal', {
             this.defaultProductId = response['core.cms.default_product_cms_page'];
         },
     },
-});
+};

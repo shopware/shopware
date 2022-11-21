@@ -276,7 +276,7 @@ describe('app/service/search-ranking.service.js', () => {
         Shopware.Service('userConfigService').search = () => Promise.resolve({ data });
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         clearModules();
     });
 

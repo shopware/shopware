@@ -8,7 +8,7 @@ const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-trigger', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'businessEventService'],
@@ -675,4 +675,4 @@ Component.register('sw-flow-trigger', {
             return item.name === this.searchResultFocusItem.name;
         },
     },
-});
+};

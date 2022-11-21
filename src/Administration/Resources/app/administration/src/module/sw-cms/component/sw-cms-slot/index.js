@@ -1,13 +1,12 @@
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 
-const { Component } = Shopware;
 const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
  */
-Component.register('sw-cms-slot', {
+export default {
     template,
 
     inject: ['cmsService'],
@@ -119,4 +118,4 @@ Component.register('sw-cms-slot', {
             this.showElementSelection = false;
         },
     },
-});
+};

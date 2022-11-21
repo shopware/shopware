@@ -1,10 +1,10 @@
 import template from './sw-settings-country-state.html.twig';
 import './sw-settings-country-state.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-country-state', {
+export default {
     template,
 
     inject: [
@@ -177,4 +177,4 @@ Component.register('sw-settings-country-state', {
             this.showEmptyState = this.$refs.countryStateGrid.total === 0;
         },
     },
-});
+};

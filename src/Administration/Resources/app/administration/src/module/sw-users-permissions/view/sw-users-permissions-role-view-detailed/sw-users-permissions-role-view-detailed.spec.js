@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
+import swUsersPermissionsRoleViewDetailed from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
+
+Shopware.Component.register('sw-users-permissions-role-view-detailed', swUsersPermissionsRoleViewDetailed);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

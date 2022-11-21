@@ -9,7 +9,7 @@ const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-detail', {
+export default {
     template,
 
     inject: [
@@ -418,4 +418,4 @@ Component.register('sw-flow-detail', {
             return Promise.all(promises);
         },
     },
-});
+};

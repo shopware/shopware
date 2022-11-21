@@ -2,11 +2,11 @@ import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Mixin, Feature } = Shopware;
+const { Mixin, Feature } = Shopware;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-custom-field-list', {
+export default {
     template,
 
     inject: [
@@ -214,4 +214,4 @@ Component.register('sw-custom-field-list', {
             });
         },
     },
-});
+};

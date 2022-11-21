@@ -1,9 +1,12 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
-import 'src/module/sw-cms/page/sw-cms-create';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import 'src/module/sw-cms/page/sw-cms-detail';
+import swCmsDetail from 'src/module/sw-cms/page/sw-cms-detail';
+import swCmsCreate from 'src/module/sw-cms/page/sw-cms-create';
+
+Shopware.Component.register('sw-cms-detail', swCmsDetail);
+Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', swCmsCreate);
 
 const pageId = 'TEST-PAGE-ID';
 const categoryId = 'TEST-CATEGORY-ID';

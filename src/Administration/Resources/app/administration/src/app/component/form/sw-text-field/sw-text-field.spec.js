@@ -10,13 +10,13 @@ const { Component } = Shopware;
 async function createWrapper(options = {}) {
     const localVue = createLocalVue();
 
-    return shallowMount(Component.build('sw-text-field'), {
+    return shallowMount(await Component.build('sw-text-field'), {
         localVue,
         stubs: {
-            'sw-field': Component.build('sw-field'),
-            'sw-base-field': Component.build('sw-base-field'),
-            'sw-contextual-field': Component.build('sw-contextual-field'),
-            'sw-block-field': Component.build('sw-block-field'),
+            'sw-field': await Component.build('sw-field'),
+            'sw-base-field': await Component.build('sw-base-field'),
+            'sw-contextual-field': await Component.build('sw-contextual-field'),
+            'sw-block-field': await Component.build('sw-block-field'),
             'sw-field-error': true
         },
         provide: {
@@ -28,12 +28,13 @@ async function createWrapper(options = {}) {
 
 describe('src/app/component/form/sw-text-field', () => {
     const localVue = createLocalVue();
+    let usageWrapper;
 
     Component.register('sw-text-field-mock', {
         template:
             '<div>' +
-                '<sw-text-field v-model="mockVar" class="no-suffix"></sw-text-field>' +
-                '<sw-text-field v-model="mockVar" class="with-suffix" idSuffix="iShallBeSuffix"></sw-text-field>' +
+            '<sw-text-field v-model="mockVar" class="no-suffix"></sw-text-field>' +
+            '<sw-text-field v-model="mockVar" class="with-suffix" idSuffix="iShallBeSuffix"></sw-text-field>' +
             '</div>',
 
         data() {
@@ -43,14 +44,13 @@ describe('src/app/component/form/sw-text-field', () => {
         }
     });
 
-    let usageWrapper;
-    const createUsageWrapper = () => shallowMount(Component.build('sw-text-field-mock'), {
+    const createUsageWrapper = async () => shallowMount(await Component.build('sw-text-field-mock'), {
         localVue,
         stubs: {
-            'sw-text-field': Component.build('sw-text-field'),
-            'sw-base-field': Component.build('sw-base-field'),
-            'sw-contextual-field': Component.build('sw-contextual-field'),
-            'sw-block-field': Component.build('sw-block-field'),
+            'sw-text-field': await Component.build('sw-text-field'),
+            'sw-base-field': await Component.build('sw-base-field'),
+            'sw-contextual-field': await Component.build('sw-contextual-field'),
+            'sw-block-field': await Component.build('sw-block-field'),
             'sw-field-error': true
         },
         provide: {
@@ -58,8 +58,8 @@ describe('src/app/component/form/sw-text-field', () => {
         }
     });
 
-    beforeEach(() => {
-        usageWrapper = createUsageWrapper();
+    beforeEach(async () => {
+        usageWrapper = await createUsageWrapper();
     });
 
     it('should be a Vue.js component', async () => {

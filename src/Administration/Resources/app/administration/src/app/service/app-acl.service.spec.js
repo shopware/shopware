@@ -4,7 +4,7 @@ describe('app/service/app-acl.service.js', () => {
     let appAclService;
     let appPermissionData;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         appPermissionData = [
             {
                 category: 'additional_permissions',

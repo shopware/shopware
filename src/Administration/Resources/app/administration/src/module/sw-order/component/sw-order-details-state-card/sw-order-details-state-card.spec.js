@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-details-state-card';
+import swOrderDetailsStateCard from 'src/module/sw-order/component/sw-order-details-state-card';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-order-details-state-card', swOrderDetailsStateCard);
 
 const orderMock = {
     orderNumber: 10000,

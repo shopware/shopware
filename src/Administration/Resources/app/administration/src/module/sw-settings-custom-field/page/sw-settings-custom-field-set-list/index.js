@@ -1,10 +1,10 @@
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
 
-const { Component, Locale, Mixin, Data: { Criteria } } = Shopware;
+const { Locale, Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-custom-field-set-list', {
+export default {
     template,
 
     inject: ['acl', 'feature'],
@@ -94,4 +94,4 @@ Component.register('sw-settings-custom-field-set-list', {
             return criteria;
         },
     },
-});
+};

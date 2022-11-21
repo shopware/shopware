@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-tax/page/sw-settings-tax-list';
+import swSettingsTaxList from 'src/module/sw-settings-tax/page/sw-settings-tax-list';
+
+Shopware.Component.register('sw-settings-tax-list', swSettingsTaxList);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-category/page/sw-category-detail';
+import swCategoryDetail from 'src/module/sw-category/page/sw-category-detail';
+
+Shopware.Component.register('sw-category-detail', swCategoryDetail);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

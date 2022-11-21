@@ -77,7 +77,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
     describe('test buildBulkSyncPayload', () => {
         let handler = null;
 
-        beforeEach(() => {
+        beforeEach(async () => {
             handler = getBulkEditProductHandler();
 
             handler.groupedPayload = {

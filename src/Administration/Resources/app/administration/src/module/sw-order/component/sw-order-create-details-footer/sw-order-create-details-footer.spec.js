@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/module/sw-order/component/sw-order-create-details-footer';
+import swOrderCreateDetailsFooter from 'src/module/sw-order/component/sw-order-create-details-footer';
+
+Shopware.Component.register('sw-order-create-details-footer', swOrderCreateDetailsFooter);
 
 async function createWrapper() {
     const localVue = createLocalVue();

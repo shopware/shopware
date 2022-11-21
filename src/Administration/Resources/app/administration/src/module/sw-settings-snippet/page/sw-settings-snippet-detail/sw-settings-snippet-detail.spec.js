@@ -1,12 +1,14 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import 'src/module/sw-settings-snippet/page/sw-settings-snippet-detail';
+import swSettingsSnippetDetail from 'src/module/sw-settings-snippet/page/sw-settings-snippet-detail';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+
+Shopware.Component.register('sw-settings-snippet-detail', swSettingsSnippetDetail);
 
 function getSnippetSets() {
     const data = [

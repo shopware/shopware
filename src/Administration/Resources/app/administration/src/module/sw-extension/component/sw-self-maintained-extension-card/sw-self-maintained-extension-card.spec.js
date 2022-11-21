@@ -1,10 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-self-maintained-extension-card';
-import 'src/module/sw-extension/component/sw-extension-card-base';
+import swSelfMaintainedExtensionCard from 'src/module/sw-extension/component/sw-self-maintained-extension-card';
+import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-card-base';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 import 'src/app/component/meteor/sw-meteor-card';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
+
+Shopware.Component.register('sw-extension-card-base', swExtensionCardBase);
+Shopware.Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', swSelfMaintainedExtensionCard);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-self-maintained-extension-card'), {

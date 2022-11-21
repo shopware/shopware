@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-detail-general', {
+export default {
     template,
 
     inject: ['acl'],
@@ -58,4 +58,4 @@ Component.register('sw-flow-detail-general', {
         ...mapState('swFlowState', ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },
-});
+};

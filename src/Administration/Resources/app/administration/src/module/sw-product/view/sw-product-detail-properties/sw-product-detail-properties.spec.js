@@ -1,15 +1,24 @@
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
-import 'src/module/sw-product/view/sw-product-detail-properties';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
+import swProductDetailProperties from 'src/module/sw-product/view/sw-product-detail-properties';
+import swContainer from 'src/app/component/base/sw-container';
+import swInheritWrapper from 'src/app/component/utils/sw-inherit-wrapper';
+import swSelectBase from 'src/app/component/form/select/base/sw-select-base';
+import swBlockField from 'src/app/component/form/field-base/sw-block-field';
+import swBaseField from 'src/app/component/form/field-base/sw-base-field';
+import swSwitchField from 'src/app/component/form/sw-switch-field';
+import swCheckboxField from 'src/app/component/form/sw-checkbox-field';
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-product-detail-properties', swProductDetailProperties);
+Shopware.Component.register('sw-container', swContainer);
+Shopware.Component.register('sw-inherit-wrapper', swInheritWrapper);
+Shopware.Component.register('sw-select-base', swSelectBase);
+Shopware.Component.register('sw-block-field', swBlockField);
+Shopware.Component.register('sw-base-field', swBaseField);
+Shopware.Component.register('sw-switch-field', swSwitchField);
+Shopware.Component.register('sw-checkbox-field', swCheckboxField);
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed, use `sw-product-properties` instead

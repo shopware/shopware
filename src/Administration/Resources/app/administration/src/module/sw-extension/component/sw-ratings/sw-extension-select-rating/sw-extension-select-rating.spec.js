@@ -1,10 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-select-rating';
+import swExtensionSelectRating from 'src/module/sw-extension/component/sw-ratings/sw-extension-select-rating';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
+import swExtensionRatingStars from 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
+
+Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', swExtensionSelectRating);
+Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-rating', () => {
     /** @type Wrapper */

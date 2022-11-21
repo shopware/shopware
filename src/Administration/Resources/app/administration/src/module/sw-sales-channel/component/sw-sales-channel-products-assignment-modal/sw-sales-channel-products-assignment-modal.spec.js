@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
+import swSalesChannelProductsAssignmentModal from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-sales-channel-products-assignment-modal', swSalesChannelProductsAssignmentModal);
 
 async function createWrapper(activeTab = 'singleProducts') {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {

@@ -1,10 +1,8 @@
 import template from './sw-settings-snippet-sidebar.html.twig';
 import './sw-settings-snippet-sidebar.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-snippet-sidebar', {
+export default {
     template,
 
     props: {
@@ -86,4 +84,4 @@ Component.register('sw-settings-snippet-sidebar', {
             this.$emit('sidebar-reset-all');
         },
     },
-});
+};

@@ -1,11 +1,14 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-property/component/sw-property-option-list';
+import swPropertyOptionList from 'src/module/sw-property/component/sw-property-option-list';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-one-to-many-grid';
-import 'src/module/sw-property/component/sw-property-option-detail';
+import swPropertyOptionDetail from 'src/module/sw-property/component/sw-property-option-detail';
 import 'src/app/component/form/sw-colorpicker';
+
+Shopware.Component.register('sw-property-option-list', swPropertyOptionList);
+Shopware.Component.register('sw-property-option-detail', swPropertyOptionDetail);
 
 function getOptions() {
     const options = [

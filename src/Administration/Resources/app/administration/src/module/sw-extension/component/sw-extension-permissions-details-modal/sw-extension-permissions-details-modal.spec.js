@@ -1,7 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
-import 'src/module/sw-extension/component/sw-extension-permissions-details-modal';
+import swExtensionPermissionDetailsModal from 'src/module/sw-extension/component/sw-extension-permissions-details-modal';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-extension-permissions-details-modal', swExtensionPermissionDetailsModal);
 
 async function createWrapper({ permissions, modalTitle, selectedEntity }) {
     const localVue = createLocalVue();

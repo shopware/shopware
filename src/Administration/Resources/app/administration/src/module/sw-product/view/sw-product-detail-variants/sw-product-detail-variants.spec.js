@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/view/sw-product-detail-variants';
+import swProductDetailVariants from 'src/module/sw-product/view/sw-product-detail-variants';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-empty-state';
@@ -8,11 +8,13 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Component } = Shopware;
 
+Shopware.Component.register('sw-product-detail-variants', swProductDetailVariants);
+
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Component.build('sw-product-detail-variants'), {
+    return shallowMount(await Component.build('sw-product-detail-variants'), {
         localVue,
         provide: {
             repositoryFactory: {

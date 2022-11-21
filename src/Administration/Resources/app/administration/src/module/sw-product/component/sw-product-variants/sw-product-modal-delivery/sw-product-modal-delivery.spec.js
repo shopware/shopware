@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
+import swProductModalDelivery from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
+
+Shopware.Component.register('sw-product-modal-delivery', swProductModalDelivery);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-product-modal-delivery'), {

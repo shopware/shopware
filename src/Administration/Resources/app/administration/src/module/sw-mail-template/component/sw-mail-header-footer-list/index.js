@@ -1,10 +1,10 @@
 import template from './sw-mail-header-footer-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-mail-header-footer-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -194,4 +194,4 @@ Component.register('sw-mail-header-footer-list', {
             this.mailHeaderFooters = result;
         },
     },
-});
+};

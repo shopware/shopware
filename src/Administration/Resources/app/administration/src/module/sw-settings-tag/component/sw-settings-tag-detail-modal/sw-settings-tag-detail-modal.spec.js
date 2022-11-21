@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
+import swSettingsTagDetailModal from 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
+
+Shopware.Component.register('sw-settings-tag-detail-modal', swSettingsTagDetailModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

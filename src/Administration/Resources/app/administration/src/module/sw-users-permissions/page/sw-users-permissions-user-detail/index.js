@@ -8,7 +8,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-user-detail', {
+export default {
     template,
 
     inject: [
@@ -472,4 +472,4 @@ Component.register('sw-users-permissions-user-detail', {
             this.confirmPasswordModal = false;
         },
     },
-});
+};

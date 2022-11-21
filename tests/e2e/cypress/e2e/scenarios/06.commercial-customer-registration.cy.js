@@ -72,6 +72,7 @@ describe('Product creation via API and commercial customer registration', () => 
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-settings-country-list').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/country/index');

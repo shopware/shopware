@@ -1,8 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
+import swSettingsShippingList from 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+
+Shopware.Component.register('sw-settings-shipping-list', swSettingsShippingList);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

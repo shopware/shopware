@@ -1,10 +1,10 @@
 import template from './sw-settings-document-list.html.twig';
 import './sw-settings-document-list.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-document-list', {
+export default {
     template,
 
     inject: ['acl'],
@@ -65,4 +65,4 @@ Component.register('sw-settings-document-list', {
             this.getList();
         },
     },
-});
+};

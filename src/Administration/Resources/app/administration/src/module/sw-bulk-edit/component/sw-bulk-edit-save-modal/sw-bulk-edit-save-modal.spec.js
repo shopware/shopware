@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+import swBulkEditSaveModal from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
+
+Shopware.Component.register('sw-bulk-edit-save-modal', swBulkEditSaveModal);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal'), {

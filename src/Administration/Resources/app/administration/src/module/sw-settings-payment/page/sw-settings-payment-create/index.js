@@ -1,9 +1,9 @@
 import template from './sw-settings-payment-create.html.twig';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -29,4 +29,4 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
             });
         },
     },
-});
+};

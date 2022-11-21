@@ -1,10 +1,10 @@
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 
-const { Component, Filter } = Shopware;
+const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-list-item', {
+export default {
     template,
 
     inject: ['feature'],
@@ -129,4 +129,4 @@ Component.register('sw-cms-list-item', {
             this.$emit('cms-page-delete', page);
         },
     },
-});
+};

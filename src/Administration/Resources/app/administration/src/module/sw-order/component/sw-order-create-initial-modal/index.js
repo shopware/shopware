@@ -1,10 +1,10 @@
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
-const { Component, State, Service, Mixin } = Shopware;
+const { State, Service, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-initial-modal', {
+export default {
     template,
 
     mixins: [
@@ -250,4 +250,4 @@ Component.register('sw-order-create-initial-modal', {
             this.disabledAutoPromotions = value;
         },
     },
-});
+};

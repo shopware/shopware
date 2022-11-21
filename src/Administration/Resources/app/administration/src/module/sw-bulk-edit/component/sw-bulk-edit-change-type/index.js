@@ -1,10 +1,8 @@
 import template from './sw-bulk-edit-change-type.html.twig';
 import './sw-bulk-edit-change-type.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-change-type', {
+export default {
     template,
 
     model: {
@@ -95,4 +93,4 @@ Component.register('sw-bulk-edit-change-type', {
             this.currentValue = value;
         },
     },
-});
+};

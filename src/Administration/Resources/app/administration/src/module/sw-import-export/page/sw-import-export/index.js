@@ -4,7 +4,7 @@ import './sw-import-export.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -26,4 +26,4 @@ Shopware.Component.register('sw-import-export', {
             }
         },
     },
-});
+};

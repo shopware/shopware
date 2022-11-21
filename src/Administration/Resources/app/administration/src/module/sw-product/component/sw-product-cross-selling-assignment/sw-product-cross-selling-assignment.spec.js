@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/data-grid/sw-data-grid';
-import 'src/module/sw-product/component/sw-product-cross-selling-assignment';
+import swProductCrossSellingAssignment from 'src/module/sw-product/component/sw-product-cross-selling-assignment';
+
+Shopware.Component.register('sw-product-cross-selling-assignment', swProductCrossSellingAssignment);
 
 const { State } = Shopware;
 

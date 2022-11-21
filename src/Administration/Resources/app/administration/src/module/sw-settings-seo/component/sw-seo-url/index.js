@@ -1,12 +1,11 @@
 import swSeoUrlState from './state';
 import template from './sw-seo-url.html.twig';
 
-const { Component } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-seo-url', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -246,4 +245,4 @@ Component.register('sw-seo-url', {
             this.refreshCurrentSeoUrl();
         },
     },
-});
+};

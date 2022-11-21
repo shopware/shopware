@@ -1,8 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
+import swSettingsCustomFieldSetDetail from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
+import swCustomFieldList from 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
+
+Shopware.Component.register('sw-settings-custom-field-set-detail', swSettingsCustomFieldSetDetail);
+Shopware.Component.register('sw-custom-field-list', swCustomFieldList);
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904'

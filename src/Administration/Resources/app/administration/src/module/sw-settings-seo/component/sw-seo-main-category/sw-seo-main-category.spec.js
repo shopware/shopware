@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-settings-seo/component/sw-seo-main-category';
+import swSeoMainCategory from 'src/module/sw-settings-seo/component/sw-seo-main-category';
+
+Shopware.Component.register('sw-seo-main-category', swSeoMainCategory);
 
 async function createWrapper() {
     const localVue = createLocalVue();

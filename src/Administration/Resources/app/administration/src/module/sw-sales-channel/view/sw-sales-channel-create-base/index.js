@@ -1,8 +1,7 @@
 import template from './sw-sales-channel-create-base.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-sales-channel-create-base', 'sw-sales-channel-detail-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     created() {
@@ -17,4 +16,4 @@ Component.extend('sw-sales-channel-create-base', 'sw-sales-channel-detail-base',
             }
         },
     },
-});
+};

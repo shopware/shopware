@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/module/sw-order/component/sw-order-customer-address-select';
+import swOrderCustomerAddressSelect from 'src/module/sw-order/component/sw-order-customer-address-select';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -8,6 +8,8 @@ import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-result-list';
 
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-order-customer-address-select', swOrderCustomerAddressSelect);
 
 const addresses = [
     {

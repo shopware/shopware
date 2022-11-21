@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
+import swSettingsSearchExampleModal from 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
 import 'src/app/component/base/sw-modal';
+
+Shopware.Component.register('sw-settings-search-example-modal', swSettingsSearchExampleModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

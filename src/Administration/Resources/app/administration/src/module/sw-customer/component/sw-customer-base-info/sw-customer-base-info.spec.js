@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/component/sw-customer-base-info';
+import swCustomerBaseInfo from 'src/module/sw-customer/component/sw-customer-base-info';
+
+Shopware.Component.register('sw-customer-base-info', swCustomerBaseInfo);
 
 const responses = global.repositoryFactoryMock.responses;
 

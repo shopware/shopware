@@ -1,12 +1,11 @@
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
 
-
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-product-feature-sets-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -424,4 +423,4 @@ Component.register('sw-settings-product-feature-sets-modal', {
             return field.config.label[language] || field.config.label[fallback];
         },
     },
-});
+};

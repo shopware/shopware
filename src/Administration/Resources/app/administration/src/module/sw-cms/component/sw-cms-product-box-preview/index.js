@@ -1,12 +1,10 @@
 import template from './sw-cms-product-box-preview.html.twig';
 import './sw-cms-product-box-preview.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-product-box-preview', {
+export default {
     template,
 
     props: {
@@ -18,4 +16,4 @@ Component.register('sw-cms-product-box-preview', {
             required: false,
         },
     },
-});
+};

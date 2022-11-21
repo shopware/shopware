@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
+import swImportExportActivityResultModal from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
+
+Shopware.Component.register('sw-import-export-activity-result-modal', swImportExportActivityResultModal);
 
 describe('module/sw-import-export/components/sw-import-export-activity-result-modal', () => {
     let wrapper;

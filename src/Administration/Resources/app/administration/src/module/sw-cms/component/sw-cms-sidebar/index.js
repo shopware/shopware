@@ -9,7 +9,7 @@ const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-sidebar', {
+export default {
     template,
 
     inject: [
@@ -554,4 +554,4 @@ Component.register('sw-cms-sidebar', {
             return this.blockTypes.includes(type);
         },
     },
-});
+};

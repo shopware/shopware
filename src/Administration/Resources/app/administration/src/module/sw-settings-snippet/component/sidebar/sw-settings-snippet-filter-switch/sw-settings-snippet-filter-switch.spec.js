@@ -1,10 +1,12 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';
+import swSettingsSmippetFilterSwitch from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+
+Shopware.Component.register('sw-settings-snippet-filter-switch', swSettingsSmippetFilterSwitch);
 
 async function createWrapper() {
     const localVue = createLocalVue();

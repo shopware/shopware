@@ -1,6 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
+import swManufacturerDetail from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
 
+Shopware.Component.register('sw-manufacturer-detail', swManufacturerDetail);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

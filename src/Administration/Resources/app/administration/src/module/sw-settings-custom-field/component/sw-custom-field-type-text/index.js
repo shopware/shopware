@@ -1,6 +1,5 @@
-const { Component } = Shopware;
-
-Component.extend('sw-custom-field-type-text', 'sw-custom-field-type-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     data() {
         return {
             propertyNames: {
@@ -10,4 +9,4 @@ Component.extend('sw-custom-field-type-text', 'sw-custom-field-type-base', {
             },
         };
     },
-});
+};

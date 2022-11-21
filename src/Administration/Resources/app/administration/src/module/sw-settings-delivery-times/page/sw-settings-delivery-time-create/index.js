@@ -1,6 +1,5 @@
-const { Component } = Shopware;
-
-Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     methods: {
         saveFinish() {
             this.isSaveSuccessful = false;
@@ -15,4 +14,4 @@ Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-
             this.deliveryTime = this.deliveryTimeRepository.create();
         },
     },
-});
+};

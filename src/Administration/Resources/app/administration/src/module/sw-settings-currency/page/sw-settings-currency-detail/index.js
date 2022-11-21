@@ -2,12 +2,12 @@ import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 
 const { cloneDeep } = Shopware.Utils.object;
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-currency-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
@@ -322,4 +322,4 @@ Component.register('sw-settings-currency-detail', {
             });
         },
     },
-});
+};

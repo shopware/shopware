@@ -5,7 +5,7 @@ import { cloneDeep } from 'src/core/service/utils/object.utils';
 
 global.activeFeatureFlags = ['FEATURE_NEXT_19822'];
 
-beforeEach(() => {
+beforeEach(async () => {
     ComponentFactory.getComponentRegistry().clear();
     ComponentFactory.getOverrideRegistry().clear();
     ComponentFactory._clearComponentHelper();
@@ -341,7 +341,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(typeof extension.extends).toBe('string');
                 expect(extension.extends).toBe('test-component');
                 expect(registry.has('test-component-extension')).toBe(true);
-                expect(typeof await registry.get('test-component-extension')()).toBe('object');
+                expect(typeof (await registry.get('test-component-extension')())).toBe('object');
                 expect(extension.template).toBe(undefined);
             });
         });

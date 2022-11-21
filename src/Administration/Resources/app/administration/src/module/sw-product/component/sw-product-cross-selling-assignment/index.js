@@ -2,11 +2,11 @@ import template from './sw-product-cross-selling-assignment.html.twig';
 import './sw-product-cross-selling-assignment.scss';
 
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-cross-selling-assignment', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -194,4 +194,4 @@ Component.register('sw-product-cross-selling-assignment', {
             return this.assignedProducts.some(p => p.productId === item.id);
         },
     },
-});
+};

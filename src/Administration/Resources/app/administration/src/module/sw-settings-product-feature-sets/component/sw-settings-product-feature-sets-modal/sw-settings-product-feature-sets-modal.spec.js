@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';
+import swSettingsProductFeatureSetsModal from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -10,6 +10,8 @@ import 'src/app/component/form/sw-radio-field';
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
 global.allowedErrors = [unknownOptionError];
+
+Shopware.Component.register('sw-settings-product-feature-sets-modal', swSettingsProductFeatureSetsModal);
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     const classes = {

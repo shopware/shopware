@@ -1,8 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/view/detail/sw-flow-detail-general';
+import swFlowDetailGeneral from 'src/module/sw-flow/view/detail/sw-flow-detail-general';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+
+Shopware.Component.register('sw-flow-detail-general', swFlowDetailGeneral);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

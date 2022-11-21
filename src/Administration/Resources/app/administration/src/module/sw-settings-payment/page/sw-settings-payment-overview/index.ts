@@ -26,12 +26,12 @@ interface PaymentMethodCard {
     paymentMethods?: Array<PaymentMethodEntity>;
 }
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-payment-overview', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory', 'acl'],

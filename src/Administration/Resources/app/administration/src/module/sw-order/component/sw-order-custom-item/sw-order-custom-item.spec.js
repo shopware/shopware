@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-order/component/sw-order-custom-item';
+import swOrderCustomItem from 'src/module/sw-order/component/sw-order-custom-item';
+
+Shopware.Component.register('sw-order-custom-item', swOrderCustomItem);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-custom-item'), {

@@ -2,7 +2,7 @@ import './sw-first-run-wizard-mailer-local.scss';
 import template from './sw-first-run-wizard-mailer-local.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-first-run-wizard-mailer-local', {
+export default {
     template,
 
     inject: ['systemConfigApiService'],
@@ -125,4 +125,4 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
             });
         },
     },
-});
+};

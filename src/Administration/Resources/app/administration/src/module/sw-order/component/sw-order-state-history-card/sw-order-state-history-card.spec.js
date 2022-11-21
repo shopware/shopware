@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-state-history-card';
-import 'src/module/sw-order/component/sw-order-state-change-modal';
+import swOrderStateHistoryCard from 'src/module/sw-order/component/sw-order-state-history-card';
+import swOrderStateChangeModal from 'src/module/sw-order/component/sw-order-state-change-modal';
+
+Shopware.Component.register('sw-order-state-history-card', swOrderStateHistoryCard);
+Shopware.Component.register('sw-order-state-change-modal', swOrderStateChangeModal);
 
 async function createWrapper(privileges = []) {
     const orderProp = {
@@ -20,7 +23,7 @@ async function createWrapper(privileges = []) {
                 template: '<div><slot></slot></div>'
             },
             'sw-container': true,
-            'sw-order-state-card-entry': true,
+            'sw-order-state-history-card-entry': true,
             'sw-order-state-change-modal': await Shopware.Component.build('sw-order-state-change-modal'),
             'sw-modal': true,
             'sw-order-state-change-modal-attach-documents': true

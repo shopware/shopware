@@ -1,14 +1,13 @@
 import template from './sw-dashboard-index.html.twig';
 import './sw-dashboard-index.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-dashboard-index', {
+export default {
     template,
 
     inject: [
@@ -569,4 +568,4 @@ Component.register('sw-dashboard-index', {
             return localeGreetings ?? fallbackGreetings;
         },
     },
-});
+};

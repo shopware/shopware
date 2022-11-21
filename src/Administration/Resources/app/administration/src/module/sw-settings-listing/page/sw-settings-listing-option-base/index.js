@@ -1,11 +1,11 @@
 import template from './sw-settings-listing-option-base.html.twig';
 import './sw-settings-listing-option-base.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-listing-option-base', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'systemConfigApiService'],
@@ -205,5 +205,5 @@ Component.register('sw-settings-listing-option-base', {
             this.fetchProductSortingEntity();
         },
     },
-});
+};
 

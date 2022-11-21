@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-rule/page/sw-settings-rule-list';
+import swSettingsRuleList from 'src/module/sw-settings-rule/page/sw-settings-rule-list';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import FilterService from 'src/app/service/filter.service';
+
+Shopware.Component.register('sw-settings-rule-list', swSettingsRuleList);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-rule-list'), {

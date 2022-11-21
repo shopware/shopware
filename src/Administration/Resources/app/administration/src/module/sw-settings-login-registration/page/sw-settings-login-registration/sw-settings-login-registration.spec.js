@@ -1,6 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-login-registration/page/sw-settings-login-registration';
-import 'src/module/sw-settings/component/sw-system-config';
+import swSettingsLoginRegistration from 'src/module/sw-settings-login-registration/page/sw-settings-login-registration';
+import swSystemConfig from 'src/module/sw-settings/component/sw-system-config';
+
+Shopware.Component.register('sw-settings-login-registration', swSettingsLoginRegistration);
+Shopware.Component.register('sw-system-config', swSystemConfig);
 
 const classes = {
     root: 'sw-page__main-content',

@@ -1,11 +1,11 @@
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-promotion-v2-list', {
+export default {
     template,
 
     inject: [
@@ -117,4 +117,4 @@ Component.register('sw-promotion-v2-list', {
             this.total = total;
         },
     },
-});
+};

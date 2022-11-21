@@ -1,11 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
-
+import swCustomFieldTypeBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
+import swCustomFieldTypeSelect from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/sw-switch-field';
 
+Shopware.Component.register('sw-custom-field-type-base', swCustomFieldTypeBase);
+Shopware.Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', swCustomFieldTypeSelect);
 
 let currentCustomField = {};
 
@@ -63,7 +64,7 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-select', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         currentCustomField = {
             name: 'technical_test',
             type: 'select',

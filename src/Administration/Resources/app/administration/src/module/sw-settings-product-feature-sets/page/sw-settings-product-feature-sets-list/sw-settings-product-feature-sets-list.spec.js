@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
-import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list';
+import swSettingsProductFeatureSetsList from 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -18,6 +18,8 @@ const text = {
     featureSetName: '2c1c9361-88e2-48ab-b14d-973d080717af',
     featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58'
 };
+
+Shopware.Component.register('sw-settings-product-feature-sets-list', swSettingsProductFeatureSetsList);
 
 async function createWrapper(additionalOptions = {}, privileges = []) {
     const localVue = createLocalVue();

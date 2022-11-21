@@ -1,7 +1,9 @@
 import { config, createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-tree';
 import VueRouter from 'vue-router';
+import swCategoryTree from 'src/module/sw-category/component/sw-category-tree';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
+
+Shopware.Component.register('sw-category-tree', swCategoryTree);
 
 async function createWrapper() {
     // delete global $router and $routes mocks

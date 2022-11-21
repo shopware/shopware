@@ -1,7 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-dashboard/component/sw-dashboard-statistics';
+import swDashboardStatistics from 'src/module/sw-dashboard/component/sw-dashboard-statistics';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
 import { currency } from 'src/core/service/utils/format.utils';
+
+Shopware.Component.register('sw-dashboard-statistics', swDashboardStatistics);
 
 async function createWrapper(privileges = [], orderSumToday = null) {
     const localVue = createLocalVue();

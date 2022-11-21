@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-entry-point-modal';
+import swCategoryEntryPointModal from 'src/module/sw-category/component/sw-category-entry-point-modal';
+
+Shopware.Component.register('sw-category-entry-point-modal', swCategoryEntryPointModal);
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;

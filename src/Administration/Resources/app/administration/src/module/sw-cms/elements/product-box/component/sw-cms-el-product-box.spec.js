@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/product-box/component';
+import swCmsElProductBox from 'src/module/sw-cms/elements/product-box/component';
+
+Shopware.Component.register('sw-cms-el-product-box', swCmsElProductBox);
 
 const defaultElementConfig = {
     product: {
@@ -62,21 +64,15 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/elements/product-box/component', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should display skeleton when product data is null', async () => {
-        expect(wrapper.find('.sw-cms-el-product-box__skeleton-name').exists()).toBeTruthy();
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-cms-el-product-box__skeleton-name').exists()).toBe(true);
     });
 
     it('should not display skeleton when product data is not null', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             element: {
                 config: { ...defaultElementConfig },
@@ -100,6 +96,6 @@ describe('module/sw-cms/elements/product-box/component', () => {
             }
         });
 
-        expect(wrapper.find('.sw-cms-el-product-box__skeleton-name').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-cms-el-product-box__skeleton-name').exists()).toBe(false);
     });
 });

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/component/sw-customer-address-form';
+import swCustomerAddressForm from 'src/module/sw-customer/component/sw-customer-address-form';
+
+Shopware.Component.register('sw-customer-address-form', swCustomerAddressForm);
 
 async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;

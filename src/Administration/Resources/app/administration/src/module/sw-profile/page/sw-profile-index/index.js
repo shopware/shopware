@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-profile-index', {
+export default {
     template,
 
     inject: [
@@ -487,4 +487,4 @@ Component.register('sw-profile-index', {
                 });
         },
     },
-});
+};

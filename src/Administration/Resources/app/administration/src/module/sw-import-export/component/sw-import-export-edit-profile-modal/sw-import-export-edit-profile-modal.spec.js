@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal';
+import swImportExportEditProfileModal from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal';
+
+Shopware.Component.register('sw-import-export-edit-profile-modal', swImportExportEditProfileModal);
 
 function getMockParentProfiles(total = 1) {
     let mockParentProfiles = [];

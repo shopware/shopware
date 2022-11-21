@@ -1,10 +1,10 @@
 import template from './sw-promotion-v2-detail-base.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-promotion-v2-detail-base', {
+export default {
     template,
 
     inject: [
@@ -165,4 +165,4 @@ Component.register('sw-promotion-v2-detail-base', {
             this.isGenerateSuccessful = false;
         },
     },
-});
+};

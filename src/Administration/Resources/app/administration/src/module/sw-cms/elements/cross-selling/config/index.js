@@ -1,13 +1,13 @@
 import template from './sw-cms-el-config-cross-selling.html.twig';
 import './sw-cms-el-config-cross-selling.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-config-cross-selling', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -71,4 +71,4 @@ Component.register('sw-cms-el-config-cross-selling', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

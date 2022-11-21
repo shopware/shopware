@@ -4,7 +4,7 @@ import './sw-extension-store-landing-page.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-extension-store-landing-page', {
+export default {
     template,
 
     inject: ['extensionHelperService'],
@@ -51,4 +51,4 @@ Shopware.Component.register('sw-extension-store-landing-page', {
                 });
         },
     },
-});
+};

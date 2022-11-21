@@ -33,7 +33,7 @@ import 'src/app/component/media/sw-media-media-item';
 import 'src/app/component/media/sw-media-base-item';
 import 'src/app/component/media/sw-media-preview-v2';
 import 'src/app/filter/media-name.filter';
-import 'src/module/sw-settings/component/sw-system-config';
+import swSystemConfig from 'src/module/sw-settings/component/sw-system-config';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/structure/sw-sales-channel-switch';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
@@ -41,6 +41,8 @@ import 'src/app/component/form/sw-textarea-field';
 import 'src/app/component/form/sw-url-field';
 import 'src/app/component/form/sw-password-field';
 import 'src/app/filter/unicode-uri';
+
+Shopware.Component.register('sw-system-config', swSystemConfig);
 
 /** @type Wrapper */
 let wrapper;

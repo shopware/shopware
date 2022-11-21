@@ -1,14 +1,14 @@
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { hasOwnProperty } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-payment-detail', {
+export default {
     template,
 
     inject: [
@@ -240,4 +240,4 @@ Component.register('sw-settings-payment-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
     },
-});
+};

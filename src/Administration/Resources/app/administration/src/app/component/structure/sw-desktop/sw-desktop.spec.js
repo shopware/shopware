@@ -103,7 +103,7 @@ async function createWrapper() {
 }
 
 describe('src/app/component/structure/sw-desktop', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
             id: 'id'
         };

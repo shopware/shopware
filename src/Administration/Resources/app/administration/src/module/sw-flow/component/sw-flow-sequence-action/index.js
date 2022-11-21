@@ -13,7 +13,7 @@ const { snakeCase } = utils.string;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-sequence-action', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
@@ -707,4 +707,4 @@ Component.register('sw-flow-sequence-action', {
             return this.triggerActions.find(item => item.name === action.actionName);
         },
     },
-});
+};

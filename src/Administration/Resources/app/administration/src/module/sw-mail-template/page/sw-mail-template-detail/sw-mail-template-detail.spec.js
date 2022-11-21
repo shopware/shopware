@@ -1,11 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-mail-template/page/sw-mail-template-detail';
+import swMailTemplateDetail from 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
 import 'src/app/component/tree/sw-tree-input-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-mail-template-detail', swMailTemplateDetail);
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',

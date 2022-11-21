@@ -1,11 +1,11 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
-const { Component, Data, Mixin, State, Feature } = Shopware;
+const { Data, Mixin, State, Feature } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-user-listing', {
+export default {
     template,
 
     inject: [
@@ -180,4 +180,4 @@ Component.register('sw-users-permissions-user-listing', {
             this.itemToDelete = null;
         },
     },
-});
+};

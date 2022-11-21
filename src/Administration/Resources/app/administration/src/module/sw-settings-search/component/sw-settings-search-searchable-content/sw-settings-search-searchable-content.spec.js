@@ -1,6 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content';
-import 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
+import swSettingsSearchSearchableContent from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content';
+import swSettingsSearchExampleModal from 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
+
+Shopware.Component.register('sw-settings-search-searchable-content', swSettingsSearchSearchableContent);
+Shopware.Component.register('sw-settings-search-example-modal', swSettingsSearchExampleModal);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

@@ -2,10 +2,8 @@ import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-import-export-edit-profile-field-indicators.html.twig';
 import './sw-import-export-edit-profile-field-indicators.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-import-export-edit-profile-field-indicators', {
+export default {
     template,
 
     props: {
@@ -48,4 +46,4 @@ Component.register('sw-import-export-edit-profile-field-indicators', {
             ];
         },
     },
-});
+};

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang';
+import swSalesChannelDetailHreflang from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang';
+
+Shopware.Component.register('sw-sales-channel-detail-hreflang', swSalesChannelDetailHreflang);
 
 async function createWrapper(customProps = {}) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-hreflang'), {

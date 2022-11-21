@@ -1,12 +1,11 @@
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { object, string: { kebabCase } } = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-system-config', {
-
+export default {
     template,
 
     inject: ['systemConfigApiService'],
@@ -269,4 +268,4 @@ Component.register('sw-system-config', {
             return kebabCase(value);
         },
     },
-});
+};

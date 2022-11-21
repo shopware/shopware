@@ -7,7 +7,9 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
-import 'src/module/sw-import-export/component/sw-import-export-entity-path-select';
+import swImportExportEntityPathSelect from 'src/module/sw-import-export/component/sw-import-export-entity-path-select';
+
+Shopware.Component.register('sw-import-export-entity-path-select', swImportExportEntityPathSelect);
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 

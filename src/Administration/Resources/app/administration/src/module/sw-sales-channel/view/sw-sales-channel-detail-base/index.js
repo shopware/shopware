@@ -10,7 +10,7 @@ const utils = Shopware.Utils;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-detail-base', {
+export default {
     template,
 
     inject: [
@@ -699,4 +699,4 @@ Component.register('sw-sales-channel-detail-base', {
             return this.salesChannelFavoritesService.isFavorite(this.salesChannel.id);
         },
     },
-});
+};

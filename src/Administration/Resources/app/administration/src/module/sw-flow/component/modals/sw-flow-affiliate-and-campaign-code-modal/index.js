@@ -5,7 +5,7 @@ const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-affiliate-and-campaign-code-modal', {
+export default {
     template,
 
     mixins: [
@@ -117,4 +117,4 @@ Component.register('sw-flow-affiliate-and-campaign-code-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

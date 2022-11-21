@@ -3,12 +3,12 @@ import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-detail', {
+export default {
     template,
 
     inject: [
@@ -358,4 +358,4 @@ Component.register('sw-customer-detail', {
             });
         },
     },
-});
+};

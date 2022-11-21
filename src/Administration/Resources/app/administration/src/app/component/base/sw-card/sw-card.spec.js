@@ -7,10 +7,10 @@ const { Component } = Shopware;
 async function createWrapper(additionalOptions = {}) {
     const localVue = createLocalVue();
 
-    return shallowMount(Component.build('sw-card'), {
+    return shallowMount(await Component.build('sw-card'), {
         localVue,
         stubs: {
-            'sw-context-button': Component.build('sw-context-button'),
+            'sw-context-button': await Component.build('sw-context-button'),
             'sw-loader': true,
             'sw-icon': true,
             'sw-popover': true,

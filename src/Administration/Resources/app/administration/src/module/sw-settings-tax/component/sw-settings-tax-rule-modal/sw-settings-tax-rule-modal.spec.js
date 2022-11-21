@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-modal';
+import swSettingsTaxRuleModal from 'src/module/sw-settings-tax/component/sw-settings-tax-rule-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.extend('sw-settings-tax-rule-modal', 'sw-modal', swSettingsTaxRuleModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

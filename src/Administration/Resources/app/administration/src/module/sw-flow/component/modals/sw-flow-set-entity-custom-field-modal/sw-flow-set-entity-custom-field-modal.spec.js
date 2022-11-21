@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal';
+import swFlowSetEntityCustomFieldModal from 'src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -15,6 +15,7 @@ import 'src/app/component/form/sw-select-field';
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+Shopware.Component.register('sw-flow-set-entity-custom-field-modal', swFlowSetEntityCustomFieldModal);
 const fieldClasses = [
     '.sw-flow-set-entity-custom-field-modal__custom-field-set',
     '.sw-flow-set-entity-custom-field-modal__custom-field'

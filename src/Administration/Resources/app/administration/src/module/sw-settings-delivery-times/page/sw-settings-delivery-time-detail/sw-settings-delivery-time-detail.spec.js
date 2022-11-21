@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail';
+import swSettingsDeliveryTimeDetail from 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail';
+
+Shopware.Component.register('sw-settings-delivery-time-detail', swSettingsDeliveryTimeDetail);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

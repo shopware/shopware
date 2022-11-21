@@ -1,11 +1,16 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-document-card';
-import 'src/module/sw-order/component/sw-order-select-document-type-modal';
-import 'src/module/sw-order/component/sw-order-document-settings-modal';
-import 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
+import swOrderDocumentCard from 'src/module/sw-order/component/sw-order-document-card';
+import swOrderSelectDocumentTypeModal from 'src/module/sw-order/component/sw-order-select-document-type-modal';
+import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
+import swOrderDocumentSettingsInvoiceModal from 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-order-document-card', swOrderDocumentCard);
+Shopware.Component.register('sw-order-select-document-type-modal', swOrderSelectDocumentTypeModal);
+Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
+Shopware.Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsInvoiceModal);
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -561,7 +566,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('sw-order-send-document-modal-stub').exists()).toBeTruthy();
     });
 
-    it('should call dowloadDocument method when choosing option Create and download in Create document modal', async () => {
+    it('should call downloadDocument method when choosing option Create and download in Create document modal', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = await createWrapper([
             'order.editor'

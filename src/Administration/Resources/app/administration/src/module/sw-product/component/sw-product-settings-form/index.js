@@ -1,10 +1,9 @@
 import template from './sw-product-settings-form.html.twig';
 
-const { Component } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-settings-form', {
+export default {
     template,
 
     props: {
@@ -34,4 +33,4 @@ Component.register('sw-product-settings-form', {
             'markAsTopseller',
         ]),
     },
-});
+};

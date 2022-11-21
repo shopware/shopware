@@ -1,12 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-missing-element-modal';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button';
+import swCmsMissingElementModal from 'src/module/sw-cms/component/sw-cms-missing-element-modal';
+import swModal from 'src/app/component/base/sw-modal';
 
-const { Component } = Shopware;
+Shopware.Component.register('sw-cms-missing-element-modal', swCmsMissingElementModal);
+Shopware.Component.register('sw-modal', swModal);
 
 async function createWrapper() {
-    return shallowMount(Component.build('sw-cms-missing-element-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-missing-element-modal'), {
         propsData: {
             missingElements: []
         },
@@ -25,41 +25,37 @@ async function createWrapper() {
             }
         },
         stubs: {
-            'sw-modal': Component.build('sw-modal'),
-            'sw-button': Component.build('sw-button'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': true,
             'sw-icon': true
         }
     });
 }
 
 describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should emit an event when clicking on cancel button', async () => {
-        await wrapper.find('.sw-cms-missing-element-modal__button-cancel').trigger('click');
+        const wrapper = await createWrapper();
 
-        const pageChangeEvents = wrapper.emitted()['modal-close'];
+        wrapper.find('.sw-cms-missing-element-modal__button-cancel').vm.$emit('click');
+
+        const pageChangeEvents = wrapper.emitted('modal-close');
 
         expect(pageChangeEvents.length).toBe(1);
     });
 
     it('should emit an event when clicking on save button', async () => {
-        await wrapper.find('.sw-cms-missing-element-modal__button-save').trigger('click');
+        const wrapper = await createWrapper();
 
-        const pageChangeEvents = wrapper.emitted()['modal-save'];
+        wrapper.find('.sw-cms-missing-element-modal__button-save').vm.$emit('click');
+
+        const pageChangeEvents = wrapper.emitted('modal-save');
 
         expect(pageChangeEvents.length).toBe(1);
     });
 
     it('should expose no missing element', async () => {
+        const wrapper = await createWrapper();
+
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
         expect(title.text()).toEqual(
@@ -68,6 +64,8 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
     });
 
     it('should expose one missing element', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             missingElements: ['buyBox']
         });
@@ -80,6 +78,8 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
     });
 
     it('should expose two missing elements', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             missingElements: ['buyBox', 'productDescriptionReviews']
         });
@@ -93,11 +93,13 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
     });
 
     it('should expose three missing elements', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             missingElements: ['buyBox', 'productDescriptionReviews', 'crossSelling']
         });
 
-        const title = await wrapper.find('.sw-cms-missing-element-modal__title');
+        const title = wrapper.find('.sw-cms-missing-element-modal__title');
 
         expect(title.text()).toEqual(
             // eslint-disable-next-line max-len

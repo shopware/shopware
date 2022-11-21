@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
+import swSalesChannelDetailDomains from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/form/select/base/sw-single-select';
@@ -7,6 +7,7 @@ import 'src/app/component/form/select/base/sw-single-select';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
+Shopware.Component.register('sw-sales-channel-detail-domains', swSalesChannelDetailDomains);
 
 async function createWrapper(customProps = {}, domains = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-domains'), {

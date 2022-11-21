@@ -1,11 +1,11 @@
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-address-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -173,4 +173,4 @@ Component.register('sw-order-address-modal', {
             });
         },
     },
-});
+};

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-uninstall-modal';
+import swExtensionUninstallModal from 'src/module/sw-extension/component/sw-extension-uninstall-modal';
+
+Shopware.Component.register('sw-extension-uninstall-modal', swExtensionUninstallModal);
 
 async function createWrapper(propsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-extension-uninstall-modal'), {

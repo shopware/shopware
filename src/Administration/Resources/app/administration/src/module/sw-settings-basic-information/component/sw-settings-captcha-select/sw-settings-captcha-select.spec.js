@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-basic-information/component/sw-settings-captcha-select';
+import swSettingsCaptchaSelect from 'src/module/sw-settings-basic-information/component/sw-settings-captcha-select';
+
+Shopware.Component.register('sw-settings-captcha-select', swSettingsCaptchaSelect);
 
 describe('src/module/sw-settings-basic-information/component/sw-settings-captcha-select', () => {
     async function CaptchaSelect() {

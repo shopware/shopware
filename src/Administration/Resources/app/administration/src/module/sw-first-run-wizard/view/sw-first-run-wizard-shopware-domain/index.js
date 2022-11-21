@@ -1,10 +1,8 @@
 import template from './sw-first-run-wizard-shopware-domain.html.twig';
 import './sw-first-run-wizard-shopware-domain.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-first-run-wizard-shopware-domain', {
+export default {
     template,
 
     inject: ['firstRunWizardService'],
@@ -114,4 +112,4 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             });
         },
     },
-});
+};

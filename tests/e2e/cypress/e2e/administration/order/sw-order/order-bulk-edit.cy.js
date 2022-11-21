@@ -104,12 +104,12 @@ describe('Order: Bulk edit orders', () => {
         // Apply the changes
         cy.get('.sw-bulk-edit-order__save-action.sw-button-process').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
-        cy.get('.footer-right .sw-button--primary').click();
-        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.contains('.footer-right .sw-button--primary', 'Apply changes').click();
+
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.footer-right > .sw-button').click();
+        cy.contains('Bulk edit finished').should('exist');
+
+        cy.contains('.footer-right .sw-button', 'Close').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');
 
         // Verify changes from the first order

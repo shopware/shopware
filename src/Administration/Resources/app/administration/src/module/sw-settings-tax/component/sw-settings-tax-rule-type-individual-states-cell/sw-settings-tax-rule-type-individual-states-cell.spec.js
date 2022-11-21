@@ -1,5 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell';
+import swSettingsTaxRuleTypeIndividualStatesCell from 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell';
+
+Shopware.Component.register('sw-settings-tax-rule-type-individual-states-cell', swSettingsTaxRuleTypeIndividualStatesCell);
 
 async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };

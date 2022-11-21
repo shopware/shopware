@@ -1,7 +1,9 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states';
+import swSettingsTaxRuleTypeIndividualStates from 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
+
+Shopware.Component.register('sw-settings-tax-rule-type-individual-states', swSettingsTaxRuleTypeIndividualStates);
 
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     let stubs;

@@ -67,6 +67,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-cms-el-preview-buy-box').click();
 
         // Configure element product
+        cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
         cy.get('.sw-cms-el-config-buy-box .sw-entity-single-select').type('Variant product');

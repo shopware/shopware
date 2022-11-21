@@ -22,7 +22,7 @@ async function createWrapper(customOptions = {}) {
 describe('src/app/component/form/sw-datepicker', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'UTC'
         };

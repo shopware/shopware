@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/view/sw-product-detail-cross-selling';
+import swProductDetailCrossSelling from 'src/module/sw-product/view/sw-product-detail-cross-selling';
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-product-detail-cross-selling', swProductDetailCrossSelling);
 
 const product = {};
 const store = new Vuex.Store({

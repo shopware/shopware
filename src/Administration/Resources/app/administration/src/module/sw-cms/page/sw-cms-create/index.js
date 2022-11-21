@@ -1,12 +1,12 @@
 import template from './sw-cms-create.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.extend('sw-cms-create', 'sw-cms-detail', {
+export default {
     template,
 
     mixins: [
@@ -100,4 +100,4 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.onSave();
         },
     },
-});
+};

@@ -1,9 +1,7 @@
 import template from './sw-order-create-details-body.html.twig';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-details-body', {
+export default {
     template,
 
     props: {
@@ -84,4 +82,4 @@ Component.register('sw-order-create-details-body', {
             this.$emit('on-edit-shipping-address');
         },
     },
-});
+};

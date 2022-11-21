@@ -1,10 +1,8 @@
 import template from './sw-product-variants-delivery-media.html.twig';
 import './sw-product-variants-delivery-media.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-delivery-media', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -154,4 +152,4 @@ Component.register('sw-product-variants-delivery-media', {
             }
         },
     },
-});
+};

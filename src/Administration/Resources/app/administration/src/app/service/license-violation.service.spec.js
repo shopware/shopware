@@ -16,7 +16,7 @@ describe('app/service/license-violation.service.js', () => {
     Shopware.Service().register('cacheApiService', () => cacheApiServiceMock);
     const licenseViolationService = LicenseViolationService(Application.getContainer('service').storeService);
 
-    beforeEach(() => {
+    beforeEach(async () => {
         jest.clearAllMocks();
     });
 

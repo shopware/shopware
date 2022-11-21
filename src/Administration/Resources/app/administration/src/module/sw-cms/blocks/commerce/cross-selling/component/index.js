@@ -1,10 +1,8 @@
 import template from './sw-cms-block-cross-selling.html.twig';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-block-cross-selling', {
+export default {
     template,
-});
+};

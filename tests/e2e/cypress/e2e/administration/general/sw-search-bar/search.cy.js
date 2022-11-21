@@ -242,6 +242,8 @@ describe('Search bar: Check main functionality', () => {
 
         setMediaEntitySearchable();
 
+        cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
+
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.contains('.sw-search-bar-item', 'sw-login-background')

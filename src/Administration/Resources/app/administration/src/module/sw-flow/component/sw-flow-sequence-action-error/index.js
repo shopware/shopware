@@ -5,7 +5,7 @@ const { Component, State } = Shopware;
 const { mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-sequence-action-error', {
+export default {
     template,
 
     props: {
@@ -38,4 +38,4 @@ Component.register('sw-flow-sequence-action-error', {
             State.commit('swFlowState/removeSequences', [id]);
         },
     },
-});
+};

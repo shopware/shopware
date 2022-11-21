@@ -1,12 +1,12 @@
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-text', {
+export default {
     template,
 
     mixins: [
@@ -65,4 +65,4 @@ Component.register('sw-cms-el-text', {
             }
         },
     },
-});
+};

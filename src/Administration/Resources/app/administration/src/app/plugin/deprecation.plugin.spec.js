@@ -17,7 +17,7 @@ const createComponent = ({ customComponent, customOptions } = {}) => {
 };
 
 describe('app/plugins/deprecated.plugin', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         global.console.warn = jest.fn();
     });
 

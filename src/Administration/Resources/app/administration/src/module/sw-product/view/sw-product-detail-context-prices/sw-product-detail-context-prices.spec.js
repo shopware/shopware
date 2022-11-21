@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
-import 'src/module/sw-product/view/sw-product-detail-context-prices';
+import swProductDetailContextPrices from 'src/module/sw-product/view/sw-product-detail-context-prices';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -17,6 +17,8 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/sw-list-price-field';
 import 'src/app/component/form/sw-price-field';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
+
+Shopware.Component.register('sw-product-detail-context-prices', swProductDetailContextPrices);
 
 const { EntityCollection } = Shopware.Data;
 

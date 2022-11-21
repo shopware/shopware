@@ -1,7 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-entity';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
+import swCustomFieldTypeEntity from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-entity';
+import swCustomFieldTypeSelect from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
+import swCustomFieldTypeBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
+
+Shopware.Component.register('sw-custom-field-type-base', swCustomFieldTypeBase);
+Shopware.Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', swCustomFieldTypeSelect);
+Shopware.Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', swCustomFieldTypeEntity);
 
 async function createWrapper(privileges = [], isNew = true) {
     const localVue = createLocalVue();

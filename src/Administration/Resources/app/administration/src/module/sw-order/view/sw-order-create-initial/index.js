@@ -1,9 +1,9 @@
 import template from './sw-order-create-initial.html.twig';
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-initial', {
+export default {
     template,
 
     created() {
@@ -33,4 +33,4 @@ Component.register('sw-order-create-initial', {
             });
         },
     },
-});
+};

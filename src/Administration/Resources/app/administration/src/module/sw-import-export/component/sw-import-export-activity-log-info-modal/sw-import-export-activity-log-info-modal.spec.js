@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
+import swImportExportActivityLogInfoModal from 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
+
+Shopware.Component.register('sw-import-export-activity-log-info-modal', swImportExportActivityLogInfoModal);
 
 describe('module/sw-import-export/components/sw-import-export-activity-log-info-modal', () => {
     /** @type Wrapper */

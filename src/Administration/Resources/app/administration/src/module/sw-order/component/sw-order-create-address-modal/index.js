@@ -1,11 +1,11 @@
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 
-const { Component, Mixin, State, Service } = Shopware;
+const { Mixin, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-address-modal', {
+export default {
     template,
 
     mixins: [
@@ -275,4 +275,4 @@ Component.register('sw-order-create-address-modal', {
             this.currentAddress = newAddress;
         },
     },
-});
+};

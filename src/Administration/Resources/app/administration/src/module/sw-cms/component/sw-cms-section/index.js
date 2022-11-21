@@ -5,9 +5,9 @@ const { Component, Mixin, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-section', {
+export default {
     template,
 
     inject: [
@@ -222,4 +222,4 @@ Component.register('sw-cms-section', {
             return errorElements.some(missingConfig => missingConfig.blockId === block.id);
         },
     },
-});
+};

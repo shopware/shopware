@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-property/page/sw-property-detail';
+import swPropertyDetail from 'src/module/sw-property/page/sw-property-detail';
+
+Shopware.Component.register('sw-property-detail', swPropertyDetail);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-property-detail'), {

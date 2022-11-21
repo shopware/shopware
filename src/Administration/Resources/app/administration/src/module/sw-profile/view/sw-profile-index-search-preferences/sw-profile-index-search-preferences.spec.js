@@ -1,9 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-profile/view/sw-profile-index-search-preferences';
+import swProfileIndexSearchPreferences from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-profile-index-search-preferences', swProfileIndexSearchPreferences);
 
 const swProfileStateMock = {
     namespaced: true,

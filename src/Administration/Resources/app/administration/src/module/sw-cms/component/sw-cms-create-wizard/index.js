@@ -1,10 +1,10 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
-const { Component, Filter } = Shopware;
+const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-create-wizard', {
+export default {
     template,
 
     inject: ['feature'],
@@ -121,4 +121,4 @@ Component.register('sw-cms-create-wizard', {
             this.$emit('wizard-complete');
         },
     },
-});
+};

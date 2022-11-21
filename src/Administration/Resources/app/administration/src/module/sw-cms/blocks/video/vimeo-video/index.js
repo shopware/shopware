@@ -1,8 +1,14 @@
-import './component';
-import './preview';
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-preview-vimeo-video', () => import('./preview'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-block-vimeo-video', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'vimeo-video',

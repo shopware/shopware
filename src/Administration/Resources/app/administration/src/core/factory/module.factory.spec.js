@@ -3,7 +3,7 @@ const ModuleFactory = Module;
 const register = ModuleFactory.register;
 
 // We're clearing the modules registry to register the same module multiple times throughout the test suite
-beforeEach(() => {
+beforeEach(async () => {
     const modules = ModuleFactory.getModuleRegistry();
     modules.clear();
 });
@@ -516,7 +516,7 @@ describe('core/factory/module.factory.js', () => {
 
     it(
         'should not register a module when display property is false',
-        () => {
+        async () => {
             const module = register('1337-foo-bar', {
                 type: 'core',
                 display: false,

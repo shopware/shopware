@@ -1,13 +1,13 @@
 import template from './sw-cms-el-cross-selling.html.twig';
 import './sw-cms-el-cross-selling.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { isEmpty } = Shopware.Utils.types;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-cross-selling', {
+export default {
     template,
 
     mixins: [
@@ -168,4 +168,4 @@ Component.register('sw-cms-el-cross-selling', {
             };
         },
     },
-});
+};

@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
+import swSettingsCustomFieldSetList from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
 import 'src/app/component/grid/sw-grid';
+
+Shopware.Component.register('sw-settings-custom-field-set-list', swSettingsCustomFieldSetList);
 
 function mockCustomFieldSetData() {
     const _customFieldSets = [];

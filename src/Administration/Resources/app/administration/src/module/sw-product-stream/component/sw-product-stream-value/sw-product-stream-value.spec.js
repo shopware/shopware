@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product-stream/component/sw-product-stream-value';
+import swProductStreamValue from 'src/module/sw-product-stream/component/sw-product-stream-value';
 import 'src/app/component/rule/sw-condition-base';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-popover';
@@ -12,8 +12,15 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-icon';
 
+Shopware.Component.register('sw-product-stream-value', swProductStreamValue);
 
-async function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '', render = false) {
+async function createWrapper(
+    privileges = [],
+    fieldType = null,
+    conditionType = '',
+    entity = '',
+    render = false
+) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('popover', {});

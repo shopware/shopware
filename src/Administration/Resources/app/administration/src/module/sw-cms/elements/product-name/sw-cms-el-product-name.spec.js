@@ -1,7 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/text/component';
-import 'src/module/sw-cms/elements/product-name/component';
+import swCmsElText from 'src/module/sw-cms/elements/text/component';
+import swCmsElProductName from 'src/module/sw-cms/elements/product-name/component';
+
+Shopware.Component.register('sw-cms-el-text', swCmsElText);
+Shopware.Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', swCmsElProductName);
 
 async function createWrapper(propsOverride) {
     return shallowMount(await Shopware.Component.build('sw-cms-el-product-name'), {
@@ -45,23 +48,15 @@ async function createWrapper(propsOverride) {
 }
 
 describe('module/sw-cms/elements/product-name/component', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should map to a product name if the component is in a product page', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.element.config.content.source).toBe('mapped');
         expect(wrapper.vm.element.config.content.value).toBe('product.name');
     });
 
     it('should not initially map to a product name if element translated config exists', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             element: {
                 config: {
                     content: {
@@ -89,6 +84,8 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('should display skeleton on product name block if entity demo is null', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setData({
             cmsPageState: {
                 currentDemoEntity: null
@@ -99,6 +96,8 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('should display placeholder on product name block if data mapping is set to "product.name"', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             element: {
                 config: {
@@ -124,6 +123,8 @@ describe('module/sw-cms/elements/product-name/component', () => {
     });
 
     it('should display skeleton on product name block if data mapping is not set to "product.name"', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             element: {
                 config: {

@@ -1,11 +1,11 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import './sw-order-line-items-grid-sales-channel.scss';
 
-const { Component, Utils, State, Service } = Shopware;
+const { Utils, State, Service } = Shopware;
 const { get, format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-line-items-grid-sales-channel', {
+export default {
     template,
 
     inject: ['feature'],
@@ -324,4 +324,4 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             });
         },
     },
-});
+};

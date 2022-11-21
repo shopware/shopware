@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/page/sw-customer-create';
+import swCustomerCreate from 'src/module/sw-customer/page/sw-customer-create';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
+
+Shopware.Component.register('sw-customer-create', swCustomerCreate);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-customer-create'), {

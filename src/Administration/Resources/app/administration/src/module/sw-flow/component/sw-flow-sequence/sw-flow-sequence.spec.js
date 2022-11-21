@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/sw-flow-sequence';
+import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
 
 const sequenceFixture = {
     id: '1',
@@ -24,6 +24,8 @@ async function createWrapper(propsData = {}) {
         }
     });
 }
+
+Shopware.Component.register('sw-flow-sequence', swFlowSequence);
 
 describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     it('should show sequence selector type correctly', async () => {

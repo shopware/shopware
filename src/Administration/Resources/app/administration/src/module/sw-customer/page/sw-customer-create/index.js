@@ -1,10 +1,10 @@
 import template from './sw-customer-create.html.twig';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-create', {
+export default {
     template,
 
     inject: [
@@ -200,4 +200,4 @@ Component.register('sw-customer-create', {
             });
         },
     },
-});
+};

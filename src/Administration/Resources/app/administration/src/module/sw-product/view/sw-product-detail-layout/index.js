@@ -7,7 +7,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-layout', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'cmsService', 'feature', 'acl'],
@@ -165,4 +165,4 @@ Component.register('sw-product-detail-layout', {
             this.onSelectLayout(null);
         },
     },
-});
+};

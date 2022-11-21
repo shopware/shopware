@@ -1,11 +1,13 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields';
+import swSettingsSearchSearchableContentCustomfields from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-skeleton';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
 const customFields = mockCustomFieldData();
+
+Shopware.Component.register('sw-settings-search-searchable-content-customfields', swSettingsSearchSearchableContentCustomfields);
 
 function mockCustomFieldData() {
     const _customFields = [];
@@ -73,7 +75,7 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-customfields', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
     });

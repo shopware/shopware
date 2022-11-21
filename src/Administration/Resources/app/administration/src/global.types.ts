@@ -16,7 +16,7 @@ import type CartStoreService from 'src/core/service/api/cart-store-api.api.servi
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type { ExtensionsState } from './app/state/extensions.store';
-import type { ComponentConfig } from './core/factory/component.factory';
+import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import type { MenuItemState } from './app/state/menu-item.store';
 import type { ModalsState } from './app/state/modals.store';

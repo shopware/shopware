@@ -1,9 +1,18 @@
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-el-preview-image-gallery', () => import('./preview'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-el-config-image-gallery', () => import('./config'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-el-image-gallery', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-gallery',

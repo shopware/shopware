@@ -70,9 +70,11 @@ describe('Dynamic Product Groups in categories', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();
-        cy.get('.sw-single-select__selection').type('Dynamische productgroep');
+        cy.get('.sw-category-detail-products__product-assignment-type-select .sw-single-select__selection')
+            .type('Dynamische productgroep');
         cy.get('.sw-highlight-text__highlight').click( {force: true} );
         cy.get('[label] .sw-entity-single-select__selection').type('Dynamic Products');
         cy.get('.sw-highlight-text__highlight').click();

@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
+import swSettingsPaymentOverview from 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-settings-payment-overview', swSettingsPaymentOverview);
 
 async function createWrapper(methods = [], cards = [], privileges = []) {
     const localVue = createLocalVue();

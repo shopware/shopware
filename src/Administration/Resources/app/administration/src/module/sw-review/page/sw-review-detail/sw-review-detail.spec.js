@@ -1,13 +1,14 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-review/page/sw-review-detail';
+import swReviewDetail from 'src/module/sw-review/page/sw-review-detail';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';
+
+Shopware.Component.register('sw-review-detail', swReviewDetail);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.filter('date', v => v);
-
 
     return shallowMount(await Shopware.Component.build('sw-review-detail'), {
         localVue,

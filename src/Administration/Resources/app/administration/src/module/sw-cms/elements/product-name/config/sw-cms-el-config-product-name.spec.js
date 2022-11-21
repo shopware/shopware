@@ -1,7 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/text/config';
-import 'src/module/sw-cms/elements/product-name/config';
+import swCmsElConfigText from 'src/module/sw-cms/elements/text/config';
+import swCmsElConfigProductName from 'src/module/sw-cms/elements/product-name/config';
+
+Shopware.Component.register('sw-cms-el-config-text', swCmsElConfigText);
+Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', swCmsElConfigProductName);
 
 async function createWrapper(propsOverride) {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-name'), {
@@ -20,9 +23,6 @@ async function createWrapper(propsOverride) {
             },
             defaultConfig: {},
             ...propsOverride
-        },
-        mocks: {
-            $tc: key => key
         },
         data() {
             return {

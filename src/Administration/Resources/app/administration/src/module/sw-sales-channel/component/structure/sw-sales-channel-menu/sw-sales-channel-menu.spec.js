@@ -170,7 +170,7 @@ async function createWrapper(salesChannels = [], privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').languageId = defaultAdminLanguageId;
         Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
 

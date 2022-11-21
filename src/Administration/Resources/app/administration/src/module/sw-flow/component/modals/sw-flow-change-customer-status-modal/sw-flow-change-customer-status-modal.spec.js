@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal';
+import swFlowChangeCustomerStatusModal from 'src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal';
 
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-flow-change-customer-status-modal', swFlowChangeCustomerStatusModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

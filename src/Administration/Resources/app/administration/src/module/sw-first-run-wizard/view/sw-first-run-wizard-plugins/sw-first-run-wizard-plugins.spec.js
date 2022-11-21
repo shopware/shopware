@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
+import swFirstRunWizardPlugins from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
 import 'src/app/component/base/sw-label';
+
+Shopware.Component.register('sw-first-run-wizard-plugins', swFirstRunWizardPlugins);
 
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     /** @type Wrapper */

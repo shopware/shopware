@@ -25,7 +25,7 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_transaction %}
-        <sw-order-state-card-entry
+        <sw-order-state-history-card-entry
             v-if="transaction"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -51,7 +51,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_delivery %}
-        <sw-order-state-card-entry
+        <sw-order-state-history-card-entry
             v-if="delivery"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -77,7 +77,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_order%}
-        <sw-order-state-card-entry
+        <sw-order-state-history-card-entry
             class="sw-order-state-history-card__order-state"
             @state-select="onOrderStateSelected"
             :history="orderHistory"

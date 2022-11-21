@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-document-settings-modal';
+import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
 import 'src/app/component/media/sw-media-upload-v2';
 import 'src/app/component/form/sw-file-input';
 import 'src/app/component/base/sw-button';
@@ -8,6 +8,8 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
 
 const orderFixture = {
     id: '1234',

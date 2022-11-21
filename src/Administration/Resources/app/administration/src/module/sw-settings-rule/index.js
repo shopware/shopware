@@ -1,16 +1,19 @@
-import './component/sw-settings-rule-add-assignment-modal';
-import './component/sw-settings-rule-add-assignment-listing';
-import './component/sw-settings-rule-assignment-listing';
-import './component/sw-settings-rule-category-tree';
-import './component/sw-settings-rule-tree-item';
-import './component/sw-settings-rule-tree';
-import './page/sw-settings-rule-list';
-import './page/sw-settings-rule-detail';
-import './view/sw-settings-rule-detail-base';
-import './view/sw-settings-rule-detail-assignments';
 import './acl';
 
 const { Module } = Shopware;
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-rule-add-assignment-modal', () => import('./component/sw-settings-rule-add-assignment-modal'));
+Shopware.Component.register('sw-settings-rule-add-assignment-listing', () => import('./component/sw-settings-rule-add-assignment-listing'));
+Shopware.Component.extend('sw-settings-rule-assignment-listing', 'sw-entity-listing', () => import('./component/sw-settings-rule-assignment-listing'));
+Shopware.Component.register('sw-settings-rule-category-tree', () => import('./component/sw-settings-rule-category-tree'));
+Shopware.Component.extend('sw-settings-rule-tree-item', 'sw-tree-item', () => import('./component/sw-settings-rule-tree-item'));
+Shopware.Component.extend('sw-settings-rule-tree', 'sw-tree', () => import('./component/sw-settings-rule-tree'));
+Shopware.Component.register('sw-settings-rule-list', () => import('./page/sw-settings-rule-list'));
+Shopware.Component.register('sw-settings-rule-detail', () => import('./page/sw-settings-rule-detail'));
+Shopware.Component.register('sw-settings-rule-detail-base', () => import('./view/sw-settings-rule-detail-base'));
+Shopware.Component.register('sw-settings-rule-detail-assignments', () => import('./view/sw-settings-rule-detail-assignments'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-rule', {

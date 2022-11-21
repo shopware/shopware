@@ -18,6 +18,8 @@ describe('Tax: Test tax-rule listing operations', () => {
         cy.contains('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value',
             'Standard rate').click();
 
+        cy.get('.sw-tax-rule-card').should('be.visible');
+
         cy.testListing({
             sorting: {
                 text: 'Country',
@@ -35,6 +37,8 @@ describe('Tax: Test tax-rule listing operations', () => {
         cy.contains('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value',
             'Standard rate').click();
 
+        cy.get('.sw-tax-rule-card').should('be.visible');
+
         cy.testListing({
             sorting: {
                 text: 'Country',
@@ -49,7 +53,7 @@ describe('Tax: Test tax-rule listing operations', () => {
 
         cy.log('change Sorting direction from ASC to DESC');
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.testListing({
             sorting: {

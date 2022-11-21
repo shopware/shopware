@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
+import swPromotionV2List from 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+
+Shopware.Component.register('sw-promotion-v2-list', swPromotionV2List);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

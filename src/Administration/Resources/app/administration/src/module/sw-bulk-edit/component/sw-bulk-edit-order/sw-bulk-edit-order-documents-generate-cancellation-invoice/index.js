@@ -1,7 +1,7 @@
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
-// eslint-disable-next-line max-len
-Component.extend('sw-bulk-edit-order-documents-generate-cancellation-invoice', 'sw-bulk-edit-order-documents-generate-invoice', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     computed: {
         generateData: {
             get() {
@@ -15,4 +15,4 @@ Component.extend('sw-bulk-edit-order-documents-generate-cancellation-invoice', '
             },
         },
     },
-});
+};

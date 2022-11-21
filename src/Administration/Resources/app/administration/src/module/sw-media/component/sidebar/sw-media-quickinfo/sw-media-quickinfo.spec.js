@@ -1,7 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
-import 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
-import 'src/module/sw-media/component/sw-media-collapse';
+import swMediaQuickinfo from 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
+import swMediaCollapse from 'src/module/sw-media/component/sw-media-collapse';
+
+Shopware.Component.register('sw-media-quickinfo', swMediaQuickinfo);
+Shopware.Component.register('sw-media-collapse', swMediaCollapse);
 
 const { Mixin } = Shopware;
 

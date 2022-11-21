@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-order/component/sw-order-credit-item';
+import swOrderCreditItem from 'src/module/sw-order/component/sw-order-credit-item';
+
+Shopware.Component.register('sw-order-credit-item', swOrderCreditItem);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-credit-item'), {

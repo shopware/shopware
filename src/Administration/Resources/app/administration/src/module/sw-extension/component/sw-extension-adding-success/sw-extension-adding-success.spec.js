@@ -1,13 +1,15 @@
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-adding-success';
+import swExtensionAddingSuccess from 'src/module/sw-extension/component/sw-extension-adding-success';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-circle-icon';
 import 'src/app/component/base/sw-label';
 
+Shopware.Component.register('sw-extension-adding-success', swExtensionAddingSuccess);
+
 describe('src/module/sw-extension/component/sw-extension-adding-success', () => {
     let wrapper;
 
-    beforeEach(() => { if (wrapper) wrapper.destroy(); });
+    beforeEach(async () => { if (wrapper) wrapper.destroy(); });
 
     async function createWrapper() {
         return mount(await Shopware.Component.build('sw-extension-adding-success'), {

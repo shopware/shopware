@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-currency/component/sw-settings-currency-country-modal';
+import swSettingsCurrencyCountryModal from 'src/module/sw-settings-currency/component/sw-settings-currency-country-modal';
+
+Shopware.Component.register('sw-settings-currency-country-modal', swSettingsCurrencyCountryModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

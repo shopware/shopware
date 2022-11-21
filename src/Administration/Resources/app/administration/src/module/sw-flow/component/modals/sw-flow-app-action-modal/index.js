@@ -1,10 +1,10 @@
 import template from './sw-flow-app-action-modal.html.twig';
 import './sw-flow-app-action-modal.scss';
 
-const { Component, Mixin, Classes: { ShopwareError } } = Shopware;
+const { Mixin, Classes: { ShopwareError } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-app-action-modal', {
+export default {
     template,
 
     inject: ['acl'],
@@ -198,4 +198,4 @@ Component.register('sw-flow-app-action-modal', {
             return objHelpText[this.currentLocale] ?? objHelpText[Shopware.Context.app.fallbackLocale] ?? null;
         },
     },
-});
+};

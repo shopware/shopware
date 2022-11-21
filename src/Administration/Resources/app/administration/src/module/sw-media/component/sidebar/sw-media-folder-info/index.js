@@ -5,7 +5,7 @@ const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-folder-info', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -61,4 +61,4 @@ Component.register('sw-media-folder-info', {
             }];
         },
     },
-});
+};

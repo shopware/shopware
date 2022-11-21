@@ -11,7 +11,7 @@ describe('src/app/service/extension-helper.service.js', () => {
 
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         extensionHelperService = new ExtensionHelperService({
             extensionStoreActionService: {
                 getMyExtensions: () => {

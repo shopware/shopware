@@ -1,12 +1,12 @@
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-document-settings-modal', {
+export default {
     template,
 
     inject: ['numberRangeService', 'feature', 'repositoryFactory'],
@@ -211,4 +211,4 @@ Component.register('sw-order-document-settings-modal', {
                 });
         },
     },
-});
+};

@@ -1,9 +1,12 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-page';
-import 'src/module/sw-my-apps/page/sw-my-apps-page';
-import 'src/module/sw-my-apps/component/sw-my-apps-error-page';
+import swMyAppsPage from 'src/module/sw-my-apps/page/sw-my-apps-page';
+import swMyAppsErrorPage from 'src/module/sw-my-apps/component/sw-my-apps-error-page';
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
+
+Shopware.Component.register('sw-my-apps-page', swMyAppsPage);
+Shopware.Component.register('sw-my-apps-error-page', swMyAppsErrorPage);
 
 describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
     let wrapper = null;

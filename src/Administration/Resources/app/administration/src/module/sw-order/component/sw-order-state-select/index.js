@@ -1,13 +1,11 @@
 import './sw-order-state-select.scss';
 import template from './sw-order-state-select.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-state-select', {
+export default {
     template,
     props: {
         transitionOptions: {
@@ -68,4 +66,4 @@ Component.register('sw-order-state-select', {
             this.$emit('state-select', this.selectedActionName);
         },
     },
-});
+};

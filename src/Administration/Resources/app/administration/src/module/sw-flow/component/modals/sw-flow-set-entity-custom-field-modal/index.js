@@ -8,7 +8,7 @@ const { ShopwareError } = Shopware.Classes;
 const { capitalizeString } = Shopware.Utils.string;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-set-entity-custom-field-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -307,4 +307,4 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             return camelCaseText.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
         },
     },
-});
+};

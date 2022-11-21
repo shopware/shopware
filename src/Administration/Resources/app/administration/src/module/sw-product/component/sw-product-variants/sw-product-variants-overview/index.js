@@ -1,12 +1,12 @@
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-overview', {
+export default {
     template,
 
     inject: [
@@ -570,4 +570,4 @@ Component.register('sw-product-variants-overview', {
             this.showDeleteModal = true;
         },
     },
-});
+};

@@ -1,9 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/component/sw-product-price-form';
+import swProductPriceForm from 'src/module/sw-product/component/sw-product-price-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-list-price-field';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+
+Shopware.Component.register('sw-product-price-form', swProductPriceForm);
 
 const { Utils } = Shopware;
 

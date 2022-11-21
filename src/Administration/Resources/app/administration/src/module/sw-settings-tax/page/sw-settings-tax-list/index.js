@@ -1,11 +1,11 @@
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tax-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
@@ -175,4 +175,4 @@ Component.register('sw-settings-tax-list', {
                 .catch(() => null);
         },
     },
-});
+};

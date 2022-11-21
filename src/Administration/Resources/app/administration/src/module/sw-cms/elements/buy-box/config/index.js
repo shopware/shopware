@@ -1,13 +1,13 @@
 import template from './sw-cms-el-config-buy-box.html.twig';
 import './sw-cms-el-config-buy-box.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-config-buy-box', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -73,4 +73,4 @@ Component.register('sw-cms-el-config-buy-box', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

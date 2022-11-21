@@ -1,11 +1,10 @@
 import template from './sw-order-state-history-card.html.twig';
-import '../sw-order-state-change-modal';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-state-history-card', {
+export default {
     template,
 
     inject: [
@@ -401,4 +400,4 @@ Component.register('sw-order-state-history-card', {
             });
         },
     },
-});
+};

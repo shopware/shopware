@@ -1,11 +1,9 @@
 import template from './sw-cms-block-preview-sidebar-filter.html.twig';
 import './sw-cms-block-preview-sidebar-filter.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-block-preview-sidebar-filter', {
+export default {
     template,
-});
+};

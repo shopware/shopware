@@ -1,11 +1,11 @@
 import template from './sw-sales-channel-list.html.twig';
 import './sw-sales-channel-list.scss';
 
-const { Component, Mixin, Defaults } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'domainLinkService'],
@@ -171,4 +171,4 @@ Component.register('sw-sales-channel-list', {
             return salesChannel.type.id === Defaults.storefrontSalesChannelTypeId;
         },
     },
-});
+};

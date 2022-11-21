@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing';
-import 'src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments';
+import swSettingsRuleAssignmentListing from 'src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing';
+import swSettingsRuleDetailAssignments from 'src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/context-menu/sw-context-button';
@@ -9,6 +9,9 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/utils/sw-popover';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.extend('sw-settings-rule-assignment-listing', 'sw-entity-listing', swSettingsRuleAssignmentListing);
+Shopware.Component.register('sw-settings-rule-detail-assignments', swSettingsRuleDetailAssignments);
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
@@ -116,11 +119,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.vm.associationEntities).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
-                    entityName: expect.any(String),
-                    detailRoute: expect.any(String),
-                    repository: expect.any(Object),
-                    gridColumns: expect.any(Array),
+                    allowAdd: expect.any(Boolean),
+                    api: expect.any(Function),
+                    associationName: expect.any(String),
                     criteria: expect.any(Function),
+                    detailRoute: expect.any(String),
+                    entityName: expect.any(String),
+                    gridColumns: expect.any(Array),
                     loadedData: expect.any(Array),
                 })
             ])

@@ -1,10 +1,8 @@
 import template from './sw-settings-price-rounding.html.twig';
 import './sw-settings-price-rounding.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-price-rounding', {
+export default {
     template,
 
     props: {
@@ -66,4 +64,4 @@ Component.register('sw-settings-price-rounding', {
             this[type].interval = 0.01;
         },
     },
-});
+};

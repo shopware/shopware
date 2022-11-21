@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-property/page/sw-property-list';
+import swPropertyList from 'src/module/sw-property/page/sw-property-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+
+Shopware.Component.register('sw-property-list', swPropertyList);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-property-list'), {

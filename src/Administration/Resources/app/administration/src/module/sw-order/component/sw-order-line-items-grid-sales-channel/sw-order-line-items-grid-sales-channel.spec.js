@@ -1,7 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swOrderState from 'src/module/sw-order/state/order.store';
-import 'src/module/sw-order/component/sw-order-line-items-grid-sales-channel';
+import swOrderLineItemsGridSalesChannel from 'src/module/sw-order/component/sw-order-line-items-grid-sales-channel';
 import 'src/app/component/data-grid/sw-data-grid';
+
+Shopware.Component.register('sw-order-line-items-grid-sales-channel', swOrderLineItemsGridSalesChannel);
 
 const mockItems = [
     {

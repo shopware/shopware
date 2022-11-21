@@ -1,12 +1,10 @@
 import template from './sw-promotion-v2-empty-state-hero.html.twig';
 import './sw-promotion-v2-empty-state-hero.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-promotion-v2-empty-state-hero', {
+export default {
     template,
 
     props: {
@@ -44,4 +42,4 @@ Component.register('sw-promotion-v2-empty-state-hero', {
             return !this.hideDescription && this.description && this.description.length > 0;
         },
     },
-});
+};

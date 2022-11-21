@@ -2,12 +2,12 @@ import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-image-gallery', {
+export default {
     template,
 
     mixins: [
@@ -192,4 +192,4 @@ Component.register('sw-cms-el-image-gallery', {
             this.galleryLimit = Math.floor(boxSpace / (elSpace + elGap));
         },
     },
-});
+};

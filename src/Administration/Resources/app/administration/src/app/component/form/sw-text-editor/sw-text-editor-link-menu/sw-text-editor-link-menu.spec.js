@@ -86,7 +86,7 @@ async function createWrapper(buttonConfig) {
             },
             'sw-button': {
                 props: ['disabled'],
-                template: '<div class="sw-button" @click="$emit(\'click\', $event.target.value)""></div>'
+                template: '<div class="sw-button" @click="$emit(\'click\', $event.target.value)"></div>'
             },
         },
         propsData: {

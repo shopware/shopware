@@ -4,7 +4,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-property-option-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -61,4 +61,4 @@ Component.register('sw-property-option-detail', {
             this.currentOption.mediaId = selection[0].id;
         },
     },
-});
+};

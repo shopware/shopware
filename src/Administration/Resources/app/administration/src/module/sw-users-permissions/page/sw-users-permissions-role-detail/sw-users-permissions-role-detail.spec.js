@@ -1,9 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
+import swUsersPermissionsRoleDetail from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AppAclService from 'src/app/service/app-acl.service';
+
+Shopware.Component.register('sw-users-permissions-role-detail', swUsersPermissionsRoleDetail);
 
 let privilegesService = new PrivilegesService();
 const appAclService = new AppAclService(
@@ -25,13 +27,16 @@ function isNew() {
     return false;
 }
 
-async function createWrapper({
-    privileges = [],
-    privilegeMappingEntries = [],
-    aclPrivileges = []
-} = {}, options = {
-    isNew: false
-}) {
+async function createWrapper(
+    {
+        privileges = [],
+        privilegeMappingEntries = [],
+        aclPrivileges = []
+    } = {},
+    options = {
+        isNew: false
+    }
+) {
     privilegeMappingEntries.forEach(mappingEntry => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
     const $route = options.isNew ? { params: {} } : { params: { id: '12345789' } };
@@ -96,7 +101,7 @@ async function createWrapper({
 describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         privilegesService = new PrivilegesService();
     });
 

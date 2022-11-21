@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid';
+import swSettingsListingOptionCriteriaGrid from 'src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -11,6 +11,8 @@ import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/utils/sw-popover';
+
+Shopware.Component.register('sw-settings-listing-option-criteria-grid', swSettingsListingOptionCriteriaGrid);
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];

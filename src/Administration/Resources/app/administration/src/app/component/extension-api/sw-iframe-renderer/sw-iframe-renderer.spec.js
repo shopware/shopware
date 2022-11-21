@@ -26,7 +26,7 @@ async function createWrapper() {
 }
 
 describe('src/app/component/extension-api/sw-iframe-renderer', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         // Clear extension store
         Object.keys(Shopware.State.get('extensions')).forEach((key) => {
             Vue.delete(Shopware.State.get('extensions'), key);

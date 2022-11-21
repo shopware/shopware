@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
+import swProductVariantsOverview from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
+
+Shopware.Component.register('sw-product-variants-overview', swProductVariantsOverview);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-variants-overview'), {

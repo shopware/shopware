@@ -4,7 +4,9 @@ import Vuex from 'vuex';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/state/cms-page.state';
 
-import 'src/module/sw-cms/elements/product-listing/component/index';
+import swCmsElProductListing from 'src/module/sw-cms/elements/product-listing/component/index';
+
+Shopware.Component.register('sw-cms-el-product-listing', swCmsElProductListing);
 
 const currentDemoProducts = [
     { id: 'PRODUCT-0' },
@@ -74,7 +76,7 @@ async function createWrapper() {
 describe('module/sw-cms/elements/product-listing/component/index', () => {
     const cmsPageStateBackup = { ...Shopware.State._store.state.cmsPageState };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
     });
 

@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-review/page/sw-review-list';
+import swReviewList from 'src/module/sw-review/page/sw-review-list';
+
+Shopware.Component.register('sw-review-list', swReviewList);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

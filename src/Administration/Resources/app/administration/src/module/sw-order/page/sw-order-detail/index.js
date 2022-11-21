@@ -2,13 +2,13 @@ import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import swOrderDetailState from '../../state/order-detail.store';
 
-const { Component, State, Mixin } = Shopware;
+const { State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const ApiService = Shopware.Classes.ApiService;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-detail', {
+export default {
     template,
 
     inject: [
@@ -375,4 +375,4 @@ Component.register('sw-order-detail', {
             );
         },
     },
-});
+};

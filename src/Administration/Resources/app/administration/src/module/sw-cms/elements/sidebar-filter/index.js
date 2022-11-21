@@ -1,11 +1,20 @@
 import CMS from '../../constant/sw-cms.constant';
 
-import './component';
-import './config';
-import './preview';
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-el-preview-sidebar-filter', () => import('./preview'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-el-config-sidebar-filter', () => import('./config'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-el-sidebar-filter', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'sidebar-filter',

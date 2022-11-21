@@ -1,12 +1,12 @@
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-general-info', {
+export default {
     template,
 
     inject: [
@@ -377,4 +377,4 @@ Component.register('sw-order-general-info', {
             });
         },
     },
-});
+};

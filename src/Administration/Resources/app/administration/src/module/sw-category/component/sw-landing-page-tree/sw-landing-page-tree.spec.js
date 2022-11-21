@@ -1,7 +1,9 @@
 import { config, createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-landing-page-tree';
+import swLandingPageTree from 'src/module/sw-category/component/sw-landing-page-tree';
 import VueRouter from 'vue-router';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
+
+Shopware.Component.register('sw-landing-page-tree', swLandingPageTree);
 
 async function createWrapper(privileges = ['landing_page.creator', 'landing_page.editor']) {
     // delete global $router and $routes mocks

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-event-action/component/sw-event-action-list-expand-labels';
+import swEventActionListExpandLabels from 'src/module/sw-event-action/component/sw-event-action-list-expand-labels';
+
+Shopware.Component.register('sw-event-action-list-expand-labels', swEventActionListExpandLabels);
 
 const defaultProps = {
     items: [

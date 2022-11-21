@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/image/component';
+import swCmsElImage from 'src/module/sw-cms/elements/image/component';
+
+Shopware.Component.register('sw-cms-el-image', swCmsElImage);
 
 const mediaDataMock = {
     id: '1',

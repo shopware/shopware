@@ -1,11 +1,11 @@
 import './sw-cms-el-product-name.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
+export default {
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -44,4 +44,4 @@ Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
             }
         },
     },
-});
+};

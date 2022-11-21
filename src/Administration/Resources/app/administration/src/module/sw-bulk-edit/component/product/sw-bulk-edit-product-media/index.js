@@ -1,12 +1,12 @@
 import template from './sw-bulk-edit-product-media.html.twig';
 
-const { Component, Context, Utils, Mixin } = Shopware;
+const { Context, Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-product-media', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -122,4 +122,4 @@ Component.register('sw-bulk-edit-product-media', {
             });
         },
     },
-});
+};

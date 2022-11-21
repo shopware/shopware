@@ -1,10 +1,8 @@
 import template from './sw-product-modal-delivery.html.twig';
 import './sw-product-modal-delivery.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-modal-delivery', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -80,4 +78,4 @@ Component.register('sw-product-modal-delivery', {
             return product;
         },
     },
-});
+};

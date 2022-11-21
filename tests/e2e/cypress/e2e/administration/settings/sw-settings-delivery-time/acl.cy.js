@@ -164,6 +164,7 @@ describe('Delivery time: Test acl privileges', () => {
             method: 'delete'
         }).as('deleteDeliveryTime');
 
+        cy.get('.sw-settings-delivery-time-list-grid').should('be.visible');
         // filter delivery time via search bar
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Express');
 

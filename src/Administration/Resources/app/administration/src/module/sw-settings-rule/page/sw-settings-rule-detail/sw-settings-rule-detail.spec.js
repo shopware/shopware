@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
-import 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
+import swSettingsRuleDetail from 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
 
 const { EntityCollection } = Shopware.Data;
+
+Shopware.Component.register('sw-settings-rule-detail', swSettingsRuleDetail);
 
 function createRuleMock(isNew) {
     return {

@@ -1,10 +1,10 @@
 import template from './sw-my-apps-page.html.twig';
 import './sw-my-apps-page.scss';
 
-const { Component, State, Context } = Shopware;
+const { State, Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-my-apps-page', {
+export default {
     template,
 
     inject: ['acl'],
@@ -162,4 +162,4 @@ Component.register('sw-my-apps-page', {
             }
         },
     },
-});
+};

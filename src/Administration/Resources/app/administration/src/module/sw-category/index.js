@@ -1,31 +1,30 @@
-import './component/sw-category-tree';
-import './component/sw-landing-page-tree';
-import './component/sw-landing-page-view';
-import './component/sw-category-view';
-import './component/sw-category-sales-channel-card';
-import './component/sw-category-link-settings';
-import './component/sw-category-layout-card';
-import './component/sw-category-detail-menu';
-import './component/sw-category-seo-form';
-import './component/sw-category-entry-point-card';
-import './component/sw-category-entry-point-modal';
-import './component/sw-category-entry-point-overwrite-modal';
-import './component/sw-category-sales-channel-multi-select';
-
-import './page/sw-category-detail';
-
-import './view/sw-category-detail-base';
-import './view/sw-category-detail-cms';
-import './view/sw-landing-page-detail-base';
-import './view/sw-landing-page-detail-cms';
-import './view/sw-category-detail-products';
-import './view/sw-category-detail-seo';
-
 import './acl';
-
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-category-tree', () => import('./component/sw-category-tree'));
+Shopware.Component.register('sw-landing-page-tree', () => import('./component/sw-landing-page-tree'));
+Shopware.Component.register('sw-landing-page-view', () => import('./component/sw-landing-page-view'));
+Shopware.Component.register('sw-category-view', () => import('./component/sw-category-view'));
+Shopware.Component.register('sw-category-sales-channel-card', () => import('./component/sw-category-sales-channel-card'));
+Shopware.Component.register('sw-category-link-settings', () => import('./component/sw-category-link-settings'));
+Shopware.Component.register('sw-category-layout-card', () => import('./component/sw-category-layout-card'));
+Shopware.Component.register('sw-category-detail-menu', () => import('./component/sw-category-detail-menu'));
+Shopware.Component.register('sw-category-seo-form', () => import('./component/sw-category-seo-form'));
+Shopware.Component.register('sw-category-entry-point-card', () => import('./component/sw-category-entry-point-card'));
+Shopware.Component.register('sw-category-entry-point-modal', () => import('./component/sw-category-entry-point-modal'));
+Shopware.Component.register('sw-category-entry-point-overwrite-modal', () => import('./component/sw-category-entry-point-overwrite-modal'));
+Shopware.Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-select', () => import('./component/sw-category-sales-channel-multi-select'));
+Shopware.Component.register('sw-category-detail', () => import('./page/sw-category-detail'));
+Shopware.Component.register('sw-category-detail-base', () => import('./view/sw-category-detail-base'));
+Shopware.Component.register('sw-category-detail-cms', () => import('./view/sw-category-detail-cms'));
+Shopware.Component.register('sw-landing-page-detail-base', () => import('./view/sw-landing-page-detail-base'));
+Shopware.Component.register('sw-landing-page-detail-cms', () => import('./view/sw-landing-page-detail-cms'));
+Shopware.Component.register('sw-category-detail-products', () => import('./view/sw-category-detail-products'));
+Shopware.Component.register('sw-category-detail-seo', () => import('./view/sw-category-detail-seo'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-category', {

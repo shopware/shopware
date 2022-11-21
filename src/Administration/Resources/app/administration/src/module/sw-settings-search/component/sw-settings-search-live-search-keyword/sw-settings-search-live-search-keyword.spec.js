@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
+import swSettingsSearchLiveSearchKeyword from 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
 
 const defaultHighlightClass = '.sw-settings-search-live-search-keyword__highlight';
+
+Shopware.Component.register('sw-settings-search-live-search-keyword', swSettingsSearchLiveSearchKeyword);
 
 async function createWrapper() {
     const localVue = createLocalVue();

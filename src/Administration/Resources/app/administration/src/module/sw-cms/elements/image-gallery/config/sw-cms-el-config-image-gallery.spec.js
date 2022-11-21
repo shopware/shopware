@@ -1,7 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/image-gallery/config';
-import 'src/module/sw-cms/component/sw-cms-mapping-field';
+import swCmsElConfigImageGallery from 'src/module/sw-cms/elements/image-gallery/config';
+import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
+
+Shopware.Component.register('sw-cms-el-config-image-gallery', swCmsElConfigImageGallery);
+Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
 
 const mediaDataMock = [
     {

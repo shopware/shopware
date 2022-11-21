@@ -1,11 +1,11 @@
 import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
-const { Component, Defaults } = Shopware;
+const { Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-modal-grid', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -73,4 +73,4 @@ Component.register('sw-sales-channel-modal-grid', {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
         },
     },
-});
+};

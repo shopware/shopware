@@ -1,11 +1,10 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-block';
+import { shallowMount } from '@vue/test-utils';
+import swCmsBlock from 'src/module/sw-cms/component/sw-cms-block';
+
+Shopware.Component.register('sw-cms-block', swCmsBlock);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
     return shallowMount(await Shopware.Component.build('sw-cms-block'), {
-        localVue,
         propsData: {
             block: {}
         },

@@ -1,11 +1,11 @@
 import template from './sw-settings-currency-country-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-currency-country-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -82,4 +82,4 @@ Component.register('sw-settings-currency-country-modal', {
             return this.assignedCountryIds.includes(country.id);
         },
     },
-});
+};

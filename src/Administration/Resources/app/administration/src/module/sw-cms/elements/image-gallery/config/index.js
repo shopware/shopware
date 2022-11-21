@@ -1,14 +1,14 @@
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-config-image-gallery', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -265,4 +265,4 @@ Component.register('sw-cms-el-config-image-gallery', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

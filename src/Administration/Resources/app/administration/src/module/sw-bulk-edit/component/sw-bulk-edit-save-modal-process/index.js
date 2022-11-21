@@ -1,11 +1,10 @@
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
 
-const { Component } = Shopware;
 const { chunk: chunkArray } = Shopware.Utils.array;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-save-modal-process', {
+export default {
     template,
 
     inject: ['orderDocumentApiService'],
@@ -167,4 +166,4 @@ Component.register('sw-bulk-edit-save-modal-process', {
                 });
         },
     },
-});
+};

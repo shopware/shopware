@@ -118,6 +118,9 @@ describe('Salutation: Test acl privileges', () => {
             method: 'PATCH'
         }).as('editSalutation');
 
+        // assert that there is an available list of salutations
+        cy.get(`${page.elements.salutationListContent}`).should('be.visible');
+
         // click on the first element in grid
         cy.get(`${page.elements.dataGridRow}--0`).contains('mr').click();
 
@@ -170,6 +173,9 @@ describe('Salutation: Test acl privileges', () => {
             url: `**/${Cypress.env('apiPath')}/salutation/*`,
             method: 'delete'
         }).as('deleteSalutation');
+
+        // assert that there is an available list of salutations
+        cy.get(`${page.elements.salutationListContent}`).should('be.visible');
 
         // click on first element in grid
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mr');

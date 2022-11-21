@@ -1,12 +1,12 @@
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-stream-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'productStreamConditionService', 'acl', 'customFieldDataProviderService'],
@@ -406,4 +406,4 @@ Component.register('sw-product-stream-detail', {
             };
         },
     },
-});
+};

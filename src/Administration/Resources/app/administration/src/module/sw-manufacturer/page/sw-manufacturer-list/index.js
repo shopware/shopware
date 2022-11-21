@@ -1,10 +1,10 @@
 import template from './sw-manufacturer-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-manufacturer-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -94,4 +94,4 @@ Component.register('sw-manufacturer-list', {
             this.total = total;
         },
     },
-});
+};

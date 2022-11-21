@@ -1,6 +1,6 @@
 import template from './sw-order-detail-base.html.twig';
 
-const { Component, Utils, Mixin } = Shopware;
+const { Utils, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { get, format, array } = Utils;
 
@@ -8,7 +8,7 @@ const { get, format, array } = Utils;
  * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-detail-base', {
+export default {
     template,
 
     inject: [
@@ -686,4 +686,4 @@ Component.register('sw-order-detail-base', {
             return this.orderRepository.save(this.order, this.versionContext);
         },
     },
-});
+};

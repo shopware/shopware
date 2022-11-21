@@ -1,13 +1,13 @@
 import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-config-product-slider', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -212,4 +212,4 @@ Component.register('sw-cms-el-config-product-slider', {
             return this.productCollection.has(itemId);
         },
     },
-});
+};

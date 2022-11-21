@@ -1,13 +1,13 @@
 import template from './sw-cms-page-select.html.twig';
 import './sw-cms-page-select.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-page-select', {
+export default {
     template,
 
     inject: ['cmsService'],
@@ -84,4 +84,4 @@ Component.register('sw-cms-page-select', {
             return translations;
         },
     },
-});
+};

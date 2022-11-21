@@ -21,7 +21,7 @@ describe('system-config.api.service', () => {
     let systemConfigService = null;
     let axiosMock = null;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
 
         systemConfigService = apiService;

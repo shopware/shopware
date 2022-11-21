@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-defaults-select';
+import swSalesChannelDefaultsSelect from 'src/module/sw-sales-channel/component/sw-sales-channel-defaults-select';
+
+Shopware.Component.register('sw-sales-channel-defaults-select', swSalesChannelDefaultsSelect);
 
 async function createWrapper(customProps = {}) {
     const salesChannel = {};

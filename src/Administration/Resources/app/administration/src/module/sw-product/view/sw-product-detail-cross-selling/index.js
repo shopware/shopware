@@ -1,12 +1,11 @@
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-cross-selling', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -103,4 +102,4 @@ Component.register('sw-product-detail-cross-selling', {
             this.product.crossSellings.push(this.crossSelling);
         },
     },
-});
+};

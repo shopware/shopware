@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
+import swFlowRuleModal from 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+
+Shopware.Component.register('sw-flow-rule-modal', swFlowRuleModal);
 
 function createRuleMock(isNew) {
     return {

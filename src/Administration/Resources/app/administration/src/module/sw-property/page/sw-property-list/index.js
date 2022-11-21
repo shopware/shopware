@@ -1,11 +1,11 @@
 import template from './sw-property-list.html.twig';
 import './sw-property-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-property-list', {
+export default {
     template,
 
     inject: [
@@ -126,4 +126,4 @@ Component.register('sw-property-list', {
             }];
         },
     },
-});
+};

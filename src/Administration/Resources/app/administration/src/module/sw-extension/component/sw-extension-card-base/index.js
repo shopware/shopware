@@ -1,12 +1,12 @@
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
 
-const { Component, Utils, Filter } = Shopware;
+const { Utils, Filter } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-extension-card-base', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -401,4 +401,4 @@ Component.register('sw-extension-card-base', {
             await this.updateExtension(true);
         },
     },
-});
+};

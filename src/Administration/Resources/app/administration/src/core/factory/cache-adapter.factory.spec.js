@@ -4,7 +4,7 @@ describe('core/factory/cache-adapter.factory.js', () => {
     let requestCaches = {};
     let mockAdapter;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // use fake timers to simulate timeouts
         jest.useFakeTimers();
 

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-currency/page/sw-settings-currency-list';
+import swSettingsCurrencyList from 'src/module/sw-settings-currency/page/sw-settings-currency-list';
+
+Shopware.Component.register('sw-settings-currency-list', swSettingsCurrencyList);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-currency-list'), {

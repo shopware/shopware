@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product-stream/component/sw-product-stream-filter';
+import swProductStreamFilter from 'src/module/sw-product-stream/component/sw-product-stream-filter';
 import 'src/app/component/rule/sw-condition-base';
+
+Shopware.Component.extend('sw-product-stream-filter', 'sw-condition-base', swProductStreamFilter);
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 

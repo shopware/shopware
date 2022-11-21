@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import 'src/module/sw-product/page/sw-product-list';
+import swProductList from 'src/module/sw-product/page/sw-product-list';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/entity/sw-entity-listing';
@@ -17,6 +17,8 @@ const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     POUND: 'fce3465831e8639bb2ea165d0fcf1e8b'
 };
+
+Shopware.Component.register('sw-product-list', swProductList);
 
 function mockContext() {
     return {

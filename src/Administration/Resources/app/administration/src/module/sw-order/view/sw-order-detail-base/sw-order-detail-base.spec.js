@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/view/sw-order-detail-base';
+import swOrderDetailBase from 'src/module/sw-order/view/sw-order-detail-base';
 
 const orderMock = {
     shippingCosts: {
@@ -52,6 +52,8 @@ const orderMock = {
     },
     lineItems: []
 };
+
+Shopware.Component.register('sw-order-detail-base', swOrderDetailBase);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

@@ -1,11 +1,15 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/view/detail/sw-flow-detail-flow';
-import 'src/module/sw-flow/component/sw-flow-sequence';
-import 'src/module/sw-flow/component/sw-flow-trigger';
+import swFlowDetailFlow from 'src/module/sw-flow/view/detail/sw-flow-detail-flow';
+import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
+import swFlowTrigger from 'src/module/sw-flow/component/sw-flow-trigger';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-flow-detail-flow', swFlowDetailFlow);
+Shopware.Component.register('sw-flow-sequence', swFlowSequence);
+Shopware.Component.register('sw-flow-trigger', swFlowTrigger);
 
 const sequenceFixture = {
     id: '1',

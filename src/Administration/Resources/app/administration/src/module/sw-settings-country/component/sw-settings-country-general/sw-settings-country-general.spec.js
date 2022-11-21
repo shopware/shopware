@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-country/component/sw-settings-country-general';
+import swSettingsCountryGeneral from 'src/module/sw-settings-country/component/sw-settings-country-general';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
+
+Shopware.Component.register('sw-settings-country-general', swSettingsCountryGeneral);
 
 async function createWrapper(privileges = [], customPropsData = {}) {
     const localVue = createLocalVue();

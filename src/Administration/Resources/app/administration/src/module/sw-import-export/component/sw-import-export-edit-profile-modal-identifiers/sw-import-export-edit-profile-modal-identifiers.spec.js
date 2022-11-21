@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers';
+import swImportExportEditProfileModalIdentifiers from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -12,6 +12,8 @@ import 'src/app/component/utils/sw-popover';
 import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
 // eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
+
+Shopware.Component.register('sw-import-export-edit-profile-modal-identifiers', swImportExportEditProfileModalIdentifiers);
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-identifiers', () => {
     let wrapper;
@@ -89,7 +91,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const responses = global.repositoryFactoryMock.responses;
 
         responses.addResponse({

@@ -1,8 +1,7 @@
 import template from './sw-settings-rule-assignment-listing.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-settings-rule-assignment-listing', 'sw-entity-listing', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     methods: {
@@ -15,4 +14,4 @@ Component.extend('sw-settings-rule-assignment-listing', 'sw-entity-listing', {
             this.resetSelection();
         },
     },
-});
+};

@@ -1,6 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/product-description-reviews/component';
+import swCmsElProductDescriptionReviews from 'src/module/sw-cms/elements/product-description-reviews/component';
+
+Shopware.Component.register('sw-cms-el-product-description-reviews', swCmsElProductDescriptionReviews);
 
 const productMock = {
     name: 'Awesome Product',
@@ -8,10 +10,7 @@ const productMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
     return shallowMount(await Shopware.Component.build('sw-cms-el-product-description-reviews'), {
-        localVue,
-        sync: false,
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {

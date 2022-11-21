@@ -1,11 +1,11 @@
 import template from './sw-product-variants-configurator-prices.html.twig';
 import './sw-product-variants-configurator-prices.scss';
 
-const { Component, Feature } = Shopware;
+const { Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-configurator-prices', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -144,4 +144,4 @@ Component.register('sw-product-variants-configurator-prices', {
             return option.price.find((currency) => currency.currencyId === currencyId);
         },
     },
-});
+};

@@ -1,4 +1,6 @@
-import 'src/module/sw-order/component/sw-order-user-card';
+import swOrderUserCard from 'src/module/sw-order/component/sw-order-user-card';
+
+Shopware.Component.register('sw-order-user-card', swOrderUserCard);
 
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {
     let userCard;
@@ -19,6 +21,10 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
     const shippingMethodNoUrl = { trackingUrl: emptyTrackingUrl };
     const shippingMethodWithoutPlaceholder = { trackingUrl: trackingUrl };
     const shippingMethodWithPlaceholder = { trackingUrl: trackingUrlWithPlaceholder };
+
+    beforeAll(async () => {
+        userCard = await Shopware.Component.build('sw-order-user-card');
+    });
 
     it('should render no url, when no base url is present in the shipping method', async () => {
         expect(

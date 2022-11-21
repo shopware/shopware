@@ -35,7 +35,6 @@ const createMultiDataIpSelect = async (customOptions) => {
 describe('components/sw-multi-tag-ip-select', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createMultiDataIpSelect();
-
         expect(wrapper.vm).toBeTruthy();
     });
 

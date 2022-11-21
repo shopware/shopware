@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product-stream/component/sw-product-stream-field-select';
+import swProductStreamFieldSelect from 'src/module/sw-product-stream/component/sw-product-stream-field-select';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+
+Shopware.Component.register('sw-product-stream-field-select', swProductStreamFieldSelect);
 
 async function createWrapper(propsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-product-stream-field-select'), {

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-state-select';
+import swOrderStateSelect from 'src/module/sw-order/component/sw-order-state-select';
+
+Shopware.Component.register('sw-order-state-select', swOrderStateSelect);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-state-select'), {

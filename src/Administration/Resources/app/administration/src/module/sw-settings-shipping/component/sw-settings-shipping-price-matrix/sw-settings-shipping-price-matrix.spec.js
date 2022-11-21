@@ -1,8 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
+import swSettingsShippingPriceMatrix from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
 Shopware.State.registerModule('swShippingDetail', state);
+Shopware.Component.register('sw-settings-shipping-price-matrix', swSettingsShippingPriceMatrix);
 
 const createWrapper = async () => {
     return shallowMount(await Shopware.Component.build('sw-settings-shipping-price-matrix'), {
@@ -37,7 +38,7 @@ const createWrapper = async () => {
 };
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.commit('swShippingDetail/setCurrencies', [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },

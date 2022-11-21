@@ -1,13 +1,17 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-cms/page/sw-cms-list';
-import 'src/module/sw-cms/component/sw-cms-list-item';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/data-grid/sw-data-grid';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+import swCmsList from 'src/module/sw-cms/page/sw-cms-list';
+import swCmsListItem from 'src/module/sw-cms/component/sw-cms-list-item';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/data-grid/sw-data-grid';
+
+Shopware.Component.register('sw-cms-list', swCmsList);
+Shopware.Component.register('sw-cms-list-item', swCmsListItem);
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
@@ -493,7 +497,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     it('should disable the delete menu item when the layout got assigned to at least one product', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-
         const pages = [{
             id: '1a',
             sections: [],
@@ -570,7 +573,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     it('should indicate layouts already assigned to pages', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-
         const testData = {
             isLoading: false,
             pages: [

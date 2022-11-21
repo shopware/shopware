@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-reply';
+import swExtensionReviewReply from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-reply';
+
+Shopware.Component.register('sw-extension-review-reply', swExtensionReviewReply);
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply', () => {
     /** @type Wrapper */

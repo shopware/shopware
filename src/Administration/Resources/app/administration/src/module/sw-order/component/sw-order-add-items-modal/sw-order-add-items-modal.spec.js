@@ -3,7 +3,9 @@ import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
-import 'src/module/sw-order/component/sw-order-add-items-modal';
+import swOrderAddItemsModal from 'src/module/sw-order/component/sw-order-add-items-modal';
+
+Shopware.Component.register('sw-order-add-items-modal', swOrderAddItemsModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

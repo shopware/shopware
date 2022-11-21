@@ -1,12 +1,12 @@
 import template from './sw-order-line-items-grid.html.twig';
 import './sw-order-line-items-grid.scss';
 
-const { Component, Service, Utils } = Shopware;
+const { Service, Utils } = Shopware;
 const { get, format } = Utils;
 
 // merge 16.11.2020
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-line-items-grid', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'orderService', 'acl', 'feature'],
@@ -352,4 +352,4 @@ Component.register('sw-order-line-items-grid', {
                 !this.isCreditItem(item.id);
         },
     },
-});
+};

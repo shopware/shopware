@@ -1,8 +1,7 @@
 import template from './sw-bulk-edit-product-description.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-bulk-edit-product-description', 'sw-text-editor', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     watch: {
@@ -27,4 +26,4 @@ Component.extend('sw-bulk-edit-product-description', 'sw-text-editor', {
             },
         },
     },
-});
+};

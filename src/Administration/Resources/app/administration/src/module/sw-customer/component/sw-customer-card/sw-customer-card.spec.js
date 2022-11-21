@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/component/sw-customer-card';
+import swCustomerCard from 'src/module/sw-customer/component/sw-customer-card';
+
+Shopware.Component.register('sw-customer-card', swCustomerCard);
 
 const customer = {
     id: '1',

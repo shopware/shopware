@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
+import swSalesChannelDetailProductComparison from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
+
+Shopware.Component.register('sw-sales-channel-detail-product-comparison', swSalesChannelDetailProductComparison);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-product-comparison'), {

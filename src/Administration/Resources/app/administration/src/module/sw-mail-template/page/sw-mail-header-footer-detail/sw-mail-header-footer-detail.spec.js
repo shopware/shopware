@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
+import swMailHeaderFooterDetail from 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
+
+Shopware.Component.register('sw-mail-header-footer-detail', swMailHeaderFooterDetail);
 
 const mailHeaderFooterMock = {
     id: '123',

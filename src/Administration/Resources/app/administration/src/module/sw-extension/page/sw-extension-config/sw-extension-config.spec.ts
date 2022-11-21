@@ -8,6 +8,9 @@ import Vue from 'vue';
 
 Shopware.Component.register('sw-extension-config', swExtensionConfigPage);
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     let wrapper: Wrapper<Vue>;
     let SwExtensionConfig;

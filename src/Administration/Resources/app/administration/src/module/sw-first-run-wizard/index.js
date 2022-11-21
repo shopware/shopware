@@ -23,6 +23,9 @@ Shopware.Component.register('sw-first-run-wizard-markets', () => import('./view/
 Shopware.Component.register('sw-first-run-wizard-finish', () => import('./view/sw-first-run-wizard-finish'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-first-run-wizard', {
     type: 'core',

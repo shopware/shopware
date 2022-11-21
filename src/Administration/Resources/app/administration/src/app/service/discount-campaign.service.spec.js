@@ -1,5 +1,8 @@
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
+/**
+ * @package merchant-services
+ */
 describe('src/app/service/discount-campaign.service.ts', () => {
     beforeAll(() => {
         jest.useFakeTimers('modern');

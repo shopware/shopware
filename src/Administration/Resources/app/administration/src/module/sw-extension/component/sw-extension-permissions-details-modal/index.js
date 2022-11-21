@@ -2,6 +2,7 @@ import template from './sw-extension-permissions-details-modal.html.twig';
 import './sw-extension-permissions-details-modal.scss';
 
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

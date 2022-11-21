@@ -3,6 +3,9 @@ import swExtensionRatingsCard from 'src/module/sw-extension/component/sw-ratings
 
 Shopware.Component.register('sw-extension-ratings-card', swExtensionRatingsCard);
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
     /** @type Wrapper */
     let wrapper;

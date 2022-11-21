@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionLifecycleService extends AbstractExtensionLifecycle

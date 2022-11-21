@@ -8,6 +8,9 @@ Shopware.Component.register('sw-extension-review-creation', swExtensionReviewCre
 Shopware.Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', swExtensionRatingModal);
 Shopware.Component.register('sw-extension-review-creation-inputs', swExtensionReviewCreationInputs);
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal', () => {
     /** @type Wrapper */
     let wrapper;

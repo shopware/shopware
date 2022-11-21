@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionDownloader

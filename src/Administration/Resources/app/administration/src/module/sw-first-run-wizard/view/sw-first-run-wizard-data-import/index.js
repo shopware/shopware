@@ -3,6 +3,9 @@ import './sw-first-run-wizard-data-import.scss';
 
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -8,6 +8,7 @@ const { Criteria } = Shopware.Data;
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

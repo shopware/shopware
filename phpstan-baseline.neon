@@ -16816,21 +16816,6 @@ parameters:
 			path: src/Core/Framework/Script/ServiceStubs.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionRequiresNewPrivilegesException\\:\\:fromPrivilegeList\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Exception/ExtensionRequiresNewPrivilegesException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\VariantTypesNotAllowedException\\:\\:__construct\\(\\) has parameter \\$typeViolations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Exception/VariantTypesNotAllowedException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Helper\\\\PermissionCategorization\\:\\:getCategoryNames\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Helper/PermissionCategorization.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\EqualsFilterStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Search/EqualsFilterStruct.php

@@ -9,10 +9,10 @@ use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
+ * @package merchant-services
+ *
  * @internal
- *
  * @covers \Shopware\Core\Framework\Store\Authentication\AuthenticationProvider
- *
  * @DisabledFeatures(features={"v6.5.0.0"})
  */
 class AuthenticationProviderTest extends TestCase

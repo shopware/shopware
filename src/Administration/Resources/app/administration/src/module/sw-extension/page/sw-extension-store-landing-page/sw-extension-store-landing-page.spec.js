@@ -34,6 +34,9 @@ async function createWrapper() {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     /** @type Wrapper */
     let wrapper;

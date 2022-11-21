@@ -6,6 +6,9 @@ import ExtensionErrorService from './extension-error.service';
 
 const { Application } = Shopware;
 
+/**
+ * @package merchant-services
+ */
 declare global {
     interface ServiceContainer extends SubContainer<'service'>{
         extensionStoreActionService: ExtensionStoreActionService,

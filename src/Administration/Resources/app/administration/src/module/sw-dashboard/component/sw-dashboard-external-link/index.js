@@ -2,6 +2,8 @@ import template from './sw-dashboard-external-link.html.twig';
 import './sw-dashboard-external-link.scss';
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - Use sw-external-link instead
  * @status deprecated
  */

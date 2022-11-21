@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\Client;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class TrackingEventClient

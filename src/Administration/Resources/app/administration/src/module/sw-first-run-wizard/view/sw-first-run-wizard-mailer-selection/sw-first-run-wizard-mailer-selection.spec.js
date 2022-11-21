@@ -3,6 +3,9 @@ import swFirstRunWizardMailerSelection from 'src/module/sw-first-run-wizard/view
 
 Shopware.Component.register('sw-first-run-wizard-mailer-selection', swFirstRunWizardMailerSelection);
 
+/**
+ * @package merchant-services
+ */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';

@@ -14,6 +14,9 @@ function getStoreApiService(client = null, loginService = null) {
     return new StoreApiService(client, loginService);
 }
 
+/**
+ * @package merchant-services
+ */
 describe('storeService', () => {
     it('is registered correctly', async () => {
         expect(getStoreApiService()).toBeInstanceOf(StoreApiService);

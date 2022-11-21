@@ -67,6 +67,9 @@ async function createWrapper() {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
     /** @type Wrapper */
     let wrapper;

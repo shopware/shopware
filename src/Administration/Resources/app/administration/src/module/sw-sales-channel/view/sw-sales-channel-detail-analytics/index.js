@@ -4,6 +4,9 @@ import './sw-sales-channel-detail-analytics.scss';
 
 const { Context } = Shopware;
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

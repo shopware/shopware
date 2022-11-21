@@ -4,6 +4,7 @@ import './sw-extension-review.scss';
 const { date } = Shopware.Utils.format;
 
 /**
+ * @package merchant-services
  * @private
  */
 export default {

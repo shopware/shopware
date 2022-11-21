@@ -31,6 +31,8 @@ use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionLoader

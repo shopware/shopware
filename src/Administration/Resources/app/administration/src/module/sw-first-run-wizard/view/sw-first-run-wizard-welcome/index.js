@@ -5,6 +5,9 @@ const { Criteria } = Shopware.Data;
 const cacheApiService = Shopware.Service('cacheApiService');
 const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

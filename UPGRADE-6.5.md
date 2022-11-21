@@ -1,4 +1,20 @@
 # 6.5.0.0
+## Introduced in 6.4.18.0
+## Create new shipping method
+When you create a new shipping method, the default value for the active flag is false, i.e. the method is inactive after saving. 
+Please provide the active value if you create shipping methods over the API.
+## Remove static address formatting:
+* Deprecated fixed address formatting, use `@Framework/snippets/render.html.twig` instead, applied on:
+  - `src/Storefront/Resources/views/storefront/component/address/address.html.twig`
+  - `src/Core/Framework/Resources/views/documents/delivery_note.html.twig`
+  - `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig`
+## Remove "marc1706/fast-image-size" dependency
+
+The dependency on the "marc1706/fast-image-size" library was removed, require the library yourself if you need it.
+## Deprecated action:
+* action `setAppModules` in `src/app/state/shopware-apps.store.ts` will be removed
+* action `setAppModules` in `src/app/state/shopware-apps.store.ts` will be removed
+
 ## Introduced in 6.4.17.0
 * In the next major, the flow actions are not executed over the symfony events anymore, we'll remove the dependence from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.
 * In the next major, the flow actions are not executed via symfony events anymore, we'll remove the dependency from `EventSubscriberInterface` in `Shopware\Core\Content\Flow\Dispatching\Action\FlowAction`.

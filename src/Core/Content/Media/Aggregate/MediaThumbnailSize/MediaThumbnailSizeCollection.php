@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<MediaThumbnailSizeEntity>
  */
 class MediaThumbnailSizeCollection extends EntityCollection

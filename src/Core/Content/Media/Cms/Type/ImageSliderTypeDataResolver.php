@@ -18,6 +18,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @package content
+ */
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
     private AbstractDefaultMediaResolver $mediaResolver;

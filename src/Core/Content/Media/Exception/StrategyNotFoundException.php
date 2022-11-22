@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package content
+ */
 class StrategyNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $strategyName)

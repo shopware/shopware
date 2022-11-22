@@ -7,6 +7,8 @@ use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class CmsExtensions

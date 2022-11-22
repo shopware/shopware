@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Cms;
 
 use Shopware\Core\Content\Media\MediaEntity;
 
+/**
+ * @package content
+ */
 abstract class AbstractDefaultMediaResolver
 {
     abstract public function getDecorated(): AbstractDefaultMediaResolver;

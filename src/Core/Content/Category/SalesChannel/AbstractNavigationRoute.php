@@ -7,6 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package content
  * This route can be used to load the navigation of the authenticated sales channel.
  * With the dept can you control how many levels should be loaded.
  * It is also possible to use following aliases as id: "main-navigation", "footer-navigation" and "service-navigation".

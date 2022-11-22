@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Media\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package content
+ */
 class MediaFolderIndexerEvent extends NestedEvent
 {
     /**

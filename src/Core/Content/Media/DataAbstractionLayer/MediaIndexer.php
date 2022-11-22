@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package content
+ */
 class MediaIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

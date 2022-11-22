@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class ProductDescriptionReviewsStruct extends Struct
 {
     /**

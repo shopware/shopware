@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package content
+ */
 class CategoryRouteResponse extends StoreApiResponse
 {
     /**

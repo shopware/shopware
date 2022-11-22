@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class MediaTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'media_translation';

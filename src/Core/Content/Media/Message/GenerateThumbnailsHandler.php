@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
 /**
+ * @package content
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
 class GenerateThumbnailsHandler extends AbstractMessageHandler

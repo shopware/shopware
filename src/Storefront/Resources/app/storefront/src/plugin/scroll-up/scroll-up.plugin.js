@@ -1,6 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Debouncer from 'src/helper/debouncer.helper';
 
+/**
+ * @package storefront
+ */
 export default class ScrollUpPlugin extends Plugin {
 
     static options = {

@@ -1,3 +1,7 @@
+/**
+ * @package storefront
+ */
+
 import '@babel/polyfill';
 import bootstrap from 'bootstrap5';
 

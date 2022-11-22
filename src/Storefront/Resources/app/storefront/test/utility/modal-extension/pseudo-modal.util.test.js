@@ -8,6 +8,9 @@ const selector = {
     templateTitle: '.js-pseudo-modal-template-title-element'
 }
 
+/**
+ * @package storefront
+ */
 describe('pseudo-modal.util tests', () => {
     let pseudoModal = null;
     const spyInsertAdjacentElement = jest.fn();

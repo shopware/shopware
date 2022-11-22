@@ -434,12 +434,14 @@ Component.register('sw-cms-list', {
             this.showDeleteModal = true;
         },
 
-        onDuplicateCmsPage(page) {
-            const behavior = {
-                overwrites: {
-                    name: `${page.name} - ${this.$tc('global.default.copy')}`,
-                },
-            };
+        onDuplicateCmsPage(page, behavior = { overwrites: {} }) {
+            if (!behavior.overwrites) {
+                behavior.overwrites = {};
+            }
+
+            if (!behavior.overwrites.name) {
+                behavior.overwrites.name = `${page.name} - ${this.$tc('global.default.copy')}`;
+            }
 
             this.isLoading = true;
             this.pageRepository.clone(page.id, Shopware.Context.api, behavior).then(() => {
@@ -447,6 +449,9 @@ Component.register('sw-cms-list', {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                });
             });
         },
 
@@ -462,9 +467,9 @@ Component.register('sw-cms-list', {
             this.showDeleteModal = false;
         },
 
-        saveCmsPage(page) {
+        saveCmsPage(page, context = Shopware.Context.api) {
             this.isLoading = true;
-            return this.pageRepository.save(page).then(() => {
+            return this.pageRepository.save(page, context).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;

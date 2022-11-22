@@ -41,7 +41,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
             });
     });
 
-    it('@content: use cross selling element in another block', { tags: ['pa-content-management'] }, () => {
+    it('@content: use cross selling element in another block', { tags: ['pa-content-management', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -163,7 +163,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
             .should('be.visible');
     });
 
-    it('@content: use cross selling block in landing page', { tags: ['pa-content-management'] }, () => {
+    it('@content: use cross selling block in landing page', { tags: ['pa-content-management', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -265,13 +265,13 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-cms-section__empty-stage').click();
         cy.intercept('/bundles/administration/static/**').as('loadStaticFiles')
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
-        
+
         // Wait for sub-components to load
         cy.wait(['@loadStaticFiles']);
 
         cy.intercept('/bundles/administration/static/**').as('loadStaticFiles')
         cy.contains('.sw-cms-product-box-preview__name', 'Lorem Ipsum');
-        
+
         // Wait for sub-components to load
         cy.wait(['@loadStaticFiles']);
 

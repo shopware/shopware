@@ -54,6 +54,7 @@ class CorsListener implements EventSubscriberInterface
             PlatformRequest::HEADER_INDEXING_BEHAVIOR,
             PlatformRequest::HEADER_SINGLE_OPERATION,
             PlatformRequest::HEADER_INCLUDE_SEO_URLS,
+            PlatformRequest::HEADER_IGNORE_DEPRECATIONS,
         ];
 
         $response = $event->getResponse();

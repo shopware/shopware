@@ -6,20 +6,11 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 class ProductExportPartialGeneration implements AsyncMessageInterface
 {
-    /**
-     * @var int
-     */
-    private $offset;
+    private int $offset;
 
-    /**
-     * @var string
-     */
-    private $productExportId;
+    private string $productExportId;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private string $salesChannelId;
 
     /**
      * @internal

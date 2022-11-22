@@ -19,25 +19,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
-    /**
-     * @var EntityRepository
-     */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productExportRepository;
+    private EntityRepository $productExportRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     /**
      * @internal

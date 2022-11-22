@@ -1,7 +1,7 @@
 parameters:
     messenger.default_transport_name: 'v65'
-    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default'
-    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
     env(MAILER_URL): 'null://null'
 
 framework:

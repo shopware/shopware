@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="Run init test db" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+        <CommandLine>
+            <envs>
+                <env name="FORCE_INSTALL" value="true" />
+            </envs>
+        </CommandLine>
+        <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml.dist" directory="$PROJECT_DIR$/tests/unit" options="--group=none" use_alternative_configuration_file="true" />
+        <method v="2" />
+    </configuration>
+</component>

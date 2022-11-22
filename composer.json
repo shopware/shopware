@@ -201,6 +201,9 @@
         "init:db": [
             "@php bin/console system:install --drop-database --basic-setup --force --no-assign-theme"
         ],
+        "init:testdb": [
+            "FORCE_INSTALL=true vendor/bin/phpunit --group=none"
+        ],
         "init:js": [
             "@npm:admin clean-install",
             "@npm:storefront clean-install"
@@ -212,6 +215,13 @@
             "mkdir -p custom/plugins || true",
             "@init:db",
             "@init:js",
+            "@build:js",
+            "@php bin/console theme:compile",
+            "@php bin/console theme:change --all Storefront",
+            "@php bin/console assets:install"
+        ],
+        "reset": [
+            "@init:db",
             "@build:js",
             "@php bin/console theme:compile",
             "@php bin/console theme:change --all Storefront",

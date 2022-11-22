@@ -19,6 +19,8 @@
     color: $color-darkgray-200;
 
     &:not(.sw-card--hero) {
+        border-radius: $border-radius-lg;
+
         @include drop-shadow-default;
     }
 

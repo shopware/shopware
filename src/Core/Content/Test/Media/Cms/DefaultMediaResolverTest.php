@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -16,7 +17,7 @@ class DefaultMediaResolverTest extends TestCase
 
     private DefaultMediaResolver $mediaResolver;
 
-    private \League\Flysystem\FilesystemOperator $publicFilesystem;
+    private FilesystemOperator $publicFilesystem;
 
     public function setUp(): void
     {

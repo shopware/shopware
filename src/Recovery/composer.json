@@ -5,7 +5,7 @@
     "license": "MIT",
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.4.3 || ^8.0"
+        "php": "^8.1"
     },
     "scripts": {
         "pre-install-cmd": [

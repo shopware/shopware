@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class AssetService
 {
-    private \League\Flysystem\FilesystemOperator $filesystem;
+    private FilesystemOperator $filesystem;
 
     private KernelInterface $kernel;
 
@@ -36,7 +37,7 @@ class AssetService
      * @internal
      */
     public function __construct(
-        \League\Flysystem\FilesystemOperator $filesystem,
+        FilesystemOperator $filesystem,
         KernelInterface $kernel,
         KernelPluginLoader $pluginLoader,
         CacheInvalidator $cacheInvalidator,

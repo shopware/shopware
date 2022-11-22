@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -224,7 +225,7 @@ class DocumentServiceTest extends TestCase
      */
     public function testCreateFileIsWrittenInFs(): void
     {
-        /** @var \League\Flysystem\FilesystemOperator $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
@@ -246,7 +247,7 @@ class DocumentServiceTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        /** @var \League\Flysystem\FilesystemOperator $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
 
         /** @var UrlGenerator $urlGenerator */

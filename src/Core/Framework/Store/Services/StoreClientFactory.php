@@ -53,14 +53,8 @@ class StoreClientFactory
      */
     private function getClientBaseConfig(): array
     {
-        try {
-            $apiUrl = $this->configService->getString(self::CONFIG_KEY_STORE_API_URI);
-        } catch (\Exception $e) {
-            $apiUrl = 'https://api.shopware.com';
-        }
-
         return [
-            'base_uri' => $apiUrl,
+            'base_uri' => $this->configService->getString(self::CONFIG_KEY_STORE_API_URI),
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/vnd.api+json,application/json',

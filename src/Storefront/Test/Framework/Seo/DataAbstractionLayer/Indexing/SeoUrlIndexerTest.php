@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -673,7 +674,7 @@ class SeoUrlIndexerTest extends TestCase
 
         try {
             $this->productRepository->create([$data], Context::createDefaultContext());
-        } catch (\Throwable $e) {
+        } catch (WriteTypeIntendException $e) {
             unset($data['visibilities']);
             $this->productRepository->upsert([$data], Context::createDefaultContext());
         }

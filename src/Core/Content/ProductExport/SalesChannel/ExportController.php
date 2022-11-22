@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
+use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
@@ -24,6 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function class_exists;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
@@ -36,7 +38,7 @@ class ExportController
     private $productExportService;
 
     /**
-     * @var \League\Flysystem\FilesystemOperator
+     * @var FilesystemOperator
      */
     private $fileSystem;
 
@@ -66,7 +68,7 @@ class ExportController
     public function __construct(
         ProductExporterInterface $productExportService,
         ProductExportFileHandlerInterface $productExportFileHandler,
-        \League\Flysystem\FilesystemOperator $fileSystem,
+        FilesystemOperator $fileSystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepository $productExportRepository,
         AbstractSalesChannelContextFactory $contextFactory
@@ -141,7 +143,7 @@ class ExportController
                 break;
         }
 
-        if (!Feature::isActive('v6.5.0.0') && \class_exists(StorefrontProductExportContentTypeEvent::class)) {
+        if (!Feature::isActive('v6.5.0.0') && class_exists(StorefrontProductExportContentTypeEvent::class)) {
             $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
             $this->eventDispatcher->dispatch($event);
         }

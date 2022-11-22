@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework;
 
-use League\Flysystem\PathPrefixing\PathPrefixedAdapter;
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
+use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AddCoreMigrationPathCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -135,7 +135,7 @@ abstract class Bundle extends SymfonyBundle
         $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
 
         $filesystem = new Definition(
-            PathPrefixedAdapter::class,
+            PrefixFilesystem::class,
             [
                 new Reference($parameterKey),
                 'plugins/' . $containerPrefix,

@@ -473,10 +473,12 @@ PHP_EOL;
         $fs->write('temp/test.png', '');
         $png = $fs->readStream('temp/test.png');
 
+        $prefix = Feature::isActive('FEATURE_NEXT_15381') ? '/temp' : '';
+
         $importer = $this->createMock(ThemeFileImporter::class);
         $importer->method('getCopyBatchInputsForAssets')->with('assets')->willReturn(
             [
-                new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
+                new CopyBatchInput($png, ['theme' . $prefix . '/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
             ]
         );
 

@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use League\Flysystem\Visibility;
+
 class DeleteFileMessage
 {
     private array $files;
 
     private string $visibility;
 
-    public function __construct(array $files = [], string $visibility = \League\Flysystem\Visibility::PUBLIC)
+    public function __construct(array $files = [], string $visibility = Visibility::PUBLIC)
     {
         $this->files = $files;
         $this->visibility = $visibility;

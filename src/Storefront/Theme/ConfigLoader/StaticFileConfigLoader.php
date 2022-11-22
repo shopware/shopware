@@ -3,20 +3,23 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use function sprintf;
+use const JSON_THROW_ON_ERROR;
 
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
-    private \League\Flysystem\FilesystemOperator $filesystem;
+    private FilesystemOperator $filesystem;
 
     /**
      * @internal
      */
-    public function __construct(\League\Flysystem\FilesystemOperator $filesystem)
+    public function __construct(FilesystemOperator $filesystem)
     {
         $this->filesystem = $filesystem;
     }
@@ -28,7 +31,7 @@ class StaticFileConfigLoader extends AbstractConfigLoader
 
     public function load(string $themeId, Context $context): StorefrontPluginConfiguration
     {
-        $path = \sprintf('theme-config/%s.json', $themeId);
+        $path = sprintf('theme-config/%s.json', $themeId);
 
         if (!$this->filesystem->fileExists($path)) {
             throw new \RuntimeException('Cannot find theme configuration. Did you run bin/console theme:dump');
@@ -36,7 +39,7 @@ class StaticFileConfigLoader extends AbstractConfigLoader
 
         $fileContent = $this->filesystem->read($path);
         \assert(\is_string($fileContent));
-        $fileObject = json_decode($fileContent, true, 512, \JSON_THROW_ON_ERROR);
+        $fileObject = json_decode($fileContent, true, 512, JSON_THROW_ON_ERROR);
 
         $fileObject = $this->prepareCollections($fileObject);
 

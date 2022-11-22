@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\ScheduledTask;
 
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
@@ -21,7 +22,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 
     private EntityRepository $fileRepository;
 
-    private \League\Flysystem\FilesystemOperator $filesystem;
+    private FilesystemOperator $filesystem;
 
     private MessageBusInterface $messageBus;
 

@@ -6,9 +6,11 @@ use League\Flysystem\Config;
 use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Visibility;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -51,12 +53,18 @@ class FilesystemFactory
             }
         }
 
+        $fsOptions = [
+            Config::OPTION_VISIBILITY => $config['visibility'],
+            Config::OPTION_DIRECTORY_VISIBILITY => $config['visibility'],
+        ];
+
+        if ($config['visibility'] === Visibility::PUBLIC) {
+            $fsOptions['public_url'] = $config['url'] ?? $this->getFallbackUrl();
+        }
+
         return new LeagueFilesystem(
             $factory->create($config['config']),
-            [
-                Config::OPTION_VISIBILITY => $config['visibility'],
-                Config::OPTION_DIRECTORY_VISIBILITY => $config['visibility'],
-            ]
+            $fsOptions
         );
     }
 
@@ -115,5 +123,19 @@ class FilesystemFactory
         $options->setAllowedValues('visibility', [Visibility::PUBLIC, Visibility::PRIVATE]);
 
         return $options->resolve($config);
+    }
+
+    private function getFallbackUrl(): string
+    {
+        $request = Request::createFromGlobals();
+        $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
+        $requestUrl = rtrim($basePath, '/') . '/';
+
+        if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
+            /** @var string $requestUrl */
+            $requestUrl = EnvironmentHelper::getVariable('APP_URL');
+        }
+
+        return $requestUrl;
     }
 }

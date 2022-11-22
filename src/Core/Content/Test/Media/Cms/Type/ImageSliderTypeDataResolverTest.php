@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -42,7 +43,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
     private $imageSliderResolver;
 
     /**
-     * @var \League\Flysystem\FilesystemOperator
+     * @var FilesystemOperator
      */
     private $publicFilesystem;
 

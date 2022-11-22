@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Filesystem\Adapter;
 
+use League\Flysystem\FilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 
@@ -34,7 +35,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         static::$instances = [];
     }
 
-    public function create(array $config): \League\Flysystem\FilesystemAdapter
+    public function create(array $config): FilesystemAdapter
     {
         $adapter = new MemoryFilesystemAdapter();
         static::addAdapter($adapter);

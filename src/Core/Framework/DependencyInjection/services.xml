@@ -265,7 +265,7 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
-            <argument type="service" id="kernel"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function json_decode;
 
 /**
  * @internal
@@ -50,7 +52,7 @@ final class FirstRunWizardClient
 
     private SystemConfigService $configService;
 
-    private \League\Flysystem\FilesystemOperator $filesystem;
+    private FilesystemOperator $filesystem;
 
     private bool $frwAutoRun;
 
@@ -67,7 +69,7 @@ final class FirstRunWizardClient
     public function __construct(
         StoreService $storeService,
         SystemConfigService $configService,
-        \League\Flysystem\FilesystemOperator $filesystem,
+        FilesystemOperator $filesystem,
         bool $frwAutoRun,
         EventDispatcherInterface $eventDispatcher,
         Client $client,
@@ -116,7 +118,7 @@ final class FirstRunWizardClient
             ]
         );
 
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         $this->updateFrwUserToken(
             $context,
@@ -141,7 +143,7 @@ final class FirstRunWizardClient
                 ],
             ]
         );
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         $this->configService->set('core.store.shopSecret', $data['shopSecret']);
 
@@ -225,7 +227,7 @@ final class FirstRunWizardClient
             '/swplatform/firstrunwizard/categories',
             ['query' => $this->optionsProvider->getDefaultQueryParameters($context)]
         );
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         $regions = new PluginRegionCollection();
         foreach ($data as $region) {
@@ -260,7 +262,7 @@ final class FirstRunWizardClient
             ['query' => $query]
         );
 
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         return new PluginRecommendationCollection($this->mapPluginData($data, $pluginCollection));
     }
@@ -275,7 +277,7 @@ final class FirstRunWizardClient
             ]
         );
 
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         $currentLicenseDomain = $this->configService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
         $currentLicenseDomain = $currentLicenseDomain ? idn_to_utf8($currentLicenseDomain) : null;
@@ -345,7 +347,7 @@ final class FirstRunWizardClient
             ['query' => $this->optionsProvider->getDefaultQueryParameters($context)]
         );
 
-        return \json_decode($response->getBody()->getContents(), true);
+        return json_decode($response->getBody()->getContents(), true);
     }
 
     private function setFrwStatus(FrwState $newState): void
@@ -392,7 +394,7 @@ final class FirstRunWizardClient
                 'headers' => $this->optionsProvider->getAuthenticationHeader($context),
             ]
         );
-        $data = \json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         return new DomainVerificationRequestStruct($data['content'], $data['fileName']);
     }

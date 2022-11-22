@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use const PHP_EOL;
 
 /**
  * @internal
@@ -32,7 +34,7 @@ class MappingServiceTest extends TestCase
 
     private EntityRepository $fileRepository;
 
-    private \League\Flysystem\FilesystemOperator $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -316,7 +318,7 @@ class MappingServiceTest extends TestCase
             [
                 'expectedErrorClass' => InvalidFileContentException::class,
                 'sourceEntity' => 'product',
-                'csvHeader' => '' . \PHP_EOL,
+                'csvHeader' => '' . PHP_EOL,
             ],
         ];
 

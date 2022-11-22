@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Message;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
+use League\Flysystem\Visibility;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
 /**
@@ -46,9 +47,9 @@ class DeleteFileHandler extends AbstractMessageHandler
     private function getFileSystem(string $visibility): FilesystemOperator
     {
         switch ($visibility) {
-            case \League\Flysystem\Visibility::PUBLIC:
+            case Visibility::PUBLIC:
                 return $this->filesystemPublic;
-            case \League\Flysystem\Visibility::PRIVATE:
+            case Visibility::PRIVATE:
                 return $this->filesystemPrivate;
             default:
                 throw new \RuntimeException('Invalid filesystem visibility.');

@@ -22,6 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package content
+ */
 class ThumbnailService
 {
     private EntityRepository $thumbnailRepository;

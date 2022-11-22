@@ -14,6 +14,9 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @package content
+ */
 class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
     public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';

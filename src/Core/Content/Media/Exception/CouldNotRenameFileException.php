@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package content
+ */
 class CouldNotRenameFileException extends ShopwareHttpException
 {
     public function __construct(string $mediaId, string $oldFileName)

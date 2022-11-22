@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class ContactFormRouteResponseStruct extends Struct
 {
     /**

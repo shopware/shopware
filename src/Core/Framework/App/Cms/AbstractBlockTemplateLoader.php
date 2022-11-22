@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\App\Cms;
 
 /**
+ * @package content
+ *
  * @internal
  */
 abstract class AbstractBlockTemplateLoader

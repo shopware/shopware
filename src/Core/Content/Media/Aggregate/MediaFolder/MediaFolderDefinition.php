@@ -25,6 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class MediaFolderDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'media_folder';

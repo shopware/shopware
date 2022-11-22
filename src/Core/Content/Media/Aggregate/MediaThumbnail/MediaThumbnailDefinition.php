@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class MediaThumbnailDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'media_thumbnail';

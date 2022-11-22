@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class NavigationRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     protected string $active;

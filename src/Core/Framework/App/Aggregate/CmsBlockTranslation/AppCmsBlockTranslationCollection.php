@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
+ *
  * @internal
  *
  * @extends EntityCollection<AppCmsBlockTranslationEntity>

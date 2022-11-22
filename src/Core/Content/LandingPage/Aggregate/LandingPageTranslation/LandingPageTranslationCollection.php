@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<LandingPageTranslationEntity>
  */
 class LandingPageTranslationCollection extends EntityCollection

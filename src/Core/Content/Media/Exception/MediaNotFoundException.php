@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Media\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package content
+ */
 class MediaNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $mediaId)

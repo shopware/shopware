@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\File;
 
 use Shopware\Core\Content\Media\MediaCollection;
 
+/**
+ * @package content
+ */
 class WindowsStyleFileNameProvider extends FileNameProvider
 {
     protected function getNextFileName(string $originalFileName, MediaCollection $relatedMedia, int $iteration): string

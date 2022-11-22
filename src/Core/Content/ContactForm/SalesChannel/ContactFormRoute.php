@@ -24,6 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package content
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ContactFormRoute extends AbstractContactFormRoute

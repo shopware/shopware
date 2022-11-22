@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
+/**
+ * @package content
+ */
 class CategoryEntity extends Entity
 {
     use EntityIdTrait;

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler;
 
 /**
+ * @package content
  * @Handler(
  *     servcieTag="shopware.metadata.loader",
  *     handlerInterface="MetadataLoaderInterface"

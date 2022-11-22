@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Category\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package content
+ */
 class CategoryNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $categoryId)

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Event;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportRenderBodyContextEvent extends Event
 {

@@ -41,9 +41,6 @@ $sw-seo-url-template-card-font-size-preview: $font-size-xs;
         &.icon--regular {
             &-checkmark {
                 color: $color-emerald-500;
-
-                // @deprecated tag:v6.5.0 - padding can be removed
-                padding: 0 !important;
             }
 
             &-exclamation-triangle {

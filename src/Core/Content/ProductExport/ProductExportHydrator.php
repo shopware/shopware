@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ProductExportHydrator extends EntityHydrator
 {

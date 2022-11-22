@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 
 /**
- * @package core
+ * @package sales-channel
  */
 class ProductExportExceptionHandler implements ExceptionHandlerInterface
 {

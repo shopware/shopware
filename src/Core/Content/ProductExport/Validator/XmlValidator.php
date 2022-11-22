@@ -7,7 +7,7 @@ use Shopware\Core\Content\ProductExport\Error\XmlValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class XmlValidator implements ValidatorInterface
 {

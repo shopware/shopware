@@ -5,21 +5,6 @@
     :title="$tc(modalTitle)"
     @modal-close="onCloseModal"
 >
-
-    {# @deprecated tag:v6.5.0 - property will be used #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_sales_channel_modal_header %}
-    <template #modal-header>
-        {# @deprecated tag:v6.5.0 - property will be used #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_sales_channel_modal_header_title %}{% endblock %}
-
-        {# @deprecated tag:v6.5.0 - X of original component will be used #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_sales_channel_modal_header_close %}{% endblock %}
-    </template>
-    {% endblock %}
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_modal_grid %}
     <sw-sales-channel-modal-grid

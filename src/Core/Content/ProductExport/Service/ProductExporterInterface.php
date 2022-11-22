@@ -8,7 +8,7 @@ use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 interface ProductExporterInterface
 {

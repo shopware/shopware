@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 interface ValidatorInterface
 {

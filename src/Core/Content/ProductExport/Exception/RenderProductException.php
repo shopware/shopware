@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Exception;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class RenderProductException extends StringTemplateRenderingException
 {

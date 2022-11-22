@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 interface ProductExportFileHandlerInterface
 {

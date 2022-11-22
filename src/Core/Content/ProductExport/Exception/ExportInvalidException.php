@@ -8,7 +8,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class ExportInvalidException extends ShopwareHttpException
 {

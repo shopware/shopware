@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @package inventory
+ * @package sales-channel
  */
 class SalesChannelNotFoundException extends ShopwareHttpException
 {

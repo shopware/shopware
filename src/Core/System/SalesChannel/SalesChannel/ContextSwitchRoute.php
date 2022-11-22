@@ -151,6 +151,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         return new ContextTokenResponse($context->getToken(), $changeUrl);
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     private function checkNewDomain(array $parameters, SalesChannelContext $context): ?string
     {
         if (

@@ -2,6 +2,8 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.4.18.0
+*  [NEXT-24238 - Improve extensibility & plugin compatibility for cms list](/changelog/release-6-4-18-0/2022-11-21-improve-extensibility-plugin-compatibility-for-cms-list.md)
+*  [NEXT-24269 - Replace drop-shadow with box-shadow](/changelog/release-6-4-18-0/2022-11-21-replace-drop-shadow-with-box-shadow.md)
 *  [NEXT-18207 - Add active customer condition](/changelog/release-6-4-18-0/2022-01-28-add-active-customer-condition.md)
 *  [NEXT-9662 - Add new customer address conditions](/changelog/release-6-4-18-0/2022-02-11-add-new-customer-address-conditions.md)
 *  [NEXT-20992 - Add address-handling tab in country detail page](/changelog/release-6-4-18-0/2022-04-12-add-address-handling-tab-in-country-detail-page.md)

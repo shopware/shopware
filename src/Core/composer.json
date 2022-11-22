@@ -11,7 +11,6 @@
     "autoload": {
         "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "Framework/Adapter/Doctrine/Patch/QueryBuilder.php",
             "Framework/Adapter/Twig/functions.php"
         ],
         "exclude-from-classmap": [
@@ -59,7 +58,7 @@
         "composer/composer": "^2.2.17",
         "composer/semver": "^3.2",
         "doctrine/annotations": "1.13.1",
-        "doctrine/dbal": "~2.13.8",
+        "doctrine/dbal": "~3.5",
         "doctrine/inflector": "~1.4.4",
         "shopwarelabs/dompdf": "1.0.3",
         "tecnickcom/tcpdf": "6.4.4",

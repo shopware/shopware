@@ -75,7 +75,7 @@ class DatabaseConfigurationController extends InstallerController
                 $connection = $this->connectionFactory->getConnection($connectionInfo);
             } catch (DriverException $e) {
                 // Unknown database https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html#error_er_bad_db_error
-                if ($e->getErrorCode() !== 1049) {
+                if ($e->getCode() !== 1049) {
                     throw $e;
                 }
 

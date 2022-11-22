@@ -4,8 +4,6 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ForwardCompatibility\DriverResultStatement;
-use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
@@ -31,8 +29,6 @@ class NullConnection extends Connection
 
     /**
      * {@inheritdoc}
-     *
-     * @return DriverResultStatement<mixed>|DriverStatement<mixed>|Result
      */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
@@ -50,7 +46,7 @@ class NullConnection extends Connection
         return $this->originalConnection->prepare($statement);
     }
 
-    public function executeUpdate($sql, array $params = [], array $types = []): int
+    public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
         return 0;
     }
@@ -60,19 +56,17 @@ class NullConnection extends Connection
         return 0;
     }
 
-    public function exec($statement): int
+    public function exec(string $statement): int
     {
         return 0;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return DriverResultStatement<mixed>|DriverStatement<mixed>|Result
      */
-    public function query()
+    public function query(string $sql): Result
     {
-        return $this->originalConnection->executeQuery(...\func_get_args());
+        return $this->originalConnection->executeQuery($sql);
     }
 
     public function insert($table, array $data, array $types = [])

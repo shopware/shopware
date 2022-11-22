@@ -16,6 +16,8 @@ const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-el
  *
  * Notice: The response template needs to have the markup as defined in the Bootstrap docs
  * https://getbootstrap.com/docs/4.3/components/modal/#live-demo
+ *
+ * @package storefront
  */
 export default class AjaxModalPlugin extends Plugin {
 

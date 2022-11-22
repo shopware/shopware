@@ -15,6 +15,9 @@ jest.mock('src/service/http-client.service', () => {
     };
 });
 
+/**
+ * @package storefront
+ */
 describe('AjaxOffcanvas tests', () => {
 
     beforeEach(() => {

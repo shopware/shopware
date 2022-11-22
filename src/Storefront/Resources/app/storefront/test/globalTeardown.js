@@ -7,6 +7,8 @@ import xml2js from 'xml2js';
  * This teardown function for the unit test converts the source path
  * in the cobertura file to the classes directly. This is needed because GitLab
  * has no support for the <sources> yet.
+ *
+ * @package storefront
  */
 module.exports = function testTeardown(globalConfig) {
 

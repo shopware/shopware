@@ -1,3 +1,6 @@
+/**
+ * @package storefront
+ */
 export default class DateFormatHelper {
     /**
      * Note that val is parsed by the JavaScript Date object, which might

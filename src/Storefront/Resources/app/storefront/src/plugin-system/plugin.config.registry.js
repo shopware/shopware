@@ -2,6 +2,8 @@
  * Plugin Registry
  *
  * contains all definitions for all plugins
+ *
+ * @package storefront
  */
 export default class PluginConfigRegistry {
 

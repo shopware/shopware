@@ -1,5 +1,8 @@
 import Feature from 'src/helper/feature.helper';
 
+/**
+ * @package storefront
+ */
 export default class HttpClient {
 
     constructor() {

@@ -1,13 +1,16 @@
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-preview-product-box', () => import('./preview'));
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-config-product-box', () => import('./config'));
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-product-box', () => import('./component'));
 
@@ -17,6 +20,7 @@ criteria.addAssociation('cover');
 
 /**
  * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-box',

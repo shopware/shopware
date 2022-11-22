@@ -4,6 +4,9 @@ import './sw-category-entry-point-card.scss';
 const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

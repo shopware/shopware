@@ -13,10 +13,12 @@ import './acl';
 Shopware.Component.register('sw-cms-list', () => import('./page/sw-cms-list'));
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-cms-detail', () => import('./page/sw-cms-detail'));
 /**
  * @private
+ * @package content
  */
 Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', () => import('./page/sw-cms-create'));
 

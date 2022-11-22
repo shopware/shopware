@@ -4,6 +4,7 @@ import './sw-cms-el-preview-image.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swCmsListItem from 'src/module/sw-cms/component/sw-cms-list-item';

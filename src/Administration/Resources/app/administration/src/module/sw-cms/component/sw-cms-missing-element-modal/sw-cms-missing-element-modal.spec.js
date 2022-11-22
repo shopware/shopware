@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import swCmsMissingElementModal from 'src/module/sw-cms/component/sw-cms-missing-element-modal';
 import swModal from 'src/app/component/base/sw-modal';

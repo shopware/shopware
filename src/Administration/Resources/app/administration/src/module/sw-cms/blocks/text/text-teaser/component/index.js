@@ -3,6 +3,7 @@ import './sw-cms-block-text-teaser.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

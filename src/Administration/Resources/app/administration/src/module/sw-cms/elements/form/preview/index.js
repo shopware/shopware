@@ -3,6 +3,7 @@ import './sw-cms-el-preview-form.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

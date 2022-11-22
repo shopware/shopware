@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swCmsSectionActions from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
 

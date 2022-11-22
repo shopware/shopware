@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsStageAddSection from 'src/module/sw-cms/component/sw-cms-stage-add-section';

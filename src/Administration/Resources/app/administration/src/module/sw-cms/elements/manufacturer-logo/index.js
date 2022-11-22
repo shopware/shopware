@@ -3,6 +3,7 @@ Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', () =
 
 /**
  * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'manufacturer-logo',

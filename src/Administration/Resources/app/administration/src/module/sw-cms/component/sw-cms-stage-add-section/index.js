@@ -3,6 +3,7 @@ import './sw-cms-stage-add-section.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

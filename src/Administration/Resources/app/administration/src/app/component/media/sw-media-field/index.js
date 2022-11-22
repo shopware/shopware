@@ -7,6 +7,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @status ready
  * @description The <u>sw-media-field</u> component is used to bind your
+ * @package content
  * @example-type code-only
  * @component-example
  * <sw-media-field v-model="manufacturer.mediaId"></sw-media-field>

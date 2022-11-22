@@ -4,6 +4,9 @@ import './sw-media-quickinfo.scss';
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

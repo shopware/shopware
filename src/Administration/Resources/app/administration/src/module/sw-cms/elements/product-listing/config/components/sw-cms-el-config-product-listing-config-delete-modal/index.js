@@ -3,6 +3,7 @@ import './sw-cms-el-config-product-listing-config-delete-modal.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

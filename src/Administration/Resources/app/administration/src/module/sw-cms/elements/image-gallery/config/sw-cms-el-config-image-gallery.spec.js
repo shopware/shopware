@@ -1,4 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigImageGallery from 'src/module/sw-cms/elements/image-gallery/config';
 import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
@@ -22,11 +25,7 @@ const mediaDataMock = [
 ];
 
 async function createWrapper(activeTab = 'content') {
-    const localVue = createLocalVue();
-
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-image-gallery'), {
-        localVue,
-        sync: false,
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {

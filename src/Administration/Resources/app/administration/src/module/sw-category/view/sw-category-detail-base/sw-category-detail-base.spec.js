@@ -1,12 +1,13 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import swCategoryDetailBase from 'src/module/sw-category/view/sw-category-detail-base';
 
 Shopware.Component.register('sw-category-detail-base', swCategoryDetailBase);
 
 describe('module/sw-category/view/sw-category-detail-base.spec', () => {
     let wrapper;
-    let localVue;
 
     const categoryMock = {
         media: [],
@@ -19,9 +20,6 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
     };
 
     beforeEach(async () => {
-        localVue = createLocalVue();
-        localVue.use(Vuex);
-
         Shopware.State.registerModule('swCategoryDetail', {
             namespaced: true,
             state: {
@@ -29,8 +27,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
             }
         });
 
-        wrapper = await shallowMount(await Shopware.Component.build('sw-category-detail-base'), {
-            localVue,
+        wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-base'), {
             stubs: {
                 'sw-card': true,
                 'sw-container': true,
@@ -47,17 +44,13 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 }
             },
             mocks: {
-                placeholder: () => {
-                }
+                placeholder: () => {}
             },
             propsData: {
                 isLoading: false,
                 manualAssignedProductsCount: 0
             },
             provide: {
-                acl: {
-                    can: () => true
-                },
                 repositoryFactory: {
                     create: () => {
                         return {
@@ -67,11 +60,6 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 }
             }
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-        localVue = null;
     });
 
     it('should be a Vue.js component', async () => {

@@ -3,6 +3,7 @@ import './sw-category-sales-channel-card.scss';
 
 /**
  * @deprecated tag:v6.5.0 - will be removed without replacement
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import swMediaIndex from 'src/module/sw-media/page/sw-media-index';
 

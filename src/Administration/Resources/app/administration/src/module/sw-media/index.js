@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import './mixin/media-grid-listener.mixin';
 import './mixin/media-sidebar-modal.mixin';
 import './acl';

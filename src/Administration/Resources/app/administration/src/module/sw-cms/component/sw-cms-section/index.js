@@ -6,6 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

@@ -1,6 +1,9 @@
 import template from './sw-category-layout-card.html.twig';
 import './sw-category-layout-card.scss';
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

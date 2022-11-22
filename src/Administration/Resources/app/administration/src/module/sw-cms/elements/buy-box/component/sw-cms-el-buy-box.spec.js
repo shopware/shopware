@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElBuyBox from 'src/module/sw-cms/elements/buy-box/component';

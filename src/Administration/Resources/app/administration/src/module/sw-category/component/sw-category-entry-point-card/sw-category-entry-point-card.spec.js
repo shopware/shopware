@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCategoryEntryPointCard from 'src/module/sw-category/component/sw-category-entry-point-card';
 

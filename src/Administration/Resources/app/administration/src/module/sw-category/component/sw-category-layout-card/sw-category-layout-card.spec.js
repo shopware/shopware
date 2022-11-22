@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import swCategoryLayoutCard from 'src/module/sw-category/component/sw-category-layout-card';
 

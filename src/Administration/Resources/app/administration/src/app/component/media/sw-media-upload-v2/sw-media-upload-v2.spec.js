@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 import 'src/app/component/base/sw-button';

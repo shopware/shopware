@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailFactory;
+use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -31,7 +31,7 @@ class MailFactoryTest extends TestCase
         $validatorMock = $this->createMock(HappyPathValidator::class);
 
         $attachmentPath = 'path';
-        $tempFS = new Filesystem(new MemoryAdapter());
+        $tempFS = new Filesystem(new MemoryFilesystemAdapter());
         $tempFS->write($attachmentPath, 'file content');
 
         $mailFactory = new MailFactory($validatorMock, $tempFS);

@@ -52,7 +52,7 @@
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem">
+        <service id="League\Flysystem\PathPrefixing\PathPrefixedAdapter">
             <argument type="service" id="shopware.filesystem.public"/>
             <argument>media</argument>
         </service>

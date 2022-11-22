@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundE
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 
+/**
+ * @internal
+ */
 class FilesystemFactoryTest extends TestCase
 {
     public function testMultipleSame(): void

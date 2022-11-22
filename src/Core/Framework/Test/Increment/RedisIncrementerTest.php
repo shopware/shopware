@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @internal
+ */
 class RedisIncrementerTest extends TestCase
 {
     private \Redis $redis;
@@ -18,15 +21,18 @@ class RedisIncrementerTest extends TestCase
     {
         parent::setUp();
 
-        $redisUrl = EnvironmentHelper::getVariable('REDIS_URL');
+        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
-        if ($redisUrl === null) {
+        if ($redisUrl === '') {
             static::markTestSkipped('Redis is not available');
         }
 
         $factory = new RedisConnectionFactory();
 
-        $this->redis = $factory->create($redisUrl);
+        $redisClient = $factory->create($redisUrl);
+        static::assertInstanceOf(\Redis::class, $redisClient);
+
+        $this->redis = $redisClient;
         $this->incrementer = new RedisIncrementer($this->redis);
         $this->incrementer->setPool('test');
     }

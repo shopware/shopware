@@ -498,7 +498,9 @@ class ThumbnailService
         $imageFile = ob_get_contents();
         ob_end_clean();
 
-        if ($this->getFileSystem($media)->write($url, (string) $imageFile) === false) {
+        try {
+            $this->getFileSystem($media)->write($url, (string) $imageFile);
+        } catch (\Exception $e) {
             throw new ThumbnailCouldNotBeSavedException($url);
         }
     }

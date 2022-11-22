@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;

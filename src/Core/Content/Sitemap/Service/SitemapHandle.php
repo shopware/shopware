@@ -14,6 +14,9 @@ class SitemapHandle implements SitemapHandleInterface
     private const MAX_URLS = 49999;
     private const SITEMAP_NAME_PATTERN = 'sitemap%s-%d.xml.gz';
 
+    /**
+     * @var array<string>
+     */
     private array $tmpFiles = [];
 
     private FilesystemOperator $filesystem;
@@ -92,7 +95,7 @@ class SitemapHandle implements SitemapHandleInterface
                 $this->filesystem->delete($sitemapPath);
             }
 
-            $this->filesystem->write($sitemapPath, file_get_contents($tmpFile));
+            $this->filesystem->write($sitemapPath, (string) file_get_contents($tmpFile));
             @unlink($tmpFile);
         }
     }

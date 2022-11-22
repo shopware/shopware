@@ -13,6 +13,9 @@ use League\Flysystem\Visibility;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 
+/**
+ * @internal
+ */
 class InMemoryFilesystemAdapterTest extends TestCase
 {
     public function testDelete(): void

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
-use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
 /**
@@ -32,7 +32,7 @@ class DeleteFileHandler extends AbstractMessageHandler
         foreach ($message->getFiles() as $file) {
             try {
                 $this->getFileSystem($message->getVisibility())->delete($file);
-            } catch (FileNotFoundException $e) {
+            } catch (UnableToDeleteFile $e) {
                 //ignore file is already deleted
             }
         }

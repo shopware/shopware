@@ -6,6 +6,9 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
 
+/**
+ * @internal
+ */
 class LocalFactoryTest extends TestCase
 {
     public function testFactory(): void

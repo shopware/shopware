@@ -288,9 +288,9 @@ class MailActionControllerTest extends TestCase
         $mediaFixture = $this->getPdf();
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $this->getPublicFilesystem()->put(
+        $this->getPublicFilesystem()->write(
             $urlGenerator->getRelativeMediaUrl($mediaFixture),
-            file_get_contents(self::MEDIA_FIXTURE)
+            (string) file_get_contents(self::MEDIA_FIXTURE)
         );
 
         return $mediaFixture;

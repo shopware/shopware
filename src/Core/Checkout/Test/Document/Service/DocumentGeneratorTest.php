@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -385,7 +385,7 @@ class DocumentGeneratorTest extends TestCase
      */
     public function testCreateFileIsWrittenInFs(): void
     {
-        /** @var FilesystemInterface $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
@@ -417,7 +417,7 @@ class DocumentGeneratorTest extends TestCase
         static::expectException(InvalidDocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
-        /** @var FilesystemInterface $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
 
         /** @var UrlGenerator $urlGenerator */
@@ -466,7 +466,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentMediaFile());
         $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
 
-        $fileSystem->put($filePath, 'test123');
+        $fileSystem->write($filePath, 'test123');
 
         static::assertTrue($fileSystem->has($filePath));
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 
@@ -75,9 +76,10 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
         }
 
         $content = $this->fileSystem->read($partialFilePath);
-        $this->fileSystem->delete($partialFilePath);
 
-        if ($content === false) {
+        try {
+            $this->fileSystem->delete($partialFilePath);
+        } catch (UnableToDeleteFile $e) {
             return false;
         }
 

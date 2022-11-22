@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;

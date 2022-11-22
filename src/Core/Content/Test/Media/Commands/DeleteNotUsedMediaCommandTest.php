@@ -186,8 +186,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($resource);
-        $this->getPublicFilesystem()->putStream($firstPath, $resource);
-        $this->getPublicFilesystem()->putStream($secondPath, $resource);
+        $this->getPublicFilesystem()->writeStream($firstPath, $resource);
+        $this->getPublicFilesystem()->writeStream($secondPath, $resource);
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['yes']);

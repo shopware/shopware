@@ -34,6 +34,9 @@ class FilesystemFactory
         $this->adapterFactories = $adapterFactories;
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function factory(array $config): FilesystemOperator
     {
         $config = $this->resolveFilesystemConfig($config);
@@ -89,6 +92,11 @@ class FilesystemFactory
         }
     }
 
+    /**
+     * @param array<mixed> $config
+     *
+     * @return array<mixed>
+     */
     private function resolveFilesystemConfig(array $config): array
     {
         $options = new OptionsResolver();

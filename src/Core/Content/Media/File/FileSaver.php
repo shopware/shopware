@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use League\Flysystem\FileExistsException;
-use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
@@ -135,15 +134,6 @@ class FileSaver
         $this->messageBus->dispatch($message);
     }
 
-    /**
-     * @throws CouldNotRenameFileException
-     * @throws DuplicatedMediaFileNameException
-     * @throws FileExistsException
-     * @throws MediaNotFoundException
-     * @throws MissingFileException
-     * @throws EmptyMediaFilenameException
-     * @throws IllegalFileNameException
-     */
     public function renameMedia(string $mediaId, string $destination, Context $context): void
     {
         $destination = $this->validateFileName($destination);
@@ -167,11 +157,6 @@ class FileSaver
         $this->doRenameMedia($currentMedia, $destination, $context);
     }
 
-    /**
-     * @throws CouldNotRenameFileException
-     * @throws FileExistsException
-     * @throws FileNotFoundException
-     */
     private function doRenameMedia(MediaEntity $currentMedia, string $destination, Context $context): void
     {
         $updatedMedia = clone $currentMedia;
@@ -215,10 +200,6 @@ class FileSaver
     }
 
     /**
-     * @throws CouldNotRenameFileException
-     * @throws FileExistsException
-     * @throws FileNotFoundException
-     *
      * @return array<string, string>
      */
     private function renameThumbnail(
@@ -249,7 +230,7 @@ class FileSaver
 
         try {
             $this->getFileSystem($media)->delete($oldMediaFilePath);
-        } catch (FileNotFoundException $e) {
+        } catch (UnableToDeleteFile $e) {
             //nth
         }
 
@@ -321,9 +302,6 @@ class FileSaver
     }
 
     /**
-     * @throws FileExistsException
-     * @throws FileNotFoundException
-     *
      * @return array<string, string>
      */
     private function renameFile(string $source, string $destination, FilesystemOperator $filesystem): array
@@ -335,10 +313,6 @@ class FileSaver
 
     /**
      * @param array<string, string> $renamedFiles
-     *
-     * @throws CouldNotRenameFileException
-     * @throws FileExistsException
-     * @throws FileNotFoundException
      */
     private function rollbackRenameAction(MediaEntity $oldMedia, array $renamedFiles): void
     {

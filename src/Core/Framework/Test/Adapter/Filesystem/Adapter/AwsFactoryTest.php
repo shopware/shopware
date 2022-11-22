@@ -6,6 +6,9 @@ use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
 
+/**
+ * @internal
+ */
 class AwsFactoryTest extends TestCase
 {
     public function testFactory(): void

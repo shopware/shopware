@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
-use League\Flysystem\AdapterInterface;
-
 class DeleteFileMessage
 {
     private array $files;

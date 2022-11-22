@@ -41,7 +41,6 @@ class FileService extends AbstractFileService
 
     /**
      * @throws FileNotReadableException
-     * @throws FileNotFoundException
      */
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {

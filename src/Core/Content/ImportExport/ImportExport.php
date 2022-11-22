@@ -369,9 +369,6 @@ class ImportExport
         // concatenate all part files into a temporary file
         foreach ($partFiles as $partFile) {
             $stream = $this->filesystem->readStream($partFile);
-            if (!$stream) {
-                throw new ProcessingException('Failed to merge files');
-            }
             if (stream_copy_to_stream($stream, $tmp) === false) {
                 throw new ProcessingException('Failed to merge files');
             }

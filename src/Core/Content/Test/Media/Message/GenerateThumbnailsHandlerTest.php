@@ -95,9 +95,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        $mediaThumbnailCollection = $media->getThumbnails();
+        static::assertNotNull($mediaThumbnailCollection);
+        static::assertEquals(2, $mediaThumbnailCollection->count());
 
-        foreach ($media->getThumbnails() as $thumbnail) {
+        foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
@@ -144,9 +146,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        $mediaThumbnailCollection = $media->getThumbnails();
+        static::assertNotNull($mediaThumbnailCollection);
+        static::assertEquals(2, $mediaThumbnailCollection->count());
 
-        foreach ($media->getThumbnails() as $thumbnail) {
+        foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)

@@ -146,7 +146,7 @@ class AssetService
     {
         $targetDirectory = $this->getTargetDirectory($name);
 
-        $this->filesystem->deleteDir($targetDirectory);
+        $this->filesystem->deleteDirectory($targetDirectory);
     }
 
     private function getTargetDirectory(string $name): string

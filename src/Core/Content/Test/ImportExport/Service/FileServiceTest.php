@@ -30,6 +30,7 @@ class FileServiceTest extends TestCase
 
         $filePath = $fileData['file'];
         $file = fopen($filePath, 'wb');
+        static::assertIsResource($file);
         fwrite($file, $fileData['content']);
         fclose($file);
 

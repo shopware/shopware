@@ -70,6 +70,7 @@ class PathnameStrategyTest extends TestCase
     {
         $encoded = $strategy->generatePathHash($media);
 
+        static::assertIsString($encoded);
         static::assertSame($encoded, $strategy->generatePathHash($media));
         static::assertStringEndsNotWith('/', $encoded);
         static::assertStringStartsNotWith('/', $encoded);

@@ -31,6 +31,7 @@ class EncryptedBusTest extends TestCase
                 static::assertInstanceOf(EncryptedMessage::class, $envelope->getMessage());
 
                 $key = openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
+                static::assertInstanceOf(\OpenSSLAsymmetricKey::class, $key);
                 openssl_private_decrypt(
                     $envelope->getMessage()->getMessage(),
                     $decryptedMessage,
@@ -67,6 +68,7 @@ class EncryptedBusTest extends TestCase
                 static::assertInstanceOf(EncryptedMessage::class, $envelope->getMessage());
 
                 $key = openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
+                static::assertInstanceOf(\OpenSSLAsymmetricKey::class, $key);
                 openssl_private_decrypt(
                     $envelope->getMessage()->getMessage(),
                     $decryptedMessage,

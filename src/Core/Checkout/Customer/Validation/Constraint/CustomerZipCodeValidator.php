@@ -31,7 +31,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
     /**
      * {@inheritdoc}
      */
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerZipCode) {
             throw new UnexpectedTypeException($constraint, CustomerZipCodeValidator::class);

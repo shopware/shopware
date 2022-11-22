@@ -123,7 +123,7 @@ class MailerTransportLoaderTest extends TestCase
     /**
      * @return array<string, AbstractTransportFactory>
      */
-    public function getFactories(): array
+    private function getFactories(): array
     {
         $smtpTransport = $this->createPartialMock(EsmtpTransportFactory::class, ['create']);
         $smtpTransport->expects(static::any())
@@ -136,9 +136,9 @@ class MailerTransportLoaderTest extends TestCase
     }
 
     /**
-     * @return Transport|MockObject
+     * @return mixed can't annotate more specific as phpstan does not allow to annotate as MockObject&Transport as Transport is final
      */
-    public function getTransportFactory(): Transport
+    private function getTransportFactory(): mixed
     {
         $factories = $this->getFactories();
 

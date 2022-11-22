@@ -143,7 +143,11 @@ class ProductGenerator implements DemodataGeneratorInterface
         $mapped = [];
         // reduce permutation count
         foreach ($properties as $index => $values) {
-            $mapped[$index] = $this->faker->randomElements($values, random_int(min(\count($values), 2), min(\count($values), 4)));
+            $permutations = \count($values);
+            if ($permutations > 4) {
+                $permutations = random_int(2, 4);
+            }
+            $mapped[$index] = $this->faker->randomElements($values, $permutations);
         }
         $properties = $mapped;
 
@@ -274,7 +278,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $prices = [];
         $rules = \array_slice(
             $rules,
-            random_int(0, \count($rules) - 3),
+            random_int(0, \max(\count($rules) - 3, 1)),
             random_int(1, 3)
         );
 

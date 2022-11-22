@@ -41,13 +41,16 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     private ContainerInterface $container;
 
+    private Environment $twig;
+
     private DocBlockFactory $docFactory;
 
     private ServiceReferenceGenerator $serviceReferenceGenerator;
 
-    public function __construct(ContainerInterface $container, ServiceReferenceGenerator $serviceReferenceGenerator)
+    public function __construct(ContainerInterface $container, Environment $twig, ServiceReferenceGenerator $serviceReferenceGenerator)
     {
         $this->container = $container;
+        $this->twig = $twig;
         $this->docFactory = DocBlockFactory::createInstance([
             'hook-use-case' => Generic::class,
             'script-service' => Generic::class,
@@ -61,20 +64,18 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
         $data = $this->getHookData($hookClassNames);
 
-        /** @var Environment $twig */
-        $twig = $this->container->get('twig');
-        $originalLoader = $twig->getLoader();
+        $originalLoader = $this->twig->getLoader();
 
-        $twig->setLoader(new ArrayLoader([
+        $this->twig->setLoader(new ArrayLoader([
             'hook-reference.md.twig' => file_get_contents(self::TEMPLATE_FILE),
         ]));
 
         try {
             $result = [
-                self::GENERATED_DOC_FILE => $twig->render('hook-reference.md.twig', ['data' => $data]),
+                self::GENERATED_DOC_FILE => $this->twig->render('hook-reference.md.twig', ['data' => $data]),
             ];
         } finally {
-            $twig->setLoader($originalLoader);
+            $this->twig->setLoader($originalLoader);
         }
 
         return $result;

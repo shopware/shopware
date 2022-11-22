@@ -319,6 +319,7 @@ class ImportExportActionControllerTest extends TestCase
     private function getUploadFile(string $type = 'text/csv', string $forceFileName = '', ?string $content = null): UploadedFile
     {
         $file = tempnam(sys_get_temp_dir(), 'upl');
+        static::assertIsString($file);
 
         switch ($type) {
             case 'text/html':

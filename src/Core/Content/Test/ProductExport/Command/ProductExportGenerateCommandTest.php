@@ -68,6 +68,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
+        static::assertIsString($fileContent);
         $csvRows = explode(\PHP_EOL, $fileContent);
 
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));

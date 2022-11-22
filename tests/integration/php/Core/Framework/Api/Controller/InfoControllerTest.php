@@ -599,7 +599,7 @@ class AdminExtensionApiPlugin extends Plugin
  */
 class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
 {
-    public function getPath()
+    public function getPath(): string
     {
         $reflected = new \ReflectionObject($this);
 

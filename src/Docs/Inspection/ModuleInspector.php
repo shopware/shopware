@@ -91,6 +91,9 @@ class ModuleInspector
         return $moduleTags;
     }
 
+    /**
+     * @return class-string<object>
+     */
     public function getClassName(SplFileInfo $file): string
     {
         $filePath = $file->getRealPath();

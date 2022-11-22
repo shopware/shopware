@@ -17,7 +17,7 @@ class RequestDataBagResolver implements ArgumentValueResolverInterface
         return $argument->getType() === RequestDataBag::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): ?\Generator
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         yield new RequestDataBag($request->request->all());
     }

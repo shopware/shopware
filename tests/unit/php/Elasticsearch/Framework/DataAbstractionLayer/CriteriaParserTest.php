@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\ProductDefinition;

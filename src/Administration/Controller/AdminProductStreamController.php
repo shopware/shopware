@@ -60,7 +60,7 @@ class AdminProductStreamController extends AbstractController
             )
         );
 
-        if (empty($request->request->get('ids'))) {
+        if (empty($request->request->all('ids'))) {
             $request->request->remove('ids');
         }
 

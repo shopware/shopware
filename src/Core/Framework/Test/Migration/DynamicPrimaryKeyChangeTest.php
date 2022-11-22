@@ -116,6 +116,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $fixture = file_get_contents(__DIR__ . '/_dynamicPrimaryKeyChange.sql');
+        static::assertIsString($fixture);
 
         foreach (array_filter(array_map('trim', explode(';', $fixture))) as $stmt) {
             $connection->exec($stmt);

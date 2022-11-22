@@ -319,6 +319,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
     private function getToken(string $returnUrl): ?string
     {
         $query = parse_url($returnUrl, \PHP_URL_QUERY);
+        static::assertIsString($query);
         parse_str($query, $params);
 
         return $params['_sw_payment_token'] ?? null;

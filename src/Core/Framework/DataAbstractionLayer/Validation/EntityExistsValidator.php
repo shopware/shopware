@@ -33,7 +33,7 @@ class EntityExistsValidator extends ConstraintValidator
         $this->entitySearcher = $entitySearcher;
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof EntityExists) {
             throw new UnexpectedTypeException($constraint, EntityExists::class);

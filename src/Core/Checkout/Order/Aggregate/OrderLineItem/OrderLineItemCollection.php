@@ -52,6 +52,10 @@ class OrderLineItemCollection extends EntityCollection
     public function getPayloadsProperty(string $property): array
     {
         return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
+            if ($lineItem->getPayload() === null) {
+                return null;
+            }
+
             if (\array_key_exists($property, $lineItem->getPayload())) {
                 return $lineItem->getPayload()[$property];
             }

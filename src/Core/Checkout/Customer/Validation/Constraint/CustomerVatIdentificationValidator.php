@@ -11,10 +11,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class CustomerVatIdentificationValidator extends ConstraintValidator
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -24,7 +21,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         $this->connection = $connection;
     }
 
-    public function validate($vatIds, Constraint $constraint): void
+    public function validate(mixed $vatIds, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerVatIdentification) {
             throw new UnexpectedTypeException($constraint, CustomerVatIdentification::class);

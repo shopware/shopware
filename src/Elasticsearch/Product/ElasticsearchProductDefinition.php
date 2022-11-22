@@ -3,8 +3,8 @@
 namespace Shopware\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;

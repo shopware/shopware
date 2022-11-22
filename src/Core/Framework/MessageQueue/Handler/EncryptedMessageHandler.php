@@ -16,20 +16,14 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
  */
 class EncryptedMessageHandler extends AbstractMessageHandler
 {
-    /**
-     * @var CryptKey
-     */
-    private $privateKey;
+    private CryptKey $privateKey;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private MessageBusInterface $bus;
 
     /**
      * @internal
      */
-    public function __construct(MessageBusInterface $bus, $privateKey)
+    public function __construct(MessageBusInterface $bus, CryptKey|string $privateKey)
     {
         $this->bus = $bus;
         if (!$privateKey instanceof CryptKey) {
@@ -61,6 +55,7 @@ class EncryptedMessageHandler extends AbstractMessageHandler
 
     private function decryptMessage(EncryptedMessage $message): object
     {
+        /** @var \OpenSSLAsymmetricKey $key */
         $key = openssl_pkey_get_private($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase());
         openssl_private_decrypt(
             $message->getMessage(),

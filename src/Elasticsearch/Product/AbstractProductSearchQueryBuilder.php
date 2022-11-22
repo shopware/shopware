@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\Compound\BoolQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 

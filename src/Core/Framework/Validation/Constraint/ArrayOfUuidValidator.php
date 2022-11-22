@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class ArrayOfUuidValidator extends ConstraintValidator
 {
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ArrayOfUuidConstraint) {
             throw new UnexpectedTypeException($constraint, Uuid::class);

@@ -53,6 +53,7 @@ class EncryptedBus implements MessageBusInterface
     private function encryptMessage(Envelope $envelope): Envelope
     {
         $serializedMessage = serialize($envelope->getMessage());
+        /** @var \OpenSSLAsymmetricKey $key */
         $key = openssl_pkey_get_public($this->publicKey->getKeyPath());
         openssl_public_encrypt(
             $serializedMessage,

@@ -3,7 +3,7 @@ includes:
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
-    phpVersion: 70400
+    phpVersion: 80100
     level: 8
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: true
@@ -81,13 +81,6 @@ parameters:
         -
             message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
             path: src/Storefront/Framework/Captcha/CaptchaRouteListener.php
-        # Library wrong type hint
-        -
-            message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array\|string> given\.#'
-            path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-        -
-            message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array<string, array>\|string> given\.#'
-            path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
@@ -151,9 +144,6 @@ parameters:
             message: '#Constructor of class Shopware\\Core\\Content\\Newsletter\\Exception\\LanguageOfNewsletterDeleteException has an unused parameter \$language\.#'
             path: src/Core/Content/Newsletter/Exception/LanguageOfNewsletterDeleteException.php
         -
-            message: '#Parameter \#3 \$length of function substr expects int, int<0, max>\|false given\.#'
-            path: src/Core/Content/Product/DataAbstractionLayer/ProductExceptionHandler.php
-        -
             message: '#Constructor of class Shopware\\Core\\System\\Language\\Exception\\LanguageForeignKeyDeleteException has an unused parameter \$language\.#'
             path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
         -
@@ -162,31 +152,6 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Checkout\\Cart\\Facade\\.*::getIterator\(\) return type with generic class ArrayIterator does not specify its types: TKey, TValue#'
             path: src/Core/Checkout/Cart/Facade/Traits/ItemsIteratorTrait.php
-
-        # Can be removed with Symfony 6.0 upgrade
-        -
-            message: '#PHPDoc tag @param references unknown parameter: \$key#'
-            path: src/Core/Framework/Validation/DataBag/DataBag.php
-
-        -
-            message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no type specified.#'
-            path: src/Storefront/Framework/Twig/TwigAppVariable.php
-
-        -
-            message: "#^Class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailerTransportFactory extends @final class Symfony\\\\Component\\\\Mailer\\\\Transport\\.$#"
-            count: 1
-            path: src/Core/Content/Mail/Service/MailerTransportFactory.php
-
-        -
-            message: "#^Parameter \\#1 \\$min \\(0\\) of function random_int expects lower number than parameter \\#2 \\$max \\(int\\<\\-3, max\\>\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
-        -
-            message: "#^Parameter \\#1 \\$min \\(int\\<0, 2\\>\\) of function random_int expects lower number than parameter \\#2 \\$max \\(int\\<0, 4\\>\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
         # Is in the new super class nullable as the extended class
         -
             message: "#^PHPDoc type string\\|null of property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\:\\:\\$storageName is not covariant with PHPDoc type string of overridden property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName\\.$#"
@@ -249,6 +214,11 @@ parameters:
 
         - # PHPstan does not realize that we used bypass final
             message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<(.*)>\\:\\:getMock\\(\\) contains unresolvable type.$#"
+            paths:
+                - tests/unit/php
+
+        -
+            message: "#^Return type of call to method PHPUnit\\\\Framework\\\\TestCase\\:\\:createMock\\(\\) contains unresolvable type.$#"
             paths:
                 - tests/unit/php
 

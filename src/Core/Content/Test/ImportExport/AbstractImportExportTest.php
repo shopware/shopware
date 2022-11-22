@@ -289,6 +289,7 @@ abstract class AbstractImportExportTest extends TestCase
         ], Context::createDefaultContext());
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
         copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);

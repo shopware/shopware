@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event;
 
-use ONGR\ElasticsearchDSL\Search;
+use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

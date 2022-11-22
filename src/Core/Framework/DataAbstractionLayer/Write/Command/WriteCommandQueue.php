@@ -42,7 +42,7 @@ class WriteCommandQueue
             return Uuid::fromBytesToHex($id);
         }, $primaryKey);
 
-        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey));
+        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
 
         $this->commands[$senderIdentification->getEntityName()][] = $command;
 
@@ -118,7 +118,7 @@ class WriteCommandQueue
 
         sort($primaryKey);
 
-        $hash = $definition->getEntityName() . ':' . md5(json_encode($primaryKey));
+        $hash = $definition->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
 
         return $this->entityCommands[$hash] ?? [];
     }

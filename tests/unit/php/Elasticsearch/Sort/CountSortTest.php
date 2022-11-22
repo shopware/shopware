@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Sort;
 
-use ONGR\ElasticsearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\FieldSort;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Sort\CountSort;
 

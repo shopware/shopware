@@ -57,7 +57,7 @@ class AppLoadedSubscriberTest extends TestCase
         $app = $appRepository->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
         static::assertNotNull($app);
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $app->getIcon()
         );
     }

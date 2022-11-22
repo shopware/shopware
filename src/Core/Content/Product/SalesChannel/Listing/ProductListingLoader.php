@@ -68,11 +68,12 @@ class ProductListingLoader
         }
 
         $ids = $this->repository->searchIds($criteria, $context);
-
+        /** @var list<string> $keys */
+        $keys = $ids->getIds();
         $aggregations = $this->repository->aggregate($criteria, $context);
 
         // no products found, no need to continue
-        if (empty($ids->getIds())) {
+        if (empty($keys)) {
             return new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -83,11 +84,11 @@ class ProductListingLoader
             );
         }
 
-        $mapping = array_combine($ids->getIds(), $ids->getIds());
+        $mapping = array_combine($keys, $keys);
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
         if (!$hasOptionFilter) {
-            $mapping = $this->resolvePreviews($ids->getIds(), $context);
+            $mapping = $this->resolvePreviews($keys, $context);
         }
 
         $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
@@ -158,7 +159,7 @@ class ProductListingLoader
     }
 
     /**
-     * @param array<array<string>|string> $ids
+     * @param array<string> $ids
      *
      * @throws \JsonException
      *

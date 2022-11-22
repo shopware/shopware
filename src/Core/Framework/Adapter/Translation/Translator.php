@@ -182,7 +182,7 @@ class Translator extends AbstractTranslator
     /**
      * {@inheritdoc}
      */
-    public function setLocale($locale): void
+    public function setLocale(string $locale): void
     {
         \assert($this->translator instanceof LocaleAwareInterface);
         $this->translator->setLocale($locale);

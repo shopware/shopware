@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamIndexer extends EntityIndexer
@@ -30,7 +30,7 @@ class ProductStreamIndexer extends EntityIndexer
 
     private EntityRepository $repository;
 
-    private Serializer $serializer;
+    private SerializerInterface $serializer;
 
     private ProductDefinition $productDefinition;
 
@@ -43,7 +43,7 @@ class ProductStreamIndexer extends EntityIndexer
         Connection $connection,
         IteratorFactory $iteratorFactory,
         EntityRepository $repository,
-        Serializer $serializer,
+        SerializerInterface $serializer,
         ProductDefinition $productDefinition,
         EventDispatcherInterface $eventDispatcher
     ) {

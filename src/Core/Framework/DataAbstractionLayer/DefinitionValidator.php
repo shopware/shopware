@@ -1070,18 +1070,12 @@ class DefinitionValidator
 
     private function getShortClassName(EntityDefinition $definition): string
     {
-        /** @var string $shortClassName */
-        $shortClassName = preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass());
-
-        return lcfirst($shortClassName);
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }
 
     private function getAggregateNamespace(EntityDefinition $definition): string
     {
-        /** @var string $aggregateName */
-        $aggregateName = preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass());
-
-        return lcfirst($aggregateName);
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
     }
 
     /**

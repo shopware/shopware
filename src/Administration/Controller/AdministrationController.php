@@ -310,7 +310,7 @@ class AdministrationController extends AbstractController
     private function getLatestApiVersion(): int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
-        usort($sortedSupportedApiVersions, 'version_compare');
+        usort($sortedSupportedApiVersions, fn (mixed $a, mixed $b) => (int) version_compare((string) $a, (string) $b));
 
         return array_pop($sortedSupportedApiVersions);
     }

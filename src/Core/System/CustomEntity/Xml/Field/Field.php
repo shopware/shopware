@@ -52,7 +52,7 @@ class Field extends XmlElement
         }
 
         foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
+            if (!$child instanceof \DOMElement || $child->nodeValue === null) {
                 continue;
             }
 

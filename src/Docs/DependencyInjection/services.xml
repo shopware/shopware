@@ -48,13 +48,14 @@
 
         <service id="Shopware\Docs\Command\Script\HooksReferenceGenerator">
             <argument type="service" id="service_container"/>
+            <argument type="service" id="twig"/>
             <argument type="service" id="Shopware\Docs\Command\Script\ServiceReferenceGenerator"/>
 
             <tag name="shopware.scripts_reference.generator"/>
         </service>
 
         <service id="Shopware\Docs\Command\Script\ServiceReferenceGenerator">
-            <argument type="service" id="service_container"/>
+            <argument type="service" id="twig"/>
             <argument>%kernel.project_dir%</argument>
 
             <tag name="shopware.scripts_reference.generator"/>

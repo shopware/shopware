@@ -1296,11 +1296,6 @@ parameters:
 			path: src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerEntity.php
 
 		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemEntity\\:\\:getPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemEntity.php
@@ -1799,16 +1794,6 @@ parameters:
 			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesRemover\" is marked as deprecated, but method \"removeIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Util/PromotionCodesRemover.php
-
-		-
-			message: "#^Parameter \\#1 \\$arr1 of function array_merge expects array, array\\|Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceCollection given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Shipping/ShippingMethodCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$variable_representation of function unserialize expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/CartPersisterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\CartSerializationCleanerTest\\:\\:payloadCart\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
@@ -3471,16 +3456,6 @@ parameters:
 			path: src/Core/Content/Category/SalesChannel/TreeBuildingNavigationRoute.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Tree/Tree.php
-
-		-
-			message: "#^Cannot call method getPath\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Tree/Tree.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Tree\\\\Tree\\:\\:__construct\\(\\) has parameter \\$tree with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Tree/Tree.php
@@ -3492,11 +3467,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Tree\\\\Tree\\:\\:setTree\\(\\) has parameter \\$tree with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Tree/Tree.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Tree/Tree.php
 
@@ -4641,27 +4611,12 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Parameter \\#1 \\$source of function stream_copy_to_stream expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^Parameter \\#1 \\$total of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Progress\\:\\:setTotal\\(\\) expects int\\|null, int\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Parameter \\#2 \\$dest of function stream_copy_to_stream expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^Parameter \\#2 \\$profileId of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\ImportExportService\\:\\:prepareExport\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExport.php
 
@@ -4977,11 +4932,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$haystack of function mb_strstr expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function fwrite expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
 
@@ -6956,16 +6906,6 @@ parameters:
 			path: src/Core/Content/Sitemap/Service/SitemapExporter.php
 
 		-
-			message: "#^Parameter \\#1 \\$zp of function gzclose expects resource, resource\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
-
-		-
-			message: "#^Parameter \\#1 \\$zp of function gzwrite expects resource, resource\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
-
-		-
 			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:write\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
@@ -7161,11 +7101,6 @@ parameters:
 			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageLoaderTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$time of function strtotime expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SlotDataResolver/Type/TextTypeDataResolverTest.php
-
-		-
 			message: "#^Cannot call method getPath\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportFile\\\\ImportExportFileEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
@@ -7241,32 +7176,7 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$fileName of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_exists expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function filesize expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$destination_file of function copy expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
 
@@ -7306,18 +7216,8 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Api/ImportExportActionControllerTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$file of function file_put_contents expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportActionControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of class Symfony\\\\Component\\\\HttpFoundation\\\\File\\\\UploadedFile constructor expects string, string\\|false given\\.$#"
-			count: 1
 			path: src/Core/Content/Test/ImportExport/Api/ImportExportActionControllerTest.php
 
 		-
@@ -7457,11 +7357,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\DeleteExpiredFilesCommandTest\\:\\:prepareImportExportFileTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Commands/DeleteExpiredFilesCommandTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$timestamp of function date expects int, int\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Commands/DeleteExpiredFilesCommandTest.php
 
@@ -7931,16 +7826,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:mimeTypeProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
@@ -7968,21 +7853,6 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testMimeTypeValidation\\(\\) has parameter \\$expectedMimeType with no type specified\\.$#"
 			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of class Symfony\\\\Component\\\\HttpFoundation\\\\File\\\\UploadedFile constructor expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$destination_file of function copy expects string, string\\|false given\\.$#"
-			count: 2
 			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
 
 		-
@@ -8017,16 +7887,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
 
@@ -8153,11 +8013,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:put\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str2 of function strcmp expects string, string\\|false given\\.$#"
-			count: 2
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
 
 		-
@@ -8381,11 +8236,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$arr1 of function array_merge expects array, array\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$haystack of function mb_strpos expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
@@ -8582,21 +8432,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_strlen expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$string of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringEndsNotWith\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$string of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringStartsNotWith\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
 
@@ -9666,11 +9501,6 @@ parameters:
 			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:\\$salesChannelContext is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
@@ -9726,11 +9556,6 @@ parameters:
 			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
@@ -9774,16 +9599,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExportValidatorTest\\:\\:\\$service \\(Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExporterInterface\\) does not accept Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportGenerator\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Service/ProductExportValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExporterTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Service/ProductExporterTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ProductExport/Service/ProductExporterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Validator\\\\XmlValidatorTest\\:\\:createTestXmlFixture\\(\\) has no return type specified\\.$#"
@@ -10409,11 +10224,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Filesystem/Plugin/CopyBatch.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function ltrim expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/PrefixFilesystem.php
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\AppTemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
@@ -11051,11 +10861,6 @@ parameters:
 			path: src/Core/Framework/Api/Response/Type/JsonFactoryBase.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Response/Type/JsonFactoryBase.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:convertToStruct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
@@ -11151,22 +10956,12 @@ parameters:
 			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncoder\\:\\:encode\\(\\) has parameter \\$metaData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncoder\\:\\:formatToJson\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
 
@@ -13256,11 +13051,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/FetchModeHelper.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\FetchModeHelper\\:\\:keyPair\\(\\) should return array but returns array\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/FetchModeHelper.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepare\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
@@ -14956,11 +14746,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/SearchPattern.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function trim expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Tokenizer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Util\\\\AfterSort\\:\\:sort\\(\\) has parameter \\$elements with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
@@ -15123,11 +14908,6 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:hasDependencies\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
 
 		-
@@ -16001,11 +15781,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/EncryptedBus.php
 
 		-
-			message: "#^Parameter \\#3 \\$key of function openssl_public_encrypt expects resource\\|string, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/EncryptedBus.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Enqueue\\\\ConnectionFactory\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/Enqueue/ConnectionFactory.php
@@ -16019,21 +15794,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Enqueue\\\\ConnectionFactoryFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/Enqueue/ConnectionFactoryFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Handler\\\\EncryptedMessageHandler\\:\\:__construct\\(\\) has parameter \\$privateKey with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Handler/EncryptedMessageHandler.php
-
-		-
-			message: "#^Parameter \\#2 \\$passphrase of function openssl_pkey_get_private expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Handler/EncryptedMessageHandler.php
-
-		-
-			message: "#^Parameter \\#3 \\$key of function openssl_private_decrypt expects array\\|resource\\|string, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Handler/EncryptedMessageHandler.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Handler\\\\RetryMessageHandler\\:\\:__construct\\(\\) has parameter \\$handler with no value type specified in iterable type iterable\\.$#"
@@ -16571,16 +16331,6 @@ parameters:
 			path: src/Core/Framework/Routing/Exception/LanguageNotFoundException.php
 
 		-
-			message: "#^Yield can be used only with these return types\\: Generator, Iterator, Traversable, iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/QueryDataBagResolver.php
-
-		-
-			message: "#^Yield can be used only with these return types\\: Generator, Iterator, Traversable, iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/RequestDataBagResolver.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteScopeRegistry\\:\\:__construct\\(\\) has parameter \\$routeScopes with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Routing/RouteScopeRegistry.php
@@ -16946,11 +16696,6 @@ parameters:
 			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:getData\\(\\) return type has no value type specified in iterable type Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
@@ -17144,31 +16889,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\MultiFilterStruct\\:\\:getQueries\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Search/MultiFilterStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\OpenSSLVerifier\\:\\:__construct\\(\\) has parameter \\$publicKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\OpenSSLVerifier\\:\\:getKeyResource\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function trim expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
-
-		-
-			message: "#^Parameter \\#2 \\$signature of function openssl_verify expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\OpenSSLVerifier\\:\\:\\$keyResource \\(resource\\) does not accept resource\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\BinaryCollection\\:\\:getElementFromArray\\(\\) has parameter \\$element with no value type specified in iterable type array\\.$#"
@@ -17531,11 +17251,6 @@ parameters:
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
 
 		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:\\$classes with generic class ReflectionClass does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
@@ -17581,16 +17296,9 @@ parameters:
 			path: src/Core/Framework/Struct/Struct.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
-
-		-
 			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Asset/AssetInstallCommandTest.php
-
-
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -17966,11 +17674,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 6
 			path: src/Core/Framework/Test/Api/EventListener/ErrorResponseFactoryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of static method Composer\\\\InstalledVersions\\:\\:reload\\(\\) expects array\\{root\\: array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}, versions\\: array\\<string, array\\{dev_requirement\\: bool, pretty_version\\?\\: string, version\\?\\: string, aliases\\?\\: array\\<string\\>, reference\\?\\: string, replaced\\?\\: array\\<string\\>, provided\\?\\: array\\<string\\>, install_path\\?\\: string, \\.\\.\\.\\}\\>\\}, array\\{versions\\: array\\{shopware/core\\: array\\{version\\: '6\\.3\\.0\\.0'\\}\\}\\} given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/EventListener/ExpectationSubscriberTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$data of method Lcobucci\\\\JWT\\\\Encoding\\\\JoseEncoder\\:\\:base64UrlEncode\\(\\) expects string, string\\|false given\\.$#"
@@ -18583,11 +18286,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/VersionTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/ActionButton/ActionButtonLoaderTest.php
-
-		-
 			message: "#^Cannot call method getVersion\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/ActionButton/AppActionLoaderTest.php
@@ -18831,11 +18529,6 @@ parameters:
 			message: "#^Cannot call method setPrivileges\\(\\) on Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/Delta/PermissionsDeltaProviderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/FlowAction/AppFlowActionLoadedSubscriberTest.php
 
 		-
 			message: "#^Cannot call method getActions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Actions\\|null\\.$#"
@@ -19098,11 +18791,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Payment/AppAsyncPaymentHandlerTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$encoded_string of function parse_str expects string, string\\|false\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Payment/AppAsyncPaymentHandlerTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Framework/Test/App/Payment/AppAsyncPaymentHandlerTest.php
@@ -19151,11 +18839,6 @@ parameters:
 			message: "#^Variable \\$request in PHPDoc tag @var does not exist\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/Payment/AppSyncPaymentHandlerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Subscriber/AppLoadedSubscriberTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -20498,27 +20181,12 @@ parameters:
 			path: src/Core/Framework/Test/MessageQueue/DefaultSenderLocatorTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$passphrase of function openssl_pkey_get_private expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/MessageQueue/EncryptedBusTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$key of function openssl_private_decrypt expects array\\|resource\\|string, resource\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/MessageQueue/EncryptedBusTest.php
-
-		-
 			message: "#^Method League\\\\OAuth2\\\\Server\\\\CryptKey\\:\\:getKeyPath\\(\\) invoked with 1 parameter, 0 required\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/Handler/EncryptedMessageHandlerTest.php
 
 		-
 			message: "#^PHPDoc tag @var for variable \\$subscribedMessages has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Handler/EncryptedMessageHandlerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$key of function openssl_public_encrypt expects resource\\|string, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/Handler/EncryptedMessageHandlerTest.php
 
@@ -20546,11 +20214,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$handledMessages has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/ScheduledTask/RequeueDeadMessagesHandlerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/DynamicPrimaryKeyChangeTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\MigrationCollectionRuntimeTest\\:\\:getMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -20585,11 +20248,6 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$shortcut of class Symfony\\\\Component\\\\Console\\\\Input\\\\InputOption constructor expects array\\|string\\|null, int given\\.$#"
-			count: 3
 			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
 
 		-
@@ -20695,16 +20353,6 @@ parameters:
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader constructor invoked with 3 parameters, 1\\-2 required\\.$#"
 			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of static method Composer\\\\InstalledVersions\\:\\:reload\\(\\) expects array\\{root\\: array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}, versions\\: array\\<string, array\\{dev_requirement\\: bool, pretty_version\\?\\: string, version\\?\\: string, aliases\\?\\: array\\<string\\>, reference\\?\\: string, replaced\\?\\: array\\<string\\>, provided\\?\\: array\\<string\\>, install_path\\?\\: string, \\.\\.\\.\\}\\>\\}, array\\<'root'\\|'versions', array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}\\|array\\{swag/broken1\\: array\\{dev_requirement\\: false, type\\: 'shopware\\-platform…', install_path\\: '/tmp/some\\-random…'\\}, swag/broken2\\: array\\{dev_requirement\\: false, type\\: 'shopware\\-platform…', install_path\\: literal\\-string&non\\-falsy\\-string\\}\\}\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of static method Composer\\\\InstalledVersions\\:\\:reload\\(\\) expects array\\{root\\: array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}, versions\\: array\\<string, array\\{dev_requirement\\: bool, pretty_version\\?\\: string, version\\?\\: string, aliases\\?\\: array\\<string\\>, reference\\?\\: string, replaced\\?\\: array\\<string\\>, provided\\?\\: array\\<string\\>, install_path\\?\\: string, \\.\\.\\.\\}\\>\\}, array\\<'root'\\|'versions', array\\{name\\: string, version\\: string, reference\\: string, pretty_version\\: string, aliases\\: array\\<string\\>, dev\\: bool, install_path\\: string, type\\: string\\}\\|array\\{swag/composer\\-loaded\\: array\\{dev_requirement\\: false, type\\: 'shopware\\-platform…', install_path\\: literal\\-string&non\\-falsy\\-string\\}\\}\\> given\\.$#"
-			count: 1
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
 
 		-
@@ -20908,11 +20556,6 @@ parameters:
 			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string\\|null, true given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
@@ -21013,16 +20656,6 @@ parameters:
 			path: src/Core/Framework/Test/Routing/RoutesAclTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/RoutesHaveSinceAnnotationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$haystack of function strpos expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/RoutesHaveSinceAnnotationTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\SalesChannelRequestContextResolverTest\\:\\:domainData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/SalesChannelRequestContextResolverTest.php
@@ -21044,11 +20677,6 @@ parameters:
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\TestRouteLoader\\:\\:\\$resources has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/TestRouteLoader.php
-
-		-
-			message: "#^Strict comparison using \\=\\=\\= between Symfony\\\\Component\\\\Routing\\\\RouteCollection and null will always evaluate to false\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/TestRouteLoader.php
 
@@ -21348,27 +20976,12 @@ parameters:
 			path: src/Core/Framework/Test/ServiceDefinitionTest.php
 
 		-
-			message: "#^Cannot use array destructuring on array\\<int, string\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ServiceDefinitionTest\\:\\:checkArgumentOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/ServiceDefinitionTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ServiceDefinitionTest\\:\\:checkServiceParameterOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int, array\\)\\: bool\\)\\|null, Closure\\(\\)\\: void given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$split_length of function str_split expects int\\<1, max\\>, int given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/ServiceDefinitionTest.php
 
@@ -21521,16 +21134,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\ExtensionHelper\\:\\:removeExtensions\\(\\) has parameter \\$object with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\ReflectionHelper\\:\\:getPropertyValue\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/ReflectionHelper.php
-
-		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/TestCaseHelper/ReflectionHelper.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:__construct\\(\\) has parameter \\$kernel with no type specified\\.$#"
@@ -21955,11 +21558,6 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\ArrayNormalizer\\:\\:flatten\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/Util/ArrayNormalizer.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_substr expects string, string\\|false given\\.$#"
-			count: 2
 			path: src/Core/Framework/Util/ArrayNormalizer.php
 
 		-
@@ -22604,11 +22202,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:getPossibleCombinations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:replaceQueryParameters\\(\\) has parameter \\$parameters with no value type specified in iterable type Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
 			count: 1
 			path: src/Core/Profiling/Twig/DoctrineExtension.php
 
@@ -24743,11 +24336,6 @@ parameters:
 			path: src/Docs/Convert/CredentialsService.php
 
 		-
-			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Docs/Convert/DocsParsedownExtra.php
-
-		-
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\DocsParsedownExtra\\:\\:blockFencedCode\\(\\) has parameter \\$Line with no type specified\\.$#"
 			count: 1
 			path: src/Docs/Convert/DocsParsedownExtra.php
@@ -24799,16 +24387,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\DocsParsedownExtra\\:\\:docsRenderIncludeContents\\(\\) has parameter \\$slicedLines with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Docs/Convert/DocsParsedownExtra.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_slice expects array, array\\<int, string\\>\\|false given\\.$#"
-			count: 1
-			path: src/Docs/Convert/DocsParsedownExtra.php
-
-		-
-			message: "#^Parameter \\#2 \\$offset of function array_slice expects int, float\\|int given\\.$#"
 			count: 1
 			path: src/Docs/Convert/DocsParsedownExtra.php
 
@@ -25060,11 +24638,6 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Docs\\\\Inspection\\\\ModuleInspector\\:\\:getAllTags\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Docs/Inspection/ModuleInspector.php
-
-		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 2
 			path: src/Docs/Inspection/ModuleInspector.php
 
 		-
@@ -25623,22 +25196,12 @@ parameters:
 			path: src/Storefront/Framework/Routing/Router.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:getSubscribedServices\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:match\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/Router.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:matchRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:setContext\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/Router.php
 
@@ -25781,21 +25344,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TemplateDataExtension\\:\\:getGlobals\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/TemplateDataExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TwigAppVariable\\:\\:__construct\\(\\) has parameter \\$allowList with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TwigAppVariable.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TwigAppVariable\\:\\:getFlashes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TwigAppVariable.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TwigAppVariable\\:\\:\\$allowList type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TwigAppVariable.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Address\\\\AddressEditorModalStruct\\:\\:getMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -26146,16 +25694,6 @@ parameters:
 			message: "#^Cannot call method hasHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Cache/ReverseProxy/ReverseProxyCacheClearerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\BasicCaptcha\\\\BasicCaptchaGeneratorTest\\:\\:isValid64base\\(\\) has parameter \\$string with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/BasicCaptcha/BasicCaptchaGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/BasicCaptcha/BasicCaptchaGeneratorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\BasicCaptchaTest\\:\\:getRequest\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -26791,16 +26329,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:write\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileAvailableThemeProviderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_keys expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileConfigLoaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:write\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileConfigLoaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactoryTest\\:\\:assertFileCollection\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
@@ -27484,11 +27012,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php
 

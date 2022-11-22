@@ -39,7 +39,7 @@ class ShippingMethodCollection extends EntityCollection
         $prices = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $prices[] = $element->getPrices();
+            $prices[] = $element->getPrices()->getElements();
         }
 
         $prices = array_merge(...$prices);

@@ -24,20 +24,11 @@ class TestBrowser extends KernelBrowser
      */
     protected $lastRequest;
 
-    /**
-     * @var bool
-     */
-    protected $csrfDisabled = false;
+    protected bool $csrfDisabled = false;
 
-    /**
-     * @var RequestTransformerInterface
-     */
-    private $requestTransformer;
+    private RequestTransformerInterface $requestTransformer;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct($kernel, EventDispatcherInterface $eventDispatcher, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
     {
@@ -80,16 +71,12 @@ class TestBrowser extends KernelBrowser
 
     /**
      * @param Response $response
-     *
-     * @return DomResponse
      */
-    protected function filterResponse($response)
+    protected function filterResponse($response): DomResponse
     {
         $event = new BeforeSendResponseEvent($this->lastRequest, $response);
         $this->eventDispatcher->dispatch($event);
 
-        $filteredResponse = parent::filterResponse($response);
-
-        return $filteredResponse;
+        return parent::filterResponse($response);
     }
 }

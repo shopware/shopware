@@ -189,6 +189,7 @@ class PromotionCodeService
             'd' => 10,
             's' => 26,
         ];
+        /** @var array<int, int> $counts */
         $counts = count_chars($pattern, 1);
 
         $result = 1;

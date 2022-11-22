@@ -32,7 +32,9 @@ class ArrayNormalizer
         foreach ($input as $key => $value) {
             if (\is_string($key) && mb_strpos($key, '.') !== false) {
                 $first = mb_strstr($key, '.', true);
+                /** @var string $rest occurence of dot is checked in if clause, so it can't return null */
                 $rest = mb_strstr($key, '.');
+
                 if (isset($result[$first])) {
                     $result[$first] = array_merge_recursive($result[$first], self::expand([mb_substr($rest, 1) => $value]));
                 } else {

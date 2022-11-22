@@ -106,7 +106,7 @@ class DocumentServiceDeprecationControllerTest extends TestCase
             ],
 
             'should show warning when listening deprecated event' => [
-                function (?\Closure $listener = null): ContainerInterface {
+                function (\Closure $listener): ContainerInterface {
                     $this->getContainer()->get('event_dispatcher')->addListener(DocumentOrderCriteriaEvent::class, $listener);
 
                     return $this->getContainer();

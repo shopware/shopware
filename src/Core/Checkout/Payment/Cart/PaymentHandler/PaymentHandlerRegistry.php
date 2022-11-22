@@ -21,6 +21,11 @@ class PaymentHandlerRegistry
 
     /**
      * @internal
+     *
+     * @param ServiceProviderInterface<PaymentHandlerInterface> $syncHandlers
+     * @param ServiceProviderInterface<PaymentHandlerInterface> $asyncHandlers
+     * @param ServiceProviderInterface<PaymentHandlerInterface> $preparedHandlers
+     * @param ServiceProviderInterface<PaymentHandlerInterface> $refundHandlers
      */
     public function __construct(
         ServiceProviderInterface $syncHandlers,

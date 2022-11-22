@@ -94,13 +94,6 @@ parameters:
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
 
-        # Invalid phpdoc in OpenAPI Library
-        -
-             message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
-             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        -
-            message: '#Strict comparison using#'
-            path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
         # The redis proxy and cluster has a magic __call method which is not considered by phpstan
         -
             message: '#Call to an undefined method .*RedisProxy.*::.*\(\).*#'

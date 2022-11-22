@@ -142,7 +142,7 @@
         "twig/intl-extra": "~3.3.5",
         "twig/string-extra": "~3.3.5",
         "twig/twig": "~3.4.3",
-        "zircote/swagger-php": "~3.3.6",
+        "zircote/swagger-php": "~4.5.1",
         "squirrelphp/twig-php-syntax": "1.7.0"
     },
     "require-dev": {

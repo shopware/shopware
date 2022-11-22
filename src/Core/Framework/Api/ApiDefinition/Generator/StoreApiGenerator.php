@@ -9,11 +9,9 @@ use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
@@ -35,8 +33,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
 
-    private OpenApiLoader $openApiLoader;
-
     private string $schemaPath;
 
     private BundleSchemaPathCollection $bundleSchemaPathCollection;
@@ -49,13 +45,11 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     public function __construct(
         OpenApiSchemaBuilder $openApiBuilder,
         OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        OpenApiLoader $openApiLoader,
         array $bundles,
         BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
         $this->openApiBuilder = $openApiBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
-        $this->openApiLoader = $openApiLoader;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
         $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
@@ -72,10 +66,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     public function generate(array $definitions, string $api, string $apiType): array
     {
         $openApi = new OpenApi([]);
-        if (!Feature::isActive('v6.5.0.0')) {
-            $openApi = $this->openApiLoader->load($api);
-        }
         $this->openApiBuilder->enrich($openApi, $api);
+
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);

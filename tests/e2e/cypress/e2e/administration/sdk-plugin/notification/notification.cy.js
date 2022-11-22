@@ -8,13 +8,12 @@ describe('SDK Tests: Notification', ()=> {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            })
-            .then(() => {
                 cy.intercept({
                     url: `${Cypress.env('apiPath')}/search/locale`,
                     method: 'POST'
                 }).as('searchLocale');
+
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');

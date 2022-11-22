@@ -4,7 +4,6 @@ import 'ace-builds/src-noconflict/mode-twig';
 import template from './sw-code-editor.html.twig';
 import './sw-code-editor.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -18,7 +17,7 @@ const utils = Shopware.Utils;
  * </sw-code-editor>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-code-editor', {
+export default {
     template,
 
     inject: [
@@ -274,4 +273,4 @@ Component.register('sw-code-editor', {
             }
         },
     },
-});
+};

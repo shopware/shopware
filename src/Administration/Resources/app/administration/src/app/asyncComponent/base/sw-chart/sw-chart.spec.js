@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-chart';
+import SwChart from 'src/app/asyncComponent/base/sw-chart';
 import en from 'apexcharts/dist/locales/en.json';
 import nl from 'apexcharts/dist/locales/nl.json';
+
+Shopware.Component.register('sw-chart', SwChart);
 
 // mock data
 const chartOptions = {
@@ -34,7 +36,7 @@ const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
     });
 };
 
-describe('components/base/sw-chart', () => {
+describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'en-GB',

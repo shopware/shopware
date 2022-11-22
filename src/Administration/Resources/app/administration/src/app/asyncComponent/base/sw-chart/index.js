@@ -2,7 +2,6 @@ import VueApexCharts from 'vue-apexcharts';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
 
-const { Component } = Shopware;
 const { object } = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 
@@ -80,7 +79,7 @@ const { warn } = Shopware.Utils.debug;
  * </sw-chart>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-chart', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -480,4 +479,4 @@ Component.register('sw-chart', {
             this.localeConfig = localeConfigModule?.default;
         },
     },
-});
+};

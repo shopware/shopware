@@ -7,9 +7,10 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/sw-code-editor';
+import SwCodeEditor from 'src/app/asyncComponent/form/sw-code-editor';
 
 Shopware.Component.register('sw-flow-create-mail-template-modal', swFlowCreateMailTemplateModal);
+Shopware.Component.register('sw-code-editor', SwCodeEditor);
 
 const fieldsClasses = [
     '.sw-flow-create-mail-template-modal__type',

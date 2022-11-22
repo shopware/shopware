@@ -8,8 +8,29 @@
     default: false
     variables:
       - PLATFORM_BRANCH
+
+.downstream-rufus-trunk:
+  extends: .downstream-trunk
   rules:
     - !reference [ .rules, skip ]
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+      when: never
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
+      when: never
+    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
+      when: never
+    - !reference [ .rules, run ]
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+      allow_failure: true
+
+.downstream-commercial-trunk:
+  extends: .downstream-trunk
+  rules:
+    - !reference [ .rules, skip ]
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+      when: never
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
       when: never
     - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
@@ -55,20 +76,41 @@
         "${CI_API_V4_URL}/projects/${DOWNSTREAM_PROJECT_PATH}/trigger/pipeline"
 
 rufus trunk:
-  extends: .downstream-trunk
+  extends: .downstream-rufus-trunk
   trigger:
     project: shopware/6/product/rufus
     branch: trunk
     strategy: depend
   allow_failure: true # TODO: Remove this line as soon as rufus is compatible with the new trunk branch
 
+rufus matching branch:
+  extends: rufus trunk
+  rules:
+    - !reference [ .rules, skip ]
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  trigger:
+    project: shopware/6/product/rufus
+    branch: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+    strategy: depend
+  allow_failure: false
+
 commercial trunk:
-  extends: .downstream-trunk
+  extends: .downstream-commercial-trunk
   trigger:
     project: shopware/6/product/commercial
     branch: trunk
     strategy: depend
-  allow_failure: true # TODO: Remove this line as soon as commercial is compatible with the new trunk branch
+
+commercial matching branch:
+  extends: commercial trunk
+  rules:
+    - !reference [ .rules, skip ]
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+  trigger:
+    project: shopware/6/product/commercial
+    branch: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+    strategy: depend
+  allow_failure: false
 
 create downstream branch:
   extends: .downstream-release-branch-creation

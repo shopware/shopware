@@ -14,12 +14,6 @@
         </service>
 
         <!--Event Listener -->
-        <service id="Shopware\Core\Framework\Event\BusinessEventDispatcher" decorates="event_dispatcher" decoration-priority="10">
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher.inner" />
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
-            <argument type="service" id="Shopware\Core\Framework\Event\EventAction\EventActionDefinition" />
-        </service>
-
         <service id="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher">
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
@@ -41,11 +35,6 @@
 
         <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition">
             <tag name="shopware.entity.definition" entity="event_action_sales_channel"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Event\EventAction\EventActionSubscriber">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

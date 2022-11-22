@@ -33,7 +33,7 @@
             <argument type="service" id="user_recovery.repository"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
         </service>
 

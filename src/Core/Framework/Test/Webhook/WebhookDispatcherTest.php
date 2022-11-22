@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
@@ -28,9 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleHistoryCollector;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -352,22 +349,12 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            $factory = $this->getContainer()->get(FlowFactory::class);
-            $event = $factory->create(new CustomerBeforeLoginEvent(
-                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                'test@example.com'
-            ));
-            $event->setFlowState(new FlowState());
-        } else {
-            $event = new BusinessEvent(
-                MailSendSubscriber::ACTION_NAME,
-                new CustomerBeforeLoginEvent(
-                    $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                    'test@example.com'
-                )
-            );
-        }
+        $factory = $this->getContainer()->get(FlowFactory::class);
+        $event = $factory->create(new CustomerBeforeLoginEvent(
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        ));
+        $event->setFlowState(new FlowState());
 
         $client = new Client([
             'handler' => new MockHandler([]),

@@ -3055,11 +3055,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getLineItems\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderCustomer\\(\\)\\.$#"
 			count: 4
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
@@ -5183,26 +5178,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$document of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\:\\:getDocument\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
 			count: 1
 			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriber\\:\\:buildAttachments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriber\\:\\:getTemplateData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$document of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\:\\:getDocument\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaService\\:\\:getAttachment\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriber.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberConfig\\:\\:getDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -7918,26 +7893,6 @@ parameters:
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:sendMailProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:testEmailSend\\(\\) has parameter \\$contactFormRecipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:testEmailSend\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\TestEmailService\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
 
 		-
 			message: "#^Cannot call method getMediaFolders\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -19547,21 +19502,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DependencyInjection\\\\fixtures\\\\TestActionEventCompilerPass\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/Test/DependencyInjection/fixtures/TestActionEventCompilerPass.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Event\\\\ActionTestSubscriber\\:\\:\\$actions has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Event/ActionTestSubscriber.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Event\\\\ActionTestSubscriber\\:\\:\\$events has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Event/ActionTestSubscriber.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Event\\\\ActionTestSubscriber\\:\\:\\$lastActionConfig has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Event/ActionTestSubscriber.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\IdleFeatureFlagTest\\:\\:\\$featureAllValue has no type specified\\.$#"

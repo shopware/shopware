@@ -7,7 +7,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
@@ -62,21 +61,11 @@ class FlowDispatcher implements EventDispatcherInterface
             $this->dispatcher->dispatch($flowLogEvent, $flowLogEvent->getName());
         }
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            if ($event instanceof FlowEvent) {
-                return $event;
-            }
-        } else {
-            if ($event instanceof BusinessEvent || $event instanceof FlowEvent) {
-                return $event;
-            }
-        }
-
-        if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
-            return $event;
-        }
-
-        if ($event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)) {
+        if (
+            $event instanceof FlowEvent
+            || ($event instanceof StoppableEventInterface && $event->isPropagationStopped())
+            || $event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)
+        ) {
             return $event;
         }
 

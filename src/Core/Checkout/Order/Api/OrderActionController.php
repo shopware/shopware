@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
@@ -76,7 +75,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,
@@ -120,7 +119,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,
@@ -164,7 +163,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,

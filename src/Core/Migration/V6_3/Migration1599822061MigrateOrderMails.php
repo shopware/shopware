@@ -4,7 +4,7 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -162,7 +162,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
 
             $insert = [
                 'id' => $id,
-                'action_name' => MailSendSubscriber::ACTION_NAME,
+                'action_name' => MailSendSubscriberConfig::ACTION_NAME,
                 'config' => json_encode([
                     'mail_template_id' => $mail['mail_template_id'],
 

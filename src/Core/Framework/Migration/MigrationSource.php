@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Migration;
 
+use Shopware\Core\Framework\Feature;
+
 /**
  * @package core
  */
@@ -15,17 +17,21 @@ class MigrationSource
     private $name;
 
     /**
-     * @var array<string, string|MigrationSource>
+     * @var array<string|MigrationSource>
      */
     private $sources;
 
     /**
-     * @var array
+     * @deprecated tag:v6.6.0 - Property will be removed
+     *
+     * @var list<array{0: string, 1: string}>
      */
     private $replacementPatterns = [];
 
     /**
      * @internal
+     *
+     * @param iterable<string|MigrationSource> $namespaces
      */
     public function __construct(string $name, iterable $namespaces = [])
     {
@@ -40,8 +46,16 @@ class MigrationSource
         $this->sources[$directory] = $namespace;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     */
     public function addReplacementPattern(string $regexPattern, string $replacePattern): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         $this->replacementPatterns[] = [$regexPattern, $replacePattern];
     }
 
@@ -50,6 +64,9 @@ class MigrationSource
         return $this->name;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSourceDirectories(): array
     {
         $sources = [];
@@ -85,19 +102,25 @@ class MigrationSource
         return '(' . implode('|', $patterns) . ')';
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     */
     public function mapToOldName(string $className): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         $replacementPatterns = $this->getReplacementPatterns();
 
         $oldName = $className;
 
         foreach ($replacementPatterns as $pattern) {
-            $searchPattern = $pattern[0] ?? null;
-            $replacePattern = $pattern[1] ?? null;
+            $searchPattern = $pattern[0];
+            $replacePattern = $pattern[1];
 
-            if (\is_string($searchPattern) && \is_string($replacePattern)) {
-                $oldName = preg_replace($searchPattern, $replacePattern, (string) $oldName);
-            }
+            $oldName = preg_replace($searchPattern, $replacePattern, (string) $oldName);
         }
 
         if ($oldName === $className) {
@@ -107,8 +130,18 @@ class MigrationSource
         return $oldName;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     *
+     * @return list<array{0: string, 1: string}>
+     */
     public function getReplacementPatterns(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         $patterns = $this->replacementPatterns;
 
         foreach ($this->sources as $namespace) {

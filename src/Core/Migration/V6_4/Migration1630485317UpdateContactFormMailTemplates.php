@@ -8,7 +8,9 @@ use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class Migration1630485317UpdateContactFormMailTemplates extends MigrationStep
 {

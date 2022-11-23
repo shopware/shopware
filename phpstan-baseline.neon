@@ -15816,11 +15816,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\CreateMigrationCommand\\:\\:createMigrationFile\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php
@@ -15964,26 +15959,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MakeVersionableMigrationHelper\\:\\:mapHydrateForeignKeyData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/MakeVersionableMigrationHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationSource\\:\\:__construct\\(\\) has parameter \\$namespaces with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationSource.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationSource\\:\\:getReplacementPatterns\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationSource.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationSource\\:\\:getSourceDirectories\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationSource.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationSource\\:\\:\\$replacementPatterns type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationSource.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Parameter\\\\AdditionalBundleParameters\\:\\:__construct\\(\\) has parameter \\$kernelParameters with no value type specified in iterable type array\\.$#"
@@ -21964,16 +21939,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\SalesChannel\\\\Service\\\\SalesChannelCreator\\:\\:getAllIdsOf\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Maintenance/SalesChannel/Service/SalesChannelCreator.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\Migration1610523548FixCustomerColumns\" is marked as deprecated, but method \"updateDestructive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1610523548FixCustomerColumns.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\Migration1614249488ChangeProductSortingsToCheapestPrice\" is marked as deprecated, but method \"updateDestructive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1614249488ChangeProductSortingsToCheapestPrice.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Traits\\\\StateMachineMigration\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"

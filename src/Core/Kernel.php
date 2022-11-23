@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
-use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
 use Shopware\Core\Maintenance\Maintenance;
@@ -364,27 +363,6 @@ class Kernel extends HttpKernel
                 $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
                 $connectionVariables[] = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))';
             }
-
-            /**
-             * @deprecated tag:v6.5.0 - old trigger logic is removed, therefore we don't need all those connection variables
-             */
-            $nonDestructiveMigrations = $connection->executeQuery('
-                SELECT `creation_timestamp`
-                FROM `migration`
-                WHERE `update` IS NOT NULL AND `update_destructive` IS NULL
-            ')->fetchFirstColumn();
-
-            $activeMigrations = $this->container->getParameter('migration.active');
-
-            $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
-
-            foreach ($activeNonDestructiveMigrations as $migration) {
-                $connectionVariables[] = sprintf(
-                    'SET %s = TRUE',
-                    sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
-                );
-            }
-            // end deprecated
 
             if (empty($connectionVariables)) {
                 return;

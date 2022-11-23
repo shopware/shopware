@@ -4,7 +4,7 @@ namespace Shopware\Administration\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Migration\Migration1632281097Notification;
+use Shopware\Administration\Migration\V6_4\Migration1632281097Notification;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**

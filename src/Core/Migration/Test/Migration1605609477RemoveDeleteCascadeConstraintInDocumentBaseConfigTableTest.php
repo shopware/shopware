@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTable;
+use Shopware\Core\Migration\V6_3\Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTable;
 
 /**
  * @package core

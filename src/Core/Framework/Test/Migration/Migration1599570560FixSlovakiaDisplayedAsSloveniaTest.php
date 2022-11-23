@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Migration\Migration1599570560FixSlovakiaDisplayedAsSlovenia;
+use Shopware\Core\Migration\V6_3\Migration1599570560FixSlovakiaDisplayedAsSlovenia;
 
 /**
  * @internal

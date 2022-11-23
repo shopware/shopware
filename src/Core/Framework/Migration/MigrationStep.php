@@ -7,17 +7,12 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package core
  */
 abstract class MigrationStep
 {
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed as the old trigger logic will be removed
-     */
-    public const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
     public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
     /**
@@ -46,63 +41,6 @@ abstract class MigrationStep
     public function isInstallation(): bool
     {
         return (bool) EnvironmentHelper::getVariable(self::INSTALL_ENVIRONMENT_VARIABLE, false);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
-     */
-    protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
-        );
-
-        $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
-     */
-    protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
-     */
-    protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
-        );
-
-        $query = sprintf(
-            'CREATE TRIGGER %s
-            %s %s ON `%s` FOR EACH ROW
-            thisTrigger: BEGIN
-                IF (%s %s)
-                THEN
-                    LEAVE thisTrigger;
-                END IF;
-
-                %s;
-            END;
-            ',
-            $name,
-            $time,
-            $event,
-            $table,
-            sprintf(self::MIGRATION_VARIABLE_FORMAT, $this->getCreationTimestamp()),
-            $condition,
-            $statements
-        );
-        $connection->executeStatement($query);
     }
 
     /**

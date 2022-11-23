@@ -4,6 +4,9 @@ shopware:
       - name: v6.5.0.0
         default: false
         major: true
+      - name: v6.6.0.0
+        default: false
+        major: true
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true

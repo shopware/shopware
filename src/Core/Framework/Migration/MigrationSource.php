@@ -40,6 +40,9 @@ class MigrationSource
         $this->sources[$directory] = $namespace;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     */
     public function addReplacementPattern(string $regexPattern, string $replacePattern): void
     {
         $this->replacementPatterns[] = [$regexPattern, $replacePattern];

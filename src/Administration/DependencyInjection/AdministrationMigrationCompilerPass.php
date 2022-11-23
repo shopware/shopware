@@ -16,9 +16,6 @@ class AdministrationMigrationCompilerPass implements CompilerPassInterface
         $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
         $migrationSourceV4->addMethodCall('addDirectory', [$migrationPath . '/V6_4', 'Shopware\Administration\Migration\V6_4']);
 
-        // we've moved the migrations from Shopware\Administration\Migration to Shopware\Administration\Migration\v6_4
-        $migrationSourceV4->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Administration\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
-
         $majors = ['6_5', '6_6'];
         foreach ($majors as $major) {
             $migrationPathV5 = $migrationPath . '/' . $major;

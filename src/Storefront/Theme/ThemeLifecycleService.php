@@ -123,11 +123,8 @@ class ThemeLifecycleService
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        /** @var list<string> $toDeleteIds */
+        /** @var list<array<string, string>> $toDeleteIds */
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
-        $toDeleteIds = array_map(function (string $id) {
-            return ['id' => $id];
-        }, $toDeleteIds);
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
     }

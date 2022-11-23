@@ -58,8 +58,9 @@ class DeleteUnusedGuestCustomerService
         $criteria = $this->getUnusedCustomerCriteria($maxLifeTime);
         $criteria->setLimit(self::DELETE_CUSTOMERS_BATCH_SIZE);
 
+        /** @var list<string> $ids */
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
-        $ids = \array_values(\array_map(static function ($id) {
+        $ids = \array_values(\array_map(static function (string $id) {
             return ['id' => $id];
         }, $ids));
 

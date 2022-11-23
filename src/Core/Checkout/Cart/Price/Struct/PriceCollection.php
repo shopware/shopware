@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<CalculatedPrice>
  */
 class PriceCollection extends Collection

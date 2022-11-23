@@ -1,5 +1,8 @@
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Wishlist: for wishlist', () => {
     beforeEach(() => {
         cy.authenticate().then((result) => {

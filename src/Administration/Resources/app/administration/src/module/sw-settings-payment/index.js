@@ -14,6 +14,9 @@ Shopware.Component.extend('sw-settings-payment-create', 'sw-settings-payment-det
 
 const { Module } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-payment', {
     type: 'core',

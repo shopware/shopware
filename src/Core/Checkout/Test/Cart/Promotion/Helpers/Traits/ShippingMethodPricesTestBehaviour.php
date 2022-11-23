@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
 
+/**
+ * @package checkout
+ */
 trait ShippingMethodPricesTestBehaviour
 {
     /**

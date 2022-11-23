@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @implements \IteratorAggregate<array-key, LineItem>
  */
 trait ItemsIteratorTrait

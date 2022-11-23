@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @package checkout
+ */
 class PaymentTransactionChainProcessor
 {
     private TokenFactoryInterfaceV2 $tokenFactory;

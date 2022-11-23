@@ -13,6 +13,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ */
+
+/**
  * The ItemsFacade is a wrapper around a collection of line-items.
  *
  * @script-service cart_manipulation

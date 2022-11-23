@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import swSettingsPaymentSortingModal from 'src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal';
 
+/**
+ * @package checkout
+ */
+
 Shopware.Component.register('sw-settings-payment-sorting-modal', swSettingsPaymentSortingModal);
 
 async function createWrapper(privileges = []) {

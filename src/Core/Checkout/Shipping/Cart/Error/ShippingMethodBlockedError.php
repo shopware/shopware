@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Shipping\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodBlockedError extends Error
 {
     private const KEY = 'shipping-method-blocked';

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 
+/**
+ * @package checkout
+ */
 class LineItemGroupServiceRegistry
 {
     /**

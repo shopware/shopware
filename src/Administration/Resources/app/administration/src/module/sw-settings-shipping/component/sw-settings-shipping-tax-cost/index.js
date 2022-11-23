@@ -4,6 +4,9 @@ const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

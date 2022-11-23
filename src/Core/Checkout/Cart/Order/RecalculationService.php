@@ -39,6 +39,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class RecalculationService
 {
     protected EntityRepository $orderRepository;

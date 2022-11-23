@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class Calculator
 {
     private QuantityPriceCalculator $quantityPriceCalculator;

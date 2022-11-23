@@ -22,6 +22,9 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package checkout
+ */
 class CustomerEntity extends Entity
 {
     use EntityIdTrait;

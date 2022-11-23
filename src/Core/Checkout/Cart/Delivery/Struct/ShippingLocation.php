@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @package checkout
+ */
 class ShippingLocation extends Struct
 {
     /**

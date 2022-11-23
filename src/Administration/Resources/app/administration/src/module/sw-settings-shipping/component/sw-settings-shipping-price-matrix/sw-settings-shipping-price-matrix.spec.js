@@ -2,6 +2,9 @@ import { shallowMount } from '@vue/test-utils';
 import swSettingsShippingPriceMatrix from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
+/**
+ * @package checkout
+ */
 Shopware.State.registerModule('swShippingDetail', state);
 Shopware.Component.register('sw-settings-shipping-price-matrix', swSettingsShippingPriceMatrix);
 

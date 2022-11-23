@@ -17,6 +17,9 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
+/**
+ * @package checkout
+ */
 class PromotionItemBuilder
 {
     /**

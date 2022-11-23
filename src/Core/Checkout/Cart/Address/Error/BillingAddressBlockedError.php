@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
+/**
+ * @package checkout
+ */
 class BillingAddressBlockedError extends Error
 {
     private const KEY = 'billing-address-blocked';

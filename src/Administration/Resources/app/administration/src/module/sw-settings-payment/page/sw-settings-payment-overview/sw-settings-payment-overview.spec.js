@@ -2,6 +2,9 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsPaymentOverview from 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
 import Vuex from 'vuex';
 
+/**
+ * @package checkout
+ */
 Shopware.Component.register('sw-settings-payment-overview', swSettingsPaymentOverview);
 
 async function createWrapper(methods = [], cards = [], privileges = []) {

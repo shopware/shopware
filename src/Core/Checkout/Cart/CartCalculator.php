@@ -6,6 +6,8 @@ use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @internal
  * This class is used to recalculate a modified shopping cart. For this it uses the CartRuleLoader class.
  * The rule loader recalculates the cart and validates the current rules.

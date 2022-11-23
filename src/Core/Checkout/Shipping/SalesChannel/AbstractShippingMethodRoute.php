@@ -7,6 +7,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * This route can be used to load all shipping methods of the authenticated sales channel.
  * It is possible to use the query parameter 'onlyAvailable' to load only the available shipping methods.
  * When sending this parameter, the shipping methods are validated against the active rules.

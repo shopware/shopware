@@ -10,6 +10,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package checkout
+ */
 class DeliveryTransformer
 {
     public static function transformCollection(

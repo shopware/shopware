@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<Delivery>
  */
 class DeliveryCollection extends Collection

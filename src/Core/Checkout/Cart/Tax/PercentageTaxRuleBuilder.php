@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
+/**
+ * @package checkout
+ */
 class PercentageTaxRuleBuilder
 {
     public function buildRules(CalculatedPrice $price): TaxRuleCollection

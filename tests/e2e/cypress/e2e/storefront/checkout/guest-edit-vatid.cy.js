@@ -2,6 +2,9 @@ import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 import AccountPageObject from '../../../support/pages/account.page-object';
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Checkout as Guest', () => {
     // eslint-disable-next-line no-undef
     before(() => {

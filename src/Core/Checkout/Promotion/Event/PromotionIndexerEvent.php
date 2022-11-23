@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package checkout
+ */
 class PromotionIndexerEvent extends NestedEvent
 {
     /**

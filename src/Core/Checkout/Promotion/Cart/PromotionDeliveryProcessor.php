@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {
     public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';

@@ -3,6 +3,10 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
+/**
+ * @package checkout
+ */
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-shipping-list', () => import('./page/sw-settings-shipping-list'));
 Shopware.Component.register('sw-settings-shipping-detail', () => import('./page/sw-settings-shipping-detail'));

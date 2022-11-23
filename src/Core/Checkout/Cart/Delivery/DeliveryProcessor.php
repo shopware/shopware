@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
     public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';

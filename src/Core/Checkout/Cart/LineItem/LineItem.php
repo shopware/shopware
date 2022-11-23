@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package checkout
+ */
 class LineItem extends Struct
 {
     public const CREDIT_LINE_ITEM_TYPE = 'credit';

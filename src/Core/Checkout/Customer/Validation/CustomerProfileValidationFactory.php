@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @package checkout
+ *
  * @Decoratable
  */
 class CustomerProfileValidationFactory implements DataValidationFactoryInterface

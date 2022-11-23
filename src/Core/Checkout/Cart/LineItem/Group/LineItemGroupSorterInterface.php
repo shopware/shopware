@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
+/**
+ * @package checkout
+ */
 interface LineItemGroupSorterInterface
 {
     /**

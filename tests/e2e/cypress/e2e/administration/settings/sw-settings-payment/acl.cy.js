@@ -106,7 +106,7 @@ describe('Payment: Test ACL privileges', () => {
             .contains('My description');
     });
 
-    it('@settings: can create payment', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can create payment', { tags: ['pa-checkout', 'quarantined'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,

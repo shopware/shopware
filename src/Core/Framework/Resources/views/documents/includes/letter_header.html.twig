@@ -25,12 +25,8 @@ All blocks of this template are available in the template which renders this tem
                 {% else %}
                     {% set notSpecified = billingAddress.salutation.salutationKey is same as('not_specified') %}
 
-                    {# @deprecated tag:v6.5.0 - Block will be removed #}
-                    {% block document_recipient_sender %}
-                        {% if config.displayCompanyAddress and config.companyAddress is not empty %}
-                            {{ config.companyAddress|replace({' - ': '</br>'})|raw }}<br><br>
-                        {% endif %}
-                    {% endblock %}
+                    {# @deprecated tag:v6.5.0 - Will be removed #}
+                    {% block document_recipient_sender %}{% endblock %}
 
                     {% if billingAddress.company %}
                         {{ billingAddress.company }}<br>
@@ -55,11 +51,13 @@ All blocks of this template are available in the template which renders this tem
         <div class="sender-address-container">
             {% block document_sender_address %}
                 <table>
-                    {# @deprecated tag:v6.5.0 - Will be removed #}
                     {% if config.companyName %}
-                        {% block document_side_company_name %}{% endblock %}
+                        {% block document_side_company_name %}
+                            <tr>
+                                <td class="bold">{{ config.companyName }}</td>
+                            </tr>
+                        {% endblock %}
                     {% endif %}
-
                     <tr>
                         <td>
                             {% if config.displayCompanyAddress and config.companyAddress is not empty %}

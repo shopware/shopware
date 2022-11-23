@@ -11,7 +11,9 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class Migration1636971615AddImportExportPromotionDiscountProfile extends MigrationStep
 {

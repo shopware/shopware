@@ -11,7 +11,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @package core
+ *
+ * @internal
  */
 class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
 {

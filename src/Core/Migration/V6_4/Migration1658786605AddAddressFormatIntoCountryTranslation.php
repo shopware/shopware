@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1658786605AddAddressFormatIntoCountryTranslation extends MigrationStep

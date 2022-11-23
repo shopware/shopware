@@ -9,7 +9,7 @@ use function array_column;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
+ * @internal
  */
 class Migration1647260673AddIndexForEmail extends MigrationStep
 {

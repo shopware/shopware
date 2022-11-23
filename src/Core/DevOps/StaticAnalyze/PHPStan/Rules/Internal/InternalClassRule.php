@@ -86,14 +86,6 @@ class InternalClassRule implements Rule
         }
 
         if ($this->isMigrationStep($node)) {
-            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
-            /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all migration steps become internal in v6.5.0
-             */
-            if (\str_contains($classDeprecation, 'tag:v6.5.0')) {
-                return [];
-            }
-
             return ['Migrations must be flagged @internal to not be captured by the BC checker.'];
         }
 

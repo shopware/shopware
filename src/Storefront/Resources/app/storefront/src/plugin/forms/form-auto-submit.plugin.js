@@ -8,6 +8,8 @@ import querystring from 'query-string';
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
+ *
+ * @package content
  */
 export default class FormAutoSubmitPlugin extends Plugin {
     static options = {

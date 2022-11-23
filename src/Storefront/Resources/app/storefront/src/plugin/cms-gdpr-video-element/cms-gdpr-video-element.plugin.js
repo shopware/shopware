@@ -4,6 +4,9 @@ import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
 import Feature from 'src/helper/feature.helper';
 
+/**
+ * @package content
+ */
 export default class CmsGdprVideoElement extends Plugin {
     /**
      * Plugin options

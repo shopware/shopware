@@ -1,5 +1,8 @@
 import FormCountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 
+/**
+ * @package content
+ */
 describe('Form country state select plugin', () => {
     let template = `
         <form id="registerForm" action="/register" method="post">

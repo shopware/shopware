@@ -11,6 +11,8 @@ use Shopware\Storefront\Page\Cms\DefaultMediaResolver;
 
 /**
  * @internal
+ *
+ * @package content
  */
 class DefaultMediaResolverTest extends TestCase
 {

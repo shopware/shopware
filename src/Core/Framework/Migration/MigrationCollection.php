@@ -140,28 +140,29 @@ class MigrationCollection
             'creation_timestamp' => $migrationStep->getCreationTimestamp(),
         ];
 
-        if (Feature::isActive('v6.6.0.0')) {
-            return $default;
-        }
+        /** @var array{class: class-string<MigrationStep>, creation_timestamp: int, update?: string, update_destructive?: string, message?: string} $default */
+        Feature::callSilentIfInactive('v6.6.0.0', function () use ($className, &$default): void {
+            $oldName = $this->migrationSource->mapToOldName($className);
+            if ($oldName === null) {
+                return;
+            }
 
-        $oldName = $this->migrationSource->mapToOldName($className);
-        if ($oldName === null) {
-            return $default;
-        }
+            /** @var false|array{class: class-string<MigrationStep>, creation_timestamp: int, update: string, update_destructive: string, message: string} $row */
+            $row = $this->connection->fetchAssociative(
+                'SELECT * FROM migration WHERE class = :class',
+                ['class' => $oldName]
+            );
 
-        /** @var false|array{class: class-string<MigrationStep>, creation_timestamp: int, update: string, update_destructive: string, message: string} $row */
-        $row = $this->connection->fetchAssociative(
-            'SELECT * FROM migration WHERE class = :class',
-            ['class' => $oldName]
-        );
+            if ($row === false) {
+                return;
+            }
 
-        if ($row === false) {
-            return $default;
-        }
+            $row['class'] = $className;
 
-        $row['class'] = $className;
+            $default = $row;
+        });
 
-        return $row;
+        return $default;
     }
 
     private function ensureStepsLoaded(): void

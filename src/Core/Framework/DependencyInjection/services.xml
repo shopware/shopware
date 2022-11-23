@@ -172,14 +172,6 @@ base-uri 'self';
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Migration\Api\MigrationController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="string">%kernel.shopware_version%</argument>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Core\Framework\Migration\IndexerQueuer" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

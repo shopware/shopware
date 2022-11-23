@@ -17,17 +17,21 @@ class MigrationSource
     private $name;
 
     /**
-     * @var array<string, string|MigrationSource>
+     * @var array<string|MigrationSource>
      */
     private $sources;
 
     /**
-     * @var array
+     * @deprecated tag:v6.6.0 - Property will be removed
+     *
+     * @var list<array{0: string, 1: string}>
      */
     private $replacementPatterns = [];
 
     /**
      * @internal
+     *
+     * @param iterable<string|MigrationSource> $namespaces
      */
     public function __construct(string $name, iterable $namespaces = [])
     {
@@ -60,6 +64,9 @@ class MigrationSource
         return $this->name;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSourceDirectories(): array
     {
         $sources = [];
@@ -110,12 +117,10 @@ class MigrationSource
         $oldName = $className;
 
         foreach ($replacementPatterns as $pattern) {
-            $searchPattern = $pattern[0] ?? null;
-            $replacePattern = $pattern[1] ?? null;
+            $searchPattern = $pattern[0];
+            $replacePattern = $pattern[1];
 
-            if (\is_string($searchPattern) && \is_string($replacePattern)) {
-                $oldName = preg_replace($searchPattern, $replacePattern, (string) $oldName);
-            }
+            $oldName = preg_replace($searchPattern, $replacePattern, (string) $oldName);
         }
 
         if ($oldName === $className) {
@@ -127,6 +132,8 @@ class MigrationSource
 
     /**
      * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     *
+     * @return list<array{0: string, 1: string}>
      */
     public function getReplacementPatterns(): array
     {

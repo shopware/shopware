@@ -279,6 +279,7 @@ class InvoiceRendererTest extends TestCase
                 /** @var OrderEntity $order */
                 $order = $this->getContainer()->get('order.repository')
                     ->search($criteria, $this->context)->get($orderId);
+
                 static::assertNotNull($order->getOrderCustomer());
                 $this->getContainer()->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
@@ -316,30 +317,6 @@ class InvoiceRendererTest extends TestCase
                     static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
                     static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
                 }
-            },
-        ];
-
-        yield 'render with a display company address' => [
-            [7],
-            function (DocumentGenerateOperation $operation): void {
-                $operation->assign([
-                    'config' => [
-                        'displayLineItems' => true,
-                        'displayFooter' => true,
-                        'displayHeader' => true,
-                        'displayCompanyAddress' => true,
-                        'companyAddress' => 'Ebbinghoff 10 - 48624 Schöppingen',
-                    ],
-                ]);
-            },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
-                if (Feature::isActive('v6.5.0.0')) {
-                    static::markTestSkipped('Company address in invoice will be removed');
-                }
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
-                $rendered = $rendered->getHtml();
-                static::assertStringContainsString('Ebbinghoff 10</br>48624 Schöppingen', $rendered);
             },
         ];
 

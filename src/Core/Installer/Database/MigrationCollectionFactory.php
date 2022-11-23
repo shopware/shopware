@@ -41,6 +41,7 @@ class MigrationCollectionFactory
             self::createMigrationSource('V6_3', true),
             self::createMigrationSource('V6_4', true),
             self::createMigrationSource('V6_5'),
+            self::createMigrationSource('V6_6'),
         ];
     }
 

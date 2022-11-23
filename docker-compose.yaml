@@ -2,13 +2,15 @@ version: '3.7'
 
 services:
   app:
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     depends_on: [database]
     tmpfs:
       - /tmp:mode=1777
     volumes:
       - .:/app
     ports: [8000]
+    environment:
+        DATABASE_URL: mysql://root:root@database:3306/main
 
   database:
     image: mariadb:10.4
@@ -19,6 +21,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_PASSWORD: root
+      MYSQL_DATABASE: main
 
   adminer:
       image: adminer:latest

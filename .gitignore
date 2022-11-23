@@ -32,6 +32,9 @@ php.ini
 /var/config_administration_plugins.json
 /var/jwt/public.pem
 /var/jwt/private.pem
+.eslintcache
+.stylelintcache
+.jestcache
 
 /public/*
 !/public/index.php

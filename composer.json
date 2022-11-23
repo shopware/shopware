@@ -34,7 +34,8 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "symfony/runtime": true
         }
     },
     "require": {
@@ -121,6 +122,7 @@
         "symfony/proxy-manager-bridge": "~6.1.0",
         "symfony/psr-http-message-bridge": "~2.1.3",
         "symfony/rate-limiter": "~6.1.0",
+        "symfony/runtime": "~6.1.0",
         "symfony/routing": "~6.1.0",
         "symfony/security-core": "~6.1.0",
         "symfony/security-csrf": "~6.1.0",

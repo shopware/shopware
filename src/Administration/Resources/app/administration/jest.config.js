@@ -7,6 +7,7 @@ process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
 
 module.exports = {
+    cacheDirectory: '<rootDir>.jestcache',
     preset: '@shopware-ag/jest-preset-sw6-admin',
     globals: {
         adminPath: process.env.ADMIN_PATH,

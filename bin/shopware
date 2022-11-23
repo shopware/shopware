@@ -1,61 +1,59 @@
 #!/usr/bin/env php
-<?php declare(strict_types=1);
+<?php
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\HttpKernel;
+use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\ErrorHandler\Debug;
 
-if (\PHP_VERSION_ID < 70403) {
-    echo 'Your cli is running PHP version ' . \PHP_VERSION . ' but Shopware 6 requires at least PHP 7.4.3' . \PHP_EOL;
-    exit(1);
+$envFile = __DIR__ . '/../.env';
+
+if (!file_exists(__DIR__ . '/../.env')) {
+    $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 
-set_time_limit(0);
+require_once __DIR__ . '/../vendor/autoload_runtime.php';
 
-$classLoader = require __DIR__ . '/../vendor/autoload.php';
+return static function (array &$context) {
+    set_time_limit(0);
 
-if (!class_exists(Application::class) || !class_exists(Dotenv::class)) {
-    throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
-}
+    $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
-$input = new ArgvInput();
-if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
-    putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
-}
-
-if ($input->hasParameterOption('--no-debug', true)) {
-    putenv('APP_DEBUG=' . $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
-}
-
-$projectRoot = dirname(__DIR__);
-if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
-    (new Dotenv())->usePutenv()->setProdEnvs(['prod', 'e2e'])->bootEnv(dirname(__DIR__) . '/.env');
-}
-
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-
-    if (class_exists(Debug::class)) {
-        Debug::enable();
+    if (!class_exists(Application::class)) {
+        throw new RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
     }
-}
 
-$appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'dev';
-$debug = !($appEnv === 'e2e') && (bool)($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? ('prod' !== $appEnv));
+    if (!isset($context['PROJECT_ROOT'])) {
+        $context['PROJECT_ROOT'] = dirname(__DIR__);
+    }
 
-$kernel = new HttpKernel($appEnv, $debug, $classLoader);
+    $input = new ArgvInput();
+    $env = $input->getParameterOption(['--env', '-e'], $context['APP_ENV'] ?? 'prod', true);
+    $debug = ($context['APP_DEBUG'] ?? ($env !== 'prod')) && !$input->hasParameterOption('--no-debug', true);
 
-if ($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? $_SERVER['DISABLE_EXTENSIONS'] ?? false) {
-    $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
-}
+    $pluginLoader = new StaticKernelPluginLoader($classLoader, null);
 
-$application = new Application($kernel->getKernel());
-$kernel->getKernel()->boot();
-$application->setName('Shopware');
-$application->setVersion($kernel->getKernel()->getContainer()->getParameter('kernel.shopware_version'));
-$application->run($input);
+    if ($input->getFirstArgument() === 'system:install') {
+        $context['INSTALL'] = true;
+    }
+
+    if (trim($context['DATABASE_URL'] ?? '') === '') {
+        // fake DATABASE_URL
+        $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
+    } else if (!isset($context['INSTALL'])) {
+        $pluginLoader = new DbalKernelPluginLoader($classLoader, null, \Shopware\Core\Kernel::getConnection());
+    }
+
+    $kernel = new HttpKernel($env, $debug, $classLoader);
+    $kernel->setPluginLoader($pluginLoader);
+
+    $application = new Application($kernel->getKernel());
+    $kernel->getKernel()->boot();
+
+    $application->setName('Shopware');
+    $application->setVersion($kernel->getKernel()->getContainer()->getParameter('kernel.shopware_version'));
+
+    return $application;
+};

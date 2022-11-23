@@ -10,7 +10,7 @@ const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts/jest');
 module.exports = {
 
     // The directory where Jest should store its cached dependency information
-    // cacheDirectory: "/private/var/folders/00/scx5qv4s0fzdh47cvtj6xrj80000gn/T/jest_dx",
+    cacheDirectory: '<rootDir>.jestcache',
 
     // Automatically clear mock calls and instances between every test
     clearMocks: true,

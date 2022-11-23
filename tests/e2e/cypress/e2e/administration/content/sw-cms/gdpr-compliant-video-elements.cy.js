@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 const platforms = [{
     name: 'youtube',
     videoId: 'https://www.youtube.com/watch?v=Ds7c_AKSk7s'

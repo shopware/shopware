@@ -18,6 +18,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
+ * @package content
  * @covers \Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule
  */
 class PromotionLineItemRuleTest extends TestCase

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 const promotionCodeFixedSelector = '#sw-field--promotion-code';

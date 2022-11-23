@@ -92,6 +92,10 @@ class ProductStreamUpdater extends EntityIndexer
             'SELECT api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL AND id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
+        // if the filter is invalid
+        if ($filter === false) {
+            return;
+        }
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
 

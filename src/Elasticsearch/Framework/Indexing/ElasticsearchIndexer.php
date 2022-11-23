@@ -32,9 +32,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
+ * @final
  */
-final class ElasticsearchIndexer implements MessageHandlerInterface
+class ElasticsearchIndexer implements MessageHandlerInterface
 {
     private Connection $connection;
 

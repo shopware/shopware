@@ -13,8 +13,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
+ *
+ * @final
  */
-final class CacheClearer
+class CacheClearer
 {
     private CacheClearerInterface $cacheClearer;
 

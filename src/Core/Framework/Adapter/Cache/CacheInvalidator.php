@@ -9,8 +9,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package core
+ *
+ * @final
  */
-final class CacheInvalidator
+class CacheInvalidator
 {
     private const CACHE_KEY = 'invalidation';
 

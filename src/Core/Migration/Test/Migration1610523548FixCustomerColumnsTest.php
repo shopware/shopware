@@ -14,40 +14,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
+use Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @package core
  *
  * @internal
- *
- * @deprecated tag:v6.5.0
- * this test is no longer necessary, when the old columns are dropped
  */
 class Migration1610523548FixCustomerColumnsTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var EntityWriter
-     */
-    private $writer;
+    private EntityWriter $writer;
 
-    /**
-     * @var CustomerDefinition
-     */
-    private $customerDefinition;
+    private CustomerDefinition $customerDefinition;
 
     protected function setUp(): void
     {
@@ -79,14 +64,9 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         parent::tearDown();
     }
 
-    public function getMigrationClass(): string
-    {
-        return \Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns::class;
-    }
-
     public function testColumns(): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns(CustomerDefinition::ENTITY_NAME);
 
         static::assertArrayHasKey('double_opt_in_registration', $columns);

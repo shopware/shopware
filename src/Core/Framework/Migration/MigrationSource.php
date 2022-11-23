@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Migration;
 
+use Shopware\Core\Framework\Feature;
+
 /**
  * @package core
  */
@@ -45,6 +47,11 @@ class MigrationSource
      */
     public function addReplacementPattern(string $regexPattern, string $replacePattern): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         $this->replacementPatterns[] = [$regexPattern, $replacePattern];
     }
 
@@ -88,8 +95,16 @@ class MigrationSource
         return '(' . implode('|', $patterns) . ')';
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     */
     public function mapToOldName(string $className): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         $replacementPatterns = $this->getReplacementPatterns();
 
         $oldName = $className;
@@ -110,8 +125,16 @@ class MigrationSource
         return $oldName;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as all migrations are now namespaced by their major version
+     */
     public function getReplacementPatterns(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+        );
+
         $patterns = $this->replacementPatterns;
 
         foreach ($this->sources as $namespace) {

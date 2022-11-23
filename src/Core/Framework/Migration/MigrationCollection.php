@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
 /**
@@ -138,6 +139,10 @@ class MigrationCollection
             'class' => $className,
             'creation_timestamp' => $migrationStep->getCreationTimestamp(),
         ];
+
+        if (Feature::isActive('v6.6.0.0')) {
+            return $default;
+        }
 
         $oldName = $this->migrationSource->mapToOldName($className);
         if ($oldName === null) {

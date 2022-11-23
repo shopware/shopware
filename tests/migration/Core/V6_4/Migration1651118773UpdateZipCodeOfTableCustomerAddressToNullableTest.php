@@ -5,7 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable;
+use Shopware\Core\Migration\V6_4\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable;
 
 /**
  * @internal

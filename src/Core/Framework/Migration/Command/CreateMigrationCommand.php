@@ -116,25 +116,6 @@ class CreateMigrationCommand extends Command
             // We create a core-migration in case no plugin was given
             $directory = $this->coreDir . '/Migration/V6_' . $major;
             $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
-
-            // create legacy migration
-            $legacyDirectory = $this->coreDir . '/Migration';
-            $legacyNamespace = 'Shopware\\Core\\Migration';
-
-            // @deprecated tag:v6.5.0 - Only necessary until 6.5.0.0
-            $output->writeln('Creating legacy core migration ...');
-            // @deprecated tag:v6.5.0 - Only necessary until 6.5.0.0
-            $this->createMigrationFile(
-                $output,
-                $legacyDirectory,
-                \dirname(__DIR__) . '/Template/MigrationTemplateLegacy.txt',
-                [
-                    '%%timestamp%%' => $timestamp,
-                    '%%name%%' => $name,
-                    '%%namespace%%' => $legacyNamespace,
-                    '%%superclassnamespace%%' => '\\' . $namespace,
-                ]
-            );
         }
 
         $params = [

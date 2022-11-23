@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Migration1599134496FixImportExportProfilesForGermanLanguage;
+use Shopware\Core\Migration\V6_3\Migration1599134496FixImportExportProfilesForGermanLanguage;
 
 /**
  * @package core

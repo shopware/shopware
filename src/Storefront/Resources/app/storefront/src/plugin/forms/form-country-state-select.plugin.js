@@ -3,6 +3,9 @@ import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
 import Feature from 'src/helper/feature.helper';
 
+/**
+ * @package content
+ */
 export default class CountryStateSelectPlugin extends Plugin {
 
     static options = {

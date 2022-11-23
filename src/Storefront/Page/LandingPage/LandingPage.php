@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package content
+ */
 class LandingPage extends Page
 {
     /* @deprecated tag:v6.5.0 Trait will be removed. customFields will be found under the cmsPage and landingPage */

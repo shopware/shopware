@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;

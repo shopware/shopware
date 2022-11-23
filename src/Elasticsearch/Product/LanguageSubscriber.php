@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;

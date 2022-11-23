@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Uuid\Uuid;

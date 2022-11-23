@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

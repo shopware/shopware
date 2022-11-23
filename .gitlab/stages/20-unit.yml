@@ -150,7 +150,7 @@ PHP unit Elasticsearch:
       command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
   parallel:
     matrix:
-      - TESTSUITE: ["elasticsearch", "integration"]
+      - TESTSUITE: ["integration"]
         RUNNER_INSTANCE_TYPE: m5.large
 
 PHP bench:

@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -52,7 +52,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $analyzer) {
-                /** @var array{'tokens': array} $analyzed */
+                /** @var array{'tokens': array{token: string}[]} $analyzed */
                 $analyzed = $this->client->indices()->analyze([
                     'body' => [
                         'analyzer' => $analyzer,
@@ -75,6 +75,9 @@ class ElasticsearchTestAnalyzerCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, array<string>>
+     */
     protected function getAnalyzers(): array
     {
         return [

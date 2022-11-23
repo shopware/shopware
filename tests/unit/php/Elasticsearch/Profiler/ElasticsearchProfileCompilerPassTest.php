@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Profiler\DataCollector;

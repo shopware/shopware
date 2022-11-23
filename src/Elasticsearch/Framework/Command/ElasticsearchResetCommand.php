@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;

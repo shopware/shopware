@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;

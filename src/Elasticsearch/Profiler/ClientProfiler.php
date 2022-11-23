@@ -2,9 +2,9 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
-use Elasticsearch\Client;
-use Elasticsearch\Connections\ConnectionInterface;
-use Elasticsearch\Namespaces\AbstractNamespace;
+use OpenSearch\Client;
+use OpenSearch\Connections\ConnectionInterface;
+use OpenSearch\Namespaces\NamespaceBuilderInterface;
 
 /**
  * @package core
@@ -19,7 +19,7 @@ class ClientProfiler extends Client
 
     public function __construct(Client $client)
     {
-        /** @var array<AbstractNamespace> $namespaces */
+        /** @var array<NamespaceBuilderInterface> $namespaces */
         $namespaces = $client->registeredNamespaces;
 
         parent::__construct($client->transport, $client->endpoints, $namespaces);

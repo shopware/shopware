@@ -118,10 +118,6 @@
         <testsuite name="system">
             <directory>src/Core/System/Test</directory>
         </testsuite>
-        <testsuite name="elasticsearch">
-            <directory>src/Elasticsearch/Test</directory>
-        </testsuite>
-
         <testsuite name="unit">
             <directory>tests/unit/php</directory>
         </testsuite>

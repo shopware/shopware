@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Search;

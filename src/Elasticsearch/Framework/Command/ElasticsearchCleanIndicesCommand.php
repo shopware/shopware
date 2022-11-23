@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

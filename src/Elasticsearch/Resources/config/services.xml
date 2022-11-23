@@ -28,7 +28,7 @@
             <argument>%elasticsearch.indexing_enabled%</argument>
             <argument>%elasticsearch.index_prefix%</argument>
             <argument>%elasticsearch.throw_exception%</argument>
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
             <argument type="service" id="shopware.elasticsearch.logger" />
@@ -36,7 +36,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
 
-        <service id="Elasticsearch\Client" public="true" lazy="true">
+        <service id="OpenSearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />
@@ -45,7 +45,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
             <argument>%elasticsearch.index.mapping%</argument>
             <argument type="service" id="event_dispatcher"/>
@@ -60,19 +60,19 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchStatusCommand">
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchResetCommand">
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.increment.gateway.registry"/>
@@ -97,7 +97,7 @@
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
                  decoration-priority="1000">
 
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
@@ -110,7 +110,7 @@
                  decoration-priority="1000">
 
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"/>
             <argument type="service" id="event_dispatcher"/>
@@ -135,7 +135,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">
             <argument type="service" id="scheduled_task.repository" />
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument>%elasticsearch.index.config%</argument>
@@ -171,7 +171,7 @@
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -184,14 +184,14 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCleanIndicesCommand">
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector">
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
@@ -203,7 +203,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
@@ -216,14 +216,14 @@
         <service id="Shopware\Elasticsearch\Product\LanguageSubscriber">
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Profiler\DataCollector">
             <argument>%elasticsearch.enabled%</argument>
-            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="OpenSearch\Client"/>
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
         </service>
 

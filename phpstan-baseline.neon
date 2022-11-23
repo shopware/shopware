@@ -24383,20 +24383,9 @@ parameters:
 			count: 1
 			path: src/Elasticsearch/DependencyInjection/ElasticsearchExtension.php
 
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ClientFactory\\:\\:createClient\\(\\) has parameter \\$sslConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ClientFactory.php
 
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Command\\\\ElasticsearchTestAnalyzerCommand\\:\\:getAnalyzers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php
 
-		-
-			message: "#^PHPDoc tag @var for variable \\$analyzed has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php
+
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\AbstractElasticsearchAggregationHydrator\\:\\:hydrate\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"

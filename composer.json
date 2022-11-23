@@ -66,7 +66,7 @@
         "shopwarelabs/dompdf": "1.0.3",
         "tecnickcom/tcpdf": "6.4.4",
         "setasign/fpdi": "2.3.6",
-        "elasticsearch/elasticsearch": "7.16.0",
+        "opensearch-project/opensearch-php": "~2.0",
         "enqueue/dbal": "~0.10.15",
         "ezyang/htmlpurifier": "~4.16",
         "guzzlehttp/guzzle": "~7.4.5",

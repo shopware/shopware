@@ -34,35 +34,17 @@ class ThemeLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
+    private ThemeLifecycleService $themeLifecycleService;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var EntityRepository
-     */
-    private $themeRepository;
+    private EntityRepository $themeRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $mediaFolderRepository;
+    private EntityRepository $mediaFolderRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function setUp(): void
     {
@@ -104,6 +86,27 @@ class ThemeLifecycleServiceTest extends TestCase
         $parentThemeEntity = $this->getTheme($parentBundle);
         $themeEntity = $this->getTheme($bundle);
 
+        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+    }
+
+    public function testThemeRefreshWithParentTheme(): void
+    {
+        $parentBundle = $this->getThemeConfigWithLabels();
+        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
+        $bundle = $this->getThemeConfig();
+        $bundle->setConfigInheritance(['@' . $parentBundle->getTechnicalName()]);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $parentThemeEntity = $this->getTheme($parentBundle);
+        $themeEntity = $this->getTheme($bundle);
+
+        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+
+        $bundle->setConfigInheritance([]);
+        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
         static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
     }
 

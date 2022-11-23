@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
@@ -123,11 +124,8 @@ class ThemeLifecycleService
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        /** @var list<string> $toDeleteIds */
+        /** @var list<array<string, string>> $toDeleteIds */
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
-        $toDeleteIds = array_map(function (string $id) {
-            return ['id' => $id];
-        }, $toDeleteIds);
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
     }
@@ -162,6 +160,9 @@ class ThemeLifecycleService
         return $this->themeRepository->search($criteria, $context)->first();
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
     {
         $path = $this->themeFileImporter->getRealPath($path);
@@ -177,9 +178,9 @@ class ThemeLifecycleService
             'media' => ['id' => $mediaId, 'mediaFolderId' => $themeFolderId],
             'mediaFile' => new MediaFile(
                 $path,
-                mimetype_from_filename($pathinfo['basename']),
+                (string) mimetype_from_filename($pathinfo['basename']),
                 $pathinfo['extension'] ?? '',
-                filesize($path)
+                (int) filesize($path)
             ),
         ];
     }
@@ -199,14 +200,22 @@ class ThemeLifecycleService
         return $defaultFolderId;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     private function getTranslationsConfiguration(StorefrontPluginConfiguration $configuration, Context $context): array
     {
         $systemLanguageLocale = $this->getSystemLanguageLocale($context);
 
-        $labelTranslations = $this->getLabelsFromConfig($configuration->getThemeConfig());
+        $themeConfig = $configuration->getThemeConfig();
+        if (!$themeConfig) {
+            return [];
+        }
+
+        $labelTranslations = $this->getLabelsFromConfig($themeConfig);
         $translations = $this->mapTranslations($labelTranslations, 'labels', $systemLanguageLocale);
 
-        $helpTextTranslations = $this->getHelpTextsFromConfig($configuration->getThemeConfig());
+        $helpTextTranslations = $this->getHelpTextsFromConfig($themeConfig);
 
         return array_merge_recursive(
             $translations,
@@ -214,6 +223,11 @@ class ThemeLifecycleService
         );
     }
 
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private function getLabelsFromConfig(array $config): array
     {
         $translations = [];
@@ -236,11 +250,20 @@ class ThemeLifecycleService
         return $translations;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private function extractLabels(string $prefix, array $data): array
     {
         $labels = [];
         foreach ($data as $key => $item) {
             if (\array_key_exists('label', $item)) {
+                /**
+                 * @var string $locale
+                 * @var string $label
+                 */
                 foreach ($item['label'] as $locale => $label) {
                     $labels[$locale][$prefix . '.' . $key] = $label;
                 }
@@ -250,6 +273,11 @@ class ThemeLifecycleService
         return $labels;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private function getHelpTextsFromConfig(array $config): array
     {
         $translations = [];
@@ -261,6 +289,11 @@ class ThemeLifecycleService
         return $translations;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private function extractHelpTexts(string $prefix, array $data): array
     {
         $helpTexts = [];
@@ -269,6 +302,10 @@ class ThemeLifecycleService
                 continue;
             }
 
+            /**
+             * @var string $locale
+             * @var string $label
+             */
             foreach ($item['helpText'] as $locale => $label) {
                 $helpTexts[$locale][$prefix . '.' . $key] = $label;
             }
@@ -319,6 +356,9 @@ class ThemeLifecycleService
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function updateMediaInConfiguration(
         ?ThemeEntity $theme,
         StorefrontPluginConfiguration $pluginConfiguration,
@@ -409,10 +449,17 @@ class ThemeLifecycleService
 
         /** @var LanguageEntity $language */
         $language = $this->languageRepository->search($criteria, $context)->first();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getTranslationCode();
 
-        return $language->getTranslationCode()->getCode();
+        return $locale->getCode();
     }
 
+    /**
+     * @param array<string, mixed> $translations
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private function mapTranslations(array $translations, string $property, string $systemLanguageLocale): array
     {
         $result = [];
@@ -435,6 +482,11 @@ class ThemeLifecycleService
         return $result;
     }
 
+    /**
+     * @param array<string, mixed> $themeData
+     *
+     * @return array<string, mixed>
+     */
     private function addParentTheme(StorefrontPluginConfiguration $configuration, array $themeData, Context $context): array
     {
         $lastNotSameTheme = null;
@@ -461,6 +513,9 @@ class ThemeLifecycleService
         return $themeData;
     }
 
+    /**
+     * @return list<array{parentId: string, childId: string}>
+     */
     private function getParentThemes(StorefrontPluginConfiguration $config, string $id): array
     {
         $allThemeConfigs = $this->pluginRegistry->getConfigurations()->getThemes();
@@ -477,14 +532,13 @@ class ThemeLifecycleService
 
         $parentThemes = array_filter(
             $allThemes,
-            fn (array $theme) => \in_array($theme['technicalName'] ?? '', $technicalNames, true)
+            fn (array $theme) => \in_array($theme['technicalName'], $technicalNames, true)
         );
 
         $updateParents = [];
-        /** @var array $parentTheme */
         foreach ($parentThemes as $parentTheme) {
             $updateParents[] = [
-                'parentId' => $parentTheme['parentThemeId'] ?? '',
+                'parentId' => $parentTheme['parentThemeId'],
                 'childId' => $id,
             ];
         }
@@ -492,11 +546,17 @@ class ThemeLifecycleService
         return $updateParents;
     }
 
+    /**
+     * @return list<array{technicalName: string, parentThemeId: string}>
+     */
     private function getAllThemesPlain(): array
     {
-        return $this->connection->fetchAllAssociative(
+        /** @var list<array{technicalName: string, parentThemeId: string}> $result */
+        $result = $this->connection->fetchAllAssociative(
             'SELECT theme.technical_name as technicalName, LOWER(HEX(theme.id)) as parentThemeId FROM theme'
         );
+
+        return $result;
     }
 
     private function isDependentTheme(

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

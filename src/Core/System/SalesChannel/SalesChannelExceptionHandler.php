@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\System\SalesChannel\Exception\LanguageOfSalesChannelDomainDeleteException;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

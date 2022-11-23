@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
+ * @package sales-channel
+ *
  * @extends EntityCollection<SalesChannelTypeEntity>
  */
 class SalesChannelTypeCollection extends EntityCollection

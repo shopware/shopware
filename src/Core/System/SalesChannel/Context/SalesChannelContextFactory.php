@@ -28,6 +28,9 @@ use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use function array_unique;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     private EntityRepository $customerRepository;

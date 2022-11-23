@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChannelEvent
 {
     private SalesChannelContext $salesChannelContext;

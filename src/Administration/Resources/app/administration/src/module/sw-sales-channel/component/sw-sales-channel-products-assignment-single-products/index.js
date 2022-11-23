@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';
 import './sw-sales-channel-products-assignment-single-products.scss';
 

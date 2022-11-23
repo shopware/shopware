@@ -18,6 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SalesChannelRepositoryTest extends TestCase

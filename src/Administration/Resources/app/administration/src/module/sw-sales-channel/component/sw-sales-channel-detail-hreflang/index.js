@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-detail-hreflang.html.twig';
 
 const { Criteria } = Shopware.Data;

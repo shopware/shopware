@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 /* eslint-disable prefer-promise-reject-errors */
 import { shallowMount } from '@vue/test-utils';
 import swSalesChannelDetailProducts from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';

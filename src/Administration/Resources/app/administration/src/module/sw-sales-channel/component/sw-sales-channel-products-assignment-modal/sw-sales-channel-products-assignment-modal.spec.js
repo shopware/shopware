@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swSalesChannelProductsAssignmentModal from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';

@@ -16,6 +16,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  * @group store-api
  */

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  * @group store-api
  */

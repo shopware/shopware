@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import swSalesChannelModal from 'src/module/sw-sales-channel/component/sw-sales-channel-modal/';

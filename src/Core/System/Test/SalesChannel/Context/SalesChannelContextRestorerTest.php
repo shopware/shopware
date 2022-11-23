@@ -46,6 +46,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SalesChannelContextRestorerTest extends TestCase

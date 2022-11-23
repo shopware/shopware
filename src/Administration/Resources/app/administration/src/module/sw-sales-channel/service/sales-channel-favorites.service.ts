@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import Vue from 'vue';
 
 const { Application, Service, Context, State } = Shopware;

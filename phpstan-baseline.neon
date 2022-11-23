@@ -8773,11 +8773,6 @@ parameters:
 			path: src/Core/Content/Test/Product/SalesChannel/Review/RatingMatrixTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannelProductBuilderTest\\:\\:maxPurchaseProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannelProductBuilderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Api\\\\ProductExportControllerTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Api/ProductExportControllerTest.php
@@ -9754,101 +9749,6 @@ parameters:
 			path: src/Core/Framework/Api/Context/AdminApiSource.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\AclController\\:\\:getFromDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/AclController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\AclController\\:\\:getFromRoutes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/AclController.php
-
-		-
-			message: "#^Cannot call method getEntityName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string\\.$#"
-			count: 4
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 6
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:buildEntityPath\\(\\) has parameter \\$protections with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:buildEntityPath\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:executeWriteOperation\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:getAssociation\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:getDefinitionForPathSegment\\(\\) has parameter \\$segment with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:getDefinitionOfPath\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:getRequestBody\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:isCollection\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:resolveSearch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:validatePathSegments\\(\\) has parameter \\$pathSegments with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:validatePathSegments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Response\\\\ResponseFactoryInterface\\:\\:createRedirectResponse\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Parameter \\#1 \\$entity of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\ApiController\\:\\:executeWriteOperation\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:handleRequest\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\SalesChannelProxyController\\:\\:clearRequestStackWithBackup\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/SalesChannelProxyController.php
@@ -10112,36 +10012,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncoder\\:\\:formatToJson\\(\\) should return string but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:getIncluded\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:getMetaData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:setMetaData\\(\\) has parameter \\$metaData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:\\$keyCollection type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:\\$metaData type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
 
 		-
 			message: "#^Cannot access offset \\(int\\|string\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\.$#"
@@ -13152,21 +13022,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\:\\:getMin\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/StatsResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\CompositeEntitySearcher\\:\\:__construct\\(\\) has parameter \\$definitions with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/CompositeEntitySearcher.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\CompositeEntitySearcher\\:\\:search\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/CompositeEntitySearcher.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\CompositeEntitySearcher\\:\\:\\$definitions \\(array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/CompositeEntitySearcher.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\CriteriaArrayConverter\\:\\:convert\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -16954,11 +16809,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\TranslationTest\\:\\:assertTranslation\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/TranslationTest.php
@@ -19217,21 +19067,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/CoreSubscriberTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) with void will always evaluate to false\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Routing/RouteScopeListenerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$controller of method Symfony\\\\Component\\\\HttpKernel\\\\Event\\\\ControllerEvent\\:\\:setController\\(\\) expects callable\\(\\)\\: mixed, array\\{object\\|null, 'panelAction'\\} given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/RouteScopeListenerTest.php
-
-		-
-			message: "#^Result of method Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteScopeListener\\:\\:checkScope\\(\\) \\(void\\) is used\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Routing/RouteScopeListenerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\RoutesAclTest\\:\\:getCallable\\(\\) return type has no value type specified in iterable type array\\.$#"

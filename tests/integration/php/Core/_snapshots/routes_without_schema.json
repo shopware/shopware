@@ -127,7 +127,6 @@
     "/_proxy/modify-shipping-costs",
     "/_proxy/store-api/{salesChannelId}/{_path}",
     "/_proxy/switch-customer",
-    "/_search",
     "/acl-role",
     "/acl-role/{roleId}",
     "/acl-role/{roleId}",

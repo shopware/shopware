@@ -49,11 +49,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="tagged" tag="shopware.composite_search.definition"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
             <argument type="service" id="serializer"/>

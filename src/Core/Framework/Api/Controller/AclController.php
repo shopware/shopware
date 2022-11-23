@@ -73,6 +73,9 @@ class AclController extends AbstractController
         return new JsonResponse($privileges);
     }
 
+    /**
+     * @return list<string>
+     */
     private function getFromDefinitions(): array
     {
         $privileges = [];
@@ -88,11 +91,15 @@ class AclController extends AbstractController
         return $privileges;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getFromRoutes(): array
     {
         $permissions = [];
 
         foreach ($this->router->getRouteCollection()->all() as $route) {
+            /** @var array<string>|null $acl */
             if ($acl = $route->getDefault(PlatformRequest::ATTRIBUTE_ACL)) {
                 $permissions[] = $acl;
             }

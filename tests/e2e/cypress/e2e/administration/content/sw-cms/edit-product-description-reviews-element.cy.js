@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 describe('CMS: Check usage and editing of product description reviews element', () => {

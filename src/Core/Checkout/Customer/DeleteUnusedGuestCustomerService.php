@@ -47,6 +47,9 @@ class DeleteUnusedGuestCustomerService
         return $this->customerRepository->search($criteria, $context)->getTotal();
     }
 
+    /**
+     * @return list<array{id: string}>
+     */
     public function deleteUnusedCustomers(Context $context): array
     {
         $maxLifeTime = $this->getUnusedGuestCustomerLifeTime();

@@ -104,11 +104,6 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
             path: src/Core/Framework/DataAbstractionLayer/Entity.php
-        # Class behind feature flag - can be removed with feature flag
-        - '#Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior#'
-        -
-            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array<string, array<int, mixed>> given\.$#'
-            path: src/Core/Framework/Api/Sync/SyncService.php
 
         # Shopware\\Core\\Checkout\\Cart\\Exception\\InvalidCartException is behind a feature flag
         -

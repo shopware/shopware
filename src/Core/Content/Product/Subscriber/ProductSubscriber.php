@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,14 +25,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
  * @package inventory
+ *
+ * @internal
  */
 class ProductSubscriber implements EventSubscriberInterface
 {
-    private AbstractSalesChannelProductBuilder $salesChannelProductBuilder;
-
     private AbstractProductVariationBuilder $productVariationBuilder;
 
     private AbstractProductPriceCalculator $calculator;
@@ -50,7 +47,6 @@ class ProductSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        AbstractSalesChannelProductBuilder $salesChannelProductBuilder,
         AbstractProductVariationBuilder $productVariationBuilder,
         AbstractProductPriceCalculator $calculator,
         AbstractPropertyGroupSorter $propertyGroupSorter,
@@ -58,7 +54,6 @@ class ProductSubscriber implements EventSubscriberInterface
         AbstractIsNewDetector $isNewDetector,
         SystemConfigService $systemConfigService
     ) {
-        $this->salesChannelProductBuilder = $salesChannelProductBuilder;
         $this->productVariationBuilder = $productVariationBuilder;
         $this->calculator = $calculator;
         $this->propertyGroupSorter = $propertyGroupSorter;
@@ -79,7 +74,7 @@ class ProductSubscriber implements EventSubscriberInterface
 
     public function loaded(EntityLoadedEvent $event): void
     {
-        $this->entityLoaded($event->getEntities(), $event->getContext());
+        $this->entityLoaded($event->getEntities());
     }
 
     /**
@@ -87,7 +82,7 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     public function partialEntityLoaded(PartialEntityLoadedEvent $event): void
     {
-        $this->entityLoaded($event->getEntities(), $event->getContext());
+        $this->entityLoaded($event->getEntities());
     }
 
     public function salesChannelLoaded(SalesChannelEntityLoadedEvent $event): void
@@ -106,23 +101,10 @@ class ProductSubscriber implements EventSubscriberInterface
     /**
      * @param Entity[] $collection
      */
-    private function entityLoaded(array $collection, Context $context): void
+    private function entityLoaded(array $collection): void
     {
         /** @var ProductEntity $product */
         foreach ($collection as $product) {
-            // CheapestPrice will only be added to SalesChannelProductEntities in the Future
-            if (!Feature::isActive('FEATURE_NEXT_16151')) {
-                $price = $product->get('cheapestPrice');
-
-                if ($price instanceof CheapestPriceContainer) {
-                    $resolved = $price->resolve($context);
-                    $product->assign([
-                        'cheapestPrice' => $resolved,
-                        'cheapestPriceContainer' => $price,
-                    ]);
-                }
-            }
-
             $this->setDefaultLayout($product);
 
             $this->productVariationBuilder->build($product);
@@ -136,35 +118,27 @@ class ProductSubscriber implements EventSubscriberInterface
     {
         /** @var SalesChannelProductEntity $product */
         foreach ($elements as $product) {
-            if (Feature::isActive('FEATURE_NEXT_16151')) {
-                $price = $product->get('cheapestPrice');
+            $price = $product->get('cheapestPrice');
 
-                if ($price instanceof CheapestPriceContainer) {
-                    $resolved = $price->resolve($context->getContext());
-                    $product->assign([
-                        'cheapestPrice' => $resolved,
-                        'cheapestPriceContainer' => $price,
-                    ]);
-                }
+            if ($price instanceof CheapestPriceContainer) {
+                $resolved = $price->resolve($context->getContext());
+                $product->assign([
+                    'cheapestPrice' => $resolved,
+                    'cheapestPriceContainer' => $price,
+                ]);
             }
 
-            if (Feature::isActive('v6.5.0.0')) {
-                $assigns = [];
+            $assigns = [];
 
-                if (($properties = $product->get('properties')) !== null && $properties instanceof PropertyGroupOptionCollection) {
-                    $assigns['sortedProperties'] = $this->propertyGroupSorter->sort($properties);
-                }
-
-                $assigns['calculatedMaxPurchase'] = $this->maxPurchaseCalculator->calculate($product, $context);
-
-                $assigns['isNew'] = $this->isNewDetector->isNew($product, $context);
-
-                $product->assign($assigns);
-            } else {
-                Feature::callSilentIfInactive('v6.5.0.0', function () use ($product, $context): void {
-                    $this->salesChannelProductBuilder->build($product, $context);
-                });
+            if (($properties = $product->get('properties')) !== null && $properties instanceof PropertyGroupOptionCollection) {
+                $assigns['sortedProperties'] = $this->propertyGroupSorter->sort($properties);
             }
+
+            $assigns['calculatedMaxPurchase'] = $this->maxPurchaseCalculator->calculate($product, $context);
+
+            $assigns['isNew'] = $this->isNewDetector->isNew($product, $context);
+
+            $product->assign($assigns);
 
             $this->setDefaultLayout($product, $context->getSalesChannelId());
         }
@@ -177,7 +151,7 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     private function setDefaultLayout(Entity $product, ?string $salesChannelId = null): void
     {
-        if (!Feature::isActive('v6.5.0.0') || !$product->has('cmsPageId')) {
+        if (!$product->has('cmsPageId')) {
             return;
         }
 

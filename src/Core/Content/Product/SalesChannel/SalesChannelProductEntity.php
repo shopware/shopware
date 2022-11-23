@@ -134,7 +134,7 @@ class SalesChannelProductEntity extends ProductEntity
         $this->calculatedCheapestPrice = $calculatedCheapestPrice;
     }
 
-    public function getCheapestPrice()
+    public function getCheapestPrice(): CheapestPrice|CheapestPriceContainer|null
     {
         return $this->cheapestPrice;
     }

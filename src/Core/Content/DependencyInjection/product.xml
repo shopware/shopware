@@ -155,7 +155,6 @@
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
 
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannelProductBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter"/>

@@ -4,3 +4,5 @@ issue: NEXT-21203
 ---
 # Core
 * Removed all deprecations in `Core/Framework/Api` namespace
+* Removed feature flag `FEATURE_NEXT_15815`
+* Removed feature flag `FEATURE_NEXT_16151`

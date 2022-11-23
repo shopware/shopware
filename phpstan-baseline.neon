@@ -10284,51 +10284,6 @@ parameters:
 			path: src/Core/Framework/Api/Serializer/Record.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:__construct\\(\\) has parameter \\$deleted with no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:__construct\\(\\) has parameter \\$notFound with no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:getDeleted\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:getNotFound\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:\\$deleted type has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncResult\\:\\:\\$notFound type has no value type specified in iterable type array\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/Sync/SyncResult.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\ActionButtonTranslation\\\\ActionButtonTranslationCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
@@ -16999,27 +16954,7 @@ parameters:
 			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestMainResourceShouldNotBeInIncluded.php
 
 		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncOperationResult\\|null\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
-
-		-
-			message: "#^Offset 'entities' does not exist on array\\|null\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
-
-		-
-			message: "#^Offset 'errors' does not exist on array\\|null\\.$#"
-			count: 7
-			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\|null given\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
 

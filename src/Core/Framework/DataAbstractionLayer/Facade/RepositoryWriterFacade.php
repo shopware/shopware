@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 
 /**
  * The `writer` service allows you to write data, that is stored inside shopware.
@@ -85,12 +84,6 @@ class RepositoryWriterFacade
      */
     public function sync(array $payload): SyncResult
     {
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            $behavior = new SyncBehavior();
-        } else {
-            $behavior = new SyncBehavior(true, true);
-        }
-
         $operations = [];
         foreach ($payload as $key => $operation) {
             if (isset($operation['key'])) {
@@ -99,6 +92,6 @@ class RepositoryWriterFacade
             $operations[] = new SyncOperation((string) $key, (string) $operation['entity'], (string) $operation['action'], $operation['payload']);
         }
 
-        return $this->syncService->sync($operations, $this->context, $behavior);
+        return $this->syncService->sync($operations, $this->context, new SyncBehavior());
     }
 }

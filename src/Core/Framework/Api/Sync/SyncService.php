@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -76,12 +75,7 @@ class SyncService implements SyncServiceInterface
 
         $notFound = $this->getWrittenEntities($result->getNotFound());
 
-        //@internal (flag:FEATURE_NEXT_15815) - second construct parameter removed - simply remove if condition and all other code below
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            return new SyncResult($ids, $notFound, $deleted);
-        }
-
-        return new SyncResult($ids, true, $notFound, $deleted);
+        return new SyncResult($ids, $notFound, $deleted);
     }
 
     /**

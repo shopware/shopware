@@ -340,37 +340,25 @@ export default class Repository {
      * @private
      */
     getSyncErrors(errorResponse: ErrorResponse): Error[] {
-        if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
-            const errors: Error[] = errorResponse?.response?.data?.errors ?? [];
+        const errors: Error[] = errorResponse?.response?.data?.errors ?? [];
 
-            errors.forEach((current) => {
-                if (!current.source || !current.source.pointer) {
-                    return;
-                }
+        errors.forEach((current) => {
+            if (!current.source || !current.source.pointer) {
+                return;
+            }
 
-                const segments = current.source.pointer.split('/');
+            const segments = current.source.pointer.split('/');
 
-                // remove first empty element in list
-                if (segments[0] === '') {
-                    segments.shift();
-                }
+            // remove first empty element in list
+            if (segments[0] === '') {
                 segments.shift();
+            }
+            segments.shift();
 
-                current.source.pointer = segments.join('/');
-            });
+            current.source.pointer = segments.join('/');
+        });
 
-            return errors;
-        }
-
-        const operation = errorResponse?.response?.data?.data[this.entityName];
-        if (!operation) {
-            return [];
-        }
-
-        return operation.result.reduce((acc, result) => {
-            acc.push(...result.errors);
-            return acc;
-        }, [] as Error[]);
+        return errors;
     }
 
     /**

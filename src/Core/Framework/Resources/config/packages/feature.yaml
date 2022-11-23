@@ -16,11 +16,6 @@ shopware:
         major: true
         description: "Reduce database queries if all required data for the line items is already assign"
         # issue: NEXT-13250
-      - name: FEATURE_NEXT_16151
-        default: false
-        major: true
-        description: "Remove CheapestPriceField from product entity, to speed up entity hydration"
-        # issue: NEXT-16151
       - name: FEATURE_NEXT_19501
         default: false
         major: false
@@ -36,10 +31,6 @@ shopware:
         major: true
         description: "Rules are aware of their assignment"
         # issue: NEXT-18215
-      - name: FEATURE_NEXT_15815
-        default: false
-        major: true
-        description: "Remove single record handling in sync service. Only single operation should be supported"
       - name: FEATURE_NEXT_14699
         default: false
         major: true

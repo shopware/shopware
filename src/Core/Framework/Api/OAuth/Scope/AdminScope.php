@@ -19,11 +19,7 @@ class AdminScope implements ScopeEntityInterface
         return self::IDENTIFIER;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to string
-     */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()/* :mixed */
+    public function jsonSerialize(): mixed
     {
         return self::IDENTIFIER;
     }

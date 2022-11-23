@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
@@ -35,16 +34,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -75,8 +71,6 @@ class ApiController extends AbstractController
 
     private RequestCriteriaBuilder $criteriaBuilder;
 
-    private CompositeEntitySearcher $compositeEntitySearcher;
-
     private ApiVersionConverter $apiVersionConverter;
 
     private EntityProtectionValidator $entityProtectionValidator;
@@ -90,7 +84,6 @@ class ApiController extends AbstractController
         DefinitionInstanceRegistry $definitionRegistry,
         DecoderInterface $serializer,
         RequestCriteriaBuilder $criteriaBuilder,
-        CompositeEntitySearcher $compositeEntitySearcher,
         ApiVersionConverter $apiVersionConverter,
         EntityProtectionValidator $entityProtectionValidator,
         AclCriteriaValidator $criteriaValidator
@@ -98,45 +91,9 @@ class ApiController extends AbstractController
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
         $this->criteriaBuilder = $criteriaBuilder;
-        $this->compositeEntitySearcher = $compositeEntitySearcher;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->entityProtectionValidator = $entityProtectionValidator;
         $this->criteriaValidator = $criteriaValidator;
-    }
-
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"})
-     *
-     * @deprecated tag:v6.5.0 - Will be removed in the next major
-     */
-    public function compositeSearch(Request $request, Context $context): JsonResponse
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Shopware\Administration\Controller\AdminSearchController::search()')
-        );
-
-        $term = (string) $request->query->get('term');
-        if ($term === '') {
-            throw new MissingRequestParameterException('term');
-        }
-        $limit = $request->query->getInt('limit', 5);
-
-        $results = $this->compositeEntitySearcher->search($term, $limit, $context);
-
-        foreach ($results as &$result) {
-            $definition = $this->definitionRegistry->getByEntityName($result['entity']);
-            /** @var EntityCollection<Entity> $entityCollection */
-            $entityCollection = $result['entities'];
-            $entities = [];
-            foreach ($entityCollection->getElements() as $key => $entity) {
-                $entities[$key] = $this->apiVersionConverter->convertEntity($definition, $entity);
-            }
-            $result['entities'] = $entities;
-        }
-
-        return new JsonResponse(['data' => $results]);
     }
 
     /**

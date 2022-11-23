@@ -110,7 +110,7 @@ class RouteScopeListenerTest extends TestCase
     {
         return new ControllerEvent(
             $this->getContainer()->get('kernel'),
-            [$this->getContainer()->get(ApiController::class), 'compositeSearch'],
+            [$this->getContainer()->get(ApiController::class), 'clone'],
             $request,
             HttpKernelInterface::SUB_REQUEST
         );

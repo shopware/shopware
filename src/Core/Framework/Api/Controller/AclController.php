@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -49,11 +47,7 @@ class AclController extends AbstractController
      */
     public function getPrivileges(): JsonResponse
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $privileges = $this->getFromRoutes();
-        } else {
-            $privileges = array_merge($this->getFromAnnotations(), $this->getFromRoutes());
-        }
+        $privileges = $this->getFromRoutes();
 
         $privileges = array_unique(array_merge($privileges, $this->getFromDefinitions()));
 
@@ -66,11 +60,7 @@ class AclController extends AbstractController
      */
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $privileges = $this->getFromRoutes();
-        } else {
-            $privileges = array_merge($this->getFromAnnotations(), $this->getFromRoutes());
-        }
+        $privileges = $this->getFromRoutes();
 
         $definitionPrivileges = $this->getFromDefinitions();
         $privileges = array_diff(array_unique($privileges), $definitionPrivileges);
@@ -81,47 +71,6 @@ class AclController extends AbstractController
         $privileges = $event->getPrivileges();
 
         return new JsonResponse($privileges);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use getFromRoutes instead
-     */
-    private function getFromAnnotations(): array
-    {
-        $privileges = [];
-        $annotationReader = new AnnotationReader();
-        $routes = $this->router->getRouteCollection()->all();
-
-        $seenServices = [];
-        foreach ($routes as $param) {
-            $defaults = $param->getDefaults();
-
-            if (isset($defaults['_controller'])) {
-                $controllerInfo = explode('::', $defaults['_controller']);
-
-                $controllerService = $controllerInfo[0];
-                $controllerMethod = $controllerInfo[1] ?? '__invoke';
-
-                if ($this->container->has($controllerService)) {
-                    $className = \get_class($this->container->get($controllerService));
-                    \assert(\is_string($className));
-                    $reflectedMethod = new \ReflectionMethod($className, $controllerMethod);
-                    $annotation = $annotationReader->getMethodAnnotation($reflectedMethod, Acl::class);
-                    $privileges = array_merge($privileges, $annotation ? $annotation->getValue() : []);
-
-                    if (\in_array($controllerService, $seenServices, true)) {
-                        continue;
-                    }
-
-                    $reflectedClass = new \ReflectionClass($className);
-                    $annotation = $annotationReader->getClassAnnotation($reflectedClass, Acl::class);
-                    $privileges = array_merge($privileges, $annotation ? $annotation->getValue() : []);
-                    $seenServices[] = $controllerService;
-                }
-            }
-        }
-
-        return $privileges;
     }
 
     private function getFromDefinitions(): array

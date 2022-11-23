@@ -186,11 +186,6 @@ parameters:
         	count: 1
         	path: src/Core/HttpKernel.php
 
-        -
-        	message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\ResponseExceptionListener\\:\\:onKernelException\\(\\) has no return type specified\\.$#"
-        	count: 1
-        	path: src/Core/Framework/Api/EventListener/ResponseExceptionListener.php
-
         # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
         - '#Trait .* is used zero times and is not analysed.#'
 

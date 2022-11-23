@@ -5,26 +5,15 @@ namespace Shopware\Core\Framework\Test\Api\Sync;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
-use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
-use Shopware\Core\Framework\Api\Converter\DefaultApiConverter;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncOperationResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedConverter;
-use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -437,84 +426,5 @@ class SyncServiceTest extends TestCase
         static::assertNotEmpty($step['errors']);
 
         $this->connection->beginTransaction();
-    }
-
-    public function testDeprecatedPayloadIsConverted(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
-
-        $id = Uuid::randomHex();
-
-        $operations = [
-            new SyncOperation('write', 'deprecated', SyncOperation::ACTION_UPSERT, [
-                ['id' => $id, 'price' => 10],
-            ]),
-        ];
-
-        $deprecatedDefinition = new DeprecatedDefinition();
-        $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-
-        $repoMock = $this->createMock(EntityRepository::class);
-        $repoMock->expects(static::once())
-            ->method('upsert')
-            ->with(
-                [
-                    ['id' => $id, 'prices' => [10]],
-                ],
-                static::isInstanceOf(Context::class)
-            )
-            ->willReturn($this->dummyEntityWrittenEvent($id));
-
-        $repoMock->expects(static::once())
-            ->method('getDefinition')
-            ->willReturn($deprecatedDefinition);
-
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definitionRegistry->expects(static::once())
-            ->method('getRepository')
-            ->with($deprecatedDefinition->getEntityName())
-            ->willReturn($repoMock);
-
-        $defaultConverter = $this->createMock(DefaultApiConverter::class);
-        $defaultConverter->method('isDeprecated')->willReturn(false);
-        $defaultConverter->method('convert')->willReturnArgument(1);
-
-        $versionConverter = new ApiVersionConverter(
-            new ConverterRegistry(
-                [
-                    new DeprecatedConverter(),
-                ],
-                $defaultConverter
-            ),
-            $this->getContainer()->get('request_stack')
-        );
-
-        $syncService = new SyncService(
-            $definitionRegistry,
-            $this->getContainer()->get(Connection::class),
-            $versionConverter,
-            $this->getContainer()->get(EntityWriter::class),
-            $this->getContainer()->get('event_dispatcher')
-        );
-        $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
-
-        static::assertTrue($result->isSuccess(), print_r($result, true));
-    }
-
-    private function dummyEntityWrittenEvent(string $id): EntityWrittenContainerEvent
-    {
-        return new EntityWrittenContainerEvent(
-            Context::createDefaultContext(),
-            new NestedEventCollection([
-                new EntityWrittenEvent(
-                    'deprecated',
-                    [
-                        new EntityWriteResult($id, [], 'deprecated', EntityWriteResult::OPERATION_INSERT),
-                    ],
-                    Context::createDefaultContext()
-                ),
-            ]),
-            []
-        );
     }
 }

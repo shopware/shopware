@@ -9754,11 +9754,6 @@ parameters:
 			path: src/Core/Framework/Api/Context/AdminApiSource.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\AclController\\:\\:getFromAnnotations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/AclController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\AclController\\:\\:getFromDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/AclController.php
@@ -9864,16 +9859,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiConverter\\:\\:convert\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiConverter\\:\\:convert\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiConverter.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:convertEntity\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
@@ -9897,51 +9882,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter\\:\\:validateFields\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ConverterRegistry\\:\\:__construct\\(\\) has parameter \\$converters with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ConverterRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ConverterRegistry\\:\\:convert\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ConverterRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ConverterRegistry\\:\\:convert\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ConverterRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ConverterRegistry\\:\\:getConverters\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ConverterRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ConverterRegistry\\:\\:\\$converters type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ConverterRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\\:\\:convert\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\\:\\:convert\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\\:\\:getDeprecations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\\:\\:\\$deprecations type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\Exceptions\\\\ApiConversionException\\:\\:__construct\\(\\) has parameter \\$exceptions with no value type specified in iterable type array\\.$#"
@@ -10185,11 +10125,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:getMetaData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\\:\\:jsonSerialize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
 
@@ -17066,11 +17001,6 @@ parameters:
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncOperationResult\\|null\\.$#"
 			count: 5
-			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\ApiVersionConverter constructor invoked with 2 parameters, 1 required\\.$#"
-			count: 1
 			path: src/Core/Framework/Test/Api/Sync/SyncServiceTest.php
 
 		-

@@ -20,7 +20,7 @@ jobs:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: 127.0.0.1:9200
+      OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
@@ -90,7 +90,7 @@ jobs:
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
 
     steps:
@@ -134,7 +134,7 @@ jobs:
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: devsecret
-      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
 
     steps:

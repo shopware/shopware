@@ -104,12 +104,7 @@ EOT;
         $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
         $newEnv[] = 'INSTANCE_ID=' . $uniqueId;
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
-
-        if (file_exists($this->projectDir . '/symfony.lock')) {
-            $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
-        } else {
-            $newEnv[] = 'SHOPWARE_ES_HOSTS=http://localhost:9200';
-        }
+        $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
 
         file_put_contents($this->projectDir . '/.env.local', implode("\n", $newEnv));
 

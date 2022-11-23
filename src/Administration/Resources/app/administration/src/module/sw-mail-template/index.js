@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './acl';
 
 const { Module } = Shopware;

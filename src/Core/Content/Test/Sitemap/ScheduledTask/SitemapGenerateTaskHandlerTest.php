@@ -24,6 +24,7 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @package sales-channel
  * @internal
  */
 class SitemapGenerateTaskHandlerTest extends TestCase

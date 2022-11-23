@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-mail-template-create.html.twig';
 
 const utils = Shopware.Utils;

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-seo-url-template-card', () => import('./component/sw-seo-url-template-card'));
 Shopware.Component.register('sw-seo-url', () => import('./component/sw-seo-url'));

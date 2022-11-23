@@ -9,6 +9,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * Triggered when the SitemapPage is loaded
  *
+ * @package sales-channel
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0

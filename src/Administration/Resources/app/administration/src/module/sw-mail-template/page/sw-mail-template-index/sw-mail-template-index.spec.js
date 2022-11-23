@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swMailTemplateIndex from 'src/module/sw-mail-template/page/sw-mail-template-index';
 

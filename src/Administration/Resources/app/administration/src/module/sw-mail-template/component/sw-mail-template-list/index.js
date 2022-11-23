@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-mail-template-list.html.twig';
 
 const { Mixin } = Shopware;

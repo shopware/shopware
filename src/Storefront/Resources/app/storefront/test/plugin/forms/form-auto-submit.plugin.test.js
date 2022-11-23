@@ -1,5 +1,8 @@
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 
+/**
+ * @package content
+ */
 describe('Form auto submit plugin', () => {
     let spyNativeFormSubmit = jest.fn();
     let spyOnSubmit = jest.fn();

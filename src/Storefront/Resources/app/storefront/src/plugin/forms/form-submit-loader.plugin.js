@@ -5,6 +5,8 @@ import Plugin from 'src/plugin-system/plugin.class';
 /**
  * this plugin shows a loading indicator on the
  * form submit button when the form is submitted
+ *
+ * @package content
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
     static options = {

@@ -2,7 +2,9 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 
-
+/**
+ * @package content
+ */
 export default class FormFieldTogglePlugin extends Plugin {
 
     static options = {

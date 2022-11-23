@@ -1,5 +1,8 @@
 import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
 
+/**
+ * @package content
+ */
 describe('FormAjaxSubmitPlugin tests', () => {
     let formAjaxSubmit;
 

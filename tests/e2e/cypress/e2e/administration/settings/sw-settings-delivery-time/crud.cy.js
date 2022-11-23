@@ -134,7 +134,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Turtle').should('be.visible');
     });
 
-    it('@settings: Delete delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: Delete delivery time', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

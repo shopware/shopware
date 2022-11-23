@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 
 describe('app/service/media-default-folder.service.js', () => {

@@ -1,5 +1,7 @@
+/*
+ * @package content
+ */
 import { mount } from '@vue/test-utils';
-import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal';
 

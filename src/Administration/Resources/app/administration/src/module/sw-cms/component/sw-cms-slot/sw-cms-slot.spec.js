@@ -1,13 +1,12 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-slot';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(await Shopware.Component.build('sw-cms-slot'), {
-        localVue,
         propsData: {
             element: {}
         },

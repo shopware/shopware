@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import 'src/module/sw-media/component/sidebar/sw-media-quickinfo';

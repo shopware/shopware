@@ -2,6 +2,7 @@ const { Component } = Shopware;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', {
     computed: {

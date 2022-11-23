@@ -6,6 +6,7 @@ const { isEmpty } = Shopware.Utils.types;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-el-cross-selling', {
     template,

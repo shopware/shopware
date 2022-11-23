@@ -3,6 +3,9 @@ import './sw-media-quickinfo-multiple.scss';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-quickinfo-multiple', {
     template,

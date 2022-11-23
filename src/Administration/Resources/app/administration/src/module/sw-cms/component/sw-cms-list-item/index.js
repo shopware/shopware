@@ -3,6 +3,9 @@ import './sw-cms-list-item.scss';
 
 const { Component, Filter } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-list-item', {
     template,

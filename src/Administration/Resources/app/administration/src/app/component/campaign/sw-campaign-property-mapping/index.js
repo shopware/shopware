@@ -1,5 +1,6 @@
 /**
  * @deprecated tag:v6.5.0 - Will be removed without replacement
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-campaign-property-mapping', {

@@ -3,6 +3,9 @@ import './sw-category-layout-card.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-layout-card', {
     template,

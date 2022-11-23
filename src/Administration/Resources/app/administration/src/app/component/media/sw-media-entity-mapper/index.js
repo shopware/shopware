@@ -1,5 +1,6 @@
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-media-entity-mapper', {
     functional: true,

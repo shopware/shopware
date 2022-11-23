@@ -8,6 +8,7 @@ const { dom } = Shopware.Utils;
  * @status ready
  * @description The <u>sw-media-media-item</u> component is used to store the media item and manage it through the
  * <u>sw-media-base-item</u> component. Use the default slot to add additional context menu items.
+ * @package content
  * @example-type code-only
  * @component-example
  * <sw-media-media-item

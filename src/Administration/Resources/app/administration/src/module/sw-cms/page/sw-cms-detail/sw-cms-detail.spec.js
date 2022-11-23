@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import CMS from 'src/module/sw-cms/constant/sw-cms.constant';

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-review/page/sw-review-detail';
 import 'src/app/mixin/placeholder.mixin';

@@ -1,4 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image-gallery/component';
 
@@ -29,11 +32,7 @@ const sliderItemsDataMock = [
 ];
 
 async function createWrapper(propsOverride, dataOverride) {
-    const localVue = createLocalVue();
-
     return shallowMount(await Shopware.Component.build('sw-cms-el-image-gallery'), {
-        localVue,
-        sync: false,
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, config } from '@vue/test-utils';
 import AppCmsService from 'src/app/service/app-cms.service';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';

@@ -1,3 +1,7 @@
+/*
+ * @package content
+ */
+
 import './sw-cms-block';
 import './sw-cms-block/sw-cms-block-config';
 import './sw-cms-block/sw-cms-block-layout-config';

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import 'src/module/sw-media/component/sidebar/sw-media-folder-info';
@@ -42,10 +45,6 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
         await flushPromises();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -66,7 +65,5 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
         expect(component.vm.nameItemClasses).toStrictEqual({
             'has--error': true,
         });
-
-        component.destroy();
     });
 });

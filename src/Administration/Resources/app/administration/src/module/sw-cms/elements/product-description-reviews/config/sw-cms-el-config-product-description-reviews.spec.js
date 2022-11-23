@@ -1,4 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-description-reviews/config';
 
@@ -8,10 +11,7 @@ const productMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
-        localVue,
-        sync: false,
         stubs: {
             'sw-tabs': {
                 template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'

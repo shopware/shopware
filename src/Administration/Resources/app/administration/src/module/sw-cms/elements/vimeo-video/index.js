@@ -6,6 +6,7 @@ const { Application } = Shopware;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Application.getContainer('service').cmsService.registerCmsElement({
     name: 'vimeo-video',

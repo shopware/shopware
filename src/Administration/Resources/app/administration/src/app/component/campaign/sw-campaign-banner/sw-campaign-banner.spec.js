@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueI18n from 'vue-i18n';
 import 'src/app/component/campaign/sw-campaign-banner';

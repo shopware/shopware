@@ -4,6 +4,9 @@ import './sw-review-detail.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-review-detail', {
     template,

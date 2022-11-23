@@ -1,6 +1,9 @@
 import template from './sw-media-compact-upload-v2.html.twig';
 import './sw-media-compact-upload-v2.scss';
 
+/**
+ * @package content
+ */
 Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', {
     template,
 

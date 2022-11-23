@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-detail-menu';
 

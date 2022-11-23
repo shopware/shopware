@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/component/sw-cms-product-assignment';
 import 'src/app/component/entity/sw-many-to-many-assignment-card';

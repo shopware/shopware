@@ -1,16 +1,16 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/cross-selling/config';
 
 async function createWrapper(customCmsElementConfig) {
-    const localVue = createLocalVue();
-
     const productMock = {
         name: 'Small Silk Heart Worms'
     };
 
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-cross-selling'), {
-        localVue,
         propsData: {
             element: {
                 config: {

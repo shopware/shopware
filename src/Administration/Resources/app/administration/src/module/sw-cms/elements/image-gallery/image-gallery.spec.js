@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import 'src/module/sw-cms/service/cms.service';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image-gallery';

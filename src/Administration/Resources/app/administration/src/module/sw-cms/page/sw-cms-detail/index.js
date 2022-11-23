@@ -13,6 +13,7 @@ const debounceTimeout = 800;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-detail', {
     template,

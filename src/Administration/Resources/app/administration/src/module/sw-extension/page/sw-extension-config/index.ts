@@ -19,6 +19,7 @@ interface VmWithFromLink extends Vue {
 type BeforeRouteEnterGuard = (to?: RawLocation | false | ((vm: VmWithFromLink) => void) | void) => void;
 
 /**
+ * @package merchant-services
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

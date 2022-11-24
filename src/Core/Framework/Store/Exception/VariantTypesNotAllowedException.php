@@ -5,8 +5,14 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package merchant-services
+ */
 class VariantTypesNotAllowedException extends ShopwareHttpException
 {
+    /**
+     * @param array{variantType: string, extensionName: string, extensionId: int}[] $typeViolations
+     */
     public function __construct(array $typeViolations)
     {
         $message = 'The variant types of the following cart positions are not allowed:';

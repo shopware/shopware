@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package merchant-services
+ *
  * @codeCoverageIgnore
  */
 class StoreLicenseViolationStruct extends Struct

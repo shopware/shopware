@@ -10,6 +10,9 @@ import 'src/app/component/form/field-base/sw-field-error';
 
 Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExtensionMyExtensionsListingControls);
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line max-len
 describe('src/Administration/Resources/app/administration/src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
     /** @type Wrapper */

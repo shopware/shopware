@@ -5,6 +5,9 @@ import 'src/app/component/base/sw-container';
 
 Shopware.Component.register('sw-first-run-wizard-modal', swFirstRunWizardModal);
 
+/**
+ * @package merchant-services
+ */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     const CreateFirstRunWizardModal = async function CreateFirstRunWizardModal() {
         return shallowMount(await Shopware.Component.build('sw-first-run-wizard-modal'), {

@@ -9,6 +9,9 @@ import swExtensionRatingStars from 'src/module/sw-extension/component/sw-ratings
 Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', swExtensionSelectRating);
 Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-rating', () => {
     /** @type Wrapper */
     let wrapper;

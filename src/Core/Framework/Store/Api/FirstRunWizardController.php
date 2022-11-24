@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */

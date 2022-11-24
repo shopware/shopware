@@ -73,6 +73,9 @@ async function createWrapper(privileges = [], orderSumToday = null) {
     return shallowMount(await Shopware.Component.build('sw-dashboard-statistics'), options);
 }
 
+/**
+ * @package merchant-services
+ */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper = null;
 

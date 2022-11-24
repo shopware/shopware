@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
+ * @package merchant-services
+ *
  * @codeCoverageIgnore
  */
 class PermissionCollection extends StoreCollection

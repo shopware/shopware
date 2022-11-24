@@ -6,6 +6,8 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class VerifyResponseSignatureMiddleware implements MiddlewareInterface

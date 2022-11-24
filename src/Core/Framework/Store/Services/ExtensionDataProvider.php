@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionDataProvider extends AbstractExtensionDataProvider

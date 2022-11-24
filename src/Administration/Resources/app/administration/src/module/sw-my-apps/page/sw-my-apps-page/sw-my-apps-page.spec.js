@@ -8,6 +8,9 @@ import testApps from '../../../../app/service/_mocks/testApps.json';
 Shopware.Component.register('sw-my-apps-page', swMyAppsPage);
 Shopware.Component.register('sw-my-apps-error-page', swMyAppsErrorPage);
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
     let wrapper = null;
 

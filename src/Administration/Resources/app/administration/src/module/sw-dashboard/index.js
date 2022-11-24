@@ -7,6 +7,8 @@ Shopware.Component.register('sw-dashboard-index', () => import('./page/sw-dashbo
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

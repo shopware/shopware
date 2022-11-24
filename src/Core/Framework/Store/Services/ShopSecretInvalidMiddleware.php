@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ShopSecretInvalidMiddleware implements MiddlewareInterface

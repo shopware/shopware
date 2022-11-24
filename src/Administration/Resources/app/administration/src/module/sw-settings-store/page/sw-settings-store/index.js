@@ -3,6 +3,7 @@ import template from './sw-settings-store.html.twig';
 const { Mixin } = Shopware;
 
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Will be private in future versions
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

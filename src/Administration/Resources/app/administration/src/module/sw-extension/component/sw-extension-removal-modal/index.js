@@ -2,6 +2,7 @@ import template from './sw-extension-removal-modal.html.twig';
 import './sw-extension-removal-modal.scss';
 
 /**
+ * @package merchant-services
  * @private
  */
 export default {

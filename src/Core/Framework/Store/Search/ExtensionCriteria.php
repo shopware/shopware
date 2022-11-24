@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Search;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionCriteria extends Struct

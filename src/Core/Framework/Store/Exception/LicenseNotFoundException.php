@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package merchant-services
+ */
 class LicenseNotFoundException extends ShopwareHttpException
 {
     public function __construct(int $licenseId, array $parameters = [], ?\Throwable $e = null)

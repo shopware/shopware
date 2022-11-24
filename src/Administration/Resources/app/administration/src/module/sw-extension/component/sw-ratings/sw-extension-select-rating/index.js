@@ -1,6 +1,7 @@
 import template from './sw-extension-select-rating.html.twig';
 
 /**
+ * @package merchant-services
  * @private
  */
 export default {

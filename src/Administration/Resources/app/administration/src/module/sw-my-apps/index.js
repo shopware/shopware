@@ -5,6 +5,9 @@ Shopware.Component.register('sw-my-apps-error-page', () => import('./component/s
 Shopware.Component.register('sw-my-apps-page', () => import('./page/sw-my-apps-page'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-my-apps', {
     type: 'core',

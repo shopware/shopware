@@ -2,6 +2,9 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
 
+/**
+ * @package storefront
+ */
 export default class SetBrowserClassPlugin extends Plugin {
 
     init() {

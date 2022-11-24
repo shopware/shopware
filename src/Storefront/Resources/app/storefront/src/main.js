@@ -1,3 +1,7 @@
+/**
+ * @package storefront
+ */
+
 /*
 import polyfills
  */

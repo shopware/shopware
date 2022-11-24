@@ -1,5 +1,8 @@
 import StringHelper from 'src/helper/string.helper';
 
+/**
+ * @package storefront
+ */
 export default class DomAccess {
 
     /**

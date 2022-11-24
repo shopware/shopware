@@ -5,6 +5,9 @@ import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.ut
 // xhr call storage
 let xhr = null;
 
+/**
+ * @package storefront
+ */
 export default class AjaxOffCanvas extends OffCanvas {
 
     /**

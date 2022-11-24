@@ -1,4 +1,8 @@
 /**
+ * @package storefront
+ */
+
+/**
  * @deprecated tag:v6.5.0 - Polyfill will be removed because IE11 support will be discontinued.
  * @see https://developer.mozilla.org/de/docs/Web/CSS/object-fit
  */

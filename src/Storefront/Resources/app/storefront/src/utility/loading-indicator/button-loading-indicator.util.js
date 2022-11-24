@@ -1,5 +1,8 @@
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
+/**
+ * @package storefront
+ */
 export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
     /**

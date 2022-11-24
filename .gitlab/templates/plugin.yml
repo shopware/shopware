@@ -76,6 +76,9 @@ workflow:
         # do not run on push
         -   if: '$CI_PIPELINE_SOURCE == "push"'
             when: never
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::platform::match.*/'
+            variables:
+              PLATFORM_BRANCH: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
         -   when: always
 
 .install_dependencies: &install_dependencies
@@ -122,6 +125,7 @@ default:
         - zip -rq plugin.zip .
         - mv plugin.zip /tmp/plugin.zip
         - rm -Rf .* * || true
+        - echo "Checkout platform branch $PLATFORM_BRANCH"
         - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
         - mkdir -p custom/plugins || true
         - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME

@@ -8,12 +8,14 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 class ExceptionHandlerRegistry
 {
     /**
-     * @var array
+     * @var array<int, list<ExceptionHandlerInterface>>
      */
     protected $exceptionHandlers = [];
 
     /**
      * @internal
+     *
+     * @param iterable<ExceptionHandlerInterface> $exceptionHandlers
      */
     public function __construct(iterable $exceptionHandlers)
     {
@@ -42,6 +44,9 @@ class ExceptionHandlerRegistry
         return null;
     }
 
+    /**
+     * @return array<int, list<ExceptionHandlerInterface>>
+     */
     public function getExceptionHandlers(): array
     {
         return $this->exceptionHandlers;

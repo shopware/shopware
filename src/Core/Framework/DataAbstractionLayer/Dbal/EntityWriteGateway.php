@@ -123,6 +123,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
     }
 
+    /**
+     * @param list<WriteCommand> $commands
+     */
     private function executeCommands(array $commands, WriteContext $context): void
     {
         $beforeDeleteEvent = BeforeDeleteEvent::create($context, $commands);
@@ -245,6 +248,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $context->getExceptions()->tryToThrow();
     }
 
+    /**
+     * @param list<array<string, string>> $pks
+     */
     private function prefetch(EntityDefinition $definition, array $pks, WriteParameterBag $parameters): void
     {
         $pkFields = [];
@@ -353,6 +359,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
     }
 
+    /**
+     * @param array<mixed> $array
+     */
     private static function isAssociative(array $array): bool
     {
         foreach ($array as $key => $_value) {
@@ -451,6 +460,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         });
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     private function escapeColumnKeys(array $payload): array
     {
         $escaped = [];
@@ -461,6 +475,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $escaped;
     }
 
+    /**
+     * @param list<WriteCommand> $commands
+     */
     private function generateChangeSets(array $commands): void
     {
         $primaryKeys = [];
@@ -516,6 +533,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
     }
 
+    /**
+     * @param list<array<string, string>> $primaryKeys
+     */
     private function addPrimaryCondition(DbalQueryBuilderAlias $query, array $primaryKeys): void
     {
         $all = [];
@@ -536,6 +556,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $query->andWhere(implode(' OR ', $all));
     }
 
+    /**
+     * @param list<array<string, mixed>> $states
+     */
     private function calculateChangeSet(WriteCommand $command, array $states): ChangeSet
     {
         foreach ($states as $state) {
@@ -592,6 +615,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $fk;
     }
 
+    /**
+     * @param array<string, string> $primaryKey
+     *
+     * @return array<string, mixed>
+     */
     private function getCurrentState(EntityDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
     {
         $commands = $commandQueue->getCommandsForEntity($definition, $primaryKey);
@@ -640,6 +668,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return array_replace_recursive($currentState, $state);
     }
 
+    /**
+     * @param array<string, string> $primaryKey
+     *
+     * @return array<string, mixed>
+     */
     private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -686,6 +719,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $exists;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $state
+     * @param array<string, string> $primaryKey
+     */
     private function isChild(EntityDefinition $definition, array $data, array $state, array $primaryKey, WriteCommandQueue $commandQueue): bool
     {
         if ($definition instanceof EntityTranslationDefinition) {
@@ -712,6 +750,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return isset($state[$fk->getStorageName()]);
     }
 
+    /**
+     * @param array<string, mixed> $state
+     */
     private function wasChild(EntityDefinition $definition, array $state): bool
     {
         if (!$definition->isInheritanceAware()) {
@@ -723,6 +764,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $fk !== null && isset($state[$fk->getStorageName()]);
     }
 
+    /**
+     * @param array<string, string> $primaryKey
+     */
     private function isTranslationChild(EntityTranslationDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): bool
     {
         $parent = $definition->getParentDefinition();

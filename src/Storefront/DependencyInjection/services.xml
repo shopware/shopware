@@ -570,6 +570,7 @@
             <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
             <argument>%storefront.reverse_proxy.fastly.tag_prefix%</argument>
             <argument>%storefront.reverse_proxy.fastly.instance_tag%</argument>
+            <argument>%env(APP_URL)%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer">

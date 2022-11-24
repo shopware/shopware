@@ -39,10 +39,12 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
     private string $instanceTag;
 
+    private string $appUrl;
+
     /**
      * @internal
      */
-    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag = '')
+    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag, string $appUrl)
     {
         $this->client = $client;
         $this->serviceId = $serviceId;
@@ -51,6 +53,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $this->concurrency = $concurrency;
         $this->tagPrefix = $tagPrefix;
         $this->instanceTag = $instanceTag;
+        $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
 
     public function flush(): void
@@ -110,7 +113,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $list = [];
 
         foreach ($urls as $url) {
-            $list[] = new Request('PURGE', self::API_URL . $url, [
+            $list[] = new Request('POST', self::API_URL . '/purge/' . $this->appUrl . $url, [
                 'Fastly-Key' => $this->apiKey,
                 'fastly-soft-purge' => $this->softPurge,
             ]);

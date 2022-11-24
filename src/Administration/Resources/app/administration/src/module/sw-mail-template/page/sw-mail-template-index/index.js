@@ -1,7 +1,3 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-mail-template-index.html.twig';
 import './sw-mail-template-index.scss';
 

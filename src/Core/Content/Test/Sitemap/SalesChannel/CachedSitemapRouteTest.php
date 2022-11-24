@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @package sales-channel
+ *
  * @internal
  * @group cache
  * @group store-api

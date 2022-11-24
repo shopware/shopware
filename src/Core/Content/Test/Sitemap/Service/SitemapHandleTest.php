@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @package sales-channel
+ *
  * @internal
  */
 class SitemapHandleTest extends TestCase

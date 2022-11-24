@@ -21,6 +21,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @package sales-channel
+ *
  * @internal
  */
 class CategoryUrlProviderTest extends TestCase

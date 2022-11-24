@@ -14,6 +14,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @package sales-channel
+ *
  * @internal
  */
 class HomeUrlProviderTest extends TestCase

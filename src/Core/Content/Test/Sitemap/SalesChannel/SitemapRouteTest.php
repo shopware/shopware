@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @package sales-channel
+ *
  * @internal
  * @group store-api
  */

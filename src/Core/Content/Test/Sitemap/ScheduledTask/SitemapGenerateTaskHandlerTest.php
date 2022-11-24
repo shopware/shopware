@@ -25,6 +25,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package sales-channel
+ *
  * @internal
  */
 class SitemapGenerateTaskHandlerTest extends TestCase

@@ -18,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @package sales-channel
+ *
  * @internal
  */
 class SitemapGenerateCommandTest extends TestCase

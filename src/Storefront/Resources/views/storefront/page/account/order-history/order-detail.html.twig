@@ -68,9 +68,9 @@
                     <div class="order-detail-content-footer">
                         {% block page_account_order_item_detail_table_labels_summary %}
                             <div class="order-item-detail-footer">
-                                <div class="row {{ gridNoGuttersClass }}">
+                                <div class="row g-0">
                                     <div class="col-12 col-md-7 col-xl-6">
-                                        <dl class="row {{ gridNoGuttersClass }} order-item-detail-labels">
+                                        <dl class="row g-0 order-item-detail-labels">
                                             {% block page_account_order_item_detail_date %}
                                                 {% block page_account_order_item_detail_date_label %}
                                                     <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans|sw_sanitize }}</dt>
@@ -129,7 +129,7 @@
                                                         {% apply spaceless %}
                                                             <dd class="col-6 col-md-7">
                                                                 {% set totalOutput = 0 %}
-                                                                
+
                                                                 {% for delivery in order.deliveries %}
                                                                     {% set trackingCodes = delivery.trackingCodes %}
                                                                     {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
@@ -160,7 +160,7 @@
 
                                     <div class="col-12 col-md-5 col-xl-6">
                                         {% block page_account_order_item_detail_summary %}
-                                            <dl class="row {{ gridNoGuttersClass }} order-item-detail-summary">
+                                            <dl class="row g-0 order-item-detail-summary">
                                                 {% block page_account_order_item_detail_shipping_costs %}
                                                     {% block page_account_order_item_detail_shipping_costs_label %}
                                                         <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans|sw_sanitize }}</dt>

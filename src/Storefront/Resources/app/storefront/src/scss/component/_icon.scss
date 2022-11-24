@@ -184,12 +184,7 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 @each $color, $value in $theme-colors {
     .btn-#{$color} {
         .icon {
-            // @deprecated tag:v6.5.0 - Bootstrap v5 renames `color-yiq` to `color-contrast`.
-            @if feature('v6.5.0.0') {
-                color: color-contrast($value);
-            } @else {
-                color: color-yiq($value);
-            }
+            color: color-contrast($value);
         }
     }
 }

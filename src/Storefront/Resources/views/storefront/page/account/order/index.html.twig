@@ -124,8 +124,8 @@
             {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
-                        {{ dataBsToggleAttr }}="modal"
-                        {{ dataBsTargetAttr }}="#cancelOrderModal">
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelOrderModal">
                     {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
                 </button>
             {% endif %}

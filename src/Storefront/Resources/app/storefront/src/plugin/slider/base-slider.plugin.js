@@ -3,7 +3,6 @@ import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
-import Feature from 'src/helper/feature.helper';
 
 export default class BaseSliderPlugin extends Plugin {
     /**
@@ -23,8 +22,7 @@ export default class BaseSliderPlugin extends Plugin {
                 md: {},
                 lg: {},
                 xl: {},
-                /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-                ...(Feature.isActive('v6.5.0.0') && { xxl: {} }),
+                xxl: {},
             },
         },
     };

@@ -4,7 +4,6 @@ import DeviceDetection from 'src/helper/device-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * Zoom Modal Plugin
@@ -189,37 +188,21 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _showModal(modal) {
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Modal plugin */
-        if (Feature.isActive('v6.5.0.0')) {
-            const bootstrapModal = new bootstrap.Modal(modal, {
-                keyboard: false,
-            });
+        const bootstrapModal = new bootstrap.Modal(modal, {
+            keyboard: false,
+        });
 
-            const listener = () => {
-                this._initSlider(modal);
-                this._registerImageZoom();
+        const listener = () => {
+            this._initSlider(modal);
+            this._registerImageZoom();
 
-                this.$emitter.publish('modalShow', { modal });
-            };
+            this.$emitter.publish('modalShow', { modal });
+        };
 
-            modal.removeEventListener('shown.bs.modal', listener);
-            modal.addEventListener('shown.bs.modal', listener);
+        modal.removeEventListener('shown.bs.modal', listener);
+        modal.addEventListener('shown.bs.modal', listener);
 
-            bootstrapModal.show();
-        } else {
-            // execute all needed scripts for the slider
-            const $modal = $(modal);
-
-            $modal.off('shown.bs.modal');
-            $modal.on('shown.bs.modal', () => {
-                this._initSlider(modal);
-                this._registerImageZoom();
-
-                this.$emitter.publish('modalShow', { modal });
-            });
-
-            $modal.modal('show');
-        }
+        bootstrapModal.show();
     }
 
     /**

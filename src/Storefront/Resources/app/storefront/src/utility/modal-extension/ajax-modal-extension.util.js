@@ -4,15 +4,9 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import Iterator from 'src/helper/iterator.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
-import Feature from 'src/helper/feature.helper';
 
 const URL_DATA_ATTRIBUTE = 'data-url';
-
-/**
- * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
- * @see https://getbootstrap.com/docs/5.0/migration/#javascript
- */
-const MODAL_TRIGGER_DATA_ATTRIBUTE = Feature.isActive('v6.5.0.0') ? 'data-bs-toggle="modal"' : 'data-toggle="modal"';
+const MODAL_TRIGGER_DATA_ATTRIBUTE = 'data-bs-toggle="modal"';
 
 /**
  * This class extends the Bootstrap modal functionality by
@@ -21,7 +15,7 @@ const MODAL_TRIGGER_DATA_ATTRIBUTE = Feature.isActive('v6.5.0.0') ? 'data-bs-tog
  * the modal content by AJAX
  *
  * Notice: The response template needs to have the markup as defined in the Bootstrap docs
- * https://getbootstrap.com/docs/4.3/components/modal/#live-demo
+ * https://getbootstrap.com/docs/5.2/components/modal/#live-demo
  *
  * @package storefront
  * @deprecated tag:v6.5.0 - Use AjaxModalPlugin instead

@@ -15,9 +15,7 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
 .modal.zoom-modal {
     overflow: hidden;
 
-    // @deprecated tag:v6.5.0 - Bootstrap v5 removes class `.modal-close`, keep class `.btn-close`.
     .zoom-modal-actions,
-    .modal-close,
     .btn-close {
         position: absolute;
         top: 0;
@@ -30,8 +28,6 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
         left: 0;
     }
 
-    // @deprecated tag:v6.5.0 - Bootstrap v5 removes class `.modal-close`, keep class `.btn-close`.
-    .modal-close,
     .btn-close {
         right: 0;
     }

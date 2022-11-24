@@ -1,9 +1,7 @@
 {#
-    @deprecated tag:v6.5.0 - Announcement:
-    Bootstrap v5 comes with its own OffCanvas component.
-    This template will be adjusted to use Bootstraps OffCanvas markup.
+    This template uses Bootstraps OffCanvas markup.
 
-    @see https://getbootstrap.com/docs/5.1/components/offcanvas
+    @see https://getbootstrap.com/docs/5.2/components/offcanvas
 #}
 
 {% set isAjaxOffcanvas = false %}
@@ -16,31 +14,24 @@
 {% endblock %}
 
 {% block utilities_offcanvas %}
-    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds `.offcanvas-header` wrapper #}
-    {% if feature('v6.5.0.0') %}
-        {% block utilities_offcanvas_header %}
-            <div class="offcanvas-header p-0">
-                {% block utilities_offcanvas_close %}
-                    {# @deprecated tag:v6.5.0 - Bootstrap v5 will not require classes `.btn-block .sticky-top`. Only `.offcanvas-body` will be scrollable #}
-                    <button class="btn btn-light offcanvas-close js-offcanvas-close{% if not feature('v6.5.0.0') %} btn-block sticky-top{% endif %}">
-                        {% block utilities_offcanvas_close_icon %}
-                            {% sw_icon 'x' style { 'size': 'sm' } %}
-                        {% endblock %}
+    {% block utilities_offcanvas_header %}
+        <div class="offcanvas-header p-0">
+            {% block utilities_offcanvas_close %}
+                <button class="btn btn-light offcanvas-close js-offcanvas-close">
+                    {% block utilities_offcanvas_close_icon %}
+                        {% sw_icon 'x' style { 'size': 'sm' } %}
+                    {% endblock %}
 
-                        {% block utilities_offcanvas_close_text %}
-                            {{ "general.offcanvasCloseMenu"|trans|sw_sanitize }}
-                        {% endblock %}
-                    </button>
-                {% endblock %}
-            </div>
-        {% endblock %}
-    {% else %}
-        {{ block('utilities_offcanvas_close') }}
-    {% endif %}
+                    {% block utilities_offcanvas_close_text %}
+                        {{ "general.offcanvasCloseMenu"|trans|sw_sanitize }}
+                    {% endblock %}
+                </button>
+            {% endblock %}
+        </div>
+    {% endblock %}
 
     {% block utilities_offcanvas_content_container %}
-        {# @deprecated tag:v6.5.0 - Bootstrap v5 will use class `.offcanvas-body` to wrap the offcanvas content #}
-        <div class="{% if feature('v6.5.0.0') %}offcanvas-body{% else %}offcanvas-content-container{% endif %}">
+        <div class="offcanvas-body">
             {% block utilities_offcanvas_content %}{% endblock %}
         </div>
     {% endblock %}

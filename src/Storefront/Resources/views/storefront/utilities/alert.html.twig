@@ -1,7 +1,7 @@
 {#
 Global messages template
 
-https://getbootstrap.com/docs/4.3/components/alerts/
+https://getbootstrap.com/docs/5.2/components/alerts
 
 *Type:
 The template provides an easy way to display messages in the storefront. The following types are supported:
@@ -124,7 +124,7 @@ To display a dismissible button set the value of "dismissible" to true.
                     {% if dismissible %}
                         <button type="button"
                                 class="close"
-                                {{ dataBsDismissAttr }}="alert"
+                                data-bs-dismiss="alert"
                                 aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

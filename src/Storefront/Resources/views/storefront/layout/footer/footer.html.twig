@@ -11,7 +11,7 @@
                         {% block layout_footer_navigation_hotline_headline %}
                             <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
                                  id="collapseFooterHotlineTitle"
-                                 {{ dataBsTargetAttr }}="#collapseFooterHotline"
+                                 data-bs-target="#collapseFooterHotline"
                                  aria-expanded="true"
                                  aria-controls="collapseFooterHotline"
                                  role="listitem">
@@ -54,7 +54,7 @@
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
                                     <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                         {{ dataBsTargetAttr }}="#collapseFooterTitle{{ loop.index }}"
+                                         data-bs-target="#collapseFooterTitle{{ loop.index }}"
                                          aria-expanded="true"
                                          aria-controls="collapseFooter{{ loop.index }}">
 

@@ -50,8 +50,8 @@ describe(`Checkout as Guest`, () => {
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
 
             if (!win.features['FEATURE_NEXT_16236']) {
-                cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
-                cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+                cy.get('.register-guest-control label').scrollIntoView();
+                cy.get('.register-guest-control label').click(1, 1);
             }
 
             cy.get('input[name="billingAddress[street]"]').type('123 Main St');
@@ -184,8 +184,8 @@ describe(`Checkout as Guest`, () => {
 
             cy.window().then(win => {
                 if (!win.features['FEATURE_NEXT_16236']) {
-                    cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
-                    cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+                    cy.get('.register-guest-control label').scrollIntoView();
+                    cy.get('.register-guest-control label').click(1, 1);
                 }
             });
 

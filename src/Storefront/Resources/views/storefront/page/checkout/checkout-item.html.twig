@@ -62,7 +62,7 @@
                                                            class="cart-item-img-link"
                                                            title="{{ label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
-                                                               {{ dataBsToggleAttr }}="modal"
+                                                               data-bs-toggle="modal"
                                                                data-modal-class="quickview-modal"
                                                                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
@@ -109,7 +109,7 @@
                                                            class="cart-item-label"
                                                            title="{{ label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
-                                                               {{ dataBsToggleAttr }}="modal"
+                                                               data-bs-toggle="modal"
                                                                data-modal-class="quickview-modal"
                                                                data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
@@ -243,7 +243,7 @@
                                                     {% else %}
                                                         {% block page_product_detail_buy_quantity_select %}
                                                             <select name="quantity"
-                                                                    class="{{ formSelectClass }} quantity-select">
+                                                                    class="form-select quantity-select">
                                                                 {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
                                                                     <option value="{{ quantity }}"
                                                                         {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>

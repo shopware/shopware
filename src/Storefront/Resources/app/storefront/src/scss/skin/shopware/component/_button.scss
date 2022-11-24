@@ -3,7 +3,7 @@ Button
 ==============================================
 Custom skin styling for bootstrap button component.
 
-https://getbootstrap.com/docs/4.3/components/buttons/
+https://getbootstrap.com/docs/5.2/components/buttons
 */
 
 .btn {
@@ -16,20 +16,11 @@ https://getbootstrap.com/docs/4.3/components/buttons/
 // custom add to cart button, used e.g. in product-box and product detail buybox
 .btn-buy {
     @extend .btn-lg;
-
-    // @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
-    @if feature('v6.5.0.0') {
-        @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
-    } @else {
-        @include button-variant($buy-btn-bg, $buy-btn-bg);
-    }
+    @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
 }
 
-// @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
-@if feature('v6.5.0.0') {
-    .btn-primary {
-        @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
-    }
+.btn-primary {
+    @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
 }
 
 .btn,

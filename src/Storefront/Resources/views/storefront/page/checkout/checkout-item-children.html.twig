@@ -35,8 +35,8 @@
 
                             {% block page_checkout_item_children_header_collapse_button %}
                                 <button class="collapsed cart-item-collapse-button"
-                                        {{ dataBsToggleAttr }}="collapse"
-                                        {{ dataBsTargetAttr }}="#collapse-line-item-contains-{{ lineItem.id }}"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse-line-item-contains-{{ lineItem.id }}"
                                         aria-controls="collapse-line-item-contains-{{ lineItem.id }}"
                                         aria-expanded="false">
 

@@ -19,7 +19,7 @@
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
         {% block page_product_detail_buy_container %}
             {% if buyable %}
-                <div class="{{ formRowClass }} buy-widget-container">
+                <div class="row g-2 buy-widget-container">
                     {% block page_product_detail_buy_quantity_container %}
                         <div class="col-4">
                             {% set selectQuantityThreshold = 100 %}
@@ -41,19 +41,13 @@
                                             {% endblock %}
                                             {% block page_product_detail_buy_quantity_input_unit %}
                                                 {% if product.translated.packUnit %}
-                                                    {% if not feature('v6.5.0.0') %}
-                                                        <div class="input-group-append">
-                                                    {% endif %}
-                                                        <span class="input-group-text">
-                                                            {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
-                                                                {{ product.translated.packUnitPlural }}
-                                                            {% elseif product.translated.packUnit %}
-                                                                {{ product.translated.packUnit }}
-                                                            {% endif %}
-                                                        </span>
-                                                    {% if not feature('v6.5.0.0') %}
-                                                        </div>
-                                                    {% endif %}
+                                                    <span class="input-group-text">
+                                                        {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
+                                                            {{ product.translated.packUnitPlural }}
+                                                        {% elseif product.translated.packUnit %}
+                                                            {{ product.translated.packUnit }}
+                                                        {% endif %}
+                                                    </span>
                                                 {% endif %}
                                             {% endblock %}
                                         </div>
@@ -61,7 +55,7 @@
                                 {% else %}
                                     {% block page_product_detail_buy_quantity_select %}
                                         <select name="lineItems[{{ product.id }}][quantity]"
-                                                class="{{ formSelectClass }} product-detail-quantity-select">
+                                                class="form-select product-detail-quantity-select">
                                             {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
                                                 <option value="{{ quantity }}">
                                                     {{ quantity }}
@@ -125,22 +119,13 @@
                     {% block page_product_detail_buy_button_container %}
                         <div class="col-8">
                             {% block page_product_detail_buy_button %}
-                                {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
-                                {% if feature('v6.5.0.0') %}
-                                    <div class="d-grid">
-                                        <button class="btn btn-primary btn-buy"
-                                                title="{{ "detail.addProduct"|trans|striptags }}"
-                                                aria-label="{{ "detail.addProduct"|trans|striptags }}">
-                                            {{ "detail.addProduct"|trans|sw_sanitize }}
-                                        </button>
-                                    </div>
-                                {% else %}
-                                    <button class="btn btn-primary btn-block btn-buy"
+                                <div class="d-grid">
+                                    <button class="btn btn-primary btn-buy"
                                             title="{{ "detail.addProduct"|trans|striptags }}"
                                             aria-label="{{ "detail.addProduct"|trans|striptags }}">
                                         {{ "detail.addProduct"|trans|sw_sanitize }}
                                     </button>
-                                {% endif %}
+                                </div>
                             {% endblock %}
                         </div>
                     {% endblock %}

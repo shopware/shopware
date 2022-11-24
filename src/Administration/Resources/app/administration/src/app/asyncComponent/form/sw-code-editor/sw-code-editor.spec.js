@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/sw-code-editor';
+import SwCodeEditor from 'src/app/asyncComponent/form/sw-code-editor';
+
+Shopware.Component.register('sw-code-editor', SwCodeEditor);
 
 const vulnerableInput = '<script>alert("Bämmmmm");</script>';
 const sanitizedInput = 'User input cleared';
@@ -28,7 +30,7 @@ async function createWrapper(options = {}) {
     });
 }
 
-describe('components/form/sw-code-editor', () => {
+describe('asyncComponents/form/sw-code-editor', () => {
     Shopware.Service().register('userInputSanitizeService', () => userInputSanitizeService);
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();

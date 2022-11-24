@@ -20,7 +20,9 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
             return cy.createCmsFixture(data);
         }).then(() => {
             cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/detail/${pageId}`);
+
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
 
@@ -33,6 +35,13 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
                 url: `${Cypress.env('apiPath')}/search/cms-page`,
                 method: 'POST'
             }).as('searchData');
+
+            cy.visit(`${Cypress.env('admin')}#/sw/cms/detail/${pageId}`);
+            cy.contains('.sw-cms-detail__page-name', 'My totally legit Shopping Experience');
+            cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
+
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
 
             // Get into navigator
             cy.get('button[title="Navigator"]').click();
@@ -68,6 +77,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(2).contains('Section 2 - Block C');
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-down').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -77,6 +90,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(2).contains('Section 1 - Block A')
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E')
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-down').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -86,6 +103,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(2).contains('Section 3 - Block E')
         cy.get(blockSelector).eq(4).contains('Section 1 - Block A')
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-up').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -95,6 +116,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(2).contains('Section 1 - Block A')
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E')
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-up').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -113,6 +138,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(5).contains('Section 3 - Block F');
 
         // Clone a block
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get('.navigator-element__action-duplicate').eq(0).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
@@ -123,6 +152,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(5).contains('Section 3 - Block E');
         cy.get(blockSelector).eq(6).contains('Section 3 - Block F');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get('.navigator-element__action-duplicate').eq(5).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
@@ -146,6 +179,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E');
 
         // Clone a section
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-duplicate').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -162,6 +199,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(6).contains('Section 3 - Block E');
 
         // Clone a block
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get('.navigator-element__action-duplicate').eq(1).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
@@ -178,6 +219,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(7).contains('Section 3 - Block E');
 
         // Clone the section with the cloned block
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-duplicate').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -209,6 +254,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(5).contains('Section 3 - Block F');
 
         // Delete a block
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get('.navigator-element__action-delete').eq(0).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
@@ -220,6 +269,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(4).contains('Section 3 - Block F');
 
         // Delete another block
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get('.navigator-element__action-delete').eq(3).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
@@ -240,6 +293,10 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(5).contains('Section 3 - Block F');
 
         // Delete a section
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'PATCH'
+        }).as('saveData');
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-delete').click();
 

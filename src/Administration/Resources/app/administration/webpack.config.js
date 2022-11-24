@@ -10,6 +10,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
@@ -150,7 +151,7 @@ const assetsPluginInstance = new AssetsPlugin({
     processOutput: function filterAssetsOutput(output) {
         const filteredOutput = { ...output };
 
-        ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((key) => {
+        ['', 'app', 'runtime'].forEach((key) => {
             delete filteredOutput[key];
         });
 
@@ -534,8 +535,7 @@ const coreConfig = {
     })(),
 
     entry: {
-        commons: [`${path.resolve('src')}/core/shopware.ts`],
-        app: `${path.resolve('src')}/app/main.ts`,
+        app: `${path.resolve('src')}/index.ts`,
     },
 
     ...(() => {
@@ -570,18 +570,22 @@ const coreConfig = {
     optimization: {
         runtimeChunk: { name: 'runtime' },
         splitChunks: {
-            cacheGroups: {
-                'runtime-vendor': {
-                    chunks: 'all',
-                    name: 'vendors-node',
-                    test: path.join(__dirname, 'node_modules'),
-                },
-            },
-            minSize: 0,
+            chunks: 'async',
+            minSize: 30000,
         },
     },
 
     plugins: [
+        ...(() => {
+            if (process.env.ENABLE_ANALYZE) {
+                return [
+                    new BundleAnalyzerPlugin(),
+                ]
+            }
+
+            return [];
+        })(),
+
         new MiniCssExtractPlugin({
             filename: isDev ? 'bundles/administration/static/css/[name].css' : 'static/css/[name].css',
         }),

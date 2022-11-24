@@ -15,7 +15,6 @@ import initFilter from 'src/app/init/filter.init';
 import initDirectives from 'src/app/init/directive.init';
 import initLocale from 'src/app/init/locale.init';
 import initComponents from 'src/app/init/component.init';
-import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
 import initFilterFactory from 'src/app/init/filter-factory.init';
 import initializeNotifications from 'src/app/init/notification.init';
@@ -38,7 +37,6 @@ export default {
     coreDirectives: initDirectives,
     coreFilter: initFilter,
     baseComponents: initComponents,
-    svgIcons: initSvgIcons,
     coreModuleRoutes: initCoreModules,
     login: initLogin,
     router: initRouter,

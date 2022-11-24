@@ -5,7 +5,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/utils/sw-vnode-renderer';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
@@ -35,15 +34,8 @@ async function createWrapper() {
             'sw-button': true,
             'sw-context-menu-item': true,
             'sw-context-button': true,
-            'icons-regular-circle-xxs': true,
-            'icons-regular-chevron-right-xxs': true,
-            'icons-regular-chevron-down-xxs': true,
-            'icons-multicolor-folder-tree': true,
-            'icons-multicolor-folder-tree-open': true,
-            'icons-regular-search': true,
-            'icons-regular-checkmark-xxs': true,
             'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-icon': true,
             'sw-tree-item': await Shopware.Component.build('sw-tree-item')
         },
         mocks: {

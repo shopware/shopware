@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_icon %}
-<component
-    :is="iconName"
-    class="sw-icon"
+<span
+    class="sw-icon sw-icon--fill"
     :class="classes"
     :style="styles"
     :aria-hidden="decorative"
+    :data-testid="'sw-icon__' + name"
     v-on="$listeners"
-/>
-{% endblock %}
+    v-html="iconSvgData"
+></span>

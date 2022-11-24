@@ -6,7 +6,6 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-app-url-changed-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-icon';
 import 'src/app/component/utils/sw-loader';
 
 const strategies = [
@@ -59,7 +58,7 @@ describe('sw-app-app-url-changed-modal', () => {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-icon': true,
             'icons-default-basic-shape-circle-filled': {
                 template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>'
             },

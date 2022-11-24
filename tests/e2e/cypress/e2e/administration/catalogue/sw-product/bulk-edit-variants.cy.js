@@ -89,7 +89,7 @@ describe('Product: Bulk edit variants', () => {
         const mediaPage = new MediaPageObject();
         const propertyValue = '.sw-property-search__tree-selection__option_grid';
         const gridRowOne = '[class="sw-data-grid__row sw-data-grid__row--0"]';
-        const icon = '.sw-bulk-edit-change-field__container.sw-container .sw-icon--multicolor > svg';
+        const icon = '.sw-bulk-edit-change-field__container.sw-container .sw-inheritance-switch > .sw-icon > svg';
 
         // Create new custom field
         cy.get('.sw-settings-set-detail__save-action').should('be.enabled');
@@ -147,6 +147,7 @@ describe('Product: Bulk edit variants', () => {
 
         // Start bulk edit variant products
         cy.log('Start bulk edit variant products');
+        cy.get('.sw-text-editor').should('be.visible');
         cy.get('.sw-bulk-edit-change-field-description [type]').click();
         cy.get('.sw-bulk-edit-change-field-description .sw-inheritance-switch > .sw-icon > svg').click();
         cy.get('.sw-text-editor__content-editor').clear().type(bulkEditVariants.description);
@@ -236,7 +237,7 @@ describe('Product: Bulk edit variants', () => {
 
         // Custom fields
         cy.get('.sw-bulk-edit-custom-fields__change [type]').click();
-        cy.get('.sw-container .icon--regular-link-horizontal.sw-icon.sw-icon--multicolor > svg').last().click();
+        cy.get('.sw-container .icon--regular-link-horizontal.sw-icon > svg').last().click();
         cy.get('input#custom_text').clearTypeAndCheck(bulkEditVariants.custom);
 
         // Save and apply changes

@@ -11,8 +11,6 @@ use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -24,15 +22,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -46,7 +48,7 @@ class RuleAreaUpdaterTest extends TestCase
     private $connection;
 
     /**
-     * @var MockObject|RuleDefinition
+     * @var RuleDefinition
      */
     private $definition;
 
@@ -65,8 +67,24 @@ class RuleAreaUpdaterTest extends TestCase
     public function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->definition = $this->createMock(RuleDefinition::class);
         $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                RuleAreaDefinitionTest::class,
+                RuleAreaTestManyToMany::class,
+                RuleAreaTestOneToMany::class,
+                RuleAreaTestOneToOne::class,
+                RuleAreaTestManyToOne::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        /** @var RuleDefinition $entityDefinition */
+        $entityDefinition = $registry->getByEntityName('rule');
+        $this->definition = $entityDefinition;
+
         $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $this->areaUpdater = new RuleAreaUpdater(
             $this->connection,
@@ -79,8 +97,6 @@ class RuleAreaUpdaterTest extends TestCase
     public function testUpdate(): void
     {
         $id = Uuid::randomHex();
-
-        $this->definition->method('getFields')->willReturn($this->getFieldCollection());
 
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->method('fetchAllAssociative')->willReturn([
@@ -117,8 +133,7 @@ class RuleAreaUpdaterTest extends TestCase
 
     public function testTriggerChangeset(): void
     {
-        $fieldCollection = $this->getFieldCollection();
-        $this->definition->method('getFields')->willReturn($fieldCollection);
+        $fieldCollection = $this->definition->getFields();
 
         $oneToManyField = $fieldCollection->get('oneToMany');
         $manyToOneField = $fieldCollection->get('manyToOne');
@@ -145,8 +160,6 @@ class RuleAreaUpdaterTest extends TestCase
 
     public function testOnEntityWritten(): void
     {
-        $fieldCollection = $this->getFieldCollection();
-        $this->definition->method('getFields')->willReturn($fieldCollection);
         $context = Context::createDefaultContext();
 
         $idA = Uuid::randomHex();
@@ -187,75 +200,100 @@ class RuleAreaUpdaterTest extends TestCase
 
         $this->areaUpdater->onEntityWritten($event);
     }
+}
 
-    private function getFieldCollection(): CompiledFieldCollection
+/**
+ * @internal
+ */
+class RuleAreaDefinitionTest extends RuleDefinition
+{
+    public function getEntityName(): string
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        return 'rule';
+    }
 
-        $oneToOneField = (new OneToOneAssociationField('oneToOne', 'one_to_one', 'id', 'OneToOneMock'))->addFlags(new RuleAreas(RuleAreas::PRODUCT_AREA));
-        $oneToOneField->assign(['registry' => $registry]);
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new OneToOneAssociationField('oneToOne', 'one_to_one', 'id', RuleAreaTestOneToOne::class))->addFlags(new RuleAreas(RuleAreas::PRODUCT_AREA)),
+            (new OneToManyAssociationField('oneToMany', RuleAreaTestOneToMany::class, 'rule_id'))->addFlags(new RuleAreas(RuleAreas::PROMOTION_AREA)),
+            (new ManyToOneAssociationField('manyToOne', 'many_to_one', RuleAreaTestManyToOne::class))->addFlags(new RuleAreas(RuleAreas::PAYMENT_AREA)),
+            (new ManyToManyAssociationField('manyToMany', RuleAreaDefinitionTest::class, RuleAreaTestManyToMany::class, 'rule_id', 'reference_id'))->addFlags(new RuleAreas(RuleAreas::SHIPPING_AREA)),
+            new FkField('rule_id', 'ruleId', RuleAreaDefinitionTest::class),
+        ]);
+    }
+}
 
-        $oneToManyField = (new OneToManyAssociationField('oneToMany', 'OneToManyMock', 'rule_id'))->addFlags(new RuleAreas(RuleAreas::PROMOTION_AREA));
-        $oneToManyField->assign(['registry' => $registry]);
+/**
+ * @internal
+ */
+class RuleAreaTestOneToOne extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'one_to_one';
+    }
 
-        $manyToOneField = (new ManyToOneAssociationField('manyToOne', 'many_to_one', 'ManyToOneMock'))->addFlags(new RuleAreas(RuleAreas::PAYMENT_AREA));
-        $manyToOneField->assign(['registry' => $registry]);
-
-        $manyToManyField = (new ManyToManyAssociationField('manyToMany', 'ManyToManyMock', 'MappingMock', 'rule_id', 'reference_id'))->addFlags(new RuleAreas(RuleAreas::SHIPPING_AREA));
-        $manyToManyField->assign(['registry' => $registry]);
-
-        $fkField = new FkField('rule_id', 'ruleId', RuleDefinition::class);
-        $fkField->assign(['registry' => $registry]);
-
-        $oneToOneDefinition = $this->createMock(EntityDefinition::class);
-        $oneToOneDefinition->method('getClass')->willReturn('OneToOneMock');
-        $oneToOneDefinition->method('getEntityName')->willReturn('one_to_one');
-        $oneToOneDefinition->method('getFields')->willReturn(new CompiledFieldCollection($registry, [
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
             new IdField('id', 'id'),
-        ]));
+        ]);
+    }
+}
 
-        $oneToManyDefinition = $this->createMock(EntityDefinition::class);
-        $oneToManyDefinition->method('getClass')->willReturn('OneToManyMock');
-        $oneToManyDefinition->method('getEntityName')->willReturn('one_to_many');
-        $oneToManyDefinition->method('getFields')->willReturn(new CompiledFieldCollection($registry, [
+/**
+ * @internal
+ */
+class RuleAreaTestOneToMany extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'one_to_many';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
             new IdField('id', 'id'),
-            $fkField,
-        ]));
+            new FkField('rule_id', 'ruleId', RuleAreaDefinitionTest::class),
+        ]);
+    }
+}
 
-        $manyToOneDefinition = $this->createMock(EntityDefinition::class);
-        $manyToOneDefinition->method('getClass')->willReturn('ManyToOneMock');
-        $manyToOneDefinition->method('getEntityName')->willReturn('many_to_one');
-        $manyToOneDefinition->method('getFields')->willReturn(new CompiledFieldCollection($registry, [
+/**
+ * @internal
+ */
+class RuleAreaTestManyToOne extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'many_to_one';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
             new IdField('id', 'id'),
-        ]));
+        ]);
+    }
+}
 
-        $mappingDefinition = $this->createMock(EntityDefinition::class);
-        $mappingDefinition->method('getClass')->willReturn('MappingMock');
-        $mappingDefinition->method('getEntityName')->willReturn('mapping');
-        $mappingDefinition->method('getFields')->willReturn(new CompiledFieldCollection($registry, [
+/**
+ * @internal
+ */
+class RuleAreaTestManyToMany extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'mapping';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
             new FkField('rule_id', 'ruleId', RuleDefinition::class),
             new FkField('reference_id', 'referenceId', 'ReferenceMock'),
-        ]));
-
-        $ruleDefinition = $this->createMock(EntityDefinition::class);
-        $mappingDefinition->method('getClass')->willReturn(RuleDefinition::class);
-        $mappingDefinition->method('getEntityName')->willReturn(RuleDefinition::ENTITY_NAME);
-
-        $registry->method('getByClassOrEntityName')->willReturnCallback(function (string $class) use ($oneToOneDefinition, $oneToManyDefinition, $manyToOneDefinition, $mappingDefinition, $ruleDefinition) {
-            switch ($class) {
-                case 'OneToOneMock':
-                    return $oneToOneDefinition;
-                case 'OneToManyMock':
-                    return $oneToManyDefinition;
-                case 'ManyToOneMock':
-                    return $manyToOneDefinition;
-                case 'MappingMock':
-                    return $mappingDefinition;
-                default:
-                    return $ruleDefinition;
-            }
-        });
-
-        return new CompiledFieldCollection($registry, [$oneToOneField, $oneToManyField, $manyToOneField, $manyToManyField]);
+        ]);
     }
 }

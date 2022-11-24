@@ -177,11 +177,7 @@ class BundleHierarchyBuilderTest extends TestCase
         $bundles = [];
 
         foreach ($plugins as $plugin => $prio) {
-            $bundle = $this->createMock(Bundle::class);
-            $bundle->method('getName')->willReturn($plugin);
-            $bundle->method('getTemplatePriority')->willReturn($prio);
-            $bundle->method('getPath')->willReturn(__DIR__ . '/../fixtures/Plugins/TestPlugin1/');
-            $bundles[] = $bundle;
+            $bundles[] = new MockBundle($plugin, $prio, __DIR__ . '/../fixtures/Plugins/TestPlugin1/');
         }
 
         $kernel->method('getBundles')->willReturn($bundles);
@@ -268,5 +264,22 @@ class BundleHierarchyBuilderTest extends TestCase
                 array_keys($this->getContainer()->getParameter('kernel.bundles'))
             )
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class MockBundle extends Bundle
+{
+    public function __construct(string $name, private int $templatePriority, string $path)
+    {
+        $this->name = $name;
+        $this->path = $path;
+    }
+
+    public function getTemplatePriority(): int
+    {
+        return $this->templatePriority;
     }
 }

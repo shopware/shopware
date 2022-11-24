@@ -90,6 +90,9 @@ class TestBootstrapper
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement - reason:remove-command
+     */
     public function setBypassFinals(bool $bypassFinals): TestBootstrapper
     {
         $this->bypassFinals = $bypassFinals;

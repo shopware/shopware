@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Test\CollectingMessageBus;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -78,7 +79,7 @@ class ElasticsearchIndexerTest extends TestCase
     private $languageRepository;
 
     /**
-     * @var MessageBusInterface&MockObject
+     * @var MessageBusInterface
      */
     private $bus;
 
@@ -101,7 +102,7 @@ class ElasticsearchIndexerTest extends TestCase
         $this->client = $this->createMock(Client::class);
         $this->currencyRepository = $this->createMock(EntityRepository::class);
         $this->languageRepository = $this->createMock(EntityRepository::class);
-        $this->bus = $this->createMock(MessageBusInterface::class);
+        $this->bus = new CollectingMessageBus();
 
         $this->helper->method('allowIndexing')->willReturn(true);
 

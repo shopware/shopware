@@ -28,14 +28,9 @@ class CacheStoreTest extends TestCase
 
         $cache->expects(static::once())->method('hasItem')->willReturn(false);
 
-        $item = $this->createMock(CacheItem::class);
+        $item = new CacheItem();
 
         $cache->expects(static::once())->method('getItem')->willReturn($item);
-
-        $item->expects(static::once())->method('set')->with(true);
-
-        // expect that we set an expires date for the lock key to prevent endless locks
-        $item->expects(static::once())->method('expiresAfter')->with(3);
 
         $cache->expects(static::once())->method('save')->with($item);
 
@@ -50,5 +45,13 @@ class CacheStoreTest extends TestCase
         );
 
         $store->lock($request);
+
+        static::assertTrue($item->get());
+
+        $reflectionClass = new \ReflectionClass($item);
+        $prop = $reflectionClass->getProperty('expiry');
+        $prop->setAccessible(true);
+
+        static::assertEqualsWithDelta(time() + 3, $prop->getValue($item), 1);
     }
 }

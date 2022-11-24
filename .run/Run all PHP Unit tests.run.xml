@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run all PHP Unit tests" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
-    <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml.dist" coverage_engine="PCov" directory="$PROJECT_DIR$/tests/unit" options="--exclude-group=quarantined" use_alternative_configuration_file="true" />
+    <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml.dist" directory="$PROJECT_DIR$/tests/unit" options="--exclude-group=quarantined" use_alternative_configuration_file="true" />
     <method v="2" />
   </configuration>
 </component>

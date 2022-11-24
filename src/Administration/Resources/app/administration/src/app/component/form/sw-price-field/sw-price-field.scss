@@ -3,7 +3,7 @@
 $sw-price-field-lock-color-default: $color-darkgray-200;
 $sw-price-field-lock-color-locked: $color-shopware-brand-500;
 $sw-price-field-suffix-font-size: 20px;
-$sw-price-field-suffix-font-weight: 400;
+$sw-price-field-suffix-font-weight: $font-weight-regular;
 
 .sw-price-field {
     .price-field-grid {

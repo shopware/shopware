@@ -4,7 +4,7 @@
 $sw-admin-menu-color-text-secondary: darken($color-gray-300, 20%);
 $sw-admin-menu-width-expanded: 300px;
 $sw-admin-menu-width-collapsed: 80px;
-$sw-admin-menu-width-flyout: 220px;
+$sw-admin-menu-width-flyout: 260px;
 $sw-admin-menu-z-index-flyout: $z-index-flyout;
 $sw-admin-menu-z-index-off-canvas: $z-index-off-canvas;
 $sw-admin-menu-transition: 0.4s cubic-bezier(0.5, 0.32, 0.01, 1);
@@ -150,8 +150,8 @@ $sw-admin-menu-active-text: $color-white;
         color: $sw-admin-menu-active-text;
         width: $sw-admin-menu-width-collapsed;
         transition: width $sw-admin-menu-transition;
-        font-weight: 600;
-        font-size: 14px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-xs;
         padding: 12px 30px;
         position: relative;
     }
@@ -214,8 +214,8 @@ $sw-admin-menu-active-text: $color-white;
         align-items: baseline;
         padding: 12px 30px;
         text-decoration: none;
-        font-size: 14px;
-        line-height: 24px;
+        font-size: $font-size-xs;
+        line-height: $line-height-md;
         cursor: pointer;
         position: relative;
 
@@ -271,18 +271,17 @@ $sw-admin-menu-active-text: $color-white;
     .sw-admin-menu__sub-navigation-headline {
         color: $sw-admin-menu-color-text-primary;
         padding: 15px 30px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: bold;
     }
 
     .sw-admin-menu__toggle {
         color: $sw-admin-menu-color-text-primary;
-        font-family: $font-family-default;
         display: block;
         padding: 12px 32px;
         text-decoration: none;
-        font-size: 14px;
-        line-height: 24px;
+        font-size: $font-size-xs;
+        line-height: $line-height-md;
         width: 100%;
         cursor: pointer;
         white-space: nowrap;
@@ -361,15 +360,15 @@ $sw-admin-menu-active-text: $color-white;
 
     .sw-admin-menu__user-name {
         margin-top: 2px;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
         color: $sw-admin-menu-active-text;
     }
 
     .sw-admin-menu__user-type {
         color: $color-pumpkin-spice-500;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: $font-size-xxs;
+        font-weight: $font-weight-semi-bold;
     }
 
     .sw-admin-menu__user-actions {
@@ -392,8 +391,8 @@ $sw-admin-menu-active-text: $color-white;
     .sw-admin-menu__user-actions-label {
         @include truncate;
 
-        font-weight: 600;
-        font-size: 14px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-xs;
         padding: 0 30px;
         height: 48px;
         line-height: 48px;

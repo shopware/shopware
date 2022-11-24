@@ -22,7 +22,7 @@
     }
 
     .sw-alert__message {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: $color-darkgray-200;
     }
 
@@ -33,7 +33,7 @@
     &__close.sw-alert__close {
         width: 100px;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-top: 3px;
     }
 }

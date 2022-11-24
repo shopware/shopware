@@ -27,7 +27,7 @@
         flex-direction: column;
 
         h2 {
-            font-size: $font-size-large;
+            font-size: $font-size-m;
         }
 
         p {
@@ -39,7 +39,7 @@
         color: $color-emerald-500;
         background-color: $color-emerald-50;
         border-radius: $border-radius-default;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         padding: 3px 5px;
         margin-bottom: 12px;
     }

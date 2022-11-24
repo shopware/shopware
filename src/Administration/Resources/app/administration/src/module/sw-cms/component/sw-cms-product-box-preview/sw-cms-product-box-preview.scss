@@ -34,21 +34,21 @@
     }
 
     .sw-cms-product-box-preview__name {
-        font-size: 14px;
-        line-height: 18px;
-        font-weight: 600;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
+        font-weight: $font-weight-semi-bold;
     }
 
     .sw-cms-product-box-preview__description {
-        font-size: 10px;
+        font-size: $font-size-xxs;
         line-height: 12px;
         margin-bottom: 8px;
     }
 
     .sw-cms-product-box-preview__price {
-        font-size: 14px;
-        line-height: 18px;
-        font-weight: 600;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
+        font-weight: $font-weight-semi-bold;
     }
 
     .sw-cms-product-box-preview__action {
@@ -56,7 +56,7 @@
         color: $color-darkgray-200;
         border-radius: 3px;
         text-align: center;
-        font-size: 12px;
+        font-size: $font-size-xxs;
         line-height: 26px;
     }
 }

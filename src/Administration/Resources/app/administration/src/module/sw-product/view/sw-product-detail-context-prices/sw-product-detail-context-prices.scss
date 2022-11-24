@@ -106,7 +106,7 @@
         }
 
         p {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
             text-align: center;
             margin: 20px 0;
         }
@@ -125,7 +125,7 @@
         display: flex;
         align-items: center;
         line-height: 16px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin-bottom: 20px;
         color: $color-darkgray-200;
 

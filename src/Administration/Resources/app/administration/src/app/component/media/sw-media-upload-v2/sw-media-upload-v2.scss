@@ -6,7 +6,7 @@ $sw-media-upload-v2-color-switch-mode: $color-shopware-brand-500;
 $sw-media-upload-v2-border-radius: $border-radius-default;
 $sw-media-upload-v2-upload-background-color: $color-gray-100;
 $sw-media-upload-v2-background-color-highlighted: $color-shopware-brand-50;
-$sw-media-upload-v2-caption-font-size: $font-size-large;
+$sw-media-upload-v2-caption-font-size: $font-size-m;
 $sw-media-upload-v2-caption-icon-color: $color-gray-300;
 
 .sw-media-upload-v2 {
@@ -19,7 +19,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         flex-direction: row;
         line-height: 16px;
         min-height: 16px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $color-darkgray-200;
         font-weight: normal;
         user-select: none;
@@ -55,7 +55,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                font-size: 14px;
+                font-size: $font-size-xs;
             }
         }
 

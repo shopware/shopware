@@ -47,7 +47,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         margin-bottom: 0;
 
         .sw-field__label label {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
             font-weight: $font-weight-semi-bold;
         }
 
@@ -84,7 +84,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         }
 
         li .sw-flow-trigger__search-result-name {
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             padding-top: 3px;
         }
     }

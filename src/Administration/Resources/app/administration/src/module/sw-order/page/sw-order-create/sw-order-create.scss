@@ -80,7 +80,7 @@ $select-result-customer-item-gutter: 10px;
         display: flex;
         margin: 0 0 8px;
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
         line-height: 16px;
     }
@@ -90,7 +90,7 @@ $select-result-customer-item-gutter: 10px;
     }
 
     &__address-identical-text {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__address-identical-button {
@@ -126,6 +126,7 @@ $select-result-customer-item-gutter: 10px;
 
     .sw-order-create-summary__data {
         grid-area: summary;
+        font-size: $font-size-xs;
         padding-right: 38px;
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -136,7 +137,7 @@ $select-result-customer-item-gutter: 10px;
             line-height: 40px;
             border-bottom: 1px solid $color-gray-300;
             color: $color-darkgray-200;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             font-weight: normal;
             text-align: right;
         }
@@ -187,7 +188,7 @@ $select-result-customer-item-gutter: 10px;
         padding: 0 5px;
         background: transparent;
         color: rgb(24, 158, 255);
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
         line-height: 12px;
         cursor: pointer;
 

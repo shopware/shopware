@@ -116,7 +116,7 @@
 
     &__section-action-label {
         color: #52667a;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
         line-height: 22px;
         width: 190px;
         word-wrap: break-word;
@@ -143,7 +143,7 @@
     &__section-type-icon {
         margin-right: 10px;
         color: #b3bfcc;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
     }
 
     &__section-divider {

@@ -3,7 +3,7 @@
 
 $sw-media-base-item-color: $color-darkgray-200;
 $sw-media-base-item-border-radius: $border-radius-default;
-$sw-media-base-item-small-font-size: $font-size-small;
+$sw-media-base-item-small-font-size: $font-size-xs;
 $sw-media-base-item-color-border: $color-gray-300;
 $sw-media-base-item-color-text-inline-input: $color-darkgray-200;
 $sw-media-base-item-color-context-button: $color-white;
@@ -190,7 +190,7 @@ $sw-media-base-item-preview-background: $color-white;
         .sw-media-base-item__name-container {
             margin: 0;
             text-align: left;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
             .sw-media-base-item__name-field input {
                 text-align: unset;
@@ -198,7 +198,7 @@ $sw-media-base-item-preview-background: $color-white;
         }
 
         .sw-media-base-item__name {
-            line-height: 18px;
+            line-height: $line-height-xs;
         }
 
         .sw-media-base-item__metadata-container {
@@ -206,7 +206,7 @@ $sw-media-base-item-preview-background: $color-white;
             margin: -5px 0 0;
             text-align: left;
             color: $sw-media-base-item-color-metadata;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
 
         &:hover {

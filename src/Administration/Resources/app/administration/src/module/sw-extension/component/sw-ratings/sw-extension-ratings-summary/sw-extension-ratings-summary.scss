@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-extension-ratings-summary {
-    font-size: $font-size-small;
+    font-size: $font-size-xs;
     max-width: 450px;
 
     &__grid {
@@ -16,7 +16,7 @@
         grid-template-columns: auto 1fr;
         grid-gap: 13px;
         align-items: center;
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
 
         .sw-progress-bar {
             height: 4px;

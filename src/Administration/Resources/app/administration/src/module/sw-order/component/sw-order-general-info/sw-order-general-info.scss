@@ -15,7 +15,7 @@
 
         &-header,
         &-total {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
             font-weight: $font-weight-semi-bold;
             line-height: 25px;
         }
@@ -36,7 +36,7 @@
 
         &-description,
         &-last-changed {
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             line-height: 22px;
         }
 

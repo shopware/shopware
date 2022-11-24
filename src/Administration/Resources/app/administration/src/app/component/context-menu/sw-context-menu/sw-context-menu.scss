@@ -29,7 +29,7 @@ $sw-context-menu-z-index: $z-index-context-menu;
         border: 1px solid $sw-context-menu-color-border;
         border-radius: 4px;
         text-align: left;
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $sw-context-menu-color-text;
         position: relative;
 
@@ -48,7 +48,7 @@ $sw-context-menu-z-index: $z-index-context-menu;
 
         .currency-symbol {
             font-weight: bold;
-            font-size: 18px;
+            font-size: $font-size-m;
         }
 
         .sw-context-menu__group {

@@ -80,7 +80,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
         align-items: center;
         align-content: center;
         padding: 0;
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $sw-tree-item-color-text;
         border-radius: $border-radius-default;
 
@@ -144,7 +144,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
     .sw-tree-item__toggle {
         width: 15px;
         height: 24px;
-        line-height: 20px;
+        line-height: $line-height-sm;
         text-align: center;
         position: relative;
         cursor: pointer;
@@ -190,7 +190,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
             width: 100%;
             height: 26px;
             padding: 2px 8px;
-            font-size: 14px;
+            font-size: $font-size-xs;
             line-height: 19px;
         }
     }
@@ -228,7 +228,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
     align-items: center;
     align-content: center;
     padding: 0;
-    font-size: 14px;
+    font-size: $font-size-xs;
 
     &:hover {
         background: $sw-tree-item-color-background;
@@ -283,8 +283,8 @@ $sw-tree-item-color-text: $color-darkgray-200;
         height: 20px;
         padding: 2px 6px;
         margin-left: 10px;
-        line-height: 20px;
-        font-size: 12px;
+        line-height: $line-height-sm;
+        font-size: $font-size-xxs;
         text-align: center;
         border-radius: $border-radius-default;
         background: $color-gray-100;

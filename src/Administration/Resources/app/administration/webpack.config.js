@@ -74,6 +74,15 @@ if (!process.env.PROJECT_ROOT) {
     process.exit(1);
 }
 
+const cssUrlMatcher = (url) => {
+    // Only handle font urls
+    if (url.match(/\.(woff2?|eot|ttf|otf)(\?.*)?$/)) {
+        return true;
+    }
+
+    return false;
+};
+
 /**
  * Create an array with information about all injected plugins.
  *
@@ -307,10 +316,9 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
             },
             {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-                loader: 'url-loader',
+                loader: 'file-loader',
                 options: {
-                    limit: 10000,
-                    name: 'static/fonts/[name].[hash:7].[ext]',
+                    name: 'static/fonts/[name].[hash:7].[ext]'
                 },
             },
             {
@@ -331,7 +339,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher
                         },
                     },
                 ],
@@ -345,7 +353,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                 ],
@@ -359,7 +367,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -380,7 +388,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -396,12 +404,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.scss$/,
                 use: [
                     'vue-style-loader',
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            publicPath: isDev ? '/' : `../../`,
+                        }
+                    },
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -421,7 +434,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -441,7 +454,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: false,
+                            url: cssUrlMatcher,
                         },
                     },
                     {
@@ -595,7 +608,7 @@ const coreConfig = {
         ...(() => {
             if (isProd) {
                 return [
-                // copy custom static assets
+                    // copy custom static assets
                     new CopyWebpackPlugin({
                         patterns: [
                             {
@@ -612,7 +625,7 @@ const coreConfig = {
 
             if (isDev) {
                 return [
-                // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
+                    // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
                     new webpack.HotModuleReplacementPlugin(),
                     new webpack.NoEmitOnErrorsPlugin(),
                     // https://github.com/ampedandwired/html-webpack-plugin

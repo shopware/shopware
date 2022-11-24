@@ -24,7 +24,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             }
 
             .sw-meteor-card__title {
-                font-size: $font-size-large;
+                font-size: $font-size-m;
                 font-weight: $font-weight-semi-bold;
             }
         }
@@ -67,14 +67,14 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
         background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
         & > .sw-grid {
             border: none;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: $font-size-xl;
         }
 
         h2 {
@@ -82,13 +82,13 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
         }
 
         h3 {
-            font-size: $font-size-large;
+            font-size: $font-size-m;
         }
 
         h4,
         h5,
         h6 {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
         }
 
         a.sw-meteor-card__quick-link {
@@ -98,7 +98,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             align-items: center;
             text-decoration: none;
             color: $color-shopware-brand-500;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
             &:hover {
                 color: $color-shopware-brand-800;
@@ -159,7 +159,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
         background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
         @media screen and (max-width: 960px) {
             padding: 15px;
@@ -205,7 +205,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             margin-right: 14px;
             font-weight: $font-weight-regular;
             border-color: transparent;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
             @media screen and (max-width: 960px) {
                 padding: 15px 0 10px;
@@ -216,7 +216,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             }
 
             &.sw-tabs-item--active {
-                font-weight: 600;
+                font-weight: $font-weight-semi-bold;
             }
         }
     }

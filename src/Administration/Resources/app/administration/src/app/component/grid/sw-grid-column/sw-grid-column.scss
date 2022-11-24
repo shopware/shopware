@@ -52,7 +52,7 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
         grid-auto-flow: column;
         align-items: center;
         min-height: 64px;
-        line-height: 24px;
+        line-height: $line-height-md;
         padding: 20px;
         text-align: left;
         color: $sw-grid-column-content-color-text;

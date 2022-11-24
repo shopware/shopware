@@ -9,7 +9,7 @@
     margin-right: 32px;
 
     &__title {
-        font-size: $font-size-large;
+        font-size: $font-size-m;
 
         h3 {
             font-weight: normal;
@@ -17,7 +17,7 @@
     }
 
     &__help-text {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         letter-spacing: 0.1px;
         line-height: 22px;
         margin-bottom: 32px;
@@ -33,7 +33,7 @@
     }
 
     &__actions .sw-button {
-        font-size: 15px;
+        font-size: $font-size-xs;
         font-weight: bold;
         color: $color-darkgray-200;
     }

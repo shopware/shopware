@@ -20,7 +20,7 @@
 
     &__error-action {
         p {
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
     }
 
@@ -59,13 +59,13 @@
     }
 
     &__title {
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-weight: $font-weight-semi-bold;
         margin: 0;
     }
 
     &__description {
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-weight: $font-weight-semi-bold;
         color: $color-darkgray-200;
     }
@@ -86,7 +86,7 @@
 
     &__no-action {
         color: $color-gray-400;
-        font-size: 15px;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
         margin-left: 8px;
     }
@@ -121,7 +121,7 @@
         padding-top: 2px;
 
         h3 {
-            font-size: 15px;
+            font-size: $font-size-xs;
             font-weight: $font-weight-semi-bold;
             color: $color-darkgray-200;
             margin-left: 8px;
@@ -141,7 +141,7 @@
     }
 
     &__action-description {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-left: 20px;
     }
 
@@ -234,7 +234,7 @@
             flex-direction: row !important;
             text-transform: capitalize;
             align-items: center;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
 
         .sw-single-select__selection-input {

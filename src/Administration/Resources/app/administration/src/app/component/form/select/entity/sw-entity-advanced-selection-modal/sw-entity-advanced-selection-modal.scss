@@ -44,7 +44,7 @@
         transform: translate(50%, -50%);
         color: $color-white;
         background-color: $color-shopware-brand-500;
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
         font-style: normal;
         font-weight: $font-weight-regular;
         padding: 0;
@@ -85,7 +85,7 @@
     .sw-entity-advanced-selection-modal__filter-headline {
         padding: 16px 24px;
         margin: 0;
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-weight: $font-weight-bold;
         border-bottom: 1px solid $color-gray-300;
     }
@@ -98,7 +98,7 @@
 
     .sw-entity-advanced-selection-modal__filter-reset {
         font-weight: $font-weight-semi-bold;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     .sw-data-grid__actions-menu {

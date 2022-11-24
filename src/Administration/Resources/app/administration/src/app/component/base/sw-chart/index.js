@@ -258,7 +258,7 @@ Component.register('sw-chart', {
         defaultOptions() {
             return {
                 chart: {
-                    fontFamily: 'Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif',
+                    fontFamily: 'Inter, San Francisco, Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif',
                     toolbar: {
                         show: false,
                     },

@@ -119,8 +119,8 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         padding: 5px 12px;
         border-radius: $sw-search-bar-border-radius;
         flex-shrink: 0;
-        font-weight: 600;
-        font-size: 14px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-xs;
     }
 
     &__type {
@@ -132,8 +132,8 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             padding: 5px 12px;
             border-radius: $sw-search-bar-border-radius;
             flex-shrink: 0;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-xs;
 
             .sw-icon {
                 margin-left: 10px;
@@ -150,7 +150,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     &__header-title {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: $color-darkgray-200;
         font-weight: $font-weight-semi-bold;
     }
@@ -160,10 +160,9 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     .sw-search-bar__input {
-        font-family: $font-family-default;
         color: $color-darkgray-200;
         flex-grow: 1;
-        font-size: 15px;
+        font-size: $font-size-xs;
         padding: 0 40px 0 15px;
         border: 0;
         background: none;
@@ -180,7 +179,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     .sw-search-bar__results-column-header {
         margin-bottom: 10px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: $color-darkgray-200;
 
         .sw-icon {
@@ -240,7 +239,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
             .sw-search-bar__shortcut-tip {
                 line-height: 22px;
-                font-size: $font-size-extra-small;
+                font-size: $font-size-xxs;
                 color: $color-darkgray-200;
                 margin: 0;
 
@@ -341,14 +340,14 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             }
 
             &--filter {
-                font-size: $font-size-small;
+                font-size: $font-size-xs;
                 color: #b3bfcc;
             }
         }
 
         .sw-search-bar__shortcut-tip {
             line-height: 22px;
-            font-size: $font-size-extra-small;
+            font-size: $font-size-xxs;
             color: $color-darkgray-200;
             margin: 0;
 
@@ -375,7 +374,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         display: flex;
         align-items: center;
         color: $color-darkgray-200;
-        font-size: 14px;
+        font-size: $font-size-xs;
         padding: 5px 0;
     }
 
@@ -386,14 +385,14 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     &__shortcut-tip {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: lighten($color-darkgray-200, 25%);
         margin: 20px 3px 0;
     }
 
     &__results-empty-text {
         color: $color-darkgray-200;
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-weight: $font-weight-semi-bold;
         letter-spacing: 0.09px;
         line-height: 25px;
@@ -401,7 +400,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     &__results-empty-detail {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         font-weight: normal;
         letter-spacing: 0.1px;
         line-height: 22px;

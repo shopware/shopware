@@ -30,8 +30,8 @@
     }
 
     .sw-notification-center-item__title {
-        font-weight: 600;
-        font-size: 12px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-xxs;
     }
 
     .sw-notification-center-item__delete {
@@ -40,7 +40,7 @@
     }
 
     .sw-notification-center-item__timestamp {
-        font-size: 12px;
+        font-size: $font-size-xxs;
         color: rgb(179, 191, 204);
         display: block;
         white-space: nowrap;
@@ -65,7 +65,7 @@
     }
 
     .sw-notification-center-item__message {
-        font-size: 12px;
+        font-size: $font-size-xxs;
     }
 
     .sw-notification-center-item__loader {

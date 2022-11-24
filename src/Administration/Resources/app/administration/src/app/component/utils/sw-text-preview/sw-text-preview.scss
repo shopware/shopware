@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-text-preview__expand-button::before {
-    height: $font-size-default * 1.25;
+    height: $font-size-s * 1.25;
     width: 50px;
     display: inline-block;
     position: absolute;

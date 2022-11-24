@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -225,7 +225,7 @@ class DocumentServiceTest extends TestCase
      */
     public function testCreateFileIsWrittenInFs(): void
     {
-        /** @var FilesystemInterface $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
 
@@ -235,9 +235,9 @@ class DocumentServiceTest extends TestCase
 
         $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
 
-        static::assertTrue($fileSystem->has($filePath));
+        static::assertTrue($fileSystem->fileExists($filePath));
         $fileSystem->delete($filePath);
-        static::assertFalse($fileSystem->has($filePath));
+        static::assertFalse($fileSystem->fileExists($filePath));
     }
 
     public function testGetStaticDocumentFile(): void
@@ -247,7 +247,7 @@ class DocumentServiceTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        /** @var FilesystemInterface $fileSystem */
+        /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
 
         /** @var UrlGenerator $urlGenerator */
@@ -303,9 +303,9 @@ class DocumentServiceTest extends TestCase
         static::assertNotNull($document->getDocumentMediaFile());
         $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
 
-        $fileSystem->put($filePath, 'test123');
+        $fileSystem->write($filePath, 'test123');
 
-        static::assertTrue($fileSystem->has($filePath));
+        static::assertTrue($fileSystem->fileExists($filePath));
 
         $generatedDocument = $documentService->getDocument($document, $this->context);
 

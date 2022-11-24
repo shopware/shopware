@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -42,7 +42,7 @@ class ImageTypeDataResolverTest extends TestCase
     private $imageResolver;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $publicFilesystem;
 
@@ -288,7 +288,7 @@ class ImageTypeDataResolverTest extends TestCase
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
-        $this->publicFilesystem->put('/bundles/core/assets/default/cms/shopware.jpg', '');
+        $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_DEFAULT, 'core/assets/default/cms/shopware.jpg'));

@@ -116,7 +116,7 @@ class MediaFolderRepositoryTest extends TestCase
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
-        $this->getPublicFilesystem()->putStream($mediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($mediaPath, $file);
 
         $this->folderRepository->delete([['id' => $folderId]], $this->context);
 
@@ -183,8 +183,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
-        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
-        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $parentFolderId]], $this->context);
 
@@ -252,8 +252,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
-        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
-        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $childFolderId]], $this->context);
 
@@ -321,8 +321,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
-        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
-        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $parentFolderId], ['id' => $childFolderId]], $this->context);
 
@@ -390,8 +390,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $file = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($file);
-        $this->getPublicFilesystem()->putStream($childMediaPath, $file);
-        $this->getPublicFilesystem()->putStream($parentMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
+        $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
 
         $this->folderRepository->delete([['id' => $childFolderId], ['id' => $parentFolderId]], $this->context);
 

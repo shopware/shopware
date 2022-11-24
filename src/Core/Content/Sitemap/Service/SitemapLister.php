@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Sitemap\Struct\Sitemap;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
@@ -10,7 +10,7 @@ use Symfony\Component\Asset\Package;
 class SitemapLister implements SitemapListerInterface
 {
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystem;
 
@@ -22,7 +22,7 @@ class SitemapLister implements SitemapListerInterface
     /**
      * @internal
      */
-    public function __construct(FilesystemInterface $filesystem, Package $package)
+    public function __construct(FilesystemOperator $filesystem, Package $package)
     {
         $this->filesystem = $filesystem;
         $this->package = $package;
@@ -38,11 +38,11 @@ class SitemapLister implements SitemapListerInterface
         $sitemaps = [];
 
         foreach ($files as $file) {
-            if ($file['basename'][0] === '.') {
+            if ($file->isDir()) {
                 continue;
             }
 
-            $sitemaps[] = new Sitemap($this->package->getUrl($file['path']), 0, new \DateTime('@' . $file['timestamp']));
+            $sitemaps[] = new Sitemap($this->package->getUrl($file->path()), 0, new \DateTime('@' . ($file->lastModified() ?? time())));
         }
 
         return $sitemaps;

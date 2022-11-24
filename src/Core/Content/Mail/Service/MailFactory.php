@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToRetrieveMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -19,14 +20,14 @@ class MailFactory extends AbstractMailFactory
     private $validator;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystem;
 
     /**
      * @internal
      */
-    public function __construct(ValidatorInterface $validator, FilesystemInterface $filesystem)
+    public function __construct(ValidatorInterface $validator, FilesystemOperator $filesystem)
     {
         $this->validator = $validator;
         $this->filesystem = $filesystem;
@@ -59,7 +60,12 @@ class MailFactory extends AbstractMailFactory
         $attach = Feature::isActive('v6.5.0.0') ? 'attach' : 'embed';
 
         foreach ($attachments as $url) {
-            $mail->$attach($this->filesystem->read($url) ?: '', basename($url), $this->filesystem->getMimetype($url) ?: null);
+            try {
+                $mimeType = $this->filesystem->mimeType($url);
+            } catch (UnableToRetrieveMetadata $e) {
+                $mimeType = null;
+            }
+            $mail->$attach($this->filesystem->read($url) ?: '', basename($url), $mimeType);
         }
 
         if (isset($binAttachments)) {

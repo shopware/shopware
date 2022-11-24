@@ -58,7 +58,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     private $context;
 
     /**
-     * @var array
+     * @var array<string>
      */
     private $initialMediaIds;
 
@@ -70,7 +70,9 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = Context::createDefaultContext();
 
-        $this->initialMediaIds = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
+        /** @var array<string> $ids */
+        $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
+        $this->initialMediaIds = $ids;
     }
 
     public function testExecuteHappyPath(): void
@@ -90,6 +92,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
+            static::assertNotNull($thumbnails);
             static::assertEquals(
                 2,
                 $thumbnails->count()
@@ -118,6 +121,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
+            static::assertNotNull($thumbnails);
             static::assertEquals(
                 2,
                 $thumbnails->count()
@@ -145,8 +149,9 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            if (mb_strpos($updatedMedia->getMimeType(), 'image') === 0) {
+            if (strpos((string) $updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
+                static::assertNotNull($thumbnails);
                 static::assertEquals(
                     2,
                     $thumbnails->count()
@@ -172,6 +177,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
+            static::assertNotNull($thumbnails);
             static::assertEquals(2, $thumbnails->count());
 
             foreach ($thumbnails as $thumbnail) {
@@ -197,8 +203,10 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $mediaResult = $this->getNewMediaEntities();
+        /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
+            static::assertNotNull($thumbnails);
             static::assertEquals(0, $thumbnails->count());
         }
     }
@@ -333,13 +341,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaJpg = $this->getJpgWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
@@ -359,13 +367,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         ], $this->context);
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+        $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
     private function getNewMediaEntities(): EntitySearchResult

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -26,7 +26,7 @@ class ImportExportFactory
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -57,7 +57,7 @@ class ImportExportFactory
     public function __construct(
         ImportExportService $importExportService,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepository $logRepository,
         Connection $connection,

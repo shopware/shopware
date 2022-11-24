@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\ScheduledTask;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
@@ -22,7 +22,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 
     private EntityRepository $fileRepository;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private MessageBusInterface $messageBus;
 
@@ -66,7 +66,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
         static::assertFalse($this->fileEntityExists($fileIdB));
 
         // Actual file should get deleted from filesystem
-        static::assertTrue($this->filesystem->has($expiredFilePath));
+        static::assertTrue($this->filesystem->fileExists($expiredFilePath));
 
         $messages = $this->messageBus->getDispatchedMessages();
         $deleteFileMessage = null;
@@ -78,7 +78,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
         static::assertNotNull($deleteFileMessage);
 
         $this->deleteFileHandler->handle($deleteFileMessage);
-        static::assertFalse($this->filesystem->has($expiredFilePath));
+        static::assertFalse($this->filesystem->fileExists($expiredFilePath));
     }
 
     private function logEntityExists(string $id): bool

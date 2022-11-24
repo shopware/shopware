@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Thumbnail;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -26,9 +26,9 @@ class ThumbnailService
 {
     private EntityRepository $thumbnailRepository;
 
-    private FilesystemInterface $filesystemPublic;
+    private FilesystemOperator $filesystemPublic;
 
-    private FilesystemInterface $filesystemPrivate;
+    private FilesystemOperator $filesystemPrivate;
 
     private UrlGeneratorInterface $urlGenerator;
 
@@ -39,8 +39,8 @@ class ThumbnailService
      */
     public function __construct(
         EntityRepository $thumbnailRepository,
-        FilesystemInterface $fileSystemPublic,
-        FilesystemInterface $fileSystemPrivate,
+        FilesystemOperator $fileSystemPublic,
+        FilesystemOperator $fileSystemPrivate,
         UrlGeneratorInterface $urlGenerator,
         EntityRepository $mediaFolderRepository
     ) {
@@ -222,7 +222,7 @@ class ThumbnailService
                 }
 
                 if ($strict === true
-                    && !$this->getFileSystem($media)->has($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail))) {
+                    && !$this->getFileSystem($media)->fileExists($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail))) {
                     continue;
                 }
 
@@ -294,8 +294,8 @@ class ThumbnailService
 
                 $mediaFilesystem = $this->getFileSystem($media);
                 if ($originalImageSize === $thumbnailSize
-                    && $mediaFilesystem->getSize($originalUrl) < $mediaFilesystem->getSize($url)) {
-                    $mediaFilesystem->update($url, (string) $mediaFilesystem->read($originalUrl));
+                    && $mediaFilesystem->fileSize($originalUrl) < $mediaFilesystem->fileSize($url)) {
+                    $mediaFilesystem->write($url, $mediaFilesystem->read($originalUrl));
                 }
 
                 $savedThumbnails[] = [
@@ -498,7 +498,9 @@ class ThumbnailService
         $imageFile = ob_get_contents();
         ob_end_clean();
 
-        if ($this->getFileSystem($media)->put($url, (string) $imageFile) === false) {
+        try {
+            $this->getFileSystem($media)->write($url, (string) $imageFile);
+        } catch (\Exception $e) {
             throw new ThumbnailCouldNotBeSavedException($url);
         }
     }
@@ -545,7 +547,7 @@ class ThumbnailService
         $this->thumbnailRepository->delete($delete, $context);
     }
 
-    private function getFileSystem(MediaEntity $media): FilesystemInterface
+    private function getFileSystem(MediaEntity $media): FilesystemOperator
     {
         if ($media->isPrivate()) {
             return $this->filesystemPrivate;

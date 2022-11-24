@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
@@ -28,7 +28,7 @@ class SitemapExporter implements SitemapExporterInterface
 
     private int $batchSize;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private SitemapHandleFactoryInterface $sitemapHandleFactory;
 
@@ -43,7 +43,7 @@ class SitemapExporter implements SitemapExporterInterface
         iterable $urlProvider,
         CacheItemPoolInterface $cache,
         int $batchSize,
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         SitemapHandleFactoryInterface $sitemapHandleFactory,
         EventDispatcherInterface $dispatcher
     ) {

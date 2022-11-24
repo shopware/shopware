@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
 abstract class AbstractFileWriter extends AbstractWriter
 {
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     protected $filesystem;
 
@@ -27,7 +27,7 @@ abstract class AbstractFileWriter extends AbstractWriter
      */
     protected $buffer;
 
-    public function __construct(FilesystemInterface $filesystem)
+    public function __construct(FilesystemOperator $filesystem)
     {
         $this->filesystem = $filesystem;
         $this->initTempFile();
@@ -44,7 +44,7 @@ abstract class AbstractFileWriter extends AbstractWriter
         }
 
         if (ftell($this->tempFile) > 0) {
-            $this->filesystem->putStream($targetPath, $this->tempFile);
+            $this->filesystem->writeStream($targetPath, $this->tempFile);
         }
 
         $this->initBuffer();

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
-use League\Flysystem\AdapterInterface;
+use League\Flysystem\Visibility;
 
 class DeleteFileMessage
 {
@@ -10,7 +10,7 @@ class DeleteFileMessage
 
     private string $visibility;
 
-    public function __construct(array $files = [], string $visibility = AdapterInterface::VISIBILITY_PUBLIC)
+    public function __construct(array $files = [], string $visibility = Visibility::PUBLIC)
     {
         $this->files = $files;
         $this->visibility = $visibility;

@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -33,7 +33,7 @@ class AssetServiceTest extends TestCase
             ->willThrowException(new \InvalidArgumentException());
 
         $assetService = new AssetService(
-            new Filesystem(new MemoryAdapter()),
+            new Filesystem(new MemoryFilesystemAdapter()),
             $kernelMock,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
@@ -54,7 +54,7 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryAdapter());
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $kernel,
@@ -75,7 +75,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsFromBundlePluginInactivePlugin(): void
     {
-        $filesystem = new Filesystem(new MemoryAdapter());
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
         $classLoader = $this->createMock(ClassLoader::class);
         $classLoader->method('findFile')->willReturn(__FILE__);
@@ -130,7 +130,7 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryAdapter());
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $kernel,
@@ -153,7 +153,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyRecoveryFiles(): void
     {
-        $filesystem = new Filesystem(new MemoryAdapter());
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $this->createMock(KernelInterface::class),
@@ -171,7 +171,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsWithoutApp(): void
     {
-        $filesystem = new Filesystem(new MemoryAdapter());
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $this->createMock(KernelInterface::class),
@@ -184,12 +184,12 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromApp('TestApp', __DIR__ . '/foo');
 
-        static::assertEmpty($filesystem->listContents('bundles'));
+        static::assertEmpty($filesystem->listContents('bundles')->toArray());
     }
 
     public function testCopyAssetsWithApp(): void
     {
-        $filesystem = new Filesystem(new MemoryAdapter());
+        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
         $appLoader = $this->createMock(AbstractAppLoader::class);
         $appLoader

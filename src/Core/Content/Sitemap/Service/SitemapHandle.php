@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -14,9 +14,12 @@ class SitemapHandle implements SitemapHandleInterface
     private const MAX_URLS = 49999;
     private const SITEMAP_NAME_PATTERN = 'sitemap%s-%d.xml.gz';
 
+    /**
+     * @var array<string>
+     */
     private array $tmpFiles = [];
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -37,7 +40,7 @@ class SitemapHandle implements SitemapHandleInterface
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         SalesChannelContext $context,
         EventDispatcherInterface $eventDispatcher,
         ?string $domain = null
@@ -88,11 +91,11 @@ class SitemapHandle implements SitemapHandleInterface
 
         foreach ($this->tmpFiles as $i => $tmpFile) {
             $sitemapPath = $this->getFilePath($i + 1, $this->context);
-            if ($this->filesystem->has($sitemapPath)) {
+            if ($this->filesystem->fileExists($sitemapPath)) {
                 $this->filesystem->delete($sitemapPath);
             }
 
-            $this->filesystem->write($sitemapPath, file_get_contents($tmpFile));
+            $this->filesystem->write($sitemapPath, (string) file_get_contents($tmpFile));
             @unlink($tmpFile);
         }
     }

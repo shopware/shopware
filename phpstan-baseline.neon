@@ -4590,17 +4590,7 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Parameter \\#1 \\$total of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Progress\\:\\:setTotal\\(\\) expects int\\|null, int\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^Parameter \\#2 \\$profileId of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\ImportExportService\\:\\:prepareExport\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\AbstractReader\\:\\:read\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExport.php
 
@@ -6840,16 +6830,6 @@ parameters:
 			path: src/Core/Content/Sitemap/Service/SitemapExporter.php
 
 		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:write\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\SitemapHandle\\:\\:\\$tmpFiles type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\SitemapHandleInterface\\:\\:write\\(\\) has parameter \\$urls with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Service/SitemapHandleInterface.php
@@ -7111,11 +7091,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:read\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/AbstractImportExportTest.php
 
@@ -7830,11 +7805,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
@@ -7921,11 +7891,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\Filesystem\\:\\:put\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
 
@@ -8109,50 +8074,9 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateMediaTypesCommandTest\\:\\:getNewMediaEntities\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
 
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateMediaTypesCommandTest\\:\\:\\$initialMediaIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
 
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getThumbnails\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$haystack of function mb_strpos expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateThumbnailsCommandTest\\:\\:\\$initialMediaIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
 
 		-
 			message: "#^Cannot call method getConfigurationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -8189,10 +8113,7 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaThumbnailRepositoryTest.php
 
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/DeleteNotUsedMediaServiceTest.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$preferredFileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
@@ -8309,20 +8230,7 @@ parameters:
 			count: 4
 			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
 
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
 
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
@@ -9774,10 +9682,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\FlysystemLastModifiedVersionStrategy\\:\\:getMetaData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/FlysystemLastModifiedVersionStrategy.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\AbstractCacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -9970,56 +9875,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php
 
 		-
-			message: "#^Cannot access offset 'path' on array\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:createDir\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:getMetadata\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:listContents\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:put\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:putStream\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:update\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:updateStream\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:write\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\AbstractFilesystem\\:\\:writeStream\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\AdapterFactoryInterface\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Filesystem/Adapter/AdapterFactoryInterface.php
@@ -10099,35 +9954,9 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\FilesystemFactory\\:\\:factory\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/FilesystemFactory.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\FilesystemFactory\\:\\:resolveFilesystemConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/FilesystemFactory.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\FilesystemFactory\\:\\:resolveFilesystemConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/FilesystemFactory.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\FilesystemFactory\\:\\:\\$adapterFactories \\(array\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\AdapterFactoryInterface\\>\\) does not accept iterable\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\AdapterFactoryInterface\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/FilesystemFactory.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\FilesystemFactory\\:\\:\\$filesystemPlugins \\(array\\<League\\\\Flysystem\\\\PluginInterface\\>\\) does not accept iterable\\<League\\\\Flysystem\\\\PluginInterface\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/FilesystemFactory.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Plugin/CopyBatch.php
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\AppTemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"

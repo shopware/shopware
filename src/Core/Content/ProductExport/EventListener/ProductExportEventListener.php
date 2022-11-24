@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -19,7 +19,7 @@ class ProductExportEventListener implements EventSubscriberInterface
 
     private ProductExportFileHandlerInterface $productExportFileHandler;
 
-    private FilesystemInterface $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     /**
      * @internal
@@ -27,7 +27,7 @@ class ProductExportEventListener implements EventSubscriberInterface
     public function __construct(
         EntityRepository $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemInterface $fileSystem
+        FilesystemOperator $fileSystem
     ) {
         $this->productExportRepository = $productExportRepository;
         $this->productExportFileHandler = $productExportFileHandler;
@@ -65,7 +65,7 @@ class ProductExportEventListener implements EventSubscriberInterface
                 $productExport = $productExportResult->first();
 
                 $filePath = $this->productExportFileHandler->getFilePath($productExport);
-                if ($this->fileSystem->has($filePath)) {
+                if ($this->fileSystem->fileExists($filePath)) {
                     $this->fileSystem->delete($filePath);
                 }
             }

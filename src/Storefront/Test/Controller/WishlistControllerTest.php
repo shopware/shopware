@@ -284,7 +284,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', '/widgets/wishlist', []);
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 

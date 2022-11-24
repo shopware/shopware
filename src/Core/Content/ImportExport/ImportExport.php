@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
@@ -50,7 +50,7 @@ class ImportExport
 
     private ImportExportLogEntity $logEntity;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private int $importLimit;
 
@@ -77,7 +77,7 @@ class ImportExport
     public function __construct(
         ImportExportService $importExportService,
         ImportExportLogEntity $logEntity,
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         EventDispatcherInterface $eventDispatcher,
         Connection $connection,
         EntityRepository $repository,
@@ -114,7 +114,7 @@ class ImportExport
         $processed = 0;
 
         $path = $this->logEntity->getFile()->getPath();
-        $progress->setTotal($this->filesystem->getSize($path));
+        $progress->setTotal($this->filesystem->fileSize($path));
         $invalidRecordsProgress = null;
 
         $failedRecords = [];
@@ -222,7 +222,7 @@ class ImportExport
         }
 
         // importing the file is complete
-        if ($this->reader->getOffset() === $this->filesystem->getSize($path)) {
+        if ($this->reader->getOffset() === $this->filesystem->fileSize($path)) {
             if ($this->logEntity->getInvalidRecordsLog() !== null) {
                 $invalidLog = $this->logEntity->getInvalidRecordsLog();
                 $invalidRecordsProgress = $invalidRecordsProgress
@@ -369,16 +369,13 @@ class ImportExport
         // concatenate all part files into a temporary file
         foreach ($partFiles as $partFile) {
             $stream = $this->filesystem->readStream($partFile);
-            if (!$stream) {
-                throw new ProcessingException('Failed to merge files');
-            }
             if (stream_copy_to_stream($stream, $tmp) === false) {
                 throw new ProcessingException('Failed to merge files');
             }
         }
 
         // copy final file into filesystem
-        $this->filesystem->putStream($target, $tmp);
+        $this->filesystem->writeStream($target, $tmp);
 
         if (\is_resource($tmp)) {
             fclose($tmp);
@@ -400,7 +397,7 @@ class ImportExport
         $this->fileService->updateFile(
             Context::createDefaultContext(),
             $fileId,
-            ['size' => $this->filesystem->getSize($target)]
+            ['size' => $this->filesystem->fileSize($target)]
         );
 
         return $progress;

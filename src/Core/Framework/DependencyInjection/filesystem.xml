@@ -8,35 +8,34 @@
         <!-- Filesystem -->
         <service id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory">
             <argument type="tagged" tag="shopware.filesystem.factory"/>
-            <argument type="tagged" tag="shopware.filesystem.plugin"/>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public" public="true">
+        <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.public" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.public%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.private" public="true">
+        <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.private" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.temp" public="true">
+        <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.temp" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.temp%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.theme" public="true">
+        <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.theme" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.theme%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.sitemap" public="true">
+        <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.sitemap" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.sitemap%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.asset" public="true">
+        <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.asset" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.asset%</argument>
         </service>
@@ -53,13 +52,9 @@
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem">
+        <service id="League\Flysystem\PathPrefixing\PathPrefixedAdapter">
             <argument type="service" id="shopware.filesystem.public"/>
             <argument>media</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch">
-            <tag name="shopware.filesystem.plugin" />
         </service>
 
         <service id="console.command.assets_install" class="Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand">

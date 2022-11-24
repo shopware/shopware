@@ -32,7 +32,7 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.4.3 || ^8.0",
+        "php": "^8.1",
         "ext-curl": "*",
         "doctrine/dbal": "~3.5",
         "elasticsearch/elasticsearch": "7.16.0",

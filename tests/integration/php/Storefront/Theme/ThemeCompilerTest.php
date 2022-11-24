@@ -4,11 +4,10 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Exception;
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
@@ -415,10 +414,8 @@ PHP_EOL;
         $importer = $this->createMock(ThemeFileImporter::class);
         $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
 
-        $fs = new Filesystem(new MemoryAdapter());
-        $fs->addPlugin(new CopyBatch());
-        $tmpFs = new Filesystem(new MemoryAdapter());
-        $tmpFs->addPlugin(new CopyBatch());
+        $fs = new Filesystem(new MemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
 
         $compiler = new ThemeCompiler(
             $fs,

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
@@ -25,6 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function class_exists;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
@@ -37,7 +38,7 @@ class ExportController
     private $productExportService;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $fileSystem;
 
@@ -67,7 +68,7 @@ class ExportController
     public function __construct(
         ProductExporterInterface $productExportService,
         ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemInterface $fileSystem,
+        FilesystemOperator $fileSystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepository $productExportRepository,
         AbstractSalesChannelContextFactory $contextFactory
@@ -108,11 +109,11 @@ class ExportController
         $filePath = $this->productExportFileHandler->getFilePath($productExport);
 
         // if file not present or interval = live
-        if (!$this->fileSystem->has($filePath) || $productExport->getInterval() === 0) {
+        if (!$this->fileSystem->fileExists($filePath) || $productExport->getInterval() === 0) {
             $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
         }
 
-        if (!$this->fileSystem->has($filePath)) {
+        if (!$this->fileSystem->fileExists($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
             $this->logException($context->getContext(), $exportNotGeneratedException);
 
@@ -142,7 +143,7 @@ class ExportController
                 break;
         }
 
-        if (!Feature::isActive('v6.5.0.0') && \class_exists(StorefrontProductExportContentTypeEvent::class)) {
+        if (!Feature::isActive('v6.5.0.0') && class_exists(StorefrontProductExportContentTypeEvent::class)) {
             $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
             $this->eventDispatcher->dispatch($event);
         }

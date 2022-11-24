@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ImportExport;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -110,6 +111,7 @@ class ImportExportTest extends AbstractImportExportTest
 
     public function testImportExport(): void
     {
+        /** @var FilesystemOperator $filesystem */
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
         $productId = Uuid::randomHex();
@@ -128,7 +130,9 @@ class ImportExportTest extends AbstractImportExportTest
         $file = $fileRepository->search(new Criteria(array_filter([$this->getLogEntity($progress->getLogId())->getFileId()])), Context::createDefaultContext())->first();
 
         static::assertNotNull($file);
-        static::assertSame($filesystem->getSize($file->getPath()), $file->getSize());
+        $importExportFileEntity = $this->getLogEntity($progress->getLogId())->getFile();
+        static::assertInstanceOf(ImportExportFileEntity::class, $importExportFileEntity);
+        static::assertSame($filesystem->fileSize($importExportFileEntity->getPath()), $file->getSize());
 
         $this->productRepository->delete([['id' => $productId]], Context::createDefaultContext());
         $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
@@ -354,7 +358,7 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
         $logfile = $this->getLogEntity($progress->getLogId())->getFile();
         static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        static::assertGreaterThan(0, $filesystem->getSize($logfile->getPath()));
+        static::assertGreaterThan(0, $filesystem->fileSize($logfile->getPath()));
 
         $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
         file_put_contents($exportFileTmp, (string) $filesystem->read($logfile->getPath()));

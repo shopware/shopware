@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use Aws\S3\S3Client;
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
+use AsyncAws\S3\S3Client;
+use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
+use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
+use League\Flysystem\FilesystemAdapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -12,13 +13,32 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
-    public function create(array $config): AdapterInterface
+    public function create(array $config): FilesystemAdapter
     {
         $options = $this->resolveS3Options($config);
 
-        $client = new S3Client($options);
+        $s3Opts = [];
 
-        return new AwsS3Adapter($client, $options['bucket'], $options['root'], $options['options'], false);
+        if (\array_key_exists('region', $options)) {
+            $s3Opts['region'] = $options['region'];
+        }
+
+        if (\array_key_exists('endpoint', $options)) {
+            $s3Opts['endpoint'] = $options['endpoint'];
+        }
+
+        if (\array_key_exists('use_path_style_endpoint', $options)) {
+            $s3Opts['pathStyleEndpoint'] = $options['use_path_style_endpoint'];
+        }
+
+        if (isset($options['credentials'])) {
+            $s3Opts['accessKeyId'] = $options['credentials']['key'];
+            $s3Opts['accessKeySecret'] = $options['credentials']['secret'];
+        }
+
+        $client = new S3Client($s3Opts);
+
+        return new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
     }
 
     public function getType(): string
@@ -31,17 +51,15 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         $options = new OptionsResolver();
 
         $options->setRequired(['bucket', 'region']);
-        $options->setDefined(['credentials', 'version', 'root', 'options', 'endpoint', 'use_path_style_endpoint', 'url']);
+        $options->setDefined(['credentials', 'root', 'options', 'endpoint', 'use_path_style_endpoint', 'url', 'visibility']);
 
         $options->setAllowedTypes('credentials', 'array');
         $options->setAllowedTypes('region', 'string');
-        $options->setAllowedTypes('version', 'string');
         $options->setAllowedTypes('root', 'string');
         $options->setAllowedTypes('options', 'array');
         $options->setAllowedTypes('endpoint', 'string');
         $options->setAllowedTypes('use_path_style_endpoint', 'bool');
 
-        $options->setDefault('version', 'latest');
         $options->setDefault('root', '');
         $options->setDefault('options', []);
 

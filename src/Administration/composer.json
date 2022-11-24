@@ -28,7 +28,7 @@
         }
     },
     "require": {
-        "php": "^7.4.3 || ^8.0",
+        "php": "^8.1",
         "shopware/core": "*",
         "symfony/framework-bundle": "~6.1.0",
         "symfony/http-foundation": "~6.1.0",

@@ -31,7 +31,7 @@
         }
     },
     "require": {
-        "php": "^7.4.3 || ^8.0",
+        "php": "^8.1",
         "cocur/slugify": "4.0.0",
         "erusev/parsedown-extra": "0.8.1",
         "guzzlehttp/guzzle": "~7.4.5",

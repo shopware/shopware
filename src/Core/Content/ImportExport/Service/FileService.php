@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -17,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileService extends AbstractFileService
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private EntityRepository $fileRepository;
 
@@ -27,7 +26,7 @@ class FileService extends AbstractFileService
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystem,
+        FilesystemOperator $filesystem,
         EntityRepository $fileRepository
     ) {
         $this->filesystem = $filesystem;
@@ -42,7 +41,6 @@ class FileService extends AbstractFileService
 
     /**
      * @throws FileNotReadableException
-     * @throws FileNotFoundException
      */
     public function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
@@ -56,16 +54,16 @@ class FileService extends AbstractFileService
             if (!\is_resource($sourceStream)) {
                 throw new FileNotReadableException($sourcePath);
             }
-            $this->filesystem->putStream($path, $sourceStream);
+            $this->filesystem->writeStream($path, $sourceStream);
         } else {
-            $this->filesystem->put($path, '');
+            $this->filesystem->write($path, '');
         }
 
         $fileData = [
             'id' => $id,
             'originalName' => $originalFileName,
             'path' => $path,
-            'size' => $this->filesystem->getSize($path),
+            'size' => $this->filesystem->fileSize($path),
             'expireDate' => $expireDate,
             'accessToken' => null,
         ];

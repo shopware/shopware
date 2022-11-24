@@ -138,8 +138,7 @@
         <!-- Pathname -->
         <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
-            <argument type="service" id="request_stack"/>
-            <argument>%shopware.filesystem.public.url%</argument>
+            <argument type="service" id="shopware.filesystem.public"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

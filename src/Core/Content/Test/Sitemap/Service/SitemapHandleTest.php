@@ -57,7 +57,6 @@ class SitemapHandleTest extends TestCase
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->expects(static::once())->method('write');
-        $fileSystem->method('listContents')->willReturn([]);
 
         $this->handle = new SitemapHandle(
             $fileSystem,
@@ -86,7 +85,6 @@ class SitemapHandleTest extends TestCase
 
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->expects(static::atLeast(3))->method('write');
-        $fileSystem->method('listContents')->willReturn([]);
 
         $this->handle = new SitemapHandle(
             $fileSystem,

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\AdapterInterface;
+use League\Flysystem\Visibility;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
@@ -153,8 +153,8 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
         }
 
-        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
-        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
+        $this->performFileDelete($context, $publicPaths, Visibility::PUBLIC);
+        $this->performFileDelete($context, $privatePaths, Visibility::PRIVATE);
 
         $this->thumbnailRepository->delete($thumbnails, $context);
     }
@@ -229,8 +229,8 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             }
         }
 
-        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
-        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
+        $this->performFileDelete($context, $privatePaths, Visibility::PRIVATE);
+        $this->performFileDelete($context, $publicPaths, Visibility::PUBLIC);
 
         $event->addSuccess(function () use ($thumbnails, $context): void {
             $this->dispatcher->dispatch(new MediaThumbnailDeletedEvent($thumbnails, $context), MediaThumbnailDeletedEvent::EVENT_NAME);

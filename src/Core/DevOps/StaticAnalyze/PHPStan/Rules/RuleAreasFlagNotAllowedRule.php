@@ -66,7 +66,7 @@ class RuleAreasFlagNotAllowedRule implements Rule
                 continue;
             }
 
-            if ($class->getName() !== RuleDefinition::class) {
+            if ($class->getName() !== RuleDefinition::class && !$class->isSubclassOf(RuleDefinition::class)) {
                 return [
                     'RuleAreas flag may only be added within the scope of RuleDefinition',
                 ];

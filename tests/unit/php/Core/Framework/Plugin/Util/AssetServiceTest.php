@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
+use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
@@ -31,15 +32,10 @@ class AssetServiceTest extends TestCase
             ->with('bundleName')
             ->willThrowException(new \InvalidArgumentException());
 
-        $pluginLoaderMock = $this->createMock(KernelPluginLoader::class);
-        $pluginLoaderMock->expects(static::once())
-            ->method('getPluginInstances')
-            ->willReturn(new KernelPluginCollection([]));
-
         $assetService = new AssetService(
             new Filesystem(new MemoryAdapter()),
             $kernelMock,
-            $pluginLoaderMock,
+            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',
@@ -62,7 +58,7 @@ class AssetServiceTest extends TestCase
         $assetService = new AssetService(
             $filesystem,
             $kernel,
-            $this->createMock(KernelPluginLoader::class),
+            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',
@@ -81,9 +77,28 @@ class AssetServiceTest extends TestCase
     {
         $filesystem = new Filesystem(new MemoryAdapter());
 
-        $pluginLoader = $this->createMock(KernelPluginLoader::class);
-        $pluginLoader
-            ->method('getPluginInstances')->willReturn(new KernelPluginCollection(['ExampleBundle' => $this->getBundle()]));
+        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader->method('findFile')->willReturn(__FILE__);
+        $pluginLoader = new StaticKernelPluginLoader(
+            $classLoader,
+            null,
+            [
+                [
+                    'name' => 'ExampleBundle',
+                    'baseClass' => ExampleBundle::class,
+                    'path' => __DIR__ . '/_fixtures/ExampleBundle',
+                    'active' => true,
+                    'managedByComposer' => false,
+                    'autoload' => [
+                        'psr-4' => [
+                            'ExampleBundle' => '',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $pluginLoader->initializePlugins(__DIR__);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
@@ -100,7 +115,7 @@ class AssetServiceTest extends TestCase
             new ParameterBag()
         );
 
-        $assetService->copyAssetsFromBundle('ExampleBundle');
+        $assetService->copyAssetsFromBundle('Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle');
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
@@ -119,7 +134,7 @@ class AssetServiceTest extends TestCase
         $assetService = new AssetService(
             $filesystem,
             $kernel,
-            $this->createMock(KernelPluginLoader::class),
+            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',

@@ -8,7 +8,6 @@ use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\ConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
-use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
@@ -23,8 +22,6 @@ class MailerTransportLoaderTest extends TestCase
     public function testUseSymfonyTransportDefault(): void
     {
         $transport = $this->getTransportFactory();
-        $transport->expects(static::atLeast(1))
-            ->method('fromString');
 
         $loader = new MailerTransportLoader(
             $transport,
@@ -33,7 +30,9 @@ class MailerTransportLoaderTest extends TestCase
             ])
         );
 
-        $loader->fromString('smtp://localhost:25');
+        $trans = $loader->fromString('smtp://localhost:25');
+
+        static::assertInstanceOf(EsmtpTransport::class, $trans);
     }
 
     public function testFactoryWithLocal(): void
@@ -57,8 +56,6 @@ class MailerTransportLoaderTest extends TestCase
     public function testLoaderWithSmtpConfig(?string $encryption): void
     {
         $transport = $this->getTransportFactory();
-        $transport->expects(static::atLeast(1))
-            ->method('fromDsnObject');
 
         $loader = new MailerTransportLoader(
             $transport,
@@ -125,13 +122,8 @@ class MailerTransportLoaderTest extends TestCase
      */
     private function getFactories(): array
     {
-        $smtpTransport = $this->createPartialMock(EsmtpTransportFactory::class, ['create']);
-        $smtpTransport->expects(static::any())
-            ->method('create')
-            ->willReturn($this->createMock(EsmtpTransport::class));
-
         return [
-            'smtp' => $smtpTransport,
+            'smtp' => new EsmtpTransportFactory(),
         ];
     }
 
@@ -140,28 +132,6 @@ class MailerTransportLoaderTest extends TestCase
      */
     private function getTransportFactory(): mixed
     {
-        $factories = $this->getFactories();
-
-        $transport = $this
-            ->getMockBuilder(Transport::class)
-            ->setConstructorArgs([$factories, 'null://null'])
-            ->disableOriginalClone()
-            ->disableArgumentCloning()
-            ->disallowMockingUnknownTypes()
-            ->getMock();
-
-        $transport->expects(static::any())
-            ->method('fromDsnObject')
-            ->willReturnCallback(function (Dsn $dsn) use ($factories) {
-                foreach ($factories as $factory) {
-                    if ($factory->supports($dsn)) {
-                        return $factory->create($dsn);
-                    }
-                }
-
-                return null;
-            });
-
-        return $transport;
+        return new Transport($this->getFactories());
     }
 }

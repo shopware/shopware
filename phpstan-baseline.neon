@@ -1160,10 +1160,7 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Document/DocumentEntity.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentGenerationResult\\:\\:getErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerationResult.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentGenerator\\\\DocumentGeneratorRegistry\\:\\:__construct\\(\\) has parameter \\$documentGenerators with no value type specified in iterable type iterable\\.$#"
@@ -1250,15 +1247,7 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Document/Renderer/RendererResult.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\:\\:writeRecords\\(\\) has parameter \\$records with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Service/DocumentGenerator.php
 
-		-
-			message: "#^Parameter \\#1 \\$document of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\:\\:ensureDocumentMediaFileGenerated\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Service/DocumentGenerator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\ReferenceInvoiceLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -2889,11 +2878,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Validation\\\\CustomerValidationFactoryTest\\:\\:getCreateTestData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Validation/CustomerValidationFactoryTest.php
-
-		-
-			message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\>\\:\\:getMock\\(\\) contains unresolvable type\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentMergerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionBuilder\\:\\:add\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"

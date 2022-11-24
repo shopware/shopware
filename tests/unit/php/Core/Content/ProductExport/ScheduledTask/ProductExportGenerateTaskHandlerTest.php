@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Core\Test\CollectingMessageBus;
 
 /**
  * @internal
@@ -30,10 +30,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $salesChannelContextFactoryMock = $this->getSalesChannelContextFactoryMock();
         $productExportRepositoryMock = $this->getProductExportRepositoryMock($productExportEntity);
 
-        $messageBusMock = $this->createMock(MessageBusInterface::class);
-
-        $messageBusMock->expects(static::exactly($expectedResult ? 1 : 0))
-            ->method('dispatch');
+        $messageBusMock = new CollectingMessageBus();
 
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
             $this->createMock(EntityRepository::class),
@@ -44,6 +41,12 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         );
 
         $productExportGenerateTaskHandler->run();
+
+        if ($expectedResult) {
+            static::assertCount(1, $messageBusMock->getMessages());
+        } else {
+            static::assertCount(0, $messageBusMock->getMessages());
+        }
     }
 
     public function shouldBeRunDataProvider(): \Generator

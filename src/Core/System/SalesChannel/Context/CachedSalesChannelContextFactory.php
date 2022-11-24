@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @package core
+ */
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     public const ALL_TAG = 'sales-channel-context';

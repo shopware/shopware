@@ -10,6 +10,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class CachedBaseContextFactory extends AbstractBaseContextFactory

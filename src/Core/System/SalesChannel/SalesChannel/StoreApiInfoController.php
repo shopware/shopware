@@ -16,6 +16,8 @@ use Twig\Environment;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package sales-channel
  */
 class StoreApiInfoController
 {

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
     /**

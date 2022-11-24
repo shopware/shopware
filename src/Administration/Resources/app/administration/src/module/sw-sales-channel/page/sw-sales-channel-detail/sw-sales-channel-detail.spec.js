@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
 

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelCurrencyDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel_currency';

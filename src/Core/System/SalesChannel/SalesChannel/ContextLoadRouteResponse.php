@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package core
+ */
 class ContextLoadRouteResponse extends StoreApiResponse
 {
     /**

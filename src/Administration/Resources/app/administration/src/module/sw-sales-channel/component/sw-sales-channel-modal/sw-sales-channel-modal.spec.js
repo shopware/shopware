@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal/';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/';

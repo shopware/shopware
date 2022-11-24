@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Exception\LanguageOfSalesChannelDomainDeleteException;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

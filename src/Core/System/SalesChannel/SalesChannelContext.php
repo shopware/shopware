@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
 
+/**
+ * @package core
+ */
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;

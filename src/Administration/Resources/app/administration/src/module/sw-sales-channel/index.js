@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import './component/structure/sw-admin-menu-extension';
 import './component/structure/sw-sales-channel-menu';
 import './component/sw-sales-channel-defaults-select';

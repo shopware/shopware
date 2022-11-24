@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 

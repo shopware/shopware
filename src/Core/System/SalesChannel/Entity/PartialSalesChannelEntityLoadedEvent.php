@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class PartialSalesChannelEntityLoadedEvent extends PartialEntityLoadedEvent implements ShopwareSalesChannelEvent

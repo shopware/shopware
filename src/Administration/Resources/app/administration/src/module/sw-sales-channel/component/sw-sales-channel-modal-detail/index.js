@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-modal-detail.html.twig';
 import './sw-sales-channel-modal-detail.scss';
 

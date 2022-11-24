@@ -1,4 +1,6 @@
 /**
+ * @package sales-channel
+ *
  * TODO: Full implementation has to be done with NEXT-8925. This contains only some basics to prevent errors on every
  *  page.
  */

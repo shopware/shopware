@@ -48,7 +48,7 @@ class TestProductSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
+    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
         // no-op, dummy implementation
     }

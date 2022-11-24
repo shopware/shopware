@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
@@ -101,7 +100,7 @@ class SeoUrlUpdater
 
             $salesChannel = $salesChannels->get($salesChannelId);
 
-            if ($salesChannel === null && Feature::isActive('FEATURE_NEXT_13410')) {
+            if ($salesChannel === null) {
                 continue;
             }
 

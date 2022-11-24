@@ -31,8 +31,6 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
     public function testCriteria(): void
     {
-        $_SERVER['FEATURE_NEXT_13410'] = '1';
-
         $route = new ProductPageSeoUrlRoute($this->createMock(ProductDefinition::class));
 
         $criteria = new Criteria();
@@ -42,8 +40,6 @@ class ProductPageSeoUrlRouteTest extends TestCase
         static::assertTrue($criteria->hasEqualsFilter('active'));
 
         static::assertTrue($criteria->hasEqualsFilter('visibilities.salesChannelId'));
-
-        unset($_SERVER['FEATURE_NEXT_13410']);
     }
 
     public function testMappingWithInvalidEntity(): void

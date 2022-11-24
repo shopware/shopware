@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Seo\Validation;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -44,14 +43,10 @@ class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
             ->add('foreignKey', ...$fkConstraints)
             ->add('routeName', new NotBlank(), new Type('string'))
             ->add('pathInfo', new NotBlank(), new Type('string'))
-            ->add('seoPathInfo', new NotBlank(), new Type('string'));
-
-        if (Feature::isActive('FEATURE_NEXT_13410')) {
-            $definition
-                ->add('salesChannelId', new NotBlank(), new EntityExists([
-                    'entity' => SalesChannelDefinition::ENTITY_NAME,
-                    'context' => $context,
-                ]));
-        }
+            ->add('seoPathInfo', new NotBlank(), new Type('string'))
+            ->add('salesChannelId', new NotBlank(), new EntityExists([
+                'entity' => SalesChannelDefinition::ENTITY_NAME,
+                'context' => $context,
+            ]));
     }
 }

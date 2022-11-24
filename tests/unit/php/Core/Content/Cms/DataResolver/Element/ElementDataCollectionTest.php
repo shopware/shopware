@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 /**
  * @internal
  *
+ * @package content
  * @covers \Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection
  */
 class ElementDataCollectionTest extends TestCase

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import AccountPageObject from '../../../../support/pages/account.page-object';

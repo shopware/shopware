@@ -212,10 +212,6 @@ class StoreApiProxyControllerTest extends TestCase
         $content = $response->getContent();
         $json = json_decode($content, true);
         static::assertSame($secondLanguage, $json['context']['languageIdChain'][0]);
-
-        if (!Feature::isActive('FEATURE_NEXT_17276')) {
-            static::assertSame($secondLanguage, $json['salesChannel']['languageId']);
-        }
     }
 
     public function testCustomerLoginChangesTokenInSession(): void

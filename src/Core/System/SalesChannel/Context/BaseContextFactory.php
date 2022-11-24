@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -96,16 +95,6 @@ class BaseContextFactory extends AbstractBaseContextFactory
 
         if (!$salesChannel) {
             throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
-        }
-
-        if (!Feature::isActive('FEATURE_NEXT_17276')) {
-            /*
-             * @deprecated tag:v6.5.0 - Overriding the languageId of the SalesChannel is deprecated and will be removed in v6.5.0
-             * use `$salesChannelContext->getLanguageId()` instead
-             */
-            if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
-                $salesChannel->setLanguageId($options[SalesChannelContextService::LANGUAGE_ID]);
-            }
         }
 
         //load active currency, fallback to shop currency

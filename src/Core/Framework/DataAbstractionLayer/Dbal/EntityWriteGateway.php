@@ -41,12 +41,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {
@@ -113,25 +112,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     public function execute(array $commands, WriteContext $context): void
     {
         try {
-            if (Feature::isActive('FEATURE_NEXT_16640')) {
-                //@internal (flag:FEATURE_NEXT_16640) keep the IF part. Remove complete else part
-                RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
-                    $this->executeCommands($commands, $context, false);
-                });
-            } else {
-                try {
-                    RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
-                        $this->executeCommands($commands, $context, true);
-                    });
-                } catch (\Throwable $e) {
-                    // Let RetryableTransaction retry once with batch disabled
-                    $context->resetExceptions();
-
-                    RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
-                        $this->executeCommands($commands, $context, false);
-                    });
-                }
-            }
+            RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+                $this->executeCommands($commands, $context);
+            });
         } catch (\Throwable $e) {
             $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
             $this->eventDispatcher->dispatch($event);
@@ -140,10 +123,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_16640) Remove enableBatch parameter. Keep true cases. Batch will always be active
-     */
-    private function executeCommands(array $commands, WriteContext $context, bool $enableBatch): void
+    private function executeCommands(array $commands, WriteContext $context): void
     {
         $beforeDeleteEvent = BeforeDeleteEvent::create($context, $commands);
 
@@ -205,11 +185,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
                         $mappings->addInsert($definition->getEntityName(), $command->getPayload());
 
-                        // @internal (flag:FEATURE_NEXT_16640) Remove complete IF case and body
-                        if (!$enableBatch) {
-                            $mappings->execute();
-                        }
-
                         continue;
                     }
 
@@ -230,11 +205,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if ($command instanceof InsertCommand) {
                         $inserts->addInsert($definition->getEntityName(), $command->getPayload());
 
-                        // @internal (flag:FEATURE_NEXT_16640) Remove complete IF case and body
-                        if (!$enableBatch) {
-                            $inserts->execute();
-                        }
-
                         continue;
                     }
 
@@ -242,12 +212,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 } catch (\Exception $e) {
                     $command->setFailed(true);
 
-                    // @internal (flag:FEATURE_NEXT_16640) Keep IF part, remove ELSE part
-                    if (Feature::isActive('FEATURE_NEXT_16640')) {
-                        $innerException = $this->exceptionHandlerRegistry->matchException($e);
-                    } else {
-                        $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
-                    }
+                    $innerException = $this->exceptionHandlerRegistry->matchException($e);
+
                     if ($innerException instanceof \Exception) {
                         $e = $innerException;
                     }
@@ -261,15 +227,12 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $inserts->execute();
             $beforeDeleteEvent->success();
         } catch (Exception $e) {
-            // @internal (flag:FEATURE_NEXT_16640) Keep IF body
-            if (Feature::isActive('FEATURE_NEXT_16640')) {
-                // Match exception without passing a specific command when feature-flag 16640 is active
-                $innerException = $this->exceptionHandlerRegistry->matchException($e);
-                if ($innerException instanceof \Exception) {
-                    $e = $innerException;
-                }
-                $context->getExceptions()->add($e);
+            // Match exception without passing a specific command when feature-flag 16640 is active
+            $innerException = $this->exceptionHandlerRegistry->matchException($e);
+            if ($innerException instanceof \Exception) {
+                $e = $innerException;
             }
+            $context->getExceptions()->add($e);
 
             $beforeDeleteEvent->error();
 

@@ -29,7 +29,7 @@ class EntityLoadedEventFactory
         $mapping = $this->recursion($entities, []);
 
         $generator = function (EntityDefinition $definition, array $entities) use ($context) {
-            return new EntityLoadedEvent($definition, $entities, $context, false);
+            return new EntityLoadedEvent($definition, $entities, $context);
         };
 
         return $this->buildEvents($mapping, $generator, $context);
@@ -54,11 +54,11 @@ class EntityLoadedEventFactory
         $mapping = $this->recursion($entities, []);
 
         $generator = function (EntityDefinition $definition, array $entities) use ($context) {
-            return new EntityLoadedEvent($definition, $entities, $context->getContext(), false);
+            return new EntityLoadedEvent($definition, $entities, $context->getContext());
         };
 
         $salesGenerator = function (EntityDefinition $definition, array $entities) use ($context) {
-            return new SalesChannelEntityLoadedEvent($definition, $entities, $context, false);
+            return new SalesChannelEntityLoadedEvent($definition, $entities, $context);
         };
 
         return [

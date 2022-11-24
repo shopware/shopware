@@ -41,20 +41,15 @@ class FeatureFlagExtensionTest extends TestCase
     public function testAllFeatureFlagsAreActivated(): void
     {
         $_SERVER['V6_5_0_0'] = false;
-        $_SERVER['PERFORMANCE_TWEAKS'] = false;
 
         $this->extension->executeBeforeTest(__METHOD__);
 
         static::assertTrue(Feature::isActive('v6.5.0.0'));
-        static::assertTrue(Feature::isActive('PERFORMANCE_TWEAKS'));
 
         $this->extension->executeAfterTest(__METHOD__, 0.1);
 
         static::assertArrayHasKey('V6_5_0_0', $_SERVER);
         static::assertFalse($_SERVER['V6_5_0_0']);
-
-        static::assertArrayHasKey('PERFORMANCE_TWEAKS', $_SERVER);
-        static::assertFalse($_SERVER['PERFORMANCE_TWEAKS']);
     }
 
     public function testIsDoesNotAffectNonPureUnitTests(): void
@@ -93,12 +88,11 @@ class FeatureFlagExtensionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures(features={"v6.5.0.0", "PERFORMANCE_TWEAKS"})
+     * @DisabledFeatures(features={"v6.5.0.0"})
      */
     public function testSetsFeatures(): void
     {
         static::assertArrayNotHasKey('V6_5_0_0', $_SERVER);
-        static::assertArrayNotHasKey('PERFORMANCE_TWEAKS', $_SERVER);
 
         $this->extension->executeBeforeTest(__METHOD__);
 
@@ -106,13 +100,8 @@ class FeatureFlagExtensionTest extends TestCase
         static::assertFalse($_SERVER['V6_5_0_0']);
         static::assertFalse(Feature::isActive('v6.5.0.0'));
 
-        static::assertArrayHasKey('PERFORMANCE_TWEAKS', $_SERVER);
-        static::assertFalse($_SERVER['PERFORMANCE_TWEAKS']);
-        static::assertFalse(Feature::isActive('PERFORMANCE_TWEAKS'));
-
         $this->extension->executeAfterTest(__METHOD__, 0.1);
 
         static::assertArrayNotHasKey('V6_5_0_0', $_SERVER);
-        static::assertArrayNotHasKey('PERFORMANCE_TWEAKS', $_SERVER);
     }
 }

@@ -52,13 +52,11 @@ class FeatureTest extends TestCase
         $_SERVER['FEATURE_NEXT_0000'] = true;
         $_ENV['FEATURE_NEXT_0000'] = true;
         $_SERVER['V6_4_5_0'] = true;
-        $_SERVER['PERFORMANCE_TWEAKS'] = true;
 
         Feature::fake([], function (): void {
             static::assertFalse(Feature::isActive('FEATURE_ALL'));
             static::assertFalse(Feature::isActive('FEATURE_NEXT_0000'));
             static::assertFalse(Feature::isActive('v6.4.5.0'));
-            static::assertFalse(Feature::isActive('PERFORMANCE_TWEAKS'));
         });
 
         static::assertArrayHasKey('FEATURE_ALL', $_SERVER);
@@ -72,9 +70,6 @@ class FeatureTest extends TestCase
 
         static::assertArrayHasKey('V6_4_5_0', $_SERVER);
         static::assertTrue($_SERVER['V6_4_5_0']);
-
-        static::assertArrayHasKey('PERFORMANCE_TWEAKS', $_SERVER);
-        static::assertTrue($_SERVER['PERFORMANCE_TWEAKS']);
     }
 
     /**

@@ -160,6 +160,13 @@ Component.register('sw-product-variant-modal', {
                     allowResize: true,
                 },
                 {
+                    property: 'sales',
+                    dataIndex: 'sales',
+                    label: this.$tc('sw-product.list.columnSales'),
+                    allowResize: true,
+                    align: 'right',
+                },
+                {
                     property: 'price',
                     dataIndex: `price.${this.currency?.id || ''}.net`,
                     label: 'sw-product.list.columnPrice',

@@ -357,6 +357,11 @@ Component.register('sw-product-list', {
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center',
+            }, {
+                property: 'sales',
+                label: this.$tc('sw-product.list.columnSales'),
+                allowResize: true,
+                align: 'right',
             },
             ...this.currenciesColumns,
             {

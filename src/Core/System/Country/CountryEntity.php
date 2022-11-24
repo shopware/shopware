@@ -412,6 +412,10 @@ class CountryEntity extends Entity
 
     public function getPostalCodeRequired(): bool
     {
+        if (!Feature::isActive('v6.5.0.0')) {
+            return true;
+        }
+
         return $this->postalCodeRequired;
     }
 

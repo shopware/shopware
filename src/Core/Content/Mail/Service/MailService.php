@@ -80,6 +80,10 @@ class MailService extends AbstractMailService
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @param mixed[] $data
+     * @param mixed[] $templateData
+     */
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
         $event = new MailBeforeValidateEvent($data, $context, $templateData);
@@ -113,7 +117,7 @@ class MailService extends AbstractMailService
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $this->getSender($data, $salesChannelId, $context);
+        $senderEmail = $data['senderMail'] ?? $this->getSender($data, $salesChannelId, $context);
 
         $contents = $this->buildContents($data, $salesChannel);
         if ($this->isTestMode($data)) {
@@ -198,6 +202,9 @@ class MailService extends AbstractMailService
         return $mail;
     }
 
+    /**
+     * @param mixed[] $data
+     */
     private function getSender(array $data, ?string $salesChannelId, Context $context): ?string
     {
         $senderEmail = $data['senderEmail'] ?? null;
@@ -228,9 +235,11 @@ class MailService extends AbstractMailService
     /**
      * Attaches header and footer to given email bodies
      *
-     * @param array $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
+     * @param mixed[] $data
+     * e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
-     * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     * @return mixed[]
+     * e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
      */
@@ -268,6 +277,11 @@ class MailService extends AbstractMailService
         return $definition;
     }
 
+    /**
+     * @param mixed[] $data
+     *
+     * @return string[]
+     */
     private function getMediaUrls(array $data, Context $context): array
     {
         if (!isset($data['mediaIds']) || empty($data['mediaIds'])) {
@@ -303,11 +317,17 @@ class MailService extends AbstractMailService
         return $criteria;
     }
 
+    /**
+     * @param mixed[] $data
+     */
     private function isTestMode(array $data = []): bool
     {
         return isset($data['testMode']) && (bool) $data['testMode'] === true;
     }
 
+    /**
+     * @param mixed[] $templateData
+     */
     private function templateDataContainsSalesChannel(array $templateData): bool
     {
         return isset($templateData['salesChannel']) && $templateData['salesChannel'] instanceof SalesChannelEntity;

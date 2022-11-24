@@ -121,6 +121,7 @@ async function createWrapper(sequence = {}) {
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-text-field': await Shopware.Component.build('sw-text-field'),
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-switch-field': true,
             'sw-icon': true,
             'sw-field-error': {
                 props: ['error'],
@@ -430,5 +431,47 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(standardOption.exists()).toBeFalsy();
         const adminOption = wrapper.find('.sw-select-option--admin');
         expect(adminOption.exists()).toBeTruthy();
+    });
+
+    it('should validate reply to field', async () => {
+        const sequence = { ...sequenceFixture, ...{ config: { replyTo: 'test@example.com' } } };
+        const wrapper = await createWrapper(sequence);
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.showReplyToField).toBeTruthy();
+        expect(wrapper.vm.replyToError).toBeNull();
+
+        await wrapper.setData({
+            replyTo: 'foobar'
+        });
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.replyToError._code).toBe('INVALID_MAIL');
+
+        await wrapper.setData({
+            showReplyToField: false
+        });
+        wrapper.vm.changeShowReplyToField(false);
+
+        expect(wrapper.vm.replyTo).toBeNull();
+        expect(wrapper.vm.replyToError).toBeNull();
+
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.replyToError).toBeNull();
+    });
+
+    it('should build help text for use different reply-to address switch', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.$tc = jest.fn();
+        wrapper.vm.$router = {
+            resolve: jest.fn(() => {
+                return { href: 'bar' };
+            })
+        };
+        wrapper.vm.buildReplyToTooltip('foo');
+
+        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, { settingsLink: 'bar' });
     });
 });

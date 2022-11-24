@@ -10,39 +10,28 @@
     {% set blank = 5 - full - half  %}
 
     {% block component_review_rating_output %}
-        {# @deprecated tag:v6.5.0 - span will be a div because a span should not contain divs #}
-        {% if feature('v6.5.0.0') %}
-            <div class="product-review-rating">
-        {% else %}
-            <span class="product-review-rating">
-        {% endif %}
-
-            {% if full > 0 %}
-                {% for star in range(1,full) %}
-                    {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
-                        type: 'full'
-                    } %}
-                {% endfor %}
-            {% endif %}
-
-            {% if half %}
+        <div class="product-review-rating">
+        {% if full > 0 %}
+            {% for star in range(1,full) %}
                 {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
-                    type: 'half'
+                    type: 'full'
                 } %}
-            {% endif %}
-
-            {% if blank > 0 %}
-                {% for star in range(1,blank) %}
-                    {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
-                        type: 'blank'
-                    } %}
-                {% endfor %}
-            {% endif %}
-        {# @deprecated tag:v6.5.0 - span will be a div #}
-        {% if feature('v6.5.0.0') %}
-            </div>
-        {% else %}
-            </span>
+            {% endfor %}
         {% endif %}
+
+        {% if half %}
+            {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                type: 'half'
+            } %}
+        {% endif %}
+
+        {% if blank > 0 %}
+            {% for star in range(1,blank) %}
+                {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                    type: 'blank'
+                } %}
+            {% endfor %}
+        {% endif %}
+        </div>
     {% endblock %}
 {% endblock %}

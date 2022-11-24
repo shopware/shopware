@@ -34,6 +34,9 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
      */
     protected $name;
 
+    /**
+     * @param Entity[] $entities
+     */
     public function __construct(EntityDefinition $definition, array $entities, Context $context)
     {
         $this->entities = $entities;
@@ -42,6 +45,9 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
         $this->name = $this->definition->getEntityName() . '.loaded';
     }
 
+    /**
+     * @return Entity[]
+     */
     public function getEntities(): array
     {
         return $this->entities;
@@ -67,12 +73,14 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
         return null;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(): array
     {
         $ids = [];
 
-        /** @var Entity $entity */
-        foreach ($this->getEntities() as $entity) {
+        foreach ($this->entities as $entity) {
             $ids[] = $entity->getUniqueIdentifier();
         }
 

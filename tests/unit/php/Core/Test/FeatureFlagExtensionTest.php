@@ -14,10 +14,19 @@ use Shopware\Core\Test\FeatureFlagExtension;
  */
 class FeatureFlagExtensionTest extends TestCase
 {
+    /**
+     * @var array<string, mixed>
+     */
     private array $serverVarsBackup;
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $envVarsBackup;
 
+    /**
+     * @var array<string, array{'name'?: string, 'default'?: boolean, 'major'?: boolean, 'description'?: string}>
+     */
     private array $featureConfigBackup;
 
     private FeatureFlagExtension $extension;

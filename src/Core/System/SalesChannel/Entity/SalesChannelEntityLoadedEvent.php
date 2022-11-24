@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -9,11 +10,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
+    /**
+     * @param Entity[] $entities
+     */
     public function __construct(EntityDefinition $definition, array $entities, SalesChannelContext $context)
     {
         parent::__construct($definition, $entities, $context->getContext());

@@ -18,19 +18,22 @@ class Processor
     private TransactionProcessor $transactionProcessor;
 
     /**
-     * @var CartProcessorInterface[]
+     * @var iterable<CartProcessorInterface>
      */
-    private $processors;
+    private iterable $processors;
 
     /**
-     * @var CartDataCollectorInterface[]
+     * @var iterable<CartDataCollectorInterface>
      */
-    private $collectors;
+    private iterable $collectors;
 
     private ScriptExecutor $executor;
 
     /**
      * @internal
+     *
+     * @param iterable<CartProcessorInterface> $processors
+     * @param iterable<CartDataCollectorInterface> $collectors
      */
     public function __construct(
         Validator $validator,

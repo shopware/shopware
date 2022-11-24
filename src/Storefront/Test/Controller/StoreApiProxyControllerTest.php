@@ -233,9 +233,12 @@ class StoreApiProxyControllerTest extends TestCase
         static::assertSame($customerId, $tokenData['customerId']);
     }
 
+    /**
+     * @param array<string, mixed> $body
+     * @param array<string, string> $headers
+     */
     private function request(string $method, string $url, array $body = [], array $headers = []): Response
     {
-        /** @var array|false $urlComponents */
         $urlComponents = parse_url($url);
         $query = [];
 
@@ -249,7 +252,7 @@ class StoreApiProxyControllerTest extends TestCase
 
         $this->request = new Request($query, $body);
         $this->request->setMethod($method);
-        $this->request->server->set('REQUEST_URI', \is_array($urlComponents) ? $urlComponents['path'] : $url);
+        $this->request->server->set('REQUEST_URI', \is_array($urlComponents) && isset($urlComponents['path']) ? $urlComponents['path'] : $url);
         $this->request->setSession(new Session(new MockArraySessionStorage()));
 
         $this->request->headers->replace($headers);

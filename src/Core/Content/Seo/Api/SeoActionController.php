@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo\Api;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -15,7 +16,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -111,7 +110,6 @@ class SeoActionController extends AbstractController
 
         $previewCriteria = new Criteria();
         if (\array_key_exists('criteria', $seoUrlTemplate) && \is_string($seoUrlTemplate['entityName']) && \is_array($seoUrlTemplate['criteria'])) {
-            /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 
             $previewCriteria = $this->requestCriteriaBuilder->handleRequest(
@@ -269,6 +267,10 @@ class SeoActionController extends AbstractController
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
+        if (!$seoUrlRoute) {
+            throw new SeoUrlRouteNotFoundException($routeName);
+        }
+
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
     }
 
@@ -282,6 +284,11 @@ class SeoActionController extends AbstractController
         }
     }
 
+    /**
+     * @param array<string, mixed> $seoUrlTemplate
+     *
+     * @return list<SeoUrlEntity>
+     */
     private function getPreview(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria = null): array
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);

@@ -52,7 +52,6 @@ class SeoUrlPersister
 
         $processed = [];
 
-        // should be provided
         $salesChannelId = $salesChannel->getId();
         $updates = [];
         foreach ($seoUrls as $seoUrl) {
@@ -62,6 +61,7 @@ class SeoUrlPersister
             $updates[] = $seoUrl;
 
             $fk = $seoUrl['foreignKey'];
+            $salesChannelId = $seoUrl['salesChannelId'] = $seoUrl['salesChannelId'] ?? null;
 
             // skip duplicates
             if (isset($processed[$fk][$salesChannelId])) {
@@ -187,7 +187,7 @@ class SeoUrlPersister
     /**
      * @param list<string> $ids
      */
-    private function obsoleteIds(array $ids, string $salesChannelId): void
+    private function obsoleteIds(array $ids, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
@@ -199,9 +199,12 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_canonical', 'NULL')
             ->where('id IN (:ids)')
-            ->andWhere('sales_channel_id = :salesChannelId')
-            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY)
-            ->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+
+        if ($salesChannelId) {
+            $query->andWhere('sales_channel_id = :salesChannelId');
+            $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+        }
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
             $query->executeStatement();
@@ -211,7 +214,7 @@ class SeoUrlPersister
     /**
      * @param list<string> $ids
      */
-    private function markAsDeleted(bool $deleted, array $ids, string $salesChannelId): void
+    private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
@@ -222,9 +225,12 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
             ->where('foreign_key IN (:fks)')
-            ->andWhere('sales_channel_id = :salesChannelId')
-            ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY)
-            ->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+            ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY);
+
+        if ($salesChannelId) {
+            $query->andWhere('sales_channel_id = :salesChannelId');
+            $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+        }
 
         $query->executeStatement();
     }

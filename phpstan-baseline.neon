@@ -801,26 +801,6 @@ parameters:
 			path: src/Core/Checkout/Cart/PriceDefinitionFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Processor\\:\\:__construct\\(\\) has parameter \\$collectors with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Processor.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Processor\\:\\:__construct\\(\\) has parameter \\$processors with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Processor.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Processor\\:\\:\\$collectors \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartDataCollectorInterface\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Processor.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Processor\\:\\:\\$processors \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartProcessorInterface\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Processor.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$value has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/RedisCartPersister.php
@@ -6490,26 +6470,6 @@ parameters:
 			path: src/Core/Content/Rule/Event/RuleIndexerEvent.php
 
 		-
-			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Api/SeoActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Api\\\\SeoActionController\\:\\:getPreview\\(\\) has parameter \\$seoUrlTemplate with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Api/SeoActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Api\\\\SeoActionController\\:\\:getPreview\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Api/SeoActionController.php
-
-		-
-			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:handleRequest\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Api/SeoActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Event\\\\SeoUrlUpdateEvent\\:\\:__construct\\(\\) has parameter \\$seoUrls with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/Event/SeoUrlUpdateEvent.php
@@ -6668,31 +6628,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlTwigFactory\\:\\:createTwigEnvironment\\(\\) has parameter \\$twigExtensions with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlTwigFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:fetchLanguageChains\\(\\) has parameter \\$languages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:fetchLanguageChains\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:loadTemplates\\(\\) has parameter \\$routes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:loadTemplates\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlUpdater.php
 
 		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
@@ -12934,71 +12869,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedContainerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEvent\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEvent\\:\\:getEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:buildEvents\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:create\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createForSalesChannel\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createPartial\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createPartialForSalesChannel\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:map\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:recursion\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:recursion\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:recursion\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedEventFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent\\:\\:__construct\\(\\) has parameter \\$errors with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
@@ -18624,51 +18494,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/EntityProtection/EntityProtectionValidatorTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 14
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Cannot call method getWriteResults\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, object\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
-			message: "#^Variable \\$new in PHPDoc tag @var does not match assigned variable \\$cloned\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/EntityRepositoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\EntityTest\\:\\:apiAliasDefaultsDataProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/EntityTest.php
@@ -22179,106 +22004,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\AbstractBaseContextFactory\\:\\:create\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/AbstractBaseContextFactory.php
-
-		-
-			message: "#^Cannot call method getCountry\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Cannot call method getFactor\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:buildLanguageChain\\(\\) has parameter \\$sessionOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:create\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:getContext\\(\\) has parameter \\$session with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:getPaymentMethod\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:getPaymentMethod\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentMethodEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:getShippingMethod\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:getShippingMethod\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:loadShippingLocation\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#1 \\$country of static method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation\\:\\:createFromCountry\\(\\) expects Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#1 \\$currency of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\BaseContextFactory\\:\\:getCashRounding\\(\\) expects Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#1 \\$elements of class Shopware\\\\Core\\\\System\\\\Tax\\\\TaxCollection constructor expects iterable\\<Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#2 \\$state of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation constructor expects Shopware\\\\Core\\\\System\\\\Country\\\\Aggregate\\\\CountryState\\\\CountryStateEntity\\|null, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#3 \\$currency of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\BaseContext constructor expects Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#4 \\$currentCustomerGroup of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\BaseContext constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Parameter \\#5 \\$fallbackCustomerGroup of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\BaseContext constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/BaseContextFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\CachedBaseContextFactory\\:\\:create\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/CachedBaseContextFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/DataAbstractionLayer/SalesChannelIndexer.php
@@ -22297,11 +22022,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInstanceRegistry\\:\\:__construct\\(\\) has parameter \\$repositoryMap with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Entity/SalesChannelDefinitionInstanceRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityLoadedEvent\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelEntityLoadedEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextPermissionsChangedEvent\\:\\:__construct\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
@@ -25043,21 +24763,6 @@ parameters:
 			path: src/Storefront/Test/Controller/SearchControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StoreApiProxyControllerTest\\:\\:request\\(\\) has parameter \\$body with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StoreApiProxyControllerTest\\:\\:request\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$urlComponents has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontControllerTest\\:\\:createFinder\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
@@ -25441,11 +25146,6 @@ parameters:
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 4
 			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\MainCategory\\\\MainCategoryExtensionTest\\:\\:createTestProduct\\(\\) has parameter \\$additionalPayload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\NavigationPageSeoUrlTest\\:\\:getSeoUrls\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -26461,21 +26161,6 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RedisCartPersisterTest\\:\\:dataProviderInvalidData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/Order/RedisCartPersisterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Test\\\\FeatureFlagExtensionTest\\:\\:\\$envVarsBackup type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Test/FeatureFlagExtensionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Test\\\\FeatureFlagExtensionTest\\:\\:\\$featureConfigBackup type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Test/FeatureFlagExtensionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Test\\\\FeatureFlagExtensionTest\\:\\:\\$serverVarsBackup type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Test/FeatureFlagExtensionTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\CmsControllerTestClass\\:\\:renderStorefront\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"

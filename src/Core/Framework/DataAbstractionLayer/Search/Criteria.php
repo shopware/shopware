@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class Criteria extends Struct implements \Stringable
 {
@@ -129,13 +129,7 @@ class Criteria extends Struct implements \Stringable
 
         $ids = array_filter($ids);
         if (empty($ids)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'The `Criteria()` constructor does not support passing an empty array of ids from v6.5.0.0 onwards'
-            );
-            if (Feature::isActive('FEATURE_NEXT_16710')) {
-                throw new \RuntimeException('Empty ids provided in criteria');
-            }
+            throw new \RuntimeException('Empty ids provided in criteria');
         }
 
         $this->ids = $ids;

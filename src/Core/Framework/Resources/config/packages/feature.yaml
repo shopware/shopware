@@ -11,11 +11,6 @@ shopware:
         default: false
         major: true
         description: "composer require for plugins"
-      - name: FEATURE_NEXT_16710
-        default: false
-        major: true
-        description: "Do not allow empty ids provided in criteria"
-        # issue: NEXT-16710
       - name: FEATURE_NEXT_13810
         default: false
         major: true

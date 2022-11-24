@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './mail-template-extension.html.twig';
 
 const { Component } = Shopware;

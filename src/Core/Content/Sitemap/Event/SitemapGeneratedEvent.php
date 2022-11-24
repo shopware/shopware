@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package sales-channel
+ */
 class SitemapGeneratedEvent extends Event implements ShopwareEvent
 {
     private SalesChannelContext $context;

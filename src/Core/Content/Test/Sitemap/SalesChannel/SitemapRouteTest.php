@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  * @group store-api
  */

@@ -7,6 +7,9 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class HomeUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'daily';

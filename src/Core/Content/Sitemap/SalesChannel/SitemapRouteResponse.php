@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Sitemap\SalesChannel;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package sales-channel
+ */
 class SitemapRouteResponse extends StoreApiResponse
 {
     /**

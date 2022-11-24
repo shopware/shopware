@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @package sales-channel
+ */
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'daily';

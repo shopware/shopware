@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Sitemap\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package sales-channel
+ *
  * @extends Collection<Sitemap>
  */
 class SitemapCollection extends Collection

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './component/sw-mail-template-list';
 import './component/sw-mail-header-footer-list';
 import './page/sw-mail-template-detail';

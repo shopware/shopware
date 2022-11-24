@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package sales-channel
+ */
 class SitemapGenerateTask extends ScheduledTask
 {
     public static function getTaskName(): string

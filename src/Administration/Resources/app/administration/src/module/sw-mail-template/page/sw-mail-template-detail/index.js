@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';

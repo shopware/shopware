@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package sales-channel
+ */
 class SitemapPageLoader
 {
     /**

@@ -72,7 +72,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.wait('@searchData').its('response.statusCode').should('equal', 200);
     });
 
-    it('@base @content: should move sections', { tags: ['pa-content-management'] }, () => {
+    it('@base @content: should move sections', { tags: ['pa-content-management', 'quarantined'] }, () => {
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
         cy.get(blockSelector).eq(2).contains('Section 2 - Block C');
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E');

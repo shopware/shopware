@@ -58,7 +58,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute"/>

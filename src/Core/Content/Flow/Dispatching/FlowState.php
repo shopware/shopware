@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 
 class FlowState
 {
@@ -31,10 +30,6 @@ class FlowState
      */
     public function __construct(?FlowEventAware $event = null)
     {
-        if (!Feature::isActive('v6.5.0.0') && $event === null) {
-            throw new \RuntimeException('Prior to v6.5.0.0 a FlowEventAware needs to be passed to the FlowStates constructor');
-        }
-
         if ($event !== null) {
             $this->event = $event;
         }

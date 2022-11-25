@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -194,7 +193,7 @@ class OrderServiceTest extends TestCase
 
         $this->salesChannelContext
             ->getContext()
-            ->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+            ->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -383,7 +382,7 @@ class OrderServiceTest extends TestCase
 
         $this->salesChannelContext
             ->getContext()
-            ->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+            ->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,

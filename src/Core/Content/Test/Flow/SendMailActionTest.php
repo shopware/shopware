@@ -30,7 +30,6 @@ use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
@@ -103,7 +102,7 @@ class SendMailActionTest extends TestCase
 
         if ($hasOrderSettingAttachment) {
             $event->getContext()->addExtension(
-                MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+                MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
                 new MailSendSubscriberConfig(
                     false,
                     $documentIds,
@@ -236,7 +235,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
@@ -313,7 +312,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
@@ -400,7 +399,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
@@ -488,7 +487,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
@@ -638,7 +637,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')

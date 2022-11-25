@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -69,14 +68,8 @@ class BusinessEventCollector
         $instance = (new \ReflectionClass($class))
             ->newInstanceWithoutConstructor();
 
-        if (Feature::isActive('FEATURE_NEXT_17858')) {
-            if (!$instance instanceof FlowEventAware) {
-                throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
-            }
-        } else {
-            if (!$instance instanceof BusinessEventInterface) {
-                throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
-            }
+        if (!$instance instanceof FlowEventAware) {
+            throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
         }
 
         $name = $name ?? $instance->getName();

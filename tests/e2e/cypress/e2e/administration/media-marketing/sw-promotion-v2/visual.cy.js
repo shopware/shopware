@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package checkout
  */
 // / <reference types="Cypress" />
 

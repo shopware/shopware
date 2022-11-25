@@ -160,7 +160,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
-    it('@customer: swap default billing and shipping address', { tags: ['pa-customers-orders'] }, () => {
+    it('@customer: swap default billing and shipping address', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new CustomerPageObject();
 
         cy.get('.sw-customer-list__content').should('be.visible');

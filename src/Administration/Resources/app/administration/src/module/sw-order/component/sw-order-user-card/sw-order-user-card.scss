@@ -95,6 +95,11 @@ $sw-order-user-card-link: $color-shopware-brand-500;
         }
     }
 
+    .sw-field-copyable.sw-icon {
+        width: 16px;
+        height: 16px;
+    }
+
     .sw-order-user-card__tracking-code-link {
         &:not(:last-child) {
             margin-right: 0.25rem;

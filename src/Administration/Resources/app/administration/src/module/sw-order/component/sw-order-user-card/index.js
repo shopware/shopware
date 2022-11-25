@@ -235,6 +235,10 @@ export default {
 
             return urlTemplate ? urlTemplate.replace('%s', encodeURIComponent(trackingCode)) : '';
         },
+
+        renderTrackingCodeList(trackingCodes) {
+            return trackingCodes.join(', ');
+        },
     },
 
 };

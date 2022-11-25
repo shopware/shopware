@@ -385,6 +385,10 @@
                                 :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
                                 :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
                             >{{ trackingCode }}</sw-button>
+                            <sw-field-copyable
+                                :copyable-text="renderTrackingCodeList(delivery.trackingCodes)"
+                                >
+                            </sw-field-copyable>
                             {% endblock %}
                         </dd>
                         {% endblock %}

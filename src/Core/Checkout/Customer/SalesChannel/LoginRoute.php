@@ -112,8 +112,8 @@ class LoginRoute extends AbstractLoginRoute
         if (!$customer->getActive()) {
             throw new InactiveCustomerException($customer->getId());
         }
-        
-        $currentContext = clone $context;
+
+        $languageId = $context->getLanguageId();
 
         $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
@@ -122,7 +122,7 @@ class LoginRoute extends AbstractLoginRoute
             [
                 'id' => $customer->getId(),
                 'lastLogin' => new \DateTimeImmutable(),
-                'languageId' => $currentContext->getLanguageId(),
+                'languageId' => $languageId,
             ],
         ], $context->getContext());
 

@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover;
 /**
  * @internal
  *
- * @package content
+ * @package checkout
  * @covers \Shopware\Core\Checkout\Promotion\Api\PromotionActionController
  */
 class PromotionLineItemRuleTest extends TestCase

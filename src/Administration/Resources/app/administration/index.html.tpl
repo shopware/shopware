@@ -11,7 +11,6 @@
     <script type="text/javascript">
         window._features_ = <%= featureFlags %>;
     </script>
-    <script type="text/javascript" src="bundles/administration/static/js/runtime.js"></script>
     <script type="text/javascript" src="bundles/administration/static/js/app.js"></script>
 
 </head>

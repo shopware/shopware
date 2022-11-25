@@ -561,14 +561,13 @@ const coreConfig = {
             ? path.resolve(__dirname, 'v_dist/')
             : path.resolve(__dirname, '../../public/'),
         filename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
-        chunkFilename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
+        chunkFilename: isDev ? 'bundles/administration/static/js/[chunkhash].js' : 'static/js/[chunkhash].js',
         publicPath: isDev ? '/' : `bundles/administration/`,
         globalObject: 'this',
         jsonpFunction: `webpackJsonpAdministration`
     },
 
     optimization: {
-        runtimeChunk: { name: 'runtime' },
         splitChunks: {
             chunks: 'async',
             minSize: 30000,
@@ -588,6 +587,7 @@ const coreConfig = {
 
         new MiniCssExtractPlugin({
             filename: isDev ? 'bundles/administration/static/css/[name].css' : 'static/css/[name].css',
+            chunkFilename: isDev ? 'bundles/administration/static/css/[chunkhash].css' : 'static/css/[chunkhash].css',
         }),
 
         ...(() => {
@@ -644,8 +644,7 @@ const coreConfig = {
                     new FriendlyErrorsPlugin(),
                 ];
             }
-        })(),
-
+        })()
     ],
 };
 

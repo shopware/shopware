@@ -33,10 +33,13 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
 
             const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
 
-            state.modules.push({
-                id,
-                ...staticElements,
-            });
+            // Only push the module if it does not exist yet
+            if (!state.modules.some(module => module.id === id)) {
+                state.modules.push({
+                    id,
+                    ...staticElements,
+                });
+            }
 
             return Promise.resolve(id);
         },

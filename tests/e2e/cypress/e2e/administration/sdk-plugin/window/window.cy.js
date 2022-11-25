@@ -29,7 +29,7 @@ describe('SDK Tests: Window', ()=> {
                     .should('exist');
 
                 cy.get('.navigation-list-item__type-plugin')
-                    .should('have.length', 3);
+                    .should('have.length.least', 3);
             })
     });
 

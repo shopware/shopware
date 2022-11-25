@@ -25,6 +25,9 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return { isDiscountCampaignActive: jest.fn(() => true) };
 });
 
+/**
+ * @package merchant-services
+ */
 describe('shopware-extension.service', () => {
     let shopwareExtensionService;
 

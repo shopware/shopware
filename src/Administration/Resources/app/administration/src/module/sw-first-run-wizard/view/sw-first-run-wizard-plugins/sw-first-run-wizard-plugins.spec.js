@@ -2,6 +2,9 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
 import 'src/app/component/base/sw-label';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     /** @type Wrapper */
     let wrapper;

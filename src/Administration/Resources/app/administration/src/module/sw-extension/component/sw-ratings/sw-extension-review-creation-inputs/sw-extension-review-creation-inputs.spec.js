@@ -8,6 +8,9 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs', () => {
     /** @type Wrapper */
     let wrapper;

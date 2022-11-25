@@ -24,6 +24,8 @@ use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider
  */

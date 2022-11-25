@@ -4,6 +4,9 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-circle-icon';
 import 'src/app/component/base/sw-label';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-adding-success', () => {
     let wrapper;
 

@@ -2,6 +2,9 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary';
 import 'src/app/component/utils/sw-progress-bar';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-extension-ratings-summary'), {

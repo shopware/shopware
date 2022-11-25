@@ -21,6 +21,9 @@ import './view/sw-first-run-wizard-finish';
 
 const { Module } = Shopware;
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-first-run-wizard', {
     type: 'core',

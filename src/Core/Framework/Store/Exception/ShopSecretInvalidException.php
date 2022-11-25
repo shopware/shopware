@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package merchant-services
+ */
 class ShopSecretInvalidException extends ShopwareHttpException
 {
     public function __construct()

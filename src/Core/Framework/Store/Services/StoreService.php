@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\System\User\UserEntity;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class StoreService

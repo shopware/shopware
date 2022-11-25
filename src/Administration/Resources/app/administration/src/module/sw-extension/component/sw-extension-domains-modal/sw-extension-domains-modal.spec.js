@@ -19,6 +19,9 @@ async function createWrapper(propsData) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     /** @type Wrapper */
     let wrapper;

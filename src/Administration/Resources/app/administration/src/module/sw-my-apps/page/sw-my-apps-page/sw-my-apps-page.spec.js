@@ -5,6 +5,9 @@ import 'src/module/sw-my-apps/component/sw-my-apps-error-page';
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
     let wrapper = null;
 

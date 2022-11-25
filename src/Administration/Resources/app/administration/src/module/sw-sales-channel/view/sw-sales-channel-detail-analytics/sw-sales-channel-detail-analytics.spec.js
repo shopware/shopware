@@ -28,6 +28,9 @@ async function createWrapper(privileges = []) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();

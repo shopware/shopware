@@ -2,6 +2,7 @@ import template from './sw-first-run-wizard-markets.html.twig';
 import './sw-first-run-wizard-markets.scss';
 
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Component will be removed without replacement
  * @status deprecated
  */

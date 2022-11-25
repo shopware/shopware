@@ -8,6 +8,9 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line max-len
 describe('src/Administration/Resources/app/administration/src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
     /** @type Wrapper */

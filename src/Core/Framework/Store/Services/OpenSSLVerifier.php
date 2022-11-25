@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class OpenSSLVerifier

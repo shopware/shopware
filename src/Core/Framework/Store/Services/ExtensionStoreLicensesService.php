@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesService

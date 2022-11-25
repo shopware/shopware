@@ -5,6 +5,7 @@ import extensionErrorHandler from '../../service/extension-error-handler.service
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {

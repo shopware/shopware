@@ -4,6 +4,7 @@ import './sw-extension-rating-modal.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', {

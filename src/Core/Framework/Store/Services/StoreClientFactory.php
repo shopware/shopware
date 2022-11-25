@@ -8,6 +8,8 @@ use GuzzleHttp\Middleware;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 class StoreClientFactory

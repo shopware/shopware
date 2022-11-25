@@ -6,6 +6,9 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-rating', () => {
     /** @type Wrapper */
     let wrapper;

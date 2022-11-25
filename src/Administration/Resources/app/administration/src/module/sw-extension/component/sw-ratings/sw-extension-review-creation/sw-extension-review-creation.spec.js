@@ -14,6 +14,9 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/utils/sw-external-link';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     /** @type Wrapper */
     let wrapper;

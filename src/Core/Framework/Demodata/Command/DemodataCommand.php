@@ -87,9 +87,9 @@ class DemodataCommand extends Command
         $this->ensureAllDependenciesArePresent();
 
         if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
+            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follows `APP_ENV=prod bin/console framework:demodata`');
 
-            return self::SUCCESS;
+            return self::INVALID;
         }
 
         $io = new ShopwareStyle($input, $output);

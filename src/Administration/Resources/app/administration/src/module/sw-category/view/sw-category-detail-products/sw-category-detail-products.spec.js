@@ -29,6 +29,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         if (Shopware.State.get('swCategoryDetail')) {
             Shopware.State.unregisterModule('swCategoryDetail');
         }
+
         Shopware.State.registerModule('swCategoryDetail', {
             namespaced: true,
             state: {

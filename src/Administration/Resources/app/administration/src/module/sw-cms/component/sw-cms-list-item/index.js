@@ -97,11 +97,6 @@ export default {
     },
 
     methods: {
-        /* @deprecated tag:v6.5.0 isActive is superfluous since the component now relies on the "active" prop only */
-        isActive() {
-            return this.active;
-        },
-
         onChangePreviewImage(page) {
             this.$emit('preview-image-change', page);
         },

@@ -146,38 +146,23 @@ async function createWrapper(layoutType = 'product_list') {
 }
 
 describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
-    it('should be a Vue.js component', async () => {
+    beforeEach(() => {
         global.activeAclRoles = [];
+    });
 
+    it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render category selection', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBeTruthy();
     });
 
-    it('should emit modal confirm and close event', async () => {
-        global.activeAclRoles = [];
-
-        const wrapper = await createWrapper();
-
-        wrapper.vm.onConfirm();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted('confirm')).toBeTruthy();
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-    });
-
     it('should render tabs when type is shop page', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
@@ -186,8 +171,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should disable shop pages tab with missing system config permission', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages')
@@ -195,8 +178,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should not render tabs when type is not shop page', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         // Tab container should exist but not the individual tabs
@@ -207,8 +188,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should store previous categories on component creation', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.previousCategories).toEqual(mockCategories);
@@ -216,8 +195,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add categories', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -244,13 +221,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 id: 'uuid4'
             }
         ]));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toEqual([[true]]);
     });
 
     it('should add a category which already has a different assigned layout', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -301,13 +275,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 cmsPageId: null
             }
         ]));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should remove categories and confirm', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -341,13 +312,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.vm.$nextTick(); // Wait for warning modal to close
         await wrapper.vm.$nextTick(); // Wait for main modal to close
 
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should remove categories but discard changes', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -382,13 +350,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Verify categories are restored to initial categories
         expect(wrapper.vm.page.categories).toEqual(expect.arrayContaining(mockCategories));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeFalsy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[false]]);
     });
 
     it('should remove categories but keep editing', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -430,8 +395,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 id: 'uuid2'
             }
         ]));
-        expect(wrapper.emitted('modal-close')).toBeFalsy();
-        expect(wrapper.emitted('confirm')).toBeFalsy();
+        expect(wrapper.emitted('modal-close')).toBe(undefined);
     });
 
     it('should add shop pages', async () => {
@@ -471,11 +435,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             }
         );
 
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
-    it('should remove shop pages and confirm', async () => {
+    it('should remove shop pages and save', async () => {
         global.activeAclRoles = ['system.system_config'];
 
         const wrapper = await createWrapper('page');
@@ -519,8 +482,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             }
         );
 
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should remove shop pages but discard changes', async () => {
@@ -569,8 +531,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledTimes(0);
 
         // Main modal should also be closed
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeFalsy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[false]]);
     });
 
     it('should load system config when layout type is shop page', async () => {
@@ -659,8 +620,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should contain all available shop pages', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.shopPages.length).toBe(9);
@@ -708,8 +667,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should close modal and discard all changes on abort', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         const discardCategoryChangesSpy = jest.spyOn(wrapper.vm, 'discardCategoryChanges');
         const discardShopPageChangesSpy = jest.spyOn(wrapper.vm, 'discardShopPageChanges');
@@ -722,20 +679,16 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(discardShopPageChangesSpy).toHaveBeenCalledTimes(1);
         expect(discardLandingPageChangesSpy).toHaveBeenCalledTimes(1);
         expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[false]]);
     });
 
     it('should render product selection', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('product_detail');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBeTruthy();
     });
 
     it('should store previous products on component creation', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('product_detail');
 
         expect(wrapper.vm.previousProducts).toEqual(mockProducts);
@@ -743,8 +696,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add products', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -771,13 +722,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 id: 'uuid4'
             }
         ]));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should add a product which already has a different assigned layout', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -828,13 +776,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 cmsPageId: null
             }
         ]));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
-    //
-    it('should remove products and confirm', async () => {
-        global.activeAclRoles = [];
 
+    it('should remove products and save the changes', async () => {
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -868,13 +813,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.vm.$nextTick(); // Wait for warning modal to close
         await wrapper.vm.$nextTick(); // Wait for main modal to close
 
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should remove products but discard changes', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -907,12 +849,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         // Verify categories are restored to initial categories
         expect(wrapper.vm.page.products).toEqual(expect.arrayContaining(mockProducts));
         expect(wrapper.emitted('modal-close')).toStrictEqual([[false]]);
-        expect(wrapper.emitted('confirm')).toBeFalsy();
     });
 
     it('should remove products but keep editing', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -954,13 +893,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 id: 'uuid2'
             }
         ]));
-        expect(wrapper.emitted('modal-close')).toBeFalsy();
-        expect(wrapper.emitted('confirm')).toBeFalsy();
+        expect(wrapper.emitted('modal-close')).toEqual(undefined);
     });
 
     it('should render tabs when type is landing pages', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper('landingpage');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
@@ -977,8 +913,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add landing pages', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         const newPage = {
             name: 'New Landing Page',
@@ -1003,13 +937,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
             newPage
         ]));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should add a landing page which already has a different assigned layout', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         const newPage1 = {
@@ -1055,13 +986,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             newPage1,
             newPage2
         ]));
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
-    it('should remove landing pages and confirm', async () => {
-        global.activeAclRoles = [];
-
+    it('should remove landing pages and save', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1095,13 +1023,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.vm.$nextTick(); // Wait for warning modal to close
         await wrapper.vm.$nextTick(); // Wait for main modal to close
 
-        expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeTruthy();
+        expect(wrapper.emitted('modal-close')).toStrictEqual([[true]]);
     });
 
     it('should remove landing pages but discard changes', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1137,12 +1062,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         // Verify landing pages are restored to initial landing pages
         expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining(mockLandingPages));
         expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(wrapper.emitted('confirm')).toBeFalsy();
     });
 
     it('should remove landing pages but keep editing', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         const page1 = {
             name: 'Computers',
@@ -1174,13 +1096,13 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Keep editing
         await wrapper.find('.sw-cms-layout-assignment-modal__action-keep-editing').trigger('click');
+        await flushPromises();
 
         // Verify landing pages are still the same modified landing pages
         expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
             page1,
             page2
         ]));
-        expect(wrapper.emitted('modal-close')).toBeFalsy();
-        expect(wrapper.emitted('confirm')).toBeFalsy();
+        expect(wrapper.emitted('modal-close')).toEqual(undefined);
     });
 });

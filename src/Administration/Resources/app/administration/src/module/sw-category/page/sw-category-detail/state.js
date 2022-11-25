@@ -14,11 +14,6 @@ export default {
             customFieldSets: [],
             landingPagesToDelete: undefined,
             categoriesToDelete: undefined,
-
-            /**
-            * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
-            */
-            defaultLayout: null,
         };
     },
 
@@ -41,13 +36,6 @@ export default {
 
         setCategoriesToDelete(state, { categoriesToDelete }) {
             state.categoriesToDelete = categoriesToDelete;
-        },
-
-        /**
-        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
-        */
-        setDefaultLayout(state, defaultLayout) {
-            state.defaultLayout = defaultLayout?.id;
         },
     },
 

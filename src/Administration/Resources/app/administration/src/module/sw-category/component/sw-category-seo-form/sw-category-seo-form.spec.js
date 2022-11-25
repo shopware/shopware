@@ -6,20 +6,11 @@ import swCategorySeoForm from 'src/module/sw-category/component/sw-category-seo-
 
 Shopware.Component.register('sw-category-seo-form', swCategorySeoForm);
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-category-seo-form'), {
         stubs: {
             'sw-text-field': true,
             'sw-textarea-field': true,
-        },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
         },
         propsData: {
             category: {}
@@ -28,6 +19,10 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-category/component/sw-category-seo-form', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -35,9 +30,9 @@ describe('src/module/sw-category/component/sw-category-seo-form', () => {
     });
 
     it('should have an all fields enabled when having the right acl rights', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         const textFields = wrapper.findAll('sw-field-stub');
 

@@ -66,6 +66,9 @@ export default {
             return this.getColumnConfig();
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         sortOptions() {
             return [
                 { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
@@ -98,22 +101,10 @@ export default {
             return pageTypes;
         },
 
-        sortingConCat() {
-            return `${this.sortBy}:${this.sortDirection}`;
-        },
-
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-
-            /**
-             * @deprecated tag:v6.5.0 - Association will be removed
-             */
-            if (!this.feature.isActive('v6.5.0.0')) {
-                criteria.addAssociation('products');
-                criteria.getAssociation('products').setLimit(25);
-            }
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);

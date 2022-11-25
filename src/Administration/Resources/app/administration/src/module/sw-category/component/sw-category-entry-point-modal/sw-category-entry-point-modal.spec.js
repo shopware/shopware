@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import swCategoryEntryPointModal from 'src/module/sw-category/component/sw-category-entry-point-modal';
 
 Shopware.Component.register('sw-category-entry-point-modal', swCategoryEntryPointModal);
@@ -9,8 +9,7 @@ Shopware.Component.register('sw-category-entry-point-modal', swCategoryEntryPoin
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper(privileges = [], additionalSalesChannels = []) {
-    const localVue = createLocalVue();
+async function createWrapper() {
     const salesChannelCollection = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
         {
             id: '',
@@ -26,11 +25,9 @@ async function createWrapper(privileges = [], additionalSalesChannels = []) {
                 name: ''
             }
         },
-        ...additionalSalesChannels
     ]);
 
     return shallowMount(await Shopware.Component.build('sw-category-entry-point-modal'), {
-        localVue,
         stubs: {
             'sw-modal': {
                 template: `
@@ -48,15 +45,6 @@ async function createWrapper(privileges = [], additionalSalesChannels = []) {
             'sw-switch-field': true,
             'sw-button': true
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
-        },
         propsData: {
             salesChannelCollection
         }
@@ -64,6 +52,10 @@ async function createWrapper(privileges = [], additionalSalesChannels = []) {
 }
 
 describe('src/module/sw-category/component/sw-category-entry-point-modal', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -71,9 +63,9 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -110,18 +102,18 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
 
 
     it('should have sales channel options which contain no changes', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.salesChannelOptions.length).toBe(1);
         expect(wrapper.vm.hasNotAppliedChanges()).toBe(false);
     });
 
     it('should be able to apply its local changes', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         // change the 'homeName' of the currently selected sales channel (the first one)
         wrapper.vm.selectedSalesChannel.homeName = 'newName';

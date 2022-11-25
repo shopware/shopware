@@ -1,20 +1,15 @@
 /**
  * @package content
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
 import swCategoryDetail from 'src/module/sw-category/page/sw-category-detail';
 import 'src/app/component/sidebar/sw-sidebar-collapse';
 import 'src/app/component/base/sw-collapse';
 
 Shopware.Component.register('sw-category-detail', swCategoryDetail);
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-category-detail'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: `
@@ -32,13 +27,6 @@ async function createWrapper(privileges = []) {
             'sw-icon': true,
         },
         provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
             cmsService: {
                 getEntityMappingTypes: () => {},
             },
@@ -55,7 +43,13 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-category/page/sw-category-detail', () => {
-    beforeAll(() => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+
+        if (Shopware.State.get('cmsPageState')) {
+            Shopware.State.unregisterModule('cmsPageState');
+        }
+
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             actions: {
@@ -74,7 +68,6 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
-        wrapper.destroy();
     });
 
     it('should disable the save button', async () => {
@@ -87,13 +80,13 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const saveButton = wrapper.find('.sw-category-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBe('true');
-        wrapper.destroy();
     });
 
     it('should enable the save button', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {
             slotConfig: ''
         } });
@@ -105,11 +98,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const saveButton = wrapper.find('.sw-category-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeUndefined();
-        wrapper.destroy();
     });
 
     it('should not allow to edit', async () => {
-        const wrapper = await createWrapper([]);
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -123,13 +116,13 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
         expect(categoryTree.attributes()['allow-edit']).toBeUndefined();
-        wrapper.destroy();
     });
 
     it('should allow to edit', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -143,11 +136,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
         expect(categoryTree.attributes()['allow-edit']).toBe('true');
-        wrapper.destroy();
     });
 
     it('should not allow to create', async () => {
-        const wrapper = await createWrapper([]);
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -161,13 +154,13 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
         expect(categoryTree.attributes()['allow-create']).toBeUndefined();
-        wrapper.destroy();
     });
 
     it('should allow to create', async () => {
-        const wrapper = await createWrapper([
-            'category.creator'
-        ]);
+        global.activeAclRoles = ['category.creator'];
+
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -181,11 +174,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
         expect(categoryTree.attributes()['allow-create']).toBe('true');
-        wrapper.destroy();
     });
 
     it('should not allow to delete', async () => {
-        const wrapper = await createWrapper([]);
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -199,13 +192,13 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
         expect(categoryTree.attributes()['allow-delete']).toBeUndefined();
-        wrapper.destroy();
     });
 
     it('should allow to delete', async () => {
-        const wrapper = await createWrapper([
-            'category.deleter'
-        ]);
+        global.activeAclRoles = ['category.deleter'];
+
+        const wrapper = await createWrapper();
+
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
                 slotConfig: ''
@@ -219,6 +212,5 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
         expect(categoryTree.attributes()['allow-delete']).toBe('true');
-        wrapper.destroy();
     });
 });

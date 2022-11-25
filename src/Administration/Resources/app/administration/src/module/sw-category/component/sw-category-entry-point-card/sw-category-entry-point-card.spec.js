@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import swCategoryEntryPointCard from 'src/module/sw-category/component/sw-category-entry-point-card';
 
 Shopware.Component.register('sw-category-entry-point-card', swCategoryEntryPointCard);
@@ -9,8 +9,7 @@ Shopware.Component.register('sw-category-entry-point-card', swCategoryEntryPoint
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper(privileges = [], category = {}) {
-    const localVue = createLocalVue();
+async function createWrapper(category = {}) {
     const defaultCategory = {
         navigationSalesChannels: [],
         footerSalesChannels: [],
@@ -23,7 +22,6 @@ async function createWrapper(privileges = [], category = {}) {
 
 
     return shallowMount(await Shopware.Component.build('sw-category-entry-point-card'), {
-        localVue,
         stubs: {
             'sw-card': true,
             'sw-cms-list-item': true,
@@ -33,15 +31,6 @@ async function createWrapper(privileges = [], category = {}) {
             'router-link': true,
             'sw-button': true
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
-        },
         propsData: {
             category: mergedCategory
         }
@@ -49,6 +38,10 @@ async function createWrapper(privileges = [], category = {}) {
 }
 
 describe('src/module/sw-category/component/sw-category-entry-point-card', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -65,9 +58,9 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should have an enabled navigation selection', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         const selection = wrapper.find('.sw-category-entry-point-card__entry-point-selection');
 
@@ -75,14 +68,16 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should have no initial entry point', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.getInitialEntryPointFromCategory()).toBe('');
     });
 
     it('should have main navigation as initial entry point', async () => {
+        global.activeAclRoles = ['category.editor'];
+
         const salesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
@@ -93,9 +88,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        const wrapper = await createWrapper({
             navigationSalesChannels: salesChannels
         });
 
@@ -103,6 +96,8 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should have footer navigation as initial entry point', async () => {
+        global.activeAclRoles = ['category.editor'];
+
         const salesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
@@ -113,9 +108,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        const wrapper = await createWrapper({
             footerSalesChannels: salesChannels
         });
 
@@ -123,6 +116,8 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should have service navigation as initial entry point', async () => {
+        global.activeAclRoles = ['category.editor'];
+
         const salesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
@@ -133,9 +128,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        const wrapper = await createWrapper({
             serviceSalesChannels: salesChannels
         });
 
@@ -143,6 +136,8 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should reset its sales channel collections', async () => {
+        global.activeAclRoles = ['category.editor'];
+
         const navigationSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
@@ -171,9 +166,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        const wrapper = await createWrapper({
             navigationSalesChannels,
             footerSalesChannels,
             serviceSalesChannels
@@ -190,6 +183,8 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should add newly selected sales channels', async () => {
+        global.activeAclRoles = ['category.editor'];
+
         const navigationSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
@@ -229,9 +224,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        const wrapper = await createWrapper({
             navigationSalesChannels,
             footerSalesChannels,
             serviceSalesChannels

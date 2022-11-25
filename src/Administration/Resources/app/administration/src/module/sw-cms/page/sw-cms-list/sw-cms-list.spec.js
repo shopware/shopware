@@ -766,14 +766,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
-    it('should limit the product association loading to 25', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const listCriteria = wrapper.vm.listCriteria;
-        expect(listCriteria.getAssociation('products').getLimit()).toBe(25);
-    });
-
     it('should indicate which layout is set as default', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

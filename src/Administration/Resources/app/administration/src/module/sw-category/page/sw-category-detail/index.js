@@ -21,15 +21,6 @@ export default {
         'seoUrlService',
     ],
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    provide() {
-        return {
-            openMediaSidebar: this.openMediaSidebar,
-        };
-    },
-
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
@@ -605,24 +596,6 @@ export default {
             this.$router.push({ name: 'sw.category.index' });
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed completely
-         */
-        openMediaSidebar() {
-            this.$refs.mediaSidebarItem.openContent();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed completely
-         */
-        setMediaItemFromSidebar(sideBarMedia) {
-            // be consistent and fetch from repository
-            this.mediaRepository.get(sideBarMedia.id).then((media) => {
-                this.category.mediaId = media.id;
-                this.category.media = media;
-            });
-        },
-
         onChangeLanguage(newLanguageId) {
             this.currentLanguageId = newLanguageId;
 
@@ -686,31 +659,6 @@ export default {
                     ),
                 });
             });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed completely - Slot config should not override the template config at all
-         */
-        saveSlotConfig() {
-            if (
-                this.category.cmsPage === undefined ||
-                this.category.cmsPage.locked ||
-                Object.values(this.category.slotConfig).length < 1
-            ) {
-                return Promise.resolve();
-            }
-
-            this.category.cmsPage.sections.forEach((section) => {
-                section.blocks.forEach((block) => {
-                    block.slots.forEach((slot) => {
-                        if (this.category.slotConfig[slot.id]) {
-                            slot.config = this.category.slotConfig[slot.id];
-                        }
-                    });
-                });
-            });
-
-            return this.cmsPageRepository.save(this.category.cmsPage, Shopware.Context.api);
         },
 
         checkForEntryPointOverwrite() {

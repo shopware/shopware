@@ -3,18 +3,12 @@
  */
 import { shallowMount } from '@vue/test-utils';
 import swCmsMissingElementModal from 'src/module/sw-cms/component/sw-cms-missing-element-modal';
-import swModal from 'src/app/component/base/sw-modal';
-import swButton from 'src/app/component/base/sw-button';
-import swCheckBoxField from 'src/app/component/form/sw-checkbox-field';
-import swBaseField from 'src/app/component/form/field-base/sw-base-field';
-import swFieldError from 'src/app/component/form/field-base/sw-field-error';
+import 'src/app/component/base/sw-modal';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
 
 Shopware.Component.register('sw-cms-missing-element-modal', swCmsMissingElementModal);
-Shopware.Component.register('sw-modal', swModal);
-Shopware.Component.register('sw-button', swButton);
-Shopware.Component.register('sw-checkbox-field', swCheckBoxField);
-Shopware.Component.register('sw-base-field', swBaseField);
-Shopware.Component.register('sw-field-error', swFieldError);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-missing-element-modal'), {

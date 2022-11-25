@@ -80,10 +80,8 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_page_settings_demo_field %}
-                    {# @deprecated tag:v6.5.0 - ref cmsDemoSelection will be removed #}
                     <sw-entity-single-select
                         v-if="demoEntity !== null"
-                        ref="cmsDemoSelection"
                         v-model="demoEntityId"
                         :label="$tc('sw-cms.detail.label.demoEntity')"
                         :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"

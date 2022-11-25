@@ -1,15 +1,13 @@
 /**
  * @package content
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import swMediaQuickinfo from 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
 import swMediaCollapse from 'src/module/sw-media/component/sw-media-collapse';
 
 Shopware.Component.register('sw-media-quickinfo', swMediaQuickinfo);
 Shopware.Component.register('sw-media-collapse', swMediaCollapse);
-
-const { Mixin } = Shopware;
 
 const itemMock = (options = {}) => {
     return {
@@ -28,12 +26,8 @@ const itemMock = (options = {}) => {
     };
 };
 
-async function createWrapper(privileges = [], mediaServiceFunctions = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
+async function createWrapper(mediaServiceFunctions = {}) {
     return shallowMount(await Shopware.Component.build('sw-media-quickinfo'), {
-        localVue,
         mocks: {
             $route: {
                 query: {
@@ -54,18 +48,6 @@ async function createWrapper(privileges = [], mediaServiceFunctions = {}) {
                 renameMedia: () => Promise.resolve(),
                 ...mediaServiceFunctions,
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
-            mixins: [
-                Mixin.getByName('notification'),
-                Mixin.getByName('media-sidebar-modal-mixin'),
-                Mixin.getByName('placeholder')
-            ],
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([])
             }
@@ -100,6 +82,10 @@ async function createWrapper(privileges = [], mediaServiceFunctions = {}) {
 }
 
 describe('module/sw-media/components/sw-media-quickinfo', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -116,9 +102,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'media.deleter'
-        ]);
+        global.activeAclRoles = ['media.deleter'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.quickaction--delete');
@@ -134,9 +120,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'media.editor'
-        ]);
+        global.activeAclRoles = ['media.editor'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.quickaction--move');
@@ -153,10 +139,9 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             code: 'CONTENT__MEDIA_EMPTY_FILE',
         },
     ])('should map error %p', async (error) => {
+        global.activeAclRoles = ['media.editor'];
+
         const wrapper = await createWrapper(
-            [
-                'media.editor'
-            ],
             {
                 // eslint-disable-next-line prefer-promise-reject-errors
                 renameMedia: () => Promise.reject(

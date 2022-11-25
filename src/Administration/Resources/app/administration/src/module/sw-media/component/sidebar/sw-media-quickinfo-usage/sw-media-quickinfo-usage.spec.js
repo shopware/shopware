@@ -63,10 +63,6 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         };
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });

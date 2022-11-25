@@ -303,30 +303,6 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be deleted. Blocks will only be saved on clicking save
-         */
-        async blockMoveSave(block, dropSectionIndex, removeIndex) {
-            block.slots.forEach((slot) => {
-                Object.values(slot.config).forEach((configField) => {
-                    if (configField.entity) {
-                        delete configField.entity;
-                    }
-                    if (configField.hasOwnProperty('required')) {
-                        delete configField.required;
-                    }
-                });
-            });
-
-            await this.blockRepository.save(block, Shopware.Context.api);
-
-            // Add and remove the blocks from the sidebar for display reasons
-            this.page.sections[dropSectionIndex].blocks.add(block);
-            this.page.sections[removeIndex].blocks.remove(block.id);
-
-            this.$emit('block-navigator-sort', true);
-        },
-
         onSidebarNavigatorClick() {
             if (!this.$refs.blockNavigator.isActive) {
                 return;
@@ -354,42 +330,6 @@ export default {
             this.showSidebarNavigatorModal = false;
             this.$nextTick(() => {
                 this.$refs.pageConfigSidebar.openContent();
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
-         */
-        cloneBlock(block, sectionId) {
-            const newBlock = this.blockRepository.create();
-
-            const blockClone = cloneDeep(block);
-            blockClone.position = block.position + 1;
-            blockClone.sectionId = sectionId;
-            blockClone.sectionPosition = block.sectionPosition;
-            blockClone.slots = [];
-
-            Object.assign(newBlock, blockClone);
-
-            this.cloneSlotsInBlock(block, newBlock);
-
-            return newBlock;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
-         */
-        cloneSlotsInBlock(block, newBlock) {
-            block.slots.forEach(slot => {
-                const element = this.slotRepository.create();
-                element.id = slot.id;
-                element.blockId = newBlock.id;
-                element.slot = slot.slot;
-                element.type = slot.type;
-                element.config = cloneDeep(slot.config);
-                element.data = cloneDeep(slot.data);
-
-                newBlock.slots.push(element);
             });
         },
 

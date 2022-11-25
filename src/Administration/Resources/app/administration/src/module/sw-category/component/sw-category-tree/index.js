@@ -120,31 +120,6 @@ export default {
         productRepository() {
             return this.repositoryFactory.create('product');
         },
-
-        /**
-        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
-        */
-        defaultLayout() {
-            return Shopware.State.get('swCategoryDetail').defaultLayout;
-        },
-
-        /**
-        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
-        */
-        defaultLayoutCriteria() {
-            const criteria = new Criteria(1, 1);
-            criteria
-                .addSorting(Criteria.sort('createdAt', 'ASC'))
-                .addFilter(Criteria.multi(
-                    'AND',
-                    [
-                        Criteria.equals('type', 'product_list'),
-                        Criteria.equals('locked', true),
-                    ],
-                ));
-
-            return criteria;
-        },
     },
 
     watch: {
@@ -556,15 +531,6 @@ export default {
             return (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0)
                 || (category.serviceSalesChannels !== null && category.serviceSalesChannels.length > 0)
                 || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
-        },
-
-        /**
-        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
-        */
-        loadDefaultLayout() {
-            return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
-                Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
-            });
         },
 
         isErrorNavigationEntryPoint(category) {

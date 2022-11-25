@@ -736,13 +736,6 @@
           "columnManufacturerLabel": "Manufacturer"
         }
       },
-      "cmsMissingElementModal": {
-        "headline": "Missing elements",
-        "title": "The element <span>{element}</span> is missing in this product detail page. | The elements <span>{element}</span> are missing in this product detail page.",
-        "subtitle": "Customers visiting this page will miss out on important product information.",
-        "paragraph": "Do you want to save the layout anyway?",
-        "buttonSave": "Save layout"
-      },
       "cmsListItem": {
         "emptyText": "No layout assigned",
         "edit": "Edit",

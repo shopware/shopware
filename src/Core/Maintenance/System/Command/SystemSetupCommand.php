@@ -57,7 +57,7 @@ class SystemSetupCommand extends Command
             ->addOption('app-url', null, InputOption::VALUE_OPTIONAL, 'Application URL', $this->getDefault('APP_URL', 'http://localhost'))
             ->addOption('blue-green', null, InputOption::VALUE_OPTIONAL, 'Blue green deployment', $this->getDefault('BLUE_GREEN_DEPLOYMENT', '1'))
             ->addOption('es-enabled', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch enabled', $this->getDefault('SHOPWARE_ES_ENABLED', '0'))
-            ->addOption('es-hosts', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Hosts', $this->getDefault('SHOPWARE_ES_HOSTS', 'elasticsearch:9200'))
+            ->addOption('es-hosts', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Hosts', $this->getDefault('OPENSEARCH_URL', 'elasticsearch:9200'))
             ->addOption('es-indexing-enabled', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Indexing enabled', $this->getDefault('SHOPWARE_ES_INDEXING_ENABLED', '0'))
             ->addOption('es-index-prefix', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Index prefix', $this->getDefault('SHOPWARE_ES_INDEX_PREFIX', 'sw'))
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
@@ -74,7 +74,7 @@ class SystemSetupCommand extends Command
             'APP_ENV' => $input->getOption('app-env'),
             'APP_URL' => trim($input->getOption('app-url')), /* @phpstan-ignore-line */
             'DATABASE_URL' => $input->getOption('database-url'),
-            'SHOPWARE_ES_HOSTS' => $input->getOption('es-hosts'),
+            'OPENSEARCH_URL' => $input->getOption('es-hosts'),
             'SHOPWARE_ES_ENABLED' => $input->getOption('es-enabled'),
             'SHOPWARE_ES_INDEXING_ENABLED' => $input->getOption('es-indexing-enabled'),
             'SHOPWARE_ES_INDEX_PREFIX' => $input->getOption('es-index-prefix'),

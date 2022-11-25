@@ -16,6 +16,7 @@ class EnvConfigWriterTest extends TestCase
     public function tearDown(): void
     {
         unlink(__DIR__ . '/_fixtures/.env');
+        unlink(__DIR__ . '/_fixtures/.env.local');
         unlink(__DIR__ . '/_fixtures/public/.htaccess');
     }
 
@@ -50,7 +51,8 @@ class EnvConfigWriterTest extends TestCase
         ]);
 
         static::assertFileExists(__DIR__ . '/_fixtures/.env');
-        $content = \file_get_contents(__DIR__ . '/_fixtures/.env');
+        static::assertFileExists(__DIR__ . '/_fixtures/.env.local');
+        $content = \file_get_contents(__DIR__ . '/_fixtures/.env.local');
         static::assertIsString($content);
         static::assertStringContainsString('DATABASE_URL=' . $info->asDsn(), $content);
         static::assertStringContainsString('APP_URL=https://localhost/shop', $content);

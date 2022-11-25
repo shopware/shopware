@@ -16,7 +16,7 @@ variables:
     DATABASE_URL: mysql://root:app@database:3306/root
     APP_URL: http://localhost:8000
     APP_SECRET: devsecret
-    SHOPWARE_ES_HOSTS: elasticsearch:9200
+    OPENSEARCH_URL: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
     NODE_VERSION: 16
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'

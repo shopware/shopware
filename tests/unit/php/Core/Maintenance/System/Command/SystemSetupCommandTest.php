@@ -64,7 +64,7 @@ class SystemSetupCommandTest extends TestCase
             'APP_ENV' => 'test',
             'APP_URL' => 'https://example.com',
             'DATABASE_URL' => 'mysql://localhost:3306/shopware',
-            'SHOPWARE_ES_HOSTS' => 'localhost:9200',
+            'OPENSEARCH_URL' => 'localhost:9200',
             'SHOPWARE_ES_ENABLED' => '1',
             'SHOPWARE_ES_INDEXING_ENABLED' => '1',
             'SHOPWARE_ES_INDEX_PREFIX' => 'shopware',

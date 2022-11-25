@@ -2,7 +2,7 @@ elasticsearch:
     enabled: "%env(bool:SHOPWARE_ES_ENABLED)%"
     indexing_enabled: "%env(bool:SHOPWARE_ES_INDEXING_ENABLED)%"
     indexing_batch_size: "%env(int:SHOPWARE_ES_INDEXING_BATCH_SIZE)%"
-    hosts: "%env(string:SHOPWARE_ES_HOSTS)%"
+    hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
     product:
@@ -45,7 +45,7 @@ parameters:
     default_whitespace: " "
     env(SHOPWARE_ES_ENABLED): ""
     env(SHOPWARE_ES_INDEXING_ENABLED): ""
-    env(SHOPWARE_ES_HOSTS): ""
+    env(OPENSEARCH_URL): ""
     env(SHOPWARE_ES_INDEX_PREFIX): "sw"
     env(SHOPWARE_ES_THROW_EXCEPTION): ""
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100

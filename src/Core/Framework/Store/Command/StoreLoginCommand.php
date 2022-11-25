@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,10 +26,12 @@ use Symfony\Component\Console\Question\Question;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[AsCommand(
+    name: 'store:login',
+    description: 'Login to the store',
+)]
 class StoreLoginCommand extends Command
 {
-    public static $defaultName = 'store:login';
-
     private StoreClient $storeClient;
 
     private SystemConfigService $configService;

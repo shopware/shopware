@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,10 +13,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'dal:validate',
+    description: 'Validates the DAL definitions',
+)]
 class DataAbstractionLayerValidateCommand extends Command
 {
-    protected static $defaultName = 'dal:validate';
-
     /**
      * @var DefinitionValidator
      */

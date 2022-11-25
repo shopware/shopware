@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,10 +26,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @package sales-channel
  */
+#[AsCommand(
+    name: 'sitemap:generate',
+    description: 'Generates sitemap files',
+)]
 class SitemapGenerateCommand extends Command
 {
-    public static $defaultName = 'sitemap:generate';
-
     private EntityRepository $salesChannelRepository;
 
     private SitemapExporterInterface $sitemapExporter;

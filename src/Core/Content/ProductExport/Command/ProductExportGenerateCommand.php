@@ -8,16 +8,19 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'product-export:generate',
+    description: 'Generates a product export file',
+)]
 class ProductExportGenerateCommand extends Command
 {
-    public static $defaultName = 'product-export:generate';
-
     /**
      * @var AbstractSalesChannelContextFactory
      */

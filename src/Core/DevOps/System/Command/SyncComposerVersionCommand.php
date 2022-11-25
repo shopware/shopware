@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,12 +11,12 @@ use const PHP_EOL;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'sync:composer:version',
+    description: 'Syncs the composer version with the shopware version',
+)]
 class SyncComposerVersionCommand extends Command
 {
-    public static $defaultName = 'dev:sync:composer:versions';
-
-    public static $defaultDescription = 'Synchronizes composer.json requires between all bundles';
-
     private string $projectDir;
 
     /**

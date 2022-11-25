@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,10 +20,12 @@ use Symfony\Component\Console\Question\Question;
  *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'user:change-password',
+    description: 'Change the password of a user',
+)]
 class UserChangePasswordCommand extends Command
 {
-    protected static $defaultName = 'user:change-password';
-
     private EntityRepository $userRepository;
 
     public function __construct(EntityRepository $userRepository)

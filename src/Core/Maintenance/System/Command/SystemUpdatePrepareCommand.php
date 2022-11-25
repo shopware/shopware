@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Kernel;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,10 +21,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'system:update:prepare',
+    description: 'Prepares the update process',
+)]
 class SystemUpdatePrepareCommand extends Command
 {
-    public static $defaultName = 'system:update:prepare';
-
     private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)

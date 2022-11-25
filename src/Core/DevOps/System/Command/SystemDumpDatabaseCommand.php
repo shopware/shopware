@@ -4,6 +4,7 @@ namespace Shopware\Core\DevOps\System\Command;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,10 +15,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @psalm-import-type Params from DriverManager
  * @psalm-import-type OverrideParams from DriverManager
  */
+#[AsCommand(
+    name: 'system:dump',
+    description: 'Dumps the database to a file',
+)]
 class SystemDumpDatabaseCommand extends Command
 {
-    public static $defaultName = 'system:dump';
-
     private string $defaultDirectory;
 
     private Connection $connection;

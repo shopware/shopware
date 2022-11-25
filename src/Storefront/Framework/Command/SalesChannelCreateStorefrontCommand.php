@@ -9,14 +9,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'sales-channel:create:storefront',
+    description: 'Creates a new storefront sales channel',
+)]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    protected static $defaultName = 'sales-channel:create:storefront';
-
     private EntityRepository $snippetSetRepository;
 
     /**

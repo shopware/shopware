@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,10 +14,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'database:create-migration',
+    description: 'Creates a new migration file',
+)]
 class CreateMigrationCommand extends Command
 {
-    protected static $defaultName = 'database:create-migration';
-
     private string $coreDir;
 
     private KernelPluginCollection $kernelPluginCollection;

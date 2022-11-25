@@ -19,7 +19,7 @@ class MySQLFactory
     {
         $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
         if ($url === false) {
-            throw new \RuntimeException('Environment variable "DATABASE_URL" is not set.');
+            $url = 'mysql://root:shopware@127.0.0.1:3306/shopware';
         }
 
         $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');

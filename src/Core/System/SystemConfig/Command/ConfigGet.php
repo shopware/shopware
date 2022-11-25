@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SystemConfig\Command;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package system-settings
  */
+#[AsCommand(
+    name: 'system:config:get',
+    description: 'Get a config value',
+)]
 class ConfigGet extends Command
 {
     private const FORMAT_DEFAULT = 'default';
@@ -27,8 +32,6 @@ class ConfigGet extends Command
         self::FORMAT_JSON_PRETTY,
         self::FORMAT_LEGACY,
     ];
-
-    protected static $defaultName = 'system:config:get';
 
     /**
      * @var SystemConfigService

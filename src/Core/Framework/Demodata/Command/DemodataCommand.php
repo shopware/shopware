@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -36,10 +37,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[AsCommand(
+    name: 'framework:demodata',
+    description: 'Generates demo data',
+)]
 class DemodataCommand extends Command
 {
-    protected static $defaultName = 'framework:demodata';
-
     /**
      * @var array<string,int>
      */

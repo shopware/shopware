@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,10 +19,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'database:migrate',
+    description: 'Executes all migrations',
+)]
 class MigrationCommand extends Command
 {
-    protected static $defaultName = 'database:migrate';
-
     /**
      * @var MigrationCollectionLoader
      */

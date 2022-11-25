@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,10 +29,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @package system-settings
  */
+#[AsCommand(
+    name: 'import:entity',
+    description: 'Import entities from a csv file',
+)]
 class ImportEntityCommand extends Command
 {
-    protected static $defaultName = 'import:entity';
-
     private ImportExportService $initiationService;
 
     private EntityRepository $profileRepository;

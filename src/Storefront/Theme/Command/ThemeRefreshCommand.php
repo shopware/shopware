@@ -4,10 +4,15 @@ namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'theme:refresh',
+    description: 'Refresh the theme configuration',
+)]
 class ThemeRefreshCommand extends Command
 {
     protected static $defaultName = 'theme:refresh';

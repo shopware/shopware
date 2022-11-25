@@ -5,16 +5,19 @@ namespace Shopware\Core\System\StateMachine\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Util\StateMachineGraphvizDumper;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'state-machine:dump',
+    description: 'Dumps a state machine to a graphviz file',
+)]
 class WorkflowDumpCommand extends Command
 {
-    protected static $defaultName = 'state-machine:dump';
-
     /**
      * @var StateMachineRegistry
      */

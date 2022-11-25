@@ -7,6 +7,7 @@ use OpenSearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
@@ -17,11 +18,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package system-settings
  */
+#[AsCommand(
+    name: 'es:status',
+    description: 'Show the status of the elasticsearch index',
+)]
 class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;
-
-    protected static $defaultName = 'es:status';
 
     private Client $client;
 

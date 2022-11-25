@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,10 +14,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[AsCommand(
+    name: 'changelog:release',
+    description: 'Creates a new changelog release',
+)]
 class ChangelogReleaseCommand extends Command
 {
-    protected static $defaultName = 'changelog:release';
-
     /**
      * @internal
      */

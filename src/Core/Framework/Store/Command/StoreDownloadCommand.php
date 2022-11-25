@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByCompose
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -26,10 +27,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
+#[AsCommand(
+    name: 'store:download',
+    description: 'Downloads a plugin from the store',
+)]
 class StoreDownloadCommand extends Command
 {
-    public static $defaultName = 'store:download';
-
     /**
      * @var StoreClient
      */

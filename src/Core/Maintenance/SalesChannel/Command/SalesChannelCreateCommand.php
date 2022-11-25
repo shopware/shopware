@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,6 +20,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'sales-channel:create',
+    description: 'Creates a new sales channel',
+)]
 class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';

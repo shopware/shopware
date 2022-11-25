@@ -6,6 +6,7 @@ use Shopware\Docs\Inspection\CharacteristicsCollection;
 use Shopware\Docs\Inspection\ModuleInspector;
 use Shopware\Docs\Inspection\TemplateCustomRulesList;
 use Shopware\Docs\Inspection\TemplateModuleFile;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,10 +14,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[AsCommand(
+    name: 'docs:dump-core-characteristics',
+    description: 'Dump the module characteristics',
+)]
 class DocsModuleCharacteristics extends Command
 {
-    protected static $defaultName = 'docs:dump-core-characteristics';
-
     /**
      * @var ModuleInspector
      */

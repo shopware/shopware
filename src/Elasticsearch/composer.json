@@ -35,7 +35,7 @@
         "php": "^8.1",
         "ext-curl": "*",
         "doctrine/dbal": "~3.5",
-        "elasticsearch/elasticsearch": "7.16.0",
+        "opensearch-project/opensearch-php": "~2.0",
         "shopware/core": "*",
         "shyim/opensearch-php-dsl": "~1.0.1",
         "symfony/http-foundation": "~6.1.0",

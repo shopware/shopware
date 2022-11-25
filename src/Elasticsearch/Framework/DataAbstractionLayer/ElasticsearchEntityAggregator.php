@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;

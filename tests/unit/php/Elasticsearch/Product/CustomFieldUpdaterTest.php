@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\Client;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;

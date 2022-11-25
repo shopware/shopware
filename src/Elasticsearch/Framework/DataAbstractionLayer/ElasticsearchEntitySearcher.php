@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use Elasticsearch\Client;
+use OpenSearch\Client;
 use OpenSearchDSL\Aggregation\AbstractAggregation;
 use OpenSearchDSL\Aggregation\Bucketing\FilterAggregation;
 use OpenSearchDSL\Aggregation\Metric\CardinalityAggregation;

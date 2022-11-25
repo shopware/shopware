@@ -12,6 +12,8 @@ use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
  * @internal
+ *
+ * @package content
  * @covers \Shopware\Core\System\CustomEntity\Schema\SchemaUpdater
  */
 class SchemaUpdaterTest extends TestCase

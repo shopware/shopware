@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @package content
  * @group needsWebserver
  *
  * @covers \Shopware\Core\Content\Media\File\FileFetcher

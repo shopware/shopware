@@ -86,13 +86,7 @@ class ReverseProxyCache implements StoreInterface
 
     public function invalidate(Request $request): void
     {
-        $uri = $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI);
-
-        if ($uri === null) {
-            return;
-        }
-
-        $this->gateway->ban([$uri]);
+        // @see https://github.com/symfony/symfony/issues/48301
     }
 
     /**

@@ -164,9 +164,7 @@ class CacheStore implements StoreInterface
 
     public function invalidate(Request $request): void
     {
-        $this->cache->deleteItem(
-            $this->cacheKeyGenerator->generate($request)
-        );
+        // @see https://github.com/symfony/symfony/issues/48301
     }
 
     /**

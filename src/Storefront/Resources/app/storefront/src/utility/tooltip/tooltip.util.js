@@ -1,10 +1,4 @@
-/**
- * @deprecated tag:v6.5.0 - tooltip.util is deprecated - Use `BootstrapUtil.initTooltip()` instead
- */
 import Feature from 'src/helper/feature.helper';
-/* Enable tooltips everywhere
- * https://getbootstrap.com/docs/4.3/components/tooltips/#example-enable-tooltips-everywhere
- */
 
 /**
  * @deprecated tag:v6.5.0 - The bootstrap `data-toggle` attribute will be renamed to `data-bs-toggle`
@@ -13,6 +7,13 @@ import Feature from 'src/helper/feature.helper';
  */
 const TOOLTIP_SELECTOR = Feature.isActive('v6.5.0.0') ? '[data-bs-toggle="tooltip"]' : '[data-toggle="tooltip"]';
 
+/**
+ * Enable tooltips everywhere
+ * https://getbootstrap.com/docs/4.3/components/tooltips/#example-enable-tooltips-everywhere
+ *
+ * @package storefront
+ * @deprecated tag:v6.5.0 - tooltip.util is deprecated - Use `BootstrapUtil.initTooltip()` instead.
+ */
 export default class TooltipUtil {
 
     constructor() {

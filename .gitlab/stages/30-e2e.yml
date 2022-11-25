@@ -95,6 +95,15 @@ E2E:
 E2E quarantined:
   extends: E2E
   stage: quarantine
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
+    - if: !reference [ .rules, run-allow-failure, if ]
+      allow_failure: true
+    - !reference [ .rules, run ]
+    - if: !reference [ .rules, long-running-allow-failure, if ]
+      allow_failure: true
+    - !reference [ .rules, long-running ]
   parallel:
     matrix:
       - TEST_DIRECTORY:

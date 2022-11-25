@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CustomerOptinNotCompletedException extends ShopwareHttpException
 {
     /**
-     * @deprecated tag:v6.5.0 the $message parameter will be removed without replacement
+     * @deprecated tag:v6.6.0 the $message parameter will be removed without replacement
      */
     public function __construct(string $id, ?string $message = null)
     {

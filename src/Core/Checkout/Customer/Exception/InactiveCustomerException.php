@@ -7,7 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package customer-order
- * @deprecated tag:v6.5.0 Will be removed without replacement, not in use any more. Use `BadCredentialsException` or `CustomerOptinNotCompletedException` instead
+ *
+ * @deprecated tag:v6.6.0 Will be removed without replacement, not in use any more. Use `BadCredentialsException` or `CustomerOptinNotCompletedException` instead
  */
 class InactiveCustomerException extends CustomerOptinNotCompletedException
 {
@@ -19,8 +20,8 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     public function getErrorCode(): string
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
         );
 
         return 'CHECKOUT__CUSTOMER_IS_INACTIVE';
@@ -29,8 +30,8 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     public function getStatusCode(): int
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
         );
 
         return Response::HTTP_UNAUTHORIZED;
@@ -39,8 +40,8 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     public function getSnippetKey(): string
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
         );
 
         return 'account.inactiveAccountAlert';

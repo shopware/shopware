@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -151,6 +152,8 @@ class RegisterConfirmRouteTest extends TestCase
 
     public function testConfirmActivatedCustomer(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $customer = $this->mockCustomer();
         $customer->setActive(true);
 
@@ -197,7 +200,7 @@ class RegisterConfirmRouteTest extends TestCase
     {
         $customer = new CustomerEntity();
         $customer->setId('customer-1');
-        $customer->setActive(false);
+        $customer->setActive(Feature::isActive('v6.6.0.0'));
         $customer->setEmail('test@test.test');
         $customer->setHash('hash');
         $customer->setGuest(false);

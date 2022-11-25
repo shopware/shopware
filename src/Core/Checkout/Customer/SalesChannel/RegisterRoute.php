@@ -282,10 +282,7 @@ class RegisterRoute extends AbstractRegisterRoute
             return $customer;
         }
 
-        // All customers will be active by default
-        if (Feature::isActive('v6.5.0.0')) {
-            $customer['active'] = true;
-        } else {
+        if (!Feature::isActive('v6.6.0.0')) {
             $customer['active'] = false;
         }
         $customer['doubleOptInRegistration'] = true;

@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_5;
+namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1663402950SetDoubleOptinCustomerActive extends MigrationStep

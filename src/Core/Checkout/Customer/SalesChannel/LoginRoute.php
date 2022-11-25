@@ -101,8 +101,7 @@ class LoginRoute extends AbstractLoginRoute
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         } catch (CustomerOptinNotCompletedException $exception) {
-            /** @deprecated tag:v6.5.0 remove complete catch of `CustomerOptinNotCompletedException` */
-            if (!Feature::isActive('v6.5.0.0')) {
+            if (!Feature::isActive('v6.6.0.0')) {
                 throw new InactiveCustomerException($exception->getParameters()['customerId']);
             }
 

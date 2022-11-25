@@ -156,13 +156,17 @@ class AccountService
             throw new BadCredentialsException();
         }
 
-        $isConfirmed = !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
-        if (!$isConfirmed) {
+        if (!$this->isCustomerConfirmed($customer)) {
             // Make sure to only throw this exception after it has been verified it was a valid login
             throw new CustomerOptinNotCompletedException($customer->getId());
         }
 
         return $customer;
+    }
+
+    private function isCustomerConfirmed(CustomerEntity $customer): bool
+    {
+        return !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
     }
 
     private function loginByCustomer(CustomerEntity $customer, SalesChannelContext $context): string
@@ -215,25 +219,23 @@ class AccountService
     }
 
     /**
-     * Add only filters to the $criteria for values which have an index in the database, e.g. id, or email,
-     * the rest should be done via PHP because it's a lot faster to filter a few entities on PHP side with
-     * the same email address, than to filter a huge numbers of rows in the DB on an not indexed column
      * This method filters for the standard customer related constraints like active or the sales channel
      * assignment.
+     * Add only filters to the $criteria for values which have an index in the database, e.g. id, or email. The rest
+     * should be done via PHP because it's a lot faster to filter a few entities on PHP side with the same email
+     * address, than to filter a huge numbers of rows in the DB on a not indexed column.
      */
     private function fetchCustomer(Criteria $criteria, SalesChannelContext $context, bool $includeGuest = false): ?CustomerEntity
     {
         $criteria->setTitle('account-service::fetchCustomer');
 
         $result = $this->customerRepository->search($criteria, $context->getContext());
-        $result = $result->filter(static function (CustomerEntity $customer) use ($includeGuest, $context) {
+        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                $isConfirmed = !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
-
-                // Customers with double optin will be active by default starting at Shopware 6.5.0.0,
+                // Customers with double opt-in will be active by default starting at Shopware 6.6.0.0,
                 // remove complete if statement and always return null
-                if (Feature::isActive('v6.5.0.0') || $isConfirmed) {
+                if (Feature::isActive('v6.6.0.0') || $this->isCustomerConfirmed($customer)) {
                     return null;
                 }
             }
@@ -261,7 +263,7 @@ class AccountService
         // wrong password will be validated
         if ($result->count() > 1) {
             $result->sort(function (CustomerEntity $a, CustomerEntity $b) {
-                return $a->getCreatedAt() <=> $b->getCreatedAt();
+                return ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1;
             });
         }
 

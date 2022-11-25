@@ -111,7 +111,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
         );
 
-        if ((!Feature::isActive('v6.5.0.0') && $customer->getActive())
+        if ((!Feature::isActive('v6.6.0.0') && $customer->getActive())
             || $customer->getDoubleOptInConfirmDate() !== null) {
             throw new CustomerAlreadyConfirmedException($customer->getId());
         }
@@ -120,11 +120,9 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             'id' => $customer->getId(),
             'doubleOptInConfirmDate' => new \DateTimeImmutable(),
         ];
-
-        if (!Feature::isActive('v6.5.0.0')) {
+        if (!Feature::isActive('v6.6.0.0')) {
             $customerUpdate['active'] = true;
         }
-
         $this->customerRepository->update([$customerUpdate], $context->getContext());
 
         $newToken = $this->contextPersister->replace($context->getToken(), $context);

@@ -1,5 +1,6 @@
 /**
  * @private
+ * @package content
  */
 export default {
     computed: {

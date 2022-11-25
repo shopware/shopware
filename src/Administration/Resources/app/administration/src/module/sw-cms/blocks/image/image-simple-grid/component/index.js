@@ -3,6 +3,7 @@ import './sw-cms-block-image-simple-grid.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

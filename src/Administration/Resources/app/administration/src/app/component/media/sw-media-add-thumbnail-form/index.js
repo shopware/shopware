@@ -3,6 +3,7 @@ import './sw-media-add-thumbnail-form.scss';
 
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-media-add-thumbnail-form', {
     template,

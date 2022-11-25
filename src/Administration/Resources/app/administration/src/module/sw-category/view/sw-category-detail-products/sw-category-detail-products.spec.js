@@ -1,12 +1,13 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import swCategoryDetailProducts from 'src/module/sw-category/view/sw-category-detail-products';
 
 Shopware.Component.register('sw-category-detail-products', swCategoryDetailProducts);
 
 describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     let wrapper;
-    let localVue;
 
     const categoryMock = {
         media: [],
@@ -25,9 +26,9 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     };
 
     beforeEach(async () => {
-        localVue = createLocalVue();
-        localVue.use(Vuex);
-
+        if (Shopware.State.get('swCategoryDetail')) {
+            Shopware.State.unregisterModule('swCategoryDetail');
+        }
         Shopware.State.registerModule('swCategoryDetail', {
             namespaced: true,
             state: {
@@ -36,7 +37,6 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         });
 
         wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-products'), {
-            localVue,
             stubs: {
                 'sw-icon': true,
                 'sw-card': true,
@@ -78,11 +78,6 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                 }
             }
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-        localVue = null;
     });
 
     it('should be a Vue.js component', async () => {

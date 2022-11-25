@@ -5,6 +5,7 @@ const { State } = Shopware;
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

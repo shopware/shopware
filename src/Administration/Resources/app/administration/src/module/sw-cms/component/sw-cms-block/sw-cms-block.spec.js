@@ -1,3 +1,7 @@
+/**
+ * @package content
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swCmsBlock from 'src/module/sw-cms/component/sw-cms-block';
 

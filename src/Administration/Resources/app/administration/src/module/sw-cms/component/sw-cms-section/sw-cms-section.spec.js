@@ -1,14 +1,13 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsSection from 'src/module/sw-cms/component/sw-cms-section';
-import Vuex from 'vuex';
 
 Shopware.Component.register('sw-cms-section', swCmsSection);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
     Shopware.State.registerModule('cmsPageState', {
         namespaced: true,
         state: {
@@ -22,7 +21,6 @@ async function createWrapper() {
     });
 
     return shallowMount(await Shopware.Component.build('sw-cms-section'), {
-        localVue,
         propsData: {
             page: {},
             section: {
@@ -70,6 +68,7 @@ async function createWrapper() {
         }
     });
 }
+
 describe('module/sw-cms/component/sw-cms-section', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();

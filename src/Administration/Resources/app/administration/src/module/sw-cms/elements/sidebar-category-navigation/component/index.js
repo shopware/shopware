@@ -3,6 +3,7 @@ import './sw-cms-el-category-navigation.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

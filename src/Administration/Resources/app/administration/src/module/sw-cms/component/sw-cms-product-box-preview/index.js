@@ -3,6 +3,7 @@ import './sw-cms-product-box-preview.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swCategoryDetail from 'src/module/sw-category/page/sw-category-detail';

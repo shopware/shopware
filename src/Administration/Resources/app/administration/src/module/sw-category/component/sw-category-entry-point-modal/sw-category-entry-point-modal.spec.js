@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCategoryEntryPointModal from 'src/module/sw-category/component/sw-category-entry-point-modal';
 

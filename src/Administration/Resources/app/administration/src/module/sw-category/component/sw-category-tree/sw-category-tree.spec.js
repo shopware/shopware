@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import swCategoryTree from 'src/module/sw-category/component/sw-category-tree';

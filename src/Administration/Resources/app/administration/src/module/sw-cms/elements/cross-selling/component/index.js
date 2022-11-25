@@ -6,6 +6,7 @@ const { isEmpty } = Shopware.Utils.types;
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

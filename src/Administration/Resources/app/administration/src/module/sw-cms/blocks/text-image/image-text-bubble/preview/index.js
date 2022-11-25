@@ -3,6 +3,7 @@ import './sw-cms-preview-image-text-bubble.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

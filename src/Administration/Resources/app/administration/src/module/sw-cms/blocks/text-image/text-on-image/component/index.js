@@ -3,6 +3,7 @@ import './sw-cms-block-text-on-image.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

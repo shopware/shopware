@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
 import 'src/module/sw-cms/state/cms-page.state';

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 

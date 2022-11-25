@@ -2,15 +2,18 @@ import CMS from '../../../constant/sw-cms.constant';
 
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-cms-preview-center-text', () => import('./preview'));
 /**
  * @private
+ * @package content
  */
 Shopware.Component.register('sw-cms-block-center-text', () => import('./component'));
 
 /**
  * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'center-text',

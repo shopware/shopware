@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCategoryLinkSettings from 'src/module/sw-category/component/sw-category-link-settings';
 

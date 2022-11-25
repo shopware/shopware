@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import swCmsLayoutModal from 'src/module/sw-cms/component/sw-cms-layout-modal';
 

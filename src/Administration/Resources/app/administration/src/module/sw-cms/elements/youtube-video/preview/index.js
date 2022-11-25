@@ -3,6 +3,7 @@ import './sw-cms-el-preview-youtube-video.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

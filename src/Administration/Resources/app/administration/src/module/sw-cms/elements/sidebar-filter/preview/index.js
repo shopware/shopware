@@ -3,6 +3,7 @@ import './sw-cms-el-preview-sidebar-filter.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

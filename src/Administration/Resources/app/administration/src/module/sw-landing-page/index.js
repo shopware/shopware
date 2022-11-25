@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;

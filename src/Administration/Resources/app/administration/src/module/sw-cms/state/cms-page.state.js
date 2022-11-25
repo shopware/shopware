@@ -1,5 +1,6 @@
 /**
  * @private
+ * @package content
  */
 Shopware.State.registerModule('cmsPageState', {
     namespaced: true,

@@ -4,6 +4,7 @@ import CMS from '../../constant/sw-cms.constant';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

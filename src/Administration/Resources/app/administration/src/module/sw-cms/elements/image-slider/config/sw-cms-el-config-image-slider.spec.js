@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 /* eslint-disable max-len */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';

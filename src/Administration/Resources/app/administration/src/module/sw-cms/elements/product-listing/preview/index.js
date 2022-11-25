@@ -3,6 +3,7 @@ import './sw-cms-el-preview-product-listing.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

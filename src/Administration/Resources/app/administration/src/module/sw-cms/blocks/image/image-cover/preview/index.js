@@ -3,6 +3,7 @@ import './sw-cms-preview-image-cover.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

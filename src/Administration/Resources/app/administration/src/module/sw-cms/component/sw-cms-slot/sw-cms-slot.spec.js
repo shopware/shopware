@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsSlot from 'src/module/sw-cms/component/sw-cms-slot';

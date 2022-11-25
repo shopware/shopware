@@ -3,6 +3,7 @@ import './sw-cms-preview-image-gallery.scss';
 
 /**
  * @private
+ * @package content
  */
 export default {
     template,

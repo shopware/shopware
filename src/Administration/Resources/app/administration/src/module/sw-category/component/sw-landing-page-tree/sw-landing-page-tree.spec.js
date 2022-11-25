@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import swLandingPageTree from 'src/module/sw-category/component/sw-landing-page-tree';
 import VueRouter from 'vue-router';

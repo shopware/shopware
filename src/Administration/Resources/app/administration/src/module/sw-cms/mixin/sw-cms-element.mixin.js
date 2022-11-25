@@ -4,6 +4,7 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 
 /**
  * @private
+ * @package content
  */
 Mixin.register('cms-element', {
     inject: ['cmsService'],

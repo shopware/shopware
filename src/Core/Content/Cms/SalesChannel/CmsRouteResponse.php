@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package content
+ */
 class CmsRouteResponse extends StoreApiResponse
 {
     /**

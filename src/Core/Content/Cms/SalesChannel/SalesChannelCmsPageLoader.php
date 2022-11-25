@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
     private EntityRepository $cmsPageRepository;

@@ -8,6 +8,9 @@ use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];

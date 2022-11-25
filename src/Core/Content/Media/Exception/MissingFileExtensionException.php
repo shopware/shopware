@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
+/**
+ * @package content
+ */
 class MissingFileExtensionException extends UploadException
 {
     public function __construct()

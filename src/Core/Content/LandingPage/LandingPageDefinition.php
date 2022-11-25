@@ -27,6 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package content
+ */
 class LandingPageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'landing_page';

@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package content
+ */
 class CategoryBreadcrumbBuilder
 {
     private EntityRepository $categoryRepository;

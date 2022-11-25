@@ -10,6 +10,9 @@ use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class FormCmsElementResolver extends AbstractCmsElementResolver
 {
     private AbstractSalutationRoute $salutationRoute;

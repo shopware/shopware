@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaThumbnail;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<MediaThumbnailEntity>
  */
 class MediaThumbnailCollection extends EntityCollection

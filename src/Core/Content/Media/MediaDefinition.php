@@ -52,6 +52,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package content
+ */
 class MediaDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'media';

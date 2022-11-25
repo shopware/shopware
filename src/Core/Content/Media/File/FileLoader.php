@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @package content
+ */
 class FileLoader
 {
     private FilesystemOperator $filesystemPublic;

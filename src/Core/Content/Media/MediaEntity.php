@@ -26,6 +26,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package content
+ */
 class MediaEntity extends Entity
 {
     use EntityIdTrait;

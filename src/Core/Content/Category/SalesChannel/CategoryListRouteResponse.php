@@ -6,6 +6,9 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package content
+ */
 class CategoryListRouteResponse extends StoreApiResponse
 {
     /**

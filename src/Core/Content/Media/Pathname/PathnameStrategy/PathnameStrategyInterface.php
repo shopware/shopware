@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 
 /**
+ * @package content
  * Generate path components of media urls/filesystem paths
  *
  * providing data for the default format: __HASH__/__BUSTER__/__PHYSICAL_FILE_NAME_WITH_EXTENSION

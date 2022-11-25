@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+/**
+ * @package content
+ */
 class MediaFile
 {
     private string $fileName;

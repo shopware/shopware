@@ -7,6 +7,9 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package inventory
+ */
 class ProductDetailRouteResponse extends StoreApiResponse
 {
     /**

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @package inventory
+ */
 class ProductKeywordDictionaryEntity extends Entity
 {
     use EntityIdTrait;

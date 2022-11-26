@@ -73,6 +73,9 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product';

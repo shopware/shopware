@@ -31,6 +31,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package inventory
  */
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {

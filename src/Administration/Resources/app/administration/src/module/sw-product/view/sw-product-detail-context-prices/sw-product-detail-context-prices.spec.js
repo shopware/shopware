@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';

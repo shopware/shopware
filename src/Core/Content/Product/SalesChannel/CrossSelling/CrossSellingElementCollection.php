@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<CrossSellingElement>
+ *
+ * @package inventory
  */
 class CrossSellingElementCollection extends Collection
 {

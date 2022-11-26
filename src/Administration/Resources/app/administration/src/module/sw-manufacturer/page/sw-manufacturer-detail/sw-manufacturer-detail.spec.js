@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import swManufacturerDetail from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
 

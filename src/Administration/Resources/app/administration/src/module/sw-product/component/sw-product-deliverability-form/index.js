@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-deliverability-form.html.twig';
 
 const { Mixin } = Shopware;

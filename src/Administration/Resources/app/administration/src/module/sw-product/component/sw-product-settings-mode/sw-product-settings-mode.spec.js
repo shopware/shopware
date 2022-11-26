@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProductSettingsMode from 'src/module/sw-product/component/sw-product-settings-mode';
 import 'src/app/component/context-menu/sw-context-button';

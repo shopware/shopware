@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductPropertyDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'product_property';

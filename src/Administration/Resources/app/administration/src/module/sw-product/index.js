@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 

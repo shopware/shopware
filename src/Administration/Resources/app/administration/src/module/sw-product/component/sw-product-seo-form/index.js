@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-seo-form.html.twig';
 
 const { Mixin } = Shopware;

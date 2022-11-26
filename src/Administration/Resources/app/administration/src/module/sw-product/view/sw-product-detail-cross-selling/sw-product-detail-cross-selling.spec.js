@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProductDetailCrossSelling from 'src/module/sw-product/view/sw-product-detail-cross-selling';
 import Vuex from 'vuex';

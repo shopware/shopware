@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swPropertyOptionList from 'src/module/sw-property/component/sw-property-option-list';
 import 'src/app/component/base/sw-card';

@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
 import swProductDetailSeo from 'src/module/sw-product/view/sw-product-detail-seo';

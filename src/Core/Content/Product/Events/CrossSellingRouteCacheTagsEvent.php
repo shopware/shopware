@@ -8,6 +8,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package inventory
+ */
 class CrossSellingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     protected string $productId;

@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swPropertyDetail from 'src/module/sw-property/page/sw-property-detail';
 

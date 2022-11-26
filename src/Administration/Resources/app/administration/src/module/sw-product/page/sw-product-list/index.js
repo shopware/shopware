@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';

@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package inventory
  */
 class ProductActionController extends AbstractController
 {

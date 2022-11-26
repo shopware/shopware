@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swProductDetailLayout from 'src/module/sw-product/view/sw-product-detail-layout';

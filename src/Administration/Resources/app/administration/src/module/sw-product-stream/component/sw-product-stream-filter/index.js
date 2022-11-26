@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 

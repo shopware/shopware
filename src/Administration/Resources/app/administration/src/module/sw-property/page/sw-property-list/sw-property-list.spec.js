@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swPropertyList from 'src/module/sw-property/page/sw-property-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

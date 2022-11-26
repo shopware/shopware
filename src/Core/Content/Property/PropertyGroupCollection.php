@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<PropertyGroupEntity>
+ *
+ * @package inventory
  */
 class PropertyGroupCollection extends EntityCollection
 {

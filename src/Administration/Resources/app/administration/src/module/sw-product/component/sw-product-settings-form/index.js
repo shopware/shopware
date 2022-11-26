@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-settings-form.html.twig';
 
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();

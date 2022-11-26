@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swProductModalDelivery from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
 

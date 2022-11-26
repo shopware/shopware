@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swProductLayoutAssignemt from 'src/module/sw-product/component/sw-product-layout-assignment';
 

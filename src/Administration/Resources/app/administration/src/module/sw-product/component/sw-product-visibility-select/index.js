@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-visibility-select.html.twig';
 
 const { EntityCollection } = Shopware.Data;

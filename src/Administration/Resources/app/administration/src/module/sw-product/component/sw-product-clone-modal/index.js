@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-clone-modal.html.twig';
 import './sw-product-clone-modal.scss';
 

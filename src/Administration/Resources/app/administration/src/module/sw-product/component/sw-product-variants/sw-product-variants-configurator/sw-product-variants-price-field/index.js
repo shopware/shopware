@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variants-price-field.html.twig';
 import './sw-product-variants-price-field.scss';
 

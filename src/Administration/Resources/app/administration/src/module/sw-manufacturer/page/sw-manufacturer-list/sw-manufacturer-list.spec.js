@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { mount } from '@vue/test-utils';
 import swManufacturerList from 'src/module/sw-manufacturer/page/sw-manufacturer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

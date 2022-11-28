@@ -1,0 +1,10 @@
+---
+title:          New Copy to Clipboard Button for Tracking Codes
+author:         Lucas Breiner
+author_email:   l.breiner@imi.de
+author_github:  @Lucas-Schmukas
+---
+
+# Core
+* Adjust error message for src/Core/Framework/Demodata/Command/DemodataCommand.php
+* Adjust return value for src/Core/Framework/Demodata/Command/DemodataCommand.php

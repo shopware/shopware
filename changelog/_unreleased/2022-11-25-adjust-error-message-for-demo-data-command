@@ -1,10 +1,11 @@
 ---
-title:          Adjust error message for demodata command
-author:         Lucas Breiner
-author_email:   l.breiner@imi.de
-author_github:  @Lucas-Schmukas
+title: Adjust error message for demodata command
+issue: NEXT-24351
+author: Lucas Breiner
+author_email: l.breiner@imi.de
+author_github: @Lucas-Schmukas
 ---
 
 # Core
-* Adjust error message for src/Core/Framework/Demodata/Command/DemodataCommand.php
-* Adjust return value for src/Core/Framework/Demodata/Command/DemodataCommand.php
+* Changed error message for src/Core/Framework/Demodata/Command/DemodataCommand.php
+* Changed return value for src/Core/Framework/Demodata/Command/DemodataCommand.php

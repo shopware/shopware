@@ -5,11 +5,6 @@
       "placeholderSearchBar": "Durchsuche alle Zahlungsarten ..."
     },
     "overview": {
-      "deprecation-alert": {
-        "title": "Ein einfacheres Design für Zahlungsmethoden",
-        "message": "Wir haben die Verwaltung der Zahlungsarten in Ihrem Shop vereinfacht. Probiere das neue Design jetzt aus, das alte wird mit der nächsten Major-Version von Shopware 6 entfernt.",
-        "link": "Zum alten Design"
-      },
       "openSortingModalButton": "Darstellungsreihenfolge im Bestellprozess ändern",
       "editDetails": "Details bearbeiten",
       "activeToggle": "Aktiv",
@@ -20,10 +15,6 @@
         "activationError": "{name} konnte nicht aktiviert werden.",
         "deactivationError": "{name} konnte nicht deaktiviert werden."
       }
-    },
-    "deprecated-alert": {
-      "message": "Wir haben die Verwaltung der Zahlungsarten in Ihrem Shop vereinfacht.",
-      "link": "Zum neuen Design"
     },
     "sorting-modal": {
       "modalTitle": "Darstellungsreihenfolge im Bestellprozess",

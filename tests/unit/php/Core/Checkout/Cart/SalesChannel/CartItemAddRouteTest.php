@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
@@ -99,7 +99,7 @@ class CartItemAddRouteTest extends TestCase
 
         return new CartItemAddRoute(
             $this->createMock(CartCalculator::class),
-            $this->createMock(CartPersisterInterface::class),
+            $this->createMock(AbstractCartPersister::class),
             $this->createMock(EventDispatcherInterface::class),
             $lineItemFactory,
             $rateLimiter

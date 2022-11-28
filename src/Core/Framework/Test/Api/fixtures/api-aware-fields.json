@@ -1037,7 +1037,6 @@
     "customer.guest",
     "customer.firstLogin",
     "customer.lastLogin",
-    "customer.newsletter",
     "customer.birthday",
     "customer.lastOrderDate",
     "customer.orderCount",

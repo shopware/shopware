@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Listener;
 
-use Shopware\Core\Checkout\Cart\Exception\OrderDeliveryNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
@@ -15,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package customer-order
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class OrderStateChangeEventListener implements EventSubscriberInterface
 {
@@ -70,8 +66,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
-     * @throws OrderDeliveryNotFoundException
-     * @throws OrderNotFoundException
+     * @throws OrderException
      */
     public function onOrderDeliveryStateChange(StateMachineStateChangeEvent $event): void
     {
@@ -87,19 +82,11 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             ->first();
 
         if ($orderDelivery === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderDeliveryNotFound($orderDeliveryId);
-            }
-
-            throw new OrderDeliveryNotFoundException($orderDeliveryId);
+            throw OrderException::orderDeliveryNotFound($orderDeliveryId);
         }
 
         if ($orderDelivery->getOrder() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderDeliveryNotFound($orderDeliveryId);
-            }
-
-            throw new OrderNotFoundException($orderDeliveryId);
+            throw OrderException::orderDeliveryNotFound($orderDeliveryId);
         }
 
         $context = $this->getContext($orderDelivery->getOrderId(), $event->getContext());
@@ -109,8 +96,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
-     * @throws OrderNotFoundException
-     * @throws OrderTransactionNotFoundException
+     * @throws OrderException
      */
     public function onOrderTransactionStateChange(StateMachineStateChangeEvent $event): void
     {
@@ -126,27 +112,15 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             ->first();
 
         if ($orderTransaction === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderTransactionNotFound($orderTransactionId);
-            }
-
-            throw new OrderTransactionNotFoundException($orderTransactionId);
+            throw OrderException::orderTransactionNotFound($orderTransactionId);
         }
 
         if ($orderTransaction->getPaymentMethod() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderTransactionNotFound($orderTransactionId);
-            }
-
-            throw new OrderTransactionNotFoundException($orderTransactionId);
+            throw OrderException::orderTransactionNotFound($orderTransactionId);
         }
 
         if ($orderTransaction->getOrder() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderTransactionNotFound($orderTransactionId);
-            }
-
-            throw new OrderNotFoundException($orderTransactionId);
+            throw OrderException::orderTransactionNotFound($orderTransactionId);
         }
 
         $context = $this->getContext($orderTransaction->getOrderId(), $event->getContext());
@@ -207,7 +181,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
-     * @throws OrderNotFoundException
+     * @throws OrderException
      */
     private function dispatchEvent(string $stateEventName, OrderEntity $order, Context $context): void
     {
@@ -222,7 +196,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
 
         if (!$order instanceof OrderEntity) {
-            throw new OrderNotFoundException($orderId);
+            throw OrderException::orderNotFound($orderId);
         }
 
         $orderContext = new Context(
@@ -244,7 +218,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
-     * @throws OrderNotFoundException
+     * @throws OrderException
      */
     private function getOrder(string $orderId, Context $context): OrderEntity
     {
@@ -255,7 +229,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             ->first();
 
         if (!$order instanceof OrderEntity) {
-            throw new OrderNotFoundException($orderId);
+            throw OrderException::orderNotFound($orderId);
         }
 
         return $order;

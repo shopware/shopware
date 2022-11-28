@@ -5,10 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -69,10 +66,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAbsoluteDeliveryDiscount(): void
     {
@@ -112,10 +106,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageDeliveryDiscount(): void
     {
@@ -155,10 +146,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageAutoDeliveryDiscount(): void
     {
@@ -189,10 +177,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageAbsoluteDeliveryDiscountCombination(): void
     {
@@ -235,9 +220,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group promotions
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAbsoluteDeliveryDiscountHigherThanShippingCosts(): void
     {
@@ -274,9 +257,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group promotions
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testFixedDeliveryDiscountHigherThanShippingCosts(): void
     {
@@ -313,9 +294,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group promotions
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testFixedDeliveryDiscount(): void
     {
@@ -353,9 +332,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group promotions
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testFixedDeliveryDiscountWithCurrency(): void
     {
@@ -398,9 +375,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group promotions
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testMultipleDeliveryDiscountsWithFixed(): void
     {
@@ -449,9 +424,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group not-deterministic
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
@@ -495,9 +468,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @group promotions
      *
      * @throws Exception
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testMultipleFixedPriceDeliveryDiscounts(): void
     {

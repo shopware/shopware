@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -20,6 +19,9 @@ class LineItemCustomFieldRule extends Rule
 {
     protected string $operator;
 
+    /**
+     * @var mixed[]
+     */
     protected array $renderedField;
 
     /**
@@ -28,17 +30,9 @@ class LineItemCustomFieldRule extends Rule
     protected $renderedFieldValue;
 
     /**
-     * @var string|null
-     */
-    protected $selectedField;
-
-    /**
-     * @var string|null
-     */
-    protected $selectedFieldSet;
-
-    /**
      * @internal
+     *
+     * @param array|mixed[] $renderedField
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
     {
@@ -75,6 +69,9 @@ class LineItemCustomFieldRule extends Rule
         return false;
     }
 
+    /**
+     * @return array|\Symfony\Component\Validator\Constraint[][]
+     */
     public function getConstraints(): array
     {
         return [
@@ -105,10 +102,6 @@ class LineItemCustomFieldRule extends Rule
     {
         $customFields = $lineItem->getPayloadValue('customFields');
         if ($customFields === null) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -160,9 +153,12 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
+     * @param array<mixed> $customFields
+     * @param array|mixed[] $renderedField
+     *
      * @return string|int|float|bool|null
      */
-    private function getValue(array $customFields, array $renderedField)
+    private function getValue(array $customFields, array $renderedField): mixed
     {
         if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
             if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
@@ -181,6 +177,7 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @param string|int|float|bool|null $renderedFieldValue
+     * @param array|mixed[] $renderedField
      *
      * @return string|int|float|bool|null
      */

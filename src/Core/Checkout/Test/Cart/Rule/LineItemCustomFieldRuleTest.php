@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -109,11 +108,6 @@ class LineItemCustomFieldRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
 
         $this->rule->assign(['operator' => $this->rule::OPERATOR_NEQ]);
-        if (!Feature::isActive('v6.5.0.0')) {
-            static::assertFalse($this->rule->match($scope));
-
-            return;
-        }
 
         static::assertTrue($this->rule->match($scope));
     }
@@ -178,6 +172,9 @@ class LineItemCustomFieldRuleTest extends TestCase
         static::assertSame($result, $this->rule->match($scope));
     }
 
+    /**
+     * @return array<string, array<bool|string|null>>
+     */
     public function customFieldCartScopeProvider(): array
     {
         return [
@@ -189,6 +186,9 @@ class LineItemCustomFieldRuleTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, bool|string|null> $customFields
+     */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
         return ($this->createLineItem())->setPayloadValue('customFields', $customFields);
@@ -197,7 +197,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     /**
      * @param bool|string|null $customFieldValue
      */
-    private function setupRule($customFieldValue, string $type): void
+    private function setupRule(mixed $customFieldValue, string $type): void
     {
         $this->rule->assign(
             [

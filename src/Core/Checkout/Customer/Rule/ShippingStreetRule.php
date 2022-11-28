@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -16,15 +15,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class ShippingStreetRule extends Rule
 {
-    /**
-     * @var string|null
-     */
-    protected $streetName;
+    protected ?string $streetName;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     /**
      * @internal
@@ -43,10 +36,6 @@ class ShippingStreetRule extends Rule
         }
 
         if (!$location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

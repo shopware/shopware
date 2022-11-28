@@ -3,65 +3,39 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package checkout
  */
 class DiscountLineItem
 {
-    /**
-     * @var string
-     */
-    private $label;
+    private string $label;
+
+    private PriceDefinitionInterface $priceDefinition;
 
     /**
-     * @var PriceDefinitionInterface
+     * @var array<mixed>
      */
-    private $priceDefinition;
+    private array $payload;
+
+    private ?string $code;
+
+    private string $scope;
+
+    private string $type;
+
+    private string $filterSorterKey;
+
+    private string $filterApplierKey;
+
+    private string $filterUsageKey;
+
+    private string $filterPickerKey;
 
     /**
-     * @var array
+     * @param array<mixed> $payload
      */
-    private $payload;
-
-    /**
-     * @var string|null
-     */
-    private $code;
-
-    /**
-     * @var string
-     */
-    private $scope;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var string
-     */
-    private $filterSorterKey;
-
-    /**
-     * @var string
-     */
-    private $filterApplierKey;
-
-    /**
-     * @var string
-     */
-    private $filterUsageKey;
-
-    /**
-     * @var string
-     */
-    private $filterPickerKey;
-
     public function __construct(string $label, PriceDefinitionInterface $priceDefinition, array $payload, ?string $code)
     {
         $this->label = $label;
@@ -112,6 +86,8 @@ class DiscountLineItem
 
     /**
      * Gets the discount payload data
+     *
+     * @return array<mixed>
      */
     public function getPayload(): array
     {
@@ -119,18 +95,14 @@ class DiscountLineItem
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      *
-     * @return string|array
+     * @return string|array<mixed>
      */
     public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::payloadKeyNotFound($key, (string) $this->getCode());
-            }
-
-            throw new PayloadKeyNotFoundException($key, $this->getLabel());
+            throw CartException::payloadKeyNotFound($key, (string) $this->getCode());
         }
 
         return $this->payload[$key];

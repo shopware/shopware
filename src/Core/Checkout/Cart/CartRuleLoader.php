@@ -30,7 +30,7 @@ class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;
 
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     private ?RuleCollection $rules = null;
 
@@ -57,7 +57,7 @@ class CartRuleLoader implements ResetInterface
      * @internal
      */
     public function __construct(
-        CartPersisterInterface $cartPersister,
+        AbstractCartPersister $cartPersister,
         Processor $processor,
         LoggerInterface $logger,
         CacheInterface $cache,

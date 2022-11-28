@@ -10,12 +10,10 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistC
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
-use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -33,166 +31,76 @@ class CustomerEntity extends Entity
     public const ACCOUNT_TYPE_PRIVATE = 'private';
     public const ACCOUNT_TYPE_BUSINESS = 'business';
 
-    /**
-     * @var string
-     */
-    protected $groupId;
+    protected string $groupId;
+
+    protected string $defaultPaymentMethodId;
+
+    protected string $salesChannelId;
+
+    protected string $languageId;
+
+    protected ?string $lastPaymentMethodId = null;
+
+    protected string $defaultBillingAddressId;
+
+    protected string $defaultShippingAddressId;
+
+    protected string $customerNumber;
+
+    protected ?string $salutationId = null;
+
+    protected string $firstName;
+
+    protected string $lastName;
+
+    protected ?string $company = null;
 
     /**
-     * @var string
+     * @internal
      */
-    protected $defaultPaymentMethodId;
+    protected ?string $password = null;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $email;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
-
-    /**
-     * @var string|null
-     */
-    protected $lastPaymentMethodId;
-
-    /**
-     * @var string
-     */
-    protected $defaultBillingAddressId;
-
-    /**
-     * @var string
-     */
-    protected $defaultShippingAddressId;
-
-    /**
-     * @var string
-     */
-    protected $customerNumber;
-
-    /**
-     * @var string|null
-     */
-    protected $salutationId;
-
-    /**
-     * @var string
-     */
-    protected $firstName;
-
-    /**
-     * @var string
-     */
-    protected $lastName;
-
-    /**
-     * @var string|null
-     */
-    protected $company;
-
-    /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
-     *
-     * @var string|null
-     */
-    protected $password;
-
-    /**
-     * @var string
-     */
-    protected $email;
-
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * @var array<string>|null
      */
-    protected $vatIds;
+    protected ?array $vatIds = null;
 
-    /**
-     * @var string|null
-     */
-    protected $affiliateCode;
+    protected ?string $affiliateCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $campaignCode;
+    protected ?string $campaignCode = null;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $doubleOptInRegistration;
+    protected bool $doubleOptInRegistration;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $doubleOptInEmailSentDate;
+    protected ?\DateTimeInterface $doubleOptInEmailSentDate = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $doubleOptInConfirmDate;
+    protected ?\DateTimeInterface $doubleOptInConfirmDate = null;
 
-    /**
-     * @var string|null
-     */
-    protected $hash;
+    protected ?string $hash = null;
 
-    /**
-     * @var bool
-     */
-    protected $guest;
+    protected bool $guest;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $firstLogin;
+    protected ?\DateTimeInterface $firstLogin = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lastLogin;
+    protected ?\DateTimeInterface $lastLogin = null;
 
     /**
      * @var array<string>|null
      *
      * @internal
      */
-    protected $newsletterSalesChannelIds;
+    protected ?array $newsletterSalesChannelIds = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.5.0 - $newsletter will be removed use the newsletterRecipents instead
-     */
-    protected $newsletter;
+    protected ?\DateTimeInterface $birthday = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $birthday;
+    protected ?\DateTimeInterface $lastOrderDate = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lastOrderDate;
-
-    /**
-     * @var int
-     */
-    protected $orderCount;
+    protected int $orderCount;
 
     protected float $orderTotalAmount;
 
@@ -207,158 +115,73 @@ class CustomerEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
-     *
-     * @var string|null
+     * @internal
      */
-    protected $legacyEncoder;
+    protected ?string $legacyEncoder = null;
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
-     *
-     * @var string|null
+     * @internal
      */
-    protected $legacyPassword;
+    protected ?string $legacyPassword = null;
 
-    /**
-     * @var CustomerGroupEntity|null
-     */
-    protected $group;
+    protected ?CustomerGroupEntity $group = null;
 
-    /**
-     * @var PaymentMethodEntity|null
-     */
-    protected $defaultPaymentMethod;
+    protected ?PaymentMethodEntity $defaultPaymentMethod = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var PaymentMethodEntity|null
-     */
-    protected $lastPaymentMethod;
+    protected ?PaymentMethodEntity $lastPaymentMethod = null;
 
-    /**
-     * @var SalutationEntity|null
-     */
-    protected $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $defaultBillingAddress;
+    protected ?CustomerAddressEntity $defaultBillingAddress = null;
 
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $defaultShippingAddress;
+    protected ?CustomerAddressEntity $defaultShippingAddress = null;
 
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $activeBillingAddress;
+    protected ?CustomerAddressEntity $activeBillingAddress = null;
 
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $activeShippingAddress;
+    protected ?CustomerAddressEntity $activeShippingAddress = null;
 
-    /**
-     * @var CustomerAddressCollection|null
-     */
-    protected $addresses;
+    protected ?CustomerAddressCollection $addresses = null;
 
-    /**
-     * @var OrderCustomerCollection|null
-     */
-    protected $orderCustomers;
+    protected ?OrderCustomerCollection $orderCustomers = null;
 
-    /**
-     * @var int
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
     /**
      * @var array<string>|null
      */
-    protected $tagIds;
+    protected ?array $tagIds = null;
 
-    /**
-     * @var PromotionCollection|null
-     */
-    protected $promotions;
+    protected ?PromotionCollection $promotions = null;
 
-    /**
-     * @var CustomerRecoveryEntity|null
-     */
-    protected $recoveryCustomer;
+    protected ?CustomerRecoveryEntity $recoveryCustomer = null;
 
-    /**
-     * @var ProductReviewCollection|null
-     */
-    protected $productReviews;
+    protected ?ProductReviewCollection $productReviews = null;
 
-    /**
-     * @var string|null
-     */
-    protected $remoteAddress;
+    protected ?string $remoteAddress = null;
 
-    /**
-     * @var string|null
-     */
-    protected $requestedGroupId;
+    protected ?string $requestedGroupId = null;
 
-    /**
-     * @var CustomerGroupEntity|null
-     */
-    protected $requestedGroup;
+    protected ?CustomerGroupEntity $requestedGroup = null;
 
-    /**
-     * @var string|null
-     */
-    protected $boundSalesChannelId;
+    protected ?string $boundSalesChannelId = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $boundSalesChannel;
+    protected ?SalesChannelEntity $boundSalesChannel = null;
 
-    /**
-     * @var CustomerWishlistCollection|null
-     */
-    protected $wishlists;
+    protected ?CustomerWishlistCollection $wishlists = null;
 
-    /**
-     * @var string|null
-     */
-    protected $createdById;
+    protected ?string $createdById = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $createdBy;
+    protected ?UserEntity $createdBy = null;
 
-    /**
-     * @var string|null
-     */
-    protected $updatedById;
+    protected ?string $updatedById = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $updatedBy;
+    protected ?UserEntity $updatedBy = null;
 
     public function __toString()
     {
@@ -486,7 +309,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
+     * @internal
      */
     public function getPassword(): ?string
     {
@@ -496,7 +319,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
+     * @internal
      */
     public function setPassword(?string $password): void
     {
@@ -641,32 +464,6 @@ class CustomerEntity extends Entity
         $this->newsletterSalesChannelIds = $newsletterSalesChannelIds;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - getNewsletter will be removed use the newsletterRecipents instead
-     */
-    public function getNewsletter(): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', NewsletterRecipientDefinition::ENTITY_NAME)
-        );
-
-        return $this->newsletter;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - getNewsletter will be removed use the newsletterRecipents instead
-     */
-    public function setNewsletter(bool $newsletter): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', NewsletterRecipientDefinition::ENTITY_NAME)
-        );
-
-        $this->newsletter = $newsletter;
-    }
-
     public function getBirthday(): ?\DateTimeInterface
     {
         return $this->birthday;
@@ -708,7 +505,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
+     * @internal
      */
     public function getLegacyEncoder(): ?string
     {
@@ -718,7 +515,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
+     * @internal
      */
     public function setLegacyEncoder(?string $legacyEncoder): void
     {
@@ -726,7 +523,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
+     * @internal
      */
     public function getLegacyPassword(): ?string
     {
@@ -736,7 +533,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
+     * @internal
      */
     public function setLegacyPassword(?string $legacyPassword): void
     {

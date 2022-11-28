@@ -34,9 +34,9 @@ class AttachmentLoaderTest extends TestCase
     private DocumentGenerator $documentGenerator;
 
     /**
-     * @var MockObject|EventDispatcherInterface
+     * @var EventDispatcherInterface&MockObject
      */
-    private $eventDispatcherMock;
+    private EventDispatcherInterface $eventDispatcherMock;
 
     private SalesChannelContext $salesChannelContext;
 

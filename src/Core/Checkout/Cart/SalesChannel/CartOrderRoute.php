@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
@@ -37,7 +37,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     private OrderPersisterInterface $orderPersister;
 
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -50,7 +50,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         CartCalculator $cartCalculator,
         EntityRepository $orderRepository,
         OrderPersisterInterface $orderPersister,
-        CartPersisterInterface $cartPersister,
+        AbstractCartPersister $cartPersister,
         EventDispatcherInterface $eventDispatcher,
         PreparedPaymentService $preparedPaymentService
     ) {

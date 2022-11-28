@@ -3,12 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -30,9 +26,7 @@ class LineItemCollection extends Collection
     /**
      * @param LineItem $lineItem
      *
-     * @throws MixedLineItemTypeException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     public function add($lineItem): void
     {
@@ -41,11 +35,7 @@ class LineItemCollection extends Collection
         $exists = $this->get($lineItem->getId());
 
         if ($exists && $exists->getType() !== $lineItem->getType()) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::mixedLineItemType($lineItem->getId(), $lineItem->getType());
-            }
-
-            throw new MixedLineItemTypeException($lineItem->getId(), $exists->getType());
+            throw CartException::mixedLineItemType($lineItem->getId(), $lineItem->getType());
         }
 
         if ($exists) {
@@ -113,6 +103,9 @@ class LineItemCollection extends Collection
         );
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     public function getPayload(): array
     {
         return $this->map(function (LineItem $lineItem) {
@@ -187,6 +180,9 @@ class LineItemCollection extends Collection
         return $filtered;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTypes(): array
     {
         return $this->fmap(
@@ -196,6 +192,9 @@ class LineItemCollection extends Collection
         );
     }
 
+    /**
+     * @return array<string|null>
+     */
     public function getReferenceIds(): array
     {
         return $this->fmap(
@@ -227,6 +226,9 @@ class LineItemCollection extends Collection
         return LineItem::class;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function buildFlat(LineItemCollection $lineItems): array
     {
         $flat = [];

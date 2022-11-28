@@ -56,6 +56,9 @@ class CustomerIndexer extends EntityIndexer
         return 'customer.indexer';
     }
 
+    /**
+     * @param array<string, string>|null $offset
+     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

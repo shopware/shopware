@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -28,8 +27,6 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class DocumentGeneratorController extends AbstractController
 {
-    protected DocumentService $documentService;
-
     private DocumentGenerator $documentGenerator;
 
     private DecoderInterface $serializer;
@@ -40,53 +37,13 @@ class DocumentGeneratorController extends AbstractController
      * @internal
      */
     public function __construct(
-        DocumentService $documentService,
         DocumentGenerator $documentGenerator,
         DecoderInterface $serializer,
         DataValidator $dataValidator
     ) {
-        $this->documentService = $documentService;
         $this->documentGenerator = $documentGenerator;
         $this->serializer = $serializer;
         $this->dataValidator = $dataValidator;
-    }
-
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/order/{orderId}/document/{documentTypeName}", name="api.action.document.invoice", methods={"POST"})
-     *
-     * @deprecated tag:v6.5.0 - will be removed, use _action/order/document/create instead
-     */
-    public function createDocument(Request $request, string $orderId, string $documentTypeName, Context $context): JsonResponse
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            'will be removed - use createDocuments instead'
-        );
-
-        $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
-        $config = DocumentConfigurationFactory::createConfiguration($request->request->all('config'));
-        $referencedDocumentId = $request->request->get('referenced_document_id');
-        if ($referencedDocumentId !== null && !\is_string($referencedDocumentId)) {
-            throw new InvalidRequestParameterException('referenced_document_id');
-        }
-
-        $documentIdStruct = $this->documentService->create(
-            $orderId,
-            $documentTypeName,
-            $fileType,
-            $config,
-            $context,
-            $referencedDocumentId,
-            $request->request->getBoolean('static')
-        );
-
-        return new JsonResponse(
-            [
-                'documentId' => $documentIdStruct->getId(),
-                'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
-            ]
-        );
     }
 
     /**

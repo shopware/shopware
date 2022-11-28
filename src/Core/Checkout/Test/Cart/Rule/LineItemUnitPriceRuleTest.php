@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -255,6 +254,9 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -280,12 +282,6 @@ class LineItemUnitPriceRuleTest extends TestCase
         yield 'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, true];
         yield 'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, true];
         yield 'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, false];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, false, true];
-
-            return;
-        }
 
         yield 'match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, true, true];
     }
@@ -378,6 +374,9 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -403,18 +402,6 @@ class LineItemUnitPriceRuleTest extends TestCase
         yield 'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, 120, true];
         yield 'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, 120, true];
         yield 'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, 120, false];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true, true];
-            yield 'no match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, true];
-            yield 'no match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, true];
-
-            yield 'no match / operator empty / item 1 and 2 without price' => [Rule::OPERATOR_EMPTY, 200, 100, 300, false, true, true];
-            yield 'no match / operator empty / item 1 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, true];
-            yield 'no match / operator empty / item 2 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, true];
-
-            return;
-        }
 
         yield 'match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
         yield 'match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];

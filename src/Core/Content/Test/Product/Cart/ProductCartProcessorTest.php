@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -48,26 +47,17 @@ class ProductCartProcessorTest extends TestCase
     public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
     public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private IdsCollection $ids;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $calculator;
+    private QuantityPriceCalculator $calculator;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->calculator = $this->getContainer()->get(QuantityPriceCalculator::class);
     }
@@ -102,7 +92,7 @@ class ProductCartProcessorTest extends TestCase
 
         $info = $lineItem->getDeliveryInformation();
 
-        static::assertNotNull($info->getWeight()); // Has to be changed to assertNull, when type has changed to ?float
+        static::assertNull($info->getWeight());
     }
 
     public function testNotCompletedLogic(): void
@@ -194,6 +184,9 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($price, $calcPrice->getTotalPrice());
     }
 
+    /**
+     * @return \Traversable<string, array<bool|int>>
+     */
     public function advancedPricingProvider(): \Traversable
     {
         yield 'Test not matching rule' => [false, 100];
@@ -319,6 +312,10 @@ class ProductCartProcessorTest extends TestCase
 
     /**
      * @dataProvider productFeatureProdiver
+     *
+     * @param array<string, mixed> $testedFeature
+     * @param array<mixed> $productData
+     * @param array<mixed> $expectedFeature
      * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
@@ -351,6 +348,9 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($expectedFeature, $feature);
     }
 
+    /**
+     * @return array<array<array<string, array<mixed>|float|int|string|null>>>
+     */
     public function productFeatureProdiver(): array
     {
         return [
@@ -629,6 +629,9 @@ class ProductCartProcessorTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<int|string>>
+     */
     public function productDeliverabilityProvider(): array
     {
         return [
@@ -801,6 +804,9 @@ class ProductCartProcessorTest extends TestCase
             ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
+    /**
+     * @param array<string, mixed>|null $additionalData
+     */
     private function createProduct(?array $additionalData = []): void
     {
         if ($additionalData === null) {
@@ -841,6 +847,9 @@ class ProductCartProcessorTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<string, mixed>|null $additionalData
+     */
     private function createCustomField(?array $additionalData = []): void
     {
         if ($additionalData === null) {
@@ -867,6 +876,11 @@ class ProductCartProcessorTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<mixed>|null $features
+     *
+     * @return array<string, mixed>
+     */
     private function createFeatureSet(?array $features = []): array
     {
         return [

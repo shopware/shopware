@@ -94,11 +94,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerNewsletterSubscriber">
-            <argument type="service" id="customer.repository"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="request_stack"/>

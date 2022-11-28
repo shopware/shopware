@@ -35,36 +35,36 @@ class SendMailActionTest extends TestCase
     private MailTemplateEntity $mailTemplate;
 
     /**
-     * @var MockObject|AbstractMailService
+     * @var AbstractMailService&MockObject
      */
-    private $mailService;
+    private AbstractMailService $mailService;
 
     /**
-     * @var MockObject|EntityRepository
+     * @var EntityRepository&MockObject
      */
-    private $mailTemplateRepository;
+    private EntityRepository $mailTemplateRepository;
 
     /**
-     * @var MockObject|LanguageLocaleCodeProvider
+     * @var LanguageLocaleCodeProvider&MockObject
      */
-    private $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     /**
-     * @var MockObject|Translator
+     * @var Translator&MockObject
      */
-    private $translator;
+    private Translator $translator;
 
     /**
-     * @var MockObject|EntitySearchResult
+     * @var EntitySearchResult&MockObject
      */
-    private $entitySearchResult;
+    private EntitySearchResult $entitySearchResult;
 
     private SendMailAction $action;
 
     /**
-     * @var MockObject|StorableFlow
+     * @var StorableFlow&MockObject
      */
-    private $flow;
+    private StorableFlow $flow;
 
     public function setUp(): void
     {

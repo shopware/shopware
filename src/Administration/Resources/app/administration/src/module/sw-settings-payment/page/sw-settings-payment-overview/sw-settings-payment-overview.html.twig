@@ -55,25 +55,6 @@
         {% block sw_settings_payment_overview_content_inner %}
         <sw-card-view class="sw-settings-payment-overview__content">
 
-            {# @deprecated tag:v6.5.0 - block will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_payment_overview_deprecation_alert %}
-            <sw-alert
-                class="sw-settings-payment-overview__deprecation-alert"
-                icon="regular-party-horn"
-                :title="$tc('sw-settings-payment.overview.deprecation-alert.title')"
-            >
-                {{ $tc('sw-settings-payment.overview.deprecation-alert.message') }}
-                <br>
-                <sw-internal-link
-                    inline
-                    :router-link="{ name: 'sw.settings.payment.index' }"
-                >
-                    {{ $tc('sw-settings-payment.overview.deprecation-alert.link') }}
-                </sw-internal-link>
-            </sw-alert>
-            {% endblock %}
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_overview_sorting_modal_card %}
             <sw-card

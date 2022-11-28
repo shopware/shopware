@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -27,10 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderRecalculationController extends AbstractController
 {
-    /**
-     * @var RecalculationService
-     */
-    protected $recalculationService;
+    protected RecalculationService $recalculationService;
 
     /**
      * @internal
@@ -66,9 +63,8 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/order/{orderId}/creditItem", name="api.action.order.add-credit-item", methods={"POST"})
-     *
-     * */
-    public function addCreditItemToOrder(string $orderId, Request $request, Context $context)
+     */
+    public function addCreditItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $identifier = (string) $request->request->get('identifier');
         $type = LineItem::CREDIT_LINE_ITEM_TYPE;
@@ -166,7 +162,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
-     * @throws InvalidPayloadException
+     * @throws CartException
      */
     private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -19,12 +18,9 @@ class BillingCountryRule extends Rule
     /**
      * @var array<string>|null
      */
-    protected $countryIds;
+    protected ?array $countryIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     /**
      * @internal
@@ -44,26 +40,14 @@ class BillingCountryRule extends Rule
             return false;
         }
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!$address = $customer->getActiveBillingAddress()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!$country = $address->getCountry()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

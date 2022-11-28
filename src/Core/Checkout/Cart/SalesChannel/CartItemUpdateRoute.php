@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -23,30 +23,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
 {
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
-    /**
-     * @var CartCalculator
-     */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
-    /**
-     * @var LineItemFactoryRegistry
-     */
-    private $lineItemFactory;
+    private LineItemFactoryRegistry $lineItemFactory;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      */
-    public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
+    public function __construct(AbstractCartPersister $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
     {
         $this->cartPersister = $cartPersister;
         $this->cartCalculator = $cartCalculator;
@@ -67,7 +55,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
     {
         $itemsToUpdate = $request->request->all('items');
 
-        /** @var array $item */
+        /** @var array<mixed> $item */
         foreach ($itemsToUpdate as $item) {
             $this->lineItemFactory->update($cart, $item, $context);
         }

@@ -23,6 +23,9 @@ abstract class ZipCodeRule extends Rule
      */
     protected ?array $zipCodes;
 
+    /**
+     * @param array<string>|null $zipCodes
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $zipCodes = null)
     {
         parent::__construct();
@@ -94,6 +97,9 @@ abstract class ZipCodeRule extends Rule
         }
     }
 
+    /**
+     * @return array<string>
+     */
     private function getMatches(string $zipCode): array
     {
         return array_filter((array) $this->zipCodes, function (string $zipCodeMatch) use ($zipCode) {
@@ -106,7 +112,7 @@ abstract class ZipCodeRule extends Rule
 
     private function sanitizeZipCode(CustomerAddressEntity $address): string
     {
-        $zipCode = trim($address->getZipcode());
+        $zipCode = trim($address->getZipcode() ?? '');
 
         if (\in_array($this->operator, [self::OPERATOR_EQ, self::OPERATOR_NEQ], true)) {
             return $zipCode;

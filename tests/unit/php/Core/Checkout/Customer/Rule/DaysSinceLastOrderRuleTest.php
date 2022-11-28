@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -283,51 +282,6 @@ class DaysSinceLastOrderRuleTest extends TestCase
         yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, 0, $dayTest, true];
         yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 0, $dayTest, true];
         yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 0, $dayTest, true];
-    }
-
-    /**
-     * @dataProvider getMatchValuesWithInactiveMajorFeatures
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testRuleMatchingWithInactiveMajorFeatures(string $operator, bool $isMatching, int $daysPassed, ?\DateTimeImmutable $day, bool $noCustomer = false): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = new CustomerEntity();
-        $customer->setLastOrderDate($day);
-
-        if ($noCustomer) {
-            $customer = null;
-        }
-
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $this->rule->assign(['daysPassed' => $daysPassed, 'operator' => $operator]);
-
-        $scope = $this->createMock(CheckoutRuleScope::class);
-        $scope->method('getCurrentTime')->willReturn(self::getTestTimestamp());
-        $scope->method('getSalesChannelContext')->willReturn($salesChannelContext);
-
-        $match = $this->rule->match($scope);
-        if ($isMatching) {
-            static::assertTrue($match);
-        } else {
-            static::assertFalse($match);
-        }
-    }
-
-    /**
-     * @return \Traversable<list<mixed>>
-     */
-    public function getMatchValuesWithInactiveMajorFeatures(): \Traversable
-    {
-        $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTimeImmutable) {
-            throw new \Error();
-        }
-
-        $dayTest = $datetime->modify('-30 minutes');
-
-        yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 0, $dayTest, true];
-        yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, 0, $dayTest, true];
     }
 
     private static function getTestTimestamp(): \DateTimeImmutable

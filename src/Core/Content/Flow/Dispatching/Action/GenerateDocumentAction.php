@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
@@ -76,7 +76,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
 
         // Invoice document should be created first
         foreach ($documentsConfig as $index => $config) {
-            if ($config['documentType'] === InvoiceGenerator::INVOICE) {
+            if ($config['documentType'] === InvoiceRenderer::TYPE) {
                 $this->generateDocument($config, $context, $orderId);
                 unset($documentsConfig[$index]);
 

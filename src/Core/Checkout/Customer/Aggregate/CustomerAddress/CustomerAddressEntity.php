@@ -18,100 +18,43 @@ class CustomerAddressEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $customerId;
+    protected string $customerId;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var string|null
-     */
-    protected $countryStateId;
+    protected ?string $countryStateId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $salutationId;
+    protected ?string $salutationId = null;
 
-    /**
-     * @var string
-     */
-    protected $firstName;
+    protected string $firstName;
 
-    /**
-     * @var string
-     */
-    protected $lastName;
+    protected string $lastName;
 
-    /**
-     * @var string|null
-     */
-    protected $zipcode;
+    protected ?string $zipcode = null;
 
-    /**
-     * @var string
-     */
-    protected $city;
+    protected string $city;
 
-    /**
-     * @var string|null
-     */
-    protected $company;
+    protected ?string $company = null;
 
-    /**
-     * @var string|null
-     */
-    protected $department;
+    protected ?string $department = null;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string
-     */
-    protected $street;
+    protected string $street;
 
-    /**
-     * @var string|null
-     */
-    protected $phoneNumber;
+    protected ?string $phoneNumber = null;
 
-    /**
-     * @var string|null
-     */
-    protected $additionalAddressLine1;
+    protected ?string $additionalAddressLine1 = null;
 
-    /**
-     * @var string|null
-     */
-    protected $additionalAddressLine2;
+    protected ?string $additionalAddressLine2 = null;
 
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
-    /**
-     * @var CountryStateEntity|null
-     */
-    protected $countryState;
+    protected ?CountryStateEntity $countryState = null;
 
-    /**
-     * @var SalutationEntity|null
-     */
-    protected $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var CustomerEntity|null
-     */
-    protected $customer;
+    protected ?CustomerEntity $customer = null;
 
     public function getCustomerId(): string
     {
@@ -173,23 +116,12 @@ class CustomerAddressEntity extends Entity
         $this->lastName = $lastName;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will change to ?string
-     */
-    public function getZipcode(): string
+    public function getZipcode(): ?string
     {
-        if ($this->zipcode === null) {
-            return '';
-        }
-
         return $this->zipcode;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Parameter type of $zipcode will be changed to ?string
-     * @phpstan-ignore-next-line
-     */
-    public function setZipcode(string $zipcode): void
+    public function setZipcode(?string $zipcode): void
     {
         $this->zipcode = empty($zipcode) ? null : $zipcode;
     }

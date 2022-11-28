@@ -12,20 +12,17 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
-use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
@@ -98,7 +95,7 @@ class GenerateDocumentActionTest extends TestCase
                         'custom' => ['invoiceNumber' => '1100'],
                     ],
                     [
-                        'documentType' => DeliveryNoteGenerator::DELIVERY_NOTE,
+                        'documentType' => DeliveryNoteRenderer::TYPE,
                         'documentRangerType' => 'document_delivery_note',
                     ],
                 ],
@@ -130,7 +127,7 @@ class GenerateDocumentActionTest extends TestCase
 
         $subscriber->handleFlow($flow);
 
-        $referenceDoctype = $documentType === StornoGenerator::STORNO || $documentType === CreditNoteGenerator::CREDIT_NOTE;
+        $referenceDoctype = $documentType === StornoRenderer::TYPE || $documentType === CreditNoteRenderer::TYPE;
         if ($referenceDoctype && !$autoGenInvoiceDoc && empty($multipleDoc)) {
             static::assertEmpty($this->getDocumentId($order->getId()));
         } else {
@@ -157,7 +154,7 @@ class GenerateDocumentActionTest extends TestCase
 
         static::assertEmpty($this->getDocumentId($order->getId()));
 
-        if ($documentType === CreditNoteGenerator::CREDIT_NOTE) {
+        if ($documentType === CreditNoteRenderer::TYPE) {
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
@@ -520,31 +517,6 @@ class GenerateDocumentActionTest extends TestCase
             $documentTypeTranslations,
             $this->connection
         );
-    }
-}
-
-/**
- * @package business-ops
- *
- * @internal
- */
-class CustomDoc implements DocumentGeneratorInterface
-{
-    public const CUSTOM_DOC = 'customDoc';
-
-    public function supports(): string
-    {
-        return self::CUSTOM_DOC;
-    }
-
-    public function generate(OrderEntity $order, DocumentConfiguration $config, Context $context, ?string $templatePath = null): string
-    {
-        return '';
-    }
-
-    public function getFileName(DocumentConfiguration $config): string
-    {
-        return '';
     }
 }
 

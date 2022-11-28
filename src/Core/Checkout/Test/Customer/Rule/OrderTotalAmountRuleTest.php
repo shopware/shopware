@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -37,25 +36,13 @@ class OrderTotalAmountRuleTest extends TestCase
     use DatabaseTransactionBehaviour;
     use OrderFixture;
 
-    /**
-     * @var EntityRepository
-     */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $conditionRepository;
+    private EntityRepository $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
     protected function setUp(): void
     {
@@ -313,6 +300,9 @@ class OrderTotalAmountRuleTest extends TestCase
         static::assertSame($isMatching, $rule->match($scope));
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool>>
+     */
     public function getMatchValues(): \Traversable
     {
         yield 'operator_eq / no match / greater value' => [Rule::OPERATOR_EQ, false, 100, 50];
@@ -343,12 +333,6 @@ class OrderTotalAmountRuleTest extends TestCase
         yield 'operator_neq / match / greater value' => [Rule::OPERATOR_NEQ, true, 100, 50];
         yield 'operator_neq / no match / equal value' => [Rule::OPERATOR_NEQ, false, 50, 50];
         yield 'operator_neq / match / lower value' => [Rule::OPERATOR_NEQ, true, 10, 50];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 100, 50, true];
-
-            return;
-        }
 
         yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 100, 50, true];
     }

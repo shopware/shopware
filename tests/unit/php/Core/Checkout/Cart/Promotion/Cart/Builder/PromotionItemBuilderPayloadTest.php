@@ -4,8 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
@@ -36,12 +35,12 @@ class PromotionItemBuilderPayloadTest extends TestCase
     /**
      * @var MockObject&SalesChannelContext
      */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     /**
      * @var MockObject&Context
      */
-    private $context;
+    private Context $context;
 
     public function setUp(): void
     {
@@ -114,8 +113,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadPercentageWithoutAdvancedPrices(): void
@@ -167,8 +165,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadPercentageWithoutAdvancedPricesWithCurrencyFactor(): void
@@ -219,8 +216,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadHasGroupIdOnSetGroupScope(): void
@@ -250,8 +246,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadWithSetGroup(): void
@@ -322,8 +317,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadPercentageMaxValueWithAdvancedPrices(): void
@@ -362,8 +356,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadAbsoluteMaxValueIsNull(): void
@@ -391,8 +384,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadMaxValueUsesCurrencyFactor(): void

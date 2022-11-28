@@ -105,18 +105,7 @@ parameters:
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
             path: src/Core/Framework/DataAbstractionLayer/Entity.php
 
-        # Shopware\\Core\\Checkout\\Cart\\Exception\\InvalidCartException is behind a feature flag
-        -
-            message: '#.*Shopware\\Core\\Checkout\\Cart\\Exception\\InvalidCartException.*#'
-            path: src/Core/Checkout/Cart/CartException.php
-
         # can be removed with feature flag FEATURE_NEXT_12455
-        -
-            message: '#Constructor of class Shopware\\Core\\Checkout\\Customer\\Exception\\DuplicateWishlistProductException has an unused parameter \$productId\.#'
-            path: src/Core/Checkout/Customer/Exception/DuplicateWishlistProductException.php
-        -
-            message: '#Constructor of class Shopware\\Core\\Checkout\\Order\\Exception\\LanguageOfOrderDeleteException has an unused parameter \$language\.#'
-            path: src/Core/Checkout/Order/Exception/LanguageOfOrderDeleteException.php
         -
             message: '#Constructor of class Shopware\\Core\\Content\\Newsletter\\Exception\\LanguageOfNewsletterDeleteException has an unused parameter \$language\.#'
             path: src/Core/Content/Newsletter/Exception/LanguageOfNewsletterDeleteException.php

@@ -54,6 +54,9 @@ class PromotionIndexer extends EntityIndexer
         return 'promotion.indexer';
     }
 
+    /**
+     * @param array<mixed>|null $offset
+     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

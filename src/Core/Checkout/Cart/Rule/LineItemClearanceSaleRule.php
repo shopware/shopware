@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -32,7 +32,7 @@ class LineItemClearanceSaleRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function match(RuleScope $scope): bool
     {
@@ -67,7 +67,7 @@ class LineItemClearanceSaleRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function matchesClearanceSaleCondition(LineItem $lineItem): bool
     {

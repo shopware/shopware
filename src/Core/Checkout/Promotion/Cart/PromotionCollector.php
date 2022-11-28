@@ -5,8 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -42,6 +41,9 @@ class PromotionCollector implements CartDataCollectorInterface
 
     private HtmlSanitizer $htmlSanitizer;
 
+    /**
+     * @var string[]
+     */
     private array $requiredDalAssociations;
 
     /**
@@ -72,8 +74,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * The eligible promotions will then be used in the enrichment process and converted
      * into Line Items which will be passed on to the next processor.
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      * @throws InconsistentCriteriaIdsException
      */
@@ -145,9 +146,9 @@ class PromotionCollector implements CartDataCollectorInterface
             // and add errors, if a promotion for that code couldn't be found
             foreach ($allCodes as $code) {
                 if (!\in_array($code, $foundCodes, true)) {
-                    $cartExtension->removeCode($code);
+                    $cartExtension->removeCode((string) $code);
 
-                    $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize($code, null, true), $original);
+                    $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
                 }
             }
 
@@ -167,6 +168,8 @@ class PromotionCollector implements CartDataCollectorInterface
      * are valid, or loads them from the database.
      *
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return PromotionEntity[]
      */
     private function searchPromotionsAuto(CartDataCollection $data, SalesChannelContext $context): array
     {
@@ -194,6 +197,8 @@ class PromotionCollector implements CartDataCollectorInterface
      * The promotions will be either taken from a cached list of a previous call,
      * or are loaded directly from the database if a certain code is new
      * and has not yet been fetched.
+     *
+     * @param array<mixed> $allCodes
      *
      * @throws InconsistentCriteriaIdsException
      */
@@ -341,9 +346,10 @@ class PromotionCollector implements CartDataCollectorInterface
      * The resulting list of line items will then be returned and can be added to the cart.
      * The function will already avoid duplicate entries.
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
+     *
+     * @return array<LineItem>
      */
     private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
     {
@@ -395,6 +401,9 @@ class PromotionCollector implements CartDataCollectorInterface
         return $lineItems;
     }
 
+    /**
+     * @return array<string>
+     */
     private function getAllLineItemIds(Cart $cart): array
     {
         return $cart->getLineItems()->fmap(

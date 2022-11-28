@@ -2,16 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -31,7 +27,7 @@ class CartService implements ResetInterface
     /**
      * @var Cart[]
      */
-    private $cart = [];
+    private array $cart = [];
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -49,13 +45,13 @@ class CartService implements ResetInterface
 
     private AbstractCartOrderRoute $orderRoute;
 
-    private CartPersisterInterface $persister;
+    private AbstractCartPersister $persister;
 
     /**
      * @internal
      */
     public function __construct(
-        CartPersisterInterface $persister,
+        AbstractCartPersister $persister,
         EventDispatcherInterface $eventDispatcher,
         CartCalculator $calculator,
         AbstractCartLoadRoute $loadRoute,
@@ -112,9 +108,7 @@ class CartService implements ResetInterface
     /**
      * @param LineItem|LineItem[] $items
      *
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function add(Cart $cart, $items, SalesChannelContext $context): Cart
     {
@@ -128,9 +122,7 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotStackableException
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function changeQuantity(Cart $cart, string $identifier, int $quantity, SalesChannelContext $context): Cart
     {
@@ -148,8 +140,7 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
+     * @throws CartException
      */
     public function remove(Cart $cart, string $identifier, SalesChannelContext $context): Cart
     {

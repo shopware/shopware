@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package checkout
  */
-abstract class AbstractCartPersister implements CartPersisterInterface
+abstract class AbstractCartPersister
 {
     abstract public function getDecorated(): AbstractCartPersister;
 

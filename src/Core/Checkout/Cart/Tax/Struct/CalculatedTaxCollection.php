@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\FloatComparator;
 
@@ -65,26 +64,9 @@ class CalculatedTaxCollection extends Collection
         return FloatComparator::cast(array_sum($amounts));
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - keep parameter will be removed. Additionally the function always keeps the existing collection
-     */
-    public function merge(self $taxCollection, bool $keep = false): self
+    public function merge(self $taxCollection): self
     {
         $new = $this;
-
-        //@deprecated tag:v6.5.0 remove complete if $new should be always $this
-        if (!$keep) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                \sprintf(
-                    'Passing second parameter `$keep` to method "%s" of class "%s" is deprecated, the parameter will be removed in v6.5.0.0. and the behaviour for $keep=true will be the default behaviour.',
-                    __METHOD__,
-                    __CLASS__
-                )
-            );
-
-            $new = new self($this->elements);
-        }
 
         foreach ($taxCollection as $calculatedTax) {
             $exists = $new->get($this->getKey($calculatedTax));

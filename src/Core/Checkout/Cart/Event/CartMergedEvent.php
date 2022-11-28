@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -14,38 +13,19 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
-    /**
-     * @depretacted tag:6.5.0.0 - This will be required in the future
-     **/
-    protected ?Cart $previousCart;
+    protected Cart $previousCart;
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.5.0 - Parameter $previousCart will be required
      */
-    public function __construct(Cart $cart, SalesChannelContext $context, ?Cart $previousCart = null)
+    public function __construct(Cart $cart, SalesChannelContext $context, Cart $previousCart)
     {
         $this->cart = $cart;
         $this->context = $context;
-
-        if ($previousCart === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                \sprintf('"%s::%s()" will require the previous cart as required third parameter in v6.5.0.0', __CLASS__, __METHOD__)
-            );
-        }
-
         $this->previousCart = $previousCart;
     }
 
@@ -64,7 +44,7 @@ class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
         return $this->context;
     }
 
-    public function getPreviousCart(): ?Cart
+    public function getPreviousCart(): Cart
     {
         return $this->previousCart;
     }

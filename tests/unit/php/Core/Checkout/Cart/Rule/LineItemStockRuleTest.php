@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemStockRule;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -167,32 +166,8 @@ class LineItemStockRuleTest extends TestCase
         );
     }
 
-    public function testNoMatchWithLineItemsWithoutStock(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $lineItem = new LineItem('test-id', LineItem::DISCOUNT_LINE_ITEM);
-
-        static::assertNull($lineItem->getDeliveryInformation());
-
-        $cart = new Cart('test-cart', 'some-token');
-        $cart->setLineItems(new LineItemCollection([$lineItem]));
-
-        $rule = new LineItemStockRule(Rule::OPERATOR_EQ, 5);
-
-        static::assertFalse(
-            $rule->match(new LineItemScope($lineItem, static::createMock(SalesChannelContext::class)))
-        );
-
-        static::assertFalse(
-            $rule->match(new CartRuleScope($cart, static::createMock(SalesChannelContext::class)))
-        );
-    }
-
     public function testMatchesIfNoDeliveryStatusIsSetAndRuleUsesNegativeOperatorIn6500(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $lineItem = new LineItem('test-id', LineItem::DISCOUNT_LINE_ITEM);
 
         static::assertNull($lineItem->getDeliveryInformation());

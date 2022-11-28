@@ -3,10 +3,8 @@
 namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
@@ -37,11 +35,7 @@ class FinishPageTest extends TestCase
         $request = new Request([], [], ['orderId' => 'foo']);
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(OrderException::class);
-        } else {
-            $this->expectException(OrderNotFoundException::class);
-        }
+        $this->expectException(OrderException::class);
 
         $this->getPageLoader()->load($request, $context);
     }

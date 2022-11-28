@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -75,6 +74,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -103,13 +105,6 @@ class LineItemDimensionWidthRuleTest extends TestCase
         // OPERATOR_EMPTY
         yield 'match / operator empty / null width' => [Rule::OPERATOR_EMPTY, 100, null, true];
         yield 'no match / operator empty / width' => [Rule::OPERATOR_EMPTY, 100, 200, false];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, false, true];
-            yield 'no match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, false, true];
-
-            return;
-        }
 
         yield 'match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, true, true];
         yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
@@ -205,6 +200,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -238,18 +236,6 @@ class LineItemDimensionWidthRuleTest extends TestCase
         yield 'match / operator empty / same width' => [Rule::OPERATOR_EMPTY, 100, 100, null, true];
         yield 'no match / operator empty / higher width' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false, false, false, 200];
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true, true];
-            yield 'no match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, true];
-            yield 'no match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, true];
-
-            yield 'no match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, 200, 100, 300, false, true, true];
-            yield 'no match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, true];
-            yield 'no match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, true];
-
-            return;
-        }
-
         yield 'match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
         yield 'match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
         yield 'match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
@@ -261,6 +247,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
     /**
      * @dataProvider getDataWithMatchAllLineItemsRule
+     *
+     * @param array<LineItem> $lineItems
      */
     public function testIfMatchesWithMatchAllLineItemsRule(
         array $lineItems,
@@ -286,6 +274,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|bool|array<LineItem>>>
+     */
     public function getDataWithMatchAllLineItemsRule(): \Traversable
     {
         yield 'only matching products / equals / match' => [

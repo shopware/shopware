@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @package business-ops
@@ -102,20 +101,6 @@ class LastNameRuleTest extends TestCase
 
         $this->rule->assign(['lastName' => 'shopware', 'operator' => Rule::OPERATOR_EMPTY]);
         static::assertTrue($this->rule->match($scope));
-    }
-
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testCustomerNotExistAndOperatorEmptyLegacy(): void
-    {
-        $scope = new CartRuleScope(
-            $this->createMock(Cart::class),
-            $this->createMock(SalesChannelContext::class)
-        );
-
-        $this->rule->assign(['lastName' => 'shopware', 'operator' => Rule::OPERATOR_EMPTY]);
-        static::assertFalse($this->rule->match($scope));
     }
 
     public function testInvalidLastName(): void

@@ -11,8 +11,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
@@ -46,7 +44,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -89,10 +86,6 @@ class OrderConverterTest extends TestCase
     {
         if ($exceptionClass !== '') {
             static::expectException($exceptionClass);
-            // remove statement with Feature flag v6.5.0.0
-            if (!Feature::isActive('v6.5.0.0') && $exceptionClass === OrderException::class) {
-                static::expectException(MissingOrderRelationException::class);
-            }
         }
 
         $orderAddressRepositorySearchResult = [];
@@ -392,16 +385,7 @@ class OrderConverterTest extends TestCase
      */
     public function testConvertToCartExceptions(string $manipulateOrder): void
     {
-        // remove else statement with flag v6.5.0.0
-        if (Feature::isActive('v6.5.0.0')) {
-            static::expectException(OrderException::class);
-        } else {
-            if ($manipulateOrder === 'order-no-order-number') {
-                static::expectException(OrderInconsistentException::class);
-            } else {
-                static::expectException(MissingOrderRelationException::class);
-            }
-        }
+        static::expectException(OrderException::class);
 
         $order = $this->getOrder($manipulateOrder);
 

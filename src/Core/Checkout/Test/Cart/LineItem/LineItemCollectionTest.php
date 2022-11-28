@@ -5,14 +5,12 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package checkout
@@ -230,11 +228,8 @@ class LineItemCollectionTest extends TestCase
 
         $cart->add(new LineItem('a', 'first-type'));
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(CartException::class);
-        } else {
-            $this->expectException(MixedLineItemTypeException::class);
-        }
+        $this->expectException(CartException::class);
+
         $cart->add(new LineItem('a', 'other-type'));
     }
 

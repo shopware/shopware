@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -15,15 +14,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class DaysSinceLastOrderRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator = Rule::OPERATOR_EQ;
 
-    /**
-     * @var int
-     */
-    protected $daysPassed;
+    protected ?int $daysPassed = null;
 
     public function getName(): string
     {
@@ -40,21 +33,17 @@ class DaysSinceLastOrderRule extends Rule
         $customer = $scope->getSalesChannelContext()->getCustomer();
 
         if (!$customer) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
         $lastOrderDate = $customer->getLastOrderDate();
 
         if ($lastOrderDate === null) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return $this->operator === self::OPERATOR_EMPTY;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
+        }
+
+        if ($this->daysPassed === null) {
+            return false;
         }
 
         if (method_exists($lastOrderDate, 'setTime')) {

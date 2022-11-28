@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
@@ -24,10 +23,7 @@ class SalesChannelContextPersister
 
     private string $lifetimeInterval;
 
-    /**
-     * @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
-     */
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     /**
      * @internal
@@ -35,19 +31,12 @@ class SalesChannelContextPersister
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        CartPersisterInterface $cartPersister,      // @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
+        AbstractCartPersister $cartPersister,
         ?string $lifetimeInterval = 'P1D'
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
-
-        if (!$cartPersister instanceof AbstractCartPersister) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'CartPersister parameter in SalesChannelContextPersister::__construct needs to be instance of AbstractCartPersister in v6.5.0.0'
-            );
-        }
         $this->cartPersister = $cartPersister;
     }
 
@@ -126,12 +115,7 @@ class SalesChannelContextPersister
             ]);
         }
 
-        // @deprecated tag:v6.5.0 - Remove else part
-        if ($this->cartPersister instanceof AbstractCartPersister) {
-            $this->cartPersister->replace($oldToken, $newToken, $context);
-        } else {
-            $this->connection->executeStatement('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
-        }
+        $this->cartPersister->replace($oldToken, $newToken, $context);
 
         $context->assign(['token' => $newToken]);
         $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));

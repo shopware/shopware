@@ -134,6 +134,7 @@ class CartServiceTest extends TestCase
             $context
         );
 
+        /** @phpstan-ignore-next-line */
         static::assertTrue($isMerged);
     }
 
@@ -294,9 +295,15 @@ class CartServiceTest extends TestCase
 
         static::assertTrue($cart->has($productId));
         static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+
         $calculatedLineItem = $cart->getLineItems()->get($productId);
+        static::assertNotNull($calculatedLineItem);
+        static::assertNotNull($calculatedLineItem->getPrice());
         static::assertEquals(0, $calculatedLineItem->getPrice()->getTotalPrice());
-        static::assertEquals(0, $calculatedLineItem->getPrice()->getCalculatedTaxes()->getAmount());
+
+        $calculatedTaxes = $calculatedLineItem->getPrice()->getCalculatedTaxes();
+        static::assertNotNull($calculatedTaxes);
+        static::assertEquals(0, $calculatedTaxes->getAmount());
     }
 
     public function testOrderCartSendMail(): void

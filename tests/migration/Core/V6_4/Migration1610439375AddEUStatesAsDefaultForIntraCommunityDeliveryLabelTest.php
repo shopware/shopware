@@ -4,7 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -95,7 +95,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
             'SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`
             LEFT JOIN `document_type` ON `document_base_config`.`document_type_id` = `document_type`.`id`
             WHERE `document_type`.`technical_name` = :documentName',
-            ['documentName' => InvoiceGenerator::INVOICE]
+            ['documentName' => InvoiceRenderer::TYPE]
         );
 
         return $result;
@@ -105,7 +105,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
     {
         $documentTypeId = $this->connection->fetchOne(
             'SELECT `id` FROM `document_type` WHERE `technical_name` = :documentName',
-            ['documentName' => InvoiceGenerator::INVOICE]
+            ['documentName' => InvoiceRenderer::TYPE]
         );
 
         for ($i = 0; $i < 10; ++$i) {

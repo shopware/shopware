@@ -117,11 +117,15 @@ trait SalesChannelApiTestBehaviour
                 ]
             );
 
-        /** @var string $content */
-        $content = $browser->getResponse()->getContent();
-        $response = json_decode($content, true);
+        $response = $browser->getResponse();
 
-        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        if (empty($contextToken)) {
+            throw new \RuntimeException('Cannot login with the given credential account');
+        }
+
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         return $customerId;
     }

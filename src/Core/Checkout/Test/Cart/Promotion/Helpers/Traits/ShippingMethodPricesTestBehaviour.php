@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 trait ShippingMethodPricesTestBehaviour
 {
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $oldValues = [];
 

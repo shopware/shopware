@@ -140,9 +140,10 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testRegisterEventWithCustomerRules(): void
@@ -174,9 +175,10 @@ class RegisterRouteTest extends TestCase
 
         $this->browser->request('POST', '/store-api/account/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['email' => 'teg-reg@example.com', 'password' => '12345678'], \JSON_THROW_ON_ERROR));
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
         static::assertNotNull($ruleIds, 'Register event was not dispatched');
         static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
@@ -238,9 +240,10 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-            $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $response = $this->browser->getResponse();
 
-            static::assertArrayHasKey('contextToken', $response);
+            $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+            static::assertNotEmpty($contextToken);
         } else {
             static::assertNotEmpty($response['errors']);
             static::assertEquals('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
@@ -325,9 +328,10 @@ class RegisterRouteTest extends TestCase
             ], \JSON_THROW_ON_ERROR)
         );
 
-        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     /**
@@ -386,12 +390,15 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayNotHasKey('contextToken', $response);
-        static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $response['errors'][0]['code']);
-        static::assertSame('401', $response['errors'][0]['status']);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $responseData);
+        static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $responseData['errors'][0]['code']);
+        static::assertSame('401', $responseData['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);
         /** @var CustomerEntity $customer */
@@ -425,9 +432,11 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testDoubleOptinContextReloadForEvents(): void
@@ -742,9 +751,10 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testRegistrationCommercialAccountWithVatIdsIsEmpty(): void
@@ -791,9 +801,10 @@ class RegisterRouteTest extends TestCase
                     ], \JSON_THROW_ON_ERROR)
                 );
 
-            $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $response = $this->browser->getResponse();
 
-            static::assertArrayHasKey('contextToken', $response);
+            $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+            static::assertNotEmpty($contextToken);
         }
     }
 
@@ -876,9 +887,10 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testRegistrationCommercialAccountWithDifferentCommercialAddress(): void
@@ -946,9 +958,10 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
     }
 
     public function testRegistrationCommercialAccountWithDifferentCommercialAddressButEmptyCompany(): void

@@ -13,7 +13,7 @@ class productWishlistFixture extends StoreFixtureService{
                 }));
             })
             .then((response) => {
-                return this.apiClient.setContextToken(response.data.contextToken);
+                return this.apiClient.setContextToken(response.headers['sw-context-token']);
             })
             .then(() => {
                 return this.apiClient.post(`/customer/wishlist/add/${productId}`);

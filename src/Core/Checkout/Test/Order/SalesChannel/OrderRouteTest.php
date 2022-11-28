@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -88,13 +90,16 @@ class OrderRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->defaultCountryId = $this->getValidCountryId(null);
+
+        /** @var CountryEntity[] $validCountries */
+        $validCountries = $this->getValidCountries()->getEntities()->getElements();
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
             'countryId' => $this->defaultCountryId,
             'countries' => \array_map(static function (CountryEntity $country) {
                 return ['id' => $country->getId()];
-            }, $this->getValidCountries()->getEntities()->getElements()),
+            }, $validCountries),
         ]);
 
         $this->assignSalesChannelContext($this->browser);
@@ -122,13 +127,17 @@ class OrderRouteTest extends TestCase
                 ]) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = $this->browser->getResponse();
+
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create($contextToken, TestDefaults::SALES_CHANNEL);
 
-        $newToken = $this->contextPersister->replace($response['contextToken'], $salesChannelContext);
+        $newToken = $this->contextPersister->replace($contextToken, $salesChannelContext);
         $this->contextPersister->save(
             $newToken,
             [
@@ -154,7 +163,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -169,15 +178,19 @@ class OrderRouteTest extends TestCase
 
         $criteria = new Criteria([$this->orderId]);
         $criteria->addAssociation('orderCustomer');
+
+        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->get($this->orderId);
 
         static::assertNotNull($order);
         static::assertNotNull($order->getOrderCustomer());
 
-        $this->customerRepository->update([[
-            'id' => $order->getOrderCustomer()->getCustomerId(),
-            'guest' => true,
-        ]], Context::createDefaultContext());
+        $this->customerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getCustomerId(),
+                'guest' => true,
+            ],
+        ], Context::createDefaultContext());
 
         $criteria = new Criteria([$this->orderId]);
         $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
@@ -195,7 +208,7 @@ class OrderRouteTest extends TestCase
                 )
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -210,15 +223,19 @@ class OrderRouteTest extends TestCase
 
         $criteria = new Criteria([$this->orderId]);
         $criteria->addAssociation('orderCustomer');
+
+        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->get($this->orderId);
 
         static::assertNotNull($order);
         static::assertNotNull($order->getOrderCustomer());
 
-        $this->customerRepository->update([[
-            'id' => $order->getOrderCustomer()->getCustomerId(),
-            'guest' => true,
-        ]], Context::createDefaultContext());
+        $this->customerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getCustomerId(),
+                'guest' => true,
+            ],
+        ], Context::createDefaultContext());
 
         $criteria = new Criteria([$this->orderId]);
         $criteria->addFilter(new EqualsFilter('deepLinkCode', Uuid::randomHex()));
@@ -269,7 +286,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -290,7 +307,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -311,7 +328,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -330,13 +347,15 @@ class OrderRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode(array_merge(
-                    $this->requestCriteriaBuilder->toArray($criteria),
-                    ['checkPromotion' => true]
-                )) ?: ''
+                json_encode(
+                    array_merge(
+                        $this->requestCriteriaBuilder->toArray($criteria),
+                        ['checkPromotion' => true]
+                    )
+                ) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -363,7 +382,7 @@ class OrderRouteTest extends TestCase
                 ]) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
@@ -371,6 +390,7 @@ class OrderRouteTest extends TestCase
         $criteria = new Criteria([$this->orderId]);
         $criteria->addAssociation('transactions');
 
+        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->get($this->orderId);
 
         static::assertNotNull($order);
@@ -416,7 +436,7 @@ class OrderRouteTest extends TestCase
                 ]) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
@@ -453,7 +473,7 @@ class OrderRouteTest extends TestCase
                 ]) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
@@ -478,7 +498,7 @@ class OrderRouteTest extends TestCase
                 ]) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -497,7 +517,7 @@ class OrderRouteTest extends TestCase
                 ]) ?: ''
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('technicalName', $response);
         static::assertEquals('cancelled', $response['technicalName']);
@@ -535,7 +555,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray(new Criteria())
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -557,18 +577,22 @@ class OrderRouteTest extends TestCase
 
         // create rule for that country now, so it is set in the order
         $ruleId = Uuid::randomHex();
-        $this->getContainer()->get('rule.repository')->create([[
-            'id' => $ruleId,
-            'name' => 'test',
-            'priority' => 1,
-            'conditions' => [[
-                'type' => (new BillingCountryRule())->getName(),
-                'value' => [
-                    'operator' => '=',
-                    'countryIds' => [$countryId],
+        $this->getContainer()->get('rule.repository')->create([
+            [
+                'id' => $ruleId,
+                'name' => 'test',
+                'priority' => 1,
+                'conditions' => [
+                    [
+                        'type' => (new BillingCountryRule())->getName(),
+                        'value' => [
+                            'operator' => '=',
+                            'countryIds' => [$countryId],
+                        ],
+                    ],
                 ],
-            ]],
-        ]], Context::createDefaultContext());
+            ],
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('product.repository')->create([
             (new ProductBuilder($ids, '1000'))
@@ -597,7 +621,7 @@ class OrderRouteTest extends TestCase
             ]) ?: ''
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertCount(0, $response['errors']);
 
@@ -610,25 +634,27 @@ class OrderRouteTest extends TestCase
             \json_encode([]) ?: ''
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
 
         $orderId = $response['id'];
 
         // change customer country, so rule is valid
-        $this->getContainer()->get('customer.repository')->update([[
-            'id' => $this->customerId,
-            'defaultBillingAddress' => [
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'street' => 'Musterstraße 1',
-                'city' => 'Schöppingen',
-                'zipcode' => '12345',
-                'salutationId' => $this->getValidSalutationId(),
-                'countryId' => $countryId,
+        $this->getContainer()->get('customer.repository')->update([
+            [
+                'id' => $this->customerId,
+                'defaultBillingAddress' => [
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $countryId,
+                ],
             ],
-        ]], Context::createDefaultContext());
+        ], Context::createDefaultContext());
         $paymentId = $this->createCustomPaymentWithRule($ruleId);
 
         // Request payment change
@@ -644,7 +670,7 @@ class OrderRouteTest extends TestCase
             ]) ?: ''
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);
@@ -684,6 +710,9 @@ class OrderRouteTest extends TestCase
         return $orderId;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getOrderData(string $orderId, string $customerId, string $email, string $password, Context $context): array
     {
         $addressId = Uuid::randomHex();

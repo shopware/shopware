@@ -6,6 +6,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-slot', {
     template,

@@ -3,6 +3,9 @@ import './sw-media-list-selection-v2.scss';
 
 const { Component, Mixin, Context } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-list-selection-v2', {
     template,

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';

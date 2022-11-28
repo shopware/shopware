@@ -6,6 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-section', {
     template,

@@ -3,6 +3,9 @@ import './sw-cms-stage-section-selection.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-stage-section-selection', {
     template,

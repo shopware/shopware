@@ -6,6 +6,7 @@ import './config/components/sw-cms-el-config-product-listing-config-filter-prope
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',

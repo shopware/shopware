@@ -5,6 +5,7 @@ const utils = Shopware.Utils;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,

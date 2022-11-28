@@ -5,6 +5,7 @@ import './sw-campaign-banner.scss';
  * @deprecated tag:v6.5.0 - Will be removed without replacement
  * @private
  * @status ready
+ * @package content
  * @example-type code-only
  * @component-example
  * <sw-campaign-banner

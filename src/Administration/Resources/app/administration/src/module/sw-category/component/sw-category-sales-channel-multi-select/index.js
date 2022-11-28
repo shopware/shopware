@@ -3,6 +3,9 @@ import template from './sw-category-sales-channel-multi-select.html.twig';
 const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
+/**
+ * @package content
+ */
 Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-select', {
     template,
 

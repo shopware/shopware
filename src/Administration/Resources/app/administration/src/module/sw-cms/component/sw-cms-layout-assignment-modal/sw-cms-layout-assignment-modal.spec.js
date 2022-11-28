@@ -1,4 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
@@ -67,12 +70,7 @@ const mockLandingPages = [
 ];
 
 async function createWrapper(layoutType = 'product_list', privileges = []) {
-    const localVue = createLocalVue();
-
-    localVue.directive('tooltip', {});
-
     return shallowMount(await Shopware.Component.build('sw-cms-layout-assignment-modal'), {
-        localVue,
         propsData: {
             page: {
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), mockCategories),

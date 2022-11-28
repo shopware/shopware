@@ -1,5 +1,8 @@
 const { Filter } = Shopware;
 
+/**
+ * @package content
+ */
 Filter.register('mediaName', (value, fallback = '') => {
     if (!value) {
         return fallback;

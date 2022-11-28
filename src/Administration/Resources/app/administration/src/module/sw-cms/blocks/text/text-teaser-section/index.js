@@ -3,6 +3,7 @@ import './preview';
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-teaser-section',

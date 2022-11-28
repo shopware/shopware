@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 import 'src/app/component/media/sw-media-compact-upload-v2';

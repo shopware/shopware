@@ -199,6 +199,6 @@ describe(`Checkout as Guest`, () => {
         // Logout
         cy.get('[title="Back to shop"]').click();
         cy.get('button#accountWidget').click();
-        cy.contains('[aria-labelledby="accountWidget"]', 'My account').should('be.visible');
+        cy.contains('[aria-labelledby="accountWidget"]', 'Your account').should('be.visible');
     });
 });

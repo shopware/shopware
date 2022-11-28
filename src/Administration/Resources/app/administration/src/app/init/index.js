@@ -16,7 +16,6 @@ import initComponents from 'src/app/init/component.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
 import initFilterFactory from 'src/app/init/filter-factory.init';
-import initEntity from 'src/app/init/entity.init';
 import initializeNotifications from 'src/app/init/notification.init';
 import initializeContext from 'src/app/init/context.init';
 import initializeWindow from 'src/app/init/window.init';
@@ -47,7 +46,6 @@ export default {
     httpClient: initHttpClient,
     componentHelper: initComponentHelper,
     filterFactory: initFilterFactory,
-    entity: initEntity,
     notification: initializeNotifications,
     context: initializeContext,
     window: initializeWindow,

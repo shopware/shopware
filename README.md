@@ -4,6 +4,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/platform/badges/quality-score.png)](https://scrutinizer-ci.com/g/shopware/platform/)
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
+[![Crowdin](https://badges.crowdin.net/shopware6/localized.svg)](https://translate.shopware.com/project/shopware6)
 [![License](https://img.shields.io/github/license/shopware/platform.svg)](https://github.com/shopware/platform/blob/trunk/license.txt)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/platform.svg)](https://github.com/shopware/platform/pulls)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-%23ECB22E)](https://slack.shopware.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -30,11 +31,11 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
 * 🧩 &nbsp;Browse more than [2.000 apps](https://store.shopware.com) that are already available
 * 📖 &nbsp;Learn how to [develop apps](https://developer.shopware.com/docs/) and everything else about the tech behind shopware
-* 🉐 &nbsp;[Translate](https://crowdin.com/project/shopware6) Shopware or help by contributing to existing languages
+* 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 👍 &nbsp;Follow us on [Twitter](https://twitter.com/shopwaredevs) to get updates
 * 🛠 &nbsp;[Report bugs or add feature ideas](https://issues.shopware.com) in our issue tracker
 * 🗨 &nbsp;Help and get helped in our - [Community forum](https://forum.shopware.com/)
-* 👪  &nbsp;Exchange with more than 5.000 shopware developers in our  - [Slack](https://slack.shopware.com) 
+* 👪  &nbsp;Exchange with more than 5.000 shopware developers in our  - [Slack](https://slack.shopware.com)
 * 🕹 &nbsp;[Download Shopware](https://www.shopware.com/de/download/) or start playing with [Dockware](https://github.com/dockware/dockware)
 
 ## Table of contents
@@ -273,7 +274,7 @@ To be sure that the installation succeeded, just open the following URL in your 
 
 Shopware 6 will continue to evolve together with you and your feedback. This is our number one priority!
 
-With openness as one of our core values, we will always provide you with a transparent overview of our product development.   
+With openness as one of our core values, we will always provide you with a transparent overview of our product development.
 The Shopware Roadmap shows you what we are working on, what we want to tackle next, and what visions we have for the future.
 
 [Take a look at the current roadmap here.](https://shopware.com/en/roadmap/)
@@ -312,7 +313,7 @@ Subscribe to our **[developer newsletter](https://www.shopware.com/en/community/
       Community Manager<br>
       Twitter: <a href="https://twitter.com/m_naczenski">@m_naczenski</a>
     </td>
-    <td width="250"><img src="https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/ndzoesch.png" /></td>  
+    <td width="250"><img src="https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/ndzoesch.png" /></td>
     <td>
       <strong>Niklas Dzösch</strong><br>
       Developer Evangelist<br>
@@ -347,7 +348,7 @@ You want to participate in the development of Shopware? There are many ways to c
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)
 -   Discuss shopware on e.g [Slack](https://slack.shopware.com) or our [forum](https://forum.shopware.com/categories/shopware-6)
-- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6)
+- Write a translation for shopware on [crowdin](https://translate.shopware.com)
 
 You have a question regarding contribution, or you want to contribute in another way?
 

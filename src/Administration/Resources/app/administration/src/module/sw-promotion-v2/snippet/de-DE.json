@@ -224,5 +224,50 @@
         "ruleSelect": {
             "labelAddNewRule": "Neue Regel erstellen"
         }
+    },
+    "sw-promotion": {
+        "detail": {
+            "main": {
+                "discounts": {
+                    "card": "Rabatt",
+                    "labelValue": "Wert",
+                    "labelMaxValue": "Maximaler Rabattwert",
+                    "helpTextMaxValueAdvancedPrices": "Der maximale Betrag besitzt erweiterte Preise.",
+                    "placeholderValue": "Gib den Wert der Rabattaktion an ...",
+                    "labelScope": "Anwenden auf:",
+                    "flagProductScopeLabel": "Nur auf ausgewählte Produkte anwenden.",
+                    "labelRules": "Produktregeln",
+                    "placeholder": "Produktregeln zuweisen ...",
+                    "labelType": "Art",
+                    "valueScopeCart": "Warenkorb",
+                    "valueScopeDelivery": "Versandkosten",
+                    "valueScopeSet": "Gesamtes Set",
+                    "valueScopeSetGroup": "Set-Gruppe",
+                    "valueTypeAbsolute": "Absolut",
+                    "valueTypePercentage": "Prozentual",
+                    "valueTypeFixed": "Festpreis",
+                    "valueTypeFixedUnit": "Fester Stückpreis",
+                    "buttonAddDiscount": "Rabatt hinzufügen",
+                    "buttonDeleteDiscount": "Rabatt entfernen",
+                    "delete": {
+                        "confirmTitle": "Rabatt entfernen",
+                        "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
+                        "buttonCancel": "Abbrechen",
+                        "buttonDelete": "Rabatt entfernen"
+                    },
+                    "labelSorting": "Sortieren nach",
+                    "labelPicking": "Produktauswahl Modus",
+                    "labelApplyCount": "Anwenden auf",
+                    "labelMaxCount": "Maximale Anwendung",
+                    "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
+                    "pricesModal": {
+                        "advancedPricesHeader": "Erweiterte Preise",
+                        "closeModal": "Schließen",
+                        "labelCurrency": "Währung",
+                        "labelPrice": "Wert"
+                    }
+                }
+            }
+        }
     }
 }

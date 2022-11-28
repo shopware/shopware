@@ -224,5 +224,50 @@
         "ruleSelect": {
             "labelAddNewRule": "Add new rule"
         }
+    },
+    "sw-promotion": {
+        "detail": {
+            "main": {
+                "discounts": {
+                    "card": "Discount",
+                    "labelValue": "Value",
+                    "labelMaxValue": "Maximum discount value",
+                    "helpTextMaxValueAdvancedPrices": "Largest discount possible (absolute monetary value).",
+                    "placeholderValue": "Enter either a percentage or an absolute value...",
+                    "labelScope": "Apply to:",
+                    "flagProductScopeLabel": "Apply to a specific range of products only.",
+                    "labelRules": "Product rules",
+                    "placeholder": "Assign product rules...",
+                    "labelType": "Type",
+                    "valueScopeCart": "Cart",
+                    "valueTypeAbsolute": "Absolute",
+                    "valueScopeDelivery": "Shipping costs",
+                    "valueScopeSet": "Entire set",
+                    "valueScopeSetGroup": "Set group",
+                    "valueTypePercentage": "Percentage",
+                    "valueTypeFixed": "Fixed price",
+                    "valueTypeFixedUnit": "Fixed item price",
+                    "buttonAddDiscount": "Add discount",
+                    "buttonDeleteDiscount": "Delete discount",
+                    "delete": {
+                        "confirmTitle": "Delete discount",
+                        "confirmText": "Do you really want to delete this discount from the promotion?",
+                        "buttonCancel": "Cancel",
+                        "buttonDelete": "Delete discount"
+                    },
+                    "labelSorting": "Sort by",
+                    "labelPicking": "Item Picking Mode",
+                    "labelApplyCount": "Apply to",
+                    "labelMaxCount": "Maximum amount of usages",
+                    "linkAdvancedPrices": "Open advanced prices view",
+                    "pricesModal": {
+                        "advancedPricesHeader": "Advanced prices",
+                        "closeModal": "Close",
+                        "labelCurrency": "Currency",
+                        "labelPrice": "Value"
+                    }
+                }
+            }
+        }
     }
 }

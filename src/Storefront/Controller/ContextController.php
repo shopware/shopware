@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
@@ -27,20 +27,11 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ContextController extends StorefrontController
 {
-    /**
-     * @var ContextSwitchRoute
-     */
-    private $contextSwitchRoute;
+    private AbstractContextSwitchRoute $contextSwitchRoute;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
     /**
      * @deprecated tag:v6.5.0 - $changeLanguageRoute will be removed
@@ -51,7 +42,7 @@ class ContextController extends StorefrontController
      * @internal
      */
     public function __construct(
-        ContextSwitchRoute $contextSwitchRoute,
+        AbstractContextSwitchRoute $contextSwitchRoute,
         RequestStack $requestStack,
         RouterInterface $router,
         AbstractChangeLanguageRoute $changeLanguageRoute

@@ -39,6 +39,7 @@ export default {
             createdById: '',
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
+            hasNewVersionId: false,
         };
     },
 
@@ -125,6 +126,8 @@ export default {
     },
 
     beforeDestroy() {
+        this.beforeDestroyComponent();
+
         State.unregisterModule('swOrderDetail');
     },
 
@@ -151,6 +154,17 @@ export default {
             if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
                 State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
                 this.createNewVersionId();
+            }
+        },
+
+        async beforeDestroyComponent() {
+            if (Shopware.Feature.isActive('FEATURE_NEXT_7530') && this.hasNewVersionId) {
+                // clean up recently created version
+                await this.orderRepository.deleteVersion(
+                    this.orderId,
+                    this.versionContext.versionId,
+                    this.versionContext,
+                );
             }
         },
 
@@ -348,6 +362,8 @@ export default {
 
         createNewVersionId() {
             return this.orderRepository.createVersion(this.orderId, this.versionContext).then((newContext) => {
+                this.hasNewVersionId = true;
+
                 State.commit('swOrderDetail/setVersionContext', newContext);
 
                 this.orderRepository.get(this.orderId, newContext, this.orderCriteria).then((response) => {

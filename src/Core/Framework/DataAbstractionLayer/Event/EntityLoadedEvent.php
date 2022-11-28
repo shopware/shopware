@@ -5,15 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package core
@@ -41,23 +35,19 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
     protected $name;
 
     /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove nested parameter, parameter is no more used. Nested loaded events are generated over EntityLoadedEventFactory
-     *
-     * @var bool
+     * @param Entity[] $entities
      */
-    protected $nested = true;
-
-    public function __construct(EntityDefinition $definition, array $entities, Context $context, bool $nested = true)
+    public function __construct(EntityDefinition $definition, array $entities, Context $context)
     {
         $this->entities = $entities;
         $this->definition = $definition;
         $this->context = $context;
         $this->name = $this->definition->getEntityName() . '.loaded';
-
-        //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove nested parameter, parameter is no more used. Nested loaded events are generated over EntityLoadedEventFactory
-        $this->nested = $nested;
     }
 
+    /**
+     * @return Entity[]
+     */
     public function getEntities(): array
     {
         return $this->entities;
@@ -80,195 +70,20 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
 
     public function getEvents(): ?NestedEventCollection
     {
-        if (!$this->nested) {
-            return null;
-        }
-
-        //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove all code below in this function and related internal functions. Nested loaded events are generated over EntityLoadedEventFactory.
-        $associations = $this->extractAssociations($this->definition, $this->entities);
-
-        $events = [];
-        foreach ($associations as $association) {
-            $events[] = $this->createNested($association['definition'], $association['entities']);
-        }
-
-        return new NestedEventCollection($events);
+        return null;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(): array
     {
         $ids = [];
 
-        /** @var Entity $entity */
-        foreach ($this->getEntities() as $entity) {
+        foreach ($this->entities as $entity) {
             $ids[] = $entity->getUniqueIdentifier();
         }
 
         return $ids;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove all code below in this function and related internal functions. Nested loaded events are generated over EntityLoadedEventFactory.
-     */
-    protected function extractAssociations(EntityDefinition $definition, iterable $entities): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'EntityLoadedEventFactory')
-        );
-
-        $events = $this->extractAssociationsInCurrentLevel($definition, $entities);
-        $recursive = $this->loadRecursivelyNestedAssociations($events);
-        $events = $this->mergeIntoEvents($recursive, $events);
-
-        return $events;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove all code below in this function and related internal functions. Nested loaded events are generated over EntityLoadedEventFactory.
-     */
-    protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'EntityLoadedEventFactory')
-        );
-
-        return new EntityLoadedEvent($definition, $entities, $this->context, false);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove all code below in this function and related internal functions. Nested loaded events are generated over EntityLoadedEventFactory.
-     */
-    private function extractAssociationsInCurrentLevel(EntityDefinition $definition, iterable $entities): array
-    {
-        $associations = $definition->getFields();
-
-        $events = [];
-        foreach ($associations as $association) {
-            if (!$association instanceof AssociationField) {
-                continue;
-            }
-
-            $isExtension = $association->is(Extension::class);
-
-            if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
-                /** @var Entity $entity */
-                foreach ($entities as $entity) {
-                    try {
-                        if ($isExtension) {
-                            $reference = $entity->getExtension($association->getPropertyName());
-                        } else {
-                            $reference = $entity->get($association->getPropertyName());
-                        }
-                    } catch (\InvalidArgumentException $e) {
-                        continue;
-                    }
-
-                    if ($reference) {
-                        $associatedDefinition = $association->getReferenceDefinition();
-                        $associationClass = $associatedDefinition->getEntityName();
-
-                        if (!isset($events[$associationClass])) {
-                            $events[$associationClass] = [
-                                'definition' => $associatedDefinition,
-                                'entities' => [],
-                            ];
-                        }
-
-                        $events[$associationClass]['entities'][] = $reference;
-                    }
-                }
-
-                continue;
-            }
-
-            $referenceDefinition = $association->getReferenceDefinition();
-            if ($association instanceof ManyToManyAssociationField) {
-                $referenceDefinition = $association->getToManyReferenceDefinition();
-            }
-
-            foreach ($entities as $entity) {
-                try {
-                    if ($isExtension) {
-                        $references = $entity->getExtension($association->getPropertyName());
-                    } else {
-                        $references = $entity->get($association->getPropertyName());
-                    }
-                } catch (\InvalidArgumentException $e) {
-                    continue;
-                }
-
-                if (empty($references)) {
-                    continue;
-                }
-
-                $referenceDefinitionClass = $referenceDefinition->getEntityName();
-
-                if (!isset($events[$referenceDefinitionClass])) {
-                    $events[$referenceDefinitionClass] = [
-                        'definition' => $referenceDefinition,
-                        'entities' => [],
-                    ];
-                }
-
-                foreach ($references as $reference) {
-                    $events[$referenceDefinitionClass]['entities'][] = $reference;
-                }
-            }
-        }
-
-        return $events;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove all code below in this function and related internal functions. Nested loaded events are generated over EntityLoadedEventFactory.
-     */
-    private function loadRecursivelyNestedAssociations(array $events): array
-    {
-        $recursive = [];
-
-        foreach ($events as $nested) {
-            /*
-             * contains now an array of arrays
-             *
-             * [
-             *      [
-             *          ProductManufacturerDefinition => ['definition' =>  $definition, 'entities' => [$entity,$entity,$entity,$entity,$entity]],
-             *          ProductPriceDefinition => ['definition' =>  $definition, 'entities' => [$entity,$entity,$entity,$entity,$entity]]
-             *      ]
-             * ]
-             */
-            $recursive[] = $this->extractAssociations($nested['definition'], $nested['entities']);
-        }
-
-        return $recursive;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - Remove all code below in this function and related internal functions. Nested loaded events are generated over EntityLoadedEventFactory.
-     */
-    private function mergeIntoEvents(array $recursive, array $events): array
-    {
-        foreach ($recursive as $nested) {
-            if (empty($nested)) {
-                continue;
-            }
-
-            //iterate nested array of definitions and entities and merge them into root $events
-            foreach ($nested as $nestedDefinition => $nestedCollection) {
-                if (!isset($events[$nestedDefinition])) {
-                    $events[$nestedDefinition] = $nestedCollection;
-
-                    continue;
-                }
-
-                foreach ($nestedCollection['entities'] as $nestedEntity) {
-                    $events[$nestedDefinition]['entities'][] = $nestedEntity;
-                }
-            }
-        }
-
-        return $events;
     }
 }

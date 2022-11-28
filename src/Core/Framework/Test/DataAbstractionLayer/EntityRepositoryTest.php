@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
@@ -20,11 +22,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -47,6 +46,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -55,18 +55,6 @@ use Shopware\Core\Test\TestDefaults;
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    public function testSetEntityLoadedEventFactory(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_16155', $this);
-
-        $factory = $this->createMock(EntityLoadedEventFactory::class);
-        $factory->expects(static::once())->method('create')->willReturn($this->createMock(EntityLoadedContainerEvent::class));
-
-        $repository = $this->createRepository(LocaleDefinition::class, $factory);
-
-        $repository->search(new Criteria(), Context::createDefaultContext());
-    }
 
     public function testWrite(): void
     {
@@ -181,7 +169,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $locale);
 
         static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
+        static::assertInstanceOf(LocaleEntity::class, $locale->get($id));
 
         static::assertSame('Test', $locale->get($id)->getName());
     }
@@ -222,7 +210,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(1, $locale);
 
         static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
+        static::assertInstanceOf(LocaleEntity::class, $locale->get($id));
 
         static::assertSame('Test', $locale->get($id)->getName());
     }
@@ -300,7 +288,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $locale);
 
         static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
+        static::assertInstanceOf(ProductEntity::class, $locale->get($id));
 
         static::assertSame('Test', $locale->get($id)->getName());
     }
@@ -448,7 +436,7 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $locale);
 
         static::assertTrue($locale->has($id));
-        static::assertInstanceOf(Entity::class, $locale->get($id));
+        static::assertInstanceOf(ProductEntity::class, $locale->get($id));
 
         static::assertSame('Test', $locale->get($id)->getName());
     }
@@ -475,6 +463,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $written);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -540,6 +529,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $written);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -559,11 +549,8 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var CategoryEntity $postClone */
         $postClone = $entities->get($id);
-        /** @var CategoryEntity $new */
         $cloned = $entities->get($newId);
-
         static::assertInstanceOf(CategoryEntity::class, $postClone);
         static::assertInstanceOf(CategoryEntity::class, $cloned);
 
@@ -601,10 +588,10 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
-
+        static::assertInstanceOf(EntityWrittenEvent::class, $written);
         static::assertCount(3, $written->getIds());
-        $newId = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME)->getIds();
-        $newId = array_shift($newId);
+        $ids = $written->getIds();
+        $newId = array_shift($ids);
         static::assertNotEquals($id, $newId);
 
         $criteria = new Criteria([$id, $newId]);
@@ -631,15 +618,14 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var CategoryEntity $old */
         $old = $entities->get($id);
-        /** @var CategoryEntity $new */
         $new = $entities->get($newId);
-
         static::assertInstanceOf(CategoryEntity::class, $old);
         static::assertInstanceOf(CategoryEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
+        static::assertInstanceOf(CategoryCollection::class, $old->getChildren());
+        static::assertInstanceOf(CategoryCollection::class, $new->getChildren());
         static::assertCount($old->getChildren()->count(), $new->getChildren());
     }
 
@@ -697,6 +683,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CustomerAddressDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $written);
         static::assertCount(2, $written->getIds());
 
         $criteria = new Criteria([$recordA, $newId]);
@@ -723,14 +710,13 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($recordA));
         static::assertTrue($entities->has($newId));
 
-        /** @var CustomerEntity $old */
         $old = $entities->get($recordA);
-        /** @var CustomerEntity $new */
         $new = $entities->get($newId);
-
         static::assertInstanceOf(CustomerEntity::class, $old);
         static::assertInstanceOf(CustomerEntity::class, $new);
 
+        static::assertInstanceOf(CustomerAddressCollection::class, $old->getAddresses());
+        static::assertInstanceOf(CustomerAddressCollection::class, $new->getAddresses());
         static::assertCount(2, $old->getAddresses());
         static::assertCount(2, $new->getAddresses());
 
@@ -883,6 +869,7 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($Criteria->getAssociation('children')->getLimit());
         static::assertNull($Criteria->getAssociation('children')->getOffset());
 
+        static::assertInstanceOf(CategoryCollection::class, $category->getChildren());
         static::assertCount(2, $category->getChildren());
     }
 
@@ -1033,6 +1020,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $written);
         static::assertCount(1, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -1042,11 +1030,8 @@ class EntityRepositoryTest extends TestCase
         static::assertTrue($entities->has($id));
         static::assertTrue($entities->has($newId));
 
-        /** @var ProductEntity $old */
         $old = $entities->get($id);
-        /** @var ProductEntity $new */
         $new = $entities->get($newId);
-
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 
@@ -1143,14 +1128,17 @@ class EntityRepositoryTest extends TestCase
             ->create($data, Context::createDefaultContext());
 
         $products = $result->getEventByEntityName('product');
+        static::assertInstanceOf(EntityWrittenEvent::class, $products);
         static::assertCount(3, $products->getIds());
         static::assertCount(3, $products->getWriteResults());
 
         $properties = $result->getEventByEntityName('property_group_option');
+        static::assertInstanceOf(EntityWrittenEvent::class, $properties);
         static::assertCount(3, $properties->getIds());
         static::assertCount(3, $properties->getWriteResults());
 
         $categories = $result->getEventByEntityName('category');
+        static::assertInstanceOf(EntityWrittenEvent::class, $categories);
         static::assertCount(3, $categories->getIds());
         static::assertCount(3, $categories->getWriteResults());
     }
@@ -1273,6 +1261,7 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $written);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -1323,14 +1312,17 @@ class EntityRepositoryTest extends TestCase
     }
 
     /**
-     * @param class-string<EntityDefinition> $definition
+     * @param class-string<EntityDefinition> $definitionClass
      */
-    protected function createRepository(
-        string $definition,
+    private function createRepository(
+        string $definitionClass,
         ?EntityLoadedEventFactory $eventFactory = null
     ): EntityRepository {
+        /** @var EntityDefinition $definition */
+        $definition = $this->getContainer()->get($definitionClass);
+
         return new EntityRepository(
-            $this->getContainer()->get($definition),
+            $definition,
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),

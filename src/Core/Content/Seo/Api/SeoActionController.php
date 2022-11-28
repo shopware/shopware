@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo\Api;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -15,19 +16,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -112,7 +110,6 @@ class SeoActionController extends AbstractController
 
         $previewCriteria = new Criteria();
         if (\array_key_exists('criteria', $seoUrlTemplate) && \is_string($seoUrlTemplate['entityName']) && \is_array($seoUrlTemplate['criteria'])) {
-            /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 
             $previewCriteria = $this->requestCriteriaBuilder->handleRequest(
@@ -185,20 +182,17 @@ class SeoActionController extends AbstractController
         $this->validator->validate($seoUrlData, $validation);
         $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
 
-        $salesChannel = null;
+        $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
 
-        if (Feature::isActive('FEATURE_NEXT_13410')) {
-            $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
+        if ($salesChannelId === null) {
+            throw new MissingRequestParameterException('salesChannelId');
+        }
 
-            if ($salesChannelId === null) {
-                throw new MissingRequestParameterException('salesChannelId');
-            }
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
 
-            $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
-
-            if ($salesChannel === null) {
-                throw new InvalidRequestParameterException('salesChannelId');
-            }
+        if ($salesChannel === null) {
+            throw new InvalidRequestParameterException('salesChannelId');
         }
 
         $this->seoUrlPersister->updateSeoUrls(
@@ -226,12 +220,10 @@ class SeoActionController extends AbstractController
         $validation = $validatorBuilder->buildValidation($context, null);
         $salesChannels = new SalesChannelCollection();
 
-        if (Feature::isActive('FEATURE_NEXT_13410')) {
-            $salesChannelIds = array_column($urls, 'salesChannelId');
+        $salesChannelIds = array_column($urls, 'salesChannelId');
 
-            if (!empty($salesChannelIds)) {
-                $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
-            }
+        if (!empty($salesChannelIds)) {
+            $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
         }
 
         $writeData = [];
@@ -248,13 +240,12 @@ class SeoActionController extends AbstractController
         foreach ($writeData as $salesChannelId => $writeRows) {
             $salesChannelEntity = null;
 
-            if (Feature::isActive('FEATURE_NEXT_13410')) {
-                if ($salesChannelId === '') {
-                    throw new InvalidRequestParameterException('salesChannelId');
-                }
-
-                $salesChannelEntity = $salesChannels->get($salesChannelId);
+            if ($salesChannelId === '') {
+                throw new InvalidRequestParameterException('salesChannelId');
             }
+
+            /** @var SalesChannelEntity $salesChannelEntity */
+            $salesChannelEntity = $salesChannels->get($salesChannelId);
 
             $this->seoUrlPersister->updateSeoUrls(
                 $context,
@@ -276,6 +267,10 @@ class SeoActionController extends AbstractController
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
+        if (!$seoUrlRoute) {
+            throw new SeoUrlRouteNotFoundException($routeName);
+        }
+
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
     }
 
@@ -289,6 +284,11 @@ class SeoActionController extends AbstractController
         }
     }
 
+    /**
+     * @param array<string, mixed> $seoUrlTemplate
+     *
+     * @return list<SeoUrlEntity>
+     */
     private function getPreview(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria = null): array
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);
@@ -333,7 +333,7 @@ class SeoActionController extends AbstractController
                 ->first();
         }
 
-        if ($salesChannel === null && Feature::isActive('FEATURE_NEXT_13410')) {
+        if ($salesChannel === null) {
             throw new InvalidRequestParameterException('salesChannelId');
         }
 

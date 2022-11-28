@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
@@ -25,8 +26,10 @@ class NavigationPageSeoUrlRouteTest extends TestCase
             static::createStub(CategoryBreadcrumbBuilder::class)
         );
 
+        $salesChannel = new SalesChannelEntity();
+
         $criteria = new Criteria();
-        $navigationPageSeoUrlRoute->prepareCriteria($criteria);
+        $navigationPageSeoUrlRoute->prepareCriteria($criteria, $salesChannel);
 
         $filters = $criteria->getFilters();
         /** @var MultiFilter $multiFilter */

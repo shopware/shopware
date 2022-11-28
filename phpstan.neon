@@ -117,9 +117,6 @@ parameters:
 
         # can be removed with feature flag FEATURE_NEXT_12455
         -
-            message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'
-            path: src/Core/Content/Seo/SeoUrlGenerator.php
-        -
             message: '#Constructor of class Shopware\\Core\\Checkout\\Customer\\Exception\\DuplicateWishlistProductException has an unused parameter \$productId\.#'
             path: src/Core/Checkout/Customer/Exception/DuplicateWishlistProductException.php
         -

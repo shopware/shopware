@@ -3,23 +3,16 @@
 namespace Shopware\Storefront\Test\Framework\Seo\MainCategory;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
@@ -29,25 +22,13 @@ class MainCategoryExtensionTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $seoUrlTemplateRepository;
-
-    /**
-     * @var EntityRepository
-     */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     public function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
     }
 
@@ -96,167 +77,7 @@ class MainCategoryExtensionTest extends TestCase
         static::assertEquals($categories->firstId(), $mainCategory->getCategoryId());
     }
 
-    public function testSeoUrlWithMainCategory(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
-
-        $this->createProductUrlTemplate(
-            $salesChannelContext,
-            '{{ product.mainCategory.name }}/{{ product.name }}'
-        );
-
-        $categoryId = Uuid::randomHex();
-        $this->categoryRepository->create([[
-            'id' => $categoryId,
-            'name' => 'awesome category',
-        ]], Context::createDefaultContext());
-
-        $id = $this->createTestProduct([
-            'mainCategories' => [
-                [
-                    'salesChannelId' => $salesChannelId,
-                    'categoryId' => $categoryId,
-                ],
-            ],
-            'visibilities' => [
-                [
-                    'salesChannelId' => $salesChannelId,
-                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                ],
-            ],
-        ]);
-
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('seoUrls');
-        $criteria->addAssociation('mainCategories');
-
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($criteria, $salesChannelContext->getContext());
-        static::assertCount(1, $products);
-
-        $product = $products->first();
-        static::assertNotNull($product);
-
-        $mainCategories = $product->getMainCategories();
-        static::assertNotNull($mainCategories);
-        static::assertCount(1, $mainCategories);
-
-        $mainCategory = $mainCategories->first();
-        static::assertNotNull($mainCategory);
-        static::assertEquals($categoryId, $mainCategory->getCategoryId());
-
-        $seoUrls = $product->getSeoUrls();
-        static::assertNotNull($seoUrls);
-
-        /** @var SeoUrlEntity|null $canonical */
-        $canonical = $seoUrls->filterByProperty('isCanonical', true)->filterByProperty('salesChannelId', $salesChannelId)->first();
-        static::assertNotNull($canonical);
-        static::assertEquals('awesome-category/foo-bar', $canonical->getSeoPathInfo());
-    }
-
-    /**
-     * @depends testSeoUrlWithMainCategory
-     */
-    public function testSeoUrlWithMainCategoryChange(): void
-    {
-        static::markTestSkipped('extractIdsToUpdate must be fixed first');
-        $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
-
-        $this->createProductUrlTemplate(
-            $salesChannelContext,
-            '{{ product.mainCategory.name }}/{{ product.name }}'
-        );
-
-        $categoryId = Uuid::randomHex();
-        $this->categoryRepository->create([[
-            'id' => $categoryId,
-            'name' => 'awesome category',
-        ]], Context::createDefaultContext());
-
-        $id = $this->createTestProduct([
-            'mainCategories' => [
-                [
-                    'salesChannelId' => $salesChannelId,
-                    'categoryId' => $categoryId,
-                ],
-            ],
-        ]);
-
-        // update existing category
-        $this->categoryRepository->update(
-            [[
-                'id' => $categoryId,
-                'name' => 'super duper cat',
-            ]],
-            Context::createDefaultContext()
-        );
-
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('seoUrls');
-        $criteria->addAssociation('mainCategories');
-
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($criteria, $salesChannelContext->getContext());
-        static::assertCount(1, $products);
-
-        $product = $products->first();
-        static::assertNotNull($product);
-
-        $seoUrls = $product->getSeoUrls();
-        static::assertNotNull($seoUrls);
-
-        /** @var SeoUrlEntity|null $canonical */
-        $canonical = $seoUrls->filterByProperty('isCanonical', true)->filterByProperty('salesChannelId', $salesChannelId)->first();
-        static::assertNotNull($canonical);
-        static::assertEquals('super-duper-cat/foo-bar', $canonical->getSeoPathInfo());
-    }
-
-    /**
-     * @depends testMainCategoryLoaded
-     */
-    public function testDeleteCategoryDeletesMainCategory(): void
-    {
-        $salesChannelId = Uuid::randomHex();
-        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
-
-        $categoryId = Uuid::randomHex();
-        $this->categoryRepository->create([[
-            'id' => $categoryId,
-            'name' => 'awesome category',
-        ]], Context::createDefaultContext());
-
-        $id = $this->createTestProduct([
-            'mainCategories' => [
-                [
-                    'salesChannelId' => $salesChannelId,
-                    'categoryId' => $categoryId,
-                ],
-            ],
-        ]);
-
-        $this->categoryRepository->delete([['id' => $categoryId]], Context::createDefaultContext());
-
-        $result = $this->categoryRepository->search(new Criteria([$categoryId]), Context::createDefaultContext());
-        static::assertEmpty($result);
-
-        $criteria = new Criteria([$id]);
-        $criteria->addAssociation('mainCategories');
-
-        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
-        static::assertCount(1, $products);
-
-        /** @var ProductEntity $product */
-        $product = $products->first();
-
-        static::assertNotNull($product->getMainCategories());
-        static::assertEmpty($product->getMainCategories());
-    }
-
-    private function createTestProduct(array $additionalPayload = []): string
+    private function createTestProduct(): string
     {
         $id = Uuid::randomHex();
         $payload = [
@@ -279,32 +100,10 @@ class MainCategoryExtensionTest extends TestCase
             'stock' => 0,
         ];
 
-        $payload = array_merge_recursive($payload, $additionalPayload);
-
         $this->productRepository->create([
             $payload,
         ], Context::createDefaultContext());
 
         return $id;
-    }
-
-    private function createProductUrlTemplate(SalesChannelContext $salesChannelContext, string $template): string
-    {
-        $templateId = Uuid::randomHex();
-        $this->seoUrlTemplateRepository->create(
-            [
-                [
-                    'id' => $templateId,
-                    'salesChannelId' => $salesChannelContext->getSalesChannel()->getId(),
-                    'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
-                    'entityName' => ProductDefinition::ENTITY_NAME,
-                    'template' => $template,
-                    'isValid' => true,
-                ],
-            ],
-            $salesChannelContext->getContext()
-        );
-
-        return $templateId;
     }
 }

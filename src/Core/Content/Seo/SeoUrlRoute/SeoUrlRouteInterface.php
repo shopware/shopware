@@ -10,13 +10,7 @@ interface SeoUrlRouteInterface
 {
     public function getConfig(): SeoUrlRouteConfig;
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
-     */
-    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void;
+    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void;
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
-     */
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping;
 }

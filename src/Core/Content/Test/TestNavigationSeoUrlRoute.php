@@ -49,7 +49,7 @@ class TestNavigationSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
+    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
         $criteria->addFilter(new EqualsFilter('active', true));
     }

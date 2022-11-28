@@ -8,17 +8,17 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
  * @package core
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
-class WebhookEventMessageHandler extends AbstractMessageHandler
+final class WebhookEventMessageHandler implements MessageHandlerInterface
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
@@ -39,10 +39,7 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         $this->webhookEventLogRepository = $webhookEventLogRepository;
     }
 
-    /**
-     * @param WebhookEventMessage $message
-     */
-    public function handle($message): void
+    public function __invoke(WebhookEventMessage $message): void
     {
         $shopwareVersion = $message->getShopwareVersion();
 
@@ -71,10 +68,9 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         ];
 
         if ($message->getSecret()) {
-            $requestContent[AuthMiddleware::APP_REQUEST_TYPE]
-                        = [
-                            AuthMiddleware::APP_SECRET => $message->getSecret(),
-                        ];
+            $requestContent[AuthMiddleware::APP_REQUEST_TYPE] = [
+                AuthMiddleware::APP_SECRET => $message->getSecret(),
+            ];
         }
 
         $context = Context::createDefaultContext();
@@ -137,10 +133,13 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
-            throw new MessageFailedException($message, static::class, $e);
+            throw new \RuntimeException(\sprintf('Message %s failed', static::class));
         }
     }
 
+    /**
+     * @return iterable<class-string<AsyncMessageInterface>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [WebhookEventMessage::class];

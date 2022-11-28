@@ -2,12 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
 /**
  * @package core
  *
  * @internal
  */
-class ElasticsearchLanguageIndexIteratorMessage
+class ElasticsearchLanguageIndexIteratorMessage implements AsyncMessageInterface
 {
     private string $languageId;
 

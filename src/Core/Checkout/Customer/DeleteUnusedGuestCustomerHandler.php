@@ -4,15 +4,19 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
+final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
 {
     private DeleteUnusedGuestCustomerService $unusedGuestCustomerService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         DeleteUnusedGuestCustomerService $unusedGuestCustomerService
@@ -26,6 +30,9 @@ class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
         $this->unusedGuestCustomerService->deleteUnusedCustomers(Context::createDefaultContext());
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [DeleteUnusedGuestCustomerTask::class];

@@ -5,12 +5,13 @@ namespace Shopware\Core\Checkout\Cart\Cleanup;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class CleanupCartTaskHandler extends ScheduledTaskHandler
+final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
     private Connection $connection;
 
@@ -29,9 +30,12 @@ class CleanupCartTaskHandler extends ScheduledTaskHandler
         $this->days = $days;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
-        return [CleanupCartTask::class];
+        yield CleanupCartTask::class;
     }
 
     public function run(): void

@@ -1,7 +1,8 @@
 parameters:
-    messenger.default_transport_name: 'default'
+    messenger.default_transport_name: 'v65'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
     env(MAILER_URL): 'null://null'
-    env(MESSENGER_TRANSPORT_DSN): "enqueue://default?receiveTimeout=100"
 
 framework:
     esi: true
@@ -42,15 +43,26 @@ framework:
             cache.rate_limiter:
                 adapter: cache.app
     messenger:
-        reset_on_message: true
+        failure_transport: failed
+        serializer:
+            default_serializer: messenger.transport.symfony_serializer
+            symfony_serializer:
+                format: json
+                context: { }
+
         transports:
-            default:
+            failed: "%env(MESSENGER_TRANSPORT_FAILURE_DSN)%"
+            v65:
                 dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
-        default_bus: messenger.bus.shopware
-        buses:
-            messenger.bus.shopware:
-                middleware:
-                    - Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware
+                serializer: messenger.transport.symfony_serializer
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 0
+
+        routing:
+            'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': v65
 
 sensio_framework_extra:
     router:

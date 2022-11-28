@@ -21,20 +21,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
- *
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be final starting with v6.5.0.0
  */
-class TaskScheduler
+final class TaskScheduler
 {
-    /**
-     * @var EntityRepository
-     */
-    private $scheduledTaskRepository;
+    private EntityRepository $scheduledTaskRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private MessageBusInterface $bus;
 
     private ParameterBagInterface $parameterBag;
 

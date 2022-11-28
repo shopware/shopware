@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -47,7 +46,6 @@ class CacheInvalidatorTest extends TestCase
             [$adapter],
             $storage,
             new EventDispatcher(),
-            $this->createMock(EntityRepository::class)
         );
 
         $logger->invalidateExpired($time);

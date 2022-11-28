@@ -514,7 +514,6 @@ base-uri 'self';
             </argument>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="scheduled_task.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">

@@ -4,104 +4,26 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <!--Entity Definitions-->
-        <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <!--  ConnectionFactory -->
-        <service id="Shopware\Core\Framework\MessageQueue\Enqueue\ConnectionFactoryFactory">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <!--Message Bus-->
-        <service id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator" decorates="messenger.bus.shopware">
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator.inner"/>
-            <argument type="string">%messenger.default_transport_name%</argument>
-            <argument type="service" id="shopware.increment.gateway.registry"/>
-        </service>
-
-        <service id="encrypted.messenger.bus.shopware" class="Shopware\Core\Framework\MessageQueue\EncryptedBus">
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="shopware.public_key"/>
-        </service>
-
-        <!--Message Handler-->
-        <service id="Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler">
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="shopware.private_key"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler">
-            <argument type="service" id="dead_message.repository"/>
-            <argument type="tagged" tag="messenger.message_handler"/>
-            <argument type="service" id="logger"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\Handler\SleepTaskHandler">
-            <argument type="service" id="monolog.logger.messenger"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <!--Middleware-->
-        <service id="Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware">
-            <argument type="service" id="dead_message.repository"/>
-            <argument type="service" id="event_dispatcher" />
-        </service>
-
-        <!--Service-->
-        <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService">
-            <argument type="service" id="dead_message.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="encrypted.messenger.bus.shopware"/>
-            <argument type="service" id="logger"/>
-        </service>
-
-        <!--EventSubscriber-->
-        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\DeadMessageLoadedSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener">
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageFailedHandler">
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber">
             <argument type="service" id="shopware.increment.gateway.registry"/>
-            <argument type="string">%messenger.default_transport_name%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <!--ScheduledTask-->
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask">
-            <tag name="shopware.scheduled.task"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
+        <service id="messenger.bus.shopware" alias="messenger.default_bus" />
 
         <!--Controller-->
         <service id="Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController" public="true">
             <argument type="service" id="messenger.receiver_locator"/>
             <argument type="service" id="messenger.bus.shopware"/>
-            <argument>%shopware.admin_worker.poll_interval%</argument>
             <argument type="service" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
             <argument type="service" id="messenger.listener.stop_worker_on_sigterm_signal_listener"/>
             <argument type="service" id="messenger.listener.dispatch_pcntl_signal_listener"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber"/>
             <argument type="string">%messenger.default_transport_name%</argument>
             <argument type="string">%shopware.admin_worker.memory_limit%</argument>
             <call method="setContainer">
@@ -109,15 +31,9 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\DefaultSenderLocator" decorates="messenger.senders_locator">
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\DefaultSenderLocator.inner"/>
-            <argument type="service" on-invalid="null" id="messenger.default_transport" />
-            <argument type="string">%messenger.default_transport_name%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\Command\DispatchSleepMessageCommand">
-            <argument type="service" id="messenger.bus.shopware"/>
-            <tag name="console.command"/>
+        <service id="messenger.transport.doctrine.factory" class="Shopware\Core\Framework\Adapter\Doctrine\Messenger\DoctrineTransportFactory">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="messenger.transport_factory" />
         </service>
     </services>
 </container>

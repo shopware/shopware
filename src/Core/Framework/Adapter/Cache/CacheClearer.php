@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
-use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -17,44 +14,22 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0 and won't extend AbstractMessageHandler anymore
+ * @final
  */
-class CacheClearer extends AbstractMessageHandler
+class CacheClearer
 {
-    /**
-     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
-     *
-     * @var CacheClearerInterface
-     */
-    protected $cacheClearer;
+    private CacheClearerInterface $cacheClearer;
+
+    private string $cacheDir;
+
+    private Filesystem $filesystem;
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
-     *
-     * @var string
-     */
-    protected $cacheDir;
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
-     *
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
-     *
      * @var CacheItemPoolInterface[]
      */
-    protected $adapters;
+    private array $adapters;
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:becomes-private - will be private and natively typed starting with v6.5.0.0
-     *
-     * @var string
-     */
-    protected $environment;
+    private string $environment;
 
     private MessageBusInterface $messageBus;
 
@@ -158,31 +133,6 @@ class CacheClearer extends AbstractMessageHandler
         if ($remove !== []) {
             $this->filesystem->remove($remove);
         }
-    }
-
-    /**
-     * @param object $message
-     *
-     * @deprecated tag:v6.5.0 - will be removed, used `CleanUpOldCacheFoldersHandler` instead
-     */
-    public function handle($message): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', CleanupOldCacheFoldersHandler::class)
-        );
-
-        $this->cleanupOldContainerCacheDirectories();
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed, used `CleanUpOldCacheFoldersHandler` instead
-     *
-     * @return iterable<string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [];
     }
 
     private function cleanupUrlGeneratorCacheFiles(): void

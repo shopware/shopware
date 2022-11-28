@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @package content
  */
-class GenerateThumbnailsMessage
+class GenerateThumbnailsMessage implements AsyncMessageInterface
 {
     /**
      * @var array

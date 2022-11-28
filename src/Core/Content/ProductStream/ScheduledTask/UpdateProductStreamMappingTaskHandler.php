@@ -7,12 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
+final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
     private EntityRepository $productStreamRepository;
 
@@ -27,6 +28,9 @@ class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
         $this->productStreamRepository = $productStreamRepository;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [UpdateProductStreamMappingTask::class];

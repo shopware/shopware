@@ -10,7 +10,8 @@ Lighthouse (Administration):
         -   name: mariadb:10.3
             alias: database
     variables:
-      APP_ENV: prod
+      # Use e2e env to deactivate the admin queue worker
+      APP_ENV: e2e
       DD_API_KEY: "$DATADOG_API_KEY"
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: ''
     rules:

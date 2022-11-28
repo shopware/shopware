@@ -77,7 +77,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
         }
         static::assertNotNull($deleteFileMessage);
 
-        $this->deleteFileHandler->handle($deleteFileMessage);
+        $this->deleteFileHandler->__invoke($deleteFileMessage);
         static::assertFalse($this->filesystem->fileExists($expiredFilePath));
     }
 

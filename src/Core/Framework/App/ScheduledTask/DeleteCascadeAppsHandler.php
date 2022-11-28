@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
  */
-class DeleteCascadeAppsHandler extends ScheduledTaskHandler
+final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
     private const HARD_DELETE_AFTER_DAYS = 1;
 
@@ -46,6 +47,9 @@ class DeleteCascadeAppsHandler extends ScheduledTaskHandler
         $this->deleteIds($this->integrationRepository, $criteria, $context);
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [DeleteCascadeAppsTask::class];

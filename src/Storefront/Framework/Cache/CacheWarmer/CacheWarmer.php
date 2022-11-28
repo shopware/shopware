@@ -7,17 +7,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package storefront
- *
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Won't extend AbstractMessageHandler anymore, message handling is done in `CacheWarmerTaskHandler`
  */
-class CacheWarmer extends AbstractMessageHandler
+class CacheWarmer
 {
     private EntityRepository $domainRepository;
 
@@ -27,8 +23,6 @@ class CacheWarmer extends AbstractMessageHandler
 
     private CacheIdLoader $cacheIdLoader;
 
-    private CacheWarmerTaskHandler $cacheWarmerTaskHandler;
-
     /**
      * @internal
      */
@@ -37,23 +31,11 @@ class CacheWarmer extends AbstractMessageHandler
         MessageBusInterface $bus,
         CacheRouteWarmerRegistry $registry,
         CacheIdLoader $cacheIdLoader,
-        CacheWarmerTaskHandler $cacheWarmerTaskHandler
     ) {
         $this->domainRepository = $domainRepository;
         $this->bus = $bus;
         $this->registry = $registry;
         $this->cacheIdLoader = $cacheIdLoader;
-        $this->cacheWarmerTaskHandler = $cacheWarmerTaskHandler;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed, use `CacheWarmerTaskHandler` instead
-     *
-     * @return iterable<string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [];
     }
 
     public function warmUp(?string $cacheId = null): void
@@ -67,25 +49,6 @@ class CacheWarmer extends AbstractMessageHandler
 
         // generate all message to calculate message count
         $this->createMessages($cacheId, $domains);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed, use `CacheWarmerTaskHandler` instead
-     *
-     * @param object $message
-     */
-    public function handle($message): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', CacheWarmerTaskHandler::class)
-        );
-
-        if (!$message instanceof WarmUpMessage) {
-            return;
-        }
-
-        $this->cacheWarmerTaskHandler->__invoke($message);
     }
 
     private function createMessages(string $cacheId, EntitySearchResult $domains): void

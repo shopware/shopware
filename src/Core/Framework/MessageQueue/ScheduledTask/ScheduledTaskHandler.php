@@ -6,31 +6,21 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
  * @package core
- *
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only implement MessageHandlerInterface
  */
-abstract class ScheduledTaskHandler extends AbstractMessageHandler
+abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
-    /**
-     * @var EntityRepository
-     */
-    protected $scheduledTaskRepository;
+    protected EntityRepository $scheduledTaskRepository;
 
     public function __construct(EntityRepository $scheduledTaskRepository)
     {
         $this->scheduledTaskRepository = $scheduledTaskRepository;
     }
 
-    abstract public function run(): void;
-
-    /**
-     * @param ScheduledTask $task
-     */
-    public function handle($task): void
+    public function __invoke(ScheduledTask $task): void
     {
         $taskId = $task->getTaskId();
 
@@ -62,6 +52,8 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
 
         $this->rescheduleTask($task, $taskEntity);
     }
+
+    abstract public function run(): void;
 
     protected function markTaskRunning(ScheduledTask $task): void
     {

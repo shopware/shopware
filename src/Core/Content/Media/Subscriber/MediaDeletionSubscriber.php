@@ -266,7 +266,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
 
         if ($context->hasState(self::SYNCHRONE_FILE_DELETE)) {
-            $this->deleteFileHandler->handle(new DeleteFileMessage($paths, $visibility));
+            $this->deleteFileHandler->__invoke(new DeleteFileMessage($paths, $visibility));
 
             return;
         }

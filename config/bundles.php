@@ -7,8 +7,6 @@ return [
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
-    Enqueue\Bundle\EnqueueBundle::class => ['all' => true],
-    Enqueue\MessengerAdapter\Bundle\EnqueueAdapterBundle::class => ['all' => true],
     Shopware\Core\Framework\Framework::class => ['all' => true],
     Shopware\Core\System\System::class => ['all' => true],
     Shopware\Core\Content\Content::class => ['all' => true],

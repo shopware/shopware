@@ -5,25 +5,20 @@ namespace Shopware\Core\Framework\Log\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class LogCleanupTaskHandler extends ScheduledTaskHandler
+final class LogCleanupTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var SystemConfigService
-     */
-    protected $systemConfigService;
+    protected SystemConfigService $systemConfigService;
 
-    /**
-     * @var Connection
-     */
-    protected $connection;
+    protected Connection $connection;
 
     /**
      * @internal
@@ -38,6 +33,9 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
         $this->connection = $connection;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [LogCleanupTask::class];
@@ -51,7 +49,7 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
         if ($entryLifetimeSeconds !== -1) {
             $deleteBefore = (new \DateTime(sprintf('- %s seconds', $entryLifetimeSeconds)))
                 ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM `log_entry` WHERE `created_at` < :before',
                 ['before' => $deleteBefore]
             );
@@ -68,7 +66,7 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
 
             $statement = $this->connection->prepare($sql);
             $statement->bindValue('maxEntries', $maxEntries, \PDO::PARAM_INT);
-            $statement->execute();
+            $statement->executeStatement();
         }
     }
 }

@@ -1,7 +1,7 @@
 framework:
     messenger:
         transports:
-            default:
+            v65:
                 dsn: "sync://"
 
 shopware:

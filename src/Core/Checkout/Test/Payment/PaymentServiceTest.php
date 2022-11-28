@@ -38,8 +38,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
-use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -375,7 +375,7 @@ class PaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->getInitialOrderTransactionStateId($context),
+            'stateId' => $this->getInitialOrderTransactionStateId(),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -392,7 +392,7 @@ class PaymentServiceTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->getInitialOrderTransactionStateId($context);
+        $stateId = $this->getInitialOrderTransactionStateId();
 
         $order = [
             'id' => $orderId,
@@ -503,25 +503,11 @@ class PaymentServiceTest extends TestCase
     /**
      * Does the same like \Shopware\Core\System\StateMachine\StateMachineRegistry::getInitialState without local caching.
      */
-    private function getInitialOrderTransactionStateId(Context $context): string
+    private function getInitialOrderTransactionStateId(): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('technicalName', OrderTransactionStates::STATE_MACHINE)
-        );
+        $this->getContainer()->get(InitialStateIdLoader::class)->reset();
 
-        /** @var StateMachineEntity|null $orderTransactionStateMachineId */
-        $orderTransactionStateMachineId = $this->stateMachineRepository->search($criteria, $this->context)->first();
-        static::assertNotNull($orderTransactionStateMachineId);
-        static::assertNotNull($orderTransactionStateMachineId->getInitialStateId());
-
-        $stateId = $this->stateMachineStateRepository->searchIds(
-            new Criteria([$orderTransactionStateMachineId->getInitialStateId()]),
-            $context
-        )->firstId();
-        static::assertNotNull($stateId);
-
-        return $stateId;
+        return $this->getContainer()->get(InitialStateIdLoader::class)
+            ->get(OrderTransactionStates::STATE_MACHINE);
     }
 }

@@ -129,8 +129,6 @@ use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventAct
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\Framework\Log\LogEntryDefinition;
-use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
-use Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
@@ -205,8 +203,6 @@ return [
     CustomFieldSetDefinition::class => 'CustomField set/group',
     CustomFieldSetRelationDefinition::class => 'Set to entity relation',
     EventActionDefinition::class => 'Configurable event handling',
-    DeadMessageDefinition::class => 'Failing messages',
-    MessageQueueStatsDefinition::class => 'Stats',
     PluginDefinition::class => 'Plugin',
     PluginTranslationDefinition::class => 'Translations',
     ScheduledTaskDefinition::class => 'Cron job',

@@ -7,17 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
+final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var EntityRepository
-     */
-    private $newsletterRecipientRepository;
+    private EntityRepository $newsletterRecipientRepository;
 
     /**
      * @internal
@@ -29,6 +27,9 @@ class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
         return [

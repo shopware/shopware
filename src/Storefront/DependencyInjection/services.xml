@@ -583,7 +583,6 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerTaskHandler"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerTaskHandler">

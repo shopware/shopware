@@ -5,14 +5,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class CleanupVersionTaskHandler extends ScheduledTaskHandler
+final class CleanupVersionTaskHandler extends ScheduledTaskHandler
 {
     private Connection $connection;
 
@@ -31,9 +32,12 @@ class CleanupVersionTaskHandler extends ScheduledTaskHandler
         $this->days = $days;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
-        return [CleanupVersionTask::class];
+        yield CleanupVersionTask::class;
     }
 
     public function run(): void

@@ -4,12 +4,13 @@ namespace Shopware\Core\Content\Product\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
+final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
     private Connection $connection;
 
@@ -24,9 +25,12 @@ class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
         $this->connection = $connection;
     }
 
+    /**
+     * @return iterable<class-string<ScheduledTask>>
+     */
     public static function getHandledMessages(): iterable
     {
-        return [CleanupProductKeywordDictionaryTask::class];
+        yield CleanupProductKeywordDictionaryTask::class;
     }
 
     public function run(): void

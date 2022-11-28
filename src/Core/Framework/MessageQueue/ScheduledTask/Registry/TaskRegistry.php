@@ -16,23 +16,20 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
  */
 class TaskRegistry
 {
-    /**
-     * @var EntityRepository
-     */
-    private $scheduledTaskRepository;
+    private EntityRepository $scheduledTaskRepository;
 
     /**
-     * @var iterable
+     * @var iterable<ScheduledTask>
      */
-    private $tasks;
+    private iterable $tasks;
 
     /**
      * @internal
+     *
+     * @param iterable<ScheduledTask> $tasks
      */
-    public function __construct(
-        iterable $tasks,
-        EntityRepository $scheduledTaskRepository
-    ) {
+    public function __construct(iterable $tasks, EntityRepository $scheduledTaskRepository)
+    {
         $this->tasks = $tasks;
         $this->scheduledTaskRepository = $scheduledTaskRepository;
     }
@@ -55,7 +52,6 @@ class TaskRegistry
 
     private function insertNewTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
     {
-        /** @var ScheduledTask $task */
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
@@ -84,6 +80,9 @@ class TaskRegistry
         }
     }
 
+    /**
+     * @return list<array{id: string}>
+     */
     private function getDeletionPayload(ScheduledTaskCollection $alreadyRegisteredTasks): array
     {
         $deletionPayload = [];

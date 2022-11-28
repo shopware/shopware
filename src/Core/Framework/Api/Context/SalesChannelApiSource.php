@@ -7,6 +7,8 @@ namespace Shopware\Core\Framework\Api\Context;
  */
 class SalesChannelApiSource implements ContextSource
 {
+    public string $type = 'sales-channel';
+
     /**
      * @var string
      */

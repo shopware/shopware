@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -26,14 +26,16 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
+ * @final
  */
-class ElasticsearchIndexer extends AbstractMessageHandler
+class ElasticsearchIndexer implements MessageHandlerInterface
 {
     private Connection $connection;
 
@@ -88,6 +90,24 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $this->eventDispatcher = $eventDispatcher;
         $this->indexingBatchSize = $indexingBatchSize;
         $this->bus = $bus;
+    }
+
+    /**
+     * @param ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message
+     */
+    public function __invoke(AsyncMessageInterface $message): void
+    {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
+            $this->handleLanguageIndexIteratorMessage($message);
+
+            return;
+        }
+
+        $this->handleIndexingMessage($message);
     }
 
     /**
@@ -153,32 +173,13 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
-            $this->handle($message);
+            $this->__invoke($message);
         }
     }
 
     /**
-     * @param object|ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message
+     * @return iterable<class-string<AsyncMessageInterface>>
      */
-    public function handle($message): void
-    {
-        if (!$message instanceof ElasticsearchIndexingMessage && !$message instanceof ElasticsearchLanguageIndexIteratorMessage) {
-            return;
-        }
-
-        if (!$this->helper->allowIndexing()) {
-            return;
-        }
-
-        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
-            $this->handleLanguageIndexIteratorMessage($message);
-
-            return;
-        }
-
-        $this->handleIndexingMessage($message);
-    }
-
     public static function getHandledMessages(): iterable
     {
         return [

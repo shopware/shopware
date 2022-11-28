@@ -20,40 +20,40 @@
             <argument type="service" id="scheduled_task.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber\PluginLifecycleSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
-            <argument type="service" id="cache.messenger.restart_workers_signal" />
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Command\RegisterScheduledTasksCommand">
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\PluginLifecycleSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
+            <argument type="service" id="cache.messenger.restart_workers_signal" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Command\RegisterScheduledTasksCommand">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Command\ScheduledTaskRunner">
+        <service id="Shopware\Core\Framework\MessageQueue\Command\ScheduledTaskRunner">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
 
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Api\ScheduledTaskController" public="true">
+        <service id="Shopware\Core\Framework\MessageQueue\Api\ScheduledTaskController" public="true">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber\UpdatePostFinishSubscriber">
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\UpdatePostFinishSubscriber">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>

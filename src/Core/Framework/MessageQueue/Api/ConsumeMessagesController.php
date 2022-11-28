@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Api;
 
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
+use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -25,44 +26,23 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ConsumeMessagesController extends AbstractController
 {
-    /**
-     * @var ServiceLocator
-     */
-    private $receiverLocator;
+    private ServiceLocator $receiverLocator;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private MessageBusInterface $bus;
 
-    /**
-     * @var int
-     */
-    private $pollInterval;
+    private StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener;
 
-    /**
-     * @var StopWorkerOnRestartSignalListener
-     */
-    private $stopWorkerOnRestartSignalListener;
+    private StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener;
 
-    /**
-     * @var StopWorkerOnSigtermSignalListener
-     */
-    private $stopWorkerOnSigtermSignalListener;
+    private DispatchPcntlSignalListener $dispatchPcntlSignalListener;
 
-    /**
-     * @var DispatchPcntlSignalListener
-     */
-    private $dispatchPcntlSignalListener;
-
-    /**
-     * @var EarlyReturnMessagesListener
-     */
-    private $earlyReturnListener;
+    private EarlyReturnMessagesListener $earlyReturnListener;
 
     private string $defaultTransportName;
 
     private string $memoryLimit;
+
+    private MessageQueueStatsSubscriber $statsSubscriber;
 
     /**
      * @internal
@@ -70,23 +50,23 @@ class ConsumeMessagesController extends AbstractController
     public function __construct(
         ServiceLocator $receiverLocator,
         MessageBusInterface $bus,
-        int $pollInterval,
         StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
         StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
         DispatchPcntlSignalListener $dispatchPcntlSignalListener,
         EarlyReturnMessagesListener $earlyReturnListener,
+        MessageQueueStatsSubscriber $statsSubscriber,
         string $defaultTransportName,
         string $memoryLimit
     ) {
         $this->receiverLocator = $receiverLocator;
         $this->bus = $bus;
-        $this->pollInterval = $pollInterval;
         $this->stopWorkerOnRestartSignalListener = $stopWorkerOnRestartSignalListener;
         $this->stopWorkerOnSigtermSignalListener = $stopWorkerOnSigtermSignalListener;
         $this->dispatchPcntlSignalListener = $dispatchPcntlSignalListener;
         $this->earlyReturnListener = $earlyReturnListener;
         $this->defaultTransportName = $defaultTransportName;
         $this->memoryLimit = $memoryLimit;
+        $this->statsSubscriber = $statsSubscriber;
     }
 
     /**
@@ -104,8 +84,9 @@ class ConsumeMessagesController extends AbstractController
         $receiver = $this->receiverLocator->get($receiverName);
 
         $workerDispatcher = new EventDispatcher();
-        $listener = new CountHandledMessagesListener($this->pollInterval);
+        $listener = new CountHandledMessagesListener();
         $workerDispatcher->addSubscriber($listener);
+        $workerDispatcher->addSubscriber($this->statsSubscriber);
         $workerDispatcher->addSubscriber($this->stopWorkerOnRestartSignalListener);
         $workerDispatcher->addSubscriber($this->stopWorkerOnSigtermSignalListener);
         $workerDispatcher->addSubscriber($this->dispatchPcntlSignalListener);

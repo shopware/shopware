@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,10 +20,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 {
     private CachedResolvedConfigLoaderInvalidator $cachedResolvedConfigLoaderInvalidator;
 
-    /**
-     * @var CacheInvalidator&MockObject
-     */
-    private $logger;
+    private mixed $logger;
 
     public function setUp(): void
     {

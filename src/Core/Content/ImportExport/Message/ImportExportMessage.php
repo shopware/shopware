@@ -3,8 +3,9 @@
 namespace Shopware\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-class ImportExportMessage
+class ImportExportMessage implements AsyncMessageInterface
 {
     private Context $context;
 

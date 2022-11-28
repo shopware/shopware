@@ -13,9 +13,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -24,12 +23,13 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class ProductExportPartialGenerationHandler extends AbstractMessageHandler
+final class ProductExportPartialGenerationHandler implements MessageSubscriberInterface
 {
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
@@ -86,20 +86,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ProductExportPartialGeneration::class,
-        ];
-    }
-
-    /**
-     * @param ProductExportPartialGeneration $productExportPartialGeneration
-     *
-     * @throws SalesChannelNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     */
-    public function handle($productExportPartialGeneration): void
+    public function __invoke(ProductExportPartialGeneration $productExportPartialGeneration): void
     {
         $context = $this->getContext($productExportPartialGeneration);
         $productExport = $this->fetchProductExport($productExportPartialGeneration, $context);
@@ -137,6 +124,16 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         }
 
         $this->finalizeExport($productExport, $filePath);
+    }
+
+    /**
+     * @return iterable<class-string<AsyncMessageInterface>>
+     */
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            ProductExportPartialGeneration::class,
+        ];
     }
 
     private function getContext(ProductExportPartialGeneration $productExportPartialGeneration): Context

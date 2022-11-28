@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
@@ -297,8 +298,6 @@ class LineItemGroupBuilderTest extends TestCase
         );
 
         $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
-
-        /** @var array $groupCount */
         $groupCount = $result->getGroupResult($group);
 
         static::assertCount(4, $groupCount);

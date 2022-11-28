@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -71,9 +72,13 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     public function testEmptyRequest(): void
@@ -370,12 +375,11 @@ class ChangeProfileRouteTest extends TestCase
             'firstName' => 'FirstName',
             'lastName' => 'LastName',
         ];
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/change-profile',
-                $changeData
-            );
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            $changeData
+        );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
@@ -544,18 +548,24 @@ class ChangeProfileRouteTest extends TestCase
     private function setVatIdOfTheCountryToValidateFormat(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}"
-                 WHERE id = :id', [
-                'id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->create('sales-channel'))),
-            ]);
+            ->executeUpdate(
+                'UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}"
+                 WHERE id = :id',
+                [
+                    'id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->create('sales-channel'))),
+                ]
+            );
     }
 
     private function setVatIdOfTheCountryToBeRequired(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate('UPDATE `country` SET `vat_id_required` = 1
-                 WHERE id = :id', [
-                'id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->create('sales-channel'))),
-            ]);
+            ->executeUpdate(
+                'UPDATE `country` SET `vat_id_required` = 1
+                 WHERE id = :id',
+                [
+                    'id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->create('sales-channel'))),
+                ]
+            );
     }
 }

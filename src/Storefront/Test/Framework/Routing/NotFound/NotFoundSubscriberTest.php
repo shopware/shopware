@@ -166,6 +166,9 @@ class NotFoundSubscriberTest extends TestCase
         $subscriber->onSystemConfigChanged(new SystemConfigChangedEvent($key, 'foo', null));
     }
 
+    /**
+     * @return iterable<string, array<mixed>>
+     */
     public function providerSystemConfigKeys(): iterable
     {
         yield 'key matches' => [
@@ -193,16 +196,8 @@ class NotFoundSubscriberTest extends TestCase
 
         if (Feature::isActive('v6.5.0.0')) {
             static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-            $_SERVER['V6_5_0_0'] = '0';
-
-            static::assertArrayNotHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
         } else {
             static::assertArrayNotHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-            $_SERVER['V6_5_0_0'] = '1';
-
-            static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
         }
 
         if ($defaultVar !== null) {

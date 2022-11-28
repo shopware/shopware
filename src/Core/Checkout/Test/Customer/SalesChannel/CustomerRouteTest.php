@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,11 +28,6 @@ class CustomerRouteTest extends TestCase
      */
     private $ids;
 
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
@@ -42,7 +36,6 @@ class CustomerRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
     public function testNotLoggedin(): void
@@ -55,7 +48,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -77,11 +70,12 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        static::assertArrayHasKey('contextToken', $response);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         $this->browser
             ->request(
@@ -91,7 +85,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame($id, $response['id']);
     }
@@ -110,7 +104,7 @@ class CustomerRouteTest extends TestCase
         $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotEmpty($contextToken);
 
-        list('id' => $id, 'email' => $email) = json_decode($registerResponse->getContent(), true);
+        list('id' => $id, 'email' => $email) = json_decode((string) $registerResponse->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -122,12 +116,15 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $customerResponse = json_decode($this->browser->getResponse()->getContent(), true);
+        $customerResponse = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame($id, $customerResponse['id']);
         static::assertSame($email, $customerResponse['email']);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getGuestRegistrationData(string $storefrontUrl = 'http://localhost'): array
     {
         return [

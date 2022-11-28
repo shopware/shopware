@@ -109,6 +109,9 @@ class PromotionCartEventTest extends TestCase
         $this->cartService->remove($cart, $productId, $this->context);
     }
 
+    /**
+     * @param array<mixed> $codes
+     */
     private function createBulkPromotions(array $codes): void
     {
         /** @var int $percentage */

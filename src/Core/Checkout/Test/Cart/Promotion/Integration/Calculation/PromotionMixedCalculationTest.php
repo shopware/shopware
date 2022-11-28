@@ -317,7 +317,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array
+     * @return array<string, array<mixed>>
      *
      * expectedDiscount,
      * applyTo,
@@ -696,6 +696,9 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
+    /**
+     * @return array<string, array<mixed>>
+     */
     public function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
     {
         return [
@@ -778,6 +781,9 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
+    /**
+     * @return array<string, array<mixed>>
+     */
     public function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
     {
         return [

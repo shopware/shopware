@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -67,9 +68,13 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     public function testInvalidUuid(): void
@@ -82,7 +87,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_UUID', $response['errors'][0]['code']);
@@ -91,7 +96,7 @@ class ChangePaymentMethodRouteTest extends TestCase
     public function testChangePayment(): void
     {
         $this->browser->request('GET', '/store-api/account/customer');
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame($this->ids->get('payment'), $customer['defaultPaymentMethodId']);
 
@@ -103,12 +108,12 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
         $this->browser->request('GET', '/store-api/account/customer');
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame($this->ids->get('payment2'), $customer['defaultPaymentMethodId']);
     }

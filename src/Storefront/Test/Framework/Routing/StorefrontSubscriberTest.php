@@ -173,16 +173,8 @@ class StorefrontSubscriberTest extends TestCase
 
         if (Feature::isActive('v6.5.0.0')) {
             static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-
-            $_SERVER['V6_5_0_0'] = '0';
-
-            static::assertCount(3, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
         } else {
             static::assertCount(3, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-
-            $_SERVER['V6_5_0_0'] = '1';
-
-            static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
         }
 
         if ($defaultVar !== null) {

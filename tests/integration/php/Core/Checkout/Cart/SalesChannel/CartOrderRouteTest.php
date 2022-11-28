@@ -639,14 +639,13 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $content = $this->browser->getResponse()->getContent();
-        static::assertIsString($content);
-        $response = json_decode($content, true);
+        $response = $this->browser->getResponse();
 
-        static::assertIsArray($response);
-        static::assertArrayHasKey('contextToken', $response);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     /**

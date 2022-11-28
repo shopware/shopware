@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -31,11 +32,6 @@ class LoadWishlistRouteTest extends TestCase
      * @var TestDataCollection
      */
     private $ids;
-
-    /**
-     * @var object|null
-     */
-    private $customerRepository;
 
     /**
      * @var Context
@@ -61,7 +57,6 @@ class LoadWishlistRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
@@ -79,9 +74,13 @@ class LoadWishlistRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
     public function testLoadShouldReturnSuccess(): void
@@ -94,7 +93,7 @@ class LoadWishlistRouteTest extends TestCase
                 'POST',
                 '/store-api/customer/wishlist'
             );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $wishlist = $response['wishlist'];
         $products = $response['products'];
 
@@ -113,7 +112,7 @@ class LoadWishlistRouteTest extends TestCase
                 'POST',
                 '/store-api/customer/wishlist'
             );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
@@ -130,7 +129,7 @@ class LoadWishlistRouteTest extends TestCase
                 'POST',
                 '/store-api/customer/wishlist'
             );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $errors['code']);
@@ -145,7 +144,7 @@ class LoadWishlistRouteTest extends TestCase
                 'POST',
                 '/store-api/customer/wishlist'
             );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_NOT_FOUND', $errors['code']);
@@ -167,7 +166,7 @@ class LoadWishlistRouteTest extends TestCase
                 'POST',
                 '/store-api/customer/wishlist'
             );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $products = $response['products'];
 
         static::assertEquals(0, $products['total']);
@@ -187,13 +186,16 @@ class LoadWishlistRouteTest extends TestCase
                 'POST',
                 '/store-api/customer/wishlist'
             );
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         $products = $response['products'];
 
         static::assertEquals(1, $products['total']);
         static::assertNotNull($products['elements']);
     }
 
+    /**
+     * @param array<mixed> $attributes
+     */
     private function createProduct(Context $context, array $attributes = []): string
     {
         $productId = Uuid::randomHex();
@@ -209,7 +211,10 @@ class LoadWishlistRouteTest extends TestCase
             'taxId' => $this->getValidTaxId(),
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => $this->getSalesChannelApiSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                [
+                    'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
             ],
         ];
 

@@ -43,6 +43,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxEntity;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class DeliveryCalculatorTest extends TestCase

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package checkout
+ */
 class CartOrderRouteResponse extends StoreApiResponse
 {
     /**

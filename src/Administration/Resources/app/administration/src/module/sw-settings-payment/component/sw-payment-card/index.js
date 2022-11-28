@@ -3,6 +3,9 @@ import './sw-payment-card.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-payment-card', {
     template,

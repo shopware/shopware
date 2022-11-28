@@ -4,6 +4,10 @@ import 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
+/**
+ * @package checkout
+ */
+
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

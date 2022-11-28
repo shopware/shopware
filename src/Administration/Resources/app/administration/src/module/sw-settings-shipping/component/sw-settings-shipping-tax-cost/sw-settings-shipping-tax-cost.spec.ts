@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
+/**
+ * @package checkout
+ */
+
 Shopware.State.registerModule('swShippingDetail', state);
 
 const createWrapper = async () => {

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CartFacadeHookFactory extends HookServiceFactory

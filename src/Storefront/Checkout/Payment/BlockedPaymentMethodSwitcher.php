@@ -16,6 +16,8 @@ use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * @internal Only to be used by the Storefront
  */
 class BlockedPaymentMethodSwitcher

@@ -6,6 +6,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * This route can be used to handle the payment for an order.
  */
 abstract class AbstractHandlePaymentMethodRoute

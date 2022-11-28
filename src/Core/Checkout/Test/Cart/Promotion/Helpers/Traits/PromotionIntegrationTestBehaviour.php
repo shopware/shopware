@@ -16,6 +16,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
+/**
+ * @package checkout
+ */
 trait PromotionIntegrationTestBehaviour
 {
     private SalesChannelContext $context;

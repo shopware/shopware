@@ -6,6 +6,10 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\PriceFactoryTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 
 /**
+ * @package checkout
+ */
+
+/**
  * The CartPriceFacade is a wrapper around the calculated price of a cart.
  *
  * @script-service cart_manipulation

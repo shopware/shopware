@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
+/**
+ * @package checkout
+ */
 class PaymentHandlerRegistry
 {
     /**

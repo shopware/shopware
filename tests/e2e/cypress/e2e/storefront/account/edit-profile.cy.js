@@ -1,5 +1,8 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
+/**
+ * @package checkout
+ */
 describe('Account: Edit profile', () => {
     beforeEach(() => {
         return cy.createCustomerFixtureStorefront();

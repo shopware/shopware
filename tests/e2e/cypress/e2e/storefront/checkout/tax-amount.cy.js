@@ -44,6 +44,9 @@ const additionalProducts = [
 ];
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Checkout: Use different taxes in products while checkout', () => {
 
     beforeEach(() => {

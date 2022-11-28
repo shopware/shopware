@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package checkout
+ */
 class AddressValidator implements CartValidatorInterface, ResetInterface
 {
     private EntityRepositoryInterface $repository;

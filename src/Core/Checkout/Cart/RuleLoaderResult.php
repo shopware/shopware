@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Content\Rule\RuleCollection;
 
+/**
+ * @package checkout
+ */
 class RuleLoaderResult
 {
     /**

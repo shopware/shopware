@@ -2,6 +2,9 @@ import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Test payment and shipping methods selection', () => {
     beforeEach(() => {
         cy.createProductFixture()

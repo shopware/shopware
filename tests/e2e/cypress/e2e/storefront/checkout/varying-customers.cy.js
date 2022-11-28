@@ -24,6 +24,9 @@ const customers = [
 
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Checkout: Proceed checkout using various customers', () => {
 
     beforeEach(() => {

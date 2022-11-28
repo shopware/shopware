@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package checkout
+ */
 interface AsynchronousPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**

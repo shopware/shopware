@@ -21,6 +21,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package checkout
+ */
 class CartService implements ResetInterface
 {
     public const SALES_CHANNEL = 'sales-channel';

@@ -1,5 +1,9 @@
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 
+/**
+ * @package checkout
+ */
+
 let fireRequestSpy;
 
 jest.mock('src/service/http-client.service', () => {

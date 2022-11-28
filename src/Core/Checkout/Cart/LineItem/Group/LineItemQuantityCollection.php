@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<LineItemQuantity>
  */
 class LineItemQuantityCollection extends Collection

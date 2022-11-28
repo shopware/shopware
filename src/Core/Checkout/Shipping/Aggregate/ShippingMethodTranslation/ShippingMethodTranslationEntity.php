@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

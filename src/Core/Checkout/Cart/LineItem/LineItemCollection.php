@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<LineItem>
  */
 class LineItemCollection extends Collection

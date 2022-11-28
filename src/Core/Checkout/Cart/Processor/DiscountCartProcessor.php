@@ -19,6 +19,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class DiscountCartProcessor implements CartProcessorInterface
 {
     private PercentagePriceCalculator $percentageCalculator;

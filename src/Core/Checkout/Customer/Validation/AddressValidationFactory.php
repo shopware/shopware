@@ -12,6 +12,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @package checkout
+ *
  * @Decoratable
  */
 class AddressValidationFactory implements DataValidationFactoryInterface

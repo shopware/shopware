@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package checkout
+ */
 class DeleteUnusedGuestCustomerService
 {
     public const DELETE_CUSTOMERS_BATCH_SIZE = 100;

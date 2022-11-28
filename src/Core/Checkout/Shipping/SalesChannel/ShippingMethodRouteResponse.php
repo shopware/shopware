@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodRouteResponse extends StoreApiResponse
 {
     /**

@@ -17,6 +17,9 @@ use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class PromotionProcessor implements CartProcessorInterface
 {
     public const DATA_KEY = 'promotions';

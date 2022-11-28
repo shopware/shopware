@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Shipping\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $id)

@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package checkout
+ */
 class OrderConvertedEvent extends NestedEvent
 {
     /**

@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
+/**
+ * @package checkout
+ */
 class PreparedPaymentService
 {
     private PaymentHandlerRegistry $paymentHandlerRegistry;

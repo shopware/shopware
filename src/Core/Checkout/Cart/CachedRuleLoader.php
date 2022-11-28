@@ -6,6 +6,9 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\Cache\CacheInterface;
 
+/**
+ * @package checkout
+ */
 class CachedRuleLoader extends AbstractRuleLoader
 {
     public const CACHE_KEY = 'cart_rules';

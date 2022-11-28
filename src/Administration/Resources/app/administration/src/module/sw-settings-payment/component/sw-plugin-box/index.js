@@ -3,6 +3,9 @@ import './sw-plugin-box.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-plugin-box', {
     template,

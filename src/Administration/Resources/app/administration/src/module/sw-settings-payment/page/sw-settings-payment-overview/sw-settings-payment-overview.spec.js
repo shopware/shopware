@@ -2,6 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
 import Vuex from 'vuex';
 
+/**
+ * @package checkout
+ */
+
 async function createWrapper(methods = [], cards = [], privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);

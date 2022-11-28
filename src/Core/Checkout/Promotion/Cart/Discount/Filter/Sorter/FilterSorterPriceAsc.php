@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 
+/**
+ * @package checkout
+ */
 class FilterSorterPriceAsc implements FilterSorterInterface
 {
     public function getKey(): string

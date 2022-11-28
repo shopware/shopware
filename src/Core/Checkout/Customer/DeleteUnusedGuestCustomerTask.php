@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package checkout
+ */
 class DeleteUnusedGuestCustomerTask extends ScheduledTask
 {
     public static function getTaskName(): string

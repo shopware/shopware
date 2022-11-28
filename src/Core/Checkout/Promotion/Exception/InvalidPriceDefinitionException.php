@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 class InvalidPriceDefinitionException extends ShopwareHttpException
 {
     public function __construct(string $label, ?string $code)

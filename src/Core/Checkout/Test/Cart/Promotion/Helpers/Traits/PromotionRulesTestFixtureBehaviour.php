@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package checkout
+ *
  * @deprecated tag:v6.5.0 will be removed, as it is not needed anymore
  */
 trait PromotionRulesTestFixtureBehaviour

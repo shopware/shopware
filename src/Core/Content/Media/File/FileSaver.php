@@ -32,6 +32,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package content
+ */
 class FileSaver
 {
     private EntityRepositoryInterface $mediaRepository;

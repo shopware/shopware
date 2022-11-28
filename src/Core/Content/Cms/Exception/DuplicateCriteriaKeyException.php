@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Cms\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package content
+ */
 class DuplicateCriteriaKeyException extends ShopwareHttpException
 {
     public function __construct(string $key)

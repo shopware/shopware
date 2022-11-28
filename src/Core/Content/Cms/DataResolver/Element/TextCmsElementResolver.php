@@ -10,6 +10,9 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
+/**
+ * @package content
+ */
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
     private HtmlSanitizer $sanitizer;

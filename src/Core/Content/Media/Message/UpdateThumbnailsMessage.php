@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+/**
+ * @package content
+ */
 class UpdateThumbnailsMessage extends GenerateThumbnailsMessage
 {
     private bool $isStrict = false;

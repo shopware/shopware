@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\LandingPage\SalesChannel;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 abstract class AbstractLandingPageRoute
 {
     abstract public function getDecorated(): AbstractLandingPageRoute;

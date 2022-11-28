@@ -6,6 +6,9 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package content
+ */
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
     private FilesystemInterface $filesystem;

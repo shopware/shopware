@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\LandingPage\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package content
+ */
 class LandingPageNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $landingPageId)

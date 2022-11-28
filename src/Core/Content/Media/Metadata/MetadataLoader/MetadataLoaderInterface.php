@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 
 use Shopware\Core\Content\Media\MediaType\MediaType;
 
+/**
+ * @package content
+ */
 interface MetadataLoaderInterface
 {
     /**

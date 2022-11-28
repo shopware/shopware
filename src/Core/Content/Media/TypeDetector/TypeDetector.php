@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 
 /**
+ * @package content
  * @HandlerChain(
  *     serviceTag="shopware.media_type.detector",
  *     handlerInterface="TypeDetectorInterface"

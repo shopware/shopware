@@ -27,20 +27,11 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class ContextController extends StorefrontController
 {
-    /**
-     * @var AbstractContextSwitchRoute
-     */
-    private $contextSwitchRoute;
+    private AbstractContextSwitchRoute $contextSwitchRoute;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
     /**
      * @deprecated tag:v6.5.0 - $changeLanguageRoute will be removed

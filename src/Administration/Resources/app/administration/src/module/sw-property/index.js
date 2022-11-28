@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import './page/sw-property-list';
 import './page/sw-property-detail';
 import './page/sw-property-create';

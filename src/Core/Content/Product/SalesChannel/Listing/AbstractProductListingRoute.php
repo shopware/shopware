@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used for the product listing in the cms pages
+ *
+ * @package inventory
  */
 abstract class AbstractProductListingRoute
 {

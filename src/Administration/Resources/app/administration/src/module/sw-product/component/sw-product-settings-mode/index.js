@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-settings-mode.html.twig';
 import './sw-product-settings-mode.scss';
 

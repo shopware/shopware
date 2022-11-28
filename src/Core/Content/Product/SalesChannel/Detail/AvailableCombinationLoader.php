@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package inventory
+ */
 class AvailableCombinationLoader
 {
     private Connection $connection;

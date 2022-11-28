@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 
+/**
+ * @package inventory
+ */
 abstract class AbstractPropertyGroupSorter
 {
     abstract public function getDecorated(): AbstractPropertyGroupSorter;

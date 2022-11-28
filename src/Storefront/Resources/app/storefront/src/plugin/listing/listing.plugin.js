@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
 import Iterator from 'src/helper/iterator.helper';

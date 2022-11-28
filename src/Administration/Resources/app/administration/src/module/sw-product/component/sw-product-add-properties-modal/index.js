@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-add-properties-modal.html.twig';
 import './sw-product-add-properties-modal.scss';
 

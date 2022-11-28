@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-properties.html.twig';
 import './sw-product-detail-properties.scss';
 

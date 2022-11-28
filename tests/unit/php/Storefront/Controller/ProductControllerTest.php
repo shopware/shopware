@@ -455,10 +455,19 @@ class ProductControllerTestClass extends ProductController
 
     public string $forwardToRoute;
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $forwardToRouteAttributes;
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $forwardToRouteParameters;
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $this->renderStorefrontView = $view;
@@ -467,6 +476,10 @@ class ProductControllerTestClass extends ProductController
         return new Response();
     }
 
+    /**
+     * @param array<string, mixed> $attributes
+     * @param array<string, mixed> $routeParameters
+     */
     protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
         $this->forwardToRoute = $routeName;

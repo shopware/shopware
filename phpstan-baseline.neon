@@ -23893,11 +23893,6 @@ parameters:
 			path: src/Storefront/Controller/NewsletterController.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\ScriptController\\:\\:renderStorefront\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ScriptController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StoreApiProxyController\\:\\:clearRequestStackWithBackup\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Controller/StoreApiProxyController.php
@@ -23906,36 +23901,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StoreApiProxyController\\:\\:restoreRequestStack\\(\\) has parameter \\$requestStackBackup with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Controller/StoreApiProxyController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StorefrontController\\:\\:decodeParam\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StorefrontController\\:\\:forwardToRoute\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StorefrontController\\:\\:forwardToRoute\\(\\) has parameter \\$routeParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StorefrontController\\:\\:renderStorefront\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StorefrontController\\:\\:renderView\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StorefrontController\\:\\:trans\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\DependencyInjection\\\\StorefrontExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
@@ -25956,33 +25921,3 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RedisCartPersisterTest\\:\\:dataProviderInvalidData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/Order/RedisCartPersisterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\CmsControllerTestClass\\:\\:renderStorefront\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/CmsControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\ProductControllerTestClass\\:\\:forwardToRoute\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\ProductControllerTestClass\\:\\:forwardToRoute\\(\\) has parameter \\$routeParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\ProductControllerTestClass\\:\\:renderStorefront\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\ProductControllerTestClass\\:\\:\\$forwardToRouteAttributes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\ProductControllerTestClass\\:\\:\\$forwardToRouteParameters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Controller/ProductControllerTest.php

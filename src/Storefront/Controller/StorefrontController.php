@@ -39,6 +39,9 @@ abstract class StorefrontController extends AbstractController
         $this->twig = $twig;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $request = $this->container->get('request_stack')->getCurrentRequest();
@@ -59,10 +62,9 @@ abstract class StorefrontController extends AbstractController
         }
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache');
+        $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache') ?? true;
 
-        /** @deprecated tag:v6.5.0 - icon cache will be true by default. */
-        if ($iconCacheEnabled || (Feature::isActive('v6.5.0.0') && $iconCacheEnabled === null)) {
+        if ($iconCacheEnabled) {
             IconCacheTwigFilter::enable();
         }
 
@@ -70,8 +72,7 @@ abstract class StorefrontController extends AbstractController
             return $this->render($view, $event->getParameters(), new StorefrontResponse());
         });
 
-        /** @deprecated tag:v6.5.0 - icon cache will be true by default. */
-        if ($iconCacheEnabled || (Feature::isActive('v6.5.0.0') && $iconCacheEnabled === null)) {
+        if ($iconCacheEnabled) {
             IconCacheTwigFilter::disable();
         }
 
@@ -97,6 +98,9 @@ abstract class StorefrontController extends AbstractController
         return $response;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function trans(string $snippet, array $parameters = []): string
     {
         return $this->container
@@ -127,6 +131,10 @@ abstract class StorefrontController extends AbstractController
         return new Response();
     }
 
+    /**
+     * @param array<string, mixed> $attributes
+     * @param array<string, mixed> $routeParameters
+     */
     protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
         $router = $this->container->get('router');
@@ -158,6 +166,9 @@ abstract class StorefrontController extends AbstractController
         return $this->forward($route['_controller'], $attributes, $routeParameters);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function decodeParam(Request $request, string $param): array
     {
         $params = $request->get($param);
@@ -225,6 +236,9 @@ abstract class StorefrontController extends AbstractController
         }
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function renderView(string $view, array $parameters = []): string
     {
         $view = $this->getTemplateFinder()->find($view);

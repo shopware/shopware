@@ -11,11 +11,6 @@ shopware:
         default: false
         major: true
         description: "composer require for plugins"
-      - name: FEATURE_NEXT_13810
-        default: false
-        major: true
-        description: "Deprecate old promotion module"
-        # issue: NEXT-13810
       - name: FEATURE_NEXT_13250
         default: false
         major: true

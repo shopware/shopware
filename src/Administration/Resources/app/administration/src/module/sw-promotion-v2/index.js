@@ -1,7 +1,7 @@
 import './init/services.init';
 import './acl';
 
-import swPromotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
+import swPromotionState from './page/sw-promotion-v2-detail/state';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module, State } = Shopware;
@@ -19,10 +19,12 @@ Shopware.Component.register('sw-promotion-v2-cart-condition-form', () => import(
 Shopware.Component.register('sw-promotion-v2-empty-state-hero', () => import('./component/sw-promotion-v2-empty-state-hero'));
 Shopware.Component.register('sw-promotion-v2-rule-select', () => import('./component/sw-promotion-v2-rule-select'));
 Shopware.Component.register('sw-promotion-v2-sales-channel-select', () => import('./component/sw-promotion-v2-sales-channel-select'));
+Shopware.Component.register('sw-promotion-discount-component', () => import('./component/sw-promotion-discount-component'));
 Shopware.Component.register('sw-promotion-v2-detail', () => import('./page/sw-promotion-v2-detail'));
 Shopware.Component.register('sw-promotion-v2-list', () => import('./page/sw-promotion-v2-list'));
 Shopware.Component.register('sw-promotion-v2-detail-base', () => import('./view/sw-promotion-v2-detail-base'));
 Shopware.Component.register('sw-promotion-v2-conditions', () => import('./view/sw-promotion-v2-conditions'));
+Shopware.Component.register('sw-promotion-detail-discounts', () => import('./view/sw-promotion-detail-discounts'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

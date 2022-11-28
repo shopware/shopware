@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @package business-ops
+ */
 class ShippingCountryRule extends Rule
 {
     /**

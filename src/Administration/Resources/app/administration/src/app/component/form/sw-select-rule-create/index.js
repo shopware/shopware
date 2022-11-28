@@ -5,6 +5,8 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @private
+ * @package business-ops
  * @status ready
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only
@@ -16,7 +18,6 @@ const { Criteria } = Shopware.Data;
  *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-rule-create', {
     template,
 

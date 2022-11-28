@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class IsNewCustomerRuleTest extends TestCase

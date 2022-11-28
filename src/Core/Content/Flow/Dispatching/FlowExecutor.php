@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class FlowExecutor

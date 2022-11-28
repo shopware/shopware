@@ -6,7 +6,10 @@ const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { capitalizeString } = Shopware.Utils.string;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

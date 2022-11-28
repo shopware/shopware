@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class CacheFlowLoaderTest extends TestCase

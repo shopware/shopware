@@ -9,6 +9,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @package business-ops
+ */
 class RuleConstraints
 {
     public static function float(): array

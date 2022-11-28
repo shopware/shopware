@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @package business-ops
+ */
 class RuleComparison
 {
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package business-ops
+ */
 class OrderTransactionStorer extends FlowStorer
 {
     private EntityRepository $orderTransactionRepository;

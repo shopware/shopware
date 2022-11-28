@@ -1,5 +1,8 @@
 const { Component } = Shopware;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-is-net-select', 'sw-condition-operator-select', {
     computed: {
         operator: {

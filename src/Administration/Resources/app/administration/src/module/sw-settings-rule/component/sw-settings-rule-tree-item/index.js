@@ -1,6 +1,9 @@
 import template from './sw-settings-rule-tree-item.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     template,
 

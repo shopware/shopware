@@ -1,8 +1,7 @@
-/*
- * @package inventory
+/**
+ * @private
+ * @package business-ops
  */
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     TYPE_EQUALS: 'equals',
     TYPE_EQUALS_ANY: 'equalsAny',

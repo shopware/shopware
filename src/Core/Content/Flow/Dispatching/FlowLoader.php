@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 class FlowLoader extends AbstractFlowLoader

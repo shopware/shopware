@@ -33,7 +33,10 @@ Shopware.Component.register('sw-flow-app-action-modal', () => import('./componen
 Shopware.Component.register('sw-flow-leave-page-modal', () => import('./component/modals/sw-flow-leave-page-modal'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Module.register('sw-flow', {
     type: 'core',
     name: 'flow',

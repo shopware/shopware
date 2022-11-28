@@ -4,6 +4,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
+ * @package business-ops
  * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic-line-item instead.
  */
 Component.extend('sw-condition-line-item-creation-date', 'sw-condition-base-line-item', {

@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package business-ops
+ */
 class FlowRuleScope extends CartRuleScope
 {
     private OrderEntity $order;

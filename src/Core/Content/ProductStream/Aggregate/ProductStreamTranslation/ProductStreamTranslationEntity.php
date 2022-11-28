@@ -6,6 +6,9 @@ use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package business-ops
+ */
 class ProductStreamTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package business-ops
+ */
 class RuleConditionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'rule_condition';

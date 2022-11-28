@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
 
+/**
+ * @package business-ops
+ */
 class RuleConditionRegistry
 {
     /**

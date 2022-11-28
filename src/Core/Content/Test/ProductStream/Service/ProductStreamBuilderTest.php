@@ -26,6 +26,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class ProductStreamBuilderTest extends TestCase

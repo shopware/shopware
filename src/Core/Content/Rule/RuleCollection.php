@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
  * @extends EntityCollection<RuleEntity>
  */
 class RuleCollection extends EntityCollection

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  * @covers \Shopware\Core\Checkout\Customer\Rule\BillingStateRule

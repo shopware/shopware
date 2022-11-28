@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package business-ops
+ */
 class ProductStreamIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

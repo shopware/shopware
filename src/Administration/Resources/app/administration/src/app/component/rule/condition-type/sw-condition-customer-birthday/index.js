@@ -4,6 +4,7 @@ import { mapPropertyErrors } from '../../../../service/map-errors.service';
 const { Component } = Shopware;
 
 /**
+ * @package business-ops
  * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic instead.
  */
 Component.extend('sw-condition-customer-birthday', 'sw-condition-base', {

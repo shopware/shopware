@@ -5,6 +5,7 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
+ * @package business-ops
  * @description Contains some sw-base-conditions for matching all line items.
  * This component must be a child of sw-condition-tree
  * @status prototype

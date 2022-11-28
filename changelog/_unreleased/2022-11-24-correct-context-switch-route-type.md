@@ -1,6 +1,6 @@
 ---
 title: Correct context switch route type
-issue: -
+issue: NEXT-24352
 author: Jochen Manz
 author_email: j.manz@kellerkinder.de
 author_github: Jochen Manz

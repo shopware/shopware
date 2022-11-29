@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingEr
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -106,6 +105,6 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
     private function isValidSalutationId(?string $salutationId = null): bool
     {
-        return $salutationId !== null && $salutationId !== Defaults::SALUTATION;
+        return $salutationId !== null;
     }
 }

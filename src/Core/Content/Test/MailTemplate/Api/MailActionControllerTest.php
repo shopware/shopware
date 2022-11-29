@@ -368,7 +368,7 @@ class MailActionControllerTest extends TestCase
                     'paymentMethodId' => $this->getValidPaymentMethodId(),
                     'currencyId' => Defaults::CURRENCY,
                     'currencyFactor' => 1,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'transactions' => [
                         [
                             'id' => Uuid::randomHex(),
@@ -423,7 +423,7 @@ class MailActionControllerTest extends TestCase
                             'guest' => true,
                             'group' => ['name' => 'testse2323'],
                             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                            'salesChannelId' => Defaults::SALES_CHANNEL,
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
                             'defaultBillingAddressId' => $addressId,
                             'defaultShippingAddressId' => $addressId,
                             'addresses' => [

@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @package business-ops
@@ -119,7 +120,7 @@ class SetOrderStateActionTest extends TestCase
 
         $this->orderRepository->create($this->getOrderData($orderId, $context), $context);
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $subscriber = new SetOrderStateAction(
             $this->getContainer()->get(Connection::class),
@@ -349,7 +350,7 @@ class SetOrderStateActionTest extends TestCase
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'orderNumber' => Uuid::randomHex(),
                 'transactions' => [
                     [
@@ -405,7 +406,7 @@ class SetOrderStateActionTest extends TestCase
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
                         'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [

@@ -10,11 +10,6 @@ namespace Shopware\Core;
 final class Defaults
 {
     /**
-     * @deprecated tag:v6.5.0 - Don't rely on this id, the headless sales channel could be deleted.
-     */
-    public const SALES_CHANNEL = '98432def39fc4624b33213a56b8c944d';
-
-    /**
      * Don't depend on this being en-GB, the underlying language can be overwritten by the installer!
      */
     public const LANGUAGE_SYSTEM = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';

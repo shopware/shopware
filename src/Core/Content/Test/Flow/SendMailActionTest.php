@@ -90,7 +90,7 @@ class SendMailActionTest extends TestCase
         ]);
 
         $order = $orderRepository->search(new Criteria([$orderId]), $context)->first();
-        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $documentIdOlder = null;
         $documentIdNewer = null;
@@ -265,7 +265,7 @@ class SendMailActionTest extends TestCase
             ],
         ];
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -347,7 +347,7 @@ class SendMailActionTest extends TestCase
         if ($hasLname) {
             $data->set('lastName', 'AG');
         }
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test2@example.com' => 'Shopware ag 2']), $data);
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test2@example.com' => 'Shopware ag 2']), $data);
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -432,7 +432,7 @@ class SendMailActionTest extends TestCase
 
         $order = $this->getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
-        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -503,7 +503,7 @@ class SendMailActionTest extends TestCase
             'recipient' => [],
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -575,7 +575,7 @@ class SendMailActionTest extends TestCase
             ],
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
 
         $mailService = new TestEmailService();
 
@@ -659,7 +659,7 @@ class SendMailActionTest extends TestCase
             ],
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
         $translator = $this->getContainer()->get(Translator::class);
 
         if ($translator->getSnippetSetId()) {
@@ -724,7 +724,7 @@ class SendMailActionTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -772,7 +772,7 @@ class SendMailActionTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

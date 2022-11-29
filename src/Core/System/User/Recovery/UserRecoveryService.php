@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -104,7 +103,7 @@ class UserRecoveryService
 
         $salesChannelContext = $this->salesChannelContextService->get(
             new SalesChannelContextServiceParameters(
-                Defaults::SALES_CHANNEL,
+                Uuid::randomHex(),
                 Uuid::randomHex(),
                 $context->getLanguageId(),
                 null,

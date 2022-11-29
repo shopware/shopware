@@ -123,7 +123,7 @@
                                                                                                 <button type="submit"
                                                                                                         title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
                                                                                                         class="btn btn-block btn-light btn-sm"
-                                                                                                        {% if feature('FEATURE_NEXT_15707') and not address.country.shippingAvailable %} disabled="disabled"{% endif %}>
+                                                                                                        {% if not address.country.shippingAvailable %} disabled="disabled"{% endif %}>
                                                                                                     {% block component_address_address_editor_modal_list_address_action_shipping_form_text %}
                                                                                                         {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
                                                                                                     {% endblock %}

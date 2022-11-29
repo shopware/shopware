@@ -11,11 +11,6 @@ shopware:
         default: false
         major: true
         description: "composer require for plugins"
-      - name: FEATURE_NEXT_13250
-        default: false
-        major: true
-        description: "Reduce database queries if all required data for the line items is already assign"
-        # issue: NEXT-13250
       - name: FEATURE_NEXT_19501
         default: false
         major: false
@@ -35,11 +30,6 @@ shopware:
         default: false
         major: true
         description: "Refactoring of Storefront theme assets"
-      - name: FEATURE_NEXT_15707
-        default: false
-        major: false
-        description: "Delivery notice for EU geoblocking regulation"
-        # issue: NEXT-15707
       - name: FEATURE_NEXT_14360
         default: false
         major: true
@@ -50,11 +40,6 @@ shopware:
         major: true
         description: "Sanitize html of fields with AllowHtml flag"
         # issue: NEXT-15172
-      - name: FEATURE_NEXT_14001
-        default: false
-        major: true
-        description: "Newsletter DOI for registered customers"
-        # issue: NEXT-14001
       - name: FEATURE_NEXT_16200
         default: false
         major: false
@@ -65,36 +50,16 @@ shopware:
         major: true
         description: "Move storefront script tags to head with defer"
         # issue: NEXT-15917
-      - name: FEATURE_NEXT_15957
-        default: false
-        major: true
-        description: "VAT id field for guest"
-        # issue: NEXT-15957
-      - name: FEATURE_NEXT_13601
-        default: false
-        major: true
-        description: "Default transaction state for async app payments"
-        # issue: NEXT-13601
       - name: FEATURE_NEXT_16992
         default: false
         major: true
         description: "Remove page_product_detail_not_available and buy_widget_not_available block"
         # issue: NEXT-16992
-      - name: FEATURE_NEXT_7530
-        default: false
-        major: true
-        description: "Improve orders UX in Administration"
-        # issue: NEXT-7530
       - name: FEATURE_NEXT_17275
         default: false
         major: true
         description: "StorefrontRenderEvent only gets original view"
         # issue: NEXT-17275
-      - name: FEATURE_NEXT_16236
-        default: false
-        major: true
-        description: "Change customer creation behaviour on checkout/register page to opt in customer account."
-        # issue: NEXT-16236
       - name: FEATURE_NEXT_6758
         default: false
         major: true

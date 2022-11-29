@@ -268,18 +268,12 @@ export default {
             });
 
             const options = entries.map((state, index) => {
-                const option = {
+                return {
                     stateName: state.technicalName,
-                    id: null,
+                    id: index,
                     name: state.translated.name,
                     disabled: true,
                 };
-
-                if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                    option.id = index;
-                }
-
-                return option;
             });
 
             options.forEach((option) => {

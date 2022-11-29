@@ -49,11 +49,6 @@ describe(`Checkout as Guest`, () => {
 
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
 
-            if (!win.features['FEATURE_NEXT_16236']) {
-                cy.get('.register-guest-control label').scrollIntoView();
-                cy.get('.register-guest-control label').click(1, 1);
-            }
-
             cy.get('input[name="billingAddress[street]"]').type('123 Main St');
             cy.get('input[name="billingAddress[zipcode]"]').type('9876');
             cy.get('input[name="billingAddress[city]"]').type('Anytown');
@@ -181,13 +176,6 @@ describe(`Checkout as Guest`, () => {
             cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('be.visible').should('have.attr', 'required');
 
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
-
-            cy.window().then(win => {
-                if (!win.features['FEATURE_NEXT_16236']) {
-                    cy.get('.register-guest-control label').scrollIntoView();
-                    cy.get('.register-guest-control label').click(1, 1);
-                }
-            });
 
             cy.get('input[name="billingAddress[street]"]').type('123 Main St');
             cy.get('input[name="billingAddress[zipcode]"]').type('9876');

@@ -1,7 +1,6 @@
 ---
 title: Creating new order tabs changes
 issue: NEXT-23395
-flag: FEATURE_NEXT_7530
 ---
 # Administration
 * Changed in `src/module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js`

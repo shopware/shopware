@@ -144,14 +144,7 @@ describe('Search bar: Check search module with short keyword', () => {
 
         cy.contains('.sw-search-bar-item', 'Add new order').click();
 
-        cy.skipOnFeature('FEATURE_NEXT_7530',  () => {
-            cy.contains('.smart-bar__header h2', 'New order')
-                .should('be.visible');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530',  () => {
-            cy.get('.sw-order-create-initial-modal').should('be.visible');
-        });
+        cy.get('.sw-order-create-initial-modal').should('be.visible');
     });
 
     it('@searchBar @search: Search for a media using the keyword med', { tags: ['pa-system-settings'] }, () => {

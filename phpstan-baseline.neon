@@ -4705,21 +4705,6 @@ parameters:
 			path: src/Core/Content/MailTemplate/Exception/MailTransportFailedException.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\AttachmentLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$document of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\:\\:getDocument\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/AttachmentLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberConfig\\:\\:getDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriberConfig.php
@@ -11074,16 +11059,6 @@ parameters:
 			path: src/Core/Framework/App/Manifest/Xml/XmlElement.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Handler\\\\AppAsyncPaymentHandler\\:\\:buildFinalizePayload\\(\\) has parameter \\$queryParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Handler/AppAsyncPaymentHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Handler\\\\AppAsyncPaymentHandler\\:\\:buildPayPayload\\(\\) has parameter \\$requestData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Payment/Handler/AppAsyncPaymentHandler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\PayloadService\\:\\:encode\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Payment/Payload/PayloadService.php
@@ -17124,21 +17099,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Payment/AbstractAppPaymentHandlerTest.php
 
 		-
-			message: "#^Cannot call method getTargetUrl\\(\\) on Symfony\\\\Component\\\\HttpFoundation\\\\RedirectResponse\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Payment/AppAsyncPaymentHandlerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/App/Payment/AppAsyncPaymentHandlerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$key of function hash_hmac expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Payment/AppAsyncPaymentHandlerTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Framework/Test/App/Payment/AppPreparedPaymentHandlerTest.php
@@ -22298,16 +22258,6 @@ parameters:
 			path: src/Storefront/Controller/FormController.php
 
 		-
-			message: "#^Cannot call method getCity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/NewsletterController.php
-
-		-
-			message: "#^Cannot call method getZipCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/NewsletterController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\DependencyInjection\\\\StorefrontExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/DependencyInjection/StorefrontExtension.php
@@ -22758,26 +22708,6 @@ parameters:
 			path: src/Storefront/Page/Sitemap/SitemapPage.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\Account\\\\NewsletterAccountPagelet\\:\\:addMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Pagelet/Newsletter/Account/NewsletterAccountPagelet.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\Account\\\\NewsletterAccountPagelet\\:\\:getMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Pagelet/Newsletter/Account/NewsletterAccountPagelet.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\Account\\\\NewsletterAccountPagelet\\:\\:setMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Pagelet/Newsletter/Account/NewsletterAccountPagelet.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\Account\\\\NewsletterAccountPagelet\\:\\:\\$messages type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Pagelet/Newsletter/Account/NewsletterAccountPagelet.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
@@ -22835,26 +22765,6 @@ parameters:
 		-
 			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
 			count: 1
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NewsletterControllerTest\\:\\:\\$customerData type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
-			count: 1
 			path: src/Storefront/Test/Controller/ProductControllerTest.php
 
 		-
@@ -22881,31 +22791,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\RegisterControllerTest\\:\\:getMailRecipientStruct\\(\\) has parameter \\$customerData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ScriptControllerTest\\:\\:getRegistrationData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SearchControllerTest\\:\\:getProviderInvalidTerms\\(\\) return type has no value type specified in iterable type iterable\\.$#"

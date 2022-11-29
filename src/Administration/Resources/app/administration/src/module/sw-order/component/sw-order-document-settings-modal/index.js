@@ -48,8 +48,6 @@ export default {
             documentNumberPreview: false,
             features: {
                 uploadFileSizeLimit: 52428800,
-                // @feature-deprecated (flag:FEATURE_NEXT_7530) tag:v6.5.0 - Will be removed, use fileAcceptTypes
-                fileTypes: ['application/pdf'],
                 fileAcceptTypes: 'application/pdf',
             },
             showMediaModal: false,
@@ -64,7 +62,7 @@ export default {
         },
 
         modalTitle() {
-            if (this.feature.isActive('FEATURE_NEXT_7530') && this.currentDocumentType) {
+            if (this.currentDocumentType) {
                 const documentTypeName = this.currentDocumentType?.translated?.name || this.currentDocumentType?.name;
                 return `${this.$tc('sw-order.documentModal.modalTitle')} - ${documentTypeName}`;
             }

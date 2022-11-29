@@ -81,14 +81,7 @@ describe('Order: Test promotions in existing orders', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
-            cy.contains('Edit').click();
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            page.changeActiveTab('details');
-        });
+        page.changeActiveTab('details');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
@@ -100,9 +93,7 @@ describe('Order: Test promotions in existing orders', () => {
         cy.wait('@orderAddPromotionCall').its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Discount GET5 has been added');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            page.changeActiveTab('general');
-        });
+        page.changeActiveTab('general');
 
         cy.contains('.sw-data-grid__row--1', 'GET5')
             .scrollIntoView();
@@ -144,30 +135,15 @@ describe('Order: Test promotions in existing orders', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
-            cy.contains('Edit').click();
-        });
-
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            page.changeActiveTab('details');
-        });
+        page.changeActiveTab('details');
 
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-summary__switch-promotions')
-                .scrollIntoView()
-                .click();
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
-                .scrollIntoView()
-                .click();
-        });
+        cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
+            .scrollIntoView()
+            .click();
 
         cy.wait('@toggleAutomaticPromotionsCall')
             .its('response.statusCode')
@@ -175,28 +151,18 @@ describe('Order: Test promotions in existing orders', () => {
 
         cy.awaitAndCheckNotification('Discount Automatic promotion has been added');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            page.changeActiveTab('general');
-        });
+        page.changeActiveTab('general');
 
         cy.contains('.sw-data-grid__row--1', 'Automatic promotion')
             .scrollIntoView();
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            page.changeActiveTab('details');
-        });
+        page.changeActiveTab('details');
 
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('not.be.checked');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-summary__switch-promotions').click();
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
-                .scrollIntoView()
-                .click();
-        });
+        cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
+            .scrollIntoView()
+            .click();
 
         cy.wait('@toggleAutomaticPromotionsCall')
             .its('response.statusCode')

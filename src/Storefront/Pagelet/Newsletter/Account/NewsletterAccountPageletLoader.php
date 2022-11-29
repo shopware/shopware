@@ -17,9 +17,6 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
- */
 class NewsletterAccountPageletLoader
 {
     private EventDispatcherInterface $eventDispatcher;
@@ -34,6 +31,9 @@ class NewsletterAccountPageletLoader
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,

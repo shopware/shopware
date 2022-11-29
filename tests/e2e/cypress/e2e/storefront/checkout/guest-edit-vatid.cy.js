@@ -6,11 +6,6 @@ let product = {};
  * @package checkout
  */
 describe('Checkout as Guest', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_15957');
-    });
-
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category')
@@ -84,12 +79,6 @@ describe('Checkout as Guest', () => {
             cy.get(vatIdsSelector).type('55555');
 
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
-            cy.window().then(win => {
-                if (!win.features['FEATURE_NEXT_16236']) {
-                    cy.get('.register-guest-control label').scrollIntoView();
-                    cy.get('.register-guest-control label').click(1, 1);
-                }
-            });
 
             cy.get('input[name="billingAddress[street]"]').type('123 Main St');
             cy.get('input[name="billingAddress[zipcode]"]').type('9876');

@@ -193,8 +193,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should render timeframe field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -263,8 +261,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 ]
             ];
 
-            global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-
             const wrapper = await createWrapper();
 
             await wrapper.setProps({
@@ -287,8 +283,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should console.error for invalid timeframe', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

@@ -103,19 +103,10 @@ describe('Flow builder: generate document testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-base__document-grid').scrollIntoView().then(() => {
-                cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
-                cy.contains('.sw-order-detail-base__document-grid .sw-data-grid__row--0', 'Invoice');
-            });
-        });
+        cy.get('.sw-tabs-item[title="Documents"]').click();
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-tabs-item[title="Documents"]').click();
-            cy.get('.sw-loader').should('not.exist');
-
-            cy.get('.sw-data-grid__row--0').should('be.visible');
-            cy.contains('.sw-data-grid__row--0', 'Invoice');
-        });
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.contains('.sw-data-grid__row--0', 'Invoice');
     });
 });

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -42,9 +41,6 @@ class AccountOverviewPageLoader
      */
     private $customerRoute;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
-     */
     private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
 
     /**
@@ -88,11 +84,9 @@ class AccountOverviewPageLoader
             $page->setNewestOrder($order);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_14001')) {
-            $newslAccountPagelet = $this->newsletterAccountPageletLoader->load($request, $salesChannelContext, $customer);
+        $newslAccountPagelet = $this->newsletterAccountPageletLoader->load($request, $salesChannelContext, $customer);
 
-            $page->setNewsletterAccountPagelet($newslAccountPagelet);
-        }
+        $page->setNewsletterAccountPagelet($newslAccountPagelet);
 
         $this->eventDispatcher->dispatch(
             new AccountOverviewPageLoadedEvent($page, $salesChannelContext, $request)

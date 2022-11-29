@@ -195,7 +195,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
         },
 
         getCart({ commit }, { salesChannelId, contextToken }: { salesChannelId: string, contextToken: string }) {
-            if (Shopware.Feature.isActive('FEATURE_NEXT_7530') && (`${contextToken}`).length !== 32) {
+            if ((`${contextToken}`).length !== 32) {
                 throw new Error('Invalid context token');
             }
 
@@ -210,7 +210,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
         },
 
         cancelCart(_, { salesChannelId, contextToken }: { salesChannelId: string, contextToken: string }) {
-            if (Shopware.Feature.isActive('FEATURE_NEXT_7530') && (`${contextToken}`).length !== 32) {
+            if ((`${contextToken}`).length !== 32) {
                 throw new Error('Invalid context token');
             }
 

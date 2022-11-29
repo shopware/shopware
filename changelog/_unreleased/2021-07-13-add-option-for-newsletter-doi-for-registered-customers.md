@@ -1,8 +1,6 @@
 ---
 title: Add option for newsletter DOI for registered customers
 issue: NEXT-14001
-flag: FEATURE_NEXT_14001
- 
 ---
 # Core
 * Deprecated property `newsletter` in `Core/Checkout/Customer/CustomerEntity.php`.

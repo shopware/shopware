@@ -32,11 +32,9 @@
                     {% endblock %}
 
                     {% block component_account_register_create_account %}
-                    {% if feature('FEATURE_NEXT_16236') %}
-                        <input type="hidden"
-                               name="createCustomerAccount"
-                               value="1">
-                    {% endif %}
+                    <input type="hidden"
+                           name="createCustomerAccount"
+                           value="1">
                     {% endblock %}
 
                     {% block component_account_register_form_action %}

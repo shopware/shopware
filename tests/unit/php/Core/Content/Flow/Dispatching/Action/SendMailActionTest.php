@@ -135,6 +135,7 @@ class SendMailActionTest extends TestCase
             'mailTemplateId' => $mailTemplateId,
             'recipient' => ['type' => 'customer'],
             'documentTypeIds' => null,
+            'replyTo' => 'foo@example.com',
         ]);
 
         $expected = [
@@ -150,6 +151,7 @@ class SendMailActionTest extends TestCase
                 'subject' => null,
                 'mediaIds' => [],
                 'senderName' => null,
+                'senderMail' => 'foo@example.com',
             ],
             'context' => Context::createDefaultContext(),
         ];

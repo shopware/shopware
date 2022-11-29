@@ -35,6 +35,9 @@ Component.register('sw-flow-mail-send-modal', {
             selectedRecipient: null,
             mailTemplateIdError: null,
             recipientGridError: null,
+            showReplyToField: false,
+            replyTo: null,
+            replyToError: null,
         };
     },
 
@@ -183,6 +186,11 @@ Component.register('sw-flow-mail-send-modal', {
                     this.showRecipientEmails = true;
                 }
 
+                if (config.replyTo) {
+                    this.showReplyToField = true;
+                    this.replyTo = config.replyTo;
+                }
+
                 this.mailTemplateId = config.mailTemplateId;
                 this.documentTypeIds = config.documentTypeIds;
             }
@@ -234,9 +242,12 @@ Component.register('sw-flow-mail-send-modal', {
 
         onAddAction() {
             this.mailTemplateIdError = this.fieldError(this.mailTemplateId);
+            if (this.showReplyToField) {
+                this.replyToError = this.setMailError(this.replyTo);
+            }
             this.recipientGridError = this.isRecipientGridError();
 
-            if (this.mailTemplateIdError || this.recipientGridError) {
+            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError) {
                 return;
             }
 
@@ -251,6 +262,7 @@ Component.register('sw-flow-mail-send-modal', {
                         type: this.mailRecipient,
                         data: this.getRecipientData(),
                     },
+                    replyTo: this.replyTo,
                 },
             };
 
@@ -427,6 +439,24 @@ Component.register('sw-flow-mail-send-modal', {
 
         allowDeleteRecipient(itemIndex) {
             return itemIndex !== this.recipients.length - 1;
+        },
+
+        changeShowReplyToField(show) {
+            if (!show) {
+                this.replyToError = null;
+                this.replyTo = null;
+            }
+        },
+
+        buildReplyToTooltip(snippet) {
+            const route = { name: 'sw.settings.basic.information.index' };
+            const routeData = this.$router.resolve(route);
+
+            const data = {
+                settingsLink: routeData.href,
+            };
+
+            return this.$tc(snippet, 0, data);
         },
     },
 });

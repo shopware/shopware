@@ -6,6 +6,25 @@
     :closable="false"
     @modal-close="onClose"
 >
+    <sw-switch-field
+        v-model="showReplyToField"
+        class="sw-flow-mail-send-modal__use-different-reply-to"
+        :label="$tc('sw-flow.modals.mail.useDifferentReplyToLabel')"
+        :help-text="buildReplyToTooltip('sw-flow.modals.mail.tooltipDifferentReplyTo')"
+        @change="changeShowReplyToField"
+    />
+
+    <sw-text-field
+        v-if="showReplyToField"
+        v-model="replyTo"
+        class="sw-flow-mail-send-modal__reply-to"
+        :label="$tc('sw-flow.modals.mail.labelReplyTo')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
+        :error="replyToError"
+        required
+        @change="replyToError = null"
+    />
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient %}
     <sw-single-select

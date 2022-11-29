@@ -228,6 +228,10 @@ class SendMailAction extends FlowAction implements DelayableAction
             $data->set('binAttachments', $attachments);
         }
 
+        if (!empty($eventConfig['replyTo'])) {
+            $data->set('senderMail', $eventConfig['replyTo']);
+        }
+
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $event));
 
         if ($data->has('templateId')) {
@@ -312,6 +316,10 @@ class SendMailAction extends FlowAction implements DelayableAction
 
         if (!empty($attachments)) {
             $data->set('binAttachments', $attachments);
+        }
+
+        if (!empty($eventConfig['replyTo'])) {
+            $data->set('senderMail', $eventConfig['replyTo']);
         }
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));

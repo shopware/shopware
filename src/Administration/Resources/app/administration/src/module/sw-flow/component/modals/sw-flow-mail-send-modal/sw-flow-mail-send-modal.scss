@@ -33,4 +33,11 @@
             overflow: hidden;
         }
     }
+
+    &__use-different-reply-to {
+        &.sw-field--switch {
+            display: inline-block;
+            margin-top: 0;
+        }
+    }
 }

@@ -107,7 +107,7 @@
                 class="sw-order-general-info__order-state-payment"
                 :transition-options="paymentStateOptions"
                 state-type="order_transaction"
-                :rounded-style="true"
+                rounded-style
                 :placeholder="transaction.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineTransactionState')"
                 :background-style="backgroundStyle('order_transaction')"
@@ -128,7 +128,7 @@
                 class="sw-order-general-info__order-state-delivery"
                 :transition-options="deliveryStateOptions"
                 state-type="order_delivery"
-                :rounded-style="true"
+                rounded-style
                 :placeholder="delivery.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineDeliveryState')"
                 :background-style="backgroundStyle('order_delivery')"
@@ -148,7 +148,7 @@
                 }"
                 class="sw-order-general-info__order-state-order"
                 :transition-options="orderStateOptions"
-                :rounded-style="true"
+                rounded-style
                 state-type="order"
                 :placeholder="order.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineOrderState')"

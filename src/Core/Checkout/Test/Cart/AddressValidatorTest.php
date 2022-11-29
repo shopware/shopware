@@ -185,6 +185,12 @@ class AddressValidatorTest extends TestCase
     private function getCustomerAddressMock(?string $salutationId = null): CustomerAddressEntity
     {
         $address = new CustomerAddressEntity();
+        $address->setId(Uuid::randomHex());
+        $address->setFirstName('Foo');
+        $address->setLastName('Foo');
+        $address->setZipcode('12345');
+        $address->setCity('Foo');
+
         if ($salutationId) {
             $address->setSalutationId($salutationId);
         }

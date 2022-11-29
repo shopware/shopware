@@ -35,6 +35,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="sales_channel.repository" />
         </service>
 
         <service id="Shopware\Core\System\User\Api\UserRecoveryController" public="true">

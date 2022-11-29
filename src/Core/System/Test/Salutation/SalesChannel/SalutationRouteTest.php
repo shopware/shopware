@@ -46,9 +46,9 @@ class SalutationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertSame(3, $response['total']);
+        static::assertSame(4, $response['total']);
         static::assertArrayHasKey('salutationKey', $response['elements'][0]);
         static::assertArrayHasKey('displayName', $response['elements'][0]);
         static::assertArrayHasKey('letterName', $response['elements'][0]);
@@ -67,9 +67,9 @@ class SalutationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertSame(3, $response['total']);
+        static::assertSame(4, $response['total']);
         static::assertArrayHasKey('id', $response['elements'][0]);
         static::assertArrayNotHasKey('displayName', $response['elements'][0]);
         static::assertArrayNotHasKey('letterName', $response['elements'][0]);
@@ -86,7 +86,7 @@ class SalutationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertArrayHasKey('id', $response['elements'][0]);

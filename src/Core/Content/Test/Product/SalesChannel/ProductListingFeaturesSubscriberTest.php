@@ -436,7 +436,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $eventChannel = new ProductListingCriteriaEvent(
             $request,
             $criteriaChannel,
-            Generator::createSalesChannelContext(null, null, null, $this->salesChannel)
+            Generator::createSalesChannelContext(null, null, $this->salesChannel)
         );
 
         $this->eventDispatcher->dispatch($eventChannel);

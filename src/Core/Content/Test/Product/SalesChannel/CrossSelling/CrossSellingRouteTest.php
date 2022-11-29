@@ -34,30 +34,17 @@ class CrossSellingRouteTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var ProductCrossSellingRoute
-     */
-    private $route;
+    private ProductCrossSellingRoute $route;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
     public function setUp(): void
     {
         $this->salesChannelContext = Generator::createSalesChannelContext(
-            null,
             null,
             null,
             (new SalesChannelEntity())->assign([

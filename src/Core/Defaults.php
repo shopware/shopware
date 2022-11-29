@@ -19,11 +19,6 @@ final class Defaults
      */
     public const LANGUAGE_SYSTEM = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
-    /**
-     * @deprecated tag:v6.5.0 - Use sales channel default customer group instead
-     */
-    public const FALLBACK_CUSTOMER_GROUP = 'cfbd5018d38d41d8adca10d94fc8bdd6';
-
     public const LIVE_VERSION = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 
     /**

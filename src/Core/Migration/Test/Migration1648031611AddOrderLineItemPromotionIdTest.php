@@ -135,7 +135,7 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
                 PromotionDiscountEntity::SCOPE_CART,
                 $this->ids->get('promotion-code'),
                 $this->getContainer(),
-                Generator::createSalesChannelContext($context, null, null, $salesChannel)
+                Generator::createSalesChannelContext($context, null, $salesChannel)
             );
         }
 

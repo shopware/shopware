@@ -158,7 +158,6 @@ class BaseContextFactory extends AbstractBaseContextFactory
             $salesChannel,
             $currency,
             $customerGroup,
-            $customerGroup,
             $taxRules,
             $payment,
             $shippingMethod,

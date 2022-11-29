@@ -48,7 +48,6 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
             $this->salesChannelEntity,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
-            new CustomerGroupEntity(),
             new TaxCollection(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),

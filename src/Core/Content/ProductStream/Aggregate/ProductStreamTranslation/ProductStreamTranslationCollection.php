@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package business-ops
  * @extends EntityCollection<ProductStreamTranslationEntity>
  */
 class ProductStreamTranslationCollection extends EntityCollection

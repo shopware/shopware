@@ -23,6 +23,9 @@ use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
+/**
+ * @package business-ops
+ */
 trait OrderFixture
 {
     use ContainerAwareTrait;

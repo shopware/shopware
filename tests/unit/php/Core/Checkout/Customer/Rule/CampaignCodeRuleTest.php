@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  * @covers \Shopware\Core\Checkout\Customer\Rule\CampaignCodeRule

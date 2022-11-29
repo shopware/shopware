@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
+/**
+ * @package business-ops
+ */
 class FlowSendMailActionEvent implements ShopwareEvent
 {
     private DataBag $dataBag;

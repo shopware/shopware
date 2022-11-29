@@ -29,6 +29,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleAreaUpdater implements EventSubscriberInterface

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class CustomerAwareEvent implements CustomerAware

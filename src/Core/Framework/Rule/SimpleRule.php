@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+/**
+ * @package business-ops
+ */
 class SimpleRule extends Rule
 {
     protected bool $match = false;

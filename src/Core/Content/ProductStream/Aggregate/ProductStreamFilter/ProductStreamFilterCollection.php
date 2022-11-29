@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package business-ops
  * @extends EntityCollection<ProductStreamFilterEntity>
  */
 class ProductStreamFilterCollection extends EntityCollection

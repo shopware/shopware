@@ -6,6 +6,9 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package business-ops
+ */
 class FlowState
 {
     public string $flowId;

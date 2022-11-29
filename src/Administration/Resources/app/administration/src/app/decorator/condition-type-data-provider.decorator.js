@@ -1,6 +1,9 @@
 const { Application, Feature } = Shopware;
 const isMajorFlagActive = Feature.isActive('v6.5.0.0');
 
+/**
+ * @package business-ops
+ */
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
         component: 'sw-condition-date-range',

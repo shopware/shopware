@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RuleConfigControllerTest extends TestCase

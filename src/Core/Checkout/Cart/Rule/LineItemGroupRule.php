@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @package business-ops
+ */
 class LineItemGroupRule extends FilterRule
 {
     protected string $groupId;

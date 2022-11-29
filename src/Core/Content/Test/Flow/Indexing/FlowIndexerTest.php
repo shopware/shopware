@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class FlowIndexerTest extends TestCase

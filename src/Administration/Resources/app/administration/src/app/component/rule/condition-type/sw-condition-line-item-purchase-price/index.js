@@ -4,6 +4,9 @@ import './sw-condition-line-item-purchase-price.scss';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', {
     template,
 

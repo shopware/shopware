@@ -1,6 +1,9 @@
 import ApiService from '../api.service';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default class RuleConditionsConfigApiService extends ApiService {
     constructor(httpClient, loginService) {
         super(httpClient, loginService, null, 'application/json');

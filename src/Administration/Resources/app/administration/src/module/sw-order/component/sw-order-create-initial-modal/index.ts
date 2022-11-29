@@ -13,6 +13,10 @@ import type {
 
 import { LineItemType } from '../../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Mixin, Service } = Shopware;
 
 interface PromotionCodeItem {

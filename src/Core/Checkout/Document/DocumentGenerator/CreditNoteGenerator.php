@@ -16,6 +16,8 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed, use CreditNoteRenderer instead
  */
 class CreditNoteGenerator implements DocumentGeneratorInterface

@@ -3,6 +3,10 @@ import './sw-order-create-general-info.scss';
 import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 
 /**

@@ -3,6 +3,9 @@ import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individua
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
 
+/**
+ * @package customer-order
+ */
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     let stubs;
 

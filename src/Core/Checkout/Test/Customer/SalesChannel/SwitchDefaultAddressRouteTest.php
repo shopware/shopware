@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

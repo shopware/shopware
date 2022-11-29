@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Page\Page;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed
  */
 class DocumentPage extends Page

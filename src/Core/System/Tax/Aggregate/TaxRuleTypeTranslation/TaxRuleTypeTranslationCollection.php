@@ -5,6 +5,8 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<TaxRuleTypeTranslationEntity>
  */
 class TaxRuleTypeTranslationCollection extends EntityCollection

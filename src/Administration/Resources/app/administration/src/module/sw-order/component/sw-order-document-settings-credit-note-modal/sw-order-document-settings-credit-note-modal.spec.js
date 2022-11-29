@@ -7,6 +7,10 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 
+/**
+ * @package customer-order
+ */
+
 const orderFixture = {
     id: 'order1',
     documents: [

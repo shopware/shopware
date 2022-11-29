@@ -15,6 +15,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed
  */
 class NewsletterRegisterPageLoader

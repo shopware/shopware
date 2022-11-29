@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<OrderDeliveryPositionEntity>
  */
 class OrderDeliveryPositionCollection extends EntityCollection

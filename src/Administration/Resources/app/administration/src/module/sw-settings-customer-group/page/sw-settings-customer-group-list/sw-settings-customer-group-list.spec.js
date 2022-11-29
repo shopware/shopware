@@ -4,6 +4,9 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

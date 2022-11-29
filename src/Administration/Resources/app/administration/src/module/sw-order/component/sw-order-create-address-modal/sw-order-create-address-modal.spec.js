@@ -5,6 +5,10 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-card';
 
+/**
+ * @package customer-order
+ */
+
 const { Classes: { ShopwareError } } = Shopware;
 
 async function createWrapper() {

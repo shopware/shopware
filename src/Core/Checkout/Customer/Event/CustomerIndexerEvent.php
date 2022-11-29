@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package customer-order
+ */
 class CustomerIndexerEvent extends NestedEvent
 {
     /**

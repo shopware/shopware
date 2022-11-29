@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-base-info';
 
+/**
+ * @package customer-order
+ */
+
 const responses = global.repositoryFactoryMock.responses;
 
 responses.addResponse({

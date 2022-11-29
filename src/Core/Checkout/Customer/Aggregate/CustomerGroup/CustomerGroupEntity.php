@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @package customer-order
+ */
 class CustomerGroupEntity extends Entity
 {
     use EntityIdTrait;

@@ -23,6 +23,9 @@ const addressFormat = [
     ['address/country']
 ];
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(privileges = [], customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

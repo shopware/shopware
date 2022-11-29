@@ -4,6 +4,10 @@ import './sw-settings-tax-list.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package customer-order
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-tax-list', {
     template,

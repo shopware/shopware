@@ -25,6 +25,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DeleteUnusedGuestCustomerServiceTest extends TestCase

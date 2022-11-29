@@ -1,6 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/page/sw-settings-tax-list';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

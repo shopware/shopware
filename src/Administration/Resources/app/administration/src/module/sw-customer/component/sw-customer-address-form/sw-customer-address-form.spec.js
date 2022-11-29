@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-address-form';
 
+/**
+ * @package customer-order
+ */
+
 async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;
 

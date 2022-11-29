@@ -1,6 +1,10 @@
 import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

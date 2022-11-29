@@ -2,6 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-order/component/sw-order-create-details-footer';
 
+/**
+ * @package customer-order
+ */
+
 async function createWrapper() {
     const localVue = createLocalVue();
 

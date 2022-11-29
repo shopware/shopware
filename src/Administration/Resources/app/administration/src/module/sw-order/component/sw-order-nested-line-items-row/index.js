@@ -4,6 +4,8 @@ import './sw-order-nested-line-items-row.scss';
 const { Component } = Shopware;
 
 /**
+ * @package customer-order
+ *
  * @private
  */
 Component.register('sw-order-nested-line-items-row', {

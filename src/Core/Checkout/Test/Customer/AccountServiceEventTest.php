@@ -27,6 +27,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class AccountServiceEventTest extends TestCase

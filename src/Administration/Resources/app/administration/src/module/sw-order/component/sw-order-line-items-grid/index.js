@@ -1,6 +1,10 @@
 import template from './sw-order-line-items-grid.html.twig';
 import './sw-order-line-items-grid.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Service, Utils } = Shopware;
 const { get, format } = Utils;
 

@@ -2,6 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list';
 import 'src/app/component/base/sw-card';
 
+/**
+ * @package customer-order
+ */
+
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

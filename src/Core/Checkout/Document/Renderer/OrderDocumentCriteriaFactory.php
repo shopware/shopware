@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
+/**
+ * @package customer-order
+ */
 final class OrderDocumentCriteriaFactory
 {
     /**

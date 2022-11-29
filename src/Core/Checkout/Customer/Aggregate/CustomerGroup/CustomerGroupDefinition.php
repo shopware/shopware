@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package customer-order
+ */
 class CustomerGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_group';

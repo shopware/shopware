@@ -1,6 +1,10 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

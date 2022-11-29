@@ -1,5 +1,9 @@
 import template from './sw-order-document-settings-delivery-note-modal.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
 
 Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-document-settings-modal', {

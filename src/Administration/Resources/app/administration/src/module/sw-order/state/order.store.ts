@@ -15,6 +15,10 @@ import type {
     ShippingMethod,
 } from '../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Service } = Shopware;
 
 function filterEmptyLineItems(items: LineItem[]) {

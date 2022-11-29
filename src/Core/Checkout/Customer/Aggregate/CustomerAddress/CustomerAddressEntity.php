@@ -10,6 +10,9 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @package customer-order
+ */
 class CustomerAddressEntity extends Entity
 {
     use EntityIdTrait;

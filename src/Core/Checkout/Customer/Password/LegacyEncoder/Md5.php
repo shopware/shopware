@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Password\LegacyEncoder;
 
+/**
+ * @package customer-order
+ */
 class Md5 implements LegacyEncoderInterface
 {
     public function getName(): string

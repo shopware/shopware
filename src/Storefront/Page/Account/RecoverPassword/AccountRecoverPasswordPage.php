@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Page\Account\RecoverPassword;
 
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package customer-order
+ */
 class AccountRecoverPasswordPage extends Page
 {
     protected ?string $hash = null;

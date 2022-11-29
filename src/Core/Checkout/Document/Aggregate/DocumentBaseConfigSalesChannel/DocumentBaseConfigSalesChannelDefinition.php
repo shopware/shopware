@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package customer-order
+ */
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'document_base_config_sales_channel';

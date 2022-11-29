@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Order;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package customer-order
+ */
 class OrderException extends HttpException
 {
     public const ORDER_MISSING_ORDER_ASSOCIATION_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_ASSOCIATION';

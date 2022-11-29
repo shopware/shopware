@@ -29,6 +29,8 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute

@@ -2,6 +2,10 @@ import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import swOrderDetailState from '../../state/order-detail.store';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();

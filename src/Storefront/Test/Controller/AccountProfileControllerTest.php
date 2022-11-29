@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class AccountProfileControllerTest extends TestCase

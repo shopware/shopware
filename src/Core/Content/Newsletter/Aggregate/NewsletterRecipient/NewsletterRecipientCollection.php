@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<NewsletterRecipientEntity>
  */
 class NewsletterRecipientCollection extends EntityCollection

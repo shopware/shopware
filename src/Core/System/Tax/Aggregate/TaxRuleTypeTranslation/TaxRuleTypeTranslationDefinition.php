@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 
+/**
+ * @package customer-order
+ */
 class TaxRuleTypeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'tax_rule_type_translation';

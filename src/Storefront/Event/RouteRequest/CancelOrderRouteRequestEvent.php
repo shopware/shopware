@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Event\RouteRequest;
 
+/**
+ * @package customer-order
+ */
 class CancelOrderRouteRequestEvent extends RouteRequestEvent
 {
 }

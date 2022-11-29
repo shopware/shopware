@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPo
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<OrderTransactionCaptureRefundPositionEntity>
  */
 class OrderTransactionCaptureRefundPositionCollection extends EntityCollection

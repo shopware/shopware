@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 
+/**
+ * @package customer-order
+ */
 class DocumentConfigurationFactory
 {
     private function __construct()

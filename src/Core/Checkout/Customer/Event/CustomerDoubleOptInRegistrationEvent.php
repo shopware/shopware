@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware
 {
     public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';

@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

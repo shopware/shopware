@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package customer-order
+ */
 class DocumentGenerationException extends ShopwareHttpException
 {
     public function __construct(string $message = '')

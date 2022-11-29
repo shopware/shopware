@@ -7,6 +7,10 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 function getCollection(entity, collection) {
     return new EntityCollection(
         `/${entity}`,

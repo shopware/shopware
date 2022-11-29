@@ -22,6 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
+/**
+ * @package customer-order
+ */
 class DocumentBaseConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'document_base_config';

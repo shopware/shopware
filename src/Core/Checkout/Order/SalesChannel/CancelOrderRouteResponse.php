@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+/**
+ * @package customer-order
+ */
 class CancelOrderRouteResponse extends StoreApiResponse
 {
     /**

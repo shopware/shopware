@@ -5,6 +5,10 @@ import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 const orderFixture = {
     id: '1234',
     documents: [],

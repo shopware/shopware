@@ -5,6 +5,10 @@ import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/structure/sw-page';
 
+/**
+ * @package customer-order
+ */
+
 const remindPaymentMock = jest.fn(() => {
     return Promise.resolve();
 });

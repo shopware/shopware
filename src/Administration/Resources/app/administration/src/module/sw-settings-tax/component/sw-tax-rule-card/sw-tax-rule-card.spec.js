@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/component/sw-tax-rule-card';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-tax-rule-card'), {
         propsData: {

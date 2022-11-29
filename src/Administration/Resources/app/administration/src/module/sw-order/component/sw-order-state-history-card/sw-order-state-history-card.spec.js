@@ -2,6 +2,9 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-state-history-card';
 import 'src/module/sw-order/component/sw-order-state-change-modal';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(privileges = []) {
     const orderProp = {
         transactions: [],

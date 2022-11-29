@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

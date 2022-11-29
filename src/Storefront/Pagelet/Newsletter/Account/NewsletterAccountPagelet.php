@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Storefront\Pagelet\Pagelet;
 
 /**
+ * @package customer-order
+ *
  * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
  */
 class NewsletterAccountPagelet extends Pagelet

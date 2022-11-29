@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Newsletter\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package customer-order
+ */
 class NewsletterRecipientIndexerEvent extends NestedEvent
 {
     private Context $context;

@@ -1,5 +1,9 @@
 import template from './sw-settings-newsletter.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

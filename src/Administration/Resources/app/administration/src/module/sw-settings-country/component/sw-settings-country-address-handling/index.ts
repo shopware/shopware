@@ -48,6 +48,8 @@ const DefaultAddressFormat = [
 ] as string[][];
 
 /**
+ * @package customer-order
+ *
  * @private
  */
 Component.register('sw-settings-country-address-handling', {

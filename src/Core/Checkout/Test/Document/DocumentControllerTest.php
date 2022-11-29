@@ -37,6 +37,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentControllerTest extends TestCase

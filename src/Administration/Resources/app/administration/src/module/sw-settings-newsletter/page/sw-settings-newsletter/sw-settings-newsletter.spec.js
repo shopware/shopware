@@ -13,6 +13,10 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-help-text';
 
+/**
+ * @package customer-order
+ */
+
 const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',

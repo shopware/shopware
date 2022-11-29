@@ -1,6 +1,10 @@
 import template from './sw-order-delivery-metadata.html.twig';
 import './sw-order-delivery-metadata.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

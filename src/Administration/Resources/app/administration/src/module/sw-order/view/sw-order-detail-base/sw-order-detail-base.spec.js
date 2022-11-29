@@ -1,6 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/view/sw-order-detail-base';
 
+/**
+ * @package customer-order
+ */
+
 const orderMock = {
     shippingCosts: {
         calculatedTaxes: [],

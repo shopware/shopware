@@ -13,6 +13,10 @@ import 'src/module/sw-customer/component/sw-customer-address-form';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/form/field-base/sw-base-field';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 

@@ -1,6 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-address-modal';
 
+/**
+ * @package customer-order
+ */
+
 async function createWrapper() {
     const localVue = createLocalVue();
 

@@ -3,6 +3,10 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
+/**
+ * @package customer-order
+ */
+
 function createCustomSnippetApiService() {
     const client = createHTTPClient();
     const clientMock = new MockAdapter(client);

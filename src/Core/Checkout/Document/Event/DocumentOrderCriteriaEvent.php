@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed
  */
 class DocumentOrderCriteriaEvent extends Event

@@ -113,7 +113,7 @@
     "@babel/plugin-transform-runtime": "7.17.12",
     "@babel/preset-env": "7.17.12",
     "@babel/register": "7.17.7",
-    "@shopware-ag/jest-preset-sw6-admin": "4.0.0",
+    "@shopware-ag/jest-preset-sw6-admin": "4.0.1",
     "@testing-library/jest-dom": "5.16.5",
     "@types/lodash": "4.14.182",
     "assets-webpack-plugin": "3.9.12",
@@ -189,7 +189,7 @@
     "xml2js": "0.4.23"
   },
   "engines": {
-    "node": "^16.0.0",
+    "node": "^18.0.0",
     "npm": "^8.0.0"
   },
   "browserslist": [

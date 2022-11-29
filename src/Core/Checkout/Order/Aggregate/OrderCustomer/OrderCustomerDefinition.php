@@ -22,6 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @package customer-order
+ */
 class OrderCustomerDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order_customer';

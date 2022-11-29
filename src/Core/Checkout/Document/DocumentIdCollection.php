@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package customer-order
+ *
  * @extends Collection<DocumentIdStruct>
  */
 class DocumentIdCollection extends Collection

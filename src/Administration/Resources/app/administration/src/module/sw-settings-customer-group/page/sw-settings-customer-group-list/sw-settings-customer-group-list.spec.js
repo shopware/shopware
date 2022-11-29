@@ -4,6 +4,10 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-settings-customer-group-list', swSettingsCustomerGroupList);
 
 async function createWrapper(privileges = []) {

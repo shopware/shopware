@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package customer-order
+ */
 class InvalidDocumentException extends ShopwareHttpException
 {
     public function __construct(string $documentId)

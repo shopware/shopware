@@ -1,5 +1,9 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Component.getComponentHelper();

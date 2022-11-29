@@ -1,5 +1,9 @@
 import template from './sw-settings-tax-rule-type-individual-states.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 

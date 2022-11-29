@@ -4,6 +4,10 @@ import errorConfig from '../../error-config.json';
 
 import CUSTOMER from '../../constant/sw-customer.constant';
 
+/**
+ * @package customer-order
+ */
+
 const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;

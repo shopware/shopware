@@ -1,3 +1,7 @@
+/**
+ * @package customer-order
+ */
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-newsletter', () => import('./page/sw-settings-newsletter'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */

@@ -9,6 +9,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * Triggered when the AccountProfilePage is loaded
  *
+ * @package customer-order
+ *
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0

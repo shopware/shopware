@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import SwCustomerDefaultAddresses from 'src/module/sw-customer/component/sw-customer-default-addresses/index';
 import 'src/app/component/base/sw-address';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-customer-default-addresses', SwCustomerDefaultAddresses);
 
 async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {

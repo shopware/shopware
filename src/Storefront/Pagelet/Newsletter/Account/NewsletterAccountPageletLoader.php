@@ -17,6 +17,9 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package customer-order
+ */
 class NewsletterAccountPageletLoader
 {
     private EventDispatcherInterface $eventDispatcher;

@@ -1,5 +1,9 @@
 import template from './sw-order-create-initial.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

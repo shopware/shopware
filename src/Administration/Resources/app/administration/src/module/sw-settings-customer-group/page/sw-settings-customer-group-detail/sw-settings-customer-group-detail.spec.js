@@ -7,6 +7,10 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/utils/sw-popover';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-settings-customer-group-detail', swSettingsCustomerGroupDetail);
 
 const { Context } = Shopware;

@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import SwOrderDeliveryMetadata from 'src/module/sw-order/component/sw-order-delivery-metadata/index';
 import 'src/app/component/base/sw-address';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-delivery-metadata', SwOrderDeliveryMetadata);
 
 async function createWrapper() {

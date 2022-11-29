@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import swCustomerDetailAddresses from 'src/module/sw-customer/view/sw-customer-detail-addresses';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-customer-detail-addresses', swCustomerDetailAddresses);
 
 async function createWrapper() {

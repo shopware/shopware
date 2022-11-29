@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPagelet;
 
+/**
+ * @package customer-order
+ */
 class AccountOverviewPage extends Page
 {
     /**

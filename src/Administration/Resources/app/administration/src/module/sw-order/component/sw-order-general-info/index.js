@@ -1,6 +1,10 @@
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();

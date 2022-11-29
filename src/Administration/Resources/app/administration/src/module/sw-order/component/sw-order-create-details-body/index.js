@@ -1,5 +1,9 @@
 import template from './sw-order-create-details-body.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

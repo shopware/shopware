@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package customer-order
+ */
 class CustomerIndexer extends EntityIndexer
 {
     public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';

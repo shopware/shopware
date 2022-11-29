@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {

@@ -1,6 +1,10 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

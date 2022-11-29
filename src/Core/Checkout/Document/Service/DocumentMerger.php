@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
 
+/**
+ * @package customer-order
+ */
 final class DocumentMerger
 {
     private EntityRepository $documentRepository;

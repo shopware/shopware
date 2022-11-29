@@ -1,6 +1,10 @@
 import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
 
+/**
+ * @package customer-order
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

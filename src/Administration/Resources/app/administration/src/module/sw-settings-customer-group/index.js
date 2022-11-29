@@ -1,6 +1,10 @@
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
+/**
+ * @package customer-order
+ */
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-customer-group-list', () => import('./page/sw-settings-customer-group-list'));
 Shopware.Component.register('sw-settings-customer-group-detail', () => import('./page/sw-settings-customer-group-detail'));

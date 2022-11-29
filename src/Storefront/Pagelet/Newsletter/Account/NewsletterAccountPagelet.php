@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Storefront\Pagelet\Pagelet;
 
+/**
+ * @package customer-order
+ */
 class NewsletterAccountPagelet extends Pagelet
 {
     protected CustomerEntity $customer;

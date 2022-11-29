@@ -1,5 +1,9 @@
 import type { CartError } from '../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { State, Mixin } = Shopware;
 /**
  * Mixin to handle notification when receiving cart response.

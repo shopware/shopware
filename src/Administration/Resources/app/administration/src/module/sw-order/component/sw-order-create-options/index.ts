@@ -12,6 +12,10 @@ import type {
     CartDelivery,
 } from '../../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 

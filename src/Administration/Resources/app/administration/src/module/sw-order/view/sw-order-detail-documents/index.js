@@ -1,5 +1,9 @@
 import template from './sw-order-detail-documents.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler

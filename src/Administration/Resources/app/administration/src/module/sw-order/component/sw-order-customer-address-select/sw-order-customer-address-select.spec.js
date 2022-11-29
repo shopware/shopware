@@ -9,6 +9,10 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 
 import Vuex from 'vuex';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-customer-address-select', swOrderCustomerAddressSelect);
 
 const addresses = [

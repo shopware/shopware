@@ -32,6 +32,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentControllerTest extends TestCase

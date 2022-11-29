@@ -12,6 +12,9 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
+/**
+ * @package customer-order
+ */
 class OrderTransactionStateHandler
 {
     /**

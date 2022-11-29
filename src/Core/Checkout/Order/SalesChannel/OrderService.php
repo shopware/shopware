@@ -25,6 +25,9 @@ use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * @package customer-order
+ */
 class OrderService
 {
     public const CUSTOMER_COMMENT_KEY = 'customerComment';

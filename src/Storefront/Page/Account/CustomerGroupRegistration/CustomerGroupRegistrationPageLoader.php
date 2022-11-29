@@ -9,6 +9,9 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package customer-order
+ */
 class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrationPageLoader
 {
     /**

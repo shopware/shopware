@@ -6,6 +6,10 @@ import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-button-process';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-customer-detail', swCustomerDetail);
 
 async function createWrapper(privileges = []) {

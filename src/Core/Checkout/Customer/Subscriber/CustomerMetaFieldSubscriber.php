@@ -14,6 +14,8 @@ use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface

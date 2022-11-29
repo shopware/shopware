@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order_transaction_capture_refund_position';

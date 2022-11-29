@@ -6,6 +6,7 @@ const DocumentEvents = {
 };
 
 /**
+ * @package customer-order
  * Gateway for the API end point "document"
  * @class
  * @extends ApiService

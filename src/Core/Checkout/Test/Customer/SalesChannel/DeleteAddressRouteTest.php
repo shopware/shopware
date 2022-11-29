@@ -10,6 +10,8 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

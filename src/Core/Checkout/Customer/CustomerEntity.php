@@ -23,7 +23,7 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class CustomerEntity extends Entity
 {

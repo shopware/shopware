@@ -3,6 +3,9 @@ import swSettingsTaxRuleTypeIndividualStatesCell from 'src/module/sw-settings-ta
 
 Shopware.Component.register('sw-settings-tax-rule-type-individual-states-cell', swSettingsTaxRuleTypeIndividualStatesCell);
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };
 

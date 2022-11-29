@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Account\Order;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package customer-order
+ */
 class AccountOrderPage extends Page
 {
     /**

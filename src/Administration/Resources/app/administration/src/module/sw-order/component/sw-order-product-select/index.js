@@ -2,6 +2,10 @@ import template from './sw-order-product-select.html.twig';
 import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 

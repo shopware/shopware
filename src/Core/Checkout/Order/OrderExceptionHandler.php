@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Order;
 use Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 
+/**
+ * @package customer-order
+ */
 class OrderExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package customer-order
+ */
 class AccountNewsletterRecipientRouteResponse extends StoreApiResponse
 {
     /**

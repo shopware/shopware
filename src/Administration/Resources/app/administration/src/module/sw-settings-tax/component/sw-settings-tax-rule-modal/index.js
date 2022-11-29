@@ -1,5 +1,9 @@
 import template from './sw-settings-tax-rule-modal.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

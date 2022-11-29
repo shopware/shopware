@@ -7,6 +7,10 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
 Shopware.Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsStornoModal);
 

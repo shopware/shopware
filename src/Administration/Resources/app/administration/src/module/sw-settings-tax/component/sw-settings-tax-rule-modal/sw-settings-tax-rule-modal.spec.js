@@ -5,6 +5,9 @@ import 'src/app/component/base/sw-button';
 
 Shopware.Component.extend('sw-settings-tax-rule-modal', 'sw-modal', swSettingsTaxRuleModal);
 
+/**
+ * @package customer-order
+ */
 async function createWrapper() {
     const localVue = createLocalVue();
 

@@ -4,6 +4,10 @@ import swOrderLineItemsGridSalesChannel from 'src/module/sw-order/component/sw-o
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-line-items-grid-sales-channel', swOrderLineItemsGridSalesChannel);
 
 const mockItems = [

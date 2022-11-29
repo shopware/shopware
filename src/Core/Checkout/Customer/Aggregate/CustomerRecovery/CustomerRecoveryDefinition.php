@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class CustomerRecoveryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_recovery';

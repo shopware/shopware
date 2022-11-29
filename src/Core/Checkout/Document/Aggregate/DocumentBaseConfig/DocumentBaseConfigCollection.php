@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<DocumentBaseConfigEntity>
  */
 class DocumentBaseConfigCollection extends EntityCollection

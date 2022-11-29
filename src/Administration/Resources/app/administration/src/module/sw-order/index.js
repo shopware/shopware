@@ -5,6 +5,10 @@ import './mixin/order-cart.mixin';
 
 import defaultSearchConfiguration from './default-search-configuration';
 
+/**
+ * @package customer-order
+ */
+
 const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

@@ -243,6 +243,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
+                if (false !== stripos($match, $token)) {
+                    ++$score;
+                }
+
                 /**
                  * @deprecated tag:v6.5.0 - if can be removed as php min version is higher, only keep else branch
                  */

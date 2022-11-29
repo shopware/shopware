@@ -32,6 +32,7 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $criteria->addFilter(new EqualsFilter('active', 1));
         $criteria->addAssociation('themes');
 
         /** @var SalesChannelCollection $result */

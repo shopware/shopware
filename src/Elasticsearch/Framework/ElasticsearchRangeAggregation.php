@@ -1,11 +1,9 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Elasticsearch\Framework;
 
-use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Type\BucketingTrait;
+use OpenSearchDSL\Aggregation\AbstractAggregation;
+use OpenSearchDSL\Aggregation\Type\BucketingTrait;
 
 /**
  * @internal

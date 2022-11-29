@@ -1,6 +1,6 @@
 ---
 title: Add range aggregation
-issue: NEXT-00000
+issue: NEXT-23243
 author: Léo Cunéaz
 author_email: leo@e-frogg.com
 author_github: inem0o

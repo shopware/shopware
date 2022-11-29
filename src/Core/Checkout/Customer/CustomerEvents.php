@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+/**
+ * @package checkout
+ */
 class CustomerEvents
 {
     /**

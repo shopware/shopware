@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class CurrencyPriceCalculator
 {
     private QuantityPriceCalculator $priceCalculator;

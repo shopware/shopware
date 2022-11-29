@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class LineItemFactoryRegistry
 {
     /**

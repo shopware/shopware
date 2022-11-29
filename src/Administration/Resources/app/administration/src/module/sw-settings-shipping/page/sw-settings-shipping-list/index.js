@@ -3,6 +3,9 @@ import './sw-settings-shipping-list.scss';
 
 const { Mixin, Data: { Criteria } } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 interface DiscountCalculatorInterface
 {
     /**

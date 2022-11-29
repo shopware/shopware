@@ -13,6 +13,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @package checkout
+ */
 trait SurchargeTrait
 {
     private LineItemCollection $items;

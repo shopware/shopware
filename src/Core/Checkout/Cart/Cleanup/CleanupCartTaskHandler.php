@@ -9,7 +9,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
- * @internal
+ * @package checkout
+ *
+ *  @internal
  */
 final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {

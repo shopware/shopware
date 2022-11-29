@@ -30,6 +30,9 @@ const product = {
     },
 };
 
+/**
+ * @package checkout
+ */
 describe('Wishlist: for wishlist page', () => {
     beforeEach(() => {
         cy.setCookie('wishlist-enabled', '1');

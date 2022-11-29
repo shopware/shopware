@@ -19,6 +19,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package checkout
+ *
  * @internal
  * @group store-api
  * @group cart

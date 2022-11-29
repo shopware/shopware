@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**

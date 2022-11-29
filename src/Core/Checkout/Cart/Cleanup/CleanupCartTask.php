@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Cleanup;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package checkout
+ */
 class CleanupCartTask extends ScheduledTask
 {
     public static function getTaskName(): string

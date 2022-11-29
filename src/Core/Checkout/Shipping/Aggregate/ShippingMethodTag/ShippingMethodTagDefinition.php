@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'shipping_method_tag';

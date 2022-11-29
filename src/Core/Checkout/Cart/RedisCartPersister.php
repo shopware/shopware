@@ -16,6 +16,9 @@ use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class RedisCartPersister extends AbstractCartPersister
 {
     public const PREFIX = 'cart-persister-';

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 
+/**
+ * @package checkout
+ */
 class ProfileSalutationMissingError extends SalutationMissingError
 {
     protected const KEY = parent::KEY . '-profile';

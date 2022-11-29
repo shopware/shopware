@@ -3,6 +3,9 @@ import swSettingsPaymentList from 'src/module/sw-settings-payment/page/sw-settin
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
+/**
+ * @package checkout
+ */
 Shopware.Component.register('sw-settings-payment-list', swSettingsPaymentList);
 
 async function createWrapper(privileges = []) {

@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentDistinguishableNameSubscriberTest extends TestCase

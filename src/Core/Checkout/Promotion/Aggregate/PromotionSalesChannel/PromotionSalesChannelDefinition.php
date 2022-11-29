@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package checkout
+ */
 class PromotionSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion_sales_channel';

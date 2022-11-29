@@ -5,6 +5,10 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 
 /**
+ * @package checkout
+ */
+
+/**
  * The DiscountFacade is a wrapper around a newly created discount.
  * Note that this wrapper is independent from the line-item that was added for this discount.
  *

@@ -8,6 +8,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class FakeQueryBuilder extends QueryBuilder

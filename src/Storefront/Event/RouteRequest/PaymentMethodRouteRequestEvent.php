@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Event\RouteRequest;
 
+/**
+ * @package checkout
+ */
 class PaymentMethodRouteRequestEvent extends RouteRequestEvent
 {
 }

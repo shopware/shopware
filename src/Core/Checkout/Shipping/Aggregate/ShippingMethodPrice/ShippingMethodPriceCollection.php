@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<ShippingMethodPriceEntity>
  */
 class ShippingMethodPriceCollection extends EntityCollection

@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Payment\Cart\Token\JWTConfigurationFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class JWTConfigurationFactoryTest extends TestCase

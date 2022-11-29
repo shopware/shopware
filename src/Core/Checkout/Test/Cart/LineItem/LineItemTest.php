@@ -13,6 +13,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemTest extends TestCase

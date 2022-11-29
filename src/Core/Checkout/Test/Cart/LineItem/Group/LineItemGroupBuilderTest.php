@@ -46,6 +46,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemGroupBuilderTest extends TestCase

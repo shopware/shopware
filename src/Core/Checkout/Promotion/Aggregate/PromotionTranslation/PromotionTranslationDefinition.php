@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package checkout
+ */
 class PromotionTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'promotion_translation';

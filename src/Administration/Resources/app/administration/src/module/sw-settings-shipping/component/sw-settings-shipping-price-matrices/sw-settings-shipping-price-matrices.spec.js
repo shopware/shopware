@@ -12,6 +12,10 @@ import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-inheritance-switch';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
+/**
+ * @package checkout
+ */
+
 Shopware.State.registerModule('swShippingDetail', state);
 
 Shopware.Component.register('sw-settings-shipping-price-matrices', swSettingsShippingPriceMatrices);

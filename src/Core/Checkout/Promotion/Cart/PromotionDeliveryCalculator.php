@@ -27,6 +27,8 @@ use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * Calculates discounts on deliveries
  *
  * as calculation base we are always taking the delivery costs coming from the delivery calculator

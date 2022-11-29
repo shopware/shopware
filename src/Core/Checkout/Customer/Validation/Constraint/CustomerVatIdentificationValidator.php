@@ -9,6 +9,9 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
+/**
+ * @package checkout
+ */
 class CustomerVatIdentificationValidator extends ConstraintValidator
 {
     private Connection $connection;

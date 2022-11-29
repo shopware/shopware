@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 abstract class AbstractCartPersister implements CartPersisterInterface
 {
     abstract public function getDecorated(): AbstractCartPersister;

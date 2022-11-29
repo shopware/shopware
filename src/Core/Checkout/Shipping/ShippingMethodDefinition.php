@@ -32,6 +32,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'shipping_method';

@@ -48,6 +48,8 @@ use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * Cart Promotion Calculator
  */
 class PromotionCalculator

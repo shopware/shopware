@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Shipping\Event;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @package checkout
+ */
 class TaxRule extends Struct
 {
     /**

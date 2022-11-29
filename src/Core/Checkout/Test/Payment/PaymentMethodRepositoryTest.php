@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentMethodRepositoryTest extends TestCase

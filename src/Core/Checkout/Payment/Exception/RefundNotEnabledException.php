@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+/**
+ * @package checkout
+ */
 class RefundNotEnabledException extends RefundProcessException
 {
     public function __construct(?\Throwable $e = null)

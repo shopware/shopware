@@ -2,6 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swSettingsShippingDetail from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
 
+/**
+ * @package checkout
+ */
+
 Shopware.Component.register('sw-settings-shipping-detail', swSettingsShippingDetail);
 
 

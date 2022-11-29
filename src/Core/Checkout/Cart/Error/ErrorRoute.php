@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Error;
 
 /**
+ * @package checkout
+ *
  * This class can be used to specify routes related to an `Error`.
  */
 class ErrorRoute

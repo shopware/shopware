@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<DeliveryPosition>
  */
 class DeliveryPositionCollection extends Collection

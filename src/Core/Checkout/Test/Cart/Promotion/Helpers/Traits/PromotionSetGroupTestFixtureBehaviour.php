@@ -12,6 +12,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @package checkout
+ */
 trait PromotionSetGroupTestFixtureBehaviour
 {
     /**

@@ -1,5 +1,8 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
+/**
+ * @package checkout
+ */
 describe('Account: Handle addresses as customer', () => {
     beforeEach(() => {
         return cy.createCustomerFixtureStorefront().then(() => {

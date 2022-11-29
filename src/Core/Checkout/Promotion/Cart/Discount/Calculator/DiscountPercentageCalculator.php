@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class DiscountPercentageCalculator
 {
     private AbsolutePriceCalculator $absolutePriceCalculator;

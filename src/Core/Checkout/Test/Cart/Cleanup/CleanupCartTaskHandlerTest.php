@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CleanupCartTaskHandlerTest extends TestCase

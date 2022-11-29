@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class TransactionProcessor
 {
     public function process(Cart $cart, SalesChannelContext $context): TransactionCollection

@@ -8,6 +8,8 @@ import PluginManager from 'src/plugin-system/plugin.manager';
 import Feature from 'src/helper/feature.helper';
 
 /**
+ * @package checkout
+ *
  * this plugins opens a modal
  * where an address can be edited or created
  */

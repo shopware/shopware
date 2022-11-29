@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package checkout
+ */
 class CartBeforeSerializationEvent extends Event
 {
     protected Cart $cart;

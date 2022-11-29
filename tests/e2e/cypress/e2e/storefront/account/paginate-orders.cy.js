@@ -1,5 +1,8 @@
 const orderCount = 11;
 
+/**
+ * @package checkout
+ */
 describe('Account: Paginated orders', () => {
     beforeEach(() => {
         return cy.createProductFixture().then(() => {

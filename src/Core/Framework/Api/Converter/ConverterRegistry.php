@@ -2,39 +2,33 @@
 
 namespace Shopware\Core\Framework\Api\Converter;
 
-use Shopware\Core\Framework\Feature;
-
 /**
  * @package core
  */
 class ConverterRegistry
 {
     /**
-     * @var iterable
+     * @var iterable<ApiConverter>
      */
-    private $converters;
-
-    /**
-     * @var DefaultApiConverter
-     */
-    private $defaultApiConverter;
+    private iterable $converters;
 
     /**
      * @internal
+     *
+     * @param iterable<ApiConverter> $converters
      */
-    public function __construct(iterable $converters, DefaultApiConverter $defaultApiConverter)
+    public function __construct(iterable $converters)
     {
-        $this->defaultApiConverter = $defaultApiConverter;
         $this->converters = $converters;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     public function convert(string $entityName, array $payload): array
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            $payload = $this->defaultApiConverter->convert($entityName, $payload);
-        }
-
-        /** @var ApiConverter $converter */
         foreach ($this->converters as $converter) {
             $payload = $converter->convert($entityName, $payload);
         }
@@ -42,6 +36,9 @@ class ConverterRegistry
         return $payload;
     }
 
+    /**
+     * @return iterable<ApiConverter>
+     */
     public function getConverters(): iterable
     {
         return $this->converters;

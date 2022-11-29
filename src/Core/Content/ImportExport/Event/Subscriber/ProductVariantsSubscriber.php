@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -118,13 +117,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            $behavior = new SyncBehavior();
-        } else {
-            $behavior = new SyncBehavior(true, true);
-        }
-
-        $result = $this->syncService->sync([
+        $this->syncService->sync([
             new SyncOperation(
                 'write',
                 ProductDefinition::ENTITY_NAME,
@@ -137,22 +130,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 SyncOperation::ACTION_UPSERT,
                 $configuratorSettingPayload
             ),
-        ], Context::createDefaultContext(), $behavior);
-
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            // @internal (flag:FEATURE_NEXT_15815) - remove code below, "isSuccess" function will be removed, simply return because sync service would throw an exception in error case
-            return;
-        }
-
-        if (!$result->isSuccess()) {
-            $operation = $result->get('write');
-
-            throw new ProcessingException(sprintf(
-                'Failed writing variants for %s with errors: %s',
-                $parentPayload['productNumber'],
-                $operation ? json_encode(array_column($operation->getResult(), 'errors')) : ''
-            ));
-        }
+        ], Context::createDefaultContext(), new SyncBehavior());
     }
 
     public function reset(): void

@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
-use Shopware\Core\Content\Product\AbstractSalesChannelProductBuilder;
 use Shopware\Core\Content\Product\IsNewDetector;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductVariationBuilder;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -185,7 +185,7 @@ class ProductSubscriberTest extends TestCase
     public function salesChannelProductLoadedDataProvider(): iterable
     {
         yield 'It does not set cms page id if already given' => [
-            'productEntity' => $this->getProductEntity('cmsPageId'),
+            'productEntity' => $this->getSalesChannelProductEntity('cmsPageId'),
             'systemConfigService' => $this->getSystemConfigServiceMock(null, 'defaultCmsPageId'),
             'salesChannelContext' => $this->getSalesChannelContext('salesChannelId'),
             'cmsPageIdBeforeEvent' => 'cmsPageId',
@@ -193,7 +193,7 @@ class ProductSubscriberTest extends TestCase
         ];
 
         yield 'It does not set if no default is given' => [
-            'productEntity' => $this->getProductEntity(),
+            'productEntity' => $this->getSalesChannelProductEntity(),
             'systemConfigService' => $this->getSystemConfigServiceMock('salesChannelId'),
             'salesChannelContext' => $this->getSalesChannelContext('salesChannelId'),
             'cmsPageIdBeforeEvent' => null,
@@ -201,7 +201,7 @@ class ProductSubscriberTest extends TestCase
         ];
 
         yield 'It sets cms page id if none is given and default is provided' => [
-            'productEntity' => $this->getProductEntity(),
+            'productEntity' => $this->getSalesChannelProductEntity(),
             'systemConfigService' => $this->getSystemConfigServiceMock('salesChannelId', 'cmsPageId'),
             'salesChannelContext' => $this->getSalesChannelContext('salesChannelId'),
             'cmsPageIdBeforeEvent' => null,
@@ -209,7 +209,7 @@ class ProductSubscriberTest extends TestCase
         ];
 
         yield 'It sets cms page id if none is given and sales channel specific default is provided' => [
-            'productEntity' => $this->getProductEntity(),
+            'productEntity' => $this->getSalesChannelProductEntity(),
             'systemConfigService' => $this->getSystemConfigServiceMock('salesChannelId', 'cmsPageId'),
             'salesChannelContext' => $this->getSalesChannelContext('salesChannelId'),
             'cmsPageIdBeforeEvent' => null,
@@ -279,10 +279,20 @@ class ProductSubscriberTest extends TestCase
         return $productEntity;
     }
 
+    private function getSalesChannelProductEntity(?string $cmsPageId = null): ProductEntity
+    {
+        $productEntity = new SalesChannelProductEntity();
+
+        if ($cmsPageId) {
+            $productEntity->setCmsPageId($cmsPageId);
+        }
+
+        return $productEntity;
+    }
+
     private function getSubscriber(SystemConfigService $systemConfigService): ProductSubscriber
     {
         return new ProductSubscriber(
-            $this->createMock(AbstractSalesChannelProductBuilder::class),
             $this->createMock(ProductVariationBuilder::class),
             $this->createMock(AbstractProductPriceCalculator::class),
             $this->createMock(AbstractPropertyGroupSorter::class),

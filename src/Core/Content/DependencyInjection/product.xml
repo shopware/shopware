@@ -15,7 +15,6 @@
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition" priority="600"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition">
@@ -64,7 +63,6 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition" priority="300"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition">
@@ -146,16 +144,9 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannelProductBuilder">
-            <argument type="service" id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter"/>
-            <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
-            <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
 
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannelProductBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter"/>

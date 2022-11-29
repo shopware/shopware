@@ -2,80 +2,34 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
-use Shopware\Core\Framework\Feature;
+class SyncBehavior
+{
+    protected ?string $indexingBehavior;
 
-if (Feature::isActive('FEATURE_NEXT_15815')) {
-    class SyncBehavior
+    /**
+     * @var list<string>
+     */
+    protected array $skipIndexers = [];
+
+    /**
+     * @param list<string> $skipIndexers
+     */
+    public function __construct(?string $indexingBehavior = null, array $skipIndexers = [])
     {
-        protected ?string $indexingBehavior;
-
-        protected array $skipIndexers = [];
-
-        public function __construct(?string $indexingBehavior = null, array $skipIndexers = [])
-        {
-            $this->indexingBehavior = $indexingBehavior;
-            $this->skipIndexers = $skipIndexers;
-        }
-
-        /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15815) tag:v6.5.0 - remove this function
-         */
-        public function useSingleOperation(): bool
-        {
-            return true;
-        }
-
-        public function getIndexingBehavior(): ?string
-        {
-            return $this->indexingBehavior;
-        }
-
-        public function getSkipIndexers(): array
-        {
-            return $this->skipIndexers;
-        }
+        $this->indexingBehavior = $indexingBehavior;
+        $this->skipIndexers = $skipIndexers;
     }
-} else {
-    class SyncBehavior
+
+    public function getIndexingBehavior(): ?string
     {
-        protected bool $failOnError;
+        return $this->indexingBehavior;
+    }
 
-        protected bool $singleOperation;
-
-        protected ?string $indexingBehavior;
-
-        protected array $skipIndexers = [];
-
-        public function __construct(
-            bool $failOnError,
-            bool $singleOperation = false,
-            ?string $indexingBehavior = null,
-            array $skipIndexers = []
-        ) {
-            $this->failOnError = $failOnError;
-            $this->singleOperation = $singleOperation;
-            $this->indexingBehavior = $indexingBehavior;
-            $this->skipIndexers = $skipIndexers;
-        }
-
-        public function failOnError(): bool
-        {
-            return $this->failOnError;
-        }
-
-        public function useSingleOperation(): bool
-        {
-            return $this->singleOperation;
-        }
-
-        public function getIndexingBehavior(): ?string
-        {
-            return $this->indexingBehavior;
-        }
-
-        public function getSkipIndexers(): array
-        {
-            return $this->skipIndexers;
-        }
+    /**
+     * @return list<string>
+     */
+    public function getSkipIndexers(): array
+    {
+        return $this->skipIndexers;
     }
 }

@@ -31,6 +31,7 @@ use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -347,7 +348,7 @@ class InfoControllerTest extends TestCase
             ->method('getBundles')
             ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoController')]);
 
-        $content = $infoController->config(Context::createDefaultContext())->getContent();
+        $content = $infoController->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertNotFalse($content);
         $config = json_decode($content, true);
         static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
@@ -394,7 +395,7 @@ class InfoControllerTest extends TestCase
                 new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
             ]);
 
-        $content = $infoController->config(Context::createDefaultContext())->getContent();
+        $content = $infoController->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
         static::assertNotFalse($content);
         $config = json_decode($content, true);
         static::assertCount(3, $config['bundles']);

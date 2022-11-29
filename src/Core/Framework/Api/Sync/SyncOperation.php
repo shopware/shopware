@@ -12,33 +12,16 @@ class SyncOperation extends Struct
     public const ACTION_UPSERT = 'upsert';
     public const ACTION_DELETE = 'delete';
 
-    /**
-     * @deprecated tag:v6.5.0 - will be natively typed as string
-     *
-     * @var string
-     */
-    protected $entity;
+    protected string $entity;
 
     /**
-     * @deprecated tag:v6.5.0 - will be natively typed as array
-     *
      * @var array<int, mixed>
      */
-    protected $payload;
+    protected array $payload;
 
-    /**
-     * @deprecated tag:v6.5.0 - will be natively typed as string
-     *
-     * @var string
-     */
-    protected $action;
+    protected string $action;
 
-    /**
-     * @deprecated tag:v6.5.0 - will be natively typed as string
-     *
-     * @var string
-     */
-    protected $key;
+    protected string $key;
 
     /**
      * @param array<int, mixed> $payload

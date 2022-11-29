@@ -2,14 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
@@ -22,16 +19,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class SyncServiceTest extends TestCase
 {
-    /**
-     * @deprecated tag:v6.5.0 - does not need to run in seperate service anymore
-     *
-     * @runInSeparateProcess
-     */
     public function testSyncSingleOperation(): void
     {
-        $_SERVER['v6_5_0_0'] = '1';
-        $_SERVER['FEATURE_NEXT_15815'] = '1';
-
         $writeResult = new WriteResult(
             [
                 [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_DELETE)],
@@ -49,9 +38,6 @@ class SyncServiceTest extends TestCase
             ->willReturn($writeResult);
 
         $service = new SyncService(
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(Connection::class),
-            $this->createMock(ApiVersionConverter::class),
             $writer,
             $this->createMock(EventDispatcherInterface::class),
         );

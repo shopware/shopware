@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -329,99 +328,6 @@ class SyncControllerTest extends TestCase
         static::assertEmpty($exists);
     }
 
-    public function testItThrows400OnFailOnError(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
-
-        $product = Uuid::randomHex();
-        $product2 = Uuid::randomHex();
-
-        $data = [
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                'payload' => [
-                    [
-                        'id' => $product,
-                        'productNumber' => Uuid::randomHex(),
-                        'name' => 'PROD-1',
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
-                    ],
-                    [
-                        'id' => $product2,
-                        'productNumber' => Uuid::randomHex(),
-                        'stock' => 1,
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'name' => 'PROD-2',
-                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'linked' => false]],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
-
-        $exists = $this->connection->fetchAllAssociative(
-            'SELECT * FROM product WHERE id IN(:id)',
-            ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
-        );
-        static::assertNotFalse($exists);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertEquals(400, $response->getStatusCode());
-
-        $content = json_decode((string) $response->getContent(), true);
-
-        foreach ($content['data'][0]['result'] as $result) {
-            static::assertEmpty($result['entities']);
-            static::assertCount(1, $result['errors']);
-        }
-    }
-
-    public function testItReturns200WhenFailOnErrorIsFalse(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
-
-        $product = Uuid::randomHex();
-
-        $data = [
-            [
-                'action' => SyncController::ACTION_UPSERT,
-                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                'payload' => [
-                    [
-                        'id' => $product,
-                        'productNumber' => Uuid::randomHex(),
-                        'name' => 'PROD-1',
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
-                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data, \JSON_THROW_ON_ERROR));
-
-        $exists = $this->connection->fetchAllAssociative(
-            'SELECT * FROM product WHERE id IN(:id)',
-            ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
-        );
-        static::assertNotFalse($exists);
-
-        $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
-
-        $content = json_decode((string) $response->getContent(), true);
-
-        foreach ($content['data'][0]['result'] as $result) {
-            static::assertEmpty($result['entities']);
-            static::assertCount(1, $result['errors']);
-        }
-    }
-
     public function testIndexingByQueueHeader(): void
     {
         $product = Uuid::randomHex();
@@ -605,10 +511,6 @@ class SyncControllerTest extends TestCase
      */
     public function testItThrows400WithInvalidSyncOperation(string $key, string $entity, string $action, array $payload, string $actor): void
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            $this->connection->rollBack();
-        }
-
         $data = [
             [
                 'action' => $action,

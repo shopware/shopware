@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Plugin;
@@ -195,26 +194,9 @@ class InfoController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
-     *
-     * @deprecated tag:v6.5.0 $context param will be required
-     * @deprecated tag:v6.5.0 $request param will be required
      */
-    public function config(?Context $context = null, ?Request $request = null): JsonResponse
+    public function config(Context $context, Request $request): JsonResponse
     {
-        if (!$context) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'First parameter `$context` will be required in method `config()` in `InfoController` in v6.5.0.0'
-            );
-
-            $context = Context::createDefaultContext();
-        }
-
-        $appUrlReachable = true;
-        if ($request) {
-            $appUrlReachable = $this->appUrlVerifier->isAppUrlReachable($request);
-        }
-
         return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
@@ -225,7 +207,7 @@ class InfoController extends AbstractController
             'bundles' => $this->getBundles($context),
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
-                'appUrlReachable' => $appUrlReachable,
+                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl($context),
             ],
         ]);

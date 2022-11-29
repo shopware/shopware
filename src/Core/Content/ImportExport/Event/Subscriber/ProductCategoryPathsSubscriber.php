@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
-use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -115,7 +113,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         if (!empty($newCategoriesPayload)) {
-            $this->createNewCategories($newCategoriesPayload, $row['category_paths']);
+            $this->createNewCategories($newCategoriesPayload);
         }
 
         $record = $event->getRecord();
@@ -132,36 +130,15 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @param list<array<string, mixed>> $payload
      */
-    private function createNewCategories(array $payload, string $categoryPaths): void
+    private function createNewCategories(array $payload): void
     {
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            $behavior = new SyncBehavior();
-        } else {
-            $behavior = new SyncBehavior(true, true);
-        }
-
-        $result = $this->syncService->sync([
+        $this->syncService->sync([
             new SyncOperation(
                 'write',
                 CategoryDefinition::ENTITY_NAME,
                 SyncOperation::ACTION_UPSERT,
                 $payload
             ),
-        ], Context::createDefaultContext(), $behavior);
-
-        if (Feature::isActive('FEATURE_NEXT_15815')) {
-            // @internal (flag:FEATURE_NEXT_15815) - remove code below, "isSuccess" function will be removed, simply return because sync service would throw an exception in error case
-            return;
-        }
-
-        if (!$result->isSuccess()) {
-            $operation = $result->get('write');
-
-            throw new ProcessingException(sprintf(
-                'Failed writing categories for path %s with errors: %s',
-                $categoryPaths,
-                $operation ? json_encode(array_column($operation->getResult(), 'errors')) : ''
-            ));
-        }
+        ], Context::createDefaultContext(), new SyncBehavior());
     }
 }

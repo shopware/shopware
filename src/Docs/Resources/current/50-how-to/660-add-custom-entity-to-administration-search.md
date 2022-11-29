@@ -13,17 +13,6 @@ There are two different ways how the global search works:
 
 They only differ in the API they use and get displayed in a slightly different way.
 
-
-## Search API
-
-To support an entity in the untyped global search the definition in the symfony container needs the tag `shopware.composite_search.definition`.
-The priority of the tag defines the order in the search order.
-
-The typed global search needs an instance of the JavaScript class `ApiService` with the key of the entity in camel case suffixed with `Service`.
-E.g. The service key is `fooBarService` when requesting a service for `foo_bar`.
-Every entity definition gets automatically an instance in the injection container but can be overridden so there is no additional work needed.
-
-
 ## Administration UI
 
 ### Add the search tag

@@ -18,16 +18,11 @@ describe('Test review function on Product page', () => {
         cy.get('.search-suggest-product-name').contains(product.name);
         cy.get('.search-suggest-product-price').contains(product.price[0].gross);
         cy.get('.search-suggest-product-name').click();
-        cy.featureIsActive('v6.5.0.0').then((isActive) => {
-            if (isActive) {
-                cy.get('.review-tab').click();
-            } else {
-                cy.get('.product-detail-tabs #review-tab').click();
-            }
-            cy.get('button.product-detail-review-teaser-btn').contains('Write a review!').click();
+        cy.get('.review-tab').click();
 
-            cy.get('.product-detail-review-login .login-form').should('be.visible');
-        });
+        cy.get('button.product-detail-review-teaser-btn').contains('Write a review!').click();
+
+        cy.get('.product-detail-review-login .login-form').should('be.visible');
     });
 
     it('Should paginate and filter reviews', { tags: ['pa-content-management'] }, () => {
@@ -40,63 +35,57 @@ describe('Test review function on Product page', () => {
         cy.get('.header-search-input').type(product.name);
         cy.get('.search-suggest-product-name').contains(product.name);
         cy.get('.search-suggest-product-name').click();
-        cy.featureIsActive('v6.5.0.0').then((isActive) => {
-            if (isActive) {
-                cy.get('.review-tab').click();
-            } else {
-                cy.get('.product-detail-tabs #review-tab').click();
-            }
+        cy.get('.review-tab').click();
 
-            // Ensure 10 reviews on initial page
-            cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);
+        // Ensure 10 reviews on initial page
+        cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);
 
-            // Scroll to pagination
-            cy.get('.pagination-nav').scrollIntoView();
-            cy.get('.pagination-nav').should('be.visible');
+        // Scroll to pagination
+        cy.get('.pagination-nav').scrollIntoView();
+        cy.get('.pagination-nav').should('be.visible');
 
-            // Navigate to page 2
-            cy.get('.page-item.page-next').click();
+        // Navigate to page 2
+        cy.get('.page-item.page-next').click();
 
-            // Ensure loading has finished
-            cy.wait('@loadReviews')
-                .its('response.statusCode').should('eq', 200);
-            cy.get('.element-loader-backdrop').should('not.exist');
+        // Ensure loading has finished
+        cy.wait('@loadReviews')
+            .its('response.statusCode').should('eq', 200);
+        cy.get('.element-loader-backdrop').should('not.exist');
 
-            // Ensure 2 remaining reviews on page 2
-            cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 2);
+        // Ensure 2 remaining reviews on page 2
+        cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 2);
 
-            // Navigate back to page 1
-            cy.get('.page-item.page-prev').click();
+        // Navigate back to page 1
+        cy.get('.page-item.page-prev').click();
 
-            // Ensure loading has finished
-            cy.wait('@loadReviews')
-                .its('response.statusCode').should('eq', 200);
-            cy.get('.element-loader-backdrop').should('not.exist');
+        // Ensure loading has finished
+        cy.wait('@loadReviews')
+            .its('response.statusCode').should('eq', 200);
+        cy.get('.element-loader-backdrop').should('not.exist');
 
-            // Ensure 10 reviews on page 1
-            cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);
+        // Ensure 10 reviews on page 1
+        cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);
 
-            // Filter only 4-star reviews
-            cy.get('input[type="checkbox"][id="reviewRating4"]').click({ force: true });
+        // Filter only 4-star reviews
+        cy.get('input[type="checkbox"][id="reviewRating4"]').click({ force: true });
 
-            // Ensure loading has finished
-            cy.wait('@loadReviews')
-                .its('response.statusCode').should('eq', 200);
-            cy.get('.element-loader-backdrop').should('not.exist');
+        // Ensure loading has finished
+        cy.wait('@loadReviews')
+            .its('response.statusCode').should('eq', 200);
+        cy.get('.element-loader-backdrop').should('not.exist');
 
-            // Ensure only 4-star reviews are displayed
-            cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 1);
+        // Ensure only 4-star reviews are displayed
+        cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 1);
 
-            // Remove 4-star filter
-            cy.get('input[type="checkbox"][id="reviewRating4"]').click({ force: true });
+        // Remove 4-star filter
+        cy.get('input[type="checkbox"][id="reviewRating4"]').click({ force: true });
 
-            // Ensure loading has finished
-            cy.wait('@loadReviews')
-                .its('response.statusCode').should('eq', 200);
-            cy.get('.element-loader-backdrop').should('not.exist');
+        // Ensure loading has finished
+        cy.wait('@loadReviews')
+            .its('response.statusCode').should('eq', 200);
+        cy.get('.element-loader-backdrop').should('not.exist');
 
-            // Ensure 10 reviews without filter
-            cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);
-        });
+        // Ensure 10 reviews without filter
+        cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);
     });
 });

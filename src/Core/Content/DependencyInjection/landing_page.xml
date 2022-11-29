@@ -7,7 +7,6 @@
     <services>
         <service id="Shopware\Core\Content\LandingPage\LandingPageDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition" priority="1000" />
         </service>
 
         <service id="Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition">

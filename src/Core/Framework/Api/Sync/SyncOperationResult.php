@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.6.0 - Will be removed, as it is not used anymore
  */
 class SyncOperationResult extends Struct
 {
@@ -19,6 +22,11 @@ class SyncOperationResult extends Struct
      */
     public function __construct(array $result)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         $this->result = $result;
     }
 
@@ -27,11 +35,21 @@ class SyncOperationResult extends Struct
      */
     public function getResult(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $this->result;
     }
 
     public function hasError(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         foreach ($this->result as $result) {
             if (\count($result['errors']) > 0) {
                 return true;
@@ -48,6 +66,11 @@ class SyncOperationResult extends Struct
      */
     public function get($key): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $this->result[$key] ?? null;
     }
 
@@ -56,11 +79,21 @@ class SyncOperationResult extends Struct
      */
     public function has($key): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return isset($this->result[$key]);
     }
 
     public function resetEntities(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         foreach ($this->result as $index => $_writeResult) {
             $this->result[$index]['entities'] = [];
         }
@@ -68,6 +101,11 @@ class SyncOperationResult extends Struct
 
     public function getApiAlias(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return 'api_sync_operation_result';
     }
 }

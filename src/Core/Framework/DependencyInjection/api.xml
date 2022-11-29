@@ -41,18 +41,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="api.request_criteria_builder"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
@@ -114,16 +108,10 @@
         <!-- Converter -->
         <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
             <argument type="tagged" tag="shopware.api.converter"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="request_stack"/>
         </service>
 
         <!-- API Docs -->

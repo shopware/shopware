@@ -38,6 +38,8 @@ use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class Generator extends TestCase

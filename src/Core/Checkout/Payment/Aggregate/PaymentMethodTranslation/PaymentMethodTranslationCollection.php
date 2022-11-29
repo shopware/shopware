@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<PaymentMethodTranslationEntity>
  */
 class PaymentMethodTranslationCollection extends EntityCollection

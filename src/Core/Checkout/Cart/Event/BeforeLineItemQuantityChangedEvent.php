@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
 {
     /**

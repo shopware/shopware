@@ -2,6 +2,9 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
 
+/**
+ * @package checkout
+ */
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

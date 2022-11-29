@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @package checkout
+ */
 class CalculatedTax extends Struct
 {
     /**

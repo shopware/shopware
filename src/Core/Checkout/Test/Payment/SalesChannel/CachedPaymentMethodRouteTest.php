@@ -18,6 +18,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * @internal
  * @group cache
  * @group store-api

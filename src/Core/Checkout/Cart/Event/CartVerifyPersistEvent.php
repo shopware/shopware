@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package checkout
+ */
 class CartVerifyPersistEvent extends Event implements ShopwareSalesChannelEvent
 {
     protected SalesChannelContext $context;

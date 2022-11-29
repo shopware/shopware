@@ -8,6 +8,8 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
+ * @package checkout
+ *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */

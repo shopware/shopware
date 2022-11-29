@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
+/**
+ * @package checkout
+ */
 class PromotionCodeTuple
 {
     /**

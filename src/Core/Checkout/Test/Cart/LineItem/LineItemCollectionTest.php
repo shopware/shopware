@@ -15,6 +15,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemCollectionTest extends TestCase

@@ -3,6 +3,9 @@ import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccessHelper from 'src/helper/dom-access.helper';
 
+/**
+ * @package checkout
+ */
 export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
         super.init();

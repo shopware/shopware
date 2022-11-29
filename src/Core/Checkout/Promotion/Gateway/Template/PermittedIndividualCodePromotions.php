@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
+/**
+ * @package checkout
+ */
 class PermittedIndividualCodePromotions extends MultiFilter
 {
     /**

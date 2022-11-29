@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Payment\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package checkout
+ */
 class PaymentMethodIndexerEvent extends NestedEvent
 {
     private array $ids;

@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package checkout
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class OrderConverterController extends AbstractController

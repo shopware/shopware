@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 abstract class DiscountPackager
 {
     /**

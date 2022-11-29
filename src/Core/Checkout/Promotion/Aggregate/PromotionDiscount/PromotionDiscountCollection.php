@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<PromotionDiscountEntity>
  */
 class PromotionDiscountCollection extends EntityCollection

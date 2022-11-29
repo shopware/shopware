@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemQuantityCollectionTest extends TestCase

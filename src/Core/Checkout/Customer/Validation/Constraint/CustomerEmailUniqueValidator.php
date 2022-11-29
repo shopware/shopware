@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use function array_filter;
 
 /**
+ * @package checkout
+ *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */

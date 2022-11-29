@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package checkout
+ */
 if (!Feature::isActive('v6.5.0.0')) {
     class InvalidCartException extends ShopwareHttpException
     {

@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
+/**
+ * @package checkout
+ */
 class GrossPriceCalculator
 {
     private TaxCalculator $taxCalculator;

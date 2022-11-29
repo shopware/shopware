@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class PaymentMethodIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;

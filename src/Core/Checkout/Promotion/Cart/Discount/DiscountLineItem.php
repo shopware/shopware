@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package checkout
+ */
 class DiscountLineItem
 {
     /**

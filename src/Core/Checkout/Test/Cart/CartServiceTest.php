@@ -37,6 +37,8 @@ use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CartServiceTest extends TestCase

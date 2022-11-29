@@ -24,6 +24,8 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class AddressValidatorTest extends TestCase

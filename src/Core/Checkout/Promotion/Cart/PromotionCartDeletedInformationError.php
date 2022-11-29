@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 
+/**
+ * @package checkout
+ */
 class PromotionCartDeletedInformationError extends Error
 {
     private const KEY = 'promotion-discount-deleted';

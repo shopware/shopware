@@ -11,6 +11,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package checkout
+ *
  * @Decoratable
  */
 class CustomerValidationFactory implements DataValidationFactoryInterface

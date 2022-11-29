@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package checkout
+ */
 class CartChangedEvent extends Event
 {
     /**

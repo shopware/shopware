@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PercentageItem extends LineItem

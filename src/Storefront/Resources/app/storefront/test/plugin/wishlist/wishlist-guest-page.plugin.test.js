@@ -3,6 +3,9 @@ import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugi
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
+/**
+ * @package checkout
+ */
 describe('GuestWishlistPagePlugin tests', () => {
     let guestWishlistPagePlugin = undefined;
     let spyInitializePlugins = jest.fn();

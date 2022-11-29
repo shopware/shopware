@@ -4,6 +4,9 @@ const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shipping-tax-cost', {
     template,

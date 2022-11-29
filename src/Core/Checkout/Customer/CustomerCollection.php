@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<CustomerEntity>
  */
 class CustomerCollection extends EntityCollection

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class Processor
 {
     private Validator $validator;

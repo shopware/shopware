@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

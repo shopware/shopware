@@ -3,6 +3,10 @@ import 'src/module/sw-settings-payment/page/sw-settings-payment-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
+/**
+ * @package checkout
+ */
+
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-payment-list'), {
         mocks: {

@@ -18,6 +18,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CartTaxTest extends TestCase

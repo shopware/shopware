@@ -11,6 +11,9 @@ import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-l
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
+/**
+ * @package checkout
+ */
 export default class OffCanvasCartPlugin extends Plugin {
 
     static options = {

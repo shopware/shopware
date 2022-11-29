@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package checkout
+ */
 class PromotionSetGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion_setgroup';

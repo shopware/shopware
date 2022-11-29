@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * This route can be used to create an order from the cart
  */
 abstract class AbstractCartOrderRoute

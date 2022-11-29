@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 
+/**
+ * @package checkout
+ */
 trait PromotionCartInformationTrait
 {
     /**

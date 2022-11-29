@@ -1,6 +1,10 @@
 import type { Module } from 'vuex';
 import type { uiModulePaymentOverviewCard } from '@shopware-ag/admin-extension-sdk/es/ui/module/payment/overviewCard';
 
+/**
+ * @package checkout
+ */
+
 type PaymentOverviewCard = Omit<uiModulePaymentOverviewCard, 'responseType'>
 
 interface PaymentOverviewCardState {

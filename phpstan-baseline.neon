@@ -5241,51 +5241,6 @@ parameters:
 			path: src/Core/Content/Mail/Service/MailFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:buildContents\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:buildContents\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:getMediaUrls\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:getMediaUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:getSender\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:isTestMode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:send\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:send\\(\\) has parameter \\$templateData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService\\:\\:templateDataContainsSalesChannel\\(\\) has parameter \\$templateData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Aggregate\\\\MailTemplateType\\\\MailTemplateTypeEntity\\:\\:getAvailableEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/MailTemplate/Aggregate/MailTemplateType/MailTemplateTypeEntity.php
@@ -8206,26 +8161,6 @@ parameters:
 			path: src/Core/Content/Test/LandingPage/SalesChannel/LandingPageRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\MailServiceTest\\:\\:senderEmailDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\TestEnvironment\\:\\:getCalls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\TestEnvironment\\:\\:render\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\TestEnvironment\\:\\:\\$calls type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
-
-		-
 			message: "#^Cannot call method disable\\(\\) on object\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
@@ -8317,16 +8252,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:testEmailSend\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\TestEmailService\\:\\:send\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\TestEmailService\\:\\:send\\(\\) has parameter \\$templateData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
 

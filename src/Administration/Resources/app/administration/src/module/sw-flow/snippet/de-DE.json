@@ -222,6 +222,10 @@
         "labelContactFormMail": "Kontaktformular-Bestätigung",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
+        "useDifferentReplyToLabel": "Andere Absender-Adresse verwenden",
+        "labelReplyTo": "Absender-Adresse",
+        "placeholderReplyTo": "E-Mail-Adresse eingeben ...",
+        "tooltipDifferentReplyTo": "E-Mails werden von der E-Mail-Adresse des Shop-Betreibers versendet. Du kannst die E-Mail-Adresse des Shop-Betreibers in den <a href=\"{settingsLink}\">Einstellungen</a> ändern.",
         "labelLatestDocuments": "Angefügte Dokumente",
         "placeholderLatestDocuments": "Dokumente auswählen ...",
         "documentDescription": "Falls die ausgewählten Dokumente nicht existieren, werden sie nicht versendet. Du musst Dokumente erzeugen, bevor diese Aktion ausgeführt wird."

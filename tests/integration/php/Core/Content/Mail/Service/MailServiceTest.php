@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Mail\Service;
+namespace Shopware\Tests\Integration\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -77,6 +77,9 @@ class MailServiceTest extends TestCase
         static::assertArrayHasKey('plugin-value', $first['data']);
     }
 
+    /**
+     * @return array<int, mixed[]>
+     */
     public function senderEmailDataProvider(): array
     {
         return [
@@ -131,7 +134,7 @@ class MailServiceTest extends TestCase
             'subject' => 'Test subject & content',
         ];
         if ($dataSenderEmail !== null) {
-            $data['senderEmail'] = $dataSenderEmail;
+            $data['senderMail'] = $dataSenderEmail;
         }
 
         $mailSender->expects(static::once())
@@ -141,7 +144,7 @@ class MailServiceTest extends TestCase
                 $this->assertSame($data['senderName'], $from[0]->getName());
                 $this->assertSame($data['subject'], $mail->getSubject());
                 $this->assertCount(1, $from);
-                $this->assertSame($expected, $from[0]->getAddress());
+                $this->assertSame($data['senderMail'] ?? $expected, $from[0]->getAddress());
 
                 return true;
             }));
@@ -285,8 +288,14 @@ class MailServiceTest extends TestCase
  */
 class TestEnvironment extends Environment
 {
+    /**
+     * @var array<int, mixed[]>
+     */
     private array $calls = [];
 
+    /**
+     * @param mixed[] $context
+     */
     public function render($name, array $context = []): string
     {
         $this->calls[] = ['source' => $name, 'data' => $context];
@@ -294,6 +303,9 @@ class TestEnvironment extends Environment
         return parent::render($name, $context);
     }
 
+    /**
+     * @return array<int, mixed[]>
+     */
     public function getCalls(): array
     {
         return $this->calls;

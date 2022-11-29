@@ -223,6 +223,10 @@
         "labelContactFormMail": "Contact form confirmation",
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient...",
+        "useDifferentReplyToLabel": "Use different reply-to address",
+        "labelReplyTo": "Reply-to address",
+        "placeholderReplyTo": "Enter email address...",
+        "tooltipDifferentReplyTo": "Emails are sent from the shop owner’s email address. You can edit the shop owner’s email address in the <a href=\"{settingsLink}\">settings</a>.",
         "labelLatestDocuments": "Attached documents",
         "placeholderLatestDocuments": "Select documents...",
         "documentDescription": "If the selected documents do not exist, they won't be sent. You will have to generate documents before this action is triggered."

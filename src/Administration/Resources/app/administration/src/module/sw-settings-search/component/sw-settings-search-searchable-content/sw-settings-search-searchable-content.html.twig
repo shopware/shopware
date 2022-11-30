@@ -69,21 +69,6 @@
             </a>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_search_searchable_rebuild_link %}
-            <router-link
-                v-if="!feature.isActive('FEATURE_NEXT_22900')"
-                class="sw-settings-search__searchable-content-rebuild-link"
-                :to="{ name: 'sw.settings.search.index.liveSearch' }"
-            >
-                {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
-                <sw-icon
-                    name="regular-long-arrow-right"
-                    small
-                />
-            </router-link>
-            {% endblock %}
-
         </div>
         {% endblock %}
 
@@ -117,17 +102,6 @@
             </sw-tabs-item>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_search_searchable_content_customfields_tab_title %}
-            <sw-tabs-item
-                v-if="!feature.isActive('FEATURE_NEXT_22900')"
-                class="sw-settings-search__searchable-content-tab-title"
-                name="customfields"
-                @click="onChangeTab(tabNames.customTab)"
-            >
-                {{ $tc('sw-settings-search.generalTab.labelCustomFieldsTab') }}
-            </sw-tabs-item>
-            {% endblock %}
         </template>
 
         <template #content="{ active }">
@@ -146,21 +120,6 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_search_searchable_content_customfields_tab_item %}
-            <sw-settings-search-searchable-content-customfields
-                v-if="active === tabNames.customTab && !feature.isActive('FEATURE_NEXT_22900')"
-                :is-empty="isListEmpty"
-                :is-loading="isLoading"
-                :columns="getProductSearchFieldColumns"
-                :repository="productSearchFieldRepository"
-                :search-configs="searchConfigFields"
-                @data-load="loadData"
-                @config-add="onAddNewConfig"
-                @config-save="saveConfig"
-                @config-delete="deleteConfig"
-            />
-            {% endblock %}
         </template>
     </sw-tabs>
     {% endblock %}

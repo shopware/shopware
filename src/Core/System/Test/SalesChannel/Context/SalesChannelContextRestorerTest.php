@@ -326,7 +326,6 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testCartMergedEventIsFiredWithCustomerCart(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16824', $this);
         Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $currentContextToken = Random::getAlphanumericString(32);

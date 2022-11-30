@@ -1,7 +1,6 @@
 ---
 title: Suppress confusing cart merge flash message after login when not appropriate
 issue: NEXT-16482
-flag: FEATURE_NEXT_16824
 author: Axel Guckelsberger
 author_email: axel.guckelsberger@guite.de
 ---

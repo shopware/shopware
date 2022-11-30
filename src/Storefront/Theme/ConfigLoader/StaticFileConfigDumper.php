@@ -14,7 +14,7 @@ use function sprintf;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class StaticFileConfigDumper implements EventSubscriberInterface
 {

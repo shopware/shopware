@@ -414,53 +414,6 @@ PHP_EOL;
         static::assertTrue($fs->has('theme/9a11a759d278b4a55cb5e2c3414733c1'));
     }
 
-    public function testCompileDeprecationThrown(): void
-    {
-        $resolver = $this->createMock(ThemeFileResolver::class);
-        $importer = $this->createMock(ThemeFileImporter::class);
-
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
-
-        $compiler = new ThemeCompiler(
-            $fs,
-            $tmpFs,
-            $resolver,
-            true,
-            $this->createMock(EventDispatcher::class),
-            $importer,
-            [],
-            $this->createMock(CacheInvalidator::class),
-            new MD5ThemePathBuilder(),
-            __DIR__,
-            $this->createMock(ScssPhpCompiler::class)
-        );
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
-
-        $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
-
-        try {
-            $pathBuilder->getDecorated();
-        } catch (DecorationPatternException $e) {
-            static::assertInstanceOf(DecorationPatternException::class, $e);
-        }
-
-        if (Feature::isActive('v6.5.0.0')) {
-            static::expectExceptionMessage('Tried to access deprecated functionality: The parameter context in method compileTheme of class Shopware\Storefront\Theme\ThemeCompiler is mandatory.');
-        }
-
-        $compiler->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'test',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            true
-        );
-    }
-
     public function testAssetPathWillBeAbsoluteConverted(): void
     {
         $resolver = $this->createMock(ThemeFileResolver::class);
@@ -473,7 +426,7 @@ PHP_EOL;
         $fs->write('temp/test.png', '');
         $png = $fs->readStream('temp/test.png');
 
-        $prefix = Feature::isActive('FEATURE_NEXT_15381') ? '/temp' : '';
+        $prefix = '/temp';
 
         $importer = $this->createMock(ThemeFileImporter::class);
         $importer->method('getCopyBatchInputsForAssets')->with('assets')->willReturn(

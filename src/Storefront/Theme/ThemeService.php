@@ -66,7 +66,6 @@ class ThemeService
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
         bool $withAssets = true
     ): void {
-        /** @phpstan-ignore-next-line  */
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
@@ -93,7 +92,6 @@ class ThemeService
         $compiledThemeIds = [];
         /** @var ThemeSalesChannel $mapping */
         foreach ($mappings as $mapping) {
-            /** @phpstan-ignore-next-line  */
             $this->themeCompiler->compileTheme(
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),

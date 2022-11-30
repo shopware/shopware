@@ -18,7 +18,7 @@ services:
       - /var/lib/mysql:uid=999,gid=999
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: shopware
 
   adminer:
       image: adminer:latest

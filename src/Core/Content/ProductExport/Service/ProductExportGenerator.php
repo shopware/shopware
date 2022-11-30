@@ -183,11 +183,15 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
 
         $body = '';
+        $total =  $exportBehavior->offset();
+        $batchItterationBreak = false;
         while ($productResult = $iterator->fetch()) {
             /** @var ProductEntity $product */
             foreach ($productResult->getEntities() as $product) {
-                $data = $productContext->getContext();
-                $data['product'] = $product;
+                if(!$batchItterationBreak){
+                        $data = $productContext->getContext();
+                        $data['product'] = $product;
+                }
 
                 if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
                     continue; // Skip main product if variants are included
@@ -196,11 +200,14 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                     continue; // Skip variants unless they are included
                 }
 
-                $body .= $this->productExportRender->renderBody($productExport, $context, $data);
+                $total++;
+                if (!$batchItterationBreak) {
+                    $body .= $this->productExportRender->renderBody($productExport, $context, $data);
+                }
             }
-
+            
             if ($exportBehavior->batchMode()) {
-                break;
+                $batchItterationBreak = true;
             }
         }
         $content .= $this->seoUrlPlaceholderHandler->replace($body, $productExport->getSalesChannelDomain()->getUrl(), $context);

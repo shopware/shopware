@@ -154,14 +154,6 @@ default:
     - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
     -  $CI_PROJECT_DIR/bin/console assets:install
 
-.install-dev-tools: &install-dev-tools
-    - >
-        composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
-    - composer config --global allow-plugins.composer/package-versions-deprecated true
-    - composer config --global allow-plugins.bamarni/composer-bin-plugin true
-    - composer config --global allow-plugins.phpstan/extension-installer true
-    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
-
 build zip:
     stage: build
     image:
@@ -259,8 +251,7 @@ ecs:
         - exists:
               - ecs.php
     script:
-        - *install-dev-tools
-        - vendor/bin/ecs
+        - ${PROJECT_ROOT}/vendor/bin/ecs
 
 validate snippets:
     stage: test

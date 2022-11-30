@@ -6,32 +6,4 @@ author_email: jbk@alphanauten.de
 author_github: jbk@alphanauten.de
 ---
 # Core
-*
-___
-# API
-*
-___
-# Administration
-*
-___
-# Storefront
-*
-___
-# Upgrade Information
-## Topic 1
-### Topic 1a
-### Topic 1b
-## Topic 2
-___
-# Next Major Version Changes
-## Breaking Change 1:
-* Do this
-## Breaking Change 2:
-change
-```
-static
-```
-to
-```
-self
-```
+* Changed File "src/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandler.php", on Line 128, changed Equals Filter to Equals Any and Added Product Comparison Sales Channel Id 

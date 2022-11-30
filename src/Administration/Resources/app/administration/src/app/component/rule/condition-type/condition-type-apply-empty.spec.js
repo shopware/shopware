@@ -18,71 +18,19 @@ import path from 'path';
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypesApplyIsEmpty = [
     {
-        filePath: 'sw-condition-days-since-last-order',
-        value: 'daysPassed'
-    },
-    {
-        filePath: 'sw-condition-billing-country',
-        value: 'countryIds'
-    },
-    {
-        filePath: 'sw-condition-billing-street',
-        value: 'streetName'
-    },
-    {
         filePath: 'sw-condition-billing-zip-code',
         value: 'zipCodes'
-    },
-    {
-        filePath: 'sw-condition-customer-tag',
-        value: 'identifiers'
     },
     {
         filePath: 'sw-condition-shipping-zip-code',
         value: 'zipCodes'
     },
     {
-        filePath: 'sw-condition-last-name',
-        value: 'lastName'
-    },
-    {
-        filePath: 'sw-condition-shipping-street',
-        value: 'streetName'
-    },
-    {
-        filePath: 'sw-condition-shipping-country',
-        value: 'countryIds'
-    },
-    {
-        filePath: 'sw-condition-line-item-tag',
-        value: 'identifiers'
-    },
-    {
-        filePath: 'sw-condition-line-item-of-manufacturer',
-        value: 'manufacturerIds'
-    },
-    {
-        filePath: 'sw-condition-line-item-release-date',
-        value: 'lineItemReleaseDate'
-    },
-    {
         filePath: 'sw-condition-line-item-in-category',
         value: 'categoryIds'
     },
     {
-        filePath: 'sw-condition-line-item-dimension-width',
-        value: 'amount'
-    },
-    {
-        filePath: 'sw-condition-line-item-dimension-height',
-        value: 'amount'
-    },
-    {
-        filePath: 'sw-condition-line-item-dimension-length',
-        value: 'amount'
-    },
-    {
-        filePath: 'sw-condition-line-item-dimension-weight',
+        filePath: 'sw-condition-line-item-purchase-price',
         value: 'amount'
     }
 ];
@@ -98,6 +46,7 @@ async function createWrapperForComponent(componentName, props = {}) {
         stubs: {
             'sw-condition-type-select': await Shopware.Component.build('sw-condition-type-select'),
             'sw-condition-operator-select': await Shopware.Component.build('sw-condition-operator-select'),
+            'sw-condition-is-net-select': true,
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-single-select': await Shopware.Component.build('sw-single-select'),

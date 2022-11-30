@@ -79,7 +79,7 @@ async function createWrapper() {
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const conditionElement = wrapper.find('.sw-flow-rule-modal__rule');
         expect(conditionElement.exists()).toBe(true);
@@ -93,7 +93,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
 
         const detailHeaderTab = wrapper.find('.sw-flow-rule-modal__tab-detail');
         await detailHeaderTab.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         fieldClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
@@ -102,10 +102,11 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
 
     it('should emit event process-finish when saving rule successfully', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-flow-rule-modal__save-button');
         await saveButton.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted()['process-finish']).toBeTruthy();
     });

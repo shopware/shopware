@@ -122,10 +122,6 @@ export default {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
 
-            if (!this.feature.isActive('v6.5.0.0')) {
-                return this.appScriptConditionRepository.search(criteria, context);
-            }
-
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
                 this.ruleConditionsConfigApiService.load(),

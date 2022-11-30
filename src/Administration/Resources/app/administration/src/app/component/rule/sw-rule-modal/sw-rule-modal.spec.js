@@ -74,13 +74,16 @@ async function createWrapper() {
 describe('app/component/rule/sw-rule-modal', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should emit event save when saving rule successfully', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.vm.saveAndClose();
+        await flushPromises();
 
         expect(wrapper.emitted().save).toBeTruthy();
     });

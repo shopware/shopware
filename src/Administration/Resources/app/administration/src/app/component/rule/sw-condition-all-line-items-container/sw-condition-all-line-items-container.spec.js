@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-all-line-items-container';
 import 'src/app/component/rule/sw-condition-base';
-import 'src/app/component/rule/condition-type/sw-condition-day-of-week';
+import 'src/app/component/rule/condition-type/sw-condition-goods-price';
 
 const createCondition = jest.fn();
 const insertNodeIntoTree = jest.fn();
@@ -12,14 +12,14 @@ async function createWrapper(customProps = {}) {
         stubs: {
             'sw-condition-tree-node': true,
             'sw-condition-base': await Shopware.Component.build('sw-condition-base'),
-            'sw-condition-day-of-week': await Shopware.Component.build('sw-condition-day-of-week')
+            'sw-condition-goods-price': await Shopware.Component.build('sw-condition-goods-price')
         },
         provide: {
             conditionDataProviderService: {
                 getPlaceholderData: () => {},
                 getByType: () => {
                     return {
-                        component: 'sw-condition-day-of-week'
+                        component: 'sw-condition-goods-price'
                     };
                 }
             },
@@ -92,9 +92,9 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         const condition = { ...wrapper.props().condition };
         condition.children.first = () => {
             return {
-                type: 'dayOfWeek',
+                type: 'cartGoodsPrice',
                 value: {
-                    dayOfTheWeek: 7,
+                    amount: 7,
                     operator: '='
                 }
             };

@@ -149,30 +149,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
 
-        $total = $iterator->getTotal();
-        if ($total === 0) {
-            $exception = new EmptyExportException($productExport->getId());
-
-            $loggingEvent = new ProductExportLoggingEvent(
-                $context->getContext(),
-                $exception->getMessage(),
-                Logger::WARNING,
-                $exception
-            );
-
-            $this->eventDispatcher->dispatch($loggingEvent);
-
-            $this->translator->resetInjection();
-            $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
-
-            throw $exception;
-        }
-
-        $content = '';
-        if ($exportBehavior->generateHeader()) {
-            $content = $this->productExportRender->renderHeader($productExport, $context);
-        }
-
         $productContext = $this->eventDispatcher->dispatch(
             new ProductExportRenderBodyContextEvent(
                 [
@@ -201,6 +177,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 }
 
                 $total++;
+                
                 if (!$batchItterationBreak) {
                     $body .= $this->productExportRender->renderBody($productExport, $context, $data);
                 }
@@ -210,8 +187,35 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 $batchItterationBreak = true;
             }
         }
+        //Throw Error when no products are to be exported
+        if ($total === 0) {
+            $exception = new EmptyExportException($productExport->getId());
+
+            $loggingEvent = new ProductExportLoggingEvent(
+                $context->getContext(),
+                $exception->getMessage(),
+                Logger::WARNING,
+                $exception
+            );
+
+            $this->eventDispatcher->dispatch($loggingEvent);
+
+            $this->translator->resetInjection();
+            $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
+
+            throw $exception;
+        }
+        
+        //Header Creation
+        $content = '';
+        if ($exportBehavior->generateHeader()) {
+            $content = $this->productExportRender->renderHeader($productExport, $context);
+        }
+        
+        //Body Added to Content
         $content .= $this->seoUrlPlaceholderHandler->replace($body, $productExport->getSalesChannelDomain()->getUrl(), $context);
 
+        //Footer Creation and added to Content
         if ($exportBehavior->generateFooter()) {
             $content .= $this->productExportRender->renderFooter($productExport, $context);
         }
@@ -232,7 +236,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         return new ProductExportResult(
             $encodingEvent->getEncodedContent(),
             $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
-            $iterator->getTotal()
+            $total
         );
     }
 

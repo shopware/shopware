@@ -87,7 +87,15 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     {
         $criteria = new Criteria();
         $criteria
-            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(
+                new EqualsAnyFilter(
+                    'typeId', 
+                    [
+                        Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+                        Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON
+                    ]
+                )
+            )
             ->addFilter(new EqualsFilter('active', true));
 
         /**

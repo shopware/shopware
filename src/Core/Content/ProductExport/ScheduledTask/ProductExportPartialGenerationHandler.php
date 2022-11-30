@@ -143,7 +143,7 @@ final class ProductExportPartialGenerationHandler implements MessageSubscriberIn
             $productExportPartialGeneration->getSalesChannelId()
         );
 
-        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT && $context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON) {
             throw new SalesChannelNotFoundException();
         }
 

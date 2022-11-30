@@ -8,8 +8,6 @@ import Feature from 'src/helper/feature.helper';
 export default class BaseSliderPlugin extends Plugin {
     /**
      * default slider options
-     *
-     * @type {*}
      */
     static options = {
         initializedCls: 'js-slider-initialized',

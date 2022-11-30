@@ -14,7 +14,7 @@ export default class SetBrowserClassPlugin extends Plugin {
     _browserDetection() {
         const detections = DeviceDetection.getList();
 
-        Iterator.iterate(detections, function(value, key) {
+        Iterator.iterate(detections, function (value, key) {
             if (value) {
                 return document.documentElement.classList.add(key);
             }

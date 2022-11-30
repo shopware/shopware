@@ -87,7 +87,6 @@ import GoogleReCaptchaV2Plugin from 'src/plugin/captcha/google-re-captcha/google
 import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
 /** @deprecated tag:v6.5.0 - SwagBlockLink plugin will be removed without replacement */
 import SwagBlockLink from 'src/helper/block-link.helper';
-import StoreApiClient from 'src/service/store-api-client.service';
 import ClearInputPlugin from 'src/plugin/clear-input-button/clear-input.plugin';
 import CmsGdprVideoElement from 'src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin';
 import WishlistWidgetPlugin from 'src/plugin/header/wishlist-widget.plugin';
@@ -208,10 +207,6 @@ if (window.googleReCaptchaV2Active) {
 
 if (window.googleReCaptchaV3Active) {
     PluginManager.register('GoogleReCaptchaV3', GoogleReCaptchaV3Plugin, '[data-google-re-captcha-v3]');
-}
-
-if (!Feature.isActive('v6.5.0.0')) {
-    window.storeApiClient = StoreApiClient;
 }
 
 window.Feature = Feature;

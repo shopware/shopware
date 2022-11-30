@@ -164,17 +164,6 @@ parameters:
             count: 1
             path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
 
-        # can be removed with 6.5
-        -
-        	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no type specified\\.$#"
-        	count: 1
-        	path: src/Core/HttpKernel.php
-
-        -
-        	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$type with no type specified\\.$#"
-        	count: 1
-        	path: src/Core/HttpKernel.php
-
         # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
         - '#Trait .* is used zero times and is not analysed.#'
 

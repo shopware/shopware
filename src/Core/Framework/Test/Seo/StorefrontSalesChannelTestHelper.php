@@ -21,12 +21,9 @@ use Symfony\Component\DependencyInjection\Container;
 
 trait StorefrontSalesChannelTestHelper
 {
-    /**
-     * @deprecated tag:v6.5.0 - parameter $disableCsrf will be removed as the csrf system will be removed in favor for the samesite approach
-     */
-    public function getBrowserWithLoggedInCustomer(bool $disableCsrf = true): KernelBrowser
+    public function getBrowserWithLoggedInCustomer(): KernelBrowser
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false, $disableCsrf);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
         $browser->setServerParameters([
             'HTTP_ACCEPT' => 'application/json',
         ]);

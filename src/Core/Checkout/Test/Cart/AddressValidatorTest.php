@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -74,7 +73,6 @@ class AddressValidatorTest extends TestCase
 
     /**
      * @dataProvider salutationProvider
-     * @dataProvider defaultSalutationProvider
      */
     public function testSalutationValidation(
         ?string $salutationId = null,
@@ -100,7 +98,7 @@ class AddressValidatorTest extends TestCase
         $allSalutationsSet = array_reduce(
             [$salutationId, $billingAddressSalutationId, $shippingAddressSalutationId],
             static function (bool $carry, ?string $salutationId = null): bool {
-                return $carry && $salutationId !== null && $salutationId !== Defaults::SALUTATION;
+                return $carry && $salutationId !== null;
             },
             true
         );
@@ -133,15 +131,6 @@ class AddressValidatorTest extends TestCase
         yield 'customer and shipping address salutation' => [Uuid::randomHex(), null, Uuid::randomHex()];
         yield 'billing address and shipping address salutation' => [null, Uuid::randomHex(), Uuid::randomHex()];
         yield 'every salutation' => [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-    }
-
-    public function defaultSalutationProvider(): \Generator
-    {
-        foreach ($this->salutationProvider() as $key => $params) {
-            yield $key => array_map(static function (?string $salutationId = null): ?string {
-                return $salutationId ? Defaults::SALUTATION : null;
-            }, $params);
-        }
     }
 
     private function getSearchResultStub(?bool $assigned = true, ?string $id = null): IdSearchResult
@@ -196,6 +185,12 @@ class AddressValidatorTest extends TestCase
     private function getCustomerAddressMock(?string $salutationId = null): CustomerAddressEntity
     {
         $address = new CustomerAddressEntity();
+        $address->setId(Uuid::randomHex());
+        $address->setFirstName('Foo');
+        $address->setLastName('Foo');
+        $address->setZipcode('12345');
+        $address->setCity('Foo');
+
         if ($salutationId) {
             $address->setSalutationId($salutationId);
         }

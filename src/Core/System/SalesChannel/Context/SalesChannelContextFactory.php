@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\SalesChannel\BaseContext;
@@ -131,11 +130,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding
         );
 
-        $fallbackGroup = $customerGroup;
-        Feature::callSilentIfInactive('v6.5.0.0', function () use ($base, &$fallbackGroup): void {
-            $fallbackGroup = $base->getFallbackCustomerGroup();
-        });
-
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
@@ -143,7 +137,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $base->getSalesChannel(),
             $base->getCurrency(),
             $customerGroup,
-            $fallbackGroup,
             $taxRules,
             $payment,
             $base->getShippingMethod(),

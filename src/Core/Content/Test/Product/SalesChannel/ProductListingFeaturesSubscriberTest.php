@@ -20,8 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -123,6 +125,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider manufacturerProvider
+     *
+     * @param list<string> $expected
      */
     public function testManufacturerFilter(array $expected, Request $request): void
     {
@@ -143,6 +147,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($expected, $filter->getValue());
     }
 
+    /**
+     * @return list<array{0: list<string>, 1: Request}>
+     */
     public function manufacturerProvider(): array
     {
         $id1 = Uuid::randomHex();
@@ -165,7 +172,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
         $this->eventDispatcher->dispatch($event);
 
-        $filters = $this->getFiltersOfField($criteria->getPostFilters(), 'product.shippingFree');
+        /** @var list<SingleFieldFilter> $postFilters */
+        $postFilters = $criteria->getPostFilters();
+        $filters = $this->getFiltersOfField($postFilters, 'product.shippingFree');
         if ($expected === null) {
             static::assertCount(0, $filters);
 
@@ -179,7 +188,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($expected, $filter->getValue());
     }
 
-    public function shippingFreeProvider()
+    /**
+     * @return list<array{0: ?bool, 1: Request}>
+     */
+    public function shippingFreeProvider(): array
     {
         return [
             [null, new Request()],
@@ -191,6 +203,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider priceFilterProvider
+     *
+     * @param array{min?: int|null, max?: int|null} $expected
      */
     public function testPriceFilter(array $expected, Request $request): void
     {
@@ -212,6 +226,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($expected['max'], $filter->getParameter(RangeFilter::LTE));
     }
 
+    /**
+     * @return list<array{0: array{min?: int|null, max?: int|null}, 1: Request}>
+     */
     public function priceFilterProvider(): array
     {
         return [
@@ -225,6 +242,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider listSortingProvider
+     *
+     * @param array<string, string> $expectedFields
      */
     public function testListSorting(array $expectedFields, Request $request): void
     {
@@ -245,6 +264,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider searchSortingProvider
      * @group slow
+     *
+     * @param array<string, string> $expectedFields
      */
     public function testSearchSorting(array $expectedFields, Request $request): void
     {
@@ -288,6 +309,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->eventDispatcher->dispatch($event);
     }
 
+    /**
+     * @return list<array{0: array<string, string>, 1: Request}>
+     */
     public function searchSortingProvider(): array
     {
         return [
@@ -325,6 +349,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: array<string, string>, 1: Request}>
+     */
     public function listSortingProvider(): array
     {
         return [
@@ -362,27 +389,29 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: Request}>
+     */
     public function unavailableSearchSortingProvider(): array
     {
         return [
-            [
-                new Request(['order' => 'unknown']),
-                new Request(['order' => 'test-inactive']),
-                new Request(['order' => 'score', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
-            ],
+            [new Request(['order' => 'unknown'])],
+            [new Request(['order' => 'test-inactive'])],
+            [new Request(['order' => 'score', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]])],
+            [new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]])],
         ];
     }
 
+    /**
+     * @return list<array{0: Request}>
+     */
     public function unavailableListSortingProvider(): array
     {
         return [
-            [
-                new Request(['order' => 'unknown']),
-                new Request(['order' => 'test-inactive']),
-                new Request(['order' => 'name-asc', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
-            ],
+            [new Request(['order' => 'unknown'])],
+            [new Request(['order' => 'test-inactive'])],
+            [new Request(['order' => 'name-asc', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]])],
+            [new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]])],
         ];
     }
 
@@ -436,7 +465,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $eventChannel = new ProductListingCriteriaEvent(
             $request,
             $criteriaChannel,
-            Generator::createSalesChannelContext(null, null, null, $this->salesChannel)
+            Generator::createSalesChannelContext(null, null, $this->salesChannel)
         );
 
         $this->eventDispatcher->dispatch($eventChannel);
@@ -447,7 +476,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertSame($offsetChannel, $criteriaChannel->getOffset());
     }
 
-    public function paginationProvider()
+    /**
+     * @return list<array{0: int, 1: int, 2: Request, 3?: int}>
+     */
+    public function paginationProvider(): array
     {
         return [
             [24, 0, new Request()],
@@ -476,7 +508,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
-    public function paginationSalesChannelProvider()
+    /**
+     * @return list<array{0: int, 1: int, 2: Request, 3: int}>
+     */
+    public function paginationSalesChannelProvider(): array
     {
         return [
             [12, 0, new Request(), 12, 0],
@@ -574,6 +609,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider filterAggregationsProvider
+     *
+     * @param list<string> $expectedAggregations
+     * @param array<string, bool|list<string>|null> $expectedRequestFilters
      */
     public function testFilterAggregations(array $expectedAggregations, array $expectedRequestFilters, Request $request): void
     {
@@ -596,6 +634,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         static::assertEquals($expectedAggregations, $aggregationKeys);
     }
 
+    /**
+     * @return list<array{0: list<string>, 1: array<string, bool|list<string>|null>, 2: Request}>
+     */
     public function filterAggregationsProvider(): array
     {
         $defaultAggregations = [
@@ -829,6 +870,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider filterAggregationsWithProducts
+     *
+     * @param array<string, mixed> $product
+     * @param array<string, mixed> $expected
      */
     public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
     {
@@ -870,6 +914,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @return list<array{0: IdsCollection, 1: array<string, mixed>, 2: Request, 3: array<string, mixed>}>
+     */
     public function filterAggregationsWithProducts(): array
     {
         $ids = new TestDataCollection();
@@ -1202,6 +1249,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, list<string>> $properties
+     */
     private function assertPropertyFilter(array $properties, Request $request, string $message): void
     {
         $criteria = new Criteria();
@@ -1232,6 +1282,11 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @param list<Filter> $filters
+     *
+     * @return array<mixed>
+     */
     private function getFilteredValues(array $filters): array
     {
         $filtered = [];
@@ -1248,7 +1303,12 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         return $filtered;
     }
 
-    private function getFiltersOfField(array $filters, string $field)
+    /**
+     * @param list<SingleFieldFilter> $filters
+     *
+     * @return list<SingleFieldFilter>
+     */
+    private function getFiltersOfField(array $filters, string $field): array
     {
         $matches = [];
         foreach ($filters as $filter) {

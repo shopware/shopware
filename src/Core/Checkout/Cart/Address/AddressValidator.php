@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingEr
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -63,7 +62,7 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return;
         }
 
-        if (!$this->isValidSalutationId($customer->getSalutationId())) {
+        if (!$customer->getSalutationId()) {
             $errors->add(new ProfileSalutationMissingError($customer));
 
             return;
@@ -74,13 +73,13 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return;
         }
 
-        if (!$this->isValidSalutationId($customer->getActiveBillingAddress()->getSalutationId())) {
+        if (!$customer->getActiveBillingAddress()->getSalutationId()) {
             $errors->add(new BillingAddressSalutationMissingError($customer->getActiveBillingAddress()));
 
             return;
         }
 
-        if (!$this->isValidSalutationId($customer->getActiveShippingAddress()->getSalutationId())) {
+        if (!$customer->getActiveShippingAddress()->getSalutationId()) {
             $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
         }
     }
@@ -102,10 +101,5 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         $salesChannelCountryIds = $this->repository->searchIds($criteria, $context->getContext());
 
         return $this->available[$countryId] = $salesChannelCountryIds->has($countryId);
-    }
-
-    private function isValidSalutationId(?string $salutationId = null): bool
-    {
-        return $salutationId !== null && $salutationId !== Defaults::SALUTATION;
     }
 }

@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -36,11 +35,6 @@ class SalesChannelContext extends Struct
      * @var CustomerGroupEntity
      */
     protected $currentCustomerGroup;
-
-    /**
-     * @var CustomerGroupEntity
-     */
-    protected $fallbackCustomerGroup;
 
     /**
      * @var CurrencyEntity
@@ -123,8 +117,7 @@ class SalesChannelContext extends Struct
     private $domainId;
 
     /**
-     * @deprecated tag:v6.5.0 - __construct will be internal, use context factory to create a new context
-     * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
+     * @internal
      *
      * @param array<string> $rulesIds
      * @param array<string, string[]> $areaRuleIds
@@ -136,7 +129,6 @@ class SalesChannelContext extends Struct
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
-        CustomerGroupEntity $fallbackCustomerGroup,
         TaxCollection $taxRules,
         PaymentMethodEntity $paymentMethod,
         ShippingMethodEntity $shippingMethod,
@@ -148,7 +140,6 @@ class SalesChannelContext extends Struct
         array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
-        $this->fallbackCustomerGroup = $fallbackCustomerGroup;
         $this->currency = $currency;
         $this->salesChannel = $salesChannel;
         $this->taxRules = $taxRules;
@@ -168,19 +159,6 @@ class SalesChannelContext extends Struct
     public function getCurrentCustomerGroup(): CustomerGroupEntity
     {
         return $this->currentCustomerGroup;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed, use getCurrentCustomerGroup instead
-     */
-    public function getFallbackCustomerGroup(): CustomerGroupEntity
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getCurrentCustomerGroup()')
-        );
-
-        return $this->fallbackCustomerGroup;
     }
 
     public function getCurrency(): CurrencyEntity

@@ -14,7 +14,6 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -143,7 +143,7 @@ class SendMailActionTest extends TestCase
                 'recipients' => [
                     'email' => 'firstName lastName',
                 ],
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'templateId' => $mailTemplateId,
                 'customFields' => null,
                 'contentHtml' => null,
@@ -166,12 +166,12 @@ class SendMailActionTest extends TestCase
         $this->flow->expects(static::exactly(5))
             ->method('getStore')
             ->willReturnOnConsecutiveCalls(
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 ['recipients' => [
                     'email' => 'firstName lastName',
                 ]],
                 [],
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 Uuid::randomHex(),
             );
 

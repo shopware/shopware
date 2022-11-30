@@ -10,19 +10,9 @@ namespace Shopware\Core;
 final class Defaults
 {
     /**
-     * @deprecated tag:v6.5.0 - Don't rely on this id, the headless sales channel could be deleted.
-     */
-    public const SALES_CHANNEL = '98432def39fc4624b33213a56b8c944d';
-
-    /**
      * Don't depend on this being en-GB, the underlying language can be overwritten by the installer!
      */
     public const LANGUAGE_SYSTEM = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
-
-    /**
-     * @deprecated tag:v6.5.0 - Use sales channel default customer group instead
-     */
-    public const FALLBACK_CUSTOMER_GROUP = 'cfbd5018d38d41d8adca10d94fc8bdd6';
 
     public const LIVE_VERSION = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 
@@ -45,11 +35,4 @@ final class Defaults
     public const STORAGE_DATE_FORMAT = 'Y-m-d';
 
     public const CMS_PRODUCT_DETAIL_PAGE = '7a6d253a67204037966f42b0119704d5';
-
-    /**
-     * @deprecated tag:v6.5.0 This will be superfluous in future updates, as the salutation will be completely optional.
-     * This constant is only needed to ensure extensions always get a default salutation for customer/address entities
-     * via the `CustomerDefaultSalutationSubscriber`.
-     */
-    public const SALUTATION = 'ed643807c9f84cc8b50132ea3ccb1c3b';
 }

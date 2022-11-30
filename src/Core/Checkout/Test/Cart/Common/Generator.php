@@ -47,7 +47,6 @@ class Generator extends TestCase
     public static function createSalesChannelContext(
         ?Context $baseContext = null,
         ?CustomerGroupEntity $currentCustomerGroup = null,
-        ?CustomerGroupEntity $fallbackCustomerGroup = null,
         ?SalesChannelEntity $salesChannel = null,
         ?CurrencyEntity $currency = null,
         ?TaxCollection $taxes = null,
@@ -78,12 +77,6 @@ class Generator extends TestCase
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupEntity();
             $currentCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
-            $currentCustomerGroup->setDisplayGross(true);
-        }
-
-        if (!$fallbackCustomerGroup) {
-            $fallbackCustomerGroup = new CustomerGroupEntity();
-            $fallbackCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 
@@ -150,7 +143,6 @@ class Generator extends TestCase
             $salesChannel,
             $currency,
             $currentCustomerGroup,
-            $fallbackCustomerGroup,
             $taxes,
             $paymentMethod,
             $shippingMethod,

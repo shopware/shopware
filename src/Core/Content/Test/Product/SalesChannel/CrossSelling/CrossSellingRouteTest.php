@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -34,30 +36,17 @@ class CrossSellingRouteTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var ProductCrossSellingRoute
-     */
-    private $route;
+    private AbstractProductCrossSellingRoute $route;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
     public function setUp(): void
     {
         $this->salesChannelContext = Generator::createSalesChannelContext(
-            null,
             null,
             null,
             (new SalesChannelEntity())->assign([
@@ -123,6 +112,7 @@ class CrossSellingRouteTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
         static::assertEquals(1, $result->count());
@@ -159,6 +149,7 @@ class CrossSellingRouteTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
         static::assertEquals(1, $result->count());
@@ -196,6 +187,7 @@ class CrossSellingRouteTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
         static::assertEquals(1, $result->count());
@@ -233,6 +225,7 @@ class CrossSellingRouteTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
         static::assertEquals(1, $result->count());
@@ -260,6 +253,7 @@ class CrossSellingRouteTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
         static::assertEquals(1, $result->count());
@@ -280,7 +274,7 @@ class CrossSellingRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertArrayHasKey('crossSelling', $response[0]);
@@ -325,6 +319,7 @@ class CrossSellingRouteTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
         static::assertEquals(1, $result->count());
@@ -457,6 +452,9 @@ class CrossSellingRouteTest extends TestCase
         return $id;
     }
 
+    /**
+     * @return list<array{productId: string, position: int}>
+     */
     private function createAssignedProducts(?bool $includesIsCloseoutProducts = false, ?bool $noStock = false): array
     {
         $assignedProducts = [];
@@ -472,6 +470,9 @@ class CrossSellingRouteTest extends TestCase
         return $assignedProducts;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(?bool $isCloseout = false, ?bool $noStock = false): array
     {
         $manufacturerId = Uuid::randomHex();
@@ -500,6 +501,9 @@ class CrossSellingRouteTest extends TestCase
         return $products;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, ?int $stock = 1, ?bool $isCloseout = false): array
     {
         $price = random_int(0, 10);

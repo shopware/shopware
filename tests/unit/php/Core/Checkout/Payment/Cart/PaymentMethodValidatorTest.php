@@ -122,7 +122,6 @@ class PaymentMethodValidatorTest extends TestCase
             $salesChannel,
             $this->createMock(CurrencyEntity::class),
             $this->createMock(CustomerGroupEntity::class),
-            $this->createMock(CustomerGroupEntity::class),
             $this->createMock(TaxCollection::class),
             $paymentMethod,
             $this->createMock(ShippingMethodEntity::class),

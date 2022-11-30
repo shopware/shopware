@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -10,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
@@ -22,42 +21,16 @@ use Symfony\Component\Routing\RouterInterface;
 class UserRecoveryService
 {
     /**
-     * @var EntityRepository
-     */
-    private $userRecoveryRepo;
-
-    /**
-     * @var EntityRepository
-     */
-    private $userRepo;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
-
-    /**
      * @internal
      */
     public function __construct(
-        EntityRepository $userRecoveryRepo,
-        EntityRepository $userRepo,
-        RouterInterface $router,
-        EventDispatcherInterface $dispatcher,
-        SalesChannelContextServiceInterface $salesChannelContextService
+        private EntityRepository $userRecoveryRepo,
+        private EntityRepository $userRepo,
+        private RouterInterface $router,
+        private EventDispatcherInterface $dispatcher,
+        private SalesChannelContextService $salesChannelContextService,
+        private EntityRepository $salesChannelRepository,
     ) {
-        $this->userRecoveryRepo = $userRecoveryRepo;
-        $this->userRepo = $userRepo;
-        $this->router = $router;
-        $this->dispatcher = $dispatcher;
-        $this->salesChannelContextService = $salesChannelContextService;
     }
 
     public function generateUserRecovery(string $userEmail, Context $context): void
@@ -104,7 +77,7 @@ class UserRecoveryService
 
         $salesChannelContext = $this->salesChannelContextService->get(
             new SalesChannelContextServiceParameters(
-                Defaults::SALES_CHANNEL,
+                $this->getSalesChannelId($context),
                 Uuid::randomHex(),
                 $context->getLanguageId(),
                 null,
@@ -143,6 +116,7 @@ class UserRecoveryService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('hash', $hash));
 
+        /** @var UserRecoveryEntity $recovery It can't be null as we checked the hash before */
         $recovery = $this->getUserRecovery($criteria, $context);
 
         $updateData = [
@@ -194,5 +168,16 @@ class UserRecoveryService
         ];
 
         $this->userRecoveryRepo->delete([$recoveryData], $context);
+    }
+
+    private function getSalesChannelId(Context $context): string
+    {
+        $id = $this->salesChannelRepository->searchIds(new Criteria(), $context)->firstId();
+
+        if ($id === null) {
+            throw new \RuntimeException('No sales channel found');
+        }
+
+        return $id;
     }
 }

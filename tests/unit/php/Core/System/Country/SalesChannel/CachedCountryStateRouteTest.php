@@ -70,7 +70,6 @@ class CachedCountryStateRouteTest extends TestCase
             $salesChannel,
             new CurrencyEntity(),
             new CustomerGroupEntity(),
-            new CustomerGroupEntity(),
             new TaxCollection(),
             new PaymentMethodEntity(),
             new ShippingMethodEntity(),

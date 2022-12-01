@@ -200,6 +200,27 @@ class EntityHydratorTest extends TestCase
         $customFields = $first->get('customTranslated');
         static::assertSame('PARENT ENGLISH', $customFields['custom_test_text']);
         static::assertSame('0', $customFields['custom_test_check']);
+
+        $rows = [
+            [
+                'test.id' => $id,
+                'test.name' => 'example',
+                'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT DEUTSCH"}',
+                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": "0"}',
+            ],
+        ];
+
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $first = $structs->first();
+
+        $customFields = $first->get('customTranslated');
+        $translated = $first->getTranslation('customTranslated');
+        static::assertNull($customFields['custom_test_text'] ?? null);
+        static::assertSame('PARENT DEUTSCH', $translated['custom_test_text']);
+        static::assertSame('0', $customFields['custom_test_check']);
     }
 
     public function testCustomFieldHydrationWithTranslationWithoutInheritance(): void

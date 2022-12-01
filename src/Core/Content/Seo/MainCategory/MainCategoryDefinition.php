@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class MainCategoryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'main_category';

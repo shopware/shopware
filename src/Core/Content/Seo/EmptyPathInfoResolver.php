@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Seo;
 
 /**
+ * @package sales-channel
+ *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 class EmptyPathInfoResolver extends AbstractSeoResolver

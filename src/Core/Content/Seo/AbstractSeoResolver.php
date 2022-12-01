@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Seo;
 
 /**
+ * @package sales-channel
+ *
  * @phpstan-type ResolvedSeoUrl = array{id?: string, pathInfo: string, isCanonical: bool|string, canonicalPathInfo?: string}
  */
 abstract class AbstractSeoResolver

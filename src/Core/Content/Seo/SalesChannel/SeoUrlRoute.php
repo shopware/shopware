@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package sales-channel
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class SeoUrlRoute extends AbstractSeoUrlRoute

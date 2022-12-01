@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use function preg_replace_callback;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
     public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';

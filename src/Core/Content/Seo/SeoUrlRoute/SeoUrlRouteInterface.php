@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package sales-channel
+ */
 interface SeoUrlRouteInterface
 {
     public function getConfig(): SeoUrlRouteConfig;

@@ -86,14 +86,6 @@ parameters:
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
 
-        # The redis proxy and cluster has a magic __call method which is not considered by phpstan
-        -
-            message: '#Call to an undefined method .*RedisProxy.*::.*\(\).*#'
-            path: src/**/*.php
-        -
-            message: '#Cannot call method .* on .*RedisProxy.*#'
-            path: src/**/*.php
-
         # dynamic hydrator performance
         -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'

@@ -14,15 +14,23 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type TimeBackoffLimit from TimeBackoff
  */
 class TimeBackoffLimiter implements LimiterInterface
 {
     use ResetLimiterTrait;
 
+    /**
+     * @var list<TimeBackoffLimit>
+     */
     private array $limits;
 
     private int $reset;
 
+    /**
+     * @param list<TimeBackoffLimit> $limits
+     */
     public function __construct(string $id, array $limits, \DateInterval $reset, StorageInterface $storage, ?LockInterface $lock = null)
     {
         $this->id = $id;
@@ -39,7 +47,7 @@ class TimeBackoffLimiter implements LimiterInterface
 
     public function consume(int $tokens = 1): RateLimit
     {
-        $this->lock->acquire(true);
+        $this->lock?->acquire(true);
 
         try {
             $backoff = $this->storage->fetch($this->id);
@@ -67,7 +75,7 @@ class TimeBackoffLimiter implements LimiterInterface
 
             return new RateLimit($backoff->getAvailableAttempts($now), $backoff->getRetryAfter(), true, $backoff->getCurrentLimit($now));
         } finally {
-            $this->lock->release();
+            $this->lock?->release();
         }
     }
 }

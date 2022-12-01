@@ -22,30 +22,15 @@ class RedisCartPersister extends AbstractCartPersister
     public const PREFIX = 'cart-persister-';
 
     /**
-     * @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null
-     */
-    private $redis;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartSerializationCleaner $cartSerializationCleaner;
-
-    private bool $compress;
-
-    private int $expireDays;
-
-    /**
      * @internal
-     *
-     * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct($redis, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress, int $expireDays)
-    {
-        $this->redis = $redis;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartSerializationCleaner = $cartSerializationCleaner;
-        $this->compress = $compress;
-        $this->expireDays = $expireDays;
+    public function __construct(
+        private \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis,
+        private EventDispatcherInterface $eventDispatcher,
+        private CartSerializationCleaner $cartSerializationCleaner,
+        private bool $compress,
+        private int $expireDays
+    ) {
     }
 
     public function getDecorated(): AbstractCartPersister

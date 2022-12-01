@@ -12871,31 +12871,6 @@ parameters:
 			path: src/Core/Framework/Plugin/Util/VersionSanitizer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\Policy\\\\TimeBackoff\\:\\:__construct\\(\\) has parameter \\$limits with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/Policy/TimeBackoff.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\Policy\\\\TimeBackoff\\:\\:getLimit\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/Policy/TimeBackoff.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\Policy\\\\TimeBackoff\\:\\:\\$limits type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/Policy/TimeBackoff.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\Policy\\\\TimeBackoffLimiter\\:\\:__construct\\(\\) has parameter \\$limits with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/Policy/TimeBackoffLimiter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\Policy\\\\TimeBackoffLimiter\\:\\:\\$limits type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/Policy/TimeBackoffLimiter.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\AbstractRouteScope\\:\\:getRoutePrefixes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Routing/AbstractRouteScope.php

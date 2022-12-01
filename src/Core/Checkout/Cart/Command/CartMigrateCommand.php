@@ -110,6 +110,10 @@ class CartMigrateCommand extends Command
 
     private function redisToSql(InputInterface $input, OutputInterface $output): int
     {
+        if ($this->redis === null) {
+            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
+        }
+
         $this->io = new ShopwareStyle($input, $output);
 
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
@@ -186,6 +190,10 @@ class CartMigrateCommand extends Command
 
     private function sqlToRedis(InputInterface $input, OutputInterface $output): int
     {
+        if ($this->redis === null) {
+            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
+        }
+
         $this->io = new ShopwareStyle($input, $output);
 
         $count = $this->connection->fetchOne('SELECT COUNT(token) FROM cart');

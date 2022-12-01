@@ -407,10 +407,11 @@ class EntityHydrator
             $entity->addTranslated($propertyName, $decoded);
 
             if ($inherited) {
+                $key = $chain[0] . '.' . $propertyName;
                 $parentKey = $chain[1] . '.' . $propertyName;
                 $values = [
-                    $value,
-                    $row[$parentKey] ?? null
+                    $row[$key] ?? null,
+                    $row[$parentKey] ?? null,
                 ];
 
                 $merged = $this->mergeJson(array_reverse($values, false));

@@ -3,7 +3,6 @@ const {
     Module,
     Component,
     Template,
-    Entity,
     Mixin,
     Filter,
     Directive,
@@ -18,7 +17,7 @@ const {
     Helper
 } = Shopware;
 
-describe('core/common.js', () => {
+describe('core/shopware', () => {
     it('should contain the necessary methods for the module factory', async () => {
         expect(Module).toHaveProperty('register');
     });
@@ -36,28 +35,6 @@ describe('core/common.js', () => {
         expect(Template).toHaveProperty('extend');
         expect(Template).toHaveProperty('override');
         expect(Template).toHaveProperty('getRenderedTemplate');
-    });
-
-    it('should contain the necessary methods for the entity factory', async () => {
-        expect(Entity).toHaveProperty('addDefinition');
-        expect(Entity).toHaveProperty('getDefinition');
-        expect(Entity).toHaveProperty('getDefinitionRegistry');
-        expect(Entity).toHaveProperty('getRawEntityObject');
-        expect(Entity).toHaveProperty('getPropertyBlacklist');
-        expect(Entity).toHaveProperty('getRequiredProperties');
-        expect(Entity).toHaveProperty('getAssociatedProperties');
-        expect(Entity).toHaveProperty('getTranslatableProperties');
-    });
-
-    it('should contain the necessary methods for the entity factory', async () => {
-        expect(Entity).toHaveProperty('addDefinition');
-        expect(Entity).toHaveProperty('getDefinition');
-        expect(Entity).toHaveProperty('getDefinitionRegistry');
-        expect(Entity).toHaveProperty('getRawEntityObject');
-        expect(Entity).toHaveProperty('getPropertyBlacklist');
-        expect(Entity).toHaveProperty('getRequiredProperties');
-        expect(Entity).toHaveProperty('getAssociatedProperties');
-        expect(Entity).toHaveProperty('getTranslatableProperties');
     });
 
     it('should contain the necessary methods for the mixin factory', async () => {

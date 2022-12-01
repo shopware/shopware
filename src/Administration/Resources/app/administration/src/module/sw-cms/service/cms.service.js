@@ -1,4 +1,4 @@
-const { Application, Entity } = Shopware;
+const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
 Application.addServiceProvider('cmsService', () => {
@@ -154,7 +154,7 @@ function getCmsBlockRegistry() {
 }
 
 function getEntityMappingTypes(entityName = null) {
-    const schema = Entity.getDefinition(entityName);
+    const schema = Shopware.EntityDefinition.has(entityName) ? Shopware.EntityDefinition.get(entityName) : undefined;
 
     if (entityName === null || typeof schema === 'undefined') {
         return {};
@@ -169,34 +169,24 @@ function getEntityMappingTypes(entityName = null) {
 }
 
 function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep = true) {
-    const blocklist = ['parent', 'cmsPage'];
-    const formatBlocklist = ['uuid'];
+    const blocklist = ['parent', 'cmsPage', 'translations', 'createdAt', 'updatedAt'];
 
     Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];
 
-        if (blocklist.includes(property) || propSchema.readOnly === true) {
+        if (
+            blocklist.includes(property) ||
+            (Array.isArray(propSchema?.flags?.write_protected) && propSchema.type !== 'association')
+        ) {
             return;
         }
 
-        if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
-            return;
-        }
-
-        if (propSchema.type === 'object') {
+        if (propSchema.type === 'association' && ['many_to_one', 'one_to_one'].includes(propSchema.relation)) {
             if (propSchema.entity) {
-                if (!mappings.entity) {
-                    mappings.entity = {};
-                }
-
-                if (!mappings.entity[propSchema.entity]) {
-                    mappings.entity[propSchema.entity] = [];
-                }
-
-                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+                addToMappingEntity(mappings, propSchema, pathPrefix, property);
 
                 if (deep === true) {
-                    const schema = Entity.getDefinition(propSchema.entity);
+                    const schema = Shopware.EntityDefinition.get(propSchema.entity);
 
                     if (schema) {
                         handlePropertyMappings(schema.properties, mappings, `${pathPrefix}.${property}`, false);
@@ -210,26 +200,48 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
                     false,
                 );
             }
-        } else if (propSchema.type === 'array') {
+        } else if (propSchema.type === 'association' && ['one_to_many', 'many_to_many'].includes(propSchema.relation)) {
             if (propSchema.entity) {
-                if (!mappings.entity) {
-                    mappings.entity = {};
-                }
-
-                if (!mappings.entity[propSchema.entity]) {
-                    mappings.entity[propSchema.entity] = [];
-                }
-
-                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+                addToMappingEntity(mappings, propSchema, pathPrefix, property);
             }
         } else {
-            if (!mappings[propSchema.type]) {
-                mappings[propSchema.type] = [];
+            let schemaType = propSchema.type;
+
+            if (['uuid', 'text', 'date'].includes(schemaType)) {
+                schemaType = 'string';
+            } else if (['float'].includes(schemaType)) {
+                schemaType = 'number';
+            } else if (['int'].includes(schemaType)) {
+                schemaType = 'integer';
             }
 
-            mappings[propSchema.type].push(`${pathPrefix}.${property}`);
+            if (['blob', 'json_object', 'json_list'].includes(schemaType)) {
+                return;
+            }
+
+            if (!mappings[schemaType]) {
+                mappings[schemaType] = [];
+            }
+
+            mappings[schemaType].push(`${pathPrefix}.${property}`);
         }
     });
+}
+
+function addToMappingEntity(mappings, propSchema, pathPrefix, property) {
+    if (!mappings.entity) {
+        mappings.entity = {};
+    }
+
+    if (!mappings.entity[propSchema.entity]) {
+        mappings.entity[propSchema.entity] = [];
+    }
+
+    if (propSchema.flags?.extension) {
+        mappings.entity[propSchema.entity].push(`${pathPrefix}.extensions.${property}`);
+    } else {
+        mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
+    }
 }
 
 function getPropertyByMappingPath(entity, propertyPath) {

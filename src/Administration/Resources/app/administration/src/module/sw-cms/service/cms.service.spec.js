@@ -561,7 +561,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
     });
 
     describe('getEntityMappingTypes', () => {
-        const entityFactory = Shopware.Application.getContainer('factory').entity;
+        const entityDefinition = Shopware.EntityDefinition;
 
         it('does not return entity mapping types if entity name is null', async () => {
             const result = cmsService.getEntityMappingTypes();
@@ -573,7 +573,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-        it('does return entity mapping types direclty if already mapped', async () => {
+        it('does return entity mapping types directly if already mapped', async () => {
             const testAlreadyMappedType = {
                 properties: {
                     id: {
@@ -582,14 +582,15 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
             };
 
-            entityFactory.addEntityDefinition('testAlreadyMappedType', testAlreadyMappedType);
+            entityDefinition.add('testAlreadyMappedType', testAlreadyMappedType);
+
             cmsService.getEntityMappingTypes('testAlreadyMappedType');
 
             // returns directly without calling handlePropertyMappings()
             const result2 = cmsService.getEntityMappingTypes('testAlreadyMappedType');
 
             expect(result2).toEqual({
-                uuid: ['testAlreadyMappedType.id'],
+                string: ['testAlreadyMappedType.id'],
             });
         });
 
@@ -597,13 +598,16 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const testReadOnly = {
                 properties: {
                     id: {
-                        type: 'uuid',
-                        readOnly: true,
+                        type: 'text',
+                        flags: {
+                            write_protected: []
+                        }
                     },
                 },
             };
 
-            entityFactory.addEntityDefinition('testReadOnly', testReadOnly);
+            entityDefinition.add('testReadOnly', testReadOnly);
+
             const result = cmsService.getEntityMappingTypes('testReadOnly');
             expect(result).toEqual({});
         });
@@ -611,74 +615,39 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
         it('does not return entity mapping types if property format is on block list', async () => {
             const testFormatBlocklist = {
                 properties: {
-                    id: {
-                        type: 'uuid',
-                        format: 'uuid',
+                    createdAt: {
+                        type: 'date'
                     },
                 },
             };
 
-            entityFactory.addEntityDefinition('testFormatBlocklist', testFormatBlocklist);
+            entityDefinition.add('testFormatBlocklist', testFormatBlocklist);
             const result = cmsService.getEntityMappingTypes('testFormatBlocklist');
             expect(result).toEqual({});
         });
 
-        it('returns entity mapping types if property type is object and entity schema is undefined', async () => {
-            const testTypeObjectAndEntityUndefined = {
-                properties: {
-                    id: {
-                        type: 'object',
-                        entity: 'undefined',
-                    },
-                }
-            };
-
-            entityFactory.addEntityDefinition('testTypeObjectAndEntityUndefined', testTypeObjectAndEntityUndefined);
-            const result = cmsService.getEntityMappingTypes('testTypeObjectAndEntityUndefined');
-            expect(result).toEqual({
-                entity: {
-                    undefined: ['testTypeObjectAndEntityUndefined.id'],
-                },
-            });
-        });
 
         it('returns entity mapping types if property type is array and entity is already mapped', async () => {
             const testTypeArrayAlreadyMapped = {
+                entity: 'testTypeArrayAlreadyMapped',
                 properties: {
                     id: {
-                        type: 'array',
                         entity: 'testTypeArrayAlreadyMapped',
-                        properties: {
-                            id: {
-                                type: 'uuid',
-                            },
-                        },
+                        type: 'association',
+                        relation: 'many_to_one',
                     },
                 }
             };
 
-            entityFactory.addEntityDefinition('testTypeArrayAlreadyMapped', testTypeArrayAlreadyMapped);
+            entityDefinition.add('testTypeArrayAlreadyMapped', testTypeArrayAlreadyMapped);
             const result = cmsService.getEntityMappingTypes('testTypeArrayAlreadyMapped');
             expect(result).toEqual({
                 entity: {
-                    testTypeArrayAlreadyMapped: ['testTypeArrayAlreadyMapped.id'],
+                    testTypeArrayAlreadyMapped: ['testTypeArrayAlreadyMapped.id', 'testTypeArrayAlreadyMapped.id.id'],
                 },
             });
         });
 
-        it('does not return entity mapping types if type is array and no entity is defined', async () => {
-            const testTypeArrayNoEntity = {
-                properties: {
-                    id: {
-                        type: 'array',
-                    },
-                }
-            };
-
-            entityFactory.addEntityDefinition('testTypeArrayNoEntity', testTypeArrayNoEntity);
-            const result = cmsService.getEntityMappingTypes('testTypeArrayNoEntity');
-            expect(result).toEqual({});
-        });
 
         it('returns entity mapping types if property type is not array nor object and type already mapped', async () => {
             const testTypeIsEntityAndAlreadyMapped = {
@@ -692,7 +661,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 }
             };
 
-            entityFactory.addEntityDefinition('testTypeIsEntityAndAlreadyMapped', testTypeIsEntityAndAlreadyMapped);
+            entityDefinition.add('testTypeIsEntityAndAlreadyMapped', testTypeIsEntityAndAlreadyMapped);
             const result = cmsService.getEntityMappingTypes('testTypeIsEntityAndAlreadyMapped');
             expect(result).toEqual({
                 testTypeIsEntityAndAlreadyMapped: [
@@ -706,17 +675,19 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const testTypeIsArrayAndAlreadyMapped = {
                 properties: {
                     property1: {
-                        type: 'object',
                         entity: 'testTypeIsArrayAndAlreadyMapped',
+                        type: 'association',
+                        relation: 'one_to_one',
                     },
                     property2: {
-                        type: 'array',
                         entity: 'testTypeIsArrayAndAlreadyMapped',
+                        type: 'association',
+                        relation: 'one_to_one',
                     },
                 }
             };
 
-            entityFactory.addEntityDefinition('testTypeIsArrayAndAlreadyMapped', testTypeIsArrayAndAlreadyMapped);
+            entityDefinition.add('testTypeIsArrayAndAlreadyMapped', testTypeIsArrayAndAlreadyMapped);
             const result = cmsService.getEntityMappingTypes('testTypeIsArrayAndAlreadyMapped');
             expect(result).toEqual({
                 entity: {
@@ -725,75 +696,84 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         'testTypeIsArrayAndAlreadyMapped.property1.property1',
                         'testTypeIsArrayAndAlreadyMapped.property1.property2',
                         'testTypeIsArrayAndAlreadyMapped.property2',
+                        'testTypeIsArrayAndAlreadyMapped.property2.property1',
+                        'testTypeIsArrayAndAlreadyMapped.property2.property2',
                     ],
                 },
             });
-        });
-
-        it('returns entity mapping types if type is object and entity is not defined but nested properties', async () => {
-            const testOnlyProperties = {
-                properties: {
-                    id: {
-                        type: 'object',
-                        properties: {
-                            mediaProperty: {
-                                type: 'object',
-                                entity: 'media',
-                            },
-                        }
-                    },
-                },
-            };
-
-            entityFactory.addEntityDefinition('testOnlyProperties', testOnlyProperties);
-            const result = cmsService.getEntityMappingTypes('testOnlyProperties');
-            expect(result).toEqual({
-                entity: {
-                    media: ['testOnlyProperties.id.mediaProperty'],
-                }
-            });
-        });
-
-        it('does not return entity mapping types if type is object and entity nor nested properties are defined', async () => {
-            const testWithoutPropertiesAndEntity = {
-                properties: {
-                    id: {
-                        type: 'object',
-                    },
-                },
-            };
-
-            entityFactory.addEntityDefinition('testWithoutPropertiesAndEntity', testWithoutPropertiesAndEntity);
-            const result = cmsService.getEntityMappingTypes('testWithoutPropertiesAndEntity');
-            expect(result).toEqual({});
         });
 
         it('returns entity mapping types if property type is object and schema is defined', async () => {
             const testTypeObjectWithSchema = {
                 properties: {
                     id: {
-                        type: 'object',
-                        entity: 'media',
+                        entity: 'media_example_entity',
+                        type: 'association',
+                        relation: 'one_to_one',
                     },
                 },
             };
 
-            const media = {
+            const mediaProperties = {
+                entity: 'media_example_entity',
                 properties: {
                     mediaProperty: {
-                        type: 'uuid',
+                        type: 'text',
                     },
-                },
+                }
             };
 
-            entityFactory.addEntityDefinition('media', media);
-            entityFactory.addEntityDefinition('testTypeObjectWithSchema', testTypeObjectWithSchema);
+            entityDefinition.add('media_example_entity', mediaProperties);
+            entityDefinition.add('testTypeObjectWithSchema', testTypeObjectWithSchema);
             const result = cmsService.getEntityMappingTypes('testTypeObjectWithSchema');
             expect(result).toEqual({
                 entity: {
-                    media: ['testTypeObjectWithSchema.id'],
+                    media_example_entity: ['testTypeObjectWithSchema.id'],
                 },
-                uuid: ['testTypeObjectWithSchema.id.mediaProperty']
+                string: ['testTypeObjectWithSchema.id.mediaProperty']
+            });
+        });
+    });
+
+    describe('getEntityMappingTypes Integration tests', () => {
+        it('does return entity mapping types directly if already mapped', async () => {
+            const result = cmsService.getEntityMappingTypes('category');
+
+            expect(result.boolean).toBeDefined();
+            expect(result.entity).toBeDefined();
+            expect(result.string).toBeDefined();
+
+            [
+                'category.displayNestedProducts',
+                'category.visible',
+                'category.active',
+                'category.linkNewTab',
+                'category.media.hasFile',
+                'category.media.private',
+            ].forEach(path => {
+                expect(result.boolean).toContain(path);
+            });
+
+            [
+                // Only test some values
+                ['app_payment_method', ['category.media.appPaymentMethods']],
+                ['category', [
+                    'category.children',
+                    'category.media.categories',
+                    'category.productStream.categories',
+                ]],
+            ].forEach(([entityName, paths]) => {
+                expect(result.entity[entityName]).toEqual(paths);
+            });
+
+            [
+                // Only test some values
+                'category.id',
+                'category.media.id',
+                'category.media.title',
+                'category.name',
+            ].forEach(path => {
+                expect(result.string).toContain(path);
             });
         });
     });

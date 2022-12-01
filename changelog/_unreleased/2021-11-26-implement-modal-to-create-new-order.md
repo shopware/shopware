@@ -10,18 +10,13 @@ flag: FEATURE_NEXT_7530
 * Added function `addMultipleLineItems` in `src/core/service/api/cart-store-api.api.service.js` to save multiple line items to cart.
 * Added component `sw-order-create-initial-modal` in `src/module/sw-order/component/sw-order-create-initial-modal/index.js`
 * Added component `sw-order-create-options` in `src/module/sw-order/component/sw-order-create-options/index.js`
-* Added component `sw-order-credit-item` in `src/module/sw-order/component/sw-order-credit-item/index.js`
-* Added component `sw-order-custom-item` in `src/module/sw-order/component/sw-order-custom-item/index.js`
-* Added component `sw-order-custom-grid` in `src/module/sw-order/component/sw-order-customer-grid/index.js`
-* Added component `sw-order-product-grid` in `src/module/sw-order/component/sw-order-product-grid/index.js`
+* Added component `sw-order-customer-grid` in `src/module/sw-order/component/sw-order-customer-grid/index.js`
 * Changed computed property `getLineItemColumns` in `src/module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js` to change column order.
 * Added mixin `src/module/sw-order/mixin/cart-notification.mixin.js`
 * Added mixin `src/module/sw-order/mixin/order-cart.mixin.js`
 * Changed in `src/module/sw-order/state/order.store.js`
     * Added mutation `setDisabledAutoPromotion`
-    * Added mutation `setTestOrder` 
     * Added state `disabledAutoPromotion`
-    * Added state `testOrder`
 * Changed in `src/module/sw-order/page/sw-order-create/index.js`
     * Added computed property `showInitialModal`
 * Changed in `src/module/sw-order/page/sw-order-create/sw-order-create.html.twig`

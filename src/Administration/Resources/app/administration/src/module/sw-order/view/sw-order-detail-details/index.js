@@ -260,17 +260,14 @@ export default {
         },
 
         validateTrackingCode(searchTerm) {
-            if (searchTerm.length < 0) {
+            const trackingCode = searchTerm.trim();
+
+            if (trackingCode.length <= 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === searchTerm);
-
-            if (isExist) {
-                return false;
-            }
-
-            return searchTerm;
+            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            return !isExist;
         },
 
         onChangeOrderAddress(value) {

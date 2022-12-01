@@ -30,11 +30,12 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_sales_channel_create_actions_button_group %}
         <div align="right">
-            <sw-button-group v-if="!feature.isActive('FEATURE_NEXT_7530')">
+            <sw-button-group>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
                 <sw-button
+                    class="sw-order-line-items-grid-sales-channel__add-product"
                     variant="ghost"
                     size="small"
                     :disabled="isAddNewItemButtonDisabled"
@@ -63,29 +64,22 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
-                    <sw-context-menu-item @click="onInsertBlankItem">
+                    <sw-context-menu-item
+                        class="sw-order-line-items-grid-sales-channel__add-custom-item"
+                        @click="onInsertBlankItem"
+                    >
                         {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
                     </sw-context-menu-item>
-                    <sw-context-menu-item @click="onInsertCreditItem">
+                    <sw-context-menu-item
+                        class="sw-order-line-items-grid-sales-channel__add-credit-item"
+                        @click="onInsertCreditItem"
+                    >
                         {{ $tc('sw-order.createBase.buttonAddCredit') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </sw-context-button>
                 {% endblock %}
             </sw-button-group>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_line_items_grid_sales_channel_add_items %}
-            <sw-button
-                v-if="feature.isActive('FEATURE_NEXT_7530')"
-                variant="ghost"
-                size="small"
-                :disabled="isAddNewItemButtonDisabled"
-                @click="toggleAddItemsModal"
-            >
-                {{ $tc('sw-order.createBase.buttonAddItems') }}
-            </sw-button>
-            {% endblock %}
         </div>
         {% endblock %}
 
@@ -151,34 +145,43 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
-            <router-link
+            <div
                 v-else-if="!isInlineEdit && isProductItem(item)"
-                target="_blank"
-                rel="noopener"
-                :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }"
             >
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_column_payload_options %}
-                <div
+                <router-link
                     v-if="item.payload && item.payload.options"
-                    class="sw-order-line-items-grid__item-payload-options"
+                    class="sw-order-line-items-grid-sales-channel__item-payload-options"
+                    :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                    :to="{ name: 'sw.product.detail', params: { id: item.productId } }"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
                         <div class="sw-order-line-items-grid__item-label">
                             {{ item.label }}
                         </div>
                     </sw-product-variant-info>
-                </div>
+                </router-link>
+
+                <template
+                    v-else
+                    class="sw-order-line-items-grid-sales-channel__item-payload-options"
+                >
+                    <span class="sw-order-line-items-grid__item-label">
+                        {{ item.label }}
+                    </span>
+                </template>
                 {% endblock %}
-            </router-link>
+            </div>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_label_content %}
             <template v-else>
-                {{ item.label }}
+                <span class="sw-order-line-items-grid-sales-channel__item-label">
+                    {{ item.label }}
+                </span>
             </template>
             {% endblock %}
         </template>
@@ -228,11 +231,12 @@
             {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !isCreditItem(item)"
-                v-model="item.quantity"
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
+                :value="item.quantity"
+                @change="changeItemQuantity($event, item)"
             />
             {% endblock %}
 
@@ -328,16 +332,6 @@
         {% endblock %}
     </sw-data-grid>
     {% endblock %}
-
-    <sw-order-add-items-modal
-        v-if="showItemsModal"
-        :currency="currency"
-        :cart="cart"
-        :sales-channel-id="salesChannelId"
-        @modal-close="toggleAddItemsModal"
-        @modal-save="addItemsFinished"
-    />
-
     {% endblock %}
 </sw-container>
 {% endblock %}

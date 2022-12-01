@@ -209,20 +209,20 @@ export default {
             const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
-            this.orderLineItems.unshift(item);
+            this.order.lineItems.unshift(item);
         },
 
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
-            this.orderLineItems.unshift(item);
+            this.order.lineItems.unshift(item);
         },
 
         onInsertCreditItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
-            this.orderLineItems.unshift(item);
+            this.order.lineItems.unshift(item);
         },
 
         onSelectionChanged(selection) {
@@ -231,19 +231,36 @@ export default {
 
         onDeleteSelectedItems() {
             const deletionPromises = [];
-            Object.keys(this.selectedItems).forEach((id) => {
-                deletionPromises.push(this.orderLineItemRepository.delete(id, this.context));
+
+            Object.values(this.selectedItems).forEach((item) => {
+                if (item.isNew()) {
+                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem.id);
+                    this.$delete(this.order.lineItems, itemIndex);
+                    return;
+                }
+
+                deletionPromises.push(this.orderLineItemRepository.delete(item.id, this.context));
             });
 
-            this.selectedItems = {};
+            if (!deletionPromises.length) {
+                this.selectedItems = {};
+                this.$refs.dataGrid.resetSelection();
+                return;
+            }
 
             Promise.all(deletionPromises).then(() => {
                 this.$emit('item-delete');
+                this.selectedItems = {};
                 this.$refs.dataGrid.resetSelection();
             });
         },
 
-        onDeleteItem(item) {
+        onDeleteItem(item, itemIndex) {
+            if (item.isNew()) {
+                this.$delete(this.order.lineItems, itemIndex);
+                return;
+            }
+
             this.showDeleteModal = item.id;
         },
 

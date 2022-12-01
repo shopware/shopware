@@ -7,13 +7,8 @@
         margin-bottom: 5px;
     }
 
-    &__test-order.sw-field--switch {
-        margin: 0;
-        width: fit-content;
-    }
-
     &__disable-auto-promotion.sw-field--switch {
-        margin: 0 0 25px;
+        margin: 0 0 -12px;
     }
 
     .sw-container {
@@ -22,5 +17,10 @@
 
     .sw-field {
         margin-bottom: 28px;
+    }
+
+    &__currency-select {
+        grid-column-start: 1;
+        grid-column-end: 3;
     }
 }

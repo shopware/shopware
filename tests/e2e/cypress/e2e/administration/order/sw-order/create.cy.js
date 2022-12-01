@@ -522,11 +522,33 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
         cy.get('.sw-order-create-initial-modal__tab-product').click();
 
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(10).type('{enter}');
+        // continue adding a valid line item
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
+            .click();
 
-        cy.get('.sw-button--primary').click();
+        // expect a new table row visible
+        cy.get(`${page.elements.dataGridRow}--0`)
+            .should('be.visible');
+
+        // double click on item name cell
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .dblclick();
+
+        // enter item name
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
+
+        // enter item quantity
+        cy.get(`${page.elements.dataGridColumn}--quantity input`)
+            .clearTypeAndCheck('10');
+
+        // save line item
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
+            .click();
 
         cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-button--primary').click();
 
         cy.get('.sw-order-create-initial-modal').should('not.be.exist');
 
@@ -665,17 +687,37 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
         cy.get('.sw-order-create-initial-modal__tab-product').click();
 
-        cy.get('.sw-order-product-grid-product-list').should('be.visible');
+        // continue adding a valid line item
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
+            .click();
 
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(1).type('{enter}');
+        // expect a new table row visible
+        cy.get(`${page.elements.dataGridRow}--0`)
+            .should('be.visible');
+
+        // double click on item name cell
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .dblclick();
+
+        // enter item name
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
+
+        // enter item quantity
+        cy.get(`${page.elements.dataGridColumn}--quantity input`)
+            .clearTypeAndCheck('10');
+
+        // save line item
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
+            .click();
+
+        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-order-create-initial-modal__tab-options').click();
 
         cy.get('.sw-select-selection-list__input').scrollIntoView().typeAndCheck('DISCOUNT').type('{enter}');
 
         cy.get('.sw-button--primary').click();
-
-        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-order-create-initial-modal').should('not.be.exist');
 
@@ -894,11 +936,29 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
         cy.get('.sw-order-create-initial-modal__tab-product').click();
 
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(1).type('{enter}');
+        // continue adding a valid line item
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group')
+            .click();
 
-        cy.get('.sw-button--primary').click();
+        // expect a new table row visible
+        cy.get(`${page.elements.dataGridRow}--0`)
+            .should('be.visible');
+
+        // double click on item name cell
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .dblclick();
+
+        // enter item name
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
+
+        // save line item
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
+            .click();
 
         cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-button--primary').click();
 
         cy.get('.sw-order-create-initial-modal').should('not.be.exist');
 

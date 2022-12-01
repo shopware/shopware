@@ -176,13 +176,6 @@ export default Component.wrapComponentConfig({
             },
         },
 
-        salesChannelContext: {
-            immediate: true,
-            handler(): void {
-                void State.dispatch('swOrder/updateContextParameters', this.context);
-            },
-        },
-
         cart: {
             deep: true,
             immediate: true,
@@ -205,6 +198,16 @@ export default Component.wrapComponentConfig({
                     this.$router.push({ name: 'sw.order.create.initial' });
                 });
             }
+
+            this.context = {
+                ...this.context,
+                currencyId: this.salesChannelContext.context.currencyId,
+                languageId: this.salesChannelContext.context.languageIdChain[0],
+                shippingMethodId: this.salesChannelContext.shippingMethod.id,
+                paymentMethodId: this.salesChannelContext.paymentMethod.id,
+                billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
+                shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',
+            };
         },
 
         updateContext(): Promise<void> {

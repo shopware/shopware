@@ -31,7 +31,7 @@
         >
             <template
                 v-if="field.config.unit"
-                slot="suffix"
+                #suffix
             >
                 <span>{{ $tc(`global.sw-condition-generic.units.${field.config.unit}`) }}</span>
             </template>

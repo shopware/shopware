@@ -5,7 +5,7 @@
 <sw-page class="sw-settings-tax-list">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="tax"
             :placeholder="$tc('sw-settings-tax.general.placeholderSearchBar')"
@@ -17,7 +17,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_list_smart_bar_header_title %}
         <h2>
@@ -45,7 +45,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_list_smart_bar_actions_add %}
         <sw-button
@@ -65,7 +65,7 @@
     </template>
     {% endblock %}
 
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             @on-change="onChangeLanguage"
         />
@@ -73,183 +73,185 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_list_content %}
-    <sw-card-view slot="content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_settings_tax_list_content_card %}
-        <sw-card
-            position-identifier="sw-settings-tax-list-content"
-        >
-            <template #grid>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_tax_list_grid %}
-                <sw-entity-listing
-                    ref="swSettingsTaxGrid"
-                    class="sw-settings-tax-list-grid"
-                    detail-route="sw.settings.tax.detail"
-                    :items="tax"
-                    :columns="getTaxColumns()"
-                    :repository="taxRepository"
-                    :full-page="false"
-                    :show-selection="false"
-                    :is-loading="isLoading"
-                    :allow-view="acl.can('tax.viewer')"
-                    :allow-edit="acl.can('tax.editor')"
-                    :allow-inline-edit="acl.can('tax.editor')"
-                    :allow-delete="acl.can('tax.deleter')"
-                    :disable-data-fetching="true"
-                    :sort-by="sortBy"
-                    :sort-direction="sortDirection"
-                    @column-sort="onSortColumn"
-                    @page-change="onPageChange"
-                    @inline-edit-save="onInlineEditSave"
-                    @inline-edit-cancel="onInlineEditCancel"
-                >
+    <template #content>
+        <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_tax_list_content_card %}
+            <sw-card
+                position-identifier="sw-settings-tax-list-content"
+            >
+                <template #grid>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_list_grid_column_default_name %}
-                    <template #column-name="{ item, column, isInlineEdit, compact }">
-                        {# if it is not a default tax, the default slot content will be rendered #}
-                        <router-link
-                            v-if="isShopwareDefaultTax(item)"
-                            class="sw-data-grid__cell-value"
-                            :to="{ name: column.routerLink, params: { id: item.id } }"
-                        >
-                            {{ getLabel(item) }}
-                        </router-link>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_list_grid_column_default_tax_rate %}
-                    <template #column-taxRate="{ item, isInlineEdit, compact }">
-                        <template v-if="isInlineEdit">
-                            <sw-number-field
-                                v-model="item.taxRate"
-                                :size="compact ? 'small' : 'default'"
+                    {% block sw_settings_tax_list_grid %}
+                    <sw-entity-listing
+                        ref="swSettingsTaxGrid"
+                        class="sw-settings-tax-list-grid"
+                        detail-route="sw.settings.tax.detail"
+                        :items="tax"
+                        :columns="getTaxColumns()"
+                        :repository="taxRepository"
+                        :full-page="false"
+                        :show-selection="false"
+                        :is-loading="isLoading"
+                        :allow-view="acl.can('tax.viewer')"
+                        :allow-edit="acl.can('tax.editor')"
+                        :allow-inline-edit="acl.can('tax.editor')"
+                        :allow-delete="acl.can('tax.deleter')"
+                        :disable-data-fetching="true"
+                        :sort-by="sortBy"
+                        :sort-direction="sortDirection"
+                        @column-sort="onSortColumn"
+                        @page-change="onPageChange"
+                        @inline-edit-save="onInlineEditSave"
+                        @inline-edit-cancel="onInlineEditCancel"
+                    >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_tax_list_grid_column_default_name %}
+                        <template #column-name="{ item, column, isInlineEdit, compact }">
+                            {# if it is not a default tax, the default slot content will be rendered #}
+                            <router-link
+                                v-if="isShopwareDefaultTax(item)"
+                                class="sw-data-grid__cell-value"
+                                :to="{ name: column.routerLink, params: { id: item.id } }"
                             >
-                                <template #suffix>
-                                    <span>
-                                        <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
-                                    </span>
-                                </template>
-                            </sw-number-field>
+                                {{ getLabel(item) }}
+                            </router-link>
                         </template>
-                        <template v-else>
-                            {{ item.taxRate }}%
-                        </template>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_list_grid_column_default %}
-                    <template #column-default="{ item, isInlineEdit }">
-                        <template v-if="isInlineEdit">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_tax_list_grid_column_default_editor %}
-                            <sw-checkbox-field
-                                :value="isSelectedDefaultRate(item)"
-                                @change="value => setSelectedDefaultRate(value, item.id)"
-                            />
-                            {% endblock %}
-                        </template>
-                        <template v-else>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_tax_list_grid_column_default_label %}
-                            <sw-icon
-                                v-if="isSelectedDefaultRate(item)"
-                                name="regular-checkmark-xs"
-                                small
-                                class="is--active"
-                            />
-                            <div v-else></div>
-                            {% endblock %}
-                        </template>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_list_grid_columns_actions %}
-                    <template #actions="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_tax_list_grid_columns_actions_edit %}
-                        <sw-context-menu-item
-                            class="sw-tax-list__edit-action"
-                            :disabled="!acl.can('tax.editor')"
-                            :router-link="{
-                                name: 'sw.settings.tax.detail',
-                                params: { id: item.id, edit: 'edit' }
-                            }"
-                        >
-                            {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
-                        </sw-context-menu-item>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_tax_list_grid_columns_actions_delete %}
-                        <sw-context-menu-item
-                            class="sw-tax-list__delete-action"
-                            variant="danger"
-                            :disabled="!acl.can('tax.deleter')"
-                            @click="onDelete(item.id)"
-                        >
-                            {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
-                        </sw-context-menu-item>
+                        {% block sw_settings_tax_list_grid_column_default_tax_rate %}
+                        <template #column-taxRate="{ item, isInlineEdit, compact }">
+                            <template v-if="isInlineEdit">
+                                <sw-number-field
+                                    v-model="item.taxRate"
+                                    :size="compact ? 'small' : 'default'"
+                                >
+                                    <template #suffix>
+                                        <span>
+                                            <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                                        </span>
+                                    </template>
+                                </sw-number-field>
+                            </template>
+                            <template v-else>
+                                {{ item.taxRate }}%
+                            </template>
+                        </template>
                         {% endblock %}
-                    </template>
-                    {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_tax_list_grid_action_modals %}
-                    <template #action-modals="{ item }">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_tax_list_delete_modal %}
-                        <sw-modal
-                            v-if="showDeleteModal === item.id"
-                            :title="$tc('global.default.warning')"
-                            variant="small"
-                            @modal-close="onCloseDeleteModal"
-                        >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
-                            <p class="sw-settings-tax-list__confirm-delete-text">
-                                {{ $tc('sw-settings-tax.list.textDeleteConfirm', 0, { name: item.name }) }}
-                            </p>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_tax_list_delete_modal_footer %}
-                            <template #modal-footer>
+                        {% block sw_settings_tax_list_grid_column_default %}
+                        <template #column-default="{ item, isInlineEdit }">
+                            <template v-if="isInlineEdit">
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_tax_list_delete_modal_cancel %}
-                                <sw-button
-                                    size="small"
-                                    @click="onCloseDeleteModal"
-                                >
-                                    {{ $tc('sw-settings-tax.list.buttonCancel') }}
-                                </sw-button>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_tax_list_delete_modal_confirm %}
-                                <sw-button
-                                    variant="danger"
-                                    size="small"
-                                    @click="onConfirmDelete(item.id)"
-                                >
-                                    {{ $tc('sw-settings-tax.list.buttonDelete') }}
-                                </sw-button>
+                                {% block sw_settings_tax_list_grid_column_default_editor %}
+                                <sw-checkbox-field
+                                    :value="isSelectedDefaultRate(item)"
+                                    @change="value => setSelectedDefaultRate(value, item.id)"
+                                />
                                 {% endblock %}
                             </template>
-                            {% endblock %}
-                        </sw-modal>
+                            <template v-else>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_tax_list_grid_column_default_label %}
+                                <sw-icon
+                                    v-if="isSelectedDefaultRate(item)"
+                                    name="regular-checkmark-xs"
+                                    small
+                                    class="is--active"
+                                />
+                                <div v-else></div>
+                                {% endblock %}
+                            </template>
+                        </template>
                         {% endblock %}
-                    </template>
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_tax_list_grid_columns_actions %}
+                        <template #actions="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_tax_list_grid_columns_actions_edit %}
+                            <sw-context-menu-item
+                                class="sw-tax-list__edit-action"
+                                :disabled="!acl.can('tax.editor')"
+                                :router-link="{
+                                    name: 'sw.settings.tax.detail',
+                                    params: { id: item.id, edit: 'edit' }
+                                }"
+                            >
+                                {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_tax_list_grid_columns_actions_delete %}
+                            <sw-context-menu-item
+                                class="sw-tax-list__delete-action"
+                                variant="danger"
+                                :disabled="!acl.can('tax.deleter')"
+                                @click="onDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_tax_list_grid_action_modals %}
+                        <template #action-modals="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_tax_list_delete_modal %}
+                            <sw-modal
+                                v-if="showDeleteModal === item.id"
+                                :title="$tc('global.default.warning')"
+                                variant="small"
+                                @modal-close="onCloseDeleteModal"
+                            >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
+                                <p class="sw-settings-tax-list__confirm-delete-text">
+                                    {{ $tc('sw-settings-tax.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                </p>
+                                {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_tax_list_delete_modal_footer %}
+                                <template #modal-footer>
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_tax_list_delete_modal_cancel %}
+                                    <sw-button
+                                        size="small"
+                                        @click="onCloseDeleteModal"
+                                    >
+                                        {{ $tc('sw-settings-tax.list.buttonCancel') }}
+                                    </sw-button>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_tax_list_delete_modal_confirm %}
+                                    <sw-button
+                                        variant="danger"
+                                        size="small"
+                                        @click="onConfirmDelete(item.id)"
+                                    >
+                                        {{ $tc('sw-settings-tax.list.buttonDelete') }}
+                                    </sw-button>
+                                    {% endblock %}
+                                </template>
+                                {% endblock %}
+                            </sw-modal>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-entity-listing>
                     {% endblock %}
-                </sw-entity-listing>
-                {% endblock %}
-            </template>
-        </sw-card>
-        {% endblock %}
-    </sw-card-view>
+                </template>
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
     {% endblock %}

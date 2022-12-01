@@ -9,128 +9,127 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_user_card_rows %}
-    <sw-container
-        slot="grid"
-        rows="auto auto"
-    >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_user_card_row_primary %}
-        <sw-card-section divider="bottom">
+    <template #grid>
+        <sw-container rows="auto auto">
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_user_card_metadata_container %}
-            <sw-container
-                columns="80px 1fr max-content"
-                gap="0px 30px"
-                align="center"
-            >
+            {% block sw_user_card_row_primary %}
+            <sw-card-section divider="bottom">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_user_card_avatar %}
-                <sw-avatar
-                    :color="moduleColor"
-                    size="80px"
-                    :source-context="user"
-                    :first-name="user.firstName"
-                    :last-name="user.lastName"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_user_card_metadata %}
-                <div class="sw-user-card__metadata">
+                {% block sw_user_card_metadata_container %}
+                <sw-container
+                    columns="80px 1fr max-content"
+                    gap="0px 30px"
+                    align="center"
+                >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_user_card_metadata_user_name %}
-                    <div
-                        v-if="user"
-                        class="sw-user-card__metadata-user-name"
-                    >
-                        {{ user | salutation }}
-                    </div>
+                    {% block sw_user_card_avatar %}
+                    <sw-avatar
+                        :color="moduleColor"
+                        size="80px"
+                        :source-context="user"
+                        :first-name="user.firstName"
+                        :last-name="user.lastName"
+                    />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_user_card_metadata_user_company %}
-                    <div
-                        v-if="user.company"
-                        class="sw-user-card__metadata-item"
-                    >
-                        {{ user.company }}
-                    </div>
-                    {% endblock %}
+                    {% block sw_user_card_metadata %}
+                    <div class="sw-user-card__metadata">
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_user_card_metadata_user_email %}
-                    <div
-                        v-if="user.email"
-                        class="sw-user-card__metadata-item"
-                    >
-                        Email: {{ user.email }}
-                    </div>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_user_card_metadata_additional %}
-                    <slot name="metadata-additional">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_user_card_slot_metadata_additional %}{% endblock %}
-                    </slot>
+                        {% block sw_user_card_metadata_user_name %}
+                        <div
+                            v-if="user"
+                            class="sw-user-card__metadata-user-name"
+                        >
+                            {{ user | salutation }}
+                        </div>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_user_card_metadata_user_company %}
+                        <div
+                            v-if="user.company"
+                            class="sw-user-card__metadata-item"
+                        >
+                            {{ user.company }}
+                        </div>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_user_card_metadata_user_email %}
+                        <div
+                            v-if="user.email"
+                            class="sw-user-card__metadata-item"
+                        >
+                            Email: {{ user.email }}
+                        </div>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_user_card_metadata_additional %}
+                        <slot name="metadata-additional">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_user_card_slot_metadata_additional %}{% endblock %}
+                        </slot>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_user_card_actions %}
+                        <div
+                            v-if="hasActionSlot"
+                            class="sw-user-card__actions"
+                        >
+                            <slot name="actions">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_user_card_slot_actions %}{% endblock %}
+                            </slot>
+                        </div>
+                        {% endblock %}
+
+                    </div>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_user_card_actions %}
                     <div
-                        v-if="hasActionSlot"
-                        class="sw-user-card__actions"
+                        v-if="hasSummarySlot"
+                        align="right"
                     >
-                        <slot name="actions">
+                        <slot name="summary">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_user_card_slot_actions %}{% endblock %}
+                            {% block sw_user_card_slot_summary%}{% endblock %}
                         </slot>
                     </div>
-                    {% endblock %}
 
-                </div>
+                </sw-container>
                 {% endblock %}
 
-                <div
-                    v-if="hasSummarySlot"
-                    align="right"
-                >
-                    <slot name="summary">
+                <div v-if="hasAdditionalDataSlot">
+                    <slot name="data-additional">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_user_card_slot_summary%}{% endblock %}
+                        {% block sw_user_card_slot_data_additional %}{% endblock %}
                     </slot>
                 </div>
 
-            </sw-container>
+            </sw-card-section>
             {% endblock %}
 
-            <div v-if="hasAdditionalDataSlot">
-                <slot name="data-additional">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_user_card_row_secondary %}
+            <sw-card-section
+                secondary
+                slim
+            >
+                <slot>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_user_card_slot_data_additional %}{% endblock %}
+                    {% block sw_user_card_slot_default %}{% endblock %}
                 </slot>
-            </div>
-
-        </sw-card-section>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_user_card_row_secondary %}
-        <sw-card-section
-            secondary
-            slim
-        >
-            <slot>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_user_card_slot_default %}{% endblock %}
-            </slot>
-        </sw-card-section>
-        {% endblock %}
-    </sw-container>
+            </sw-card-section>
+            {% endblock %}
+        </sw-container>
+    </template>
     {% endblock %}
 </sw-card>
 {% endblock %}

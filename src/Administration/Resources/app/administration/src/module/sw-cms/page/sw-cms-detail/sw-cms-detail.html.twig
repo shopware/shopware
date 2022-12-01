@@ -7,380 +7,379 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_detail_content %}
-    <div
-        slot="content"
-        class="sw-cms-detail__content"
-    >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_detail_toolbar %}
-        <sw-cms-toolbar>
+    <template #content>
+        <div class="sw-cms-detail__content">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_toolbar_language_switch %}
-            <sw-language-switch
-                slot="language-switch"
-                :disabled="isLoading || page.locked"
-                :allow-edit="acl.can('cms.editor')"
-                :save-changes-function="saveOnLanguageChange"
-                :abort-change-function="abortOnLanguageChange"
-                @on-change="onChangeLanguage"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_toolbar_title %}
-            <div
-                slot="title"
-                class="sw-cms-detail__page-info"
-            >
+            {% block sw_cms_detail_toolbar %}
+            <sw-cms-toolbar>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_back_button %}
-                <router-link
-                    :to="{ name: 'sw.cms.index' }"
-                    class="sw-cms-detail__back-btn"
-                >
-                    <sw-icon name="regular-times" />
-                </router-link>
+                {% block sw_cms_detail_toolbar_language_switch %}
+                <template #language-switch>
+                    <sw-language-switch
+                        :disabled="isLoading || page.locked"
+                        :allow-edit="acl.can('cms.editor')"
+                        :save-changes-function="saveOnLanguageChange"
+                        :abort-change-function="abortOnLanguageChange"
+                        @on-change="onChangeLanguage"
+                    />
+                </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_page_name %}
-                <h2 class="sw-cms-detail__page-name">
-                    {{ placeholder(page, 'name') }}
-                </h2>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_page_type %}
-                <div
-                    v-if="page.type"
-                    class="sw-cms-detail__page-type"
-                >
-                    {{ cmsPageTypes[page.type] }}
-                </div>
-                {% endblock %}
-
-                <div
-                    v-if="isDefaultLayout"
-                    class="sw-cms-detail__page-defaults"
-                >
-                    {{ $tc('sw-cms.detail.label.defaultLayout') }}
-
-                </div>
-            </div>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_toolbar_device_actions %}
-            <div
-                v-if="pageHasSections"
-                slot="tools"
-                class="sw-cms-detail__device-actions"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_device_actions_mobile %}
-                <sw-icon
-                    name="regular-mobile"
-                    :class="{ 'is--active': currentDeviceView === 'mobile' }"
-                    @click="onDeviceViewChange('mobile')"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
-                <sw-icon
-                    name="regular-tablet"
-                    :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
-                    @click="onDeviceViewChange('tablet-landscape')"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_device_actions_desktop %}
-                <sw-icon
-                    name="regular-desktop"
-                    :class="{ 'is--active': currentDeviceView === 'desktop' }"
-                    @click="onDeviceViewChange('desktop')"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_device_actions_form %}
-                <sw-icon
-                    name="regular-bars-square"
-                    :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
-                    @click="onDeviceViewChange('form')"
-                />
-                {% endblock %}
-            </div>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_toolbar_actions %}
-            <div
-                slot="actions"
-                class="sw-cms-detail__actions"
-            >
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_actions_save %}
-                <sw-button-process
-                    v-tooltip.bottom="tooltipSave"
-                    class="sw-cms-detail__save-action"
-                    :is-loading="isLoading"
-                    :process-success="isSaveSuccessful"
-                    :disabled="isLoading || page.locked || !acl.can('cms.editor')"
-                    variant="primary"
-                    @process-finish="saveFinish"
-                    @click="onSave"
-                >
-                    {{ $tc('sw-cms.detail.label.buttonSave') }}
-                </sw-button-process>
-                {% endblock %}
-            </div>
-            {% endblock %}
-        </sw-cms-toolbar>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_detail_stage_container %}
-        <div class="sw-cms-detail__stage-container">
-            <sw-overlay v-if="page.locked" />
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_stage_form_view %}
-            <div
-                v-if="currentDeviceView === 'form'"
-                class="sw-cms-detail__page-form"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_page_notification %}
-                <div
-                    v-if="page.locked"
-                    class="sw-cms-detail__page-notification"
-                >
-                    <sw-alert
-                        class="sw-cms-detail__page-notification-alert"
-                        variant="info"
-                    >
-                        {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                    </sw-alert>
-                </div>
-                {% endblock %}
-
-                <sw-cms-page-form
-                    v-if="!isLoading"
-                    :page="page"
-                />
-            </div>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_stage_wrapper %}
-            <div
-                v-else
-                class="sw-cms-detail__stage"
-            >
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_notification %}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_notification_errors %}
-                <div
-                    v-if="hasPageErrors"
-                    class="sw-cms-detail__page-notification"
-                >
-                    <sw-alert
-                        class="sw-cms-detail__page-notification-alert is--error"
-                        variant="error"
-                    >
-                        {{ $tc('sw-cms.detail.notification.errorCollectionText') }}
-                        <li
-                            v-for="(error, index) in pageErrors"
-                            :key="index"
+                {% block sw_cms_detail_toolbar_title %}
+                <template #title>
+                    <div class="sw-cms-detail__page-info">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_back_button %}
+                        <router-link
+                            :to="{ name: 'sw.cms.index' }"
+                            class="sw-cms-detail__back-btn"
                         >
-                            {{ error.detail }}
-                        </li>
-                    </sw-alert>
-                </div>
-                {% endblock %}
+                            <sw-icon name="regular-times" />
+                        </router-link>
+                        {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_notification_warnings %}
-                <div
-                    v-if="validationWarnings.length > 0"
-                    class="sw-cms-detail__page-notification"
-                >
-                    <sw-alert
-                        class="sw-cms-detail__page-notification-alert is--warning"
-                        variant="warning"
-                    >
-                        {{ $tc('sw-cms.detail.notification.warningCollectionText') }}
-                        <li
-                            v-for="(warning, index) in validationWarnings"
-                            :key="index"
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_page_name %}
+                        <h2 class="sw-cms-detail__page-name">
+                            {{ placeholder(page, 'name') }}
+                        </h2>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_page_type %}
+                        <div
+                            v-if="page.type"
+                            class="sw-cms-detail__page-type"
                         >
-                            {{ warning }}
-                        </li>
-                    </sw-alert>
-                </div>
+                            {{ cmsPageTypes[page.type] }}
+                        </div>
+                        {% endblock %}
+
+                        <div
+                            v-if="isDefaultLayout"
+                            class="sw-cms-detail__page-defaults"
+                        >
+                            {{ $tc('sw-cms.detail.label.defaultLayout') }}
+
+                        </div>
+                    </div>
+                </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_toolbar_notification_infos %}
-                <div
-                    v-if="page.locked"
-                    class="sw-cms-detail__page-notification is--info"
-                >
-                    <sw-alert
-                        class="sw-cms-detail__page-notification-alert"
-                        variant="info"
+                {% block sw_cms_detail_toolbar_device_actions %}
+                <template #tools>
+                    <div
+                        v-if="pageHasSections"
+                        class="sw-cms-detail__device-actions"
                     >
-                        {{ $tc('sw-cms.detail.label.lockedNotification') }}
-                    </sw-alert>
-                </div>
-                {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_device_actions_mobile %}
+                        <sw-icon
+                            name="regular-mobile"
+                            :class="{ 'is--active': currentDeviceView === 'mobile' }"
+                            @click="onDeviceViewChange('mobile')"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
+                        <sw-icon
+                            name="regular-tablet"
+                            :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
+                            @click="onDeviceViewChange('tablet-landscape')"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_device_actions_desktop %}
+                        <sw-icon
+                            name="regular-desktop"
+                            :class="{ 'is--active': currentDeviceView === 'desktop' }"
+                            @click="onDeviceViewChange('desktop')"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_device_actions_form %}
+                        <sw-icon
+                            name="regular-bars-square"
+                            :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
+                            @click="onDeviceViewChange('form')"
+                        />
+                        {% endblock %}
+                    </div>
+                </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_stage_empty_stage %}
+                {% block sw_cms_detail_toolbar_actions %}
+                <template #actions>
+                    <div class="sw-cms-detail__actions">
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_toolbar_actions_save %}
+                        <sw-button-process
+                            v-tooltip.bottom="tooltipSave"
+                            class="sw-cms-detail__save-action"
+                            :is-loading="isLoading"
+                            :process-success="isSaveSuccessful"
+                            :disabled="isLoading || page.locked || !acl.can('cms.editor')"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click="onSave"
+                        >
+                            {{ $tc('sw-cms.detail.label.buttonSave') }}
+                        </sw-button-process>
+                        {% endblock %}
+                    </div>
+                </template>
+                {% endblock %}
+            </sw-cms-toolbar>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_detail_stage_container %}
+            <div class="sw-cms-detail__stage-container">
+                <sw-overlay v-if="page.locked" />
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_stage_form_view %}
                 <div
-                    v-if="!isLoading && !pageHasSections"
-                    class="sw-cms-detail__empty-stage"
+                    v-if="currentDeviceView === 'form'"
+                    class="sw-cms-detail__page-form"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_detail_page_notification %}
+                    <div
+                        v-if="page.locked"
+                        class="sw-cms-detail__page-notification"
+                    >
+                        <sw-alert
+                            class="sw-cms-detail__page-notification-alert"
+                            variant="info"
+                        >
+                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                        </sw-alert>
+                    </div>
+                    {% endblock %}
+
+                    <sw-cms-page-form
+                        v-if="!isLoading"
+                        :page="page"
+                    />
+                </div>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_stage_wrapper %}
+                <div
+                    v-else
+                    class="sw-cms-detail__stage"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_detail_stage_empty_stade_content %}
-                    <div class="sw-cms-detail__empty-stage-content">
-                        <h2 class="sw-cms-detail__empty-stage-headline">
-                            {{ $tc('sw-cms.detail.label.headlineEmptyState') }}
-                        </h2>
-                        <p class="sw-cms-detail__empty-stage-claim">
-                            {{ $tc('sw-cms.detail.label.claimEmptyState') }}
-                        </p>
+                    {% block sw_cms_detail_toolbar_notification %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_detail_toolbar_notification_errors %}
+                    <div
+                        v-if="hasPageErrors"
+                        class="sw-cms-detail__page-notification"
+                    >
+                        <sw-alert
+                            class="sw-cms-detail__page-notification-alert is--error"
+                            variant="error"
+                        >
+                            {{ $tc('sw-cms.detail.notification.errorCollectionText') }}
+                            <li
+                                v-for="(error, index) in pageErrors"
+                                :key="index"
+                            >
+                                {{ error.detail }}
+                            </li>
+                        </sw-alert>
+                    </div>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_detail_toolbar_notification_warnings %}
+                    <div
+                        v-if="validationWarnings.length > 0"
+                        class="sw-cms-detail__page-notification"
+                    >
+                        <sw-alert
+                            class="sw-cms-detail__page-notification-alert is--warning"
+                            variant="warning"
+                        >
+                            {{ $tc('sw-cms.detail.notification.warningCollectionText') }}
+                            <li
+                                v-for="(warning, index) in validationWarnings"
+                                :key="index"
+                            >
+                                {{ warning }}
+                            </li>
+                        </sw-alert>
+                    </div>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_detail_toolbar_notification_infos %}
+                    <div
+                        v-if="page.locked"
+                        class="sw-cms-detail__page-notification is--info"
+                    >
+                        <sw-alert
+                            class="sw-cms-detail__page-notification-alert"
+                            variant="info"
+                        >
+                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                        </sw-alert>
+                    </div>
+                    {% endblock %}
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_detail_stage_empty_stage %}
+                    <div
+                        v-if="!isLoading && !pageHasSections"
+                        class="sw-cms-detail__empty-stage"
+                    >
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_stage_empty_stade_content %}
+                        <div class="sw-cms-detail__empty-stage-content">
+                            <h2 class="sw-cms-detail__empty-stage-headline">
+                                {{ $tc('sw-cms.detail.label.headlineEmptyState') }}
+                            </h2>
+                            <p class="sw-cms-detail__empty-stage-claim">
+                                {{ $tc('sw-cms.detail.label.claimEmptyState') }}
+                            </p>
+                            <sw-cms-stage-add-section
+                                :key="0"
+                                :disabled="!acl.can('cms.editor')"
+                                :force-choose="true"
+                                @stage-section-add="addAdditionalSection($event, 0)"
+                            />
+                        </div>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_detail_stage %}
+                    <div
+                        v-else
+                        :id="`page-${page.id}`"
+                        class="sw-cms-stage"
+                        :class="cmsStageClasses"
+                    >
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_stage_add_first_section %}
                         <sw-cms-stage-add-section
                             :key="0"
                             :disabled="!acl.can('cms.editor')"
-                            :force-choose="true"
                             @stage-section-add="addAdditionalSection($event, 0)"
                         />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_stage_content %}
+                        <template v-if="!isLoading">
+                            <template v-for="(section, index) in page.sections">
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_cms_detail_stage_content_section %}
+                                <sw-cms-section
+                                    :key="section.id"
+                                    class="sw-cms-stage-section"
+                                    :page="page"
+                                    :section="section"
+                                    :active="selectedSection !== null && selectedSection.id === section.id"
+                                    :disabled="!acl.can('cms.editor')"
+                                    @page-config-open="pageConfigOpen"
+                                    @block-duplicate="onBlockDuplicate"
+                                />
+                                {% endblock %}
+                            </template>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_detail_stage_add_last_section %}
+                        <sw-cms-stage-add-section
+                            :key="page.sections.length + 1"
+                            :disabled="!acl.can('cms.editor')"
+                            @stage-section-add="addAdditionalSection($event, page.sections.length)"
+                        />
+                        {% endblock %}
                     </div>
                     {% endblock %}
                 </div>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_stage %}
-                <div
-                    v-else
-                    :id="`page-${page.id}`"
-                    class="sw-cms-stage"
-                    :class="cmsStageClasses"
-                >
+                {% block sw_cms_detail_sidebar %}
+                {# @deprecated tag:v6.5.0 - Event listener will for 'block-navigator-sort' will be removed #}
+                <sw-cms-sidebar
+                    ref="cmsSidebar"
+                    :page="page"
+                    :demo-entity="currentMappingEntity"
+                    :demo-entity-id-prop="demoEntityId"
+                    :disabled="!acl.can('cms.editor')"
+                    @demo-entity-change="onDemoEntityChange"
+                    @block-duplicate="onBlockDuplicate"
+                    @section-duplicate="onSectionDuplicate"
+                    @block-stage-drop="onPageUpdate"
+                    @block-navigator-sort="onBlockNavigatorSort"
+                    @page-type-change="onPageTypeChange"
+                    @page-update="onPageUpdate"
+                    @page-save="onPageSave"
+                    @open-layout-assignment="onOpenLayoutAssignment"
+                    @open-layout-set-as-default="onOpenLayoutSetAsDefault"
+                />
+                {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_detail_stage_add_first_section %}
-                    <sw-cms-stage-add-section
-                        :key="0"
-                        :disabled="!acl.can('cms.editor')"
-                        @stage-section-add="addAdditionalSection($event, 0)"
-                    />
-                    {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_layout_assignment_modal %}
+                {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
+                <sw-cms-layout-assignment-modal
+                    v-if="showLayoutAssignmentModal"
+                    :page="page"
+                    @modal-close="closeLayoutAssignmentModal"
+                    @confirm="onConfirmLayoutAssignment"
+                />
+                {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_detail_stage_content %}
-                    <template v-if="!isLoading">
-                        <template v-for="(section, index) in page.sections">
+                <sw-confirm-modal
+                    v-if="showLayoutSetAsDefaultModal"
+                    class="sw-cms-detail__confirm-set-as-default-modal"
+                    :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
+                    :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
+                    @confirm="onConfirmLayoutSetAsDefault"
+                    @cancel="onCloseLayoutSetAsDefault"
+                    @close="onCloseLayoutSetAsDefault"
+                />
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_detail_stage_content_section %}
-                            <sw-cms-section
-                                :key="section.id"
-                                class="sw-cms-stage-section"
-                                :page="page"
-                                :section="section"
-                                :active="selectedSection !== null && selectedSection.id === section.id"
-                                :disabled="!acl.can('cms.editor')"
-                                @page-config-open="pageConfigOpen"
-                                @block-duplicate="onBlockDuplicate"
-                            />
-                            {% endblock %}
-                        </template>
-                    </template>
-                    {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_missing_element_modal %}
+                <sw-cms-missing-element-modal
+                    v-if="showMissingElementModal"
+                    :missing-elements="missingElements"
+                    @modal-close="onCloseMissingElementModal"
+                    @modal-save="onSaveMissingElementModal"
+                />
+                {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_detail_stage_add_last_section %}
-                    <sw-cms-stage-add-section
-                        :key="page.sections.length + 1"
-                        :disabled="!acl.can('cms.editor')"
-                        @stage-section-add="addAdditionalSection($event, page.sections.length)"
-                    />
-                    {% endblock %}
-                </div>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_loader %}
+                <sw-loader v-if="isLoading" />
                 {% endblock %}
             </div>
             {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_sidebar %}
-            {# @deprecated tag:v6.5.0 - Event listener will for 'block-navigator-sort' will be removed #}
-            <sw-cms-sidebar
-                ref="cmsSidebar"
-                :page="page"
-                :demo-entity="currentMappingEntity"
-                :demo-entity-id-prop="demoEntityId"
-                :disabled="!acl.can('cms.editor')"
-                @demo-entity-change="onDemoEntityChange"
-                @block-duplicate="onBlockDuplicate"
-                @section-duplicate="onSectionDuplicate"
-                @block-stage-drop="onPageUpdate"
-                @block-navigator-sort="onBlockNavigatorSort"
-                @page-type-change="onPageTypeChange"
-                @page-update="onPageUpdate"
-                @page-save="onPageSave"
-                @open-layout-assignment="onOpenLayoutAssignment"
-                @open-layout-set-as-default="onOpenLayoutSetAsDefault"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_layout_assignment_modal %}
-            {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
-            <sw-cms-layout-assignment-modal
-                v-if="showLayoutAssignmentModal"
-                :page="page"
-                @modal-close="closeLayoutAssignmentModal"
-                @confirm="onConfirmLayoutAssignment"
-            />
-            {% endblock %}
-
-            <sw-confirm-modal
-                v-if="showLayoutSetAsDefaultModal"
-                class="sw-cms-detail__confirm-set-as-default-modal"
-                :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
-                @confirm="onConfirmLayoutSetAsDefault"
-                @cancel="onCloseLayoutSetAsDefault"
-                @close="onCloseLayoutSetAsDefault"
-            />
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_missing_element_modal %}
-            <sw-cms-missing-element-modal
-                v-if="showMissingElementModal"
-                :missing-elements="missingElements"
-                @modal-close="onCloseMissingElementModal"
-                @modal-save="onSaveMissingElementModal"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_detail_loader %}
-            <sw-loader v-if="isLoading" />
-            {% endblock %}
         </div>
-        {% endblock %}
-    </div>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

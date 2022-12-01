@@ -45,8 +45,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_delivery_media_data_grid_column_name %}
             <template
-                slot="column-name"
-                slot-scope="{ item, isInlineEdit, compact }"
+                #column-name="{ item, isInlineEdit, compact }"
             >
                 {{ item.option.translated.name }}
             </template>
@@ -54,10 +53,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_delivery_media_data_grid_column_option_media %}
-            <template
-                slot="column-option.media"
-                slot-scope="{ item, isInlineEdit, compact }"
-            >
+            <template #column-option.media="{ item, isInlineEdit, compact }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
                 <sw-upload-listener

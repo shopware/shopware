@@ -116,8 +116,7 @@
     {% block sw_advanced_selection_rule_list_grid_columns_assignments %}
     <template
         v-for="(propertyName, index) in assignmentProperties"
-        :slot="`column-${propertyName}`"
-        slot-scope="{ item, aggregations }"
+        #[`column-${propertyName}`]="{ item, aggregations }"
     >
         <span
             :key="index"

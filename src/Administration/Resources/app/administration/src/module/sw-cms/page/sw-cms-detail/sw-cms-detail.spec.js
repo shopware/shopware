@@ -9,8 +9,10 @@ import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsDetail from 'src/module/sw-cms/page/sw-cms-detail';
+import swCmsToolbar from 'src/module/sw-cms/component/sw-cms-toolbar';
 
 Shopware.Component.register('sw-cms-detail', swCmsDetail);
+Shopware.Component.register('sw-cms-toolbar', swCmsToolbar);
 
 const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
@@ -53,7 +55,7 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-detail'), {
         stubs: {
             'sw-page': true,
-            'sw-cms-toolbar': true,
+            'sw-cms-toolbar': await Shopware.Component.build('sw-cms-toolbar'),
             'sw-alert': true,
             'sw-language-switch': true,
             'sw-router-link': true,

@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="documentConfig.name">
             {{ documentConfig.name }}
         </h2>
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_detail_actions_abort %}
         <sw-button
@@ -45,7 +45,7 @@
     </template>
     {% endblock %}
 
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
@@ -55,275 +55,277 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="isLoading">
-            <sw-skeleton />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-        <template v-else>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_document_detail_assignment_card %}
-            <sw-card
-                position-identifier="sw-settings-document-detail-assignment"
-                :title="$tc('sw-settings-document.detail.assignmentCard')"
-                :is-loading="isLoading || typeIsLoading"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(100%, 1fr))"
-                    gap="0px 30px"
+            <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_document_detail_assignment_card %}
+                <sw-card
+                    position-identifier="sw-settings-document-detail-assignment"
+                    :title="$tc('sw-settings-document.detail.assignmentCard')"
+                    :is-loading="isLoading || typeIsLoading"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_document_detail_base_general_input_type %}
-                    <sw-entity-single-select
-                        id="documentConfigTypes"
-                        v-model="documentConfig.documentTypeId"
-                        v-tooltip="{
-                            showDelay: 300,
-                            message: $tc('sw-settings-document.detail.disabledTypeSelect'),
-                            disabled: !documentConfig.global || !acl.can('document.editor')
-                        }"
-                        required
-                        show-clearable-button
-                        :error="documentBaseConfigDocumentTypeIdError"
-                        entity="document_type"
-                        :label="$tc('sw-settings-document.detail.labelType')"
-                        class="sw-settings-document-detail__select-type"
-                        :disabled="documentConfig.global || !acl.can('document.editor')"
-                        @change="(id, type) => onChangeType(type)"
-                    />
-                    {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_document_detail_base_general_input_sales_channel %}
-                    <sw-multi-select
-                        v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
-                        id="documentSalesChannel"
-                        v-model="documentConfigSalesChannels"
-                        v-tooltip="{
-                            showDelay: 300,
-                            message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
-                            disabled: !!documentConfig.documentType
-                        }"
-                        required
-                        label-property="name"
-                        value-property="id"
-                        :options="documentConfigSalesChannelOptionsCollection"
-                        :label="$tc('sw-settings-document.detail.labelSalesChannel')"
-                        :disabled="!documentConfig.documentType || !acl.can('document.editor')"
-                        class="sw-document-detail__select-type"
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(100%, 1fr))"
+                        gap="0px 30px"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_document_detail_base_general_input_sales_channel_label %}
-                        <template #selection-label-property="{ item }">
-                            {{ item.salesChannel.translated.name }}
-                        </template>
-                        {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_document_detail_base_general_input_sales_channel_result_item %}
-                        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                            <li
-                                is="sw-select-result"
-                                v-tooltip="{
-                                    showDelay: 300,
-                                    message: $tc('sw-settings-document.detail.disabledSalesChannel'),
-                                    disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
-                                }"
-                                :selected="isSelected(item)"
-                                :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
-                                v-bind="{ item, index }"
-                                @item-select="addItem"
-                            >
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="item.salesChannel.translated.name"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ item.salesChannel.translated.name }}
-                                </template>
-                            </li>
-                        </template>
-                        {% endblock %}
-                    </sw-multi-select>
-                    {% endblock %}
-                </sw-container>
-            </sw-card>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_document_detail_content_card %}
-            <sw-card
-                position-identifier="sw-settings-document-detail-content"
-                :title="$tc('sw-settings-document.detail.configCard')"
-                :is-loading="isLoading"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0px 30px"
-                >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_name %}
-                    <div class="sw-settings-document-detail__field_name">
-                        <sw-field
-                            v-model="documentConfig.name"
-                            type="text"
-                            :label="$tc('sw-settings-document.detail.labelName')"
-                            :placeholder="$tc('sw-settings-document.detail.placeholderName')"
-                            :disabled="!acl.can('document.editor')"
-                            validation="required"
-                            :error="documentBaseConfigNameError"
+                        {% block sw_document_detail_base_general_input_type %}
+                        <sw-entity-single-select
+                            id="documentConfigTypes"
+                            v-model="documentConfig.documentTypeId"
+                            v-tooltip="{
+                                showDelay: 300,
+                                message: $tc('sw-settings-document.detail.disabledTypeSelect'),
+                                disabled: !documentConfig.global || !acl.can('document.editor')
+                            }"
                             required
+                            show-clearable-button
+                            :error="documentBaseConfigDocumentTypeIdError"
+                            entity="document_type"
+                            :label="$tc('sw-settings-document.detail.labelType')"
+                            class="sw-settings-document-detail__select-type"
+                            :disabled="documentConfig.global || !acl.can('document.editor')"
+                            @change="(id, type) => onChangeType(type)"
                         />
-                    </div>
-                    {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_media %}
-                    <div
-                        flex="250px"
-                        align="stretch"
-                        class="media-column"
-                    >
-                        <sw-media-field
-                            v-model="documentConfig.logoId"
-                            :disabled="!acl.can('document.editor')"
-                            :label="$tc('sw-settings-document.detail.labelOptionMedia')"
-                        />
-                    </div>
-                    {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_file_name_prefix %}
-                    <div class="sw-settings-document-detail__field_file_name_prefix">
-                        <sw-field
-                            v-model="documentConfig.filenamePrefix"
-                            type="text"
-                            :disabled="!acl.can('document.editor')"
-                            :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
-                        />
-                    </div>
-                    {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_file_name_suffix %}
-                    <div class="sw-settings-document-detail__field_file_name_suffix">
-                        <sw-field
-                            v-model="documentConfig.filenameSuffix"
-                            type="text"
-                            :disabled="!acl.can('document.editor')"
-                            :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
-                        />
-                    </div>
-                    {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_form_field_renderer_content %}
-                    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                    <template
-                        v-for="(formField, index) in generalFormFields"
-                        v-if="documentConfig.config"
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_document_detail_base_general_input_sales_channel %}
+                        <sw-multi-select
+                            v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
+                            id="documentSalesChannel"
+                            v-model="documentConfigSalesChannels"
+                            v-tooltip="{
+                                showDelay: 300,
+                                message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
+                                disabled: !!documentConfig.documentType
+                            }"
+                            required
+                            label-property="name"
+                            value-property="id"
+                            :options="documentConfigSalesChannelOptionsCollection"
+                            :label="$tc('sw-settings-document.detail.labelSalesChannel')"
+                            :disabled="!documentConfig.documentType || !acl.can('document.editor')"
+                            class="sw-document-detail__select-type"
+                        >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_document_detail_base_general_input_sales_channel_label %}
+                            <template #selection-label-property="{ item }">
+                                {{ item.salesChannel.translated.name }}
+                            </template>
+                            {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_document_detail_base_general_input_sales_channel_result_item %}
+                            <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                                <li
+                                    is="sw-select-result"
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: $tc('sw-settings-document.detail.disabledSalesChannel'),
+                                        disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
+                                    }"
+                                    :selected="isSelected(item)"
+                                    :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
+                                    v-bind="{ item, index }"
+                                    @item-select="addItem"
+                                >
+                                    <sw-highlight-text
+                                        v-if="highlightSearchTerm"
+                                        :text="item.salesChannel.translated.name"
+                                        :search-term="searchTerm"
+                                    />
+                                    <template v-else>
+                                        {{ item.salesChannel.translated.name }}
+                                    </template>
+                                </li>
+                            </template>
+                            {% endblock %}
+                        </sw-multi-select>
+                        {% endblock %}
+                    </sw-container>
+                </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_document_detail_content_card %}
+                <sw-card
+                    position-identifier="sw-settings-document-detail-content"
+                    :title="$tc('sw-settings-document.detail.configCard')"
+                    :is-loading="isLoading"
+                >
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_document_detail_content_form_field_renderer %}
-                        <sw-form-field-renderer
-                            v-if="formField"
-                            :key="`formField-${index}`"
-                            v-model="documentConfig.config[formField.name]"
-                            :disabled="!acl.can('document.editor')"
-                            class="sw-settings-document-detail__form-field-renderer"
-                            v-bind="formField"
-                        />
-                        <div
-                            v-else
-                            :key="`else-formField-${index}`"
-                        ></div>
+                        {% block sw_settings_document_detail_content_field_name %}
+                        <div class="sw-settings-document-detail__field_name">
+                            <sw-field
+                                v-model="documentConfig.name"
+                                type="text"
+                                :label="$tc('sw-settings-document.detail.labelName')"
+                                :placeholder="$tc('sw-settings-document.detail.placeholderName')"
+                                :disabled="!acl.can('document.editor')"
+                                validation="required"
+                                :error="documentBaseConfigNameError"
+                                required
+                            />
+                        </div>
                         {% endblock %}
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
-                    <sw-checkbox-field
-                        v-if="isShowDivergentDeliveryAddress"
-                        v-model="documentConfig.config.displayDivergentDeliveryAddress"
-                        class="sw-settings-document-detail__field_divergent_delivery_address"
-                        :disabled="!acl.can('document.editor')"
-                        :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_additional_note_delivery %}
-                    <sw-checkbox-field
-                        v-if="isShowDisplayNoteDelivery"
-                        v-model="documentConfig.config.displayAdditionalNoteDelivery"
-                        class="sw-settings-document-detail__field_additional_note_delivery"
-                        :disabled="!acl.can('document.editor')"
-                        :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_content_field_delivery_countries %}
-                    <sw-entity-multi-id-select
-                        v-if="showCountriesSelect"
-                        v-model="documentConfig.config.deliveryCountries"
-                        class="sw-settings-document-detail__field_delivery_countries"
-                        :repository="countryRepository"
-                        :disabled="!acl.can('document.editor')"
-                        :help-text="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
-                        :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
-                        :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')"
-                    />
-                    {% endblock %}
-                </sw-container>
-            </sw-card>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_document_detail_company_card %}
-            <sw-card
-                position-identifier="sw-settings-document-detail-company"
-                :title="$tc('sw-settings-document.detail.companyCard')"
-                :is-loading="isLoading"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0px 30px"
-                >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_document_detail_company_form_field_renderer_content %}
-                    <template v-if="documentConfig.config">
-                        <template v-for="formField in companyFormFields">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_field_media %}
+                        <div
+                            flex="250px"
+                            align="stretch"
+                            class="media-column"
+                        >
+                            <sw-media-field
+                                v-model="documentConfig.logoId"
+                                :disabled="!acl.can('document.editor')"
+                                :label="$tc('sw-settings-document.detail.labelOptionMedia')"
+                            />
+                        </div>
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_field_file_name_prefix %}
+                        <div class="sw-settings-document-detail__field_file_name_prefix">
+                            <sw-field
+                                v-model="documentConfig.filenamePrefix"
+                                type="text"
+                                :disabled="!acl.can('document.editor')"
+                                :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
+                            />
+                        </div>
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_field_file_name_suffix %}
+                        <div class="sw-settings-document-detail__field_file_name_suffix">
+                            <sw-field
+                                v-model="documentConfig.filenameSuffix"
+                                type="text"
+                                :disabled="!acl.can('document.editor')"
+                                :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
+                            />
+                        </div>
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_form_field_renderer_content %}
+                        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                        <template
+                            v-for="(formField, index) in generalFormFields"
+                            v-if="documentConfig.config"
+                        >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_document_detail_company_form_field_renderer %}
+                            {% block sw_settings_document_detail_content_form_field_renderer %}
                             <sw-form-field-renderer
-                                :key="formField.name"
+                                v-if="formField"
+                                :key="`formField-${index}`"
                                 v-model="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor')"
+                                class="sw-settings-document-detail__form-field-renderer"
                                 v-bind="formField"
                             />
+                            <div
+                                v-else
+                                :key="`else-formField-${index}`"
+                            ></div>
                             {% endblock %}
                         </template>
-                    </template>
-                    {% endblock %}
-                </sw-container>
-            </sw-card>
-            {% endblock %}
+                        {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_document_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-settings-document-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="documentConfig"
-                    :disabled="!acl.can('document.editor')"
-                    :sets="customFieldSets"
-                />
-            </sw-card>
-            {% endblock %}
-        </template>
-    </sw-card-view>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
+                        <sw-checkbox-field
+                            v-if="isShowDivergentDeliveryAddress"
+                            v-model="documentConfig.config.displayDivergentDeliveryAddress"
+                            class="sw-settings-document-detail__field_divergent_delivery_address"
+                            :disabled="!acl.can('document.editor')"
+                            :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_field_additional_note_delivery %}
+                        <sw-checkbox-field
+                            v-if="isShowDisplayNoteDelivery"
+                            v-model="documentConfig.config.displayAdditionalNoteDelivery"
+                            class="sw-settings-document-detail__field_additional_note_delivery"
+                            :disabled="!acl.can('document.editor')"
+                            :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_content_field_delivery_countries %}
+                        <sw-entity-multi-id-select
+                            v-if="showCountriesSelect"
+                            v-model="documentConfig.config.deliveryCountries"
+                            class="sw-settings-document-detail__field_delivery_countries"
+                            :repository="countryRepository"
+                            :disabled="!acl.can('document.editor')"
+                            :help-text="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
+                            :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
+                            :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_document_detail_company_card %}
+                <sw-card
+                    position-identifier="sw-settings-document-detail-company"
+                    :title="$tc('sw-settings-document.detail.companyCard')"
+                    :is-loading="isLoading"
+                >
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_document_detail_company_form_field_renderer_content %}
+                        <template v-if="documentConfig.config">
+                            <template v-for="formField in companyFormFields">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_document_detail_company_form_field_renderer %}
+                                <sw-form-field-renderer
+                                    :key="formField.name"
+                                    v-model="documentConfig.config[formField.name]"
+                                    :disabled="!acl.can('document.editor')"
+                                    v-bind="formField"
+                                />
+                                {% endblock %}
+                            </template>
+                        </template>
+                        {% endblock %}
+                    </sw-container>
+                </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_document_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-document-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="documentConfig"
+                        :disabled="!acl.can('document.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

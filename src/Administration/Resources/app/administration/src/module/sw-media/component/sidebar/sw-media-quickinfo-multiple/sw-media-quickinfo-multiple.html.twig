@@ -11,7 +11,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_multiple_quickactions_content %}
-        <template slot="content">
+        <template #content>
             <ul class="sw-media-sidebar__quickactions-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_move %}
@@ -83,7 +83,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_multiple_file_names_content %}
-        <template slot="content">
+        <template #content>
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label class="sw-media-quickinfo-multiple__second-headline">{{ getFileSizeLabel }}</label>
             <sw-media-entity-mapper

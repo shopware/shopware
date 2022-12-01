@@ -15,8 +15,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_plugins_column_icon %}
             <template
-                slot="column-icon"
-                slot-scope="{ item, isInlineEdit }"
+                #column-icon="{ item, isInlineEdit }"
             >
                 <sw-color-badge
                     v-if="item.statusVariant"

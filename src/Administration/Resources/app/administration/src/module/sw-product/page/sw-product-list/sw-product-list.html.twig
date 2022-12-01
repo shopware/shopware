@@ -185,8 +185,7 @@
                 {% block sw_product_list_grid_columns_price %}
                 <template
                     v-for="currency in currencies"
-                    :slot="`column-price-${currency.isoCode}`"
-                    slot-scope="{ item }"
+                    #[`column-price-${currency.isoCode}`]="{ item }"
                 >
                     {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
                 </template>
@@ -289,8 +288,7 @@
                         {% block sw_product_list_bulk_edit_grid_columns_price %}
                         <template
                             v-for="currency in currencies"
-                            :slot="`column-price-${currency.isoCode}`"
-                            slot-scope="{ item }"
+                            #[`column-price-${currency.isoCode}`]="{ item }"
                         >
                             {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
                         </template>

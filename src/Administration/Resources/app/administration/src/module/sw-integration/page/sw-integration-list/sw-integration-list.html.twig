@@ -3,7 +3,7 @@
 <sw-page class="sw-integration-list">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_integration_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_integration_list_smart_bar_header_title %}
         <h2>
@@ -21,7 +21,7 @@
     </template>
     {% endblock %}
 
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_integration_list_smart_bar_actions %}
         <sw-button
@@ -42,310 +42,309 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_integration_list_content %}
-    <sw-card-view
-        slot="content"
-        class="sw-integration-list__content"
-    >
+    <template #content>
+        <sw-card-view class="sw-integration-list__content">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_integration_list_introduction %}
-        <sw-card
-            :hero="true"
-            position-identifier="sw-integration-list-introduction"
-        >
-            <h3 class="sw-integration-list__welcome-headline">
-                {{ $tc('sw-integration.general.heroHeadlineIntegrations') }}
-            </h3>
-            <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
-        </sw-card>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_integration_list_overview %}
-        <sw-card
-            :is-loading="isLoading"
-            class="sw-integration-list__overview"
-            position-identifier="sw-integration-list-overview"
-        >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_integration_list_overview_inner %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_integration_list_detail_modal %}
-            <sw-modal
-                v-if="currentIntegration"
-                size="550px"
-                class="sw-integration-list__detail"
-                :is-loading="isModalLoading"
-                :title="showSecretAccessKey ? $tc('sw-integration.detail.detailModalTitle') : $tc('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
-                @modal-close="onCloseDetailModal"
+            {% block sw_integration_list_introduction %}
+            <sw-card
+                :hero="true"
+                position-identifier="sw-integration-list-introduction"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_field_label %}
-                <sw-container
-                    columns="2fr 1fr"
-                    gap="24px"
-                >
-                    <sw-field
-                        v-model="currentIntegration.label"
-                        :label="$tc('sw-integration.detail.labelFieldLabel')"
-                        :disabled="!acl.can('integration.editor')"
-                    />
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
-                    <sw-switch-field
-                        v-model="currentIntegration.admin"
-                        class="sw-settings-user-detail__grid-is-admin"
-                        :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                        :disabled="!acl.can('admin')"
-                    />
-                    {% endblock %}
-                </sw-container>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_acl_roles %}
-                <sw-entity-multi-select
-                    v-model="currentIntegration.aclRoles"
-                    v-tooltip="{
-                        showDelay: 300,
-                        message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
-                        disabled: !currentIntegration.admin || !acl.can('integration.editor')
-                    }"
-                    class="sw-settings-user-detail__grid-aclRoles"
-                    :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
-                    :disabled="currentIntegration.admin || !acl.can('integration.editor')"
-                    label-property="name"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_field_accesskey %}
-                <sw-field
-                    v-model="currentIntegration.accessKey"
-                    :label="$tc('sw-integration.detail.idFieldLabel')"
-                    :disabled="true"
-                    :copyable="true"
-                    :copyable-tooltip="true"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
-                <sw-field
-                    v-if="showSecretAccessKey"
-                    v-model="currentIntegration.secretAccessKey"
-                    :type="secretAccessKeyFieldType"
-                    :label="$tc('sw-integration.detail.secretFieldLabel')"
-                    :disabled="true"
-                    :password-toggle-able="false"
-                    :copyable="showSecretAccessKey"
-                    :copyable-tooltip="true"
-                />
-
-                <sw-button
-                    v-if="!showSecretAccessKey"
-                    variant="danger"
-                    :disabled="!acl.can('integration.editor')"
-                    :block="true"
-                    @click="onGenerateKeys"
-                >
-                    {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
-                </sw-button>
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_field_helpText %}
-                <div
-                    v-if="!showSecretAccessKey"
-                    class="sw-integration-list__help-text"
-                >
-                    {{ $tc('sw-integration.detail.hintCreateNewApiKeys') }}
-                </div>
-                {% endblock %}
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_helptext %}
-                <sw-alert
-                    v-if="showSecretAccessKey"
-                    variant="warning"
-                    class="sw-integration-list__secret-help-text-alert"
-                >
-                    {{ $tc('sw-integration.detail.secretHelpText') }}
-                </sw-alert>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_detail_modal_inner_footer %}
-                <template slot="modal-footer">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_integration_list_detail_modal_inner_footer_cancel %}
-                    <sw-button
-                        size="small"
-                        :disabled="isModalLoading"
-                        @click="onCloseDetailModal"
-                    >
-                        {{ $tc('sw-integration.detail.buttonCancel') }}
-                    </sw-button>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_integration_list_detail_modal_inner_footer_apply %}
-                    <sw-button
-                        size="small"
-                        class="sw-integration-detail-modal__save-action"
-                        :disabled="(isModalLoading && !!currentIntegration.label) || !acl.can('integration.editor')"
-                        variant="primary"
-                        @click="onSaveIntegration"
-                    >
-                        {{ showSecretAccessKey ? $tc('sw-integration.detail.buttonApply') : $tc('sw-integration.detail.buttonApplyEdit') }}
-                    </sw-button>
-                    {% endblock %}
-                </template>
-                {% endblock %}
-                {% endblock %}
-            </sw-modal>
+                <h3 class="sw-integration-list__welcome-headline">
+                    {{ $tc('sw-integration.general.heroHeadlineIntegrations') }}
+                </h3>
+                <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
+            </sw-card>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_integration_list_grid %}
-            <sw-entity-listing
-                :items="integrations"
-                :columns="integrationColumns"
-                :repository="integrationRepository"
-                :full-page="false"
-                :compact-mode="false"
-                :allow-column-edit="false"
-                :show-selection="false"
-                :show-settings="false"
-                :allow-view="acl.can('integration.viewer')"
+            {% block sw_integration_list_overview %}
+            <sw-card
                 :is-loading="isLoading"
+                class="sw-integration-list__overview"
+                position-identifier="sw-integration-list-overview"
             >
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_grid_inner_slot_columns_label %}
-                <template #column-label="{ item }">
-                    <span class="sw-integration-list__app-icon">
-                        <sw-icon name="regular-share" />
-                    </span>
-                    <a
-                        href="#"
-                        @click.prevent="onShowDetailModal(item)"
+                {% block sw_integration_list_overview_inner %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_integration_list_detail_modal %}
+                <sw-modal
+                    v-if="currentIntegration"
+                    size="550px"
+                    class="sw-integration-list__detail"
+                    :is-loading="isModalLoading"
+                    :title="showSecretAccessKey ? $tc('sw-integration.detail.detailModalTitle') : $tc('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
+                    @modal-close="onCloseDetailModal"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_field_label %}
+                    <sw-container
+                        columns="2fr 1fr"
+                        gap="24px"
                     >
-                        {{ item.label }}
-                    </a>
-                </template>
+                        <sw-field
+                            v-model="currentIntegration.label"
+                            :label="$tc('sw-integration.detail.labelFieldLabel')"
+                            :disabled="!acl.can('integration.editor')"
+                        />
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
+                        <sw-switch-field
+                            v-model="currentIntegration.admin"
+                            class="sw-settings-user-detail__grid-is-admin"
+                            :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
+                            :disabled="!acl.can('admin')"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_acl_roles %}
+                    <sw-entity-multi-select
+                        v-model="currentIntegration.aclRoles"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
+                            disabled: !currentIntegration.admin || !acl.can('integration.editor')
+                        }"
+                        class="sw-settings-user-detail__grid-aclRoles"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
+                        :disabled="currentIntegration.admin || !acl.can('integration.editor')"
+                        label-property="name"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_field_accesskey %}
+                    <sw-field
+                        v-model="currentIntegration.accessKey"
+                        :label="$tc('sw-integration.detail.idFieldLabel')"
+                        :disabled="true"
+                        :copyable="true"
+                        :copyable-tooltip="true"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
+                    <sw-field
+                        v-if="showSecretAccessKey"
+                        v-model="currentIntegration.secretAccessKey"
+                        :type="secretAccessKeyFieldType"
+                        :label="$tc('sw-integration.detail.secretFieldLabel')"
+                        :disabled="true"
+                        :password-toggle-able="false"
+                        :copyable="showSecretAccessKey"
+                        :copyable-tooltip="true"
+                    />
+
+                    <sw-button
+                        v-if="!showSecretAccessKey"
+                        variant="danger"
+                        :disabled="!acl.can('integration.editor')"
+                        :block="true"
+                        @click="onGenerateKeys"
+                    >
+                        {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
+                    </sw-button>
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_field_helpText %}
+                    <div
+                        v-if="!showSecretAccessKey"
+                        class="sw-integration-list__help-text"
+                    >
+                        {{ $tc('sw-integration.detail.hintCreateNewApiKeys') }}
+                    </div>
+                    {% endblock %}
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_helptext %}
+                    <sw-alert
+                        v-if="showSecretAccessKey"
+                        variant="warning"
+                        class="sw-integration-list__secret-help-text-alert"
+                    >
+                        {{ $tc('sw-integration.detail.secretHelpText') }}
+                    </sw-alert>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_detail_modal_inner_footer %}
+                    <template #modal-footer>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_integration_list_detail_modal_inner_footer_cancel %}
+                        <sw-button
+                            size="small"
+                            :disabled="isModalLoading"
+                            @click="onCloseDetailModal"
+                        >
+                            {{ $tc('sw-integration.detail.buttonCancel') }}
+                        </sw-button>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_integration_list_detail_modal_inner_footer_apply %}
+                        <sw-button
+                            size="small"
+                            class="sw-integration-detail-modal__save-action"
+                            :disabled="(isModalLoading && !!currentIntegration.label) || !acl.can('integration.editor')"
+                            variant="primary"
+                            @click="onSaveIntegration"
+                        >
+                            {{ showSecretAccessKey ? $tc('sw-integration.detail.buttonApply') : $tc('sw-integration.detail.buttonApplyEdit') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                    {% endblock %}
+                </sw-modal>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
-                <template #column-writeAccess="{ item }">
-                    <sw-label
-                        v-if="item.admin"
-                        size="medium"
-                        ghost
-                        caps
-                        light
-                    >
-                        {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
-                    </sw-label>
+                {% block sw_integration_list_grid %}
+                <sw-entity-listing
+                    :items="integrations"
+                    :columns="integrationColumns"
+                    :repository="integrationRepository"
+                    :full-page="false"
+                    :compact-mode="false"
+                    :allow-column-edit="false"
+                    :show-selection="false"
+                    :show-settings="false"
+                    :allow-view="acl.can('integration.viewer')"
+                    :is-loading="isLoading"
+                >
 
-                    <span v-if="!item.admin && item.aclRoles && item.aclRoles.length">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_grid_inner_slot_columns_label %}
+                    <template #column-label="{ item }">
+                        <span class="sw-integration-list__app-icon">
+                            <sw-icon name="regular-share" />
+                        </span>
+                        <a
+                            href="#"
+                            @click.prevent="onShowDetailModal(item)"
+                        >
+                            {{ item.label }}
+                        </a>
+                    </template>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
+                    <template #column-writeAccess="{ item }">
                         <sw-label
-                            v-for="role in item.aclRoles"
-                            :key="role.name"
+                            v-if="item.admin"
                             size="medium"
                             ghost
                             caps
                             light
                         >
-                            {{ role.name }}
+                            {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
                         </sw-label>
-                    </span>
-                </template>
+
+                        <span v-if="!item.admin && item.aclRoles && item.aclRoles.length">
+                            <sw-label
+                                v-for="role in item.aclRoles"
+                                :key="role.name"
+                                size="medium"
+                                ghost
+                                caps
+                                light
+                            >
+                                {{ role.name }}
+                            </sw-label>
+                        </span>
+                    </template>
+                    {% endblock %}
+
+                    <template #actions="{ item }">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
+                        <sw-context-menu-item
+                            class="sw_integration_list__edit-action"
+                            :disabled="!acl.can('integration.editor')"
+                            @click="onShowDetailModal(item)"
+                        >
+                            {{ $tc('sw-integration.list.contextMenuEdit') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
+                        <sw-context-menu-item
+                            class="sw_integration_list__delete-action"
+                            variant="danger"
+                            :disabled="!acl.can('integration.deleter')"
+                            @click="showDeleteModal = item.id"
+                        >
+                            {{ $tc('sw-integration.list.contextMenuDelete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+
+                    <template #action-modals="{ item }">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_integration_list_grid_inner_slot_delete_modal %}
+                        <sw-modal
+                            v-if="showDeleteModal === item.id"
+                            :title="$tc('sw-integration.detail.deleteModalTitle')"
+                            @modal-close="onCloseDeleteModal"
+                        >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
+                            <p>
+                                {{ $tc('sw-integration.detail.confirmDelete') }}
+                                <strong>"{{ item.label }}"</strong>
+                            </p>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
+                            <template #modal-footer>
+                                <sw-button
+                                    size="small"
+                                    @click="onCloseDeleteModal"
+                                >
+                                    {{ $tc('sw-integration.detail.buttonCancel') }}
+                                </sw-button>
+
+                                <sw-button
+                                    size="small"
+                                    variant="primary"
+                                    @click="onConfirmDelete(item.id)"
+                                >
+                                    {{ $tc('sw-integration.detail.buttonDelete') }}
+                                </sw-button>
+                            </template>
+                            {% endblock %}
+                        </sw-modal>
+                        {% endblock %}
+                    </template>
+                </sw-entity-listing>
                 {% endblock %}
 
-                <template #actions="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
-                    <sw-context-menu-item
-                        class="sw_integration_list__edit-action"
-                        :disabled="!acl.can('integration.editor')"
-                        @click="onShowDetailModal(item)"
-                    >
-                        {{ $tc('sw-integration.list.contextMenuEdit') }}
-                    </sw-context-menu-item>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
-                    <sw-context-menu-item
-                        class="sw_integration_list__delete-action"
-                        variant="danger"
-                        :disabled="!acl.can('integration.deleter')"
-                        @click="showDeleteModal = item.id"
-                    >
-                        {{ $tc('sw-integration.list.contextMenuDelete') }}
-                    </sw-context-menu-item>
-                    {% endblock %}
-                </template>
-
-                <template #action-modals="{ item }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_integration_list_grid_inner_slot_delete_modal %}
-                    <sw-modal
-                        v-if="showDeleteModal === item.id"
-                        :title="$tc('sw-integration.detail.deleteModalTitle')"
-                        @modal-close="onCloseDeleteModal"
-                    >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
-                        <p>
-                            {{ $tc('sw-integration.detail.confirmDelete') }}
-                            <strong>"{{ item.label }}"</strong>
-                        </p>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
-                        <template slot="modal-footer">
-                            <sw-button
-                                size="small"
-                                @click="onCloseDeleteModal"
-                            >
-                                {{ $tc('sw-integration.detail.buttonCancel') }}
-                            </sw-button>
-
-                            <sw-button
-                                size="small"
-                                variant="primary"
-                                @click="onConfirmDelete(item.id)"
-                            >
-                                {{ $tc('sw-integration.detail.buttonDelete') }}
-                            </sw-button>
-                        </template>
-                        {% endblock %}
-                    </sw-modal>
-                    {% endblock %}
-                </template>
-            </sw-entity-listing>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_list_empty_state %}
+                <sw-empty-state
+                    v-if="!integrations"
+                    :title="$tc('sw-integration.list.messageEmpty')"
+                    :subline="$tc('sw-integration.list.sublineEmpty')"
+                />
+                {% endblock %}
+                {% endblock %}
+            </sw-card>
             {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_list_empty_state %}
-            <sw-empty-state
-                v-if="!integrations"
-                :title="$tc('sw-integration.list.messageEmpty')"
-                :subline="$tc('sw-integration.list.sublineEmpty')"
-            />
-            {% endblock %}
-            {% endblock %}
-        </sw-card>
-        {% endblock %}
-    </sw-card-view>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

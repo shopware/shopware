@@ -70,8 +70,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_tree_group_grid_columns %}
                 <template
-                    slot="columns"
-                    slot-scope="{ item }"
+                    #columns="{ item }"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -107,7 +106,7 @@
                 </template>
                 {% endblock %}
 
-                <template slot="pagination">
+                <template #pagination>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_search_tree_group_grid_pagination %}
                     <sw-pagination
@@ -140,8 +139,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_tree_option_grid_columns %}
                 <template
-                    slot="columns"
-                    slot-scope="{ item }"
+                    #columns="{ item }"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -159,7 +157,7 @@
                 </template>
                 {% endblock %}
 
-                <template slot="pagination">
+                <template #pagination>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_search_tree_option_grid_pagination %}
                     <sw-pagination
@@ -204,8 +202,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_search_option_search_grid_columns %}
             <template
-                slot="columns"
-                slot-scope="{ item }"
+                #columns="{ item }"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_option_search_grid_columns_name %}
@@ -219,7 +216,7 @@
             </template>
             {% endblock %}
 
-            <template slot="pagination">
+            <template #pagination>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_option_search_grid_pagination %}
                 <sw-pagination

@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="property"
             :placeholder="$tc('sw-property.general.placeholderSearchBar')"
@@ -15,7 +15,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_smart_bar_header_title %}
@@ -44,7 +44,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_ %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_add_button %}
@@ -68,13 +68,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
     {% endblock %}
 
-    <template slot="content">
+    <template #content>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_content %}
@@ -109,8 +108,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_options %}
                 <template
-                    slot="column-options"
-                    slot-scope="{ item }"
+                    #column-options="{ item }"
                 >
                     <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                     <span
@@ -159,8 +157,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_columns_actions %}
                 <template
-                    slot="actions"
-                    slot-scope="{ item }"
+                    #actions="{ item }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_actions_detail %}
@@ -190,8 +187,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_action_modals %}
                 <template
-                    slot="action-modals"
-                    slot-scope="{ item }"
+                    #action-modals="{ item }"
                 >
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -203,7 +199,7 @@
                             {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                         </p>
 
-                        <template slot="modal-footer">
+                        <template #modal-footer>
                             <sw-button
                                 size="small"
                                 @click="onCloseDeleteModal"
@@ -257,16 +253,18 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_sidebar %}
-    <sw-sidebar slot="sidebar">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_property_list_sidebar_refresh_item %}
-        <sw-sidebar-item
-            icon="regular-undo"
-            :title="$tc('sw-property.list.titleSidebarItemRefresh')"
-            @click="onRefresh"
-        />
-        {% endblock %}
-    </sw-sidebar>
+    <template #sidebar>
+        <sw-sidebar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_property_list_sidebar_refresh_item %}
+            <sw-sidebar-item
+                icon="regular-undo"
+                :title="$tc('sw-property.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

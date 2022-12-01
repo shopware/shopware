@@ -73,71 +73,72 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block  sw_order_detail_base_overview_status_change %}
-        <sw-container
-            v-if="!isEditing"
-            slot="additional-actions"
-            columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
-            gap="0 15px"
-        >
+        <template #additional-actions>
+            <sw-container
+                v-if="!isEditing"
+                columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
+                gap="0 15px"
+            >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_status_change_transaction %}
-            <sw-order-state-select
-                v-if="!isLoading && transaction"
-                v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('order.editor'),
-                    showOnDisabledElements: true
-                }"
-                class="sw-order-state-select__payment-state"
-                rounded-style
-                :disabled="!acl.can('order.editor')"
-                :transition-options="transactionOptions"
-                :placeholder="transactionOptionPlaceholder"
-                :background-style="transactionOptionsBackground"
-                @state-select="onQuickTransactionStatusChange"
-            />
-            {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_base_status_change_transaction %}
+                <sw-order-state-select
+                    v-if="!isLoading && transaction"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-order-state-select__payment-state"
+                    rounded-style
+                    :disabled="!acl.can('order.editor')"
+                    :transition-options="transactionOptions"
+                    :placeholder="transactionOptionPlaceholder"
+                    :background-style="transactionOptionsBackground"
+                    @state-select="onQuickTransactionStatusChange"
+                />
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_status_change_delivery %}
-            <sw-order-state-select
-                v-if="!isLoading && delivery"
-                v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('order.editor'),
-                    showOnDisabledElements: true
-                }"
-                class="sw-order-state-select__delivery-state"
-                rounded-style
-                :transition-options="deliveryOptions"
-                :disabled="!acl.can('order.editor')"
-                :placeholder="deliveryOptionPlaceholder"
-                :background-style="deliveryOptionsBackground"
-                @state-select="onQuickDeliveryStatusChange"
-            />
-            {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_base_status_change_delivery %}
+                <sw-order-state-select
+                    v-if="!isLoading && delivery"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-order-state-select__delivery-state"
+                    rounded-style
+                    :transition-options="deliveryOptions"
+                    :disabled="!acl.can('order.editor')"
+                    :placeholder="deliveryOptionPlaceholder"
+                    :background-style="deliveryOptionsBackground"
+                    @state-select="onQuickDeliveryStatusChange"
+                />
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_status_change_order %}
-            <sw-order-state-select
-                v-if="!isLoading"
-                v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('order.editor'),
-                    showOnDisabledElements: true
-                }"
-                class="sw-order-state-select__order-state"
-                rounded-style
-                :transition-options="orderOptions"
-                :disabled="!acl.can('order.editor')"
-                :placeholder="orderOptionPlaceholder"
-                :background-style="orderOptionsBackground"
-                @state-select="onQuickOrderStatusChange"
-            />
-            {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_base_status_change_order %}
+                <sw-order-state-select
+                    v-if="!isLoading"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-order-state-select__order-state"
+                    rounded-style
+                    :transition-options="orderOptions"
+                    :disabled="!acl.can('order.editor')"
+                    :placeholder="orderOptionPlaceholder"
+                    :background-style="orderOptionsBackground"
+                    @state-select="onQuickOrderStatusChange"
+                />
+                {% endblock %}
 
-        </sw-container>
+            </sw-container>
+        </template>
         {% endblock %}
 
     </sw-order-user-card>
@@ -164,165 +165,166 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_line_items_card_rows %}
-        <sw-container
-            slot="grid"
-            :is-loading="isLoading"
-            type="row"
-        >
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_line_items_grid %}
-            <sw-order-line-items-grid
-                ref="sw-order-line-item-grid"
-                :order="order"
-                :context="versionContext"
-                :editable="isEditing"
-                @item-delete="saveAndRecalculate"
-                @item-edit="recalculateAndReload"
-                @existing-item-edit="saveAndRecalculate"
-                @item-added="reloadEntityData"
-                @item-cancel="recalculateAndReload"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_line_items_summary %}
-            <sw-card-section
-                divider="top"
-                secondary
-                slim
+        <template #grid>
+            <sw-container
+                :is-loading="isLoading"
+                type="row"
             >
-                <sw-container
-                    class="sw-order-detail__summary"
-                    gap="14px"
-                    columns="1fr 440px"
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_base_line_items_grid %}
+                <sw-order-line-items-grid
+                    ref="sw-order-line-item-grid"
+                    :order="order"
+                    :context="versionContext"
+                    :editable="isEditing"
+                    @item-delete="saveAndRecalculate"
+                    @item-edit="recalculateAndReload"
+                    @existing-item-edit="saveAndRecalculate"
+                    @item-added="reloadEntityData"
+                    @item-cancel="recalculateAndReload"
+                />
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_detail_base_line_items_summary %}
+                <sw-card-section
+                    divider="top"
+                    secondary
+                    slim
                 >
-                    <div>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_switch_promotions %}
-                        <sw-switch-field
-                            v-if="isEditing"
-                            v-model="disabledAutoPromotionVisibility"
-                            class="sw-order-detail-summary__switch-promotions"
-                            :label="$tc('sw-order.promotionModal.labelTitle')"
-                        />
-                        {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_voucher_field %}
-                        <sw-order-promotion-tag-field
-                            v-if="isEditing"
-                            v-model="promotionCodeTags"
-                            :disabled="!hasLineItem"
-                            :currency="currency"
-                            :label="$tc('sw-order.createBase.labelAddPromotion')"
-                            :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
-                            :error="promotionError"
-                            @on-remove-code="onRemoveExistingCode"
-                        />
-                        {% endblock %}
-                    </div>
-
-                    <sw-description-list
-                        v-if="!isLoading"
-                        class="sw-order-detail__summary-data"
-                        grid="265px 1fr"
+                    <sw-container
+                        class="sw-order-detail__summary"
+                        gap="14px"
+                        columns="1fr 440px"
                     >
+                        <div>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_switch_promotions %}
+                            <sw-switch-field
+                                v-if="isEditing"
+                                v-model="disabledAutoPromotionVisibility"
+                                class="sw-order-detail-summary__switch-promotions"
+                                :label="$tc('sw-order.promotionModal.labelTitle')"
+                            />
+                            {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_voucher_field %}
+                            <sw-order-promotion-tag-field
+                                v-if="isEditing"
+                                v-model="promotionCodeTags"
+                                :disabled="!hasLineItem"
+                                :currency="currency"
+                                :label="$tc('sw-order.createBase.labelAddPromotion')"
+                                :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+                                :error="promotionError"
+                                @on-remove-code="onRemoveExistingCode"
+                            />
+                            {% endblock %}
+                        </div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_entries %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_amount %}
-                        <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                        <dd>{{ order.positionPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</dd>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_shipping_cost %}
-                        <template v-if="delivery">
-                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                            <dd>
-                                <sw-order-saveable-field
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: shippingCostsDetail,
-                                        disabled: taxStatus === 'tax-free'
-                                    }"
-                                    type="number"
-                                    :editable="isEditing"
-                                    :value="delivery.shippingCosts.totalPrice"
-                                    @value-change="onShippingChargeEdited"
-                                >
-                                    {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
-                                </sw-order-saveable-field>
-                            </dd>
-                        </template>
-                        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                        <template
-                            v-for="(delivery, index) in deliveryDiscounts"
-                            v-if="deliveryDiscounts"
+                        <sw-description-list
+                            v-if="!isLoading"
+                            class="sw-order-detail__summary-data"
+                            grid="265px 1fr"
                         >
-                            <dt :key="`delivery-discount-dt-${index}`">
-                                {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
-                            </dt>
-                            <dd :key="`delivery-discount-dd-${index}`">
-                                {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
-                            </dd>
-                        </template>
-                        {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
-                        <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                            <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
-                        </template>
-                        {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_entries %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_amount %}
+                            <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                            <dd>{{ order.positionPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</dd>
+                            {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_taxes %}
-                        <template v-if="taxStatus !== 'tax-free'">
-                            <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
-                                <dt :key="`sorted-calculated-taxes-dt-${index}`">
-                                    {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
-                                </dt>
-                                <dd :key="`sorted-calculated-taxes-dd-${index}`">
-                                    {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_shipping_cost %}
+                            <template v-if="delivery">
+                                <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                                <dd>
+                                    <sw-order-saveable-field
+                                        v-tooltip="{
+                                            showDelay: 300,
+                                            message: shippingCostsDetail,
+                                            disabled: taxStatus === 'tax-free'
+                                        }"
+                                        type="number"
+                                        :editable="isEditing"
+                                        :value="delivery.shippingCosts.totalPrice"
+                                        @value-change="onShippingChargeEdited"
+                                    >
+                                        {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                    </sw-order-saveable-field>
                                 </dd>
                             </template>
-                        </template>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_slot %}
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_amount_total %}
-                        <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                            <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
-                            <template v-if="displayRounded">
-                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                                <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
+                            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                            <template
+                                v-for="(delivery, index) in deliveryDiscounts"
+                                v-if="deliveryDiscounts"
+                            >
+                                <dt :key="`delivery-discount-dt-${index}`">
+                                    {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
+                                </dt>
+                                <dd :key="`delivery-discount-dd-${index}`">
+                                    {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                </dd>
                             </template>
-                        </template>
-                        {% endblock %}
+                            {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
-                        <template v-if="taxStatus === 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                            <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
-                        </template>
-                        {% endblock %}
-                        {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
+                            </template>
+                            {% endblock %}
 
-                    </sw-description-list>
-                </sw-container>
-            </sw-card-section>
-            {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_taxes %}
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
+                                    <dt :key="`sorted-calculated-taxes-dt-${index}`">
+                                        {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
+                                    </dt>
+                                    <dd :key="`sorted-calculated-taxes-dd-${index}`">
+                                        {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
+                                    </dd>
+                                </template>
+                            </template>
+                            {% endblock %}
 
-        </sw-container>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_slot %}
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_amount_total %}
+                            <template v-if="taxStatus !== 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                                <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
+                                <template v-if="displayRounded">
+                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                    <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
+                                </template>
+                            </template>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
+                            <template v-if="taxStatus === 'tax-free'">
+                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                                <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
+                            </template>
+                            {% endblock %}
+                            {% endblock %}
+
+                        </sw-description-list>
+                    </sw-container>
+                </sw-card-section>
+                {% endblock %}
+
+            </sw-container>
+        </template>
         {% endblock %}
 
     </sw-card>

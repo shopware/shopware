@@ -6,7 +6,7 @@
     {# @deprecated tag:v6.5.0 - Block will be removed #}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar />
     </template>
     {% endblock %}
@@ -14,7 +14,7 @@
     {# @deprecated tag:v6.5.0 - Block will be removed #}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         {# @deprecated tag:v6.5.0 - Block will be removed #}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_units_smart_bar_header_title %}
@@ -37,7 +37,7 @@
     {# @deprecated tag:v6.5.0 - Block will be removed #}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         {# @deprecated tag:v6.5.0 - Block will be removed #}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_units_actions_save %}
@@ -57,80 +57,83 @@
     {# @deprecated tag:v6.5.0 - Block will be removed #}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        :disabled="!!newUnit"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!!newUnit"
+            @on-change="onChangeLanguage"
+        />
+    </template>
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - Block will be removed #}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_content %}
-    <sw-card-view slot="content">
-        <sw-card
-            position-identifier="sw-settings-units-content"
-            :class="{ 'sw-settings-units-card-empty': isEmpty }"
-        >
-            {# @deprecated tag:v6.5.0 - Block will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_units_content_empty_state %}
-            <sw-empty-state
-                v-if="!isLoading && isEmpty"
-                :title="$tc('sw-settings-units.empty-state.title')"
-                :subline="$tc('sw-settings-units.empty-state.subline')"
-                icon="regular-balance-scale"
-            />
-            {% endblock %}
-
-            <template #grid>
+    <template #content>
+        <sw-card-view>
+            <sw-card
+                position-identifier="sw-settings-units-content"
+                :class="{ 'sw-settings-units-card-empty': isEmpty }"
+            >
                 {# @deprecated tag:v6.5.0 - Block will be removed #}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_units_content_grid %}
-                <sw-data-grid
-                    v-show="isLoading || !isEmpty"
-                    ref="swDataGrid"
-                    class="sw-settings-units-grid"
-                    :is-loading="isLoading"
-                    :data-source="unitList"
-                    :columns="unitColumns()"
-                    :show-selection="false"
-                    :allow-inline-edit="acl.can('scale_unit.editor')"
-                    :skeleton-item-amount="placeholderAmount"
-                    @inline-edit-save="saveUnit"
-                    @inline-edit-cancel="cancelUnit"
-                >
-
-                    <template #actions="{ item }">
-                        <sw-context-menu-item
-                            class="sw-settings-units__edit-action"
-                            :disabled="!acl.can('scale_unit.editor')"
-                            @click="editUnit(item)"
-                        >
-                            {{ $tc('global.default.edit') }}
-                        </sw-context-menu-item>
-
-                        <sw-context-menu-divider />
-
-                        {# @deprecated tag:v6.5.0 - Block will be removed #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_units_content_grid_column_menu_delete %}
-                        <sw-context-menu-item
-                            class="sw-settings-units__delete-action"
-                            variant="danger"
-                            :disabled="!acl.can('scale_unit.deleter')"
-                            @click="deleteUnit(item)"
-                        >
-                            {{ $tc('global.default.delete') }}
-                        </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-
-                </sw-data-grid>
+                {% block sw_settings_units_content_empty_state %}
+                <sw-empty-state
+                    v-if="!isLoading && isEmpty"
+                    :title="$tc('sw-settings-units.empty-state.title')"
+                    :subline="$tc('sw-settings-units.empty-state.subline')"
+                    icon="regular-balance-scale"
+                />
                 {% endblock %}
-            </template>
-        </sw-card>
-    </sw-card-view>
+
+                <template #grid>
+                    {# @deprecated tag:v6.5.0 - Block will be removed #}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_units_content_grid %}
+                    <sw-data-grid
+                        v-show="isLoading || !isEmpty"
+                        ref="swDataGrid"
+                        class="sw-settings-units-grid"
+                        :is-loading="isLoading"
+                        :data-source="unitList"
+                        :columns="unitColumns()"
+                        :show-selection="false"
+                        :allow-inline-edit="acl.can('scale_unit.editor')"
+                        :skeleton-item-amount="placeholderAmount"
+                        @inline-edit-save="saveUnit"
+                        @inline-edit-cancel="cancelUnit"
+                    >
+
+                        <template #actions="{ item }">
+                            <sw-context-menu-item
+                                class="sw-settings-units__edit-action"
+                                :disabled="!acl.can('scale_unit.editor')"
+                                @click="editUnit(item)"
+                            >
+                                {{ $tc('global.default.edit') }}
+                            </sw-context-menu-item>
+
+                            <sw-context-menu-divider />
+
+                            {# @deprecated tag:v6.5.0 - Block will be removed #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_units_content_grid_column_menu_delete %}
+                            <sw-context-menu-item
+                                class="sw-settings-units__delete-action"
+                                variant="danger"
+                                :disabled="!acl.can('scale_unit.deleter')"
+                                @click="deleteUnit(item)"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                        </template>
+
+                    </sw-data-grid>
+                {% endblock %}
+                </template>
+            </sw-card>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

@@ -66,10 +66,9 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_list_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

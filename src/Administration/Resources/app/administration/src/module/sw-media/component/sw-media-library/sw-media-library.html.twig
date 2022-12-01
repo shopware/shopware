@@ -127,7 +127,7 @@
         v-if="shouldDisplayEmptyState"
         :title="$tc('sw-empty-state.messageNoResultTitle')"
     >
-        <template slot="icon">
+        <template #icon>
             <img
                 :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
                 :alt="$tc('sw-empty-state.messageNoResultSubline')"

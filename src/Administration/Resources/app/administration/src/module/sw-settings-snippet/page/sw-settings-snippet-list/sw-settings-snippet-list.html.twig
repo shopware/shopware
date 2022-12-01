@@ -89,8 +89,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_column_id %}
                 <template
-                    slot="column-id"
-                    slot-scope="{ item, isInlineEdit }"
+                    #column-id="{ item, isInlineEdit }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_id_inline_edit %}
@@ -120,8 +119,7 @@
                 {% block sw_settings_snippet_list_column_value %}
                 <template
                     v-for="set in snippetSets"
-                    :slot="`column-${set.id}`"
-                    slot-scope="{ item, compact, isInlineEdit }"
+                    #[`column-${set.id}`]="{ item, compact, isInlineEdit }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_value_inline_edit %}
@@ -181,8 +179,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_delete_modal %}
                 <template
-                    slot="action-modals"
-                    slot-scope="{ item }"
+                    #action-modals="{ item }"
                 >
                     <sw-modal
                         v-if="showDeleteModal === item"
@@ -226,8 +223,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_list_delete_modal_grid_template %}
                             <template
-                                slot="columns"
-                                slot-scope="{ item }"
+                                #columns="{ item }"
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_list_delete_modal_grid_name %}
@@ -267,7 +263,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_footer %}
                         <template
-                            slot="modal-footer"
+                            #modal-footer
                             class="sw-settings-snippet-list__delete-modal-footer"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

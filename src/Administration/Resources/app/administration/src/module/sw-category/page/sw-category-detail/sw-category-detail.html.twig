@@ -104,7 +104,7 @@
             class="sw-category-detail__category-collapse"
             :expand-on-loading="landingPageId === null"
         >
-            <template slot="header">
+            <template #header>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_collapse_header %}
@@ -124,7 +124,7 @@
 
             </template>
 
-            <template slot="actions">
+            <template #actions>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_collapse_actions %}
@@ -142,7 +142,7 @@
 
             </template>
 
-            <template slot="content">
+            <template #content>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree %}
@@ -168,7 +168,7 @@
             class="sw-category-detail__landing-page-collapse"
             :expand-on-loading="landingPageId !== null"
         >
-            <template slot="header">
+            <template #header>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_collapse_header %}
@@ -188,7 +188,7 @@
 
             </template>
 
-            <template slot="actions">
+            <template #actions>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_collapse_actions %}
@@ -206,7 +206,7 @@
 
             </template>
 
-            <template slot="content">
+            <template #content>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_tree %}

@@ -4,6 +4,7 @@ import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-modal';
 
 Shopware.Component.register('sw-custom-field-detail', swCustomFieldDetail);
 
@@ -54,6 +55,10 @@ async function createWrapper(privileges = []) {
             },
             SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(null),
             validationService: {},
+            shortcutService: {
+                stopEventListener: () => {},
+                startEventListener: () => {},
+            }
         },
         propsData: {
             currentCustomField: {
@@ -69,7 +74,7 @@ async function createWrapper(privileges = []) {
             set: {}
         },
         stubs: {
-            'sw-modal': true,
+            'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-container': true,
             'sw-custom-field-type-checkbox': true,
             'sw-field': true,

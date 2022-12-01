@@ -97,8 +97,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_tabs_content %}
             <template
-                slot="content"
-                slot-scope="{ active }"
+                #content="{ active }"
             >
                 <template v-for="set in visibleCustomFieldSets">
                     <div
@@ -158,7 +157,7 @@
                 :expand-on-loading="false"
                 :title="getInlineSnippet(set.config.label) || set.name"
             >
-                <template slot="content">
+                <template #content>
                     <template v-for="customField in set.customFields">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}

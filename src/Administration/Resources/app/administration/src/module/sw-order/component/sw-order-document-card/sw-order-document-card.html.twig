@@ -33,24 +33,25 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_document_card_header_create_document_button %}
-                        <sw-button
-                            slot="button"
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('order.editor'),
-                                showOnDisabledElements: true
-                            }"
-                            size="small"
-                            :disabled="!acl.can('order.editor')"
-                            class="sw-order-document-grid-button"
-                        >
+                        <template #button>
+                            <sw-button
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('order.editor'),
+                                    showOnDisabledElements: true
+                                }"
+                                size="small"
+                                :disabled="!acl.can('order.editor')"
+                                class="sw-order-document-grid-button"
+                            >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_document_card_header_create_document_button_label %}
-                            {{ $tc('sw-order.documentCard.labelCreateNew') }}
-                            {% endblock %}
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_document_card_header_create_document_button_label %}
+                                {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                                {% endblock %}
 
-                        </sw-button>
+                            </sw-button>
+                        </template>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -76,7 +77,6 @@
 
                     <sw-button
                         v-if="!attachView && feature.isActive('FEATURE_NEXT_7530')"
-                        slot="button"
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
                             disabled: acl.can('order.editor'),

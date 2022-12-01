@@ -6,7 +6,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="rule"
             :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
@@ -18,7 +18,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_list_smart_bar_header_title %}
         <h2>
@@ -46,7 +46,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_list_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_list_smart_bar_actions_add %}
         <sw-button
@@ -65,7 +65,7 @@
     </template>
     {% endblock %}
 
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch
             @on-change="onChangeLanguage"
         />
@@ -73,7 +73,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_list_content %}
-    <template slot="content">
+    <template #content>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_list_content_card %}
         <div class="sw-settings-rule-list__content">
@@ -120,8 +120,7 @@
                 {% block sw_settings_rule_list_grid_column_assignments %}
                 <template
                     v-for="(propertyName, index) in assignmentProperties"
-                    :slot="`column-${propertyName}`"
-                    slot-scope="{ item }"
+                    #[`column-${propertyName}`]="{ item }"
                 >
                     <span
                         :key="index"

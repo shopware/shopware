@@ -22,416 +22,415 @@
     />
     {% endblock %}
 
-    <sw-container
-        slot="grid"
-        rows="auto auto"
-    >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_user_card_row_primary %}
-        <sw-card-section divider="bottom">
+    <template #grid>
+        <sw-container rows="auto auto">
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_user_card_metadata_container %}
-            <sw-container
-                columns="80px 1fr max-content"
-                gap="0px 30px"
-                align="center"
-                class="sw-order-user-card__container"
-            >
+            {% block sw_order_user_card_row_primary %}
+            <sw-card-section divider="bottom">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_user_card_avatar %}
-                <sw-avatar
-                    size="80px"
-                    :color="$route.meta.$module.color"
-                    :first-name="currentOrder.orderCustomer.firstName"
-                    :last-name="currentOrder.orderCustomer.lastName"
-                />
-                {% endblock %}
+                {% block sw_order_user_card_metadata_container %}
+                <sw-container
+                    columns="80px 1fr max-content"
+                    gap="0px 30px"
+                    align="center"
+                    class="sw-order-user-card__container"
+                >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_user_card_metadata %}
-                <div class="sw-order-user-card__metadata">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_user_card_metadata_user_name %}
-                    <div
-                        v-if="currentOrder.orderCustomer"
-                        class="sw-order-user-card__metadata-user-name"
-                    >
-                        {{ fullName }}
-                    </div>
-                    {% endblock %}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_user_card_metadata_tags %}
-                    {# TODO: add versioning after NEXT-3898 and activate it editing mode and disable in non-editing mode #}
-                    <sw-entity-tag-select
-                        v-if="isEditing || hasTags"
-                        class="sw-order-user-card__tag-select"
-                        :placeholder="$tc('sw-order.detailBase.placeholderTagSelect')"
-                        :size="!isEditing ? 'default' : 'medium'"
-                        :disabled="!isEditing"
-                        :entity-collection="currentOrder.tags"
-                        @item-add="onAddTag"
-                        @item-remove="onRemoveTag"
+                    {% block sw_order_user_card_avatar %}
+                    <sw-avatar
+                        size="80px"
+                        color="$route.meta.$module.color"
+                        :first-name="currentOrder.orderCustomer.firstName"
+                        :last-name="currentOrder.orderCustomer.lastName"
                     />
                     {% endblock %}
-                </div>
-                {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_detail_base_info_summary %}
-                <div class="sw-order-user-card__info-summary">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block  sw_order_detail_base_info_summary_entries %}
-                    <div class="sw-order-user-card__metadata-price">
-                        {{ currentOrder.amountTotal | currency(currentOrder.currency.translated.shortName) }}
-                    </div>
+                    {% block sw_order_user_card_metadata %}
+                    <div class="sw-order-user-card__metadata">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_user_card_metadata_user_name %}
+                        <div
+                            v-if="currentOrder.orderCustomer"
+                            class="sw-order-user-card__metadata-user-name"
+                        >
+                            {{ fullName }}
+                        </div>
+                        {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_user_card_metadata_tags %}
 
-                    <div class="sw-order-user-card__metadata-item">
-                        {{ orderDate }}
+                        <sw-entity-tag-select
+                            v-if="isEditing || hasTags"
+                            class="sw-order-user-card__tag-select"
+                            :placeholder="$tc('sw-order.detailBase.placeholderTagSelect')"
+                            :size="!isEditing ? 'default' : 'medium'"
+                            :disabled="!isEditing"
+                            :entity-collection="currentOrder.tags"
+                            @item-add="onAddTag"
+                            @item-remove="onRemoveTag"
+                        />
+                        {% endblock %}
                     </div>
                     {% endblock %}
-                </div>
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_order_detail_base_info_summary %}
+                    <div class="sw-order-user-card__info-summary">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block  sw_order_detail_base_info_summary_entries %}
+                        <div class="sw-order-user-card__metadata-price">
+                            {{ currentOrder.amountTotal | currency(currentOrder.currency.translated.shortName) }}
+                        </div>
+
+                        <div class="sw-order-user-card__metadata-item">
+                            {{ orderDate }}
+                        </div>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                </sw-container>
                 {% endblock %}
 
-            </sw-container>
-            {% endblock %}
-
-            <slot name="additional-actions">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_user_card_slot_additional_actions%}{% endblock %}
-            </slot>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_order_overview_columns %}
-            <sw-container
-                columns="repeat(auto-fit, minmax(250px, 1fr))"
-                gap="30px 30px"
-            >
+                <slot name="additional-actions">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_order_user_card_slot_additional_actions %}{% endblock %}
+                </slot>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_detail_base_order_overview_left_column %}
-                <sw-description-list
-                    columns="1fr"
-                    grid="1fr"
-                    class="sw-order-user-card__summary-vertical"
+                {% block sw_order_detail_base_order_overview_columns %}
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="30px 30px"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_order_overview_email %}
-                    <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
-                    <dd>
-                        <sw-order-inline-field
-                            v-model="currentOrder.orderCustomer.email"
-                            :display-value="currentOrder.orderCustomer.email? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
-                            required
-                            :value="currentOrder.orderCustomer.email"
-                            :editable="isEditing"
-                            @input="$emit('order-change')"
-                        />
-                    </dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_order_overview_billing_address %}
-                    <dt>
-                        {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                        <sw-button
-                            v-if="isEditing"
-                            class="sw-order-user-card__address-edit-button"
-                            size="small"
-                            @click="onEditBillingAddress"
-                        >
-                            {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                        </sw-button>
-                    </dt>
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <dd @click="onEditBillingAddress">
-                        <sw-address
-                            :address="billingAddress"
-                            :formatting-address="formattingAddress"
-                        />
-                    </dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_order_overview_left_column_slot %}
-                    {% endblock %}
-
-                </sw-description-list>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_detail_base_order_overview_right_column %}
-                <sw-description-list
-                    columns="1fr"
-                    grid="1fr"
-                    class="sw-order-user-card__summary-vertical"
-                >
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_order_overview_phone_number %}
-                    <dt>
-                        {{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}
-                        <sw-label
-                            v-if="hasDifferentBillingAndShippingAddress"
-                            size="small"
-                            appearance="pill"
-                            class="sw-order-user-card__address-phone-label"
-                        >
-                            {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                        </sw-label>
-                    </dt>
-                    <dd>
-                        <sw-order-inline-field
-                            v-model="billingAddress.phoneNumber"
-                            :display-value="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
-                            :value="billingAddress.phoneNumber"
-                            :editable="isEditing"
-                            class="sw-order-inline-field__truncateable"
-                            @input="$emit('order-change')"
-                        />
-                    </dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_order_overview_shipping_address %}
-                    <dt>
-                        {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
-                        <sw-button
-                            v-show="hasDifferentBillingAndShippingAddress && isEditing"
-                            class="sw-order-user-card__address-edit-button"
-                            size="small"
-                            @click="onEditDeliveryAddress"
-                        >
-                            {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                        </sw-button>
-                    </dt>
-
-                    <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
-                        <span>
-                            {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
-                        </span>
-                        <sw-button
-                            v-show="!hasDifferentBillingAndShippingAddress && isEditing"
-                            class="sw-order-user-card__address-add-button"
-                            size="small"
-                            block
-                            @click="onAddNewDeliveryAddress"
-                        >
-                            {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
-                        </sw-button>
-                    </dd>
-
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <dd
-                        v-else-if="hasDeliveries"
-                        @click="$emit('onEditDeliveryAddress',$event)"
+                    {% block sw_order_detail_base_order_overview_left_column %}
+                    <sw-description-list
+                        columns="1fr"
+                        grid="1fr"
+                        class="sw-order-user-card__summary-vertical"
                     >
-                        <sw-address
-                            :address="delivery.shippingOrderAddress"
-                            :formatting-address="formattingAddress"
-                        />
-                    </dd>
 
-                    <dd v-else>
-                        {{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }}
-                    </dd>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_order_overview_email %}
+                        <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
+                        <dd>
+                            <sw-order-inline-field
+                                v-model="currentOrder.orderCustomer.email"
+                                :display-value="currentOrder.orderCustomer.email ? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
+                                required
+                                :value="currentOrder.orderCustomer.email"
+                                :editable="isEditing"
+                                @input="$emit('order-change')"
+                            />
+                        </dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_order_overview_billing_address %}
+                        <dt>
+                            {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                            <sw-button
+                                v-if="isEditing"
+                                class="sw-order-user-card__address-edit-button"
+                                size="small"
+                                @click="onEditBillingAddress"
+                            >
+                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                            </sw-button>
+                        </dt>
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                        <dd @click="onEditBillingAddress">
+                            <sw-address
+                                :address="billingAddress"
+                                :formatting-address="formattingAddress"
+                            />
+                        </dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_order_overview_left_column_slot %}
+                        {% endblock %}
+
+                    </sw-description-list>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_order_overview_right_column_slot %}
+                    {% block sw_order_detail_base_order_overview_right_column %}
+                    <sw-description-list
+                        columns="1fr"
+                        grid="1fr"
+                        class="sw-order-user-card__summary-vertical"
+                    >
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_order_overview_phone_number %}
+                        <dt>
+                            {{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}
+                            <sw-label
+                                v-if="hasDifferentBillingAndShippingAddress"
+                                size="small"
+                                appearance="pill"
+                                class="sw-order-user-card__address-phone-label"
+                            >
+                                {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                            </sw-label>
+                        </dt>
+                        <dd>
+                            <sw-order-inline-field
+                                v-model="billingAddress.phoneNumber"
+                                :display-value="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
+                                :value="billingAddress.phoneNumber"
+                                :editable="isEditing"
+                                class="sw-order-inline-field__truncateable"
+                                @input="$emit('order-change')"
+                            />
+                        </dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_order_overview_shipping_address %}
+                        <dt>
+                            {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
+                            <sw-button
+                                v-show="hasDifferentBillingAndShippingAddress && isEditing"
+                                class="sw-order-user-card__address-edit-button"
+                                size="small"
+                                @click="onEditDeliveryAddress"
+                            >
+                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                            </sw-button>
+                        </dt>
+
+                        <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
+                            <span>
+                                {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
+                            </span>
+                            <sw-button
+                                v-show="!hasDifferentBillingAndShippingAddress && isEditing"
+                                class="sw-order-user-card__address-add-button"
+                                size="small"
+                                block
+                                @click="onAddNewDeliveryAddress"
+                            >
+                                {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
+                            </sw-button>
+                        </dd>
+
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                        <dd
+                            v-else-if="hasDeliveries"
+                            @click="$emit('onEditDeliveryAddress',$event)"
+                        >
+                            <sw-address
+                                :address="delivery.shippingOrderAddress"
+                                :formatting-address="formattingAddress"
+                            />
+                        </dd>
+
+                        <dd v-else>
+                            {{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }}
+                        </dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_order_overview_right_column_slot %}
+                        {% endblock %}
+
+                    </sw-description-list>
                     {% endblock %}
 
-                </sw-description-list>
+                </sw-container>
                 {% endblock %}
 
-            </sw-container>
+            </sw-card-section>
             {% endblock %}
 
-        </sw-card-section>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_user_card_row_secondary %}
-        <sw-card-section
-            secondary
-            slim
-        >
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_order_detail_base_secondary_info_order_overview %}
-            <sw-container
-                columns="repeat(auto-fit, minmax(250px, 1fr))"
-                gap="30px 30px"
+            {% block sw_order_user_card_row_secondary %}
+            <sw-card-section
+                secondary
+                slim
             >
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_detail_base_secondary_info_order_overview_contents %}
-                <sw-description-list
-                    columns="1fr"
-                    grid="1fr"
-                    class="sw-order-user-card__summary-vertical"
+                {% block sw_order_detail_base_secondary_info_order_overview %}
+                <sw-container
+                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    gap="30px 30px"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
+                    {% block sw_order_detail_base_secondary_info_order_overview_contents %}
+                    <sw-description-list
+                        columns="1fr"
+                        grid="1fr"
+                        class="sw-order-user-card__summary-vertical"
+                    >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_sales_channel %}
-                    <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
-                    <dd class="sw-order-base__label-sales-channel">
-                        {{ currentOrder.salesChannel.translated.name }}
-                    </dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_payment %}
-                    <template v-if="currentOrder.transactions.length > 0">
-                        <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
-                        <dd>
-                            {{ currentOrder.transactions.last().paymentMethod.translated.distinguishableName }}
-                        </dd>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_delivery %}
-                    <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
-                    <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet') }}</dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_affiliate %}
-                    <dt>{{ $tc('sw-order.detailBase.labelAffiliateCode') }}</dt>
-                    <dd>{{ currentOrder.affiliateCode || '-' }}</dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
-                    {% endblock %}
-
-                    {% endblock %}
-                </sw-description-list>
-
-                <sw-description-list
-                    columns="1fr"
-                    grid="1fr"
-                    class="sw-order-user-card__summary-vertical"
-                >
-                    {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_order_language %}
-                    <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
-                    <dd>{{ currentOrder.language.name }}</dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_last_change %}
-                    <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>
-                    <dd>{{ lastChangedDate }}</dd>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_tracking_codes %}
-                    <template v-if="isEditing && delivery">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_secondary_info_tracking_codes_input %}
-                        <dt>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_detail_base_secondary_info_tracking_codes_input_label %}
-                            {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
-                            {% endblock %}
-                        </dt>
-                        <dd>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_detail_base_secondary_info_tracking_codes_input_content %}
-                            <sw-multi-tag-select
-                                v-model="delivery.trackingCodes"
-                                class="sw-order-user-card__tracking-code-select"
-                                :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
-                                @change="emitChange"
-                            >
-                                <template #message-add-data>
-                                    <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
-                                </template>
-                                <template #message-enter-valid-data>
-                                    <span>{{ $tc('sw-order.detailBase.enterValidTrackingCode') }}</span>
-                                </template>
-                            </sw-multi-tag-select>
-                            {% endblock %}
+                        {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_sales_channel %}
+                        <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
+                        <dd class="sw-order-base__label-sales-channel">
+                            {{ currentOrder.salesChannel.translated.name }}
                         </dd>
                         {% endblock %}
-                    </template>
-                    <template v-else-if="delivery">
+
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_secondary_info_tracking_codes_display %}
-                        <dt>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_detail_base_secondary_info_tracking_codes_display_label %}
-                            {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
-                            {% endblock %}
-                        </dt>
-                        <dd>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
-                            <sw-button
-                                v-for="trackingCode in delivery.trackingCodes"
-                                :key="trackingCode"
-                                class="sw-order-user-card__tracking-code-link"
-                                size="x-small"
-                                :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
-                                :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
-                            >{{ trackingCode }}</sw-button>
-                            {% endblock %}
-                        </dd>
+                        {% block sw_order_detail_base_secondary_info_payment %}
+                        <template v-if="currentOrder.transactions.length > 0">
+                            <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
+                            <dd>
+                                {{ currentOrder.transactions.last().paymentMethod.translated.distinguishableName }}
+                            </dd>
+                        </template>
                         {% endblock %}
-                    </template>
-                    <template v-else>
+
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_order_detail_base_secondary_info_tracking_codes_empty %}
-                        <dt>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_detail_base_secondary_info_tracking_codes_empty_label %}
-                            {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
-                            {% endblock %}
-                        </dt>
-                        <dd>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_order_detail_base_secondary_info_tracking_codes_empty_content %}
-                            <span>-</span>
-                            {% endblock %}
-                        </dd>
+                        {% block sw_order_detail_base_secondary_info_delivery %}
+                        <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
+                        <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet') }}</dd>
                         {% endblock %}
-                    </template>
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_affiliate %}
+                        <dt>{{ $tc('sw-order.detailBase.labelAffiliateCode') }}</dt>
+                        <dd>{{ currentOrder.affiliateCode || '-' }}</dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
+                        {% endblock %}
+
+                        {% endblock %}
+                    </sw-description-list>
+
+                    <sw-description-list
+                        columns="1fr"
+                        grid="1fr"
+                        class="sw-order-user-card__summary-vertical"
+                    >
+                        {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_order_language %}
+                        <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
+                        <dd>{{ currentOrder.language.name }}</dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_last_change %}
+                        <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>
+                        <dd>{{ lastChangedDate }}</dd>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_tracking_codes %}
+                        <template v-if="isEditing && delivery">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_secondary_info_tracking_codes_input %}
+                            <dt>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_detail_base_secondary_info_tracking_codes_input_label %}
+                                {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                {% endblock %}
+                            </dt>
+                            <dd>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_detail_base_secondary_info_tracking_codes_input_content %}
+                                <sw-multi-tag-select
+                                    v-model="delivery.trackingCodes"
+                                    class="sw-order-user-card__tracking-code-select"
+                                    :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
+                                    @change="emitChange"
+                                >
+                                    <template #message-add-data>
+                                        <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
+                                    </template>
+                                    <template #message-enter-valid-data>
+                                        <span>{{ $tc('sw-order.detailBase.enterValidTrackingCode') }}</span>
+                                    </template>
+                                </sw-multi-tag-select>
+                                {% endblock %}
+                            </dd>
+                            {% endblock %}
+                        </template>
+                        <template v-else-if="delivery">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_secondary_info_tracking_codes_display %}
+                            <dt>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_detail_base_secondary_info_tracking_codes_display_label %}
+                                {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                {% endblock %}
+                            </dt>
+                            <dd>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
+                                <sw-button
+                                    v-for="trackingCode in delivery.trackingCodes"
+                                    :key="trackingCode"
+                                    class="sw-order-user-card__tracking-code-link"
+                                    size="x-small"
+                                    :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
+                                    :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
+                                >{{ trackingCode }}</sw-button>
+                                {% endblock %}
+                            </dd>
+                            {% endblock %}
+                        </template>
+                        <template v-else>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_detail_base_secondary_info_tracking_codes_empty %}
+                            <dt>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_detail_base_secondary_info_tracking_codes_empty_label %}
+                                {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                {% endblock %}
+                            </dt>
+                            <dd>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_detail_base_secondary_info_tracking_codes_empty_content %}
+                                <span>-</span>
+                                {% endblock %}
+                            </dd>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_campaign %}
+                        <template v-if="currentOrder.campaignCode">
+                            <dt>{{ $tc('sw-order.detailBase.labelCampaignCode') }}</dt>
+                            <dd>{{ currentOrder.campaignCode || '-' }}</dd>
+                        </template>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}
+                        {% endblock %}
+
+                        {% endblock %}
+
+                    </sw-description-list>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_campaign %}
-                    <template v-if="currentOrder.campaignCode">
-                        <dt>{{ $tc('sw-order.detailBase.labelCampaignCode') }}</dt>
-                        <dd>{{ currentOrder.campaignCode || '-' }}</dd>
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}
-                    {% endblock %}
-
-                    {% endblock %}
-
-                </sw-description-list>
+                </sw-container>
                 {% endblock %}
 
-            </sw-container>
+            </sw-card-section>
             {% endblock %}
 
-        </sw-card-section>
-        {% endblock %}
-
-    </sw-container>
+        </sw-container>
+    </template>
 </sw-card>
 
 {% endblock %}

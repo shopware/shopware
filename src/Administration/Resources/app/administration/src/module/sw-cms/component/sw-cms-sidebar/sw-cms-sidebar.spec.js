@@ -4,6 +4,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsSidebar from 'src/module/sw-cms/component/sw-cms-sidebar';
+import 'src/app/component/sidebar/sw-sidebar-collapse';
+import 'src/app/component/sidebar/sw-sidebar';
+import 'src/app/component/base/sw-collapse';
 
 Shopware.Component.register('sw-cms-sidebar', swCmsSidebar);
 
@@ -105,9 +108,9 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-button': {
                 template: '<div class="sw-button" @click="$emit(`click`)"></div>'
             },
-            'sw-sidebar': true,
+            'sw-sidebar': await Shopware.Component.build('sw-sidebar'),
             'sw-sidebar-item': true,
-            'sw-sidebar-collapse': true,
+            'sw-sidebar-collapse': await Shopware.Component.build('sw-sidebar-collapse'),
             'sw-text-field': true,
             'sw-select-field': true,
             'sw-cms-block-config': true,
@@ -118,7 +121,9 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-cms-sidebar-nav-element': true,
             'sw-entity-single-select': true,
             'sw-modal': true,
-            'sw-checkbox-field': true
+            'sw-checkbox-field': true,
+            'sw-collapse': await Shopware.Component.build('sw-collapse'),
+            'sw-icon': true,
         },
         provide: {
             repositoryFactory: {

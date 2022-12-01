@@ -66,10 +66,12 @@
         >
             <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
 
-            <sw-settings-listing-visibility-detail
-                ref="visibilityConfig"
-                :config="visibilityConfig"
-            />
+            <template #grid>
+                <sw-settings-listing-visibility-detail
+                    ref="visibilityConfig"
+                    :config="visibilityConfig"
+                />
+            </template>
 
             <template #modal-footer>
                 <sw-button

@@ -29,7 +29,7 @@ describe('Product: Bulk edit variants', () => {
                 });
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
 
@@ -63,6 +63,27 @@ describe('Product: Bulk edit variants', () => {
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'POST'
         }).as('saveDataFileUpload');
+
+        // Open settings
+        cy.get('.navigation-list-item__sw-settings a').should('be.visible');
+        cy.get('.navigation-list-item__sw-settings a').click();
+
+        // Open system settings
+        cy.get('.sw-settings__tabs').should('be.visible');
+        cy.get('.sw-settings__tab-system').should('be.visible');
+        cy.get('.sw-settings__tab-system').click();
+
+        // Open custom field list
+        cy.get('#sw-settings-custom-field').should('be.visible');
+        cy.get('#sw-settings-custom-field').click();
+
+        // Open create page
+        cy.get('.sw-settings-custom-field-set-list').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-settings-custom-field-set-list__button-create').should('be.visible');
+        cy.get('.sw-settings-custom-field-set-list__button-create').click();
+        cy.get('.sw-settings-custom-field-set-detail-base').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
 
         const page = new ProductPageObject();
         const mediaPage = new MediaPageObject();

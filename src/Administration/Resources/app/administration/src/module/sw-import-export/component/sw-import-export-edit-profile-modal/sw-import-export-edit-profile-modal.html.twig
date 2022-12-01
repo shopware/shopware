@@ -197,7 +197,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <sw-button
                 size="small"
                 @click="$emit('profile-close')"
@@ -262,7 +262,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_violation_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <sw-button
                 size="small"
                 @click="resetViolations"

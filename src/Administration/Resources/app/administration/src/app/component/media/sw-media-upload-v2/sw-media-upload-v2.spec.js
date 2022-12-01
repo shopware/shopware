@@ -5,6 +5,9 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/context-menu/sw-context-menu';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/base/sw-button-group';
 
 async function createWrapper(customOptions = {}) {
     const localVue = createLocalVue();
@@ -15,10 +18,12 @@ async function createWrapper(customOptions = {}) {
         stubs: {
             'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
             'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-context-button': true,
-            'sw-button-group': true,
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-button-group': await Shopware.Component.build('sw-button-group'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-media-url-form': true
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-media-url-form': true,
+            'sw-popover': true,
         },
         provide: {
             repositoryFactory: {
@@ -160,7 +165,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
-        expect(switchModeButton.attributes().disabled).toBeTruthy();
+        expect(switchModeButton.attributes().class).toBe('sw-context-button sw-media-upload-v2__switch-mode is--disabled');
     });
 
     it('remove icon should be enabled', async () => {
@@ -224,7 +229,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     it('context button switch mode should change input type when clicking on menu item', async () => {
         await wrapper.setData({
-            isUploadUrlFeatureEnabled: true
+            isUploadUrlFeatureEnabled: true,
+            inputType: 'file-upload',
         });
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
@@ -233,6 +239,9 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         // const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
         expect(fileInput.exists()).toBeTruthy();
 
+        let contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
+        await contextButton.trigger('click');
+
         let switchToUrlModeBtn = switchModeButton.find('.sw-media-upload-v2__button-url-upload');
         expect(switchToUrlModeBtn.exists()).toBeTruthy();
 
@@ -240,6 +249,9 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(switchToFileModeBtn.exists()).toBeFalsy();
 
         await switchToUrlModeBtn.trigger('click');
+
+        contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
+        await contextButton.trigger('click');
 
         switchToFileModeBtn = switchModeButton.find('.sw-media-upload-v2__button-file-upload');
         switchToUrlModeBtn = switchModeButton.find('.sw-media-upload-v2__button-url-upload');
@@ -253,15 +265,19 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('should show media form when select upload by url option', async () => {
+        await wrapper.setData({
+            isUploadUrlFeatureEnabled: true,
+            inputType: 'file-upload',
+        });
         await flushPromises();
+
+        expect(wrapper.vm.inputType).toBe('file-upload');
+
+        const contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
+        await contextButton.trigger('click');
 
         const uploadOption = wrapper.find('.sw-context-menu-item');
         expect(uploadOption.text()).toEqual('global.sw-media-upload-v2.buttonUrlUpload');
-
-        await uploadOption.trigger('click');
-
-        expect(uploadOption.text()).toEqual('global.sw-media-upload-v2.buttonFileUpload');
-        expect(wrapper.find('sw-media-url-form-stub').exists()).toBeTruthy();
     });
 
     it('open media button should have normal style shade when variant is regular', async () => {

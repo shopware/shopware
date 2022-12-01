@@ -1,7 +1,14 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swOrderDetailBase from 'src/module/sw-order/view/sw-order-detail-base';
+import swOrderUserCard from 'src/module/sw-order/component/sw-order-user-card';
+import 'src/app/component/base/sw-container';
+import 'src/app/component/structure/sw-card-view';
+import 'src/app/component/base/sw-card';
+
+Shopware.Component.register('sw-order-user-card', swOrderUserCard);
 
 const orderMock = {
+    billingAddressId: 'wofoo',
     shippingCosts: {
         calculatedTaxes: [],
         totalPrice: {}
@@ -30,6 +37,11 @@ const orderMock = {
             shippingCosts: {
                 calculatedTaxes: [],
                 totalPrice: {}
+            },
+            shippingMethod: {
+                translated: {
+                    name: '',
+                }
             }
         }
     ],
@@ -50,7 +62,26 @@ const orderMock = {
         interval: 0.01,
         decimals: 2
     },
-    lineItems: []
+    addresses: [
+        {
+            id: 'wofoo',
+        }
+    ],
+    lineItems: [],
+    orderCustomer: {
+        firstName: 'Max',
+        lastName: 'Mustermann',
+        email: 'test@example.com'
+    },
+    tags: [],
+    salesChannel: {
+        translated: {
+            name: ''
+        }
+    },
+    language: {
+        name: '',
+    }
 };
 
 Shopware.Component.register('sw-order-detail-base', swOrderDetailBase);
@@ -65,24 +96,37 @@ async function createWrapper(privileges = []) {
             translated: {
                 name: ''
             }
+        },
+        paymentMethod: {
+            translated: {
+                distinguishableName: '',
+            }
         }
     });
 
     return shallowMount(await Shopware.Component.build('sw-order-detail-base'), {
         localVue,
         stubs: {
-            'sw-card-view': true,
-            'sw-order-user-card': true,
-            'sw-container': true,
+            'sw-card-view': await Shopware.Component.build('sw-card-view'),
+            'sw-card': await Shopware.Component.build('sw-card'),
+            'sw-order-user-card': await Shopware.Component.build('sw-order-user-card'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-order-state-select': true,
-            'sw-card': true,
             'sw-order-line-items-grid': true,
             'sw-card-section': true,
             'sw-description-list': true,
             'sw-order-saveable-field': true,
             'sw-order-state-history-card': true,
             'sw-order-delivery-metadata': true,
-            'sw-order-document-card': true
+            'sw-order-document-card': true,
+            'sw-ignore-class': true,
+            'sw-extension-component-section': true,
+            'sw-avatar': true,
+            'sw-order-inline-field': true,
+            'sw-address': true,
+            'sw-label': true,
+            'sw-entity-tag-select': true,
+            'sw-button': true,
         },
         provide: {
             acl: {
@@ -107,14 +151,27 @@ async function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     }
                 })
+            },
+            customSnippetApiService: {
+                render: () => Promise.resolve({
+                    rendered: {},
+                }),
             }
-
         },
         propsData: {
             orderId: '1a2b3c',
             isLoading: false,
             isEditing: false,
             isSaveSuccessful: false
+        },
+        mocks: {
+            $route: {
+                meta: {
+                    $module: {
+                        color: '#fff',
+                    }
+                }
+            }
         }
     });
 }
@@ -124,6 +181,7 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
     });
 
     afterEach(async () => {

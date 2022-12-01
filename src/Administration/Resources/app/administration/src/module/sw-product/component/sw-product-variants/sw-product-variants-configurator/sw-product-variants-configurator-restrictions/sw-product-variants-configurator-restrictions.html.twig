@@ -46,8 +46,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_data_grid_column_id %}
             <template
-                slot="column-id"
-                slot-scope="{ item, isInlineEdit, compact }"
+                #column-id="{ item, isInlineEdit, compact }"
             >
                 <template v-for="restriction in getRestrictionsWithNaming(item.id).values">
                     <span
@@ -70,8 +69,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_data_grid_actions %}
             <template
-                slot="actions"
-                slot-scope="{ item }"
+                #actions="{ item }"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_restrictions_data_grid_actions_items %}
@@ -115,13 +113,14 @@
                 @restriction-delete="deleteRestriction"
             >
 
-                <p
-                    v-if="index < actualRestrictionValueLength - 1"
-                    slot="contentAfter"
-                    class="sw-product-variants-configurator-restrictions__seperator"
-                >
-                    {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
-                </p>
+                <template #contentAfter>
+                    <p
+                        v-if="index < actualRestrictionValueLength - 1"
+                        class="sw-product-variants-configurator-restrictions__seperator"
+                    >
+                        {{ $tc('sw-product.variations.configuratorModal.singleRestrictionSeperation') }}
+                    </p>
+                </template>
             </sw-product-restriction-selection>
             {% endblock %}
 
@@ -139,7 +138,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_configurator_restrictions_modal_footer_cancel %}
             <sw-button

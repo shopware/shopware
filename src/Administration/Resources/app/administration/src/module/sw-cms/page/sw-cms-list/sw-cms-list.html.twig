@@ -3,7 +3,7 @@
 <sw-page class="sw-cms-list">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="cms_page"
             :initial-search="term"
@@ -14,20 +14,16 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_toolbar %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>{{ $tc('sw-cms.general.moduleTitle') }}</h2>
     </template>
 
-    <template slot="language-switch">
-        <sw-language-switch
-            slot="language-switch"
-            @on-change="onChangeLanguage"
-        />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
     </template>
 
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <sw-button
-            slot="actions"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('cms.creator'),
@@ -44,549 +40,550 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_card_view %}
-    <sw-card-view slot="content">
+    <template #content>
+        <sw-card-view>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_list_content %}
-        <div class="sw-cms-list__content">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_list_sidebar %}
-            <div class="sw-cms-list__sidebar">
+            {% block sw_cms_list_content %}
+            <div class="sw-cms-list__content">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_sidebar_tabs %}
-                <sw-tabs
-                    is-vertical
-                    small
-                    position-identifier="sw-cms-list-sidebar"
-                    class="sw-cms-list__type-nav"
-                >
-                    <sw-tabs-item
-                        v-for="pageType in sortPageTypes"
-                        :key="pageType.name"
-                        :disabled="pageType.disabled"
-                        :active="pageType.active"
-                        @click="onSortPageType(pageType.value)"
+                {% block sw_cms_list_sidebar %}
+                <div class="sw-cms-list__sidebar">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_list_sidebar_tabs %}
+                    <sw-tabs
+                        is-vertical
+                        small
+                        position-identifier="sw-cms-list-sidebar"
+                        class="sw-cms-list__type-nav"
                     >
-                        {{ pageType.name }}
-                    </sw-tabs-item>
-                </sw-tabs>
-                {% endblock %}
-            </div>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_list_listing %}
-            <div class="sw-cms-list__listing">
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_listing_actions %}
-                <div class="sw-cms-list__actions">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_list_listing_title %}
-                    <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_list_listing_actions_sorting %}
-                    <div class="sw-cms-list__actions-sorting">
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_list_listing_actions_sorting_select %}
-                        <sw-sorting-select
-                            v-if="feature.isActive('FEATURE_NEXT_6758')"
-                            :value="sortingConCat"
-                            @sorting-changed="onSort"
-                        />
-                        {% endblock %}
-
-                        <!-- @deprecated tag:v6.5.0 use twig block above -->
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_list_listing_actions_sorting_legacy_select %}
-                        <sw-select-field
-                            v-else
-                            name="sortType"
-                            :label="$tc('sw-cms.sorting.labelSort')"
-                            :value="sortingConCat"
-                            aside
-                            @change="onSortingChanged"
+                        <sw-tabs-item
+                            v-for="pageType in sortPageTypes"
+                            :key="pageType.name"
+                            :disabled="pageType.disabled"
+                            :active="pageType.active"
+                            @click="onSortPageType(pageType.value)"
                         >
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_list_listing_actions_sorting_options %}
-                            <option
-                                v-for="sortOption in sortOptions"
-                                :key="sortOption.value"
-                                :value="sortOption.value"
-                            >
-                                {{ sortOption.name }}
-                            </option>
-                            {% endblock %}
-                        </sw-select-field>
-                        {% endblock %}
-
-                    </div>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_list_listing_actions_mode %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <div
-                        class="sw-cms-list__actions-mode"
-                        @click="onListModeChange"
-                    >
-                        <sw-icon
-                            v-if="listMode === 'grid'"
-                            name="regular-view-normal"
-                            size="16"
-                        />
-                        <sw-icon
-                            v-if="listMode === 'list'"
-                            name="regular-view-grid"
-                            size="16"
-                        />
-                    </div>
+                            {{ pageType.name }}
+                        </sw-tabs-item>
+                    </sw-tabs>
                     {% endblock %}
                 </div>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_listing_list %}
-                <div class="sw-cms-list__list">
+                {% block sw_cms_list_listing %}
+                <div class="sw-cms-list__listing">
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_list_listing_list_grid %}
-                    <div
-                        v-if="listMode === 'grid'"
-                        class="sw-cms-list__list-grid"
-                    >
+                    {% block sw_cms_list_listing_actions %}
+                    <div class="sw-cms-list__actions">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_list_listing_title %}
+                        <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
+                        {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_list_listing_list_grid_content %}
-                        <div class="sw-cms-list__list-grid-content">
+                        {% block sw_cms_list_listing_actions_sorting %}
+                        <div class="sw-cms-list__actions-sorting">
+
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_list_listing_list_item %}
-                            <template v-if="!isLoading">
-                                <sw-cms-list-item
-                                    v-for="(cmsPage, index) in pages"
-                                    :key="cmsPage.id"
-                                    :class="'sw-cms-list-item--' + index"
-                                    :page="cmsPage"
-                                    :active="layoutIsLinked(cmsPage.id)"
-                                    :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
-                                    @item-click="onListItemClick"
-                                    @preview-image-change="onPreviewChange"
-                                    @cms-page-delete="onDeleteCmsPage"
+                            {% block sw_cms_list_listing_actions_sorting_select %}
+                            <sw-sorting-select
+                                v-if="feature.isActive('FEATURE_NEXT_6758')"
+                                :value="sortingConCat"
+                                @sorting-changed="onSort"
+                            />
+                            {% endblock %}
+
+                            <!-- @deprecated tag:v6.5.0 use twig block above -->
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_list_listing_actions_sorting_legacy_select %}
+                            <sw-select-field
+                                v-else
+                                name="sortType"
+                                :label="$tc('sw-cms.sorting.labelSort')"
+                                :value="sortingConCat"
+                                aside
+                                @change="onSortingChanged"
+                            >
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_cms_list_listing_actions_sorting_options %}
+                                <option
+                                    v-for="sortOption in sortOptions"
+                                    :key="sortOption.value"
+                                    :value="sortOption.value"
                                 >
-                                    <sw-context-button
-                                        slot="contextMenu"
-                                        class="sw-cms-list-item__options"
+                                    {{ sortOption.name }}
+                                </option>
+                                {% endblock %}
+                            </sw-select-field>
+                            {% endblock %}
+
+                        </div>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_list_listing_actions_mode %}
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                        <div
+                            class="sw-cms-list__actions-mode"
+                            @click="onListModeChange"
+                        >
+                            <sw-icon
+                                v-if="listMode === 'grid'"
+                                name="regular-view-normal"
+                                size="16"
+                            />
+                            <sw-icon
+                                v-if="listMode === 'list'"
+                                name="regular-view-grid"
+                                size="16"
+                            />
+                        </div>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_list_listing_list %}
+                    <div class="sw-cms-list__list">
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_list_listing_list_grid %}
+                        <div
+                            v-if="listMode === 'grid'"
+                            class="sw-cms-list__list-grid"
+                        >
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_list_listing_list_grid_content %}
+                            <div class="sw-cms-list__list-grid-content">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_cms_list_listing_list_item %}
+                                <template v-if="!isLoading">
+                                    <sw-cms-list-item
+                                        v-for="(cmsPage, index) in pages"
+                                        :key="cmsPage.id"
+                                        :class="'sw-cms-list-item--' + index"
+                                        :page="cmsPage"
+                                        :active="layoutIsLinked(cmsPage.id)"
+                                        :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
+                                        @item-click="onListItemClick"
+                                        @preview-image-change="onPreviewChange"
+                                        @cms-page-delete="onDeleteCmsPage"
                                     >
+                                        <template #contextMenu>
+                                            <sw-context-button class="sw-cms-list-item__options">
+                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                                {% block sw_cms_list_listing_list_item_option_add_preview %}
+                                                <sw-context-menu-item
+                                                    class="sw-cms-list-item__option-preview"
+                                                    :disabled="!acl.can('cms.editor')"
+                                                    @click="onPreviewChange(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                <sw-context-menu-item
+                                                    v-if="cmsPage.type === 'product_list' && !(defaultCategoryId === cmsPage.id)"
+                                                    class="sw-cms-list-item__option-set-as-default"
+                                                    :disabled="!acl.can('system_config.editor')"
+                                                    @click="onOpenLayoutSetAsDefault(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                </sw-context-menu-item>
+
+                                                <!-- @deprecated tag:v6.5.0 default layouts for products will be enabled -->
+                                                <sw-context-menu-item
+                                                    v-else-if="feature.isActive('v6.5.0.0') && cmsPage.type === 'product_detail' && !(defaultProductId === cmsPage.id)"
+                                                    class="sw-cms-list-item__option-set-as-default"
+                                                    :disabled="!acl.can('cms.editor')"
+                                                    @click="onOpenLayoutSetAsDefault(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                                </sw-context-menu-item>
+
+                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                                {% block sw_cms_list_listing_list_item_option_duplicate %}
+                                                <sw-context-menu-item
+                                                    :disabled="!acl.can('cms.creator')"
+                                                    class="sw-cms-list-item__option-duplicate"
+                                                    @click="onDuplicateCmsPage(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                                {% block sw_cms_list_listing_list_item_option_remove_preview %}
+                                                <sw-context-menu-item
+                                                    v-if="cmsPage.previewMediaId"
+                                                    class="sw-cms-list-item__option-preview"
+                                                    variant="danger"
+                                                    :disabled="!acl.can('cms.editor')"
+                                                    @click="onPreviewImageRemove(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                                </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                                {% block sw_cms_list_listing_list_item_option_delete %}
+                                                <sw-context-menu-item
+                                                    v-if="!cmsPage.locked && !(defaultProductId === cmsPage.id || defaultCategoryId === cmsPage.id)"
+                                                    v-tooltip="deleteDisabledToolTip(cmsPage)"
+                                                    class="sw-cms-list-item__option-delete"
+                                                    variant="danger"
+                                                    :disabled="optionContextDeleteDisabled(cmsPage)"
+                                                    @click="onDeleteCmsPage(cmsPage)"
+                                                >
+                                                    {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                                </sw-context-menu-item>
+                                            {% endblock %}
+
+                                            </sw-context-button>
+                                        </template>
+                                    </sw-cms-list-item>
+                                </template>
+                                {% endblock %}
+
+                                <template v-else>
+                                    <sw-skeleton
+                                        v-for="index in 9"
+                                        :key="`cms-list-skeleton-${index}`"
+                                        variant="gallery"
+                                    />
+                                </template>
+                            </div>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_list_listing_pagination %}
+                            <sw-pagination
+                                v-if="!isLoading"
+                                class="sw-cms-list__list-pagination"
+                                :page="page"
+                                :limit="limit"
+                                :total="total"
+                                :steps="[9]"
+                                @page-change="onPageChange"
+                            />
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_cms_list_listing_list_card %}
+                        <sw-card
+                            v-else-if="listMode === 'list'"
+                            position-identifier="sw-cms-list-list-mode"
+                            class="sw-cms-list__list-card"
+                        >
+                            <template #grid>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_cms_list_listing_list_data_grid %}
+                                <sw-data-grid
+                                    class="sw-cms-list__list-data-grid"
+                                    identifier="sw-cms-list"
+                                    :is-loading="isLoading"
+                                    :data-source="pages"
+                                    :columns="columnConfig"
+                                    :skeleton-item-amount="limit"
+                                    :sort-by="sortBy"
+                                    :sort-direction="sortDirection"
+                                    :allow-inline-edit="false"
+                                    :allow-column-edit="false"
+                                    show-settings
+                                    :show-selection="false"
+                                >
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_column_name %}
+                                    <template #column-name="{ item }">
+                                        <sw-icon
+                                            v-if="item.locked"
+                                            name="regular-lock"
+                                            class="sw-cms-list__icon-lock"
+                                            size="14"
+                                        />
+                                        <router-link :to="{ name: 'sw.cms.detail', params: { id: item.id } }">
+                                            {{ item.translated.name }}
+                                        </router-link>
+                                    </template>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_column_type %}
+                                    <template #column-type="{ item }">
+                                        {{ getPageType(item) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_column_assignments %}
+                                    <template #column-assignments="{ item }">
+                                        {{ getPageCount(item) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_column_created %}
+                                    <template #column-createdAt="{ item }">
+                                        {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_column_updated %}
+                                    <template #column-updatedAt="{ item }">
+                                        {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_actions %}
+                                    <template #actions="{ item }">
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_cms_list_listing_list_item_option_add_preview %}
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit %}
                                         <sw-context-menu-item
-                                            class="sw-cms-list-item__option-preview"
+                                            :router-link="{ name: 'sw.cms.detail', params: { id: item.id } }"
+                                            class="sw-cms-list__context-menu-item-edit"
                                             :disabled="!acl.can('cms.editor')"
-                                            @click="onPreviewChange(cmsPage)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
+                                            {{ $tc('sw-cms.components.cmsListItem.edit') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
                                         <sw-context-menu-item
-                                            v-if="cmsPage.type === 'product_list' && !(defaultCategoryId === cmsPage.id)"
+                                            v-if="item.type === 'product_list' && !(defaultCategoryId === item.id)"
                                             class="sw-cms-list-item__option-set-as-default"
                                             :disabled="!acl.can('system_config.editor')"
-                                            @click="onOpenLayoutSetAsDefault(cmsPage)"
+                                            @click="onOpenLayoutSetAsDefault(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                         </sw-context-menu-item>
 
                                         <!-- @deprecated tag:v6.5.0 default layouts for products will be enabled -->
                                         <sw-context-menu-item
-                                            v-else-if="feature.isActive('v6.5.0.0') && cmsPage.type === 'product_detail' && !(defaultProductId === cmsPage.id)"
+                                            v-else-if="feature.isActive('v6.5.0.0') && item.type === 'product_detail' && !(defaultProductId === item.id)"
                                             class="sw-cms-list-item__option-set-as-default"
                                             :disabled="!acl.can('cms.editor')"
-                                            @click="onOpenLayoutSetAsDefault(cmsPage)"
+                                            @click="onOpenLayoutSetAsDefault(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                         </sw-context-menu-item>
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_cms_list_listing_list_item_option_duplicate %}
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
                                         <sw-context-menu-item
                                             :disabled="!acl.can('cms.creator')"
-                                            class="sw-cms-list-item__option-duplicate"
-                                            @click="onDuplicateCmsPage(cmsPage)"
+                                            class="sw-cms-list__context-menu-item-duplicate"
+                                            @click="onDuplicateCmsPage(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_cms_list_listing_list_item_option_remove_preview %}
+                                        {% block sw_cms_list_listing_list_item_option_rename %}
                                         <sw-context-menu-item
-                                            v-if="cmsPage.previewMediaId"
-                                            class="sw-cms-list-item__option-preview"
-                                            variant="danger"
+                                            v-if="!item.locked"
                                             :disabled="!acl.can('cms.editor')"
-                                            @click="onPreviewImageRemove(cmsPage)"
+                                            class="sw-cms-list__context-menu-item-rename"
+                                            @click="onRenameCmsPage(item)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                            {{ $tc('sw-cms.components.cmsListItem.rename') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_cms_list_listing_list_item_option_delete %}
+                                        {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
                                         <sw-context-menu-item
-                                            v-if="!cmsPage.locked && !(defaultProductId === cmsPage.id || defaultCategoryId === cmsPage.id)"
-                                            v-tooltip="deleteDisabledToolTip(cmsPage)"
-                                            class="sw-cms-list-item__option-delete"
+                                            v-if="!item.locked && !(defaultProductId === item.id || defaultCategoryId === item.id)"
+                                            v-tooltip="deleteDisabledToolTip(item)"
                                             variant="danger"
-                                            :disabled="optionContextDeleteDisabled(cmsPage)"
-                                            @click="onDeleteCmsPage(cmsPage)"
+                                            class="sw-cms-list__context-menu-item-delete"
+                                            :disabled="optionContextDeleteDisabled(item)"
+                                            @click="onDeleteCmsPage(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}
+
                                         </sw-context-menu-item>
+                                        {% endblock %}
+
+                                    </template>
                                     {% endblock %}
 
-                                    </sw-context-button>
-                                </sw-cms-list-item>
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_pagination %}
+                                    <template #pagination>
+                                        <sw-pagination
+                                            :page="page"
+                                            :limit="limit"
+                                            :total="total"
+                                            :steps="[5, 10, 25, 50]"
+                                            @page-change="onPageChange"
+                                        />
+                                    </template>
+                                    {% endblock %}
+                                </sw-data-grid>
+                                {% endblock %}
                             </template>
-                            {% endblock %}
-
-                            <template v-else>
-                                <sw-skeleton
-                                    v-for="index in 9"
-                                    :key="`cms-list-skeleton-${index}`"
-                                    variant="gallery"
-                                />
-                            </template>
-                        </div>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_list_listing_pagination %}
-                        <sw-pagination
-                            v-if="!isLoading"
-                            class="sw-cms-list__list-pagination"
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :steps="[9]"
-                            @page-change="onPageChange"
-                        />
+                        </sw-card>
                         {% endblock %}
                     </div>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_list_listing_list_card %}
-                    <sw-card
-                        v-else-if="listMode === 'list'"
-                        position-identifier="sw-cms-list-list-mode"
-                        class="sw-cms-list__list-card"
+                    {% block sw_cms_list_listing_list_empty_state %}
+                    <sw-empty-state
+                        v-if="isValidTerm(term) && !isLoading && !total"
+                        :title="$tc('sw-empty-state.messageNoResultTitle')"
+                        :style="{ minHeight: '200px' }"
                     >
-                        <template slot="grid">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_list_listing_list_data_grid %}
-                            <sw-data-grid
-                                class="sw-cms-list__list-data-grid"
-                                identifier="sw-cms-list"
-                                :is-loading="isLoading"
-                                :data-source="pages"
-                                :columns="columnConfig"
-                                :skeleton-item-amount="limit"
-                                :sort-by="sortBy"
-                                :sort-direction="sortDirection"
-                                :allow-inline-edit="false"
-                                :allow-column-edit="false"
-                                show-settings
-                                :show-selection="false"
+                        <template #default>
+                            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                            <router-link
+                                class="sw-empty-state__description-link"
+                                :to="{ name: 'sw.profile.index.searchPreferences' }"
                             >
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_column_name %}
-                                <template #column-name="{ item }">
-                                    <sw-icon
-                                        v-if="item.locked"
-                                        name="regular-lock"
-                                        class="sw-cms-list__icon-lock"
-                                        size="14"
-                                    />
-                                    <router-link :to="{ name: 'sw.cms.detail', params: { id: item.id } }">
-                                        {{ item.translated.name }}
-                                    </router-link>
-                                </template>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_column_type %}
-                                <template #column-type="{ item }">
-                                    {{ getPageType(item) }}
-                                </template>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_column_assignments %}
-                                <template #column-assignments="{ item }">
-                                    {{ getPageCount(item) }}
-                                </template>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_column_created %}
-                                <template #column-createdAt="{ item }">
-                                    {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
-                                </template>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_column_updated %}
-                                <template #column-updatedAt="{ item }">
-                                    {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
-                                </template>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_actions %}
-                                <template #actions="{ item }">
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_cms_list_listing_list_data_grid_actions_edit %}
-                                    <sw-context-menu-item
-                                        :router-link="{ name: 'sw.cms.detail', params: { id: item.id } }"
-                                        class="sw-cms-list__context-menu-item-edit"
-                                        :disabled="!acl.can('cms.editor')"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.edit') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    <sw-context-menu-item
-                                        v-if="item.type === 'product_list' && !(defaultCategoryId === item.id)"
-                                        class="sw-cms-list-item__option-set-as-default"
-                                        :disabled="!acl.can('system_config.editor')"
-                                        @click="onOpenLayoutSetAsDefault(item)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                    </sw-context-menu-item>
-
-                                    <!-- @deprecated tag:v6.5.0 default layouts for products will be enabled -->
-                                    <sw-context-menu-item
-                                        v-else-if="feature.isActive('v6.5.0.0') && item.type === 'product_detail' && !(defaultProductId === item.id)"
-                                        class="sw-cms-list-item__option-set-as-default"
-                                        :disabled="!acl.can('cms.editor')"
-                                        @click="onOpenLayoutSetAsDefault(item)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
-                                    </sw-context-menu-item>
-
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
-                                    <sw-context-menu-item
-                                        :disabled="!acl.can('cms.creator')"
-                                        class="sw-cms-list__context-menu-item-duplicate"
-                                        @click="onDuplicateCmsPage(item)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_cms_list_listing_list_item_option_rename %}
-                                    <sw-context-menu-item
-                                        v-if="!item.locked"
-                                        :disabled="!acl.can('cms.editor')"
-                                        class="sw-cms-list__context-menu-item-rename"
-                                        @click="onRenameCmsPage(item)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.rename') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
-                                    <sw-context-menu-item
-                                        v-if="!item.locked && !(defaultProductId === item.id || defaultCategoryId === item.id)"
-                                        v-tooltip="deleteDisabledToolTip(item)"
-                                        variant="danger"
-                                        class="sw-cms-list__context-menu-item-delete"
-                                        :disabled="optionContextDeleteDisabled(item)"
-                                        @click="onDeleteCmsPage(item)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.delete') }}
-
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                </template>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_list_data_grid_pagination %}
-                                <template #pagination>
-                                    <sw-pagination
-                                        :page="page"
-                                        :limit="limit"
-                                        :total="total"
-                                        :steps="[5, 10, 25, 50]"
-                                        @page-change="onPageChange"
-                                    />
-                                </template>
-                                {% endblock %}
-                            </sw-data-grid>
-                            {% endblock %}
+                                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                            </router-link>
+                            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
                         </template>
-                    </sw-card>
+                    </sw-empty-state>
                     {% endblock %}
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_list_listing_list_loader %}{% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_list_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal"
+                variant="regular"
+                :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
+                :entity-context="'cms_page'"
+                :allow-multi-select="false"
+                @media-modal-selection-change="onPreviewImageChange"
+                @modal-close="onModalClose"
+            />
+            {% endblock %}
+
+            <sw-confirm-modal
+                v-if="showLayoutSetAsDefaultModal"
+                class="sw-cms-list__confirm-set-as-default-modal"
+                :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
+                @confirm="onConfirmLayoutSetAsDefault"
+                @cancel="onCloseLayoutSetAsDefault"
+                @close="onCloseLayoutSetAsDefault"
+            />
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_list_rename_modal %}
+            <sw-modal
+                v-if="showRenameModal"
+                :title="$tc('sw-cms.components.cmsListItem.modal.renameModalTitle')"
+                variant="small"
+                @modal-close="onCloseRenameModal"
+            >
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_list_rename_modal_confirm_rename_input %}
+                <div class="sw_tree__confirm-rename-text">
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
+                </div>
+                <sw-text-field
+                    v-model="newName"
+                    class="sw_tree__confirm-rename-text-field"
+                    size="medium"
+                />
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_list_rename_modal_footer %}
+                <template #modal-footer>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_list_rename_modal_cancel %}
+                    <sw-button
+                        size="small"
+                        @click="onCloseRenameModal"
+                    >
+                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonCancel') }}
+                    </sw-button>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_list_rename_modal_confirm %}
+                    <sw-button
+                        size="small"
+                        variant="primary"
+                        @click="onConfirmPageRename"
+                    >
+                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonRename') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-modal>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_list_delete_modal %}
+            <sw-modal
+                v-if="showDeleteModal"
+                :title="$tc('global.default.warning')"
+                variant="small"
+                @modal-close="onCloseDeleteModal"
+            >
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_list_delete_modal_confirm_delete_text %}
+                <div class="sw_tree__confirm-delete-text">
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0,
+                           { pageName: currentPage.translated.name || currentPage.name }) }}
                 </div>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_listing_list_empty_state %}
-                <sw-empty-state
-                    v-if="isValidTerm(term) && !isLoading && !total"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                    :style="{ minHeight: '200px' }"
-                >
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
+                {% block sw_cms_list_delete_modal_footer %}
+                <template #modal-footer>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_list_delete_modal_cancel %}
+                    <sw-button
+                        size="small"
+                        @click="onCloseDeleteModal"
+                    >
+                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonCancel') }}
+                    </sw-button>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_list_delete_modal_confirm %}
+                    <sw-button
+                        variant="danger"
+                        size="small"
+                        @click="onConfirmPageDelete"
+                    >
+                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonDelete') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
                 {% endblock %}
-            </div>
-            {% endblock %}
-        </div>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - Will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_list_listing_list_loader %}{% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_list_media_modal %}
-        <sw-media-modal-v2
-            v-if="showMediaModal"
-            variant="regular"
-            :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
-            :entity-context="'cms_page'"
-            :allow-multi-select="false"
-            @media-modal-selection-change="onPreviewImageChange"
-            @modal-close="onModalClose"
-        />
-        {% endblock %}
-
-        <sw-confirm-modal
-            v-if="showLayoutSetAsDefaultModal"
-            class="sw-cms-list__confirm-set-as-default-modal"
-            :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-            :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
-            @confirm="onConfirmLayoutSetAsDefault"
-            @cancel="onCloseLayoutSetAsDefault"
-            @close="onCloseLayoutSetAsDefault"
-        />
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_list_rename_modal %}
-        <sw-modal
-            v-if="showRenameModal"
-            :title="$tc('sw-cms.components.cmsListItem.modal.renameModalTitle')"
-            variant="small"
-            @modal-close="onCloseRenameModal"
-        >
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_list_rename_modal_confirm_rename_input %}
-            <div class="sw_tree__confirm-rename-text">
-                {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
-            </div>
-            <sw-text-field
-                v-model="newName"
-                class="sw_tree__confirm-rename-text-field"
-                size="medium"
-            />
+            </sw-modal>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_list_rename_modal_footer %}
-            <template slot="modal-footer">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_rename_modal_cancel %}
-                <sw-button
-                    size="small"
-                    @click="onCloseRenameModal"
-                >
-                    {{ $tc('sw-cms.components.cmsListItem.modal.buttonCancel') }}
-                </sw-button>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_rename_modal_confirm %}
-                <sw-button
-                    size="small"
-                    variant="primary"
-                    @click="onConfirmPageRename"
-                >
-                    {{ $tc('sw-cms.components.cmsListItem.modal.buttonRename') }}
-                </sw-button>
-                {% endblock %}
-            </template>
-            {% endblock %}
-        </sw-modal>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_cms_list_delete_modal %}
-        <sw-modal
-            v-if="showDeleteModal"
-            :title="$tc('global.default.warning')"
-            variant="small"
-            @modal-close="onCloseDeleteModal"
-        >
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_list_delete_modal_confirm_delete_text %}
-            <div class="sw_tree__confirm-delete-text">
-                {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0,
-                       { pageName: currentPage.translated.name || currentPage.name }) }}
-            </div>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_list_delete_modal_footer %}
-            <template slot="modal-footer">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_delete_modal_cancel %}
-                <sw-button
-                    size="small"
-                    @click="onCloseDeleteModal"
-                >
-                    {{ $tc('sw-cms.components.cmsListItem.modal.buttonCancel') }}
-                </sw-button>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_list_delete_modal_confirm %}
-                <sw-button
-                    variant="danger"
-                    size="small"
-                    @click="onConfirmPageDelete"
-                >
-                    {{ $tc('sw-cms.components.cmsListItem.modal.buttonDelete') }}
-                </sw-button>
-                {% endblock %}
-            </template>
-            {% endblock %}
-        </sw-modal>
-        {% endblock %}
-
-    </sw-card-view>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

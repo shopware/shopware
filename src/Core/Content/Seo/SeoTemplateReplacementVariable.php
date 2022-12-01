@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Seo;
 
+/**
+ * @package sales-channel
+ */
 class SeoTemplateReplacementVariable
 {
     /**

@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Seo\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package sales-channel
+ */
 class InvalidTemplateException extends ShopwareHttpException
 {
     public const ERROR_CODE = 'FRAMEWORK__INVALID_SEO_TEMPLATE';

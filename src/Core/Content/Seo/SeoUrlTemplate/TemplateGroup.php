@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 
+/**
+ * @package sales-channel
+ */
 class TemplateGroup
 {
     /**

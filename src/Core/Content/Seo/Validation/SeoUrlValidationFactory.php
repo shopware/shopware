@@ -12,6 +12,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package sales-channel
+ *
  * @Decoratable
  */
 class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface

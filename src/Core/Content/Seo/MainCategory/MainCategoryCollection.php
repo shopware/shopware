@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Seo\MainCategory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package sales-channel
+ *
  * @extends EntityCollection<MainCategoryEntity>
  */
 class MainCategoryCollection extends EntityCollection

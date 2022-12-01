@@ -407,7 +407,8 @@ class EntityHydrator
             $entity->addTranslated($propertyName, $decoded);
 
             if ($inherited) {
-                $entity->assign([$propertyName => $decoded]);
+                $value = $customField->getSerializer()->decode($customField, $value);
+                $entity->assign([$propertyName => $value]);
             }
 
             return;

@@ -29,7 +29,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartCountRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemStockRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTagRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule;
@@ -206,10 +205,6 @@ EOD
     ,
     LineItemsInCartCountRule::class => <<<'EOD'
 Matches a number to the current cart's line item count.
-EOD
-    ,
-    LineItemsInCartRule::class => <<<'EOD'
-Matches multiple identifiers to a carts line item's identifier. True if one identifier matches.
 EOD
     ,
     PaymentMethodRule::class => <<<'EOD'

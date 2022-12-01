@@ -35,9 +35,6 @@ List of all rule classes across Shopware 6.
 [Shopware\Core\Checkout\Cart\Rule\LineItemTagRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemTagRule)
  : Matches multiple tags to a line item's tag. True if one tag matches.
 
-[Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule)
- : Matches multiple identifiers to a carts line item's identifier. True if one identifier matches.
-
 [Shopware\Core\Checkout\Cart\Rule\CartAmountRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\CartAmountRule)
  : Matches a specific number to the carts total price.
 

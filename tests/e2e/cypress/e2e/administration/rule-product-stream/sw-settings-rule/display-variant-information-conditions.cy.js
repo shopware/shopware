@@ -41,12 +41,7 @@ describe('Rule builder: Test display variant information at condition', () => {
             cy.get('@first-and-container').within(() => {
                 cy.get('.sw-condition').as('condition-general');
 
-                cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
-                    page.selectTypeAndOperator('@condition-general', 'Item', 'Is one of');
-                });
-                cy.skipOnFeature('FEATURE_NEXT_17016', () => {
-                    page.selectTypeAndOperator('@condition-general', 'Line items in cart', 'Is one of');
-                });
+                page.selectTypeAndOperator('@condition-general', 'Items in cart', 'Is one of');
 
                 cy.get('@condition-general').within(() => {
                     cy.get('.sw-select input').last().clearTypeAndCheck('Variant product');
@@ -93,12 +88,7 @@ describe('Rule builder: Test display variant information at condition', () => {
             cy.get('@first-and-container').within(() => {
                 cy.get('.sw-condition').as('condition-general');
 
-                cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
-                    page.selectTypeAndOperator('@condition-general', 'Item', 'Is one of');
-                });
-                cy.skipOnFeature('FEATURE_NEXT_17016', () => {
-                    page.selectTypeAndOperator('@condition-general', 'Line items in cart', 'Is one of');
-                });
+                page.selectTypeAndOperator('@condition-general', 'Items in cart', 'Is one of');
 
                 cy.get('@condition-general').within(() => {
                     cy.get('.sw-select input').last().clearTypeAndCheck('Variant product');

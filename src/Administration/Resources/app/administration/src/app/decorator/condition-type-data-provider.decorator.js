@@ -1,4 +1,4 @@
-const { Application, Feature } = Shopware;
+const { Application } = Shopware;
 
 /**
  * @package business-ops
@@ -246,23 +246,6 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['lineItem'],
         group: 'item',
     });
-    /** @major-deprecated (flag:FEATURE_NEXT_17016) This rule will be removed. Use cartLineItem instead. */
-    if (!Feature.isActive('FEATURE_NEXT_17016')) {
-        /*
-        * NOTE: When removing FEATURE_NEXT_17016 move contents of
-        *   `global.sw-condition.condition.lineItemsInCartRule` in
-        *   `global.sw-condition.condition.lineItemRule` and remove snippet
-        *   `global.sw-condition.condition.lineItemsInCartRule`
-        */
-        ruleConditionService.addCondition('cartLineItemsInCart', {
-            component: 'sw-condition-line-items-in-cart',
-            label: Feature.isActive('FEATURE_NEXT_17016') ?
-                'global.sw-condition.condition.lineItemRule' :
-                'global.sw-condition.condition.lineItemsInCartRule',
-            scopes: ['cart'],
-            group: 'item',
-        });
-    }
     ruleConditionService.addCondition('cartLineItemsInCartCount', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.lineItemsInCartCountRule',

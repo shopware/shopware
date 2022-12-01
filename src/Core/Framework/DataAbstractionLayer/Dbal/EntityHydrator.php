@@ -407,8 +407,15 @@ class EntityHydrator
             $entity->addTranslated($propertyName, $decoded);
 
             if ($inherited) {
-                $value = $customField->getSerializer()->decode($customField, $value);
-                $entity->assign([$propertyName => $value]);
+                $parentKey = $chain[1] . '.' . $propertyName;
+                $values = [
+                    $value,
+                    $row[$parentKey] ?? null
+                ];
+
+                $merged = $this->mergeJson(array_reverse($values, false));
+                $decoded = $customField->getSerializer()->decode($customField, $merged);
+                $entity->assign([$propertyName => $decoded]);
             }
 
             return;

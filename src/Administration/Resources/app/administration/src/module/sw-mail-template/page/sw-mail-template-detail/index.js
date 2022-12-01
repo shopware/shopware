@@ -337,7 +337,7 @@ export default {
                 const isMailSent = response?.size !== 0;
                 if (!isMailSent) {
                     this.createNotificationError({
-                        message: this.$tc('sw-mail-template.general.notificationValidationErrorMessage'),
+                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
                     });
                     return;
                 }
@@ -357,11 +357,21 @@ export default {
                 this.mailPreviewContent(),
             ).then((response) => {
                 this.mailPreview = response;
-            }).catch(() => {
+            }).catch((error) => {
                 this.mailPreview = null;
-                this.createNotificationError({
-                    message: this.$tc('sw-mail-template.general.notificationValidationErrorMessage'),
-                });
+                if (!error.response?.data?.errors?.[0]?.detail) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                    });
+                } else {
+                    this.createNotificationError({
+                        message: this.$tc(
+                            'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
+                            0,
+                            { errorMsg: error.response?.data?.errors?.[0]?.detail },
+                        ),
+                    });
+                }
             }).finally(() => {
                 this.isLoading = false;
             });

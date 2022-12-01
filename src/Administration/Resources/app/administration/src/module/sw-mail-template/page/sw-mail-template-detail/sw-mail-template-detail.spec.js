@@ -70,6 +70,16 @@ const repositoryMockFactory = () => {
     };
 };
 
+class SyntaxValidationTemplateError extends Error {
+    response = {
+        data: {
+            errors: [{
+                detail: 'Ooops, syntax eror',
+            }]
+        }
+    }
+}
+
 describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     let wrapper;
     let component;
@@ -85,9 +95,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 },
                 mailService: {
                     testMailTemplate: jest.fn(() => Promise.resolve()),
-                    buildRenderPreview: jest.fn(() => new Promise(() => {
-                        throw new Error('Oops');
-                    }))
+                    buildRenderPreview: jest.fn(() => Promise.reject(new SyntaxValidationTemplateError())),
                 },
                 entityMappingService: {
                     getEntityMapping: () => []
@@ -565,7 +573,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         );
     });
 
-    it('should get error notification if using preview function with invalid template', async () => {
+    it('should get specific error notification if using preview function with invalid template', async () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -595,7 +603,44 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(notificationMock).toBeCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationValidationErrorMessage'
+            message: 'sw-mail-template.general.notificationSyntaxValidationErrorMessage'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should get general error notification if using preview function with invalid template', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                // eslint-disable-next-line max-len
+                contentHtml: '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
+                senderName: '{{ salesChannel.name }}',
+                mailTemplateTypeId: 'typeId',
+            },
+            testerMail: 'foo@bar.com',
+            isLoading: false,
+            testMailSalesChannelId: '1a2b3c',
+        });
+        wrapper.vm.mailService.buildRenderPreview = jest.fn(() => Promise.reject(new Error('Oops')));
+
+        wrapper.vm.createNotificationError = jest.fn();
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        const previewSidebarButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar');
+
+        expect(previewSidebarButton.attributes().disabled).toEqual('disabled');
+        await previewSidebarButton.trigger('click');
+
+        await flushPromises();
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
+            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'
         });
 
         wrapper.vm.createNotificationError.mockRestore();
@@ -637,7 +682,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(notificationMock).toBeCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-mail-template.general.notificationValidationErrorMessage'
+            message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'
         });
 
         wrapper.vm.createNotificationError.mockRestore();

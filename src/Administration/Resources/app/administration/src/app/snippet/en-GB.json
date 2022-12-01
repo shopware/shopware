@@ -679,8 +679,7 @@
           "product": "Product",
           "discount_surcharge": "Discount / surcharge"
         },
-        "lineItemRule": "Item",
-        "lineItemsInCartRule": "Line items in cart",
+        "lineItemRule": "Items in cart",
         "lineItemsInCartCountRule": "Quantity of distinct items",
         "promotionsInCartCountRule": "Quantity of discounts",
         "lineItemUnitPriceRule": "Item unit price",

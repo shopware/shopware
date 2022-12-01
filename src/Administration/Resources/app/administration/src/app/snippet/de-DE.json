@@ -679,8 +679,7 @@
           "product": "Produkt",
           "discount_surcharge": "Rabatt / Aufschlag"
         },
-        "lineItemRule": "Position",
-        "lineItemsInCartRule": "Positionen im Warenkorb",
+        "lineItemRule": "Positionen im Warenkorb",
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",

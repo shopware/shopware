@@ -105,11 +105,6 @@ shopware:
         major: true
         description: "StorefrontRenderEvent only gets original view"
         # issue: NEXT-17275
-      - name: FEATURE_NEXT_17016
-        default: false
-        major: true
-        description: "Add, update or improve the selection and specification of Rule Builder Condition Fields."
-        # issue: NEXT-17016
       - name: FEATURE_NEXT_16236
         default: false
         major: true

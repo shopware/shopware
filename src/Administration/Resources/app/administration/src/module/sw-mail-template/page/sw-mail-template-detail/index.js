@@ -332,7 +332,16 @@ export default {
                 this.mailPreviewContent(),
                 this.mailTemplateMedia,
                 this.testMailSalesChannelId,
-            ).then(() => {
+            ).then((response) => {
+                // Size is the length of the mail message, if the size is zero then no mail was sent
+                const isMailSent = response?.size !== 0;
+                if (!isMailSent) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                    });
+                    return;
+                }
+
                 this.createNotificationSuccess(notificationTestMailSuccess);
             }).catch((exception) => {
                 this.createNotificationError(notificationTestMailError);
@@ -348,6 +357,21 @@ export default {
                 this.mailPreviewContent(),
             ).then((response) => {
                 this.mailPreview = response;
+            }).catch((error) => {
+                this.mailPreview = null;
+                if (!error.response?.data?.errors?.[0]?.detail) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                    });
+                } else {
+                    this.createNotificationError({
+                        message: this.$tc(
+                            'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
+                            0,
+                            { errorMsg: error.response?.data?.errors?.[0]?.detail },
+                        ),
+                    });
+                }
             }).finally(() => {
                 this.isLoading = false;
             });

@@ -7,25 +7,11 @@
     disable-search-function
     :is-loading="isLoading"
     :options="customerAddresses"
+    :disabled="disabled"
     @search="searchAddress"
 >
-    <template #before-item-list>
-        <ul
-            v-if="!isSameAddress"
-            class="sw-select-result__item-list"
-        >
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-            <li
-                class="sw-select-result sw-select-result__option-same-address"
-                @click="setSameAddress"
-            >
-                {{ sameAddressLabel }}
-            </li>
-        </ul>
-    </template>
-
     <template #selection-label-property="{ item }">
-        {{ getCustomerAddress(item) }}
+        {{ getSelectionLabel(item) }}
     </template>
 
     <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">

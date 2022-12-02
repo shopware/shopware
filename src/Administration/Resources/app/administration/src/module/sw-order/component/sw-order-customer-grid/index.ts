@@ -1,9 +1,24 @@
+import type CriteriaType from 'src/core/data/criteria.data';
+import type EntityCollectionType from 'src/core/data/entity-collection.data';
+import type RepositoryType from '../../../../core/data/repository.data';
+
 import template from './sw-order-customer-grid.html.twig';
 import './sw-order-customer-grid.scss';
 
+import type {
+    Customer,
+    Cart,
+} from '../../order.types';
+
 const { Component, State, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Shopware.Component.getComponentHelper();
+
+interface GridColumn {
+    property: string,
+    dataIndex?: string,
+    label: string,
+    primary?: boolean,
+}
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-customer-grid', {
@@ -16,42 +31,48 @@ Component.register('sw-order-customer-grid', {
         Mixin.getByName('notification'),
     ],
 
-    data() {
+    data(): {
+        customers: Customer[]|null,
+        isLoading: boolean,
+        isSwitchingCustomer: boolean,
+        showNewCustomerModal: boolean,
+        customer: Customer|null,
+        disableRouteParams: boolean,
+        } {
         return {
             customers: null,
             isLoading: false,
             isSwitchingCustomer: false,
             showNewCustomerModal: false,
-            customer: {},
+            customer: null,
             disableRouteParams: true,
         };
     },
 
     computed: {
-        customerData() {
+        customerData(): Customer| null {
             return State.get('swOrder').customer;
         },
 
-        customerRepository() {
+        customerRepository(): RepositoryType {
             return this.repositoryFactory.create('customer');
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
-        customerCriteria() {
+        customerCriteria(): CriteriaType {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('salesChannel');
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             if (this.term) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 criteria.setTerm(this.term);
             }
 
             return criteria;
         },
 
-        customerCriterion() {
+        customerCriterion(): CriteriaType {
             const criteria = new Criteria(1, 25);
             criteria
                 .addAssociation('addresses')
@@ -71,7 +92,7 @@ Component.register('sw-order-customer-grid', {
             return criteria;
         },
 
-        customerColumns() {
+        customerColumns(): GridColumn[] {
             return [{
                 property: 'select',
                 label: '',
@@ -83,25 +104,32 @@ Component.register('sw-order-customer-grid', {
             }, {
                 property: 'customerNumber',
                 label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+            },
+            {
+                property: 'salesChannel',
+                label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
             }, {
                 property: 'email',
                 label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
             }];
         },
 
-        showEmptyState() {
+        showEmptyState(): boolean {
             return !this.total && !this.isLoading;
         },
 
-        emptyTitle() {
+        emptyTitle(): string {
             if (!this.term) {
                 return this.$tc('sw-customer.list.messageEmpty');
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return this.$tc('sw-order.initialModal.customerGrid.textEmptySearch', 0, { name: this.term });
         },
 
-        ...mapState('swOrder', ['cart']),
+        cart(): Cart {
+            return State.get('swOrder').cart;
+        },
     },
 
     mounted() {
@@ -109,57 +137,56 @@ Component.register('sw-order-customer-grid', {
     },
 
     methods: {
-        mountedComponent() {
+        mountedComponent(): void {
             if (!this.customerData) {
                 return;
             }
 
+            // @ts-expect-error
             this.$refs.customerFilter.term = this.customerData?.customerNumber;
             this.onCheckCustomer(this.customerData);
         },
 
         getList() {
             this.isLoading = true;
-            return this.customerRepository.search(this.customerCriteria).then(customers => {
-                this.customers = customers;
-                this.total = customers.total;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.customerRepository.search(this.customerCriteria)
+                .then((customers: EntityCollectionType) => {
+                    this.customers = customers as unknown as Customer[];
+                    // @ts-expect-error
+                    this.total = customers.total;
+                }).finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onShowNewCustomerModal() {
             this.showNewCustomerModal = true;
         },
 
-        isChecked(item) {
-            return item.id === this.customer.id;
+        isChecked(item: Customer): boolean {
+            return item.id === this.customer?.id;
         },
 
-        onCheckCustomer(item) {
+        onCheckCustomer(item: Customer): void {
             this.customer = item;
-            this.handleSelectCustomer(item.id);
+            void this.handleSelectCustomer(item.id);
         },
 
-        createCart(salesChannelId) {
+        createCart(salesChannelId: string): Promise<void> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return State.dispatch('swOrder/createCart', { salesChannelId });
         },
 
-        setCustomer(customer) {
-            State.dispatch('swOrder/selectExistingCustomer', { customer });
+        setCustomer(customer: Customer): void {
+            void State.dispatch('swOrder/selectExistingCustomer', { customer });
         },
 
-        setCurrency(customer) {
-            return this.currencyRepository.get(customer.salesChannel.currencyId).then((currency) => {
-                State.commit('swOrder/setCurrency', currency);
-            });
-        },
-
-        async handleSelectCustomer(customerId) {
+        async handleSelectCustomer(customerId: string): Promise<void> {
             this.isSwitchingCustomer = true;
 
             try {
-                const customer = await this.customerRepository.get(customerId, Context.api, this.customerCriterion);
+                const customer = await this.customerRepository
+                    .get(customerId, Context.api, this.customerCriterion) as Customer;
 
                 if (!this.cart.token) {
                     // It is compulsory to create cart and get cart token first
@@ -168,10 +195,10 @@ Component.register('sw-order-customer-grid', {
 
                 this.customer = customer;
                 this.setCustomer(customer);
-                this.setCurrency(customer);
 
                 await this.updateCustomerContext();
             } catch {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-order.create.messageSwitchCustomerError'),
                 });
@@ -180,33 +207,37 @@ Component.register('sw-order-customer-grid', {
             }
         },
 
-        onAddNewCustomer(customerId) {
+        onAddNewCustomer(customerId: string): void {
             if (!customerId) {
                 return;
             }
 
             // Refresh customer list if new customer is created successfully
-            this.getList();
+            void this.getList();
+            // @ts-expect-error
             this.page = 1;
+            // @ts-expect-error
             this.term = '';
         },
 
-        updateCustomerContext() {
+        updateCustomerContext(): Promise<void> {
             return State.dispatch('swOrder/updateCustomerContext', {
-                customerId: this.customer.id,
-                salesChannelId: this.customer.salesChannelId,
+                customerId: this.customer?.id,
+                salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
             }).then((response) => {
                 // Update cart after customer context is updated
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (response.status === 200) {
-                    this.getCart();
+                    void this.getCart();
                 }
             });
         },
 
-        getCart() {
+        getCart(): Promise<void> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return State.dispatch('swOrder/getCart', {
-                salesChannelId: this.customer.salesChannelId,
+                salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
             });
         },

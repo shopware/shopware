@@ -451,7 +451,7 @@ Component.register('sw-media-upload-v2', {
                 return true;
             }
 
-            const fileTypes = this.fileAccept.split(',');
+            const fileTypes = this.fileAccept.replaceAll(' ', '').split(',');
 
             fileTypes.forEach(fileType => {
                 const fileAcceptType = fileType.split('/');

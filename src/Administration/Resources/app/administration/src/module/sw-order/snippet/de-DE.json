@@ -456,56 +456,17 @@
         "contextOpenButton": "Öffnen",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",
+        "columnSalesChannel": "Verkaufskanal",
         "columnEmailAddress": "E-Mail-Adresse"
       },
       "options": {
         "textHeadlineOrder": "Bestellung",
         "textHeadlinePayment": "Zahlungsart",
         "textHeadlineShipment": "Versandart",
-        "labelTestOrder": "Testbestellung",
-        "helpTextTestOrder": "Diese Bestellung wird im Testmodus erstellt",
         "placeholderAddPromotion": "Rabattaktion hinzufügen",
+        "labelSameAsBillingAddress": "Lieferadresse ist gleich Rechnungsadresse",
         "textSameAsBillingAddress": "Wie Rechnungsadresse",
-        "textSameAsShippingAddress": "Wie Versandadresse"
-      }
-    },
-    "addItemsModal": {
-      "title": "Positionen hinzufügen",
-      "tabProducts": {
-        "title": "Produkte"
-      },
-      "tabCustomItem": {
-        "title": "Eigene Position"
-      },
-      "tabCredit": {
-        "title": "Gutschrift"
-      },
-      "buttonAddItems": "Positionen hinzufügen"
-    },
-    "itemModal": {
-      "productGrid": {
-        "columnAmount": "Summe",
-        "columnProductName": "Name",
-        "columnProductNumber": "Produktnummer",
-        "textEmptySearch": "Keine Daten für {name} vorhanden",
-        "textValue": "Wert..."
-      },
-      "customItem": {
-        "labelName": "Name",
-        "placeholderName": "Positionsnamen eingeben ...",
-        "placeholderPriceNet": "Preis (netto) eingeben ...",
-        "placeholderPriceGross": "Preis (brutto) eingeben ...",
-        "placeholderPriceTaxFree": "Preis (steuerfrei) eingeben ...",
-        "labelAmount": "Summe",
-        "placeholderAmount": "Positionssumme eingeben ...",
-        "labelVat": "Mehrwertsteuer",
-        "placeholderSelectVat": "Mehrwertsteuersatz auswählen ..."
-      },
-      "credit": {
-        "labelCreditName": "Name",
-        "placeholderCreditName": "Gutschriftnamen eingeben ...",
-        "labelCreditAmount": "Summe",
-        "placeholderAmount": "Gutschriftsumme eingeben ..."
+        "labelShippingCosts": "Versandkosten"
       }
     },
     "filters": {

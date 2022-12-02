@@ -35,7 +35,6 @@ function mergeEmptyAndExistingLineItems(emptyLineItems: LineItem[], lineItems: L
 interface SwOrderState {
     cart: Cart;
     disabledAutoPromotion: boolean,
-    testOrder: boolean,
     promotionCodes: PromotionCodeTag[],
     defaultSalesChannel: SalesChannel | null,
     context: SalesChannelContext,
@@ -98,7 +97,6 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
         },
         promotionCodes: [],
         disabledAutoPromotion: false,
-        testOrder: false,
     }),
 
     mutations: {
@@ -148,10 +146,6 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
 
         setDisabledAutoPromotion(state: SwOrderState, disabledAutoPromotion: boolean) {
             state.disabledAutoPromotion = disabledAutoPromotion;
-        },
-
-        setTestOrder(state: SwOrderState, testOrder: boolean) {
-            state.testOrder = testOrder;
         },
     },
 
@@ -264,6 +258,15 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
                 .then((response: AxiosResponse) => commit('setCart', response.data));
         },
 
+        saveMultipleLineItems(
+            { commit },
+            { salesChannelId, contextToken, items }: { salesChannelId: string, contextToken: string, items: LineItem[] },
+        ) {
+            return Service('cartStoreService')
+                .addMultipleLineItems(salesChannelId, contextToken, items)
+                .then((response: AxiosResponse) => commit('setCart', response.data));
+        },
+
         addPromotionCode(
             { commit },
             { salesChannelId, contextToken, code }: { salesChannelId: string, contextToken: string, code: string },
@@ -287,17 +290,6 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
         remindPayment(_, { orderTransactionId }: { orderTransactionId: string }) {
             return Service('orderStateMachineService')
                 .transitionOrderTransactionState(orderTransactionId, 'remind');
-        },
-
-        updateContextParameters({ state }, context: ContextSwitchParameters): void {
-            context.currencyId = context.currencyId || state.context.context.currencyId;
-            context.languageId = context.languageId || state.context.context.languageIdChain[0];
-            context.shippingMethodId = context.shippingMethodId || state.context.shippingMethod.id;
-            context.paymentMethodId = context.paymentMethodId || state.context.paymentMethod.id;
-            // eslint-disable-next-line max-len
-            context.billingAddressId = context.billingAddressId || state.context.customer?.activeBillingAddress?.id || null;
-            // eslint-disable-next-line max-len
-            context.shippingAddressId = context.shippingAddressId || state.context.customer?.activeShippingAddress?.id || null;
         },
     },
 };

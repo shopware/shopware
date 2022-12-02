@@ -90,7 +90,7 @@
     <sw-media-modal-v2
         v-if="showMediaModal"
         :allow-multi-select="false"
-        :file-accept="features.fileTypes"
+        :file-accept="features.fileAcceptTypes"
         @media-modal-selection-change="onAddMediaFromLibrary"
         @modal-close="closeMediaModal"
     />

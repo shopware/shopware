@@ -22,8 +22,7 @@ async function createWrapper() {
             },
         },
         provide: {
-            cartStoreService: {
-            },
+            cartStoreService: {},
             repositoryFactory: {
                 create: () => ({
                     get: () => Promise.resolve()

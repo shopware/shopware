@@ -122,7 +122,7 @@ let webpackConfig = {
         rules: [
             {
                 test: /\.m?(t|j)s$/,
-                exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|nunito-fontface|query-string|split-on-first)\/).*/,
+                exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|query-string|split-on-first)\/).*/,
                 use: [
                     {
                         loader: 'babel-loader',

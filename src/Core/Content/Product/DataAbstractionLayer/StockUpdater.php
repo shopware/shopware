@@ -192,13 +192,17 @@ class StockUpdater implements EventSubscriberInterface
         }
 
         if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
-            $this->decreaseStock($event);
+            $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
+
+            $this->updateStockAndSales($products, -1);
 
             return;
         }
 
         if ($event->getFromPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
-            $this->increaseStock($event);
+            $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
+
+            $this->updateStockAndSales($products, +1);
 
             return;
         }
@@ -228,32 +232,6 @@ class StockUpdater implements EventSubscriberInterface
         $this->updateAvailableStockAndSales($ids, $context);
 
         $this->updateAvailableFlag($ids, $context);
-    }
-
-    private function increaseStock(StateMachineTransitionEvent $event): void
-    {
-        $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
-
-        $ids = array_column($products, 'referenced_id');
-
-        $this->updateStock($products, +1);
-
-        $this->updateAvailableStockAndSales($ids, $event->getContext());
-
-        $this->updateAvailableFlag($ids, $event->getContext());
-    }
-
-    private function decreaseStock(StateMachineTransitionEvent $event): void
-    {
-        $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
-
-        $ids = array_column($products, 'referenced_id');
-
-        $this->updateStock($products, -1);
-
-        $this->updateAvailableStockAndSales($ids, $event->getContext());
-
-        $this->updateAvailableFlag($ids, $event->getContext());
     }
 
     /**
@@ -386,16 +364,16 @@ GROUP BY product_id;
     /**
      * @param list<array{referenced_id: string, quantity: string}> $products
      */
-    private function updateStock(array $products, int $multiplier): void
+    private function updateStockAndSales(array $products, int $stockMultiplier): void
     {
         $query = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version')
+            $this->connection->prepare('UPDATE product SET stock = stock + :quantity, sales = sales - :quantity WHERE id = :id AND version_id = :version')
         );
 
         foreach ($products as $product) {
             $query->execute([
-                'quantity' => (int) $product['quantity'] * $multiplier,
+                'quantity' => (int) $product['quantity'] * $stockMultiplier,
                 'id' => Uuid::fromHexToBytes($product['referenced_id']),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]);

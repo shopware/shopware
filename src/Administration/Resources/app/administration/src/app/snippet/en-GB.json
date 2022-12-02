@@ -50,7 +50,8 @@
       "messageDeleteSuccess": "\"{name}\" deleted.",
       "messageDeleteFailed": "The entity \"{entityName}\" is still in use by the following modules: ",
       "noTitle": "Title is not defined",
-      "noMessage": "Message is not defined"
+      "noMessage": "Message is not defined",
+      "notificationLoadingDataErrorMessage": "Error loading data"
     },
     "notification-center": {
       "title": "Notifications",

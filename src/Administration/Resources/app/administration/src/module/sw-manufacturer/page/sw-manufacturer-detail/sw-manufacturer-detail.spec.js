@@ -6,6 +6,34 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
 
 
+const mockProductId = 'MOCK_PRODUCT_ID';
+let productGetShouldFail = false;
+const productManufacturerRepositoryMock = {
+    get: () => {
+        if (productGetShouldFail) {
+            return Promise.reject();
+        }
+        return Promise.resolve({
+            id: mockProductId
+        });
+    },
+};
+
+const mockCustomFieldSetId = 'MOCK_CUSTOM_FIELD_SET_ID';
+let customFieldSetSearchShouldFail = false;
+const customFieldSetRepositoryMock = {
+    search: () => {
+        if (customFieldSetSearchShouldFail) {
+            return Promise.reject();
+        }
+        return Promise.resolve([{ id: mockCustomFieldSetId }]);
+    },
+};
+
+const defaultRepositoryMock = {
+    search: () => Promise.resolve({}),
+};
+
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
@@ -46,6 +74,7 @@ async function createWrapper(privileges = []) {
             'sw-card-view': {
                 template: '<div><slot /></div>'
             },
+            'sw-custom-field-set-renderer': true,
             'sw-upload-listener': true,
             'sw-button-process': true,
             'sw-language-info': true,
@@ -60,12 +89,18 @@ async function createWrapper(privileges = []) {
             },
             stateStyleDataProviderService: {},
             repositoryFactory: {
-                create: () => (
-                    {
-                        search: () => Promise.resolve([]),
-                        get: () => Promise.resolve([]),
-                        create: () => {}
-                    })
+                create: (repositoryName) => {
+                    switch (repositoryName) {
+                        case 'product_manufacturer':
+                            return productManufacturerRepositoryMock;
+                        case 'media':
+                            return defaultRepositoryMock;
+                        case 'custom_field_set':
+                            return customFieldSetRepositoryMock;
+                        default:
+                            throw new Error(`${repositoryName} Repository not found`);
+                    }
+                }
             }
         },
         mocks: {
@@ -78,34 +113,32 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
-
-        wrapper.destroy();
     });
 
     it('should be able to save edit', async () => {
         const wrapper = await createWrapper([
             'product_manufacturer.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-manufacturer-detail__save-action');
         expect(addButton.attributes().disabled).toBeUndefined();
-
-        wrapper.destroy();
     });
 
     it('should not be able to save edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-manufacturer-detail__save-action');
         expect(addButton.attributes().disabled).toBeTruthy();
-
-        wrapper.destroy();
     });
 
 
@@ -113,8 +146,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const wrapper = await createWrapper([
             'product_manufacturer.editor'
         ]);
-        await wrapper.vm.$nextTick();
-
+        await flushPromises();
 
         const logoUpload = wrapper.find('.sw-manufacturer-detail__logo-upload');
         expect(logoUpload.exists()).toBeTruthy();
@@ -128,13 +160,11 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeUndefined();
-
-        wrapper.destroy();
     });
 
-    it('should not be able to edit the manufacture', async () => {
+    it('should not be able to edit the manufacturer', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const logoUpload = wrapper.find('.sw-manufacturer-detail__logo-upload');
         expect(logoUpload.exists()).toBeTruthy();
@@ -147,7 +177,57 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeTruthy();
+    });
 
-        wrapper.destroy();
+    it('should fails complete loading if the product request fails', async () => {
+        productGetShouldFail = true;
+        customFieldSetSearchShouldFail = false;
+
+        const wrapper = await createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await flushPromises();
+        expect(wrapper.vm.isLoading).toBe(false);
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage'
+        });
+
+        expect(wrapper.vm.customFieldSets).toEqual([{ id: 'MOCK_CUSTOM_FIELD_SET_ID' }]);
+    });
+
+    it('should set loading to false if only the custom field set request fails', async () => {
+        productGetShouldFail = false;
+        customFieldSetSearchShouldFail = true;
+
+        const wrapper = await createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await flushPromises();
+        expect(wrapper.vm.isLoading).toBe(false);
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage'
+        });
+    });
+
+    it('should set loading to false if both requests fail', async () => {
+        productGetShouldFail = true;
+        customFieldSetSearchShouldFail = true;
+
+        const wrapper = await createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await flushPromises();
+        expect(wrapper.vm.isLoading).toBe(false);
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+            message: 'global.notification.notificationLoadingDataErrorMessage'
+        });
+
+        expect(wrapper.vm.customFieldSets).toEqual([]);
     });
 });

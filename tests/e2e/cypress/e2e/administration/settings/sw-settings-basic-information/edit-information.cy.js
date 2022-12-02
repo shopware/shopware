@@ -116,7 +116,6 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.content-main h1', 'Maintenance mode');
     });
 
-    // NEXT-16105 - Flaky, looks like the test does not wait for the clear of the multi select
     it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
@@ -124,19 +123,14 @@ describe('Basic Informaion: Edit assignments', () => {
             method: 'POST'
         }).as('saveData');
 
+        cy.get('.sw-card.sw-system-config__card--3').scrollIntoView();
         cy.get('.sw-card.sw-system-config__card--3').should('be.visible');
         cy.contains('.sw-card.sw-system-config__card--3 .sw-card__title', 'CAPTCHA');
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2').should('be.visible');
 
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').scrollIntoView();
-        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
-        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
-        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').should('be.empty');
-
-        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
-            .typeMultiSelectAndCheck('Google reCAPTCHA v3');
-
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clearTypeCheckAndEnter('Google reCAPTCHA v3');
         cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3 input[name="googleReCaptchaV3ThresholdScore"]').clear().type('0.5');
 
         cy.get('.smart-bar__content .sw-button--primary').click();

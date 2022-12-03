@@ -19,10 +19,6 @@ class Migration1670090989AddIndexOrderOrderNumber extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'order', 'order_number')) {
-            return;
-        }
-
         $connection->executeStatement('ALTER TABLE `order` ADD KEY `idx.order_number` (`order_number`)');
     }
 

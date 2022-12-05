@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
+ * @package content
+ *
  * @internal
  */
 abstract class CustomEntityFlag extends XmlElement

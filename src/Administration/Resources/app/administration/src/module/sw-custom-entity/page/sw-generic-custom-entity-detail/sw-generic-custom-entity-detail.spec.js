@@ -1,7 +1,9 @@
 import { shallowMount, config } from '@vue/test-utils';
 
-import 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
+import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
 import 'src/app/component/base/sw-button-process';
+
+Shopware.Component.register('sw-generic-custom-entity-detail', swGenericCustomEntityDetail);
 
 const testEntityName = 'custom_test_entity';
 const testEntityCreateId = 'new-id';
@@ -193,6 +195,9 @@ const numberOfElementsDataProvider = [{
     }]
 }];
 
+/**
+ * @package content
+ */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the correct number of tabs, tab-items and activeTabs with correct labels', async () => {
         const wrapper = await createWrapper();

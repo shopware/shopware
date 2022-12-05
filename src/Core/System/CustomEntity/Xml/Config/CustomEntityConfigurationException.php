@@ -5,6 +5,9 @@ namespace Shopware\Core\System\CustomEntity\Xml\Config;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package content
+ */
 class CustomEntityConfigurationException extends HttpException
 {
     public const ENTITY_NOT_GIVEN_CODE = 'CUSTOM_ENTITY_NOT_GIVEN';

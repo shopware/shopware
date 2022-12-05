@@ -665,7 +665,7 @@ class PluginLifecycleService
     private function getCustomEntities(PluginEntity $plugin): ?CustomEntityXmlSchema
     {
         $configPath = sprintf(
-            '%s/%s/src/Resources/config/%s',
+            '%s/%s/src/Resources/%s',
             $this->projectDir,
             $plugin->getPath(),
             CustomEntityXmlSchema::FILENAME

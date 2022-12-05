@@ -13,6 +13,8 @@ use Shopware\Core\System\CustomEntity\Xml\Entities;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 
 /**
+ * @package content
+ *
  * @internal
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService
  */

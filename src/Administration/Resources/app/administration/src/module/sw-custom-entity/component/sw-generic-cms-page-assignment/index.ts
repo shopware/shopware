@@ -1,3 +1,4 @@
+import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type Repository from 'src/core/data/repository.data';
 import type { PropType } from 'vue';
@@ -12,33 +13,11 @@ interface CmsSlotOverrides {
     [key: string]: unknown
 }
 
-interface CmsSlotConfig {
-    entity: string | undefined;
-    required: boolean | undefined;
-    type: string | undefined;
-}
-
-interface CmsSlot extends Entity {
-    type: string;
-    config: Record<string, CmsSlotConfig>;
-}
-
-interface CmsBlock extends Entity {
-    slots: CmsSlot[];
-}
-
-interface CmsSection extends Entity {
-    blocks: CmsBlock[];
-}
-
-interface CmsPage extends Entity {
-    sections: CmsSection[];
-}
-
 /**
  * @private
+ * @package content
  */
-Shopware.Component.register('sw-generic-cms-page-assignment', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -65,9 +44,13 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
         },
     },
 
-    data() {
+    data(): {
+        cmsPage: Entity<'cms_page'> | null,
+        showLayoutSelection: boolean,
+        isLoading: boolean
+        } {
         return {
-            cmsPage: null as CmsPage | null,
+            cmsPage: null,
             showLayoutSelection: false,
             isLoading: false,
         };
@@ -84,15 +67,15 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
             };
         },
 
-        cmsPageRepository(): Repository {
+        cmsPageRepository(): Repository<'cms_page'> {
             return this.repositoryFactory.create('cms_page');
         },
 
-        changesetGenerator() {
+        changesetGenerator(): ChangesetGenerator {
             return new Shopware.Data.ChangesetGenerator();
         },
 
-        cmsPageCriteria() {
+        cmsPageCriteria(): Criteria {
             const criteria = new Criteria(1, 1);
 
             criteria
@@ -108,12 +91,12 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
     },
 
     watch: {
-        cmsPageId() {
+        cmsPageId(): void {
             void this.getCmsPage();
         },
 
         cmsPage: {
-            handler(_newCmsPage, oldCmsPage) {
+            handler(_newCmsPage, oldCmsPage): void {
                 if (oldCmsPage) {
                     this.emitCmsPageOverrides();
                 }
@@ -127,44 +110,41 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
     },
 
     methods: {
-        openLayoutModal() {
+        openLayoutModal(): void {
             this.showLayoutSelection = true;
         },
 
-        closeLayoutModal() {
+        closeLayoutModal(): void {
             this.showLayoutSelection = false;
         },
 
-        onLayoutSelect(selectedLayoutId: string | null) {
+        onLayoutSelect(selectedLayoutId: string | null): void {
             this.$emit('update:cms-page-id', selectedLayoutId);
         },
 
-        openInCmsEditor() {
+        openInCmsEditor(): void {
             if (!this.cmsPageId) {
                 return;
             }
 
-            this.$router.push({ name: 'sw.cms.detail', params: { id: this.cmsPageId } });
+            void this.$router.push({ name: 'sw.cms.detail', params: { id: this.cmsPageId } });
         },
 
-        createNewLayout() {
+        createNewLayout(): void {
             this.$emit('create-layout');
         },
 
-        applySlotOverrides(cmsPage: CmsPage) {
+        applySlotOverrides(cmsPage: Entity<'cms_page'>): Entity<'cms_page'> {
             if (!this.slotOverrides) {
                 return cmsPage;
             }
 
-            cmsPage.sections.forEach((section) => {
-                section.blocks.forEach((block) => {
-                    block.slots.forEach((slot) => {
+            cmsPage.sections?.forEach((section) => {
+                section.blocks?.forEach((block) => {
+                    block.slots?.forEach((slot) => {
                         const slotOverride = this.slotOverrides[slot.id];
                         if (!slotOverride) {
                             return;
-                        }
-                        if (slot.config === null) {
-                            slot.config = {};
                         }
                         objectUtils.merge(slot.config, objectUtils.cloneDeep(slotOverride));
                     });
@@ -186,7 +166,7 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
             criteria.setIds([this.cmsPageId]);
 
             const response = await this.cmsPageRepository.search(criteria);
-            const cmsPage = this.applySlotOverrides(response[0] as CmsPage);
+            const cmsPage = this.applySlotOverrides(response[0]);
 
             Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
             this.cmsPage = cmsPage;
@@ -194,7 +174,7 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
             this.isLoading = false;
         },
 
-        deleteSpecificKeys(sections: CmsSection[]) {
+        deleteSpecificKeys(sections: Entity<'cms_section'>[]): void {
             if (!sections) {
                 return;
             }
@@ -214,10 +194,19 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
                             return;
                         }
 
-                        Object.values(slot.config).forEach((configField) => {
+                        Object.values(slot.config as Record<string, {
+                            entity?: string,
+                            required?: boolean,
+                            type?: string
+                        }>).forEach((configField) => {
+                            if (!configField) {
+                                return;
+                            }
+
                             if (configField.entity) {
                                 delete configField.entity;
                             }
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             if (configField.hasOwnProperty('required')) {
                                 delete configField.required;
                             }
@@ -235,9 +224,11 @@ Shopware.Component.register('sw-generic-cms-page-assignment', {
                 return;
             }
 
-            this.deleteSpecificKeys(this.cmsPage.sections);
+            if (this.cmsPage.sections) {
+                this.deleteSpecificKeys(this.cmsPage.sections);
+            }
 
-            const { changes } = this.changesetGenerator.generate(this.cmsPage) as { changes: CmsPage };
+            const { changes } = this.changesetGenerator.generate(this.cmsPage) as { changes: Entity<'cms_page'> };
 
             const slotOverrides = {} as Record<string, unknown>;
             if (!changes) {

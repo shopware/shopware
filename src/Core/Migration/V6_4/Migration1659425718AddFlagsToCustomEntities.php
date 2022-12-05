@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class Migration1659425718AddFlagsToCustomEntities extends MigrationStep

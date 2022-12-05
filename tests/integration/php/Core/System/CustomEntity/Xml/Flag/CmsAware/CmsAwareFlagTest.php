@@ -7,6 +7,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements\CmsAware;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class CmsAwareFlagTest extends TestCase

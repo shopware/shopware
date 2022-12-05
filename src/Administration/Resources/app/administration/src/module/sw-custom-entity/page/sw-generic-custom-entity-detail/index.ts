@@ -1,3 +1,4 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type {
     AdminTabsDefinition,
     CustomEntityDefinition,
@@ -6,37 +7,28 @@ import type {
 import type EntityCollection from 'src/core/data/entity-collection.data';
 import type Repository from 'src/core/data/repository.data';
 
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import template from './sw-generic-custom-entity-detail.html.twig';
 import './sw-generic-custom-entity-detail.scss';
 
-const { Component, Mixin } = Shopware;
-
-interface CmsSlotOverrides {
-    [key: string]: unknown
-}
-
-interface CustomEntityData extends Entity {
-    swCmsPageId: string | null;
-    swSlotConfig: CmsSlotOverrides | null;
-}
+const { Mixin } = Shopware;
 
 type GenericCustomEntityDetailData = {
     isLoading: boolean,
     isSaveSuccessful: boolean,
     customEntityName: string,
     entityAccentColor: string,
-    customEntityData: CustomEntityData|null,
+    customEntityData: Entity<'generic_custom_entity'>|null,
     customEntityDataDefinition?: CustomEntityDefinition,
     customEntityProperties?: CustomEntityProperties,
-    customEntityDataRepository?: Repository,
-    customEntityDataInstances?: EntityCollection,
+    customEntityDataRepository?: Repository<'generic_custom_entity'>,
+    customEntityDataInstances?: EntityCollection<'generic_custom_entity'>,
 };
 
 /**
  * @private
+ * @package content
  */
-Component.register('sw-generic-custom-entity-detail', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -81,17 +73,17 @@ Component.register('sw-generic-custom-entity-detail', {
         },
     },
 
-    created() {
+    created(): void {
         this.createdComponent();
     },
 
     methods: {
-        createdComponent() {
+        createdComponent(): void {
             this.initializeCustomEntity();
             void this.loadData();
         },
 
-        initializeCustomEntity() {
+        initializeCustomEntity(): void {
             const entityName = this.$route.params.entityName;
 
             const customEntityDataDefinition = this.customEntityDefinitionService.getDefinitionByName(entityName) ?? null;
@@ -104,12 +96,14 @@ Component.register('sw-generic-custom-entity-detail', {
 
             const adminConfig = customEntityDataDefinition.flags['admin-ui'];
             this.entityAccentColor = adminConfig.color;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            this.$route.meta.$module.icon = adminConfig.icon;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion
+            this.$route.meta!.$module.icon = adminConfig.icon;
 
             // ToDo NEXT-22874 - Favicon handling
 
-            this.customEntityDataRepository = this.repositoryFactory.create(customEntityDataDefinition.entity);
+            this.customEntityDataRepository = this.repositoryFactory.create(
+                customEntityDataDefinition.entity as 'generic_custom_entity',
+            );
             this.customEntityDataDefinition = customEntityDataDefinition;
         },
 
@@ -120,14 +114,14 @@ Component.register('sw-generic-custom-entity-detail', {
             }
 
             if (!this.customEntityDataId) {
-                this.customEntityData = this.customEntityDataRepository.create(Shopware.Context.api) as CustomEntityData;
+                this.customEntityData = this.customEntityDataRepository.create(Shopware.Context.api);
                 this.isLoading = false;
 
                 return Promise.resolve();
             }
 
             return this.customEntityDataRepository.get(this.customEntityDataId, Shopware.Context.api).then((data) => {
-                this.customEntityData = data as CustomEntityData;
+                this.customEntityData = data;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -144,7 +138,7 @@ Component.register('sw-generic-custom-entity-detail', {
                 this.isSaveSuccessful = true;
 
                 if (!this.customEntityDataId && this.customEntityData?.id) {
-                    this.$router.push({
+                    void this.$router.push({
                         name: 'sw.custom.entity.detail',
                         params: {
                             id: this.customEntityData.id,
@@ -158,11 +152,11 @@ Component.register('sw-generic-custom-entity-detail', {
             });
         },
 
-        saveFinish() {
+        saveFinish(): void {
             this.isSaveSuccessful = false;
         },
 
-        onChangeLanguage(languageId: string) {
+        onChangeLanguage(languageId: string): void {
             Shopware.State.commit('context/setApiLanguageId', languageId);
             void this.loadData();
         },
@@ -192,7 +186,7 @@ Component.register('sw-generic-custom-entity-detail', {
             return this.customEntityProperties?.[field].type || '';
         },
 
-        updateCmsPageId(cmsPageId: string | null) {
+        updateCmsPageId(cmsPageId: string | null): void {
             if (!this.customEntityData) {
                 return;
             }
@@ -200,7 +194,7 @@ Component.register('sw-generic-custom-entity-detail', {
             this.customEntityData.swCmsPageId = cmsPageId;
         },
 
-        updateCmsSlotOverwrites(cmsSlotOverwrites: CmsSlotOverrides | null) {
+        updateCmsSlotOverwrites(cmsSlotOverwrites: Entity<'generic_custom_entity'>['swSlotConfig'] | null): void {
             if (!this.customEntityData) {
                 return;
             }
@@ -208,12 +202,12 @@ Component.register('sw-generic-custom-entity-detail', {
             this.customEntityData.swSlotConfig = cmsSlotOverwrites;
         },
 
-        onCreateLayout() {
+        onCreateLayout(): void {
             if (!this.customEntityData) {
                 return;
             }
 
-            this.$router.push({
+            void this.$router.push({
                 name: 'sw.cms.create',
                 params: {
                     id: this.customEntityData.id,

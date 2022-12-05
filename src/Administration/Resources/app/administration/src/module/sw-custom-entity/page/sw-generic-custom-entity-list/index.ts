@@ -6,7 +6,6 @@ import type Repository from 'src/core/data/repository.data';
 import template from './sw-generic-custom-entity-list.html.twig';
 
 const { Criteria } = Shopware.Data;
-const { Component } = Shopware;
 const types = Shopware.Utils.types;
 
 interface EntityListingColumnConfig {
@@ -43,8 +42,9 @@ interface RouteParseOptions {
 
 /**
  * @private
+ * @package content
  */
-Component.register('sw-generic-custom-entity-list', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -58,8 +58,8 @@ Component.register('sw-generic-custom-entity-list', {
             customEntityName: '',
             entityAccentColor: '',
             customEntityDefinition: null as CustomEntityDefinition|null,
-            customEntityRepository: null as Repository|null,
-            customEntityInstances: null as EntityCollection | null,
+            customEntityRepository: null as Repository<'generic_custom_entity'>|null,
+            customEntityInstances: null as EntityCollection<'generic_custom_entity'>|null,
             page: 1,
             limit: 25,
             total: 0,
@@ -121,7 +121,7 @@ Component.register('sw-generic-custom-entity-list', {
     },
 
     methods: {
-        createdComponent() {
+        createdComponent(): void {
             const entityName = this.$route.params.entityName;
 
             const customEntityDefinition = this.customEntityDefinitionService.getDefinitionByName(entityName) ?? null;
@@ -135,17 +135,18 @@ Component.register('sw-generic-custom-entity-list', {
             const adminConfig = customEntityDefinition.flags['admin-ui'];
             this.entityAccentColor = adminConfig.color;
             this.sortBy = adminConfig.listing.columns[0].ref;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            this.$route.meta.$module.icon = adminConfig.icon;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-non-null-assertion
+            this.$route.meta!.$module.icon = adminConfig.icon;
 
-            this.customEntityRepository = this.repositoryFactory.create(customEntityDefinition.entity);
+            this.customEntityRepository = this.repositoryFactory
+                .create(customEntityDefinition.entity as 'generic_custom_entity');
             this.customEntityDefinition = customEntityDefinition;
 
             this.parseRoute();
             void this.getList();
         },
 
-        async getList() {
+        async getList(): Promise<void> {
             if (!this.customEntityRepository) {
                 return;
             }
@@ -158,7 +159,7 @@ Component.register('sw-generic-custom-entity-list', {
             this.isLoading = false;
         },
 
-        onChangeLanguage(languageId: string) {
+        onChangeLanguage(languageId: string): void {
             Shopware.State.commit('context/setApiLanguageId', languageId);
             void this.getList();
         },
@@ -171,7 +172,7 @@ Component.register('sw-generic-custom-entity-list', {
             return this.sortDirection;
         },
 
-        parseRoute() {
+        parseRoute(): void {
             const routeData = this.$route.query as RouteParseOptions;
             this.page = routeData.page ? parseInt(routeData.page, 10) : this.page;
             this.limit = routeData.limit ? parseInt(routeData.limit, 10) : this.limit;
@@ -181,8 +182,8 @@ Component.register('sw-generic-custom-entity-list', {
             this.naturalSorting = routeData.naturalSorting ? routeData.naturalSorting === 'true' : this.naturalSorting;
         },
 
-        updateRoute(updates: RouteUpdateOptions) {
-            this.$router.replace({
+        updateRoute(updates: RouteUpdateOptions): void {
+            void this.$router.replace({
                 query: {
                     limit: (updates.limit || this.limit).toString(),
                     page: (updates.page || this.page).toString(),
@@ -194,11 +195,11 @@ Component.register('sw-generic-custom-entity-list', {
             });
         },
 
-        onSearch(term: string) {
+        onSearch(term: string): void {
             this.updateRoute({ term });
         },
 
-        onColumnSort({ dataIndex, naturalSorting }: ColumnSortEvent) {
+        onColumnSort({ dataIndex, naturalSorting }: ColumnSortEvent): void {
             if (this.sortBy === dataIndex) {
                 this.updateRoute({
                     sortDirection: this.sortDirection === 'ASC' ? 'DESC' : 'ASC',
@@ -212,11 +213,11 @@ Component.register('sw-generic-custom-entity-list', {
             }
         },
 
-        onPageChange({ page, limit }: { page: number, limit: number }) {
+        onPageChange({ page, limit }: { page: number, limit: number }): void {
             this.updateRoute({ page, limit });
         },
 
-        onUpdateRecords(entities: EntityCollection) {
+        onUpdateRecords(entities: EntityCollection<'generic_custom_entity'>): void {
             this.customEntityInstances = entities;
             this.total = entities.total ?? 0;
         },

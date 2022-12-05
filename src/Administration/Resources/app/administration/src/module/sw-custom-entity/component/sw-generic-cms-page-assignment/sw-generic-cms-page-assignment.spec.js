@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
 
-import './index';
+import swGenericCmsPageAssignment from 'src/module/sw-custom-entity/component/sw-generic-cms-page-assignment';
+
+Shopware.Component.register('sw-generic-cms-page-assignment', swGenericCmsPageAssignment);
 
 const pageId = 'TEST-PAGE-ID';
 const mockSlotId = 'MOCK-SLOT-ID';
@@ -67,7 +69,9 @@ async function createWrapper() {
     });
 }
 
-
+/**
+ * @package content
+ */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {
         if (Shopware.State.get('cmsPageState')) {

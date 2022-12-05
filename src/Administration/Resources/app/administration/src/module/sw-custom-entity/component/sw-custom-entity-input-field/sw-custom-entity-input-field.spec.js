@@ -1,6 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
+import swCustomEntityInputField from 'src/module/sw-custom-entity/component/sw-custom-entity-input-field';
 
-import 'src/module/sw-custom-entity/component/sw-custom-entity-input-field';
+Shopware.Component.register('sw-custom-entity-input-field', swCustomEntityInputField);
 
 async function createWrapper(propsData = { type: 'string' }) {
     return shallowMount(await Shopware.Component.build('sw-custom-entity-input-field'), {
@@ -35,6 +36,9 @@ const basicMockData = {
     'help-text': 'mockHelpText',
 };
 
+/**
+ * @package content
+ */
 describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();

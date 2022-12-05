@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep

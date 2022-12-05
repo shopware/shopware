@@ -4,6 +4,9 @@ namespace Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\XmlElements;
 
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
 
+/**
+ * @package content
+ */
 class Entity extends CustomEntityFlag
 {
     protected string $name;

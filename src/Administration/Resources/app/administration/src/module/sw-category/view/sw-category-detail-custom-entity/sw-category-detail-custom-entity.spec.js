@@ -1,19 +1,21 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/view/sw-category-detail-custom-entity';
+import swCategoryDetailCustomEntity from 'src/module/sw-category/view/sw-category-detail-custom-entity/index';
+
+Shopware.Component.register('sw-category-detail-custom-entity', swCategoryDetailCustomEntity);
 
 const customEntity1 = {
     id: 'CUSTOM_ENTITY_ID_1',
     name: 'CUSTOM_ENTITY_NAME_1',
-    instanceRepository: 'CUSTOM_ENTITY_INSTANCES_1'
+    instanceRepository: ['CUSTOM_ENTITY_INSTANCES_1']
 };
 
 const customEntity2 = {
     id: 'CUSTOM_ENTITY_ID_2',
     name: 'CUSTOM_ENTITY_NAME_2',
-    instanceRepository: 'CUSTOM_ENTITY_INSTANCES_2'
+    instanceRepository: ['CUSTOM_ENTITY_INSTANCES_2']
 };
 
-const emptyEntityCollection = 'EMPTY_ENTITY_COLLECTION';
+const emptyEntityCollection = ['EMPTY_ENTITY_COLLECTION'];
 
 const customEntityRepositoryMock = {
     get: (id) => {
@@ -36,6 +38,10 @@ const customEntityRepositoryMock = {
 };
 
 async function createWrapper() {
+    if (Shopware.State.get('swCategoryDetail')) {
+        Shopware.State.unregisterModule('swCategoryDetail');
+    }
+
     Shopware.State.registerModule('swCategoryDetail', {
         namespaced: true,
         state: {
@@ -43,8 +49,8 @@ async function createWrapper() {
                 isNew: () => false,
                 customEntityTypeId: customEntity1.id,
                 extensions: {
-                    customEntityName1CmsAwareCategories: customEntity1.instanceRepository,
-                    customEntityName2CmsAwareCategories: customEntity2.instanceRepository,
+                    customEntityName1SwCategories: customEntity1.instanceRepository,
+                    customEntityName2SwCategories: customEntity2.instanceRepository,
                 }
             }
         }
@@ -88,6 +94,9 @@ async function createWrapper() {
     });
 }
 
+/**
+ * @package content
+ */
 describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts', () => {
     it('should allow selecting a custom entity', async () => {
         global.activeAclRoles = ['category.editor'];
@@ -161,7 +170,7 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         // expect a custom entity type to be selected
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').exists()).toBe(false);
 
-        expect(wrapper.find('.sw-entity-single-select').props()).toStrictEqual({
+        expect(wrapper.get('.sw-entity-single-select').props()).toStrictEqual({
             value: customEntity1.id,
             label: 'sw-category.base.customEntity.assignment.label',
             helpText: 'sw-category.base.customEntity.assignment.helpText',
@@ -177,7 +186,7 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             required: ''
         });
 
-        expect(wrapper.find('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',
@@ -199,10 +208,10 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         });
 
         // select another custom entity type
-        wrapper.find('.sw-entity-single-select').vm.$emit('change', customEntity2.id, { name: customEntity2.name });
+        wrapper.get('.sw-entity-single-select').vm.$emit('change', customEntity2.id, { name: customEntity2.name });
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-single-select').props()).toStrictEqual({
+        expect(wrapper.get('.sw-entity-single-select').props()).toStrictEqual({
             value: customEntity2.id,
             label: 'sw-category.base.customEntity.assignment.label',
             helpText: 'sw-category.base.customEntity.assignment.helpText',
@@ -218,7 +227,7 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             required: ''
         });
 
-        expect(wrapper.find('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',
@@ -240,10 +249,10 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         });
 
         // trigger a change event
-        wrapper.find('.sw-many-to-many-assignment-card').vm.$emit('change', emptyEntityCollection);
+        wrapper.get('.sw-many-to-many-assignment-card').vm.$emit('change', emptyEntityCollection);
         await flushPromises();
 
-        expect(wrapper.find('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',

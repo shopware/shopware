@@ -8,6 +8,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class CustomEntityEnrichmentService

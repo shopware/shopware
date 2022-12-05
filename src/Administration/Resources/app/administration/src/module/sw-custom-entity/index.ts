@@ -1,14 +1,30 @@
-import './page/sw-generic-custom-entity-list';
-import './page/sw-generic-custom-entity-detail';
-import './component/sw-custom-entity-input-field';
-import './component/sw-generic-cms-page-assignment';
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-generic-custom-entity-detail', () => import('./page/sw-generic-custom-entity-detail'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-generic-custom-entity-list', () => import('./page/sw-generic-custom-entity-list'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-custom-entity-input-field', () => import('./component/sw-custom-entity-input-field'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-generic-cms-page-assignment', () => import('./component/sw-generic-cms-page-assignment'));
 
-const { Module } = Shopware;
 
 /**
  * @private
+ * @package content
  */
-Module.register('sw-custom-entity', {
+Shopware.Module.register('sw-custom-entity', {
     title: 'sw-custom-entity.general.mainMenuItemGeneral',
     type: 'plugin',
     name: 'custom-entity',
@@ -38,3 +54,9 @@ Module.register('sw-custom-entity', {
         },
     },
 });
+
+/**
+ * @private
+ * @package content
+ */
+export {};

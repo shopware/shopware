@@ -11,6 +11,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationExcept
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class AdminUiXmlSchemaValidator

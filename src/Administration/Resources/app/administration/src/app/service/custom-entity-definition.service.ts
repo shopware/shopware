@@ -87,6 +87,7 @@ type NavigationMenuEntry = {
 
 /**
  * @private
+ * @package content
  */
 export default class CustomEntityDefinitionService {
     #state = Vue.observable({

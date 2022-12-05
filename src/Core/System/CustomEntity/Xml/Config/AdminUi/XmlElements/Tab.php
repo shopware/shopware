@@ -9,6 +9,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  *
  * admin-ui > entity > detail > tabs > tab
  *
+ * @package content
+ *
  * @internal
  */
 class Tab extends CustomEntityFlag

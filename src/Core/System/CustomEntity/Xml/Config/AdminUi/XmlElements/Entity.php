@@ -8,6 +8,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  * Represents the XML entity element
  *
  * admin-ui > entity
+ *
+ * @package content
  */
 class Entity extends CustomEntityFlag
 {

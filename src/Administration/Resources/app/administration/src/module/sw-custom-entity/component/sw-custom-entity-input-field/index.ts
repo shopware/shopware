@@ -1,12 +1,11 @@
 import type { PropType } from 'vue';
 import template from './sw-custom-entity-input-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
+ * @package content
  */
-Component.register('sw-custom-entity-input-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     model: {
@@ -51,14 +50,14 @@ Component.register('sw-custom-entity-input-field', {
                 return this.value;
             },
 
-            set(newValue: string | number) {
+            set(newValue: string | number): void {
                 this.onChange(newValue);
             },
         },
     },
 
     methods: {
-        onChange(eventInput: string | number) {
+        onChange(eventInput: string | number): void {
             this.$emit('change', eventInput);
         },
     },

@@ -93,8 +93,15 @@ async function createWrapper(routeParams = {}) {
     });
 }
 
+/**
+ * @package content
+ */
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {
+        if (Shopware.State.get('cmsPageState')) {
+            Shopware.State.unregisterModule('cmsPageState');
+        }
+
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
@@ -102,7 +109,6 @@ describe('module/sw-cms/page/sw-cms-create', () => {
             }
         });
     });
-
 
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();

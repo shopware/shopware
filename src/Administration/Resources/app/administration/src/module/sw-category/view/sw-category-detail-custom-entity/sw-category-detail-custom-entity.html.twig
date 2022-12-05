@@ -1,7 +1,7 @@
 <div class="sw-category-detail-custom-entity">
     <template v-if="category">
         <sw-card
-            v-if="!categoryCustomEntityProperty"
+            v-if="!Array.isArray(customEntityAssignments)"
             :title="$tc('sw-category.base.customEntity.cardTitle')"
             position-identifier="category-detail-custom-entity"
             class="sw-category-detail-custom-entity__selection-container"
@@ -21,7 +21,7 @@
 
         <sw-many-to-many-assignment-card
             v-else
-            v-model="customEntityAssignments"
+            :entity-collection="customEntityAssignments"
             :title="$tc('sw-category.base.customEntity.cardTitle')"
             :columns="customEntityColumns"
             :local-mode="category.isNew()"
@@ -29,6 +29,7 @@
             :criteria="sortingCriteria"
             :select-label="$tc('sw-category.base.customEntity.instanceAssignment.label')"
             :placeholder="$tc('sw-category.base.customEntity.instanceAssignment.placeholder')"
+            @change="onAssignmentChange"
         >
             <template #prepend-select>
                 <sw-entity-single-select

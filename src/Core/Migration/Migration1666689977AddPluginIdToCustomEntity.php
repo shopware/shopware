@@ -3,6 +3,8 @@
 namespace Shopware\Core\Migration;
 
 /**
+ * @package content
+ *
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  */
 class Migration1666689977AddPluginIdToCustomEntity extends \Shopware\Core\Migration\V6_4\Migration1666689977AddPluginIdToCustomEntity

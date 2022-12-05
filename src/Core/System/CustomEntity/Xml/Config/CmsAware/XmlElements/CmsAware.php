@@ -8,6 +8,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityFlag;
  * Represents the AdminUi configuration
  *
  * The config is located here Resources/config/admin-ui.xml
+ *
+ * @package content
  */
 class CmsAware extends CustomEntityFlag
 {

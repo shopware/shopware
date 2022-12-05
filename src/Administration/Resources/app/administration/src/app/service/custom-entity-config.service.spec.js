@@ -60,6 +60,9 @@ function createCustomEntityDefinitionService() {
     return customEntityDefinitionService;
 }
 
+/**
+ * @package content
+ */
 describe('src/app/service/custom-entity-definition.service', () => {
     it('should get a definition by name', () => {
         const service = createCustomEntityDefinitionService();

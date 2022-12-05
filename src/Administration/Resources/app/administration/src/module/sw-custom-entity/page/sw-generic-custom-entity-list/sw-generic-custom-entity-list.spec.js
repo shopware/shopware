@@ -1,6 +1,7 @@
 import { shallowMount, config } from '@vue/test-utils';
+import swGenericCustomEntityList from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-list';
 
-import 'src/module/sw-custom-entity/page/sw-generic-custom-entity-list';
+Shopware.Component.register('sw-generic-custom-entity-list', swGenericCustomEntityList);
 
 const testEntityName = 'custom_test_entity';
 
@@ -112,6 +113,9 @@ async function createWrapper(query = {}) {
     });
 }
 
+/**
+ * @package content
+ */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();

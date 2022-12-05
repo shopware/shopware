@@ -10,6 +10,8 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * admin-ui > entity > detail > tabs > tab > card > field
  *
+ * @package content
+ *
  * @internal
  */
 class CardField extends CustomEntityFlag

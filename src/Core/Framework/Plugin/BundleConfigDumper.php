@@ -8,6 +8,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @package core
  *
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - Remove this class as not needed anymore
  */
 class BundleConfigDumper implements EventSubscriberInterface

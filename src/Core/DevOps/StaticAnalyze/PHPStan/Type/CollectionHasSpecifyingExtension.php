@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {

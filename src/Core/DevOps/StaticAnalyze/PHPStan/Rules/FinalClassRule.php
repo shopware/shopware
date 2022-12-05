@@ -34,14 +34,6 @@ class FinalClassRule implements Rule
         }
 
         if ($this->isMessageHandler($node)) {
-            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
-            /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all message handlers become final in v6.5.0
-             */
-            if (\str_contains($classDeprecation, 'tag:v6.5.0')) {
-                return [];
-            }
-
             return ['MessageHandlers must be final, so they cannot be extended/overwritten.'];
         }
 

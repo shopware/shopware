@@ -16,6 +16,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @final
+ *
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - EntityIndexerRegistry will not implement EventSubscriberInterface anymore, it will also become final and internal in v6.5.0
  */
 class EntityIndexerRegistry implements EventSubscriberInterface, MessageSubscriberInterface

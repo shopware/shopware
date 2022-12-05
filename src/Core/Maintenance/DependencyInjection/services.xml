@@ -76,11 +76,6 @@
         </service>
 
         <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
 
             <tag name="console.command"/>

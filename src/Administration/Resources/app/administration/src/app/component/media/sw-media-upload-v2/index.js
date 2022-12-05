@@ -129,7 +129,6 @@ Component.register('sw-media-upload-v2', {
             isDragActive: false,
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: false,
-            isCorrectFileType: true,
         };
     },
 
@@ -453,24 +452,22 @@ Component.register('sw-media-upload-v2', {
 
             const fileTypes = this.fileAccept.replaceAll(' ', '').split(',');
 
-            fileTypes.forEach(fileType => {
+            const isCorrectFileType = fileTypes.some(fileType => {
                 const fileAcceptType = fileType.split('/');
                 const currentFileType = file?.type?.split('/') || file?.mimeType?.split('/');
 
-                if (fileAcceptType[0] !== currentFileType[0]) {
-                    this.isCorrectFileType = false;
-                    return;
+                if (fileAcceptType[0] !== currentFileType[0] && fileAcceptType[0] !== '*') {
+                    return false;
                 }
 
                 if (fileAcceptType[1] === '*') {
-                    this.isCorrectFileType = true;
-                    return;
+                    return true;
                 }
 
-                this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+                return fileAcceptType[1] === currentFileType[1];
             });
 
-            if (this.isCorrectFileType) {
+            if (isCorrectFileType) {
                 return true;
             }
 

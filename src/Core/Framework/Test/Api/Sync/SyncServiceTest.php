@@ -112,14 +112,24 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $listener = $this
+        $createListener = $this
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $listener->expects(static::once())
+        $createListener->expects(static::once())
             ->method('__invoke');
 
-        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
+        $deleteListener = $this
+            ->getMockBuilder(CallableClass::class)
+            ->getMock();
+
+        $deleteListener->expects(static::exactly(3))
+            ->method('__invoke');
+
+        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $createListener);
+        $this->addEventListener($dispatcher, 'tax.deleted', $deleteListener);
+        $this->addEventListener($dispatcher, 'country.deleted', $deleteListener);
+        $this->addEventListener($dispatcher, 'country_translation.deleted', $deleteListener);
 
         $operations = [
             new SyncOperation('manufacturers', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [

@@ -55,6 +55,14 @@
             <argument>%elasticsearch.ssl%</argument>
         </service>
 
+        <service id="admin.openSearch.client" class="OpenSearch\Client" public="true" lazy="true">
+            <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
+            <argument>%elasticsearch.administration.hosts%</argument>
+            <argument type="service" id="shopware.elasticsearch.logger" />
+            <argument>%kernel.debug%</argument>
+            <argument>%elasticsearch.ssl%</argument>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
@@ -276,6 +284,12 @@
             <argument>%env(int:SHOPWARE_ES_INDEXING_BATCH_SIZE)%</argument>
         </service>
 
+        <service id="Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber">
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper" public="true">
             <argument>%elasticsearch.administration.enabled%</argument>
             <argument>%elasticsearch.administration.refresh_indices%</argument>
@@ -290,7 +304,7 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearcher">
-            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
         </service>
@@ -315,7 +329,7 @@
             <argument type="service" id="cms_page.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="cms-page-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="cms_page"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CustomerAdminSearchIndexer">
@@ -324,7 +338,7 @@
             <argument type="service" id="customer.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="customer-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="customer"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CustomerGroupAdminSearchIndexer">
@@ -333,7 +347,7 @@
             <argument type="service" id="customer_group.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="customer-group-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="customer_group"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\LandingPageAdminSearchIndexer">
@@ -342,7 +356,7 @@
             <argument type="service" id="landing_page.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="landing-page-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="landing_page"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ManufacturerAdminSearchIndexer">
@@ -351,7 +365,7 @@
             <argument type="service" id="product_manufacturer.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="manufacturer-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="product_manufacturer"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer">
@@ -360,7 +374,7 @@
             <argument type="service" id="media.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="media-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="media"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer">
@@ -369,7 +383,7 @@
             <argument type="service" id="order.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="order-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="order"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\PaymentMethodAdminSearchIndexer">
@@ -378,7 +392,7 @@
             <argument type="service" id="payment_method.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="payment-method-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="payment_method"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer">
@@ -387,7 +401,7 @@
             <argument type="service" id="product.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="product-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="product"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer">
@@ -396,7 +410,7 @@
             <argument type="service" id="promotion.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="promotion-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="promotion"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer">
@@ -405,7 +419,7 @@
             <argument type="service" id="property_group.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="property-group-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="property_group"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer">
@@ -414,7 +428,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="sales-channel-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="sales_channel"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer">
@@ -423,7 +437,7 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="shipping-method-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="shipping_method"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CategoryAdminSearchIndexer">
@@ -432,7 +446,7 @@
             <argument type="service" id="category.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="category-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="category"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\NewsletterRecipientAdminSearchIndexer">
@@ -441,7 +455,7 @@
             <argument type="service" id="newsletter_recipient.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="newsletter-recipient-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="newsletter_recipient"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ProductStreamAdminSearchIndexer">
@@ -450,7 +464,7 @@
             <argument type="service" id="product_stream.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
-            <tag name="shopware.elastic.admin-searcher-index" key="product-stream-listing"/>
+            <tag name="shopware.elastic.admin-searcher-index" key="product_stream"/>
         </service>
     </services>
 </container>

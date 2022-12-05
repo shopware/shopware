@@ -64,7 +64,7 @@ trait AdminElasticsearchTestBehaviour
     {
         $this->getDiContainer()
             ->get(ElasticsearchAdminIndexingCommand::class)
-            ->run(new ArrayInput($input), new NullOutput());
+            ->run(new ArrayInput([...$input, '--no-queue' => true]), new NullOutput());
 
         $this->runWorker();
 

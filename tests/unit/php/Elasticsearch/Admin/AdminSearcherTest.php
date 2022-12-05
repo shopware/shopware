@@ -39,7 +39,7 @@ class AdminSearcherTest extends TestCase
             $this->createMock(EntityRepository::class),
             100
         );
-        $registry->method('getIndexers')->willReturn([$indexer]);
+        $registry->method('getIndexers')->willReturn(['promotion' => $indexer]);
         $registry->method('getIndexer')->willReturn($indexer);
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');

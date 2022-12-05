@@ -88,10 +88,14 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(customer.id)) as id,
-                   GROUP_CONCAT(tag.name) as tags,
-                   GROUP_CONCAT(country_translation.name) as country,
-                   GROUP_CONCAT(customer_address.city) as city,
-                   GROUP_CONCAT(customer_address.street) as street,
+                   GROUP_CONCAT(DISTINCT tag.name) as tags,
+                   GROUP_CONCAT(DISTINCT country_translation.name) as country,
+                   GROUP_CONCAT(DISTINCT customer_address.city) as city,
+                   GROUP_CONCAT(DISTINCT customer_address.street) as street,
+                   GROUP_CONCAT(DISTINCT customer_address.zipcode) as zipcode,
+                   GROUP_CONCAT(DISTINCT customer_address.phone_number) as phone_number,
+                   GROUP_CONCAT(DISTINCT customer_address.additional_address_line1) as additional_address_line1,
+                   GROUP_CONCAT(DISTINCT customer_address.additional_address_line2) as additional_address_line2,
                    customer.first_name,
                    customer.last_name,
                    customer.email,

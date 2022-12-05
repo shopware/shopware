@@ -9,6 +9,8 @@ namespace Shopware\Elasticsearch\Admin;
  */
 final class AdminSearchIndexingMessage
 {
+    private string $entity;
+
     private string $indexer;
 
     /**
@@ -25,11 +27,17 @@ final class AdminSearchIndexingMessage
      * @param array<string, string> $indices
      * @param array<string> $ids
      */
-    public function __construct(string $indexer, array $indices, array $ids)
+    public function __construct(string $entity, string $indexer, array $indices, array $ids)
     {
+        $this->entity = $entity;
         $this->indexer = $indexer;
         $this->indices = $indices;
         $this->ids = $ids;
+    }
+
+    public function getEntity(): string
+    {
+        return $this->entity;
     }
 
     public function getIndexer(): string

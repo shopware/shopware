@@ -89,8 +89,9 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(product.id)) as id,
-                   GROUP_CONCAT(translation.name) as name,
-                   GROUP_CONCAT(tag.name) as tags,
+                   GROUP_CONCAT(DISTINCT translation.name) as name,
+                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as custom_search_keywords,
+                   GROUP_CONCAT(DISTINCT tag.name) as tags,
                    product.product_number,
                    product.ean,
                    product.manufacturer_number
@@ -116,6 +117,11 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $mapped = [];
         foreach ($data as $row) {
+            if ($row['custom_search_keywords']) {
+                $row['custom_search_keywords'] = json_decode($row['custom_search_keywords'], true);
+                $row['custom_search_keywords'] = implode(' ', array_merge(...$row['custom_search_keywords']));
+            }
+
             $id = $row['id'];
             $text = \implode(' ', array_filter(array_unique(array_values($row))));
             $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];

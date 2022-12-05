@@ -89,16 +89,22 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(order.id)) as id,
-                   GROUP_CONCAT(tag.name) as tags,
-                   GROUP_CONCAT(country_translation.name) as country,
-                   GROUP_CONCAT(order_address.city) as city,
-                   GROUP_CONCAT(order_address.street) as street,
+                   GROUP_CONCAT(DISTINCT tag.name) as tags,
+                   GROUP_CONCAT(DISTINCT country_translation.name) as country,
+                   GROUP_CONCAT(DISTINCT order_address.city) as city,
+                   GROUP_CONCAT(DISTINCT order_address.street) as street,
+                   GROUP_CONCAT(DISTINCT order_address.zipcode) as zipcode,
+                   GROUP_CONCAT(DISTINCT order_address.phone_number) as phone_number,
+                   GROUP_CONCAT(DISTINCT order_address.additional_address_line1) as additional_address_line1,
+                   GROUP_CONCAT(DISTINCT order_address.additional_address_line2) as additional_address_line2,
+                   GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber"))) as documentNumber,
                    order_customer.first_name,
                    order_customer.last_name,
                    order_customer.email,
                    order_customer.company,
                    order_customer.customer_number,
                    `order`.order_number,
+                   `order`.amount_total,
                    order_delivery.tracking_codes
             FROM `order`
                 LEFT JOIN order_customer
@@ -115,6 +121,8 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                     ON order_tag.tag_id = tag.id
                 LEFT JOIN order_delivery
                     ON `order`.id = order_delivery.order_id
+                LEFT JOIN document
+                    ON `order`.id = document.order_id
             WHERE order.id IN (:ids) AND `order`.version_id = :versionId
             GROUP BY order.id
         ',

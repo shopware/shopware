@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Admin\AdminSearchController;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @package system-settings
@@ -30,11 +32,17 @@ class AdminSearchControllerTest extends TestCase
 
     private EntityRepository $promotionRepo;
 
+    private AdminSearchController $controller;
+
     public function setUp(): void
     {
+        $this->clearElasticsearch();
+
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->promotionRepo = $this->getContainer()->get('promotion.repository');
+
+        $this->controller = $this->getContainer()->get(AdminSearchController::class);
     }
 
     public function testElasticSearch(): void
@@ -47,20 +55,16 @@ class AdminSearchControllerTest extends TestCase
             'name' => 'elasticsearch',
         ]);
 
-        $this->clearElasticsearch();
-
         $this->indexElasticSearch(['--entities' => ['promotion']]);
 
-        $data = [
-            'term' => 'elasticsearch',
-            'entities' => ['promotion'],
-        ];
+        $request = new Request();
+        $request->request->set('term', 'elasticsearch');
+        $request->request->set('entities', ['promotion']);
+        $response = $this->controller->elastic($request, Context::createDefaultContext());
 
-        $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data) ?: null);
+        static::assertEquals(200, $response->getStatusCode());
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
-
-        $content = $this->getBrowser()->getResponse()->getContent();
+        $content = $response->getContent();
         static::assertNotFalse($content);
 
         $content = json_decode($content, true);

@@ -83,6 +83,7 @@ class EnvConfigWriter
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
         $newEnv[] = '###< shopware/core ###';
         $newEnv[] = '';
+        $newEnv[] = 'ADMIN_OPENSEARCH_URL=http://localhost:9200';
 
         $newEnv[] = '###> shopware/elasticsearch ###';
 

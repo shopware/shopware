@@ -3,14 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\RefreshIndexEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -25,16 +26,16 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     private EntityIndexerRegistry $registry;
 
-    private ?AdminSearchRegistry $adminRegistry;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      */
-    public function __construct(EntityIndexerRegistry $registry, ?AdminSearchRegistry $adminRegistry = null)
+    public function __construct(EntityIndexerRegistry $registry, EventDispatcherInterface $eventDispatcher)
     {
         parent::__construct();
         $this->registry = $registry;
-        $this->adminRegistry = $adminRegistry;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -59,9 +60,8 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
         $this->registry->index($input->getOption('use-queue'), $skip, $only);
 
-        if ($this->adminRegistry) {
-            $this->adminRegistry->iterate($input->getOption('use-queue'));
-        }
+        $event = new RefreshIndexEvent($input->getOption('use-queue'));
+        $this->eventDispatcher->dispatch($event);
 
         return self::SUCCESS;
     }

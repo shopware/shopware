@@ -48,6 +48,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('administration')
                     ->children()
+                        ->scalarNode('hosts')->end()
                         ->booleanNode('enabled')->end()
                         ->booleanNode('refresh_indices')->end()
                         ->scalarNode('index_prefix')->end()

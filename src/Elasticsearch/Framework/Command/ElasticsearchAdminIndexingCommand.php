@@ -4,7 +4,9 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,13 +18,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  */
+#[AsCommand(
+    name: 'es:admin:index',
+    description: 'Index the elasticsearch for the admin search',
+)]
 final class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
-
-    public static $defaultDescription = 'Index the elasticsearch for the admin search';
-
-    protected static $defaultName = 'es:admin:index';
 
     private AdminSearchRegistry $registry;
 
@@ -48,7 +50,12 @@ final class ElasticsearchAdminIndexingCommand extends Command implements EventSu
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $this->registry->iterate((bool) $input->getOption('no-queue'), $input->getOption('entities'));
+        $this->registry->iterate(
+            new AdminIndexingBehavior(
+                (bool) $input->getOption('no-queue'),
+                $input->getOption('entities')
+            )
+        );
 
         return self::SUCCESS;
     }

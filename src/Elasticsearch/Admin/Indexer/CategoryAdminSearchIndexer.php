@@ -88,8 +88,8 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(category.id)) as id,
-                   GROUP_CONCAT(category_translation.name) as name,
-                   GROUP_CONCAT(tag.name) as tags
+                   GROUP_CONCAT(DISTINCT category_translation.name) as name,
+                   GROUP_CONCAT(DISTINCT tag.name) as tags
             FROM category
                 INNER JOIN category_translation
                     ON category_translation.category_id = category.id

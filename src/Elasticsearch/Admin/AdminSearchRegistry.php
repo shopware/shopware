@@ -88,7 +88,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
 
     public function __invoke(AdminSearchIndexingMessage $message): void
     {
-        $indexer = $this->getIndexer($message->getIndexer());
+        $indexer = $this->getIndexer($message->getEntity());
 
         $documents = $indexer->fetch($message->getIds());
 
@@ -114,34 +114,28 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         ];
     }
 
-    /**
-     * @param array<int, string|null>|null $entities
-     */
-    public function iterate(bool $noQueue, ?array $entities = []): void
+    public function iterate(AdminIndexingBehavior $indexingBehavior): void
     {
         if ($this->adminEsHelper->getEnabled() === false) {
             return;
         }
 
-        $indexers = $this->indexer;
-        if (!empty($entities)) {
-            $indexers = array_filter($indexers, function (AbstractAdminIndexer $indexer) use ($entities): bool {
-                return \in_array($indexer->getEntity(), $entities, true);
-            });
-        }
+        /** @var array<string> $entities */
+        $entities = $indexingBehavior->getEntities() ?: array_keys($this->indexer);
+        $indices = $this->createIndices($entities);
 
-        $indices = $this->createIndices($indexers);
-
-        foreach ($indexers as $indexer) {
+        foreach ($entities as $entityName) {
+            $indexer = $this->getIndexer($entityName);
             $iterator = $indexer->getIterator();
 
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
 
             while ($ids = $iterator->fetch()) {
-                if ($noQueue === true) {
-                    $this->__invoke(new AdminSearchIndexingMessage($indexer->getName(), $indices, $ids));
+                // we provide no queue when the data is sent by the admin
+                if ($indexingBehavior->getNoQueue() === true) {
+                    $this->__invoke(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
                 } else {
-                    $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getName(), $indices, $ids));
+                    $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
                 }
 
                 $this->dispatcher->dispatch(new ProgressAdvancedEvent(\count($ids)));
@@ -192,8 +186,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
 
     public function getIndexer(string $name): AbstractAdminIndexer
     {
-        $indexer = $this->indexer[$name] ?? $this->indexer[$this->buildName($name)] ?? null;
-
+        $indexer = $this->indexer[$name] ?? null;
         if ($indexer) {
             return $indexer;
         }
@@ -260,18 +253,18 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
     }
 
     /**
-     * @param array<string, mixed> $indexers
+     * @param array<string> $entities
      *
      * @throws \Doctrine\DBAL\Exception
      *
      * @return array<string, string>
      */
-    private function createIndices(array $indexers): array
+    private function createIndices(array $entities): array
     {
-        $entities = [];
         $indexTasks = [];
         $indices = [];
-        foreach ($indexers as $indexer) {
+        foreach ($entities as $entityName) {
+            $indexer = $this->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
             $index = $alias . '_' . time();
 
@@ -282,8 +275,6 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
             $indices[$alias] = $index;
 
             $this->create($indexer, $index, $alias);
-
-            $entities[] = $indexer->getEntity();
 
             $iterator = $indexer->getIterator();
             $indexTasks[] = [
@@ -405,11 +396,6 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         }
 
         return $errors;
-    }
-
-    private function buildName(string $name): string
-    {
-        return str_replace($this->adminEsHelper->getPrefix() . '-', '', $name);
     }
 
     private function createAliasIfNotExisting(string $index, string $alias): void

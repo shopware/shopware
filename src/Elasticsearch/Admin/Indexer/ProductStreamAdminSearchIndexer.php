@@ -88,7 +88,7 @@ final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(product_stream.id)) as id,
-                   GROUP_CONCAT(product_stream_translation.name) as name
+                   GROUP_CONCAT(DISTINCT product_stream_translation.name) as name
             FROM product_stream
                 INNER JOIN product_stream_translation
                     ON product_stream.id = product_stream_translation.product_stream_id

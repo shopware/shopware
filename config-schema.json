@@ -891,6 +891,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "hosts": {
+                            "type": "string",
+                            "description": "Admin Elasticsearch Hosts",
+                            "default": "localhost:9200"
+                        },
                         "enabled": {
                             "type": "boolean",
                             "description": "Admin Elasticsearch Enabled",

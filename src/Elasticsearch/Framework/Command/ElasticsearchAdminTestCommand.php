@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,10 +30,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @internal
  */
+#[AsCommand(
+    name: 'es:admin:test',
+    description: 'Allows you to test the admin search index',
+)]
 final class ElasticsearchAdminTestCommand extends Command
 {
-    protected static $defaultName = 'es:admin:test';
-
     private AdminSearcher $searcher;
 
     private SymfonyStyle $io;
@@ -51,8 +54,7 @@ final class ElasticsearchAdminTestCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setDescription('Allows you to test the admin search index')
-            ->addArgument('term', InputArgument::REQUIRED);
+        $this->addArgument('term', InputArgument::REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -88,7 +88,7 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(sales_channel.id)) as id,
-                   GROUP_CONCAT(sales_channel_translation.name) as name
+                   GROUP_CONCAT(DISTINCT sales_channel_translation.name) as name
             FROM sales_channel
                 INNER JOIN sales_channel_translation
                     ON sales_channel.id = sales_channel_translation.sales_channel_id

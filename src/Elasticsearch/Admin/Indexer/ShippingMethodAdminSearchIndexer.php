@@ -88,7 +88,7 @@ final class ShippingMethodAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(shipping_method.id)) as id,
-                   GROUP_CONCAT(shipping_method_translation.name) as name
+                   GROUP_CONCAT(DISTINCT shipping_method_translation.name) as name
             FROM shipping_method
                 INNER JOIN shipping_method_translation
                     ON shipping_method.id = shipping_method_translation.shipping_method_id

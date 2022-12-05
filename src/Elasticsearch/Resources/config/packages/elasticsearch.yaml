@@ -6,6 +6,7 @@ elasticsearch:
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
     administration:
+        hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_INDEXING_ENABLED)%"
         refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
         index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
@@ -20,16 +21,6 @@ elasticsearch:
                 sw_lowercase_normalizer:
                     type: custom
                     filter: [ 'lowercase' ]
-            analyzer:
-                sw_ngram_analyzer:
-                    type: custom
-                    tokenizer: whitespace
-                    filter: [ 'lowercase', 'sw_ngram_filter' ]
-            filter:
-                sw_ngram_filter:
-                    type: ngram
-                    min_gram: 4
-                    max_gram: 5
         dynamic_templates:
             - keywords:
                 match_mapping_type: string
@@ -83,6 +74,7 @@ parameters:
     env(SHOPWARE_ES_INDEX_PREFIX): "sw"
     env(SHOPWARE_ES_THROW_EXCEPTION): ""
     env(SHOPWARE_ADMIN_ES_ENABLED): ""
+    env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEXING_ENABLED): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
+use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -61,7 +62,7 @@ class AdminSearchRegistryTest extends TestCase
     {
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $registry = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $this->createMock(Connection::class),
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -72,14 +73,14 @@ class AdminSearchRegistryTest extends TestCase
         );
         $indexers = $registry->getIndexers();
 
-        static::assertSame(['promotion-listing' => $this->indexer], $indexers);
+        static::assertSame(['promotion' => $this->indexer], $indexers);
     }
 
     public function testGetIndexerWithInvalidName(): void
     {
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $registry = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $this->createMock(Connection::class),
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -96,7 +97,7 @@ class AdminSearchRegistryTest extends TestCase
     {
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $registry = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $this->createMock(Connection::class),
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -105,7 +106,7 @@ class AdminSearchRegistryTest extends TestCase
             [],
             []
         );
-        $indexer = $registry->getIndexer('promotion-listing');
+        $indexer = $registry->getIndexer('promotion');
 
         static::assertSame($this->indexer, $indexer);
     }
@@ -136,7 +137,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $registry = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $this->createMock(Connection::class),
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -146,7 +147,7 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
-        $registry->iterate(false);
+        $registry->iterate(new AdminIndexingBehavior(false));
     }
 
     /**
@@ -172,7 +173,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $registry = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $connection,
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -182,12 +183,13 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
-        $registry->iterate(true);
+        $registry->iterate(new AdminIndexingBehavior(true));
     }
 
     public function testIterateFiresEvents(): void
     {
         $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
+        $this->indexer->expects(static::any())->method('getEntity')->willReturn('promotion');
 
         $query = $this->createMock(IterableQuery::class);
         $firstRun = true;
@@ -221,7 +223,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $index = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $connection,
             $queue,
             $eventDispatcher,
@@ -261,7 +263,7 @@ class AdminSearchRegistryTest extends TestCase
             }
         );
 
-        $index->iterate(true);
+        $index->iterate(new AdminIndexingBehavior(true));
 
         static::assertTrue($calledStartEvent, 'Event ProgressStartedEvent was not dispatched');
         static::assertTrue($calledAdvancedEvent, 'Event ProgressAdvancedEvent was not dispatched');
@@ -318,7 +320,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, $refreshIndices, 'sw-admin');
         $index = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $connection,
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -376,7 +378,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $index = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $this->createMock(Connection::class),
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -387,7 +389,8 @@ class AdminSearchRegistryTest extends TestCase
         );
 
         $index->__invoke(new AdminSearchIndexingMessage(
-            'promotion-listing',
+            'promotion',
+            'promotion',
             $indices,
             ['c1a28776116d4431a2208eb2960ec340']
         ));
@@ -431,7 +434,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $index = new AdminSearchRegistry(
-            ['promotion-listing' => $this->indexer],
+            ['promotion' => $this->indexer],
             $this->createMock(Connection::class),
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -443,7 +446,8 @@ class AdminSearchRegistryTest extends TestCase
 
         static::expectException(ElasticsearchIndexingException::class);
         $index->__invoke(new AdminSearchIndexingMessage(
-            'promotion-listing',
+            'promotion',
+            'promotion',
             $indices,
             ['c1a28776116d4431a2208eb2960ec340']
         ));

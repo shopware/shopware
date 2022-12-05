@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
+use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
@@ -58,7 +59,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin');
         $this->registry = new AdminSearchRegistry(
-            ['promotion-listing' => $indexer],
+            ['promotion' => $indexer],
             $this->connection,
             $this->createMock(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -74,7 +75,7 @@ class AdminSearchRegistryTest extends TestCase
         $c = $this->getContainer()->get(Connection::class);
         static::assertEmpty($c->fetchAllAssociative('SELECT `index` FROM `admin_elasticsearch_index_task`'));
 
-        $this->registry->iterate(true);
+        $this->registry->iterate(new AdminIndexingBehavior(true));
 
         $index = $c->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task`');
 

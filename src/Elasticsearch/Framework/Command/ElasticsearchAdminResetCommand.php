@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,12 +19,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @internal
  */
+#[AsCommand(
+    name: 'es:admin:reset',
+    description: 'Reset Admin Elasticsearch indexing',
+)]
 class ElasticsearchAdminResetCommand extends Command
 {
-    public static $defaultDescription = 'Reset Admin Elasticsearch indexing';
-
-    protected static $defaultName = 'es:admin:reset';
-
     private Client $client;
 
     private Connection $connection;

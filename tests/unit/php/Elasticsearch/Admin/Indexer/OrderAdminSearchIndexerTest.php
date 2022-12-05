@@ -108,7 +108,7 @@ class OrderAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('809c1844f4734243b6aa04aba860cd45 test tag viet nam da nang street firstname lastname test@example.com 12345', $document['text']);
+        static::assertSame('809c1844f4734243b6aa04aba860cd45 test tag viet nam da nang 5000 street 123 test address 124 firstname lastname test@example.com 12345 1', $document['text']);
     }
 
     private function getConnection(): Connection
@@ -122,14 +122,19 @@ class OrderAdminSearchIndexerTest extends TestCase
                     'tags' => 'test Tag',
                     'country' => 'Viet Nam',
                     'city' => 'Da Nang',
-                    'zipcode' => null,
+                    'zipcode' => '5000',
                     'street' => 'street',
+                    'phone_number' => '123',
+                    'additional_address_line1' => 'test',
+                    'additional_address_line2' => 'address',
+                    'document_number' => '124',
                     'first_name' => 'firstname',
                     'last_name' => 'lastname',
                     'email' => 'test@example.com',
                     'company' => null,
                     'customer_number' => '12345',
                     'order_number' => '12345',
+                    'amount_total' => '1',
                 ],
             ],
         );

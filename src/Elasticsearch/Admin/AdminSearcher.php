@@ -40,11 +40,12 @@ class AdminSearcher
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
         $index = [];
-        foreach ($this->registry->getIndexers() as $indexer) {
-            if (!\in_array($indexer->getEntity(), $entities, true)) {
+        foreach ($entities as $entityName) {
+            if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
             }
 
+            $indexer = $this->registry->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
             $index[] = ['index' => $alias];
 
@@ -78,13 +79,8 @@ class AdminSearcher
 
         $mapped = [];
         foreach ($result as $index => $values) {
-            $alias = explode('_', (string) $index);
-            $alias = array_shift($alias);
-            $indexer = $this->registry->getIndexer((string) $alias);
-
-            if (!$context->isAllowed($indexer->getEntity() . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
-                continue;
-            }
+            $entityName = $values['hits'][0]['entityName'];
+            $indexer = $this->registry->getIndexer($entityName);
 
             $data = $indexer->globalData($values, $context);
             $data['indexer'] = $indexer->getName();

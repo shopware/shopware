@@ -174,7 +174,7 @@ class AdministrationController extends AbstractController
      */
     public function resetExcludedSearchTerm(Context $context)
     {
-        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Native return type JsonResponse will be added');
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'Native return type JsonResponse will be added');
 
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 

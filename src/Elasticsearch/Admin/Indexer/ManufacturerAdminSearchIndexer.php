@@ -88,7 +88,7 @@ final class ManufacturerAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(product_manufacturer.id)) as id,
-                   GROUP_CONCAT(product_manufacturer_translation.name) as name
+                   GROUP_CONCAT(DISTINCT product_manufacturer_translation.name) as name
             FROM product_manufacturer
                 INNER JOIN product_manufacturer_translation
                     ON product_manufacturer.id = product_manufacturer_translation.product_manufacturer_id

@@ -54,18 +54,18 @@
         --form "ref=${DOWNSTREAM_BRANCH}" \
         "${CI_API_V4_URL}/projects/${DOWNSTREAM_PROJECT_PATH}/trigger/pipeline"
 
-rufus trunk:
+rufus:
   extends: .downstream-trunk
   trigger:
     project: shopware/6/product/rufus
-    branch: trunk
+    branch: "6.4"
     strategy: depend
 
-commercial trunk:
+commercial:
   extends: .downstream-trunk
   trigger:
     project: shopware/6/product/commercial
-    branch: trunk
+    branch: "6.4"
     strategy: depend
 
 create downstream branch:

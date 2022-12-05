@@ -284,10 +284,6 @@ export default function createLoginService(
     function logout(): boolean {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey);
-
-            // @deprecated tag:v6.5.0 - Was needed for old cookies set without domain
-            // eslint-disable-next-line max-len,@typescript-eslint/no-non-null-assertion
-            document.cookie = `bearerAuth=deleted; expires=Thu, 18 Dec 2013 12:00:00 UTC;path=${context.basePath! + context.pathInfo!}`;
         }
 
         context.authToken = null;

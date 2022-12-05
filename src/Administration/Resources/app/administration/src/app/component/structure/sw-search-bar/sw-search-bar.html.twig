@@ -158,10 +158,6 @@
                             </span>
                             {% endblock %}
 
-                            {# @deprecated tag:v6.5.0 - Will be removed #}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_search_bar_results_list_column_header_more_results %}
-                            {% endblock %}
                         </div>
                         {% endblock %}
 
@@ -192,11 +188,9 @@
                                 />
                                 {% endblock %}
 
-                                {# @deprecated tag:v6.5.0 - `result` parameter will be removed #}
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_search_bar_results_list_bar_item_more_results %}
                                 <sw-search-more-results
-                                    :result="entity"
                                     :entity="entity.entity"
                                     :term="searchTerm"
                                 />
@@ -317,11 +311,6 @@
                 {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
                 {% endblock %}
             </div>
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_types_container_tip %}
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

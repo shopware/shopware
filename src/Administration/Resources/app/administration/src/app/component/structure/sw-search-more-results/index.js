@@ -22,15 +22,8 @@ Component.register('sw-search-more-results', {
     ],
 
     props: {
-        // @deprecated tag:v6.5.0 - `result` will be removed
-        result: {
-            required: false,
-            type: Object,
-            default: null,
-        },
-        // @deprecated tag:v6.5.0 - required will be true
         entity: {
-            required: false,
+            required: true,
             type: String,
             default: '',
         },

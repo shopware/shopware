@@ -132,9 +132,9 @@ async function createWrapper(privileges = []) {
                     return { currentSalesChannelId: null };
                 },
                 template: '<div>' +
-                                '<slot name="toolbar"></slot>' +
-                                '<slot></slot>' +
-                          '</div>'
+                    '<slot name="toolbar"></slot>' +
+                    '<slot></slot>' +
+                    '</div>'
             },
             'sw-product-seo-form': true,
             'sw-single-select': await Shopware.Component.build('sw-single-select'),

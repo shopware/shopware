@@ -239,13 +239,6 @@ Component.register('sw-image-slider', {
             };
         },
 
-        /* @deprecated tag:v6.5.0 Will be removed */
-        arrowStyles() {
-            return {
-                height: '100%',
-            };
-        },
-
         imageStyles() {
             return {
                 objectFit: this.displayMode,

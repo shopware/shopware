@@ -77,11 +77,6 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             line-height: $line-height-md;
             margin: auto;
         }
-
-        .sw-icon.icon--regular-chevron-left {
-            // @deprecated tag:v6.5.0 - padding can be removed
-            padding: 0 !important;
-        }
     }
 
     .smart-bar__content {

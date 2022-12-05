@@ -681,8 +681,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should call fetchStatusOptions when component created', async () => {
         wrapper = await createWrapper();
         const fetchStatusOptionsSpy = jest.spyOn(wrapper.vm, 'fetchStatusOptions');
-
-        await flushPromises();
+        await wrapper.vm.createdComponent();
 
         expect(fetchStatusOptionsSpy).toHaveBeenCalledTimes(3);
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(1, 'orders.id');
@@ -692,7 +691,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderStateCriteria = new Criteria(1, null);
         const { liveVersionId } = Shopware.Context.api;
 
-        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(3);
+        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(6);
 
         orderStateCriteria.addFilter(Criteria.equalsAny('orders.id', [selectedOrderId]));
         orderStateCriteria.addFilter(Criteria.equals('orders.versionId', liveVersionId));

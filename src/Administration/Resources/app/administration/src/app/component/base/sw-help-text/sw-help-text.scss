@@ -15,8 +15,6 @@
     .sw-icon {
         width: 14px;
         height: 14px;
-
-        // @deprecated tag:v6.5.0 - The !important attribute can be removed
-        padding: 3px 4px !important;
+        padding: 3px 4px;
     }
 }

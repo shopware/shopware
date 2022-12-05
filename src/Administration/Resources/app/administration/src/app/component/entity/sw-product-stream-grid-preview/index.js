@@ -1,7 +1,7 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context, Feature } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -112,14 +112,6 @@ Component.register('sw-product-stream-grid-preview', {
     },
 
     watch: {
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.loadProducts();
-            }
-        },
-
         async filters(filtersValue) {
             if (!filtersValue) {
                 this.total = 0;
@@ -137,11 +129,10 @@ Component.register('sw-product-stream-grid-preview', {
     },
 
     methods: {
-        onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.loadProducts();
-            }
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.page = 1;
+            this.loadProducts();
         },
         async createdComponent() {
             if (!this.filters) {

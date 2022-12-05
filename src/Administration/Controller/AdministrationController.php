@@ -48,6 +48,9 @@ class AdministrationController extends AbstractController
 
     private SnippetFinderInterface $snippetFinder;
 
+    /**
+     * @var array<int, int>
+     */
     private array $supportedApiVersions;
 
     private KnownIpsCollectorInterface $knownIpsCollector;
@@ -68,6 +71,8 @@ class AdministrationController extends AbstractController
 
     /**
      * @internal
+     *
+     * @param array<int, int> $supportedApiVersions
      */
     public function __construct(
         TemplateFinder $finder,
@@ -157,14 +162,10 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
-     *
      * @Since("6.4.0.1")
      * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
-     *
-     * @return JsonResponse
      */
-    public function resetExcludedSearchTerm(Context $context)
+    public function resetExcludedSearchTerm(Context $context): JsonResponse
     {
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
@@ -307,7 +308,7 @@ class AdministrationController extends AbstractController
         return $languageId === false ? null : Uuid::fromBytesToHex($languageId);
     }
 
-    private function getLatestApiVersion(): int
+    private function getLatestApiVersion(): ?int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
         usort($sortedSupportedApiVersions, fn (mixed $a, mixed $b) => (int) version_compare((string) $a, (string) $b));

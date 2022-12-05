@@ -22,7 +22,6 @@ const baseRules = {
             'sw-extension-component-section',
         ],
     }],
-    'sw-core-rules/require-criteria-constructor-arguments': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
 };
 

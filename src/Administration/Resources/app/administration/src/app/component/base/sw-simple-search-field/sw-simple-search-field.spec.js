@@ -1,5 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-simple-search-field';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -7,10 +6,10 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
+import('src/app/component/base/sw-simple-search-field');
+
 async function createWrapper(additionalOptions = {}) {
-    const localVue = createLocalVue();
     return shallowMount(await Shopware.Component.build('sw-simple-search-field'), {
-        localVue,
         stubs: {
             'sw-field': await Shopware.Component.build('sw-field'),
             'sw-text-field': await Shopware.Component.build('sw-text-field'),
@@ -25,8 +24,7 @@ async function createWrapper(additionalOptions = {}) {
             validationService: {}
         },
         propsData: {
-            delay: 1,
-            searchTerm: 'search term'
+            value: 'search term'
         },
         ...additionalOptions
     });
@@ -47,14 +45,12 @@ describe('components/base/sw-simple-search-field', () => {
         expect(wrapper.find('input[type="text"]').element.value).toBe('search term');
     });
 
-    it('should emit `search-term-change` event', async () => {
+    it('should emit `input` event', async () => {
         await wrapper.find('input[type="text"]')
-            .setValue('@searchTermChange Sw Simple Search Field Typing');
+            .setValue('@input Sw Simple Search Field Typing');
 
-        // search-term-change event is debounced
-        expect(wrapper.emitted()['search-term-change']).toBeFalsy();
-        wrapper.vm.onSearchTermChanged.flush();
-        // now it should exist
-        expect(wrapper.emitted()['search-term-change']).toBeTruthy();
+        /* wait for `$emit('input')` */
+        await wrapper.vm.$nextTick();
+        expect(wrapper.emitted().input).toBeTruthy();
     });
 });

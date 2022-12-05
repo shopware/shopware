@@ -4,9 +4,9 @@ const ApiService = Shopware.Classes.ApiService;
  * @package merchant-services
  *
  * Gateway for the API end point "frw"
+ * @private
  * @class
  * @extends ApiService
- * @deprecated tag:v6.5.0 - Will be private
  */
 class FirstRunWizardApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'frw') {
@@ -129,8 +129,7 @@ class FirstRunWizardApiService extends ApiService {
 }
 
 /**
+ * @private
  * @package merchant-services
- * @deprecated tag:v6.5.0 - Will be private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default FirstRunWizardApiService;

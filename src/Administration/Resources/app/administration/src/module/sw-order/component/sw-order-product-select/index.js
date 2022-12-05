@@ -1,4 +1,5 @@
 import template from './sw-order-product-select.html.twig';
+import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
 
 const { Service } = Shopware;
@@ -39,11 +40,11 @@ export default {
         },
 
         lineItemTypes() {
-            return Service('cartStoreService').getLineItemTypes();
+            return LineItemType;
         },
 
         lineItemPriceTypes() {
-            return Service('cartStoreService').getLineItemPriceTypes();
+            return PriceType;
         },
 
         isShownProductSelect() {

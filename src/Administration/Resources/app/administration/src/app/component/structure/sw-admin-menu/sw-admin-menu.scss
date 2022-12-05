@@ -240,11 +240,6 @@ $sw-admin-menu-active-text: $color-white;
         vertical-align: middle;
         position: relative;
         top: -2px;
-
-        &.sw-icon {
-            // @deprecated tag:v6.5.0 - padding can be removed
-            padding: 0 !important;
-        }
     }
 
     .sw-admin-menu__sub-navigation-list {

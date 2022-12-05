@@ -1,7 +1,7 @@
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
 
-const { Component, Context, Utils, Feature } = Shopware;
+const { Component, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -118,13 +118,6 @@ Component.register('sw-media-field', {
             this.fetchItem(newValue);
             this.$emit('media-id-change', newValue);
         },
-
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.fetchSuggestions();
-            }
-        },
     },
 
     created() {
@@ -136,10 +129,9 @@ Component.register('sw-media-field', {
             this.fetchItem();
         },
 
-        onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.fetchSuggestions();
-            }
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.fetchSuggestions();
         },
 
         async fetchItem(id = this.mediaId) {

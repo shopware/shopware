@@ -224,7 +224,7 @@ function registerNormalizedTemplate(item) {
 
         return component.extend.overrides.length > 0 || hasOverridesInExtensionChain(component.extend);
     };
-    if (hasOverridesInExtensionChain(templateDefinition) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
+    if (hasOverridesInExtensionChain(templateDefinition)) {
         // If this component extends (transitively) a component that is overwritten, resolve that extended component
         // with all its overrides first, before resolving this component with it.
         registerNormalizedTemplate(templateRegistry.get(templateDefinition.extend.name));
@@ -389,7 +389,7 @@ function resolveExtendTokens(tokens, item) {
     }
 
     let extendedComponentTokens;
-    if (normalizedTemplateRegistry.has(item.extend.name) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
+    if (normalizedTemplateRegistry.has(item.extend.name)) {
         // If the component was already registered in the normalizedTemplateRegistry (i.e. their overrides and tokens
         // have been resolved), use that template's tokens instead of the raw tokens of an unresolved component.
         // Use a clone of the tokens so the already registered template is not altered.

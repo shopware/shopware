@@ -1,26 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Method \"resetExcludedSearchTerm\" of class \"Shopware\\\\Administration\\\\Controller\\\\AdministrationController\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Administration/Controller/AdministrationController.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\AdministrationController\\:\\:__construct\\(\\) has parameter \\$supportedApiVersions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Controller/AdministrationController.php
-
-		-
-			message: "#^Property Shopware\\\\Administration\\\\Controller\\\\AdministrationController\\:\\:\\$supportedApiVersions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Controller/AdministrationController.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\DocumentServiceDeprecationController\\:\\:listenersOfDeprecatedEvent\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Controller/DocumentServiceDeprecationController.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\UserConfigController\\:\\:getOwnUserConfig\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Controller/UserConfigController.php
@@ -119,11 +99,6 @@ parameters:
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Controller\\\\AdminSearchControllerTest\\:\\:testSearch\\(\\) has parameter \\$expectedErrors with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Test/Controller/AdminSearchControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Controller\\\\DocumentServiceDeprecationControllerTest\\:\\:checkDataProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Administration/Test/Controller/DocumentServiceDeprecationControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Controller\\\\NotificationControllerTest\\:\\:getNotificationProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

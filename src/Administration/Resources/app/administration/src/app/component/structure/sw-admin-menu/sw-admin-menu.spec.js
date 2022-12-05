@@ -322,22 +322,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         });
     });
 
-    describe('deprecated functionality', () => {
-        it('renders app menu items without parent underneath my apps', async () => {
-            Shopware.State.commit('shopwareApps/setApps', testApps);
-            await wrapper.vm.$nextTick();
-
-            const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
-            const appMenuEntry = topLevelEntries.at(2).get('.navigation-list-item__level-2');
-
-            expect(appMenuEntry.props('entry')).toEqual(
-                expect.objectContaining({
-                    id: 'app-testAppA-noParent'
-                })
-            );
-        });
-    });
-
     test('get the first plugin menu entry', () => {
         let entry = {
             path: 'sw.foo.index',

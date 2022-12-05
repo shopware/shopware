@@ -1,6 +1,5 @@
 import type Bottle from 'bottlejs';
 import Vue from 'vue';
-import { setDefaultValues } from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import type ViewAdapter from './adapter/view.adapter';
 import type { ContextState } from '../app/state/context.store';
 /**
@@ -394,13 +393,6 @@ class ApplicationBootstrapper {
          * 4. Initialize the conversion of dependencies in view adapter
          * 5. Create the application root
          */
-
-        if (!Shopware.Feature.isActive('FEATURE_NEXT_21547')) {
-            setDefaultValues({
-                page: 1,
-                limit: 25,
-            });
-        }
 
         return this.initializeInitializers(initContainer)
             .then(() => this.loadPlugins())

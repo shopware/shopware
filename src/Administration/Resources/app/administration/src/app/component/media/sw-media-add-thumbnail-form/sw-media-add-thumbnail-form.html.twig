@@ -26,11 +26,7 @@
             :class="lockedButtonClass"
             @click="onLockSwitch"
         >
-            {# @deprecated tag:v6.5.0 - Size can be removed #}
-            <sw-icon
-                :name="isLocked ? 'regular-lock' : 'regular-lock-open'"
-                size="18"
-            />
+            <sw-icon :name="isLocked ? 'regular-lock' : 'regular-lock-open'" />
         </button>
         {% endblock %}
 

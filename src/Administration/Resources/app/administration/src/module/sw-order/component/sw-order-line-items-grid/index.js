@@ -1,7 +1,8 @@
 import template from './sw-order-line-items-grid.html.twig';
+import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
 
-const { Service, Utils } = Shopware;
+const { Utils } = Shopware;
 const { get, format } = Utils;
 
 // merge 16.11.2020
@@ -63,7 +64,7 @@ export default {
         },
 
         lineItemTypes() {
-            return Service('cartStoreService').getLineItemTypes();
+            return LineItemType;
         },
 
         taxStatus() {

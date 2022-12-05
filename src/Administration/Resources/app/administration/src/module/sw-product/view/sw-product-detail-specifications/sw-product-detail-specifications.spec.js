@@ -9,7 +9,7 @@ import swProductPackagingForm from 'src/module/sw-product/component/sw-product-p
 import 'src/app/component/utils/sw-inherit-wrapper';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
-const { Component, State, Utils } = Shopware;
+const { State, Utils } = Shopware;
 
 const packagingItemClassName = [
     '.sw-product-packaging-form__purchase-unit-field',
@@ -26,7 +26,7 @@ async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(await Component.build('sw-product-detail-specifications'), {
+    return shallowMount(await Shopware.Component.build('sw-product-detail-specifications'), {
         localVue,
         provide: {
             acl: {
@@ -41,7 +41,7 @@ async function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-card': true,
-            'sw-product-packaging-form': await Component.build('sw-product-packaging-form'),
+            'sw-product-packaging-form': await Shopware.Component.build('sw-product-packaging-form'),
             'sw-product-properties': true,
             'sw-product-feature-set-form': true,
             'sw-custom-field-set-renderer': true,

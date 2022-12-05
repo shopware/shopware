@@ -8,13 +8,13 @@ import swProductDetailReviews from 'src/module/sw-product/view/sw-product-detail
 
 Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews);
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(await Component.build('sw-product-detail-reviews'), {
+    return shallowMount(await Shopware.Component.build('sw-product-detail-reviews'), {
         localVue,
         provide: {
             repositoryFactory: {

@@ -13,9 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -65,15 +62,9 @@ class FlowActionCollectorTest extends TestCase
         static::assertIsArray($result->getElements());
 
         $customerRequirements = [];
-        if (!Feature::isActive('v6.5.0.0')) {
-            $customerRequirements[] = CustomerAware::class;
-        }
         $customerRequirements[] = 'customerAware';
 
         $orderRequirements = [];
-        if (!Feature::isActive('v6.5.0.0')) {
-            $orderRequirements[] = OrderAware::class;
-        }
         $orderRequirements[] = 'orderAware';
 
         static::assertEquals(

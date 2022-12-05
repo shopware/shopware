@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -56,23 +55,6 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame(
             [OrderAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                SetOrderStateAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.set.order.state' => 'handle'],
-            SetOrderStateAction::getSubscribedEvents()
         );
     }
 

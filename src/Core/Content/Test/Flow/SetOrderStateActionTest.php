@@ -16,14 +16,11 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
-use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -128,16 +125,12 @@ class SetOrderStateActionTest extends TestCase
             $this->getContainer()->get(OrderService::class)
         );
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent(CheckoutOrderPlacedEvent::EVENT_NAME, new FlowState($event), $config));
-        } else {
-            /** @var FlowFactory $flowFactory */
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         $orderStateAfterAction = $this->getOrderState(Uuid::fromHexToBytes($orderId));
         static::assertSame($expects['order'], $orderStateAfterAction);

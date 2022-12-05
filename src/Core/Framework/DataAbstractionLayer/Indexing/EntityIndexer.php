@@ -21,11 +21,9 @@ abstract class EntityIndexer
      * Called when a full entity index is required. This function should generate a list of message for all records which
      * are indexed by this indexer.
      *
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     * @param array<string, string>|null $offset
      */
-    abstract public function iterate(/*?array */$offset): ?EntityIndexingMessage;
+    abstract public function iterate(?array $offset): ?EntityIndexingMessage;
 
     /**
      * Called when entities are updated over the DAL. This function should react to the provided entity written events

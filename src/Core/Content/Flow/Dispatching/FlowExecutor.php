@@ -13,9 +13,7 @@ use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -58,16 +56,11 @@ class FlowExecutor
 
     public function execute(Flow $flow, StorableFlow $event): void
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            $state = new FlowState($event->getOriginalEvent());
-        } else {
-            $state = new FlowState();
-        }
+        $state = new FlowState();
 
         $event->setFlowState($state);
         $state->flowId = $flow->getId();
         foreach ($flow->getSequences() as $sequence) {
-            $state->sequenceId = $sequence->sequenceId;
             $state->delayed = false;
 
             try {
@@ -148,19 +141,8 @@ class FlowExecutor
             return;
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $action = $this->actions[$sequence->action] ?? null;
-            if ($action) {
-                $action->handleFlow($event);
-            }
-
-            return;
-        }
-
-        $globalEvent = new FlowEvent($sequence->action, $event->getFlowState(), $sequence->config);
-        $event->setFlowEvent($globalEvent);
-
-        $this->dispatcher->dispatch($globalEvent, $sequence->action);
+        $action = $this->actions[$sequence->action] ?? null;
+        $action?->handleFlow($event);
     }
 
     private function callApp(ActionSequence $sequence, StorableFlow $event): void
@@ -182,20 +164,11 @@ class FlowExecutor
 
     private function sequenceRuleMatches(StorableFlow $event, string $ruleId): bool
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            $originalEvent = $event->getOriginalEvent();
-            if (!$originalEvent instanceof OrderAware || !method_exists($originalEvent, 'getOrder')) {
-                return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
-            }
-
-            $order = $originalEvent->getOrder();
-        } else {
-            if (!$event->hasData(OrderAware::ORDER)) {
-                return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
-            }
-
-            $order = $event->getData(OrderAware::ORDER);
+        if (!$event->hasData(OrderAware::ORDER)) {
+            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
         }
+
+        $order = $event->getData(OrderAware::ORDER);
 
         if (!$order instanceof OrderEntity) {
             return \in_array($ruleId, $event->getContext()->getRuleIds(), true);

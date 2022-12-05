@@ -48,6 +48,9 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private ContainerInterface $container;
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $privileges = [];
 
     private HookableEventFactory $eventFactory;
@@ -85,14 +88,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->isAdminWorkerEnabled = $isAdminWorkerEnabled;
     }
 
-    /**
-     * @template TEvent of object
-     *
-     * @param TEvent $event
-     *
-     * @return TEvent
-     */
-    public function dispatch($event, ?string $eventName = null): object
+    public function dispatch(object $event, ?string $eventName = null): object
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
@@ -225,6 +221,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         return $this->webhooks = $webhooks;
     }
 
+    /**
+     * @param array<string> $affectedRoles
+     */
     private function isEventDispatchingAllowed(WebhookEntity $webhook, Hookable $event, array $affectedRoles): bool
     {
         $app = $webhook->getApp();
@@ -361,6 +360,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
         if ($event instanceof AppFlowActionEvent) {

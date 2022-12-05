@@ -5,7 +5,7 @@ namespace Shopware\Core\System\NumberRange;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package core
+ * @package system-settings
  * @extends EntityCollection<NumberRangeEntity>
  */
 class NumberRangeCollection extends EntityCollection

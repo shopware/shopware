@@ -12,6 +12,9 @@ use function array_shift;
 use function explode;
 use function json_decode;
 
+/**
+ * @package system-settings
+ */
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
     protected Connection $connection;

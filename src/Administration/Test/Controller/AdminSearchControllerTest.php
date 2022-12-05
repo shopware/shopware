@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ * @package system-settings
  * @group slow
  */
 class AdminSearchControllerTest extends TestCase

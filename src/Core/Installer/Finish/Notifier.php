@@ -5,7 +5,7 @@ namespace Shopware\Core\Installer\Finish;
 use GuzzleHttp\Client;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  */

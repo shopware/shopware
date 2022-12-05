@@ -12,7 +12,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 
 /**
- * @package core
+ * @package system-settings
  */
 class TaskRegistry
 {

@@ -13,6 +13,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDe
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package system-settings
+ */
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'number_range_sales_channel';

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractSnippetFile implements SnippetFileInterface
 {
     /**

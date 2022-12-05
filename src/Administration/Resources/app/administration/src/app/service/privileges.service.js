@@ -3,6 +3,9 @@ import Vue from 'vue';
 const { warn, error } = Shopware.Utils.debug;
 const { object } = Shopware.Utils;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class PrivilegesService {
     alreadyImportedAdminPrivileges = [];

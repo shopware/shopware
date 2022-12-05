@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<NumberRangeTypeTranslationEntity>
+ * @package system-settings
  */
 class NumberRangeTypeTranslationCollection extends EntityCollection
 {

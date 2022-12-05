@@ -6,6 +6,9 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
+/**
+ * @package system-settings
+ */
 class ValueGeneratorPatternRegistry
 {
     /**

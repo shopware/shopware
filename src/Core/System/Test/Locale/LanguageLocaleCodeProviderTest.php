@@ -13,6 +13,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @internal
+ * @package system-settings
  */
 class LanguageLocaleCodeProviderTest extends TestCase
 {

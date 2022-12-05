@@ -17,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ * @package system-settings
  */
 class AclWriteValidator implements EventSubscriberInterface
 {

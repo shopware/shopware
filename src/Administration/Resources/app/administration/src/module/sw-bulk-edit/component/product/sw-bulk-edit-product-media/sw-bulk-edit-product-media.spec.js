@@ -3,6 +3,10 @@ import swBulkEditProductMedia from 'src/module/sw-bulk-edit/component/product/sw
 
 Shopware.Component.register('sw-bulk-edit-product-media', swBulkEditProductMedia);
 
+/**
+ * @package system-settings
+ * @returns {Promise<Wrapper<Vue>>}
+ */
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-media'), {
         stubs: {

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
+/**
+ * @package system-settings
+ */
 interface UserAware extends FlowEventAware
 {
     public const USER_RECOVERY = 'userRecovery';

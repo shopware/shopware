@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
+/**
+ * @package system-settings
+ */
 class CustomFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'custom_field';

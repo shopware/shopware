@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package system-settings
+ */
 class SystemConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'system_config';

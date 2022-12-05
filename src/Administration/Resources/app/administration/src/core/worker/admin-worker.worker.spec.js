@@ -8,6 +8,9 @@ function getConsumeRequests(history) {
     return history.post.filter(r => r.url === '/_action/message-queue/consume');
 }
 
+/**
+ * @package system-settings
+ */
 describe('core/worker/admin-worker.worker.js', () => {
     beforeEach(async () => {
         await AdminWorker.onMessage({ data: { type: 'logout' } });

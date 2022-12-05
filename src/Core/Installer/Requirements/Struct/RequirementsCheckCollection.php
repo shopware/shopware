@@ -5,7 +5,7 @@ namespace Shopware\Core\Installer\Requirements\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  *

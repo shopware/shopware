@@ -7,7 +7,7 @@ use Doctrine\DBAL\Exception;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  */

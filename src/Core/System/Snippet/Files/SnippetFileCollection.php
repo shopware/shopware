@@ -8,6 +8,7 @@ use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 
 /**
  * @extends Collection<AbstractSnippetFile|SnippetFileInterface>
+ * @package system-settings
  */
 class SnippetFileCollection extends Collection
 {

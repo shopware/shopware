@@ -7,7 +7,7 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  *

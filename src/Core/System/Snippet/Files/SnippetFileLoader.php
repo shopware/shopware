@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @Decoratable
+ * @package system-settings
  */
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\NumberRange;
 
+/**
+ * @package system-settings
+ */
 class NumberRangeEvents
 {
     /**

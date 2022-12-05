@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Snippet\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ */
 class MissingSnippetStruct extends Struct
 {
     /**

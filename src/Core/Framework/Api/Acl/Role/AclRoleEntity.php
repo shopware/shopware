@@ -9,7 +9,7 @@ use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\User\UserCollection;
 
 /**
- * @package core
+ * @package system-settings
  */
 class AclRoleEntity extends Entity
 {

@@ -15,6 +15,8 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  * @group skip-paratest
+ *
+ * @package system-settings
  */
 class CacheControllerTest extends TestCase
 {

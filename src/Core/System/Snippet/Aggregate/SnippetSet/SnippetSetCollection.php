@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<SnippetSetEntity>
+ *
+ * @package system-settings
  */
 class SnippetSetCollection extends EntityCollection
 {

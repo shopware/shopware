@@ -15,6 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
+ * @package system-settings
  */
 class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 {

@@ -2,6 +2,9 @@ import SearchRankingService, { searchRankingPoint, KEY_USER_SEARCH_PREFERENCE } 
 import Criteria from 'src/core/data/criteria.data';
 import searchRankingModules from './_mocks/searchRankingModules.json';
 
+/**
+ * @package system-settings
+ */
 Shopware.Service().register('userConfigService', () => {
     return {
         search: () => Promise.resolve({ data: {} })

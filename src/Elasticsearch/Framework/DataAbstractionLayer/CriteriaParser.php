@@ -61,7 +61,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
 /**
- * @package core
+ * @package system-settings
  */
 class CriteriaParser
 {

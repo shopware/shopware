@@ -1,5 +1,8 @@
 import PrivilegesService from 'src/app/service/privileges.service';
 
+/**
+ * @package system-settings
+ */
 describe('src/app/service/privileges.service.js', () => {
     beforeEach(async () => {
         global.console.warn = jest.fn();

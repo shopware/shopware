@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Country;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package core
+ * @package system-settings
  * @extends EntityCollection<CountryEntity>
  */
 class CountryCollection extends EntityCollection

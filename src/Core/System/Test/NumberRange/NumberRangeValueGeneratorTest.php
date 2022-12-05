@@ -19,6 +19,8 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatter
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class NumberRangeValueGeneratorTest extends TestCase
 {

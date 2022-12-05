@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\Cleanup;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package system-settings
+ */
 class CleanupProductKeywordDictionaryTask extends ScheduledTask
 {
     public static function getTaskName(): string

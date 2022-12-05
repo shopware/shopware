@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
+ * @package system-settings
  */
 class MappingCollectionTest extends TestCase
 {

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import swFirstRunWizardMailerSmtp from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp';
 

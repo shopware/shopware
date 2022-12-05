@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package system-settings
+ */
 class FileService extends AbstractFileService
 {
     private FilesystemOperator $filesystem;

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Installer\Finish;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  */

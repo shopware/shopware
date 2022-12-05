@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Increment;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ArrayIncrementer extends AbstractIncrementer
 {

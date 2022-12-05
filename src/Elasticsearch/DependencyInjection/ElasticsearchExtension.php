@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchExtension extends Extension
 {

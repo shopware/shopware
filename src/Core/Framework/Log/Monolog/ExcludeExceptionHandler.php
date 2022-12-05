@@ -6,7 +6,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ExcludeExceptionHandler extends AbstractHandler
 {

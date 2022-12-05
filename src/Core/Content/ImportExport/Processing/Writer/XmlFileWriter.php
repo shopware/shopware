@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @package system-settings
+ */
 class XmlFileWriter extends AbstractFileWriter
 {
     public function append(Config $config, array $data, int $index): void

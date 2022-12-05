@@ -18,6 +18,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 
 /**
  * @internal
+ * @package system-settings
  */
 class SalutationSerializerTest extends TestCase
 {

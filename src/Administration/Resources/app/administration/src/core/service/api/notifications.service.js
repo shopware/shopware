@@ -1,5 +1,8 @@
 import ApiService from '../api.service';
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class NotificationsService extends ApiService {
     constructor(httpClient, loginService) {

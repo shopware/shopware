@@ -10,6 +10,7 @@ const { Service, Module } = Shopware;
  * Define search ranking point
  *
  * @memberOf module:app/service/search-ranking
+ * @package system-settings
  * @type {Object}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

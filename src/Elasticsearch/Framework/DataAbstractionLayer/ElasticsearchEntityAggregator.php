@@ -14,7 +14,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {

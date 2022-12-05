@@ -23,6 +23,8 @@ use function print_r;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class AclAnnotationValidatorTest extends TestCase
 {

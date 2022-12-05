@@ -10,7 +10,7 @@ use Shopware\Core\Maintenance\System\Exception\ShopConfigurationException;
 use Symfony\Component\Intl\Currencies;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ShopConfigurator
 {

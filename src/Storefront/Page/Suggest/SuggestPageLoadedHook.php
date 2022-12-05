@@ -10,7 +10,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the SuggestPage is loaded
  *
  * @hook-use-case data_loading
- *
+ * @package system-settings
  * @since 6.4.8.0
  */
 class SuggestPageLoadedHook extends PageLoadedHook

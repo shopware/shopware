@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet;
 
+/**
+ * @package system-settings
+ */
 class SnippetEvents
 {
     /**

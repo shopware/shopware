@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
+ * @package system-settings
  */
 class UserProvisioner
 {

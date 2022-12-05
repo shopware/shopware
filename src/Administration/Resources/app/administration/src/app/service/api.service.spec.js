@@ -1,5 +1,8 @@
 import ApiService from 'src/core/service/api.service';
 
+/**
+ * @package system-settings
+ */
 describe('src/app/service/api.service.js', () => {
     describe('makeQueryParams', () => {
         it('should handle empty dictionary', async () => {

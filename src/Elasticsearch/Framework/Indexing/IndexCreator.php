@@ -10,7 +10,7 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEven
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
 /**
- * @package core
+ * @package system-settings
  */
 class IndexCreator
 {

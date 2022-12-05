@@ -35,6 +35,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandEx
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package system-settings
+ */
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';

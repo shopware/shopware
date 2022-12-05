@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Log;
 
 /**
- * @package core
+ * @package system-settings
  */
 interface LogAware extends LogAwareBusinessEventInterface
 {

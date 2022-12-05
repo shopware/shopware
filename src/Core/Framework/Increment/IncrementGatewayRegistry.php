@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Increment;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal - Used internally for Increment pattern
  */

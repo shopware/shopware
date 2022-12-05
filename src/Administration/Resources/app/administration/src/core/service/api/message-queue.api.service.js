@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "message-queue"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class MessageQueueApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'message-queue') {

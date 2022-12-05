@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 
 /**
  * @internal
+ * @package system-settings
  */
 class ChainPipeTest extends TestCase
 {

@@ -10,7 +10,7 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test

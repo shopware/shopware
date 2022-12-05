@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package core
+ * @package system-settings
  */
 class AclUserRoleDefinition extends MappingEntityDefinition
 {

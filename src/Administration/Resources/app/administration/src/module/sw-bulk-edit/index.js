@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './init/services.init';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

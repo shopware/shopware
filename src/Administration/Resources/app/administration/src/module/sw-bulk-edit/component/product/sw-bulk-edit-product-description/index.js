@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-product-description.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ScheduledTaskRunner extends Command
 {

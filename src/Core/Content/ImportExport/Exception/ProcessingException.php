@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package system-settings
+ */
 class ProcessingException extends ShopwareHttpException
 {
     public function getErrorCode(): string

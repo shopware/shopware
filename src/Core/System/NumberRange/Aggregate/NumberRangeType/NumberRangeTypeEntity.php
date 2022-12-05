@@ -9,6 +9,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 
+/**
+ * @package system-settings
+ */
 class NumberRangeTypeEntity extends Entity
 {
     use EntityIdTrait;

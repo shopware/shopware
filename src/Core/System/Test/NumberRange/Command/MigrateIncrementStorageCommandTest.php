@@ -14,6 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
+ * @package system-settings
  */
 class MigrateIncrementStorageCommandTest extends TestCase
 {

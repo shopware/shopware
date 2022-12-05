@@ -9,6 +9,8 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
  * @internal
  * Dummy increment storage which uses a local array.
  * Obviously only for usage in unit tests.
+ *
+ * @package system-settings
  */
 class IncrementArrayStorage extends AbstractIncrementStorage
 {

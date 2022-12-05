@@ -4,6 +4,9 @@ namespace Shopware\Core\System\SystemConfig\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package system-settings
+ */
 class XmlElementNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $element)

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ScheduledTaskDefinition extends EntityDefinition
 {

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 

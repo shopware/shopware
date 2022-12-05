@@ -1,5 +1,8 @@
 import createCustomFieldService from 'src/app/service/custom-field.service';
 
+/**
+ * @package system-settings
+ */
 describe('src/app/service/custom-field.service.js', () => {
     let customFieldService;
     const expectedTypeConfigs = {

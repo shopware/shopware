@@ -6,6 +6,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 final class DummyHandler implements MessageHandlerInterface
 {

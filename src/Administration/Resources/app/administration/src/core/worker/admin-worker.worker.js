@@ -1,5 +1,6 @@
 /**
  * @module core/worker/admin-worker
+ * @package system-settings
  */
 
 import LoginService from 'src/core/service/login.service';

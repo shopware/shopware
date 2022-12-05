@@ -7,6 +7,8 @@ use Shopware\Core\System\Snippet\Filter\NamespaceFilter;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class NamespaceFilterTest extends TestCase
 {

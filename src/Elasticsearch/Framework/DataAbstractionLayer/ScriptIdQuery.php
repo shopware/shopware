@@ -6,7 +6,7 @@ use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\ParametersTrait;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ScriptIdQuery implements BuilderInterface
 {

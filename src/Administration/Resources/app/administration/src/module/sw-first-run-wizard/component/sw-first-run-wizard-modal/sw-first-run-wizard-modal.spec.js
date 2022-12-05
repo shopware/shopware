@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import swFirstRunWizardModal from 'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal';
 import 'src/app/component/base/sw-modal';

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-first-run-wizard.html.twig';
 
 /**

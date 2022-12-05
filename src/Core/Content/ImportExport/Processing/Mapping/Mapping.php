@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ */
 class Mapping extends Struct
 {
     /**

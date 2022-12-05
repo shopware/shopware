@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportProfileApiTest extends TestCase
 {

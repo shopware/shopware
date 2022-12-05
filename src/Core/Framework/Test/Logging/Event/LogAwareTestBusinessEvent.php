@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
  * @internal
  *
  * @deprecated tag:v6.5.0 - Class is deprecated, use LogAwareTestFlowEvent instead.
+ *
+ * @package system-settings
  */
 class LogAwareTestBusinessEvent extends TestBusinessEvent implements LogAwareBusinessEventInterface
 {

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 /**
- * @package core
+ * @package system-settings
  */
 class AclGetAdditionalPrivilegesEvent extends NestedEvent
 {

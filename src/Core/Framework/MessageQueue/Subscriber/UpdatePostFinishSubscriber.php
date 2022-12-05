@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ * @package system-settings
  */
 final class UpdatePostFinishSubscriber implements EventSubscriberInterface
 {

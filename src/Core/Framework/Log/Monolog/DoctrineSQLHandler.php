@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
+ * @package system-settings
  */
 class DoctrineSQLHandler extends AbstractProcessingHandler
 {

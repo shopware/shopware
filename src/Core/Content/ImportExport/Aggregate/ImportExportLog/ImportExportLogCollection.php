@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ImportExportLogEntity>
+ * @package system-settings
  */
 class ImportExportLogCollection extends EntityCollection
 {

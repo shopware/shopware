@@ -3,7 +3,7 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 /**
- * @package core
+ * @package system-settingss
  *
  * @internal should be used over the CLI only
  */

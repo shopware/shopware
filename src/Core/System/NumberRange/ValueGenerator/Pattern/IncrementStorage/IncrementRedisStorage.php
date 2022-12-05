@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Lock\LockFactory;
 
+/**
+ * @package system-settings
+ */
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Event;
 
+/**
+ * @package system-settings
+ */
 class ImportExportProfileEvents
 {
     /**

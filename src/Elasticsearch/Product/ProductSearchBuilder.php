@@ -10,6 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package system-settings
+ */
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     private ProductSearchBuilderInterface $decorated;

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 abstract class ScheduledTask implements AsyncMessageInterface
 {

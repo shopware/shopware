@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<UserAccessKeyEntity>
+ * @package system-settings
  */
 class UserAccessKeyCollection extends EntityCollection
 {

@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "scheduled-task"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class ScheduledTaskApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'scheduled-task') {

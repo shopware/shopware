@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  * @group cache
  * @group store-api
+ * @package system-settings
  */
 class CachedLanguageRouteTest extends TestCase
 {

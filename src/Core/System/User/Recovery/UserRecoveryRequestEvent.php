@@ -16,6 +16,9 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package system-settings
+ */
 class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, UserAware, MailAware, ResetUrlAware
 {
     public const EVENT_NAME = 'user.recovery.request';

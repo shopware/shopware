@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 /**
- * @package core
+ * @package system-settings
  */
 class IndexingDto
 {

@@ -11,6 +11,9 @@ function createUserActivityApiService() {
     return { userActivityApiService, clientMock };
 }
 
+/**
+ * @package system-settings
+ */
 describe('userActivityApiService', () => {
     it('is registered correctly', async () => {
         const { userActivityApiService } = createUserActivityApiService();

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 
+/**
+ * @package system-settings
+ */
 class ConfigReader extends XmlReader
 {
     private const FALLBACK_LOCALE = 'en-GB';

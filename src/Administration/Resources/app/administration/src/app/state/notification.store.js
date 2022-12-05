@@ -5,6 +5,9 @@ const { debug } = Shopware.Utils;
 const utils = Shopware.Utils;
 const NOTIFICATION_LOAD_LIMIT = 50;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function initializeUserNotifications() {
     if (Application.getApplicationRoot().$store) {

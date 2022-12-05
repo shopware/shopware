@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<CustomFieldSetEntity>
+ *
+ * @package system-settings
  */
 class CustomFieldSetCollection extends EntityCollection
 {

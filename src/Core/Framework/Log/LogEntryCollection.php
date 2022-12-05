@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Log;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package core
+ * @package system-settings
  * @extends EntityCollection<LogEntryEntity>
  */
 class LogEntryCollection extends EntityCollection

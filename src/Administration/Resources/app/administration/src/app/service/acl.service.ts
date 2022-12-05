@@ -1,5 +1,8 @@
 import type { FullState } from '../../core/factory/state.factory';
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AclService {
     state: FullState;

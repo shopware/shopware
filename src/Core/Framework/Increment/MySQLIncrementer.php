@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @package core
+ * @package system-settings
  */
 class MySQLIncrementer extends AbstractIncrementer
 {

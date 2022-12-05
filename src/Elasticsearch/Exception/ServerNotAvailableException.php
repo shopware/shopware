@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ServerNotAvailableException extends ShopwareHttpException
 {

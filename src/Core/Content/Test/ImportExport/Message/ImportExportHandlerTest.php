@@ -15,6 +15,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
+ * @package system-settings
  */
 class ImportExportHandlerTest extends AbstractImportExportTest
 {

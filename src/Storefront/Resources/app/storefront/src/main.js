@@ -9,13 +9,8 @@ import 'src/helper/polyfill-loader.helper';
 
 /**
  * import base requirements
- *
- * @deprecated tag:v6.5.0 - Alias `vendorBootstrapJs` will be removed.
- *
- * Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
- * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
  */
-import 'vendorBootstrapJs';
+import 'bootstrap';
 
 /*
 import helpers
@@ -179,9 +174,7 @@ PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
 
-/** @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle` */
-const modalDataAttr = Feature.isActive('V6_5_0_0') ? 'data-bs-toggle="modal"' : 'data-toggle="modal"';
-PluginManager.register('AjaxModal', AjaxModalPlugin, `[${modalDataAttr}][data-url]`);
+PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-bs-toggle="modal"][data-url]');
 
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
@@ -222,11 +215,6 @@ if (!Feature.isActive('v6.5.0.0')) {
 }
 
 window.Feature = Feature;
-
-/** @deprecated tag:v6.5.0 - Warning will be removed */
-if (Feature.isActive('v6.5.0.0')) {
-    console.warn('[Bootstrap v5 Warning] The feature flag v6.5.0.0 is activated and the Storefront is using Bootstrap v5.');
-}
 
 /*
 run plugins

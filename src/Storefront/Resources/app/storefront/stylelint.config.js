@@ -21,6 +21,5 @@ module.exports = {
                 ignore: ['attribute', 'class']
             }
         ],
-        'shopware/object-fit-polyfill': true
     }
 };

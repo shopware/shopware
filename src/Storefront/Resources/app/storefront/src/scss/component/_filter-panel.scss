@@ -36,19 +36,6 @@ This file contains the generic styling for all filter items.
         border: 1px solid $border-color;
         font-weight: $font-weight-normal;
     }
-
-    // @deprecated tag:v6.5.0 - Bootstrap v5 adds `show` class for dropdown directly on trigger element instead of the `dropdown` wrapper. Remove `&.show` and the inner selectors.
-    &.show {
-        .filter-panel-item-toggle {
-            color: $primary;
-            border-color: $primary;
-        }
-
-        .icon-filter-panel-item-toggle svg {
-            color: $primary;
-            transform: rotate(180deg);
-        }
-    }
 }
 
 .filter-panel-item-toggle.show {
@@ -60,7 +47,6 @@ This file contains the generic styling for all filter items.
         transform: rotate(180deg);
     }
 }
-
 
 .filter-panel-item-dropdown {
     min-width: 240px;
@@ -233,8 +219,7 @@ This file contains the generic styling for all filter items.
     margin-left: auto;
 }
 
-// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `lg` instead of `md`.
-@include media-breakpoint-down(if(feature('v6.5.0.0'), lg, md)) {
+@include media-breakpoint-down(lg) {
     .btn.filter-panel-wrapper-toggle {
         display: block;
     }

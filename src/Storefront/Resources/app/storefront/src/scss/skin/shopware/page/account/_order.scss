@@ -1,8 +1,7 @@
 .order-item-status-badge {
     margin: 10px 0;
 
-    // @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `sm` instead of `xs`.
-    @include media-breakpoint-down(if(feature('v6.5.0.0'), sm, xs)) {
+    @include media-breakpoint-down(sm) {
         margin-top: 0;
     }
 }

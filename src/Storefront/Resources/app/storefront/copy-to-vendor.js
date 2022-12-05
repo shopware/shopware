@@ -23,8 +23,6 @@ const toDirectory = 'vendor';
  */
 const fromDirectories = [
     'node_modules/bootstrap',
-    'node_modules/bootstrap5',
-    'node_modules/jquery',
     'node_modules/tiny-slider',
     'node_modules/flatpickr',
 ];

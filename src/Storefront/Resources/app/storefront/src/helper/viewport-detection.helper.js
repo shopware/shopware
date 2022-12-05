@@ -1,5 +1,4 @@
 import Debouncer from 'src/helper/debouncer.helper';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * Viewport Detection
@@ -78,9 +77,7 @@ export default class ViewportDetection {
             this._dispatchViewportEvent('Viewport/isLG');
         } else if (ViewportDetection.isXL()) {
             this._dispatchViewportEvent('Viewport/isXL');
-
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-        } else if (ViewportDetection.isXXL() && Feature.isActive('v6.5.0.0')) {
+        } else if (ViewportDetection.isXXL()) {
             this._dispatchViewportEvent('Viewport/isXXL');
         }
     }
@@ -157,7 +154,6 @@ export default class ViewportDetection {
 
     /**
      * Determine whether the current viewport is XXL
-     * @internal tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint
      * @returns {boolean}
      */
     static isXXL() {

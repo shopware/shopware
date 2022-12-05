@@ -107,7 +107,7 @@
                                         {% block component_offcanvas_cart_actions_promotion_input_group %}
                                             <div class="input-group">
                                                 {% block component_offcanvas_cart_actions_promotion_label %}
-                                                    <label class="{{ visuallyHiddenClass }}" for="addPromotionOffcanvasCartInput">
+                                                    <label class="visually-hidden" for="addPromotionOffcanvasCartInput">
                                                         {{ "checkout.addPromotionLabel"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
@@ -124,22 +124,11 @@
                                                 {% endblock %}
 
                                                 {% block component_offcanvas_cart_actions_promotion_submit %}
-                                                    {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `input-group-append` wrapper and uses elements as direct childs of `input-group` #}
-                                                    {% if feature('v6.5.0.0') %}
-                                                        <button class="btn btn-secondary"
-                                                                type="submit"
-                                                                id="addPromotionOffcanvasCart">
-                                                            {% sw_icon 'checkmark' %}
-                                                        </button>
-                                                    {% else %}
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-secondary"
-                                                                    type="submit"
-                                                                    id="addPromotionOffcanvasCart">
-                                                                {% sw_icon 'checkmark' %}
-                                                            </button>
-                                                        </div>
-                                                    {% endif %}
+                                                    <button class="btn btn-secondary"
+                                                            type="submit"
+                                                            id="addPromotionOffcanvasCart">
+                                                        {% sw_icon 'checkmark' %}
+                                                    </button>
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
@@ -150,41 +139,23 @@
                     {% endblock %}
 
                     {% block component_offcanvas_cart_actions_checkout %}
-                        {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
-                        {% if feature('v6.5.0.0') %}
-                            <div class="d-grid">
-                                <a href="{{ path('frontend.checkout.confirm.page') }}"
-                                   class="btn begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
-                                   title="{{ "checkout.proceedToCheckout"|trans|striptags }}">
-                                    {{ "checkout.proceedToCheckout"|trans|sw_sanitize }}
-                                </a>
-                            </div>
-                        {% else %}
+                        <div class="d-grid">
                             <a href="{{ path('frontend.checkout.confirm.page') }}"
-                               class="btn btn-block begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
+                               class="btn begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
                                title="{{ "checkout.proceedToCheckout"|trans|striptags }}">
                                 {{ "checkout.proceedToCheckout"|trans|sw_sanitize }}
                             </a>
-                        {% endif %}
+                        </div>
                     {% endblock %}
 
                     {% block component_offcanvas_cart_actions_cart %}
-                        {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
-                        {% if feature('v6.5.0.0') %}
-                            <div class="d-grid">
-                                <a href="{{ path('frontend.checkout.cart.page') }}"
-                                   class="btn btn-link"
-                                   title="{{ "checkout.proceedToCart"|trans|striptags }}">
-                                    {{ "checkout.proceedToCart"|trans|sw_sanitize }}
-                                </a>
-                            </div>
-                        {% else %}
+                        <div class="d-grid">
                             <a href="{{ path('frontend.checkout.cart.page') }}"
-                               class="btn btn-block btn-link"
+                               class="btn btn-link"
                                title="{{ "checkout.proceedToCart"|trans|striptags }}">
                                 {{ "checkout.proceedToCart"|trans|sw_sanitize }}
                             </a>
-                        {% endif %}
+                        </div>
                     {% endblock %}
                 </div>
             {% endblock %}

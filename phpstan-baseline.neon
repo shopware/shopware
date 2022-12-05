@@ -22833,11 +22833,6 @@ parameters:
 			path: src/Storefront/Framework/Twig/TemplateConfigAccessor.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TemplateDataExtension\\:\\:getGlobals\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TemplateDataExtension.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Address\\\\AddressEditorModalStruct\\:\\:getMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php
@@ -24261,46 +24256,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigFieldFactory\\:\\:create\\(\\) has parameter \\$configFieldArray with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigFieldFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:flatten\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:flatten\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:getThemeConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:getTrace\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:\\$keys type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:\\$themeConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigValueAccessor\\:\\:\\$traces type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeConfigValueAccessor.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:getBaseConfig\\(\\) return type has no value type specified in iterable type array\\.$#"

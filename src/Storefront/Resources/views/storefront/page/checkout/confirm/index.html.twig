@@ -42,7 +42,7 @@
                             <p class="revocation-notice">
                                 {% block page_checkout_confirm_revocation_notice_link %}
                                     <a href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}"
-                                       {{ dataBsToggleAttr }}="modal"
+                                       data-bs-toggle="modal"
                                        title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
                                        data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}">
                                         {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
@@ -52,10 +52,10 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control %}
-                            <div class="{{ formCheckboxWrapperClass }}">
+                            <div class="form-check">
                                 {% block page_checkout_confirm_tos_control_checkbox %}
                                     <input type="checkbox"
-                                           class="checkout-confirm-tos-checkbox {{ formCheckInputClass }}{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
+                                           class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                            required="required"
                                            id="tos"
                                            form="confirmOrderForm"
@@ -208,22 +208,9 @@
             {% endblock %}
 
             {% block page_checkout_confirm_form_submit %}
-                {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
-                {% if feature('v6.5.0.0') %}
-                    <div class="d-grid">
-                        <button id="confirmFormSubmit"
-                                class="btn btn-primary btn-lg"
-                                form="confirmOrderForm"
-                            {% if page.cart.errors.blockOrder %}
-                                disabled
-                            {% endif %}
-                                type="submit">
-                            {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
-                        </button>
-                    </div>
-                {% else %}
+                <div class="d-grid">
                     <button id="confirmFormSubmit"
-                            class="btn btn-primary btn-block btn-lg"
+                            class="btn btn-primary btn-lg"
                             form="confirmOrderForm"
                         {% if page.cart.errors.blockOrder %}
                             disabled
@@ -231,7 +218,7 @@
                             type="submit">
                         {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
                     </button>
-                {% endif %}
+                </div>
             {% endblock %}
         </form>
     </div>

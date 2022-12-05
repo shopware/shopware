@@ -99,23 +99,13 @@
                                 },
                                 xl: {
                                     axis: 'vertical'
+                                },
+                                xxl: {
+                                    axis: 'vertical'
                                 }
                             }
                         }
                     }) %}
-
-                    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint #}
-                    {% if feature('v6.5.0.0') %}
-                        {% set gallerySliderOptions = gallerySliderOptions|replace_recursive({
-                            thumbnailSlider: {
-                                responsive: {
-                                    xxl: {
-                                        axis: 'vertical'
-                                    }
-                                }
-                            }
-                        }) %}
-                    {% endif %}
                 {% endif %}
 
                 {% block element_image_gallery_inner %}
@@ -332,16 +322,10 @@
                                                         <div class="modal-content"{% if imageCount > 1 %} data-modal-gallery-slider="true"{% endif %}>
                                                             {% block element_image_gallery_inner_zoom_modal_close_button %}
                                                                 <button type="button"
-                                                                        class="{{ modalCloseBtnClass }} close"
-                                                                        {{ dataBsDismissAttr }}="modal"
+                                                                        class="btn-close close"
+                                                                        data-bs-dismiss="modal"
                                                                         aria-label="Close">
                                                                     {% block element_image_gallery_inner_zoom_modal_close_icon %}
-                                                                        {# @deprecated tag:v6.5.0 - Bootstrap v5 creates "x" symbol automatically via SVG background #}
-                                                                        {% if not feature('v6.5.0.0') %}
-                                                                            <span aria-hidden="true">
-                                                                                {% sw_icon 'x' style { 'size': 'sm' } %}
-                                                                            </span>
-                                                                        {% endif %}
                                                                     {% endblock %}
                                                                 </button>
                                                             {% endblock %}

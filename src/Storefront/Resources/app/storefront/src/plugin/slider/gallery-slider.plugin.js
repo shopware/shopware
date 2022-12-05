@@ -6,7 +6,6 @@ import PluginManager from 'src/plugin-system/plugin.manager';
 import Iterator from 'src/helper/iterator.helper';
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
-import Feature from 'src/helper/feature.helper';
 
 export default class GallerySliderPlugin extends BaseSliderPlugin {
 
@@ -32,8 +31,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               md: {},
               lg: {},
               xl: {},
-              /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-              ...(Feature.isActive('v6.5.0.0') && { xxl: {} }),
+              xxl: {},
           },
       },
       thumbnailSlider: {
@@ -50,8 +48,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               md: {},
               lg: {},
               xl: {},
-              /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-              ...(Feature.isActive('v6.5.0.0') && { xxl: {} }),
+              xxl: {},
           },
       },
   });

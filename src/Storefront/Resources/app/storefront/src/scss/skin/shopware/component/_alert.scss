@@ -3,7 +3,7 @@ Alert
 ==============================================
 Custom skin styling for bootstrap alert component.
 
-https://getbootstrap.com/docs/4.3/components/alerts/
+https://getbootstrap.com/docs/5.2/components/alerts
 */
 
 @mixin sw-skin-alert($color, $background) {
@@ -44,11 +44,6 @@ https://getbootstrap.com/docs/4.3/components/alerts/
 
 @each $color, $value in $theme-colors {
     .alert-#{$color} {
-        // @deprecated tag:v6.5.0 - Bootstrap v5 removes variable $alert-bg-level
-        @if feature('v6.5.0.0') {
-            @include sw-skin-alert($value, tint-color($value, 80%));
-        } @else {
-            @include sw-skin-alert($value, theme-color-level($color, $alert-bg-level));
-        }
+        @include sw-skin-alert($value, tint-color($value, 80%));
     }
 }

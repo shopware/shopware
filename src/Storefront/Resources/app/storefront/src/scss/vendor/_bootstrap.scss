@@ -3,13 +3,7 @@ Bootstrap
 ==================================================
 Import of bootstrap vendor.
 
-https://getbootstrap.com/docs/4.3/getting-started/introduction/
-
-@deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
-
-Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
-Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
-Replace `~vendorBootstrap` with `~vendor/bootstrap`
+https://getbootstrap.com/docs/5.2/getting-started/introduction
 */
 
-@import '~vendorBootstrap/scss/bootstrap';
+@import '~vendor/bootstrap/scss/bootstrap';

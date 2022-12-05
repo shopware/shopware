@@ -147,15 +147,9 @@
                         'sm': theme_config('breakpoint.sm'),
                         'md': theme_config('breakpoint.md'),
                         'lg': theme_config('breakpoint.lg'),
-                        'xl': theme_config('breakpoint.xl')
+                        'xl': theme_config('breakpoint.xl'),
+                        'xxl': theme_config('breakpoint.xxl')
                     } %}
-
-                    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint #}
-                    {% if feature('v6.5.0.0') %}
-                        {% set breakpoint = breakpoint|merge({
-                            'xxl': theme_config('breakpoint.xxl')
-                        }) %}
-                    {% endif %}
 
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
                 </script>

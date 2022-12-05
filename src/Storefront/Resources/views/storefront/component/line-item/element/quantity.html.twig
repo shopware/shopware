@@ -66,7 +66,7 @@
                                     {% else %}
                                         {% block component_line_item_quantity_select_select %}
                                             <select name="quantity"
-                                                class="{{ formSelectClass }} quantity-select-{{ lineItem.id }}{% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}">
+                                                class="form-select quantity-select-{{ lineItem.id }}{% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}">
                                                 {% for quantity in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
                                                     {% block component_line_item_quantity_select_option %}
                                                         <option value="{{ quantity }}"

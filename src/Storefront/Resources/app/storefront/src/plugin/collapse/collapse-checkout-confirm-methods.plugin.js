@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
-import Feature from 'src/helper/feature.helper';
 
 export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
 
@@ -26,16 +25,8 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
 
         const collapse = DomAccess.querySelector(this.el.parentNode, this.options.collapseContainerSelector);
 
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
-        if (Feature.isActive('v6.5.0.0')) {
-            collapse.addEventListener('show.bs.collapse', this._onCollapseShow.bind(this));
-            collapse.addEventListener('hide.bs.collapse', this._onCollapseHide.bind(this));
-        } else {
-            const $collapse = $(collapse);
-
-            $collapse.on('show.bs.collapse', this._onCollapseShow.bind(this));
-            $collapse.on('hide.bs.collapse', this._onCollapseHide.bind(this));
-        }
+        collapse.addEventListener('show.bs.collapse', this._onCollapseShow.bind(this));
+        collapse.addEventListener('hide.bs.collapse', this._onCollapseHide.bind(this));
     }
 
     /**
@@ -48,14 +39,9 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
 
         const collapse = DomAccess.querySelector(this.el.parentNode, this.options.collapseContainerSelector);
 
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Collapse plugin */
-        if (Feature.isActive('v6.5.0.0')) {
-            new bootstrap.Collapse(collapse, {
-                toggle: true,
-            });
-        } else {
-            $(collapse).collapse('toggle');
-        }
+        new bootstrap.Collapse(collapse, {
+            toggle: true,
+        });
 
         this.$emitter.publish('onClickCollapseTrigger');
     }

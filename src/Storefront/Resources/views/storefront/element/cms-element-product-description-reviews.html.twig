@@ -24,7 +24,7 @@
                                         <li class="nav-item">
                                             <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link description-tab"
                                                id="{{ descriptionTabId }}"
-                                               {{ dataBsToggleAttr }}="tab"
+                                               data-bs-toggle="tab"
                                                data-offcanvas-tabs="true"
                                                href="{{ descriptionTabHref }}"
                                                role="tab"
@@ -56,7 +56,7 @@
                                             <li class="nav-item">
                                                 <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link review-tab"
                                                    id="{{ reviewTabId }}"
-                                                   {{ dataBsToggleAttr }}="tab"
+                                                   data-bs-toggle="tab"
                                                    data-offcanvas-tabs="true"
                                                    href="{{ reviewTabHref }}"
                                                    role="tab"

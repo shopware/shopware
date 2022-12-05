@@ -100,7 +100,7 @@
         <sw-button
             class="sw-order-document-settings-modal__preview-button"
             size="small"
-            :disabled="!documentPreconditionsFulfilled || isLoadingDocument"
+            :disabled="isLoadingDocument"
             :is-loading="isLoadingPreview"
             @click="onPreview"
         >

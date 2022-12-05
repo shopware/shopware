@@ -10,8 +10,6 @@ const { Component } = Shopware;
 Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', {
     template,
 
-    inject: ['repositoryFactory'],
-
     data() {
         return {
             documentConfig: {
@@ -21,13 +19,20 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                 },
             },
             invoiceNumbers: [],
-            lineItems: [],
         };
     },
 
     computed: {
         highlightedItems() {
-            return this.lineItems.filter(lineItem => lineItem.type === 'credit');
+            const items = [];
+
+            this.order.lineItems.forEach((lineItem) => {
+                if (lineItem.type === 'credit') {
+                    items.push(lineItem);
+                }
+            });
+
+            return items;
         },
 
         documentPreconditionsFulfilled() {
@@ -76,26 +81,6 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
                 this.callDocumentCreate(additionalAction);
             }
-        },
-
-        onSelectInvoice(invoiceId) {
-            const invoice = this.invoices.find(item => item.id === invoiceId);
-
-            if (!invoice) {
-                this.$set(this.documentConfig.custom, 'invoiceNumber', '');
-
-                this.deepLinkCode = null;
-                this.lineItems = [];
-                return;
-            }
-
-            this.$set(this.documentConfig.custom, 'invoiceNumber', invoice.config.custom.invoiceNumber);
-
-            this.updateDeepLinkCodeByVersionContext(
-                { ...Shopware.Context.api, versionId: invoice.orderVersionId },
-            ).then((response) => {
-                this.lineItems = response.lineItems.filter(lineItem => lineItem.type === 'credit');
-            });
         },
     },
 });

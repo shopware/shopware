@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -421,6 +422,15 @@ class CriteriaParser
         return $composite;
     }
 
+    protected function parseRangeAggregation(RangeAggregation $aggregation, string $fieldName): Bucketing\RangeAggregation
+    {
+        return new Bucketing\RangeAggregation(
+            $aggregation->getName(),
+            $fieldName,
+            $aggregation->getRanges()
+        );
+    }
+
     private function getCheapestPriceParameters(Context $context): array
     {
         return [
@@ -526,6 +536,9 @@ class CriteriaParser
 
             case $aggregation instanceof DateHistogramAggregation:
                 return $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context);
+
+            case $aggregation instanceof RangeAggregation:
+                return $this->parseRangeAggregation($aggregation, $fieldName);
             default:
                 throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', \get_class($aggregation)));
         }

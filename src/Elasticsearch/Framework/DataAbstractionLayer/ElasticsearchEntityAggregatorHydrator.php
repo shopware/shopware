@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\RangeResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -128,6 +130,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
             case $aggregation instanceof TermsAggregation:
                 return $this->hydrateTermsAggregation($aggregation, $result, $context);
 
+            case $aggregation instanceof RangeAggregation:
+                return $this->hydrateRangeAggregation($aggregation, $result);
+
             default:
                 throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', \get_class($aggregation)));
         }
@@ -226,6 +231,32 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         }
 
         return new TermsResult($aggregation->getName(), $buckets);
+    }
+
+    /**
+     * @param array<string, mixed> $result
+     */
+    private function hydrateRangeAggregation(RangeAggregation $aggregation, array $result): ?RangeResult
+    {
+        if (isset($result[$aggregation->getName()])) {
+            $result = $result[$aggregation->getName()];
+        }
+
+        $key = $aggregation->getName() . '.key';
+        if (isset($result[$key])) {
+            $result = $result[$key];
+        }
+
+        if (!isset($result['buckets'])) {
+            return null;
+        }
+
+        $ranges = [];
+        foreach ($result['buckets'] as $bucket) {
+            $ranges[(string) $bucket['key']] = (int) $bucket['doc_count'];
+        }
+
+        return new RangeResult($aggregation->getName(), $ranges);
     }
 
     private function hydrateSortedTermsAggregation(TermsAggregation $aggregation, array $result, Context $context): ?TermsResult

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @package system-settings
+ */
 class CountryStateEntity extends Entity
 {
     use EntityIdTrait;

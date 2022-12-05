@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-mailer/component/sw-settings-mailer-smtp';
 import 'src/app/component/form/sw-field';

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 /**
  * @internal
  * @group store-api
+ *
+ * @package system-settings
  */
 class CountryStateRouteTest extends TestCase
 {

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-page';

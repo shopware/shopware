@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { kebabCase } from 'lodash';

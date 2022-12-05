@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 
+/**
+ * @package system-settings
+ */
 class SnippetFixer
 {
     /**

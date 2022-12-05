@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-search';
 import './view/sw-settings-search-view-general';
 import './view/sw-settings-search-view-live-search';

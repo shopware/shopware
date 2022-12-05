@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 const ApiService = Shopware.Classes.ApiService;
 
 /**

@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Mail\Service;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Mime\Email;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractMailService
 {
     abstract public function getDecorated(): AbstractMailService;

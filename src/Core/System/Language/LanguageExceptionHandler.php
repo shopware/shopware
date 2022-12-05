@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\Exception\LanguageForeignKeyDeleteException;
 
+/**
+ * @package system-settings
+ */
 class LanguageExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

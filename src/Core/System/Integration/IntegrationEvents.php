@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Integration;
 
+/**
+ * @package system-settings
+ */
 class IntegrationEvents
 {
     /**

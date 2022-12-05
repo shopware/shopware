@@ -3,6 +3,10 @@ import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
 
+/**
+ * @package system-settings
+ * @returns {Promise<Wrapper<Vue>>}
+ */
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal'), {
         stubs: {

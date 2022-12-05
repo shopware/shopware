@@ -25,6 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package system-settings
+ */
 class MappingService extends AbstractMappingService
 {
     private AbstractFileService $fileService;

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
 import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create';

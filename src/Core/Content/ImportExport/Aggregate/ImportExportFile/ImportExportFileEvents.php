@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile;
 
+/**
+ * @package system-settings
+ */
 class ImportExportFileEvents
 {
     /**

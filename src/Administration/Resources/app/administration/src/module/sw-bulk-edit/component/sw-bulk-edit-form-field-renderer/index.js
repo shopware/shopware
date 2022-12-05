@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-form-field-renderer.html.twig';
 
 const { Component } = Shopware;

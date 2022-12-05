@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-edit-profile-import-settings.html.twig';
 import './sw-import-export-edit-profile-import-settings.scss';
 

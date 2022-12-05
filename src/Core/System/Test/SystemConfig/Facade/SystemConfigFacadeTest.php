@@ -24,6 +24,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class SystemConfigFacadeTest extends TestCase
 {

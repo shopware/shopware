@@ -11,6 +11,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ConfigGetCommandTest extends TestCase
 {

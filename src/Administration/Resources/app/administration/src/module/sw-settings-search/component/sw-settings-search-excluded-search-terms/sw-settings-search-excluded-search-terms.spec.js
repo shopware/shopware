@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms';
 import 'src/app/component/base/sw-empty-state';

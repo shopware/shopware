@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 
+/**
+ * @package system-settings
+ */
 class CountryStateTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'country_state_translation';

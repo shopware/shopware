@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-user-create.html.twig';
 
 const { Component } = Shopware;

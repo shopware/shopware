@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  * @group skip-paratest
+ *
+ * @package system-settings
  */
 class CacheControllerTest extends TestCase
 {

@@ -84,6 +84,8 @@ use function array_combine;
 /**
  * @internal
  * @group skip-paratest
+ *
+ * @package system-settings
  */
 class ElasticsearchProductTest extends TestCase
 {

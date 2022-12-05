@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-number-range-list';
 import './page/sw-settings-number-range-detail';
 import './page/sw-settings-number-range-create';

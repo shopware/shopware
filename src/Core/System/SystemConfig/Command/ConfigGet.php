@@ -9,6 +9,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package system-settings
+ */
 class ConfigGet extends Command
 {
     private const FORMAT_DEFAULT = 'default';

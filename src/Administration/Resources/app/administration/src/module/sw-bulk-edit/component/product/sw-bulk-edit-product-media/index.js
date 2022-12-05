@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-product-media.html.twig';
 
 const { Component, Context, Utils, Mixin } = Shopware;

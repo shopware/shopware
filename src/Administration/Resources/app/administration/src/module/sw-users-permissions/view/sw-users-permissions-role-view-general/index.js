@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-role-view-general.html.twig';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-new-profile-wizard-csv-page.html.twig';
 import './sw-import-export-new-profile-wizard-csv-page.scss';
 

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
+/**
+ * @package system-settings
+ */
 class TranslationKeyFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**

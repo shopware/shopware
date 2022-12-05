@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
 

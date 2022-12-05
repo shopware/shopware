@@ -21,6 +21,8 @@ use function json_encode;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class SystemConfigServiceTest extends TestCase
 {

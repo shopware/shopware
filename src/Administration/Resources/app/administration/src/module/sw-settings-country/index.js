@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-country-list';
 import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';

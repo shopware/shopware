@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Language\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package system-settings
+ */
 class LanguageForeignKeyDeleteException extends ShopwareHttpException
 {
     /**

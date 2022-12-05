@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
 

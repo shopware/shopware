@@ -7,6 +7,8 @@ use Shopware\Core\System\Snippet\Filter\AuthorFilter;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class AuthorFilterTest extends TestCase
 {

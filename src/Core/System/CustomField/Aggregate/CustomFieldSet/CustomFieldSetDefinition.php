@@ -23,6 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
+/**
+ * @package system-settings
+ */
 class CustomFieldSetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'custom_field_set';

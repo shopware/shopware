@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './extension/sw-admin-menu';
 import './page/sw-profile-index';
 import './view/sw-profile-index-general';

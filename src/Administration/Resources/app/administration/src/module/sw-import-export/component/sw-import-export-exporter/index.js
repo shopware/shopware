@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-exporter.html.twig';
 import './sw-import-export-exporter.scss';
 

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 const { Component, State } = Shopware;
 
 // eslint-disable-next-line max-len

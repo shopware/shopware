@@ -23,6 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @package system-settings
+ */
 class CountryStateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'country_state';

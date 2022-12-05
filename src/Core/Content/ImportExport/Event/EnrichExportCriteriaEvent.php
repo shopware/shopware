@@ -6,6 +6,9 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package system-settings
+ */
 class EnrichExportCriteriaEvent extends Event
 {
     /**

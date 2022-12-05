@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 const { Component, State } = Shopware;
 
 Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-edit-order-documents-generate-invoice', {

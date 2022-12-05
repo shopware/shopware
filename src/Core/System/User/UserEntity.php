@@ -17,6 +17,9 @@ use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
+/**
+ * @package system-settings
+ */
 class UserEntity extends Entity
 {
     use EntityIdTrait;

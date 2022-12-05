@@ -7,6 +7,8 @@ use Shopware\Core\System\Snippet\Filter\TermFilter;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class TermFilterTest extends TestCase
 {

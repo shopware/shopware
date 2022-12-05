@@ -18,6 +18,8 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @internal
  * @group skip-paratest
+ *
+ * @package system-settings
  */
 class ConfigurationServiceInFlagTest extends TestCase
 {

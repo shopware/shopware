@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-snippet-set-list';
 import './page/sw-settings-snippet-list';
 import './page/sw-settings-snippet-detail';

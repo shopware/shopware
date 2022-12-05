@@ -7,6 +7,9 @@ use Shopware\Recovery\Common\Steps\FinishResult;
 use Shopware\Recovery\Common\Steps\ValidResult;
 use Shopware\Recovery\Update\pathBuilder;
 
+/**
+ * @package system-settings
+ */
 class UnpackStep
 {
     /**

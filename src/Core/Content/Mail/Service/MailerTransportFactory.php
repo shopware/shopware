@@ -11,6 +11,8 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use MailerTransportLoader instead.
+ *
+ * @package system-settings
  */
 class MailerTransportFactory extends Transport
 {

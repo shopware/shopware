@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet;
 
+/**
+ * @package system-settings
+ */
 interface SnippetValidatorInterface
 {
     public function validate(): array;

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package system-settings
+ */
 class CountryRouteResponse extends StoreApiResponse
 {
     /**

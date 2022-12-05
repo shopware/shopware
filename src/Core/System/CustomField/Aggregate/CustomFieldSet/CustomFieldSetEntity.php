@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 
+/**
+ * @package system-settings
+ */
 class CustomFieldSetEntity extends Entity
 {
     use EntityIdTrait;

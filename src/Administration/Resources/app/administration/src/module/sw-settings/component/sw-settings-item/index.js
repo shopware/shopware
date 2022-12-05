@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-item.html.twig';
 import './sw-settings-item.scss';
 

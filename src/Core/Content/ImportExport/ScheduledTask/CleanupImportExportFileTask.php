@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package system-settings
+ */
 class CleanupImportExportFileTask extends ScheduledTask
 {
     public static function getTaskName(): string

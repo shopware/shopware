@@ -22,6 +22,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute

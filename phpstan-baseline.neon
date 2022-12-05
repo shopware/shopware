@@ -20484,16 +20484,6 @@ parameters:
 			path: src/Core/System/Country/Aggregate/CountryTranslation/CountryTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\CountryTaxFreeDeprecationUpdater\\:\\:backport\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/CountryTaxFreeDeprecationUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\CountryTaxFreeDeprecationUpdater\\:\\:port\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Country/CountryTaxFreeDeprecationUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\Aggregate\\\\CurrencyTranslation\\\\CurrencyTranslationCollection\\:\\:getCurrencyIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Currency/Aggregate/CurrencyTranslation/CurrencyTranslationCollection.php

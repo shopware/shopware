@@ -9,6 +9,10 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 /**
  * @package core
  *
+ * @final
+ *
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
 class RegisterScheduledTaskHandler implements MessageSubscriberInterface

@@ -4,13 +4,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
@@ -29,31 +23,11 @@ class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';
 
-    private EntityRepository $paymentMethodRepository;
-
-    private EntityRepository $shippingMethodRepository;
-
-    private EntityRepository $countryRepository;
-
-    private EntityRepository $snippetSetRepository;
-
-    private EntityRepository $categoryRepository;
-
     private SalesChannelCreator $salesChannelCreator;
 
     public function __construct(
-        EntityRepository $paymentMethodRepository,
-        EntityRepository $shippingMethodRepository,
-        EntityRepository $countryRepository,
-        EntityRepository $snippetSetRepository,
-        EntityRepository $categoryRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->countryRepository = $countryRepository;
-        $this->snippetSetRepository = $snippetSetRepository;
-        $this->categoryRepository = $categoryRepository;
         $this->salesChannelCreator = $salesChannelCreator;
 
         parent::__construct();
@@ -65,8 +39,6 @@ class SalesChannelCreateCommand extends Command
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
-            /** @deprecated tag:v6.5.0 - Option `snippetSetId` will be removed as it had no effect, use `sales-channel:create:storefront` instead */
-            ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Deprecated: will be removed in 6.5.0 as it had no effect')
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
@@ -91,9 +63,9 @@ class SalesChannelCreateCommand extends Command
                 $typeId ?? $this->getTypeId(),
                 $input->getOption('languageId'),
                 $input->getOption('currencyId'),
-                $input->getOption('snippetSetId'),
                 $input->getOption('paymentMethodId'),
                 $input->getOption('shippingMethodId'),
+                $input->getOption('countryId'),
                 $input->getOption('customerGroupId'),
                 $input->getOption('navigationCategoryId'),
                 null,
@@ -147,112 +119,5 @@ class SalesChannelCreateCommand extends Command
     protected function getTypeId(): string
     {
         return Defaults::SALES_CHANNEL_TYPE_API;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
-     */
-    protected function getFirstActiveShippingMethodId(): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
-        );
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true));
-
-        /** @var array<string> $ids */
-        $ids = $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return $ids[0];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
-     */
-    protected function getFirstActivePaymentMethodId(): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
-        );
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'));
-
-        /** @var array<string> $ids */
-        $ids = $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return $ids[0];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
-     */
-    protected function getFirstActiveCountryId(): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
-        );
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'));
-
-        /** @var array<string> $ids */
-        $ids = $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return $ids[0];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
-     */
-    protected function getSnippetSetId(): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
-        );
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', 'en-GB'));
-
-        /** @var string|null $id */
-        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
-
-        if ($id === null) {
-            throw new \InvalidArgumentException('Unable to get default SnippetSet. Please provide a valid SnippetSetId.');
-        }
-
-        return $id;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
-     */
-    protected function getRootCategoryId(): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'SalesChannelCreator')
-        );
-
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('category.parentId', null));
-        $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
-
-        /** @var array<string> $categories */
-        $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return $categories[0];
     }
 }

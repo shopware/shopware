@@ -20,7 +20,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
  * @package core
  * @implements Rule<InClassNode>
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class InternalClassRule implements Rule
 {
@@ -62,26 +62,10 @@ class InternalClassRule implements Rule
         }
 
         if ($this->isEventSubscriber($node)) {
-            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
-            /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all listener should become internal in v6.5.0
-             */
-            if (\str_contains($classDeprecation, 'reason:becomes-internal') || \str_contains($classDeprecation, 'reason:remove-subscriber')) {
-                return [];
-            }
-
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
         }
 
         if ($namespace = $this->isInInternalNamespace($node)) {
-            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
-            /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all classes in internal namespaces should become internal in v6.5.0
-             */
-            if (\str_contains($classDeprecation, 'reason:becomes-internal')) {
-                return [];
-            }
-
             return ['Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.'];
         }
 
@@ -90,14 +74,6 @@ class InternalClassRule implements Rule
         }
 
         if ($this->isMessageHandler($node)) {
-            $classDeprecation = $node->getClassReflection()->getDeprecatedDescription() ?? '';
-            /**
-             * @deprecated tag:v6.5.0 - remove deprecation check, as all migration steps become internal in v6.5.0
-             */
-            if (\str_contains($classDeprecation, 'tag:v6.5.0')) {
-                return [];
-            }
-
             return ['MessageHandlers must be flagged @internal to not be captured by the BC checker.'];
         }
 

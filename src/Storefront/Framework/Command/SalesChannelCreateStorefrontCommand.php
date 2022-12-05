@@ -23,19 +23,10 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
      * @internal
      */
     public function __construct(
-        EntityRepository $paymentMethodRepository,
-        EntityRepository $shippingMethodRepository,
-        EntityRepository $countryRepository,
         EntityRepository $snippetSetRepository,
-        EntityRepository $categoryRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         parent::__construct(
-            $paymentMethodRepository,
-            $shippingMethodRepository,
-            $countryRepository,
-            $snippetSetRepository,
-            $categoryRepository,
             $salesChannelCreator
         );
 

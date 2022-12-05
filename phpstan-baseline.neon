@@ -1011,16 +1011,6 @@ parameters:
 			path: src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\MergeWishlistProductRoute\\:\\:buildUpsertProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\MergeWishlistProductRoute\\:\\:loadCustomerProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ResetPasswordRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php

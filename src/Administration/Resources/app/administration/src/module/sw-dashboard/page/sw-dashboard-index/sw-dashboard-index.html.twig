@@ -7,422 +7,412 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_dashboard_index_content %}
-    <sw-card-view
-        slot="content"
-        class="sw-dashboard-index__content"
-    >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_card %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content %}
-        <div class="sw-dashboard-index__welcome-text">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_content_intro %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_content_intro_content_headline %}
-            <h1 class="sw-dashboard-index__welcome-title">
-                {{ welcomeMessage }}
-            </h1>
-            {% endblock %}
+    <template #content>
+        <sw-card-view class="sw-dashboard-index__content">
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_content_intro_welcome_message %}
-            <p class="sw-dashboard-index__welcome-message">
-                {{ welcomeSubline }}
-            </p>
-            {% endblock %}
-            {% endblock %}
-        </div>
-        {% endblock %}
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_campaign_banner %}
-        <sw-campaign-property-mapping component-name="dashboardBanner">
-            <template #default="{ mappedProperties }">
-                <div
-                    v-if="mappedProperties"
-                    class="sw-dashboard-index__campaign-banner"
-                >
-                    <sw-campaign-banner v-bind="mappedProperties" />
-                </div>
-            </template>
-        </sw-campaign-property-mapping>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_info_grid %}
-        <div class="sw-dashboard-index__card-grid">
+            {% block sw_dashboard_index_content_intro_card %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_content_info_grid_inner %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_content_info__grid_inner_welcome_card %}
-            <div class="sw-dashboard-index__card sw-dashboard-index__card--bg-checklist">
+            {% block sw_dashboard_index_content_intro_content %}
+            <div class="sw-dashboard-index__welcome-text">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
+                {% block sw_dashboard_index_content_intro %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_info_grid_welcome_headline %}
-                <h2 class="sw-dashboard-index__card-title">
-                    {{ $tc('sw-dashboard.helpcard.headline') }}
-                </h2>
+                {% block sw_dashboard_index_content_intro_content_headline %}
+                <h1 class="sw-dashboard-index__welcome-title">
+                    {{ welcomeMessage }}
+                </h1>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_info_grid_welcome_link_list %}
-                <ul class="sw-dashboard-index__card-list">
-                    <li
-                        v-for="(key, index) in ['helpcenter','takeOffTip','getToKnowSales']"
-                        :key="`helpcardContent-${index}`"
-                        class="sw-dashboard-index__card-list-item"
-                    >
-                        <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
-                            {{ $tc(`sw-dashboard.helpcard.${key}`) }}
-                        </sw-external-link>
-                    </li>
-                </ul>
-                {% endblock %}
-                {% endblock %}
-            </div>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_dashboard_index_content_grid_info_inner_feedback_card %}
-            <div class="sw-dashboard-index__card sw-dashboard-index__card--dimmed">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_info_grid_feedback_card_content %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_feedback_headline %}
-                <h2 class="sw-dashboard-index__card-title">
-                    {{ $tc('sw-dashboard.feedbackCard.headline') }}
-                </h2>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_feedback_text %}
-                <p class="sw-dashboard-index__card-text">
-                    {{ $tc('sw-dashboard.feedbackCard.text') }}
+                {% block sw_dashboard_index_content_intro_welcome_message %}
+                <p class="sw-dashboard-index__welcome-message">
+                    {{ welcomeSubline }}
                 </p>
                 {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_dashboard_index_content_feedback_link %}
-                <sw-external-link
-                    class="sw-dashboard-index__card-button"
-                    :href="$tc('sw-dashboard.feedbackCard.feedbackLink')"
-                >
-                    {{ $tc('sw-dashboard.feedbackCard.feedback') }}
-                </sw-external-link>
-                {% endblock %}
                 {% endblock %}
             </div>
             {% endblock %}
             {% endblock %}
-        </div>
-        {% endblock %}
 
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
-        {% endblock %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_dashboard_index_content_intro_image %}
-        {% endblock %}
-
-        <template v-if="feature.isActive('FEATURE_NEXT_18187')">
-            <sw-dashboard-statistics />
-        </template>
-        <template v-else-if="acl.can('order.viewer')">
-            <template
-                v-if="isLoading"
-                class="sw-dashboard-index__skeleton"
-            >
-                <sw-skeleton variant="detail" />
-                <sw-skeleton variant="detail" />
-            </template>
-
-            <template v-else>
-                <template v-if="hasOrderToday">
-                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline` instead #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_dashboard_index_content_intro_stats_headline %}
-                    <div class="sw-dashboard-index__card-headline">
-
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline_title` instead #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_intro_stats_headline_title %}
-                        <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline_date` instead #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_intro_stats_headline_date %}
-                        <span class="sw-dashboard-index__card-headline-timerange">
-                            {{ formatChartHeadlineDate(today) }}
-                        </span>
-                        {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_campaign_banner %}
+            <sw-campaign-property-mapping component-name="dashboardBanner">
+                <template #default="{ mappedProperties }">
+                    <div
+                        v-if="mappedProperties"
+                        class="sw-dashboard-index__campaign-banner"
+                    >
+                        <sw-campaign-banner v-bind="mappedProperties" />
                     </div>
+                </template>
+            </sw-campaign-property-mapping>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_info_grid %}
+            <div class="sw-dashboard-index__card-grid">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_dashboard_index_content_info_grid_inner %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_dashboard_index_content_info__grid_inner_welcome_card %}
+                <div class="sw-dashboard-index__card sw-dashboard-index__card--bg-checklist">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_info_grid_welcome_headline %}
+                    <h2 class="sw-dashboard-index__card-title">
+                        {{ $tc('sw-dashboard.helpcard.headline') }}
+                    </h2>
                     {% endblock %}
 
-                    <sw-card position-identifier="sw-dashboard-index-statistics-today">
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today` instead #}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_info_grid_welcome_link_list %}
+                    <ul class="sw-dashboard-index__card-list">
+                        <li
+                            v-for="(key, index) in ['helpcenter','takeOffTip','getToKnowSales']"
+                            :key="`helpcardContent-${index}`"
+                            class="sw-dashboard-index__card-list-item"
+                        >
+                            <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
+                                {{ $tc(`sw-dashboard.helpcard.${key}`) }}
+                            </sw-external-link>
+                        </li>
+                    </ul>
+                    {% endblock %}
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_dashboard_index_content_grid_info_inner_feedback_card %}
+                <div class="sw-dashboard-index__card sw-dashboard-index__card--dimmed">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_info_grid_feedback_card_content %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_feedback_headline %}
+                    <h2 class="sw-dashboard-index__card-title">
+                        {{ $tc('sw-dashboard.feedbackCard.headline') }}
+                    </h2>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_feedback_text %}
+                    <p class="sw-dashboard-index__card-text">
+                        {{ $tc('sw-dashboard.feedbackCard.text') }}
+                    </p>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_dashboard_index_content_feedback_link %}
+                    <sw-external-link
+                        class="sw-dashboard-index__card-button"
+                        :href="$tc('sw-dashboard.feedbackCard.feedbackLink')"
+                    >
+                        {{ $tc('sw-dashboard.feedbackCard.feedback') }}
+                    </sw-external-link>
+                    {% endblock %}
+                    {% endblock %}
+                </div>
+                {% endblock %}
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
+            {% endblock %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_dashboard_index_content_intro_image %}
+            {% endblock %}
+
+            <template v-if="feature.isActive('FEATURE_NEXT_18187')">
+                <sw-dashboard-statistics />
+            </template>
+            <template v-else-if="acl.can('order.viewer')">
+                <template
+                    v-if="isLoading"
+                    class="sw-dashboard-index__skeleton"
+                >
+                    <sw-skeleton variant="detail" />
+                    <sw-skeleton variant="detail" />
+                </template>
+
+                <template v-else>
+                    <template v-if="hasOrderToday">
+                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline` instead #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_intro_stats_today %}
-                        <div class="sw-dashboard-index__intro-stats-today">
+                        {% block sw_dashboard_index_content_intro_stats_headline %}
+                        <div class="sw-dashboard-index__card-headline">
 
-                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats` instead #}
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline_title` instead #}
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_dashboard_index_content_intro_stats_today_stats %}
-                            <div
-                                v-if="hasOrderToday"
-                                class="sw-dashboard-index__intro-stats-today-stats"
-                            >
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats_single_count` instead #}
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
-                                <div class="sw-dashboard-index__intro-stats-today-single-stat">
-                                    <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
-                                    <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
-                                </div>
-                                {% endblock %}
+                            {% block sw_dashboard_index_content_intro_stats_headline_title %}
+                            <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+                            {% endblock %}
 
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats_single_sum` instead #}
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline_date` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_intro_stats_headline_date %}
+                            <span class="sw-dashboard-index__card-headline-timerange">
+                                {{ formatChartHeadlineDate(today) }}
+                            </span>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        <sw-card position-identifier="sw-dashboard-index-statistics-today">
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_intro_stats_today %}
+                            <div class="sw-dashboard-index__intro-stats-today">
+
+                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats` instead #}
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
-                                <div class="sw-dashboard-index__intro-stats-today-single-stat">
-                                    <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
-                                    {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                                    <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency(systemCurrencyISOCode, 2) }}</span>
+                                {% block sw_dashboard_index_content_intro_stats_today_stats %}
+                                <div
+                                    v-if="hasOrderToday"
+                                    class="sw-dashboard-index__intro-stats-today-stats"
+                                >
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats_single_count` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
+                                    <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                                        <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
+                                        <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
+                                    </div>
+                                    {% endblock %}
+
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats_single_sum` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
+                                    <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                                        <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
+                                        {# price aggregations do not support currencies yet, see NEXT-5069 #}
+                                        <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency(systemCurrencyISOCode, 2) }}</span>
+                                    </div>
+                                    {% endblock %}
                                 </div>
                                 {% endblock %}
+                            </div>
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_grid %}
+                            <template #grid>
+                                <sw-entity-listing
+                                    v-if="todayOrderDataLoaded"
+                                    :sort-by="todayOrderDataSortBy"
+                                    :sort-direction="todayOrderDataSortDirection"
+                                    :repository="orderRepository"
+                                    :items="todayOrderData"
+                                    :columns="orderGridColumns()"
+                                    :show-selection="false"
+                                    :allow-column-edit="false"
+                                    :full-page="false"
+                                >
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_created_at` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_grid_created_at %}
+                                    <template
+                                        #column-orderDateTime="{ item }"
+                                    >
+                                        {{ item.orderDateTime | date({
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            year: undefined,
+                                            month: undefined,
+                                            day: undefined
+                                        }) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_first_name` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_grid_first_name %}
+                                    <template #column-orderCustomer.firstName="{ item }">
+                                        <router-link
+                                            :to="{ name: 'sw.order.detail', params: { id: item.id } }"
+                                            class="sw-data-grid__cell-value"
+                                        >
+                                            {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                                        </router-link>
+                                    </template>
+                                    {% endblock %}
+
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_short_name` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_grid_short_name %}
+                                    <template
+                                        #column-amountTotal="{ item }"
+                                    >
+                                        {{ item.amountTotal | currency(item.currency.shortName) }}
+                                    </template>
+                                    {% endblock %}
+
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_state` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_grid_state %}
+                                    <template #column-stateMachineState.name="{ item }">
+                                        <sw-label
+                                            :variant="getVariantFromOrderState(item)"
+                                            appearance="pill"
+                                        >
+                                            {{ item.stateMachineState.translated.name }}
+                                        </sw-label>
+                                    </template>
+                                    {% endblock %}
+
+                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_actions` instead #}
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_dashboard_index_content_grid_actions %}
+                                    <template
+                                        #actions="{ item }"
+                                    >
+                                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_actions_view` instead #}
+                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                        {% block sw_dashboard_index_content_grid_actions_view %}
+                                        <sw-context-menu-item
+                                            class="sw-order-list__order-view-action"
+                                            :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
+                                        >
+                                            {{ $tc('sw-order.list.contextMenuView') }}
+                                        </sw-context-menu-item>
+                                        {% endblock %}
+
+                                    </template>
+                                    {% endblock %}
+
+                                </sw-entity-listing>
+
+                                <sw-loader v-else-if="!todayOrderDataLoaded" />
+                            </template>
+                            {% endblock %}
+
+                        </sw-card>
+                    </template>
+
+                    <template v-if="hasOrderInMonth">
+                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline` instead #}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_dashboard_index_content_statistics_headline %}
+                        <div class="sw-dashboard-index__card-headline">
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline_title` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_statistics_headline_title %}
+                            <h1>
+                                {{ $tc('sw-dashboard.monthStats.headline') }}
+                                <span class="sw-dashboard-index__card-headline-timerange">
+                                    ({{ formatChartHeadlineDate(dateAgo) }} - {{ formatChartHeadlineDate(today) }})
+                                </span>
+                            </h1>
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline_date` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_statistics_headline_date %}
+                            <div class="sw-dashboard-index__card-headline-select">
+                                <sw-select-field
+                                    v-model="statisticDateRanges.value"
+                                    size="small"
+                                    @change="getHistoryOrderData"
+                                >
+                                    <option
+                                        v-for="(value, option) in statisticDateRanges.options"
+                                        :key="option"
+                                        :value="option"
+                                    >
+                                        {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
+                                    </option>
+                                </sw-select-field>
                             </div>
                             {% endblock %}
                         </div>
                         {% endblock %}
 
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid` instead #}
+                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count` instead #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_grid %}
-                        <template slot="grid">
-                            <sw-entity-listing
-                                v-if="todayOrderDataLoaded"
-                                :sort-by="todayOrderDataSortBy"
-                                :sort-direction="todayOrderDataSortDirection"
-                                :repository="orderRepository"
-                                :items="todayOrderData"
-                                :columns="orderGridColumns()"
-                                :show-selection="false"
-                                :allow-column-edit="false"
-                                :full-page="false"
-                            >
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_created_at` instead #}
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_grid_created_at %}
-                                <template
-                                    slot="column-orderDateTime"
-                                    slot-scope="{ item }"
-                                >
-                                    {{ item.orderDateTime | date({
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        year: undefined,
-                                        month: undefined,
-                                        day: undefined
-                                    }) }}
-                                </template>
-                                {% endblock %}
-
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_first_name` instead #}
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_grid_first_name %}
-                                <template
-                                    slot="column-orderCustomer.firstName"
-                                    slot-scope="{ item }"
-                                >
-                                    <router-link
-                                        :to="{ name: 'sw.order.detail', params: { id: item.id } }"
-                                        class="sw-data-grid__cell-value"
-                                    >
-                                        {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
-                                    </router-link>
-                                </template>
-                                {% endblock %}
-
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_short_name` instead #}
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_grid_short_name %}
-                                <template
-                                    slot="column-amountTotal"
-                                    slot-scope="{ item }"
-                                >
-                                    {{ item.amountTotal | currency(item.currency.shortName) }}
-                                </template>
-                                {% endblock %}
-
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_state` instead #}
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_grid_state %}
-                                <template
-                                    slot="column-stateMachineState.name"
-                                    slot-scope="{ item }"
-                                >
-                                    <sw-label
-                                        :variant="getVariantFromOrderState(item)"
-                                        appearance="pill"
-                                    >
-                                        {{ item.stateMachineState.translated.name }}
-                                    </sw-label>
-                                </template>
-                                {% endblock %}
-
-                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_actions` instead #}
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_dashboard_index_content_grid_actions %}
-                                <template
-                                    slot="actions"
-                                    slot-scope="{ item }"
-                                >
-                                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_actions_view` instead #}
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_dashboard_index_content_grid_actions_view %}
-                                    <sw-context-menu-item
-                                        class="sw-order-list__order-view-action"
-                                        :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
-                                    >
-                                        {{ $tc('sw-order.list.contextMenuView') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                </template>
-                                {% endblock %}
-
-                            </sw-entity-listing>
-
-                            <sw-loader v-else-if="!todayOrderDataLoaded" />
-                        </template>
-                        {% endblock %}
-
-                    </sw-card>
-                </template>
-
-                <template v-if="hasOrderInMonth">
-                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline` instead #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_dashboard_index_content_statistics_headline %}
-                    <div class="sw-dashboard-index__card-headline">
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline_title` instead #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_statistics_headline_title %}
-                        <h1>
-                            {{ $tc('sw-dashboard.monthStats.headline') }}
-                            <span class="sw-dashboard-index__card-headline-timerange">
-                                ({{ formatChartHeadlineDate(dateAgo) }} - {{ formatChartHeadlineDate(today) }})
-                            </span>
-                        </h1>
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline_date` instead #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_statistics_headline_date %}
-                        <div class="sw-dashboard-index__card-headline-select">
-                            <sw-select-field
-                                v-model="statisticDateRanges.value"
-                                size="small"
-                                @change="getHistoryOrderData"
-                            >
-                                <option
-                                    v-for="(value, option) in statisticDateRanges.options"
-                                    :key="option"
-                                    :value="option"
-                                >
-                                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
-                                </option>
-                            </sw-select-field>
-                        </div>
-                        {% endblock %}
-                    </div>
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count` instead #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_dashboard_index_content_statistics_count %}
-                    <sw-card
-                        class="sw-dashboard-index__statistics-count"
-                        position-identifier="sw-dashboard-index-statistics-count"
-                    >
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count_chart` instead #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_statistics_count_chart_count %}
-                        <sw-chart
-                            type="line"
-                            :series="orderCountSeries"
-                            :options="chartOptionsOrderCount"
-                            :fill-empty-values="getTimeUnitInterval"
-                            sort
-                        />
-                        {% endblock %}
-                    </sw-card>
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum` instead #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_dashboard_index_content_statistics_sum %}
-                    <sw-card
-                        class="sw-dashboard-index__statistics-sum"
-                        position-identifier="sw-dashboard-statistics-sum"
-                    >
-                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum_chart` instead #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_dashboard_index_content_statistics_count_chart_sum %}
-                        <div class="sw-dashboard-index__title">
-                            {{ $tc('sw-dashboard.monthStats.turnover') }}
-                            <sw-help-text
-                                class="sw-dashboard-index__help-text"
-                                :text="$tc('sw-dashboard.monthStats.helperText')"
+                        {% block sw_dashboard_index_content_statistics_count %}
+                        <sw-card
+                            class="sw-dashboard-index__statistics-count"
+                            position-identifier="sw-dashboard-index-statistics-count"
+                        >
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count_chart` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_statistics_count_chart_count %}
+                            <sw-chart
+                                type="line"
+                                :series="orderCountSeries"
+                                :options="chartOptionsOrderCount"
+                                :fill-empty-values="getTimeUnitInterval"
+                                sort
                             />
-                        </div>
-                        <sw-chart
-                            type="line"
-                            :series="orderSumSeries"
-                            :options="chartOptionsOrderSum"
-                            :fill-empty-values="getTimeUnitInterval"
-                            sort
-                        />
+                            {% endblock %}
+                        </sw-card>
                         {% endblock %}
-                    </sw-card>
-                    {% endblock %}
+
+                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum` instead #}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_dashboard_index_content_statistics_sum %}
+                        <sw-card
+                            class="sw-dashboard-index__statistics-sum"
+                            position-identifier="sw-dashboard-statistics-sum"
+                        >
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum_chart` instead #}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_dashboard_index_content_statistics_count_chart_sum %}
+                            <div class="sw-dashboard-index__title">
+                                {{ $tc('sw-dashboard.monthStats.turnover') }}
+                                <sw-help-text
+                                    class="sw-dashboard-index__help-text"
+                                    :text="$tc('sw-dashboard.monthStats.helperText')"
+                                />
+                            </div>
+                            <sw-chart
+                                type="line"
+                                :series="orderSumSeries"
+                                :options="chartOptionsOrderSum"
+                                :fill-empty-values="getTimeUnitInterval"
+                                sort
+                            />
+                            {% endblock %}
+                        </sw-card>
+                        {% endblock %}
+                    </template>
                 </template>
             </template>
-        </template>
-    </sw-card-view>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

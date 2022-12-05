@@ -66,8 +66,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_configurator_prices_column_name %}
                     <template
-                        slot="column-name"
-                        slot-scope="{ item, isInlineEdit, compact }"
+                        #column-name="{ item, isInlineEdit, compact }"
                     >
                         {{ item.option.translated.name }}
                     </template>
@@ -77,8 +76,7 @@
                     {% block sw_product_variants_configurator_prices_column_currency %}
                     <template
                         v-for="currency in currenciesList"
-                        :slot="`column-currency.${currency.id}`"
-                        slot-scope="{ item, isInlineEdit, compact }"
+                        #[`column-currency.${currency.id}`]="{ item, isInlineEdit, compact }"
                     >
 
                         <sw-product-variants-price-field
@@ -94,8 +92,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_variants_configurator_prices_actions %}
                     <template
-                        slot="actions"
-                        slot-scope="{ item }"
+                        #actions="{ item }"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_configurator_prices_actions_items %}

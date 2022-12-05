@@ -6,7 +6,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="country"
             :placeholder="$tc('sw-settings-country.general.placeholderSearchBar')"
@@ -18,7 +18,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_list_smart_bar_header_title %}
         <h2>
@@ -46,7 +46,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_list_smart_bar_actions_add %}
         <sw-button
@@ -68,154 +68,155 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_list_content %}
-    <sw-card-view slot="content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_settings_country_list_content_card %}
-        <sw-card
-            v-if="isLoading || country"
-            position-identifier="sw-settings-country-list"
-        >
+    <template #content>
+        <sw-card-view>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_country_list_grid %}
-            <template #grid>
+            {% block sw_settings_country_list_content_card %}
+            <sw-card
+                v-if="isLoading || country"
+                position-identifier="sw-settings-country-list"
+            >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_country_list_grid_inner %}
-                <sw-entity-listing
-                    ref="swSettingsCountryGrid"
-                    class="sw-settings-country-list-grid"
-                    :items="country"
-                    :columns="getCountryColumns()"
-                    :repository="countryRepository"
-                    :full-page="false"
-                    detail-route="sw.settings.country.detail"
-                    :show-selection="true"
-                    :is-loading="isLoading"
-                    :allow-view="acl.can('country.viewer')"
-                    :allow-edit="acl.can('country.editor')"
-                    :allow-inline-edit="acl.can('country.editor')"
-                    :allow-delete="acl.can('country.deleter')"
-                    @inline-edit-save="onInlineEditSave"
-                >
-
-                    <template #column-active="{ item, isInlineEdit }">
-                        <template v-if="isInlineEdit">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_country_list_columns_active_editor %}
-                            <sw-field
-                                v-model="item.active"
-                                type="checkbox"
-                            />
-                            {% endblock %}
-                        </template>
-                        <template v-else>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_country_list_columns_active_label %}
-                            <sw-icon
-                                v-if="item.active"
-                                name="regular-checkmark-xs"
-                                small
-                                class="is--active"
-                            />
-                            <sw-icon
-                                v-else
-                                name="regular-times-s"
-                                small
-                                class="is--inactive"
-                            />
-                            {% endblock %}
-                        </template>
-                    </template>
-
+                {% block sw_settings_country_list_grid %}
+                <template #grid>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_country_list_grid_columns_actions %}
-                    <template #actions="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_country_list_grid_columns_actions_edit %}
-                        <sw-context-menu-item
-                            :router-link="{ name: 'sw.settings.country.detail', params: { id: item.id, edit: 'edit' }}"
-                            :disabled="!acl.can('country.editor') && !acl.can('country.viewer')"
-                            class="sw-country-list__edit-action"
-                        >
-                            {{ detailPageLinkText }}
-                        </sw-context-menu-item>
-                        {% endblock %}
+                    {% block sw_settings_country_list_grid_inner %}
+                    <sw-entity-listing
+                        ref="swSettingsCountryGrid"
+                        class="sw-settings-country-list-grid"
+                        :items="country"
+                        :columns="getCountryColumns()"
+                        :repository="countryRepository"
+                        :full-page="false"
+                        detail-route="sw.settings.country.detail"
+                        :show-selection="true"
+                        :is-loading="isLoading"
+                        :allow-view="acl.can('country.viewer')"
+                        :allow-edit="acl.can('country.editor')"
+                        :allow-inline-edit="acl.can('country.editor')"
+                        :allow-delete="acl.can('country.deleter')"
+                        @inline-edit-save="onInlineEditSave"
+                    >
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_country_list_grid_columns_actions_delete %}
-                        <sw-context-menu-item
-                            class="sw-country-list__delete-action"
-                            variant="danger"
-                            :disabled="!acl.can('country.deleter')"
-                            @click="onDelete(item.id)"
-                        >
-                            {{ $tc('sw-settings-country.list.contextMenuDelete') }}
-                        </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_country_list_grid_action_modals %}
-                    <template #action-modals="{ item }">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_country_list_delete_modal %}
-                        <sw-modal
-                            v-if="showDeleteModal === item.id"
-                            :title="$tc('global.default.warning')"
-                            variant="small"
-                            @modal-close="onCloseDeleteModal"
-                        >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_country_list_delete_modal_confirm_delete_text %}
-                            <p class="sw-settings-country-list__confirm-delete-text">
-                                {{ $tc('sw-settings-country.list.textDeleteConfirm', 0, { name: item.name }) }}
-                            </p>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_country_list_delete_modal_footer %}
-                            <template #modal-footer>
+                        <template #column-active="{ item, isInlineEdit }">
+                            <template v-if="isInlineEdit">
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_country_list_delete_modal_cancel %}
-                                <sw-button
-                                    size="small"
-                                    @click="onCloseDeleteModal"
-                                >
-                                    {{ $tc('sw-settings-country.list.buttonCancel') }}
-                                </sw-button>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_country_list_delete_modal_confirm %}
-                                <sw-button
-                                    variant="danger"
-                                    size="small"
-                                    @click="onConfirmDelete(item.id)"
-                                >
-                                    {{ $tc('sw-settings-country.list.buttonDelete') }}
-                                </sw-button>
+                                {% block sw_settings_country_list_columns_active_editor %}
+                                <sw-field
+                                    v-model="item.active"
+                                    type="checkbox"
+                                />
                                 {% endblock %}
                             </template>
+                            <template v-else>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_country_list_columns_active_label %}
+                                <sw-icon
+                                    v-if="item.active"
+                                    name="regular-checkmark-xs"
+                                    small
+                                    class="is--active"
+                                />
+                                <sw-icon
+                                    v-else
+                                    name="regular-times-s"
+                                    small
+                                    class="is--inactive"
+                                />
+                                {% endblock %}
+                            </template>
+                        </template>
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_country_list_grid_columns_actions %}
+                        <template #actions="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_country_list_grid_columns_actions_edit %}
+                            <sw-context-menu-item
+                                :router-link="{ name: 'sw.settings.country.detail', params: { id: item.id, edit: 'edit' }}"
+                                :disabled="!acl.can('country.editor') && !acl.can('country.viewer')"
+                                class="sw-country-list__edit-action"
+                            >
+                                {{ detailPageLinkText }}
+                            </sw-context-menu-item>
                             {% endblock %}
-                        </sw-modal>
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_country_list_grid_columns_actions_delete %}
+                            <sw-context-menu-item
+                                class="sw-country-list__delete-action"
+                                variant="danger"
+                                :disabled="!acl.can('country.deleter')"
+                                @click="onDelete(item.id)"
+                            >
+                                {{ $tc('sw-settings-country.list.contextMenuDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
                         {% endblock %}
-                    </template>
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_country_list_grid_action_modals %}
+                        <template #action-modals="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_country_list_delete_modal %}
+                            <sw-modal
+                                v-if="showDeleteModal === item.id"
+                                :title="$tc('global.default.warning')"
+                                variant="small"
+                                @modal-close="onCloseDeleteModal"
+                            >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_country_list_delete_modal_confirm_delete_text %}
+                                <p class="sw-settings-country-list__confirm-delete-text">
+                                    {{ $tc('sw-settings-country.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                </p>
+                                {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_settings_country_list_delete_modal_footer %}
+                                <template #modal-footer>
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_country_list_delete_modal_cancel %}
+                                    <sw-button
+                                        size="small"
+                                        @click="onCloseDeleteModal"
+                                    >
+                                        {{ $tc('sw-settings-country.list.buttonCancel') }}
+                                    </sw-button>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_settings_country_list_delete_modal_confirm %}
+                                    <sw-button
+                                        variant="danger"
+                                        size="small"
+                                        @click="onConfirmDelete(item.id)"
+                                    >
+                                        {{ $tc('sw-settings-country.list.buttonDelete') }}
+                                    </sw-button>
+                                    {% endblock %}
+                                </template>
+                                {% endblock %}
+                            </sw-modal>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-entity-listing>
                     {% endblock %}
-                </sw-entity-listing>
+                </template>
                 {% endblock %}
-            </template>
+            </sw-card>
             {% endblock %}
-        </sw-card>
-        {% endblock %}
-    </sw-card-view>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
     {% endblock %}

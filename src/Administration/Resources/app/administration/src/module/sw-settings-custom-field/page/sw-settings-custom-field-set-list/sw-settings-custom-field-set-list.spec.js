@@ -2,6 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import swSettingsCustomFieldSetList from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
 import 'src/app/component/grid/sw-grid';
+import 'src/app/component/base/sw-card';
 
 Shopware.Component.register('sw-settings-custom-field-set-list', swSettingsCustomFieldSetList);
 
@@ -107,8 +108,10 @@ async function createWrapper(privileges = []) {
             'sw-pagination': true,
             'sw-empty-state': true,
             'router-link': true,
-            'sw-card': true,
-            'sw-card-view': true
+            'sw-card': await Shopware.Component.build('sw-card'),
+            'sw-card-view': true,
+            'sw-ignore-class': true,
+            'sw-extension-component-section': true,
         }
     });
 }

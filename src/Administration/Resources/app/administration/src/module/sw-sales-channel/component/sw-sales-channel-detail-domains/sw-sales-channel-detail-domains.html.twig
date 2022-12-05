@@ -52,8 +52,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_url %}
             <template
-                slot="column-url"
-                slot-scope="{ item }"
+                #column-url="{ item }"
             >
                 {{ item.url|unicodeUri }}
             </template>
@@ -62,8 +61,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_language_id %}
             <template
-                slot="column-languageId"
-                slot-scope="{ item, isInlineEdit}"
+                #column-languageId="{ item, isInlineEdit}"
             >
                 {{ item.language.name }}
             </template>
@@ -72,8 +70,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_currency_id %}
             <template
-                slot="column-currencyId"
-                slot-scope="{ item, isInlineEdit}"
+                #column-currencyId="{ item, isInlineEdit}"
             >
                 {{ item.currency.translated.name }}
             </template>
@@ -82,8 +79,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
             <template
-                slot="column-snippetSetId"
-                slot-scope="{ item, isInlineEdit}"
+                #column-snippetSetId="{ item, isInlineEdit}"
             >
                 {{ item.snippetSet.name }}
             </template>
@@ -206,7 +202,7 @@
         {% endblock %}
         {% endblock %}
 
-        <template slot="modal-footer">
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
             <sw-button
@@ -248,7 +244,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
             <sw-button

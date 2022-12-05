@@ -158,8 +158,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_type %}
                 <template
-                    slot="column-type"
-                    slot-scope="{ item, itemIndex, compact }"
+                    #column-type="{ item, itemIndex, compact }"
                 >
                     <div class="sw-product-detail-context-prices__type-label">
                         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
@@ -179,8 +178,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
                 <template
-                    slot="column-quantityStart"
-                    slot-scope="{ item, itemIndex, compact }"
+                    #column-quantityStart="{ item, itemIndex, compact }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
@@ -202,8 +200,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end %}
                 <template
-                    slot="column-quantityEnd"
-                    slot-scope="{ item, itemIndex, compact }"
+                    #column-quantityEnd="{ item, itemIndex, compact }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
@@ -227,8 +224,7 @@
                 {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                 <template
                     v-for="currency in currencies"
-                    :slot="`column-price-${currency.isoCode}`"
-                    slot-scope="{ item, column, compact }"
+                    #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
                 >
                     <template v-if="showListPrices[priceGroup.ruleId] === false">
                         <div
@@ -295,8 +291,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_prices_price_card_price_group_grid_actions %}
                 <template
-                    slot="actions"
-                    slot-scope="{ item }"
+                    #actions="{ item }"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -3,10 +3,10 @@
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_language_switch %}
-<sw-language-switch
-    slot="language-switch"
-    disabled
-/>
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #language-switch>
+    <sw-language-switch disabled />
+</template>
 {% endblock %}
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

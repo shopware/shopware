@@ -4,14 +4,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2>{{ placeholder(review, 'title', $tc('sw-review.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_review_detail_actions_abort %}
@@ -42,7 +42,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_review_detail_content %}
-    <template slot="content">
+    <template #content>
         <sw-card-view>
             <template v-if="isLoading">
                 <sw-skeleton />
@@ -61,7 +61,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_customer_card_rows %}
-                    <template slot="grid">
+                    <template #grid>
                         <sw-container rows="auto auto">
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

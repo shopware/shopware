@@ -168,18 +168,19 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
-                    <sw-button
-                        slot="button"
-                        square
-                        variant="primary"
-                        size="small"
-                        :disabled="!documentPreconditionsFulfilled"
-                    >
-                        <sw-icon
-                            name="regular-chevron-down-xs"
-                            size="16"
-                        />
-                    </sw-button>
+                    <template #button>
+                        <sw-button
+                            square
+                            variant="primary"
+                            size="small"
+                            :disabled="!documentPreconditionsFulfilled"
+                        >
+                            <sw-icon
+                                name="regular-chevron-down-xs"
+                                size="16"
+                            />
+                        </sw-button>
+                    </template>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

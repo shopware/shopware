@@ -4,6 +4,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swCategoryDetail from 'src/module/sw-category/page/sw-category-detail';
+import 'src/app/component/sidebar/sw-sidebar-collapse';
+import 'src/app/component/base/sw-collapse';
 
 Shopware.Component.register('sw-category-detail', swCategoryDetail);
 
@@ -24,8 +26,10 @@ async function createWrapper(privileges = []) {
             'sw-category-tree': true,
             'sw-button': true,
             'sw-button-process': true,
-            'sw-sidebar-collapse': true,
-            'sw-landing-page-tree': true
+            'sw-sidebar-collapse': await Shopware.Component.build('sw-sidebar-collapse'),
+            'sw-collapse': await Shopware.Component.build('sw-collapse'),
+            'sw-landing-page-tree': true,
+            'sw-icon': true,
         },
         provide: {
             acl: {

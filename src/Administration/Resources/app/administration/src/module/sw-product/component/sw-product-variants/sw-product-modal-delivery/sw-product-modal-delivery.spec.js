@@ -4,6 +4,7 @@
 
 import { shallowMount } from '@vue/test-utils';
 import swProductModalDelivery from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
+import 'src/app/component/base/sw-modal';
 
 Shopware.Component.register('sw-product-modal-delivery', swProductModalDelivery);
 
@@ -21,14 +22,19 @@ async function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            }
+            },
+            shortcutService: {
+                startEventListener: () => {},
+                stopEventListener: () => {},
+            },
         },
         stubs: {
-            'sw-modal': true,
+            'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-tabs': true,
             'sw-tabs-item': true,
             'sw-product-variants-delivery-order': true,
-            'sw-button': true
+            'sw-button': true,
+            'sw-icon': true,
         }
     });
 }

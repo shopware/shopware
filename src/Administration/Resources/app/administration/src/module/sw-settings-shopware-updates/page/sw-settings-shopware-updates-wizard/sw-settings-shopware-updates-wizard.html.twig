@@ -3,7 +3,7 @@
 <sw-page class="sw-settings-shopware-updates-wizard">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shopware_updates_wizard_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="updateInfo.version">
             {{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}
         </h2>
@@ -15,7 +15,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shopware_updates_wizard_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <div
             :key="updatePossible"
             v-tooltip="updateButtonTooltip"
@@ -33,7 +33,7 @@
     </template>
     {% endblock %}
 
-    <template slot="content">
+    <template #content>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shopware_updates_wizard_content %}
         <sw-card-view v-if="isLoading || updateInfo.version">
@@ -110,7 +110,7 @@
                 {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
             </template>
 
-            <template slot="modal-footer">
+            <template #modal-footer>
                 <sw-checkbox-field
                     v-model="checkedBackupCheckbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"

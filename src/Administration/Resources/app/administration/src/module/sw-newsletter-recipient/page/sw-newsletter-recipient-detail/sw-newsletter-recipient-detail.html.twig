@@ -3,7 +3,7 @@
 <sw-page class="sw-newsletter-recipient-detail">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_detail_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <h2 v-if="newsletterRecipient">
             {{ newsletterRecipient.email }}
         </h2>
@@ -12,7 +12,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_detail_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipient_detail_actions_edit %}
         <sw-button
@@ -29,145 +29,147 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_detail_content %}
-    <sw-card-view slot="content">
-        <template v-if="isLoading">
-            <sw-skeleton />
-            <sw-skeleton />
-        </template>
+    <template #content>
+        <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-        <sw-card
-            v-else-if="newsletterRecipient"
-            position-identifier="sw-newsletter-recipient-detail"
-            :title="$tc('sw-newsletter-recipient.general.information')"
-        >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_newsletter_recipient_detail_form %}
-
-            <sw-container
-                columns="1fr 1fr"
-                gap="10px"
+            <sw-card
+                v-else-if="newsletterRecipient"
+                position-identifier="sw-newsletter-recipient-detail"
+                :title="$tc('sw-newsletter-recipient.general.information')"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_newsletter_recipient_detail_form_salutation %}
-                <sw-entity-single-select
-                    v-model="newsletterRecipient.salutationId"
+                {% block sw_newsletter_recipient_detail_form %}
+
+                <sw-container
+                    columns="1fr 1fr"
+                    gap="10px"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_newsletter_recipient_detail_form_salutation %}
+                    <sw-entity-single-select
+                        v-model="newsletterRecipient.salutationId"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                        :label="$tc('sw-newsletter-recipient.general.salutation')"
+                        label-property="displayName"
+                        entity="salutation"
+                        show-clearable-button
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_newsletter_recipient_detail_form_title %}
+                    <sw-field
+                        v-model="newsletterRecipient.title"
+                        :label="$tc('sw-newsletter-recipient.list.title')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                <sw-container
+                    columns="1fr 1fr"
+                    gap="10px"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_newsletter_recipient_detail_form_first_name %}
+                    <sw-field
+                        v-model="newsletterRecipient.firstName"
+                        :label="$tc('sw-newsletter-recipient.list.firstName')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_newsletter_recipient_detail_form_last_name %}
+                    <sw-field
+                        v-model="newsletterRecipient.lastName"
+                        :label="$tc('sw-newsletter-recipient.list.lastName')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_newsletter_recipient_detail_form_email %}
+                <sw-field
+                    v-model="newsletterRecipient.email"
+                    :label="$tc('sw-newsletter-recipient.list.email')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
-                    :label="$tc('sw-newsletter-recipient.general.salutation')"
-                    label-property="displayName"
-                    entity="salutation"
+                />
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_newsletter_recipient_detail_form_street %}
+                <sw-field
+                    v-model="newsletterRecipient.street"
+                    :label="$tc('sw-newsletter-recipient.list.street')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                />
+                {% endblock %}
+
+                <sw-container
+                    columns="1fr 1fr"
+                    gap="10px"
+                >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_newsletter_recipient_detail_form_zip_code %}
+                    <sw-field
+                        v-model="newsletterRecipient.zipCode"
+                        :label="$tc('sw-newsletter-recipient.list.zipCode')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_newsletter_recipient_detail_form_city %}
+                    <sw-field
+                        v-model="newsletterRecipient.city"
+                        :label="$tc('sw-newsletter-recipient.list.city')"
+                        :disabled="!acl.can('newsletter_recipient.editor')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_newsletter_recipient_detail_form_language %}
+                <sw-entity-single-select
+                    v-model="newsletterRecipient.languageId"
+                    :label="$tc('sw-newsletter-recipient.general.language')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                    entity="language"
                     show-clearable-button
                 />
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_newsletter_recipient_detail_form_title %}
-                <sw-field
-                    v-model="newsletterRecipient.title"
-                    :label="$tc('sw-newsletter-recipient.list.title')"
-                    :disabled="!acl.can('newsletter_recipient.editor')"
-                />
-                {% endblock %}
-            </sw-container>
-
-            <sw-container
-                columns="1fr 1fr"
-                gap="10px"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_newsletter_recipient_detail_form_first_name %}
-                <sw-field
-                    v-model="newsletterRecipient.firstName"
-                    :label="$tc('sw-newsletter-recipient.list.firstName')"
-                    :disabled="!acl.can('newsletter_recipient.editor')"
+                {% block sw_newsletter_recipient_detail_form_sales_channel %}
+                <sw-entity-single-select
+                    v-model="newsletterRecipient.salesChannelId"
+                    :label="$tc('sw-newsletter-recipient.general.salesChannel')"
+                    label-property="name"
+                    :disabled="true"
+                    entity="sales_channel"
+                    show-clearable-button
                 />
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_newsletter_recipient_detail_form_last_name %}
-                <sw-field
-                    v-model="newsletterRecipient.lastName"
-                    :label="$tc('sw-newsletter-recipient.list.lastName')"
-                    :disabled="!acl.can('newsletter_recipient.editor')"
-                />
-                {% endblock %}
-            </sw-container>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_newsletter_recipient_detail_form_email %}
-            <sw-field
-                v-model="newsletterRecipient.email"
-                :label="$tc('sw-newsletter-recipient.list.email')"
-                :disabled="!acl.can('newsletter_recipient.editor')"
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_newsletter_recipient_detail_form_street %}
-            <sw-field
-                v-model="newsletterRecipient.street"
-                :label="$tc('sw-newsletter-recipient.list.street')"
-                :disabled="!acl.can('newsletter_recipient.editor')"
-            />
-            {% endblock %}
-
-            <sw-container
-                columns="1fr 1fr"
-                gap="10px"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_newsletter_recipient_detail_form_zip_code %}
-                <sw-field
-                    v-model="newsletterRecipient.zipCode"
-                    :label="$tc('sw-newsletter-recipient.list.zipCode')"
+                {% block sw_newsletter_recipient_detail_form_tags %}
+                <sw-entity-tag-select
+                    v-model="newsletterRecipient.tags"
+                    :label="$tc('sw-newsletter-recipient.general.tags')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_newsletter_recipient_detail_form_city %}
-                <sw-field
-                    v-model="newsletterRecipient.city"
-                    :label="$tc('sw-newsletter-recipient.list.city')"
-                    :disabled="!acl.can('newsletter_recipient.editor')"
-                />
                 {% endblock %}
-            </sw-container>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_newsletter_recipient_detail_form_language %}
-            <sw-entity-single-select
-                v-model="newsletterRecipient.languageId"
-                :label="$tc('sw-newsletter-recipient.general.language')"
-                :disabled="!acl.can('newsletter_recipient.editor')"
-                entity="language"
-                show-clearable-button
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_newsletter_recipient_detail_form_sales_channel %}
-            <sw-entity-single-select
-                v-model="newsletterRecipient.salesChannelId"
-                :label="$tc('sw-newsletter-recipient.general.salesChannel')"
-                label-property="name"
-                :disabled="true"
-                entity="sales_channel"
-                show-clearable-button
-            />
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_newsletter_recipient_detail_form_tags %}
-            <sw-entity-tag-select
-                v-model="newsletterRecipient.tags"
-                :label="$tc('sw-newsletter-recipient.general.tags')"
-                :disabled="!acl.can('newsletter_recipient.editor')"
-            />
-            {% endblock %}
-
-            {% endblock %}
-        </sw-card>
-    </sw-card-view>
+            </sw-card>
+        </sw-card-view>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

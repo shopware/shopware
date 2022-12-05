@@ -41,10 +41,9 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_template_modal_notification %}
-            <slot>
-                <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
-            </slot>
-            <slot slot="modal-footer">
+            <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
+
+            <template #modal-footer>
                 <sw-button
                     size="small"
                     @click="$emit('template-modal-close')"
@@ -58,7 +57,7 @@
                 >
                     {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-confirm') }}
                 </sw-button>
-            </slot>
+            </template>
             {% endblock %}
         </sw-modal>
         {% endblock %}
@@ -792,7 +791,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_options_delete_modal_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
                 <sw-button

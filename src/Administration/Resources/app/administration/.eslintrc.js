@@ -169,6 +169,8 @@ module.exports = {
                 }],
                 'vue/v-slot-style': 'error',
                 'vue/attributes-order': 'error',
+                'vue/no-deprecated-slot-attribute': ['error'],
+                'vue/no-deprecated-slot-scope-attribute': ['error'],
                 'sw-deprecation-rules/no-twigjs-blocks': 'error',
             },
         }, {

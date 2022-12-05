@@ -5,7 +5,6 @@ import Vue from 'vue';
 import '@testing-library/jest-dom';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import failOnConsole from 'jest-fail-on-console';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -111,21 +110,67 @@ global.allowedErrors = [
 
 global.flushPromises = flushPromises;
 
-process.on('unhandledRejection', (err) => {
-    // eslint-disable-next-line no-undef
-    console.error(err);
-});
+let consoleHasErrorOrWarning = false;
+const { error, warn } = console;
 
-failOnConsole({
-    silenceMessage: (errorMessage, method) => global.allowedErrors.some(allowedError => {
-        if (allowedError.method !== method) {
-            return false;
+global.console.error = (...args) => {
+    let silenceError = false;
+    // eslint-disable-next-line array-callback-return
+    global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== 'error') {
+            return;
         }
 
         if (typeof allowedError.msg === 'string') {
-            return errorMessage.includes(allowedError.msg);
+            silenceError = args[0].includes(allowedError.msg);
+
+            return;
         }
 
-        return allowedError.msg.test(errorMessage);
-    }),
+        silenceError = allowedError.msg.test(args[0]);
+    });
+
+    if (!silenceError) {
+        consoleHasErrorOrWarning = true;
+    }
+
+    error(...args);
+};
+
+global.console.warn = (...args) => {
+    let silenceWarn = false;
+    // eslint-disable-next-line array-callback-return
+    global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== 'warn') {
+            return;
+        }
+
+        console.log(allowedError.msg, args[0]);
+
+        if (typeof allowedError.msg === 'string') {
+            silenceWarn = args[0].includes(allowedError.msg);
+
+            return;
+        }
+
+        silenceWarn = allowedError.msg.test(args[0]);
+    });
+
+    if (!silenceWarn) {
+        consoleHasErrorOrWarning = true;
+    }
+
+    warn(...args);
+};
+
+beforeEach(() => {
+    if (consoleHasErrorOrWarning) {
+        consoleHasErrorOrWarning = false;
+    }
+});
+
+afterEach(() => {
+    if (consoleHasErrorOrWarning) {
+        throw new Error('console.error and console.warn are not allowed');
+    }
 });

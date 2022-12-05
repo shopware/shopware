@@ -1,7 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_assignment %}
 <div class="sw-property-assignment">
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_assignment_search_field %}
     <sw-property-search
@@ -28,8 +27,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_assignment_grid_columns %}
         <template
-            slot="columns"
-            slot-scope="{ item }"
+            #columns="{ item }"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -74,7 +72,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_assignment_empty_state %}
-        <template slot="empty">
+        <template #empty>
             <sw-empty-state
                 v-if="!isLoading"
                 :title="$tc('sw-property-assignment.messageEmptyTitle')"
@@ -87,7 +85,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_assignment_empty_state_no_options %}
-    <template slot="empty">
+    <template>
         <sw-empty-state
             v-if="!isLoading"
             :title="$tc('sw-property-assignment.messageEmptyTitle')"

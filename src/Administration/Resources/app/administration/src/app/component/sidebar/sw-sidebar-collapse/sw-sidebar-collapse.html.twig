@@ -4,7 +4,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_collapse_panel_header_slot %}
 <template
-    slot="header"
     class="sw-sidebar-collapse__header"
 >
 
@@ -60,7 +59,8 @@
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_collapse_panel_content_template %}
-<template slot="content">
+<!-- eslint-disable-next-line vue/valid-v-slot -->
+<template #content>
     <slot name="content">
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

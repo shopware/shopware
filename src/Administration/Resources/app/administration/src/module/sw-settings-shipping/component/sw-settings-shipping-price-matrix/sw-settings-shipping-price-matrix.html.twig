@@ -109,8 +109,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
         <template
-            slot="column-calculationRule"
-            slot-scope="{ item, itemIndex, compact }"
+            #column-calculationRule="{ item, itemIndex, compact }"
         >
             <sw-select-rule-create
                 class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
@@ -138,8 +137,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
         <template
-            slot="column-quantityStart"
-            slot-scope="{ item, itemIndex, compact }"
+            #column-quantityStart="{ item, itemIndex, compact }"
         >
             <sw-number-field
                 v-model="item.quantityStart"
@@ -156,8 +154,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
         <template
-            slot="column-quantityEnd"
-            slot-scope="{ item, itemIndex, compact }"
+            #column-quantityEnd="{ item, itemIndex, compact }"
         >
             <sw-number-field
                 v-model="item.quantityEnd"
@@ -177,8 +174,7 @@
         {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
         <template
             v-for="currency in currencies"
-            :slot="`column-price-${currency.isoCode}`"
-            slot-scope="{ item, column, compact }"
+            #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
         >
             <sw-inherit-wrapper
                 :key="currency.isoCode"
@@ -314,7 +310,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
             <sw-button

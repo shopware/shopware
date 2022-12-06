@@ -4,3 +4,4 @@ issue: NEXT-21203
 ---
 # Core
 * Removed deprecations ins Core/Framework/Adapter
+* Removed deprecations ins Core/Framework/App

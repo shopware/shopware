@@ -118,8 +118,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Name e2e').should('be.visible');
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: can edit number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: can edit number range with ACL', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -137,7 +136,7 @@ describe('Number Range: Test acl privileges', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            url: '/api/search/number-range/*',
+            url: '/api/number-range/*',
             method: 'PATCH'
         }).as('saveData');
         cy.intercept({
@@ -163,8 +162,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Cancellations update').should('be.visible');
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: can delete number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: can delete number range with ACL', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -182,7 +180,7 @@ describe('Number Range: Test acl privileges', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            url: '/api/search/number-range/*',
+            url: '/api/number-range/*',
             method: 'delete'
         }).as('deleteData');
 

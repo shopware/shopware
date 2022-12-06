@@ -101,9 +101,16 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         return $wishlistIds->firstId() ?? Uuid::randomHex();
     }
 
+    /**
+     * @return array<array{id: string, productId?: string, productVersionId?: Defaults::LIVE_VERSION}>
+     */
     private function buildUpsertProducts(RequestDataBag $data, string $wishlistId, SalesChannelContext $context): array
     {
         $ids = array_unique(array_filter($data->get('productIds')->all()));
+
+        if (\count($ids) === 0) {
+            return [];
+        }
 
         /** @var array<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
@@ -122,11 +129,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
                 continue;
             }
 
-            $upsertData[] = array_filter([
+            $upsertData[] = [
                 'id' => Uuid::randomHex(),
                 'productId' => $id,
                 'productVersionId' => Defaults::LIVE_VERSION,
-            ]);
+            ];
         }
 
         return $upsertData;
@@ -134,6 +141,8 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
     /**
      * @param array<string> $productIds
+     *
+     * @return array<string, string>
      */
     private function loadCustomerProducts(string $wishlistId, array $productIds): array
     {
@@ -149,6 +158,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
         $result = $query->executeQuery();
 
-        return $result->fetchAllKeyValue();
+        /** @var array<string, string> $values */
+        $values = $result->fetchAllKeyValue();
+
+        return $values;
     }
 }

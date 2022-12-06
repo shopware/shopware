@@ -25,35 +25,17 @@ class MergeWishlistProductRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EntityRepository|null
-     */
-    private $wishlistProductRepository;
+    private EntityRepository $wishlistProductRepository;
 
     protected function setUp(): void
     {
@@ -110,7 +92,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertSame($productData, $wishlistProduct->getEntities()->first()->getProductId());
@@ -136,7 +117,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertCount(2, $wishlistProduct->getEntities());
@@ -163,7 +143,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertCount(2, $wishlistProduct->getEntities());
@@ -190,7 +169,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertEquals('Forbidden', $errors['title']);
         static::assertEquals('Customer is not logged in.', $errors['detail']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertNull($wishlistProduct->getEntities()->first());
@@ -217,7 +195,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertEquals('Forbidden', $errors['title']);
         static::assertEquals('Wishlist is not activated!', $errors['detail']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertNull($wishlistProduct->getEntities()->first());
@@ -239,7 +216,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertNull($wishlistProduct->getEntities()->first());
@@ -265,7 +241,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertSame($productData, $wishlistProduct->getEntities()->first()->getProductId());
@@ -291,7 +266,6 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertCount(2, $wishlistProduct->getEntities());
@@ -316,11 +290,55 @@ class MergeWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
 
-        static::assertNotNull($this->wishlistProductRepository);
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNotNull($wishlistProduct);
         static::assertCount(1, $wishlistProduct->getEntities());
         static::assertSame($alreadyProductData, $wishlistProduct->getEntities()->first()->getProductId());
+    }
+
+    public function testMergeProductsWithEmptyWishlistAndEmptyMergeRequest(): void
+    {
+        $this->createCustomerWishlist();
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/customer/wishlist/merge',
+                [
+                    'productIds' => [],
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertTrue($response['success']);
+
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertNotNull($wishlistProduct);
+        static::assertCount(0, $wishlistProduct->getEntities());
+    }
+
+    public function testMergeProductsWithNonEmptyWishlistAndEmptyMergeRequest(): void
+    {
+        $productData = $this->createProduct($this->context);
+        $this->createCustomerWishlist($productData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/customer/wishlist/merge',
+                [
+                    'productIds' => [],
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertTrue($response['success']);
+
+        $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
+        static::assertNotNull($wishlistProduct);
+        static::assertCount(1, $wishlistProduct->getEntities());
     }
 
     private function createProduct(Context $context): string
@@ -345,23 +363,26 @@ class MergeWishlistProductRouteTest extends TestCase
         return $productId;
     }
 
-    private function createCustomerWishlist(string $productId): string
+    private function createCustomerWishlist(?string $productId = null): string
     {
         $customerWishlistId = Uuid::randomHex();
         $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
 
-        $customerWishlistRepository->create([
-            [
-                'id' => $customerWishlistId,
-                'customerId' => $this->customerId,
-                'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
-                'products' => [
-                    [
-                        'productId' => $productId,
-                    ],
+        $data = [
+            'id' => $customerWishlistId,
+            'customerId' => $this->customerId,
+            'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
+        ];
+
+        if ($productId !== null) {
+            $data['products'] = [
+                [
+                    'productId' => $productId,
                 ],
-            ],
-        ], $this->context);
+            ];
+        }
+
+        $customerWishlistRepository->create([$data], $this->context);
 
         return $customerWishlistId;
     }

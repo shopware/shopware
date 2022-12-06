@@ -168,7 +168,8 @@
             border-bottom: 1px solid $color-crimson-300;
         }
 
-        .sw-flow-sequence-action__title {
+        .sw-flow-sequence-action__title,
+        .sw-flow-sequence-action__description {
             color: $color-crimson-500;
         }
 

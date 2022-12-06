@@ -20,7 +20,7 @@ describe('Checkout: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic checkout workflow', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@visual: check appearance of basic checkout workflow', { tags: ['pa-checkout'] }, () => {
         cy.window().then((win) => {
             const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();
@@ -60,7 +60,7 @@ describe('Checkout: Visual tests', () => {
             // close offcanvas again
             cy.contains('Continue shopping').click();
             // verify offcanvas is closed
-            cy.get('.offcanvas').should('not.be.visible');
+            cy.get('.offcanvas').should('not.exist');
 
             // wait for cart info
             cy.wait('@cartInfo').its('response.statusCode').should('within', 200, 204);

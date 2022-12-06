@@ -21869,41 +21869,6 @@ parameters:
 			path: src/Core/System/Test/NumberRange/ValueGenerator/IncrementRedisStorageTest.php
 
 		-
-			message: "#^Cannot call method getLineItems\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Cannot call method getToken\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:getPrePaymentMethodId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:\\$events type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/Entity/SalesChannelDefinitionTest.php

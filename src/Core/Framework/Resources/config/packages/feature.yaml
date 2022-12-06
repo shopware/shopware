@@ -85,11 +85,6 @@ shopware:
         major: true
         description: "Improve orders UX in Administration"
         # issue: NEXT-7530
-      - name: FEATURE_NEXT_16824
-        default: false
-        major: true
-        description: "Cart merged event"
-        # issue: NEXT-16824
       - name: FEATURE_NEXT_16271
         default: false
         major: true
@@ -130,11 +125,6 @@ shopware:
         major: true
         description: "Require positionIdentifier for some components"
         # issue: NEXT-18129
-      - name: FEATURE_NEXT_19163
-        default: false
-        major: true
-        description: "one to one inheritance"
-        # issue: NEXT-19163
       - name: FEATURE_NEXT_18187
         default: false
         major: true

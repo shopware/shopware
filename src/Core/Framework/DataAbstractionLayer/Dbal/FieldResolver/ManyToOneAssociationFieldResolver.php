@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -107,12 +106,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         $fk = $definition->getFields()->getByStorageName($field->getStorageName());
 
         if (!$fk) {
-            //@internal remove "else" part, we should throw an exception here
-            if (Feature::isActive('FEATURE_NEXT_19163')) {
-                throw new \RuntimeException(sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
-            }
-
-            return $inherited;
+            throw new \RuntimeException(sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
         }
 
         if ($fk instanceof IdField && $field->is(PrimaryKey::class)) {

@@ -58,6 +58,9 @@ class SalesChannelContextRestorerTest extends TestCase
 
     private CartService $cartService;
 
+    /**
+     * @var array<string, Event>
+     */
     private array $events;
 
     private \Closure $callbackFn;
@@ -230,9 +233,11 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertCount(1, $cart->getLineItems());
         $this->getContainer()->get(CartPersister::class)->save($cart, $customerContext);
 
-        $this->getContainer()->get('product.repository')->delete([[
-            'id' => $productId,
-        ]], $customerContext->getContext());
+        $this->getContainer()->get('product.repository')->delete([
+            [
+                'id' => $productId,
+            ],
+        ], $customerContext->getContext());
 
         $guestContext = $this->createSalesChannelContext('123123', []);
 
@@ -296,9 +301,11 @@ class SalesChannelContextRestorerTest extends TestCase
         $this->getContainer()->get(CartPersister::class)->save($cart, $customerContext);
 
         // Delete 1 saved item
-        $this->getContainer()->get('product.repository')->delete([[
-            'id' => $productId3,
-        ]], $customerContext->getContext());
+        $this->getContainer()->get('product.repository')->delete([
+            [
+                'id' => $productId3,
+            ],
+        ], $customerContext->getContext());
 
         $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
 
@@ -314,6 +321,9 @@ class SalesChannelContextRestorerTest extends TestCase
         $cartMergedEvent = $this->events[CartMergedEvent::class];
         static::assertInstanceOf(CartMergedEvent::class, $cartMergedEvent);
 
+        static::assertNotNull($cartMergedEvent->getPreviousCart());
+        static::assertNotNull($cartMergedEvent->getCart());
+
         static::assertEquals(1, $cartMergedEvent->getPreviousCart()->getLineItems()->count());
         static::assertEquals($cartMergedEvent->getCart()->getName(), $cartMergedEvent->getPreviousCart()->getName());
         static::assertEquals($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
@@ -326,7 +336,6 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testCartMergedEventIsFiredWithCustomerCart(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16824', $this);
         Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $currentContextToken = Random::getAlphanumericString(32);
@@ -373,6 +382,9 @@ class SalesChannelContextRestorerTest extends TestCase
 
         /** @var CartMergedEvent $event */
         $event = $this->events[CartMergedEvent::class];
+
+        static::assertNotNull($event->getPreviousCart());
+        static::assertNotNull($event->getCart());
 
         static::assertEquals(0, $event->getPreviousCart()->getLineItems()->count());
         static::assertEquals($event->getCart()->getName(), $event->getPreviousCart()->getName());
@@ -491,20 +503,23 @@ class SalesChannelContextRestorerTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
-    private function getStateId(string $state, string $machine)
+    private function getStateId(string $state, string $machine): ?string
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchOne('
+            ->fetchOne(
+                '
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine
                     ON state_machine.id = state_machine_state.state_machine_id
                     AND state_machine.technical_name = :machine
                 WHERE state_machine_state.technical_name = :state
-            ', [
-                'state' => $state,
-                'machine' => $machine,
-            ]);
+            ',
+                [
+                    'state' => $state,
+                    'machine' => $machine,
+                ]
+            );
     }
 
     private function getPrePaymentMethodId(): string
@@ -517,7 +532,10 @@ class SalesChannelContextRestorerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        static::assertIsString($id);
+
+        return $id;
     }
 
     private function createProduct(Context $context): string
@@ -543,6 +561,9 @@ class SalesChannelContextRestorerTest extends TestCase
         return $productId;
     }
 
+    /**
+     * @param array<mixed> $salesChannelData
+     */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId = null): SalesChannelContext
     {
         if ($customerId) {

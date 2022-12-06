@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -212,18 +211,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
-        if (Feature::isActive('FEATURE_NEXT_22900')) {
-            return $this->searchQueryBuilder->build($criteria, $context);
-        }
-
-        $query = parent::buildTermQuery($context, $criteria);
-
-        $query->add(
-            new MatchQuery('description', (string) $criteria->getTerm()),
-            BoolQuery::SHOULD
-        );
-
-        return $query;
+        return $this->searchQueryBuilder->build($criteria, $context);
     }
 
     /**
@@ -334,11 +322,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
             ];
-
-            if (!Feature::isActive('FEATURE_NEXT_22900')) {
-                $document['fullText'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
-                $document['fullTextBoosted'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
-            }
 
             if ($item['cheapest_price_accessor']) {
                 $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);

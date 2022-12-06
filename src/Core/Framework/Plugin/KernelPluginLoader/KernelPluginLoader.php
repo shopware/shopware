@@ -18,7 +18,10 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 abstract class KernelPluginLoader extends Bundle
 {
-    protected array $pluginInfos = [];
+    /**
+     * @var array<int, mixed>
+     */
+    protected $pluginInfos = [];
 
     private ClassLoader $classLoader;
 
@@ -49,6 +52,7 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
+     * @return array<int, mixed>
      * Basic information required for instantiating the plugins
      */
     final public function getPluginInfos(): array
@@ -57,13 +61,20 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
+     * @final
      * Instances of the plugin bundle classes
      */
-    final public function getPluginInstances(): KernelPluginCollection
+    public function getPluginInstances(): KernelPluginCollection
     {
         return $this->pluginInstances;
     }
 
+    /**
+     * @param array<string, mixed> $kernelParameters
+     * @param array<int, string> $loadedBundles
+     *
+     * @return \Traversable<Bundle>
+     */
     final public function getBundles(array $kernelParameters = [], array $loadedBundles = []): iterable
     {
         if (!$this->initialized) {
@@ -221,7 +232,11 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
+     * @param array<string> $psr
+     *
      * @throws KernelPluginLoaderException
+     *
+     * @return array<string>
      */
     private function mapPsrPaths(string $plugin, array $psr, string $projectDir, string $pluginRootPath): array
     {

@@ -62,92 +62,87 @@ describe('Checkout: Proceed checkout using various customers', () => {
                 const price = customer.displayGross ? product.price[0].gross : product.price[0].net;
                 const vatSnippet = customer.displayGross ? 'incl. VAT' : 'excl. VAT';
 
-                cy.window().then((win) => {
-                    /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-                    const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+                // Login
+                cy.get(accountPage.elements.loginCard).should('be.visible');
+                cy.get('#loginMail').typeAndCheckStorefront('tester@example.com');
+                cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+                cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
-                    // Login
-                    cy.get(accountPage.elements.loginCard).should('be.visible');
-                    cy.get('#loginMail').typeAndCheckStorefront('tester@example.com');
-                    cy.get('#loginPassword').typeAndCheckStorefront('shopware');
-                    cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
-
-                    // Add new address and choose is as default shipping if necessary
-                    if (customer.firstName === 'Differing') {
-                        // Add address form
-                        cy.get('.account-content .account-aside-item[title="Addresses"]')
-                            .should('be.visible')
-                            .click();
-                        cy.get('a[href="/account/address/create"]').click();
-                        cy.get('.account-address-form').should('be.visible');
-
-                        // Fill in and submit address
-                        cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');
-                        cy.get('#addresspersonalFirstName').typeAndCheckStorefront('P.');
-                        cy.get('#addresspersonalLastName').typeAndCheckStorefront('Sherman');
-                        cy.get('#addressAddressStreet').typeAndCheckStorefront('42 Wallaby Way');
-                        cy.get('#addressAddressZipcode').typeAndCheckStorefront('2000');
-                        cy.get('#addressAddressCity').typeAndCheckStorefront('Sydney');
-                        cy.get('#addressAddressCountry').typeAndSelect('Germany');
-                        cy.get('#addressAddressCountryState').typeAndSelect('Lower Saxony');
-                        cy.get('.address-form-submit').click();
-                        cy.get('.alert-success .alert-content').contains('Address has been saved.');
-
-                        // Set new address as shipping address
-                        cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
-                            cy.contains('Set as default shipping').click();
-                        })
-                        cy.get('.shipping-address').contains('Sherman');
-                    }
-
-                    // Product detail
-                    cy.get('.header-search-input')
+                // Add new address and choose is as default shipping if necessary
+                if (customer.firstName === 'Differing') {
+                    // Add address form
+                    cy.get('.account-content .account-aside-item[title="Addresses"]')
                         .should('be.visible')
-                        .type(product.name);
-                    cy.get('.search-suggest-product-name').contains(product.name);
-                    cy.get('.search-suggest-product-price').contains(price);
-                    cy.get('.search-suggest-product-name').click();
-                    cy.get('.product-detail-buy .btn-buy').click();
+                        .click();
+                    cy.get('a[href="/account/address/create"]').click();
+                    cy.get('.account-address-form').should('be.visible');
 
-                    // Off canvas
-                    cy.get(page.elements.offCanvasCart).should('be.visible');
-                    cy.get(`${lineItemSelector}-label`).contains(product.name);
-                    cy.get(`${lineItemSelector}-price`).contains(price);
-                    cy.get('.summary-value.summary-total').contains(price);
+                    // Fill in and submit address
+                    cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');
+                    cy.get('#addresspersonalFirstName').typeAndCheckStorefront('P.');
+                    cy.get('#addresspersonalLastName').typeAndCheckStorefront('Sherman');
+                    cy.get('#addressAddressStreet').typeAndCheckStorefront('42 Wallaby Way');
+                    cy.get('#addressAddressZipcode').typeAndCheckStorefront('2000');
+                    cy.get('#addressAddressCity').typeAndCheckStorefront('Sydney');
+                    cy.get('#addressAddressCountry').typeAndSelect('Germany');
+                    cy.get('#addressAddressCountryState').typeAndSelect('Lower Saxony');
+                    cy.get('.address-form-submit').click();
+                    cy.get('.alert-success .alert-content').contains('Address has been saved.');
 
-                    // Checkout
-                    cy.get('.offcanvas-cart-actions .btn-primary').click();
-                    cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-                    cy.get('.checkout-confirm-tos-label').scrollIntoView();
-                    cy.get('.checkout-confirm-tos-label').click(1, 1);
-                    cy.get('.confirm-address').contains('Pep Eroni');
-                    cy.get(`${lineItemSelector}-details-container ${lineItemSelector}-label`).contains(product.name);
-                    cy.get(`${lineItemSelector}-total-price`).contains(price);
-                    cy.get('.col-5.checkout-aside-summary-value').contains(price);
-                    cy.get('.cart-header-tax-price').contains(vatSnippet);
+                    // Set new address as shipping address
+                    cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
+                        cy.contains('Set as default shipping').click();
+                    })
+                    cy.get('.shipping-address').contains('Sherman');
+                }
 
-                    // Check differing address if necessary
-                    if (customer.firstName === 'Differing') {
-                        cy.contains('Same as billing address').should('not.exist');
-                    }
+                // Product detail
+                cy.get('.header-search-input')
+                    .should('be.visible')
+                    .type(product.name);
+                cy.get('.search-suggest-product-name').contains(product.name);
+                cy.get('.search-suggest-product-price').contains(price);
+                cy.get('.search-suggest-product-name').click();
+                cy.get('.product-detail-buy .btn-buy').click();
 
-                    // Finish checkout
-                    cy.get('#confirmFormSubmit').scrollIntoView();
-                    cy.get('#confirmFormSubmit').click();
-                    cy.get('.finish-header').contains('Thank you for your order with Demostore!');
-                    cy.get('.checkout-aside-summary-total').contains('49.98');
-                    cy.get('.col-5.checkout-aside-summary-value').contains(price);
+                // Off canvas
+                cy.get(page.elements.offCanvasCart).should('be.visible');
+                cy.get('.line-item-label').contains(product.name);
+                cy.get('.line-item-price').contains(price);
+                cy.get('.summary-value.summary-total').contains(price);
 
-                    // Check further things on /finish:
-                    if (customer.firstName === 'Differing') {
-                        // if address is differing
-                        cy.get('.finish-address-billing').contains('Pep Eroni');
-                        cy.get('.finish-address-shipping').contains('Sherman');
-                    }
-                    cy.get('.cart-header-tax-price').contains(vatSnippet);
-                    cy.get(`${lineItemSelector}-tax-price`).contains('7.98');
-                    cy.get('.col-5.checkout-aside-summary-value').contains('7.98');
-                });
+                // Checkout
+                cy.get('.offcanvas-cart-actions .btn-primary').click();
+                cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+                cy.get('.checkout-confirm-tos-label').scrollIntoView();
+                cy.get('.checkout-confirm-tos-label').click(1, 1);
+                cy.get('.confirm-address').contains('Pep Eroni');
+                cy.get('.line-item-details-container .line-item-label').contains(product.name);
+                cy.get('.line-item-total-price').contains(price);
+                cy.get('.col-5.checkout-aside-summary-value').contains(price);
+                cy.get('.cart-header-tax-price').contains(vatSnippet);
+
+                // Check differing address if necessary
+                if (customer.firstName === 'Differing') {
+                    cy.contains('Same as billing address').should('not.exist');
+                }
+
+                // Finish checkout
+                cy.get('#confirmFormSubmit').scrollIntoView();
+                cy.get('#confirmFormSubmit').click();
+                cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+                cy.get('.checkout-aside-summary-total').contains('49.98');
+                cy.get('.col-5.checkout-aside-summary-value').contains(price);
+
+                // Check further things on /finish:
+                if (customer.firstName === 'Differing') {
+                    // if address is differing
+                    cy.get('.finish-address-billing').contains('Pep Eroni');
+                    cy.get('.finish-address-shipping').contains('Sherman');
+                }
+                cy.get('.cart-header-tax-price').contains(vatSnippet);
+                cy.get('.line-item-tax-price').contains('7.98');
+                cy.get('.col-5.checkout-aside-summary-value').contains('7.98');
             });
         });
     });

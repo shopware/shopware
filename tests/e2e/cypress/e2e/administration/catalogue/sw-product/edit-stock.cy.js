@@ -47,9 +47,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.offcanvas').should('be.visible');
 
         cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
+            cy.contains(`.offcanvas .line-item-label`, 'Product name');
         });
     });
 
@@ -81,13 +79,10 @@ describe('Product: Edit in various ways', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-
             cy.get('.btn-buy').should('be.visible');
             cy.get('.btn-buy').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
+            cy.contains(`.offcanvas .line-item-label`, 'Product name');
         });
     });
 

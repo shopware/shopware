@@ -25,30 +25,20 @@
             <div class="card checkout-product-table">
                 <div class="card-body">
                     {% block page_checkout_finish_table_header %}
-                        {# @deprecated tag:v6.5.0 - Template `confirm-product-header.html.twig` is deprecated. Use `storefront/component/checkout/cart-header.html.twig` instead. #}
-                        {% if feature('v6.5.0.0') %}
-                            {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-                                showTaxPrice: true,
-                                showRemoveColumn: false
-                            } %}
-                        {% else %}
-                            {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
-                        {% endif %}
+                        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+                            showTaxPrice: true,
+                            showRemoveColumn: false
+                        } %}
                     {% endblock %}
 
                     {% block page_checkout_finish_items %}
                         {% for lineItem in page.order.nestedLineItems %}
                             {% block page_checkout_finish_item %}
-                                {# @deprecated tag:v6.5.0 - Template `finish-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
-                                {% if feature('v6.5.0.0') %}
-                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                                        redirectTo: 'frontend.checkout.confirm.page',
-                                        showTaxPrice: true,
-                                        showRemoveButton: false
-                                    } %}
-                                {% else %}
-                                    {% sw_include '@Storefront/storefront/page/checkout/finish/finish-item.html.twig' %}
-                                {% endif %}
+                                {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                    redirectTo: 'frontend.checkout.confirm.page',
+                                    showTaxPrice: true,
+                                    showRemoveButton: false
+                                } %}
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}

@@ -41,37 +41,32 @@ describe('Test if essential characteristics are displayed in checkout', () => {
     it('@checkout: Should display essential characteristics', { tags: ['pa-checkout'] }, () => {
         const page = new CheckoutPageObject();
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        // Product detail
+        cy.get('.header-search-input').should('be.visible');
+        cy.get('.header-search-input').type(product.name);
+        cy.get('.search-suggest-product-name').contains(product.name);
+        cy.get('.search-suggest-product-price').contains(product.price[0].gross);
+        cy.get('.search-suggest-product-name').click();
+        cy.get('.product-detail-buy .btn-buy').click();
 
-            // Product detail
-            cy.get('.header-search-input').should('be.visible');
-            cy.get('.header-search-input').type(product.name);
-            cy.get('.search-suggest-product-name').contains(product.name);
-            cy.get('.search-suggest-product-price').contains(product.price[0].gross);
-            cy.get('.search-suggest-product-name').click();
-            cy.get('.product-detail-buy .btn-buy').click();
+        // Off canvas
+        cy.get(page.elements.offCanvasCart).should('be.visible');
+        cy.get('.line-item-label').contains(product.name);
 
-            // Off canvas
-            cy.get(page.elements.offCanvasCart).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains(product.name);
+        // Go to cart
+        cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
 
-            // Go to cart
-            cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
+        // Cart page
+        cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
 
-            // Cart page
-            cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
+        // Essential characteristics
+        cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
 
-            // Essential characteristics
-            cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
-
-            // We're expecting to see the reference price, as configured via the fixture
-            cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
-            cy.get(`${page.elements.cartItemFeatureContainer}-reference-price`)
-                .should('be.visible')
-                .contains(`${additionalData.purchaseUnit} ${additionalData.unit.name}`)
-                .contains(`${additionalData.referenceUnit} ${additionalData.unit.name}`);
-        });
+        // We're expecting to see the reference price, as configured via the fixture
+        cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
+        cy.get(`${page.elements.cartItemFeatureContainer}-reference-price`)
+            .should('be.visible')
+            .contains(`${additionalData.purchaseUnit} ${additionalData.unit.name}`)
+            .contains(`${additionalData.referenceUnit} ${additionalData.unit.name}`);
     });
 });

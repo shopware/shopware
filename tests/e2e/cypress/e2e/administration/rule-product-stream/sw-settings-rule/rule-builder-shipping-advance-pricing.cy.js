@@ -160,12 +160,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-
-            cy.get(`${lineItemSelector}-label`).contains('Product name');
-        });
+        cy.get('.line-item-label').contains('Product name');
         cy.get('a[title="Proceed to checkout"]').click();
         cy.url().should('include', 'checkout/confirm');
         cy.get('.address').contains('Germany');

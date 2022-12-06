@@ -11,21 +11,15 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class ProductStreamGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private ProductStreamDefinition $productStreamDefinition;
-
     /**
      * @internal
      */
-    public function __construct(EntityWriterInterface $writer, ProductStreamDefinition $productStreamDefinition)
+    public function __construct(private EntityWriterInterface $writer, private ProductStreamDefinition $productStreamDefinition)
     {
-        $this->writer = $writer;
-        $this->productStreamDefinition = $productStreamDefinition;
     }
 
     public function getDefinition(): string

@@ -22,30 +22,24 @@ use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  *
  * @package inventory
  */
 class ProductGenerator implements DemodataGeneratorInterface
 {
-    private Connection $connection;
-
     private SymfonyStyle $io;
 
     private Generator $faker;
 
-    private DefinitionInstanceRegistry $registry;
-
-    private InheritanceUpdater $updater;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry, InheritanceUpdater $updater)
-    {
-        $this->connection = $connection;
-        $this->registry = $registry;
-        $this->updater = $updater;
+    public function __construct(
+        private Connection $connection,
+        private DefinitionInstanceRegistry $registry,
+        private InheritanceUpdater $updater
+    ) {
     }
 
     public function getDefinition(): string

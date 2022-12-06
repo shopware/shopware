@@ -22,28 +22,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class OrderGenerator implements DemodataGeneratorInterface
 {
-    private Connection $connection;
-
-    private AbstractSalesChannelContextFactory $contextFactory;
-
-    private CartService $cartService;
-
-    private OrderConverter $orderConverter;
-
-    private EntityWriterInterface $writer;
-
-    private OrderDefinition $orderDefinition;
-
     /**
      * @var array<string, SalesChannelContext>
      */
     private array $contexts = [];
-
-    private CartCalculator $cartCalculator;
 
     private Generator $faker;
 
@@ -51,21 +37,14 @@ class OrderGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        AbstractSalesChannelContextFactory $contextFactory,
-        CartService $cartService,
-        OrderConverter $orderConverter,
-        EntityWriterInterface $writer,
-        OrderDefinition $orderDefinition,
-        CartCalculator $cartCalculator
+        private Connection $connection,
+        private AbstractSalesChannelContextFactory $contextFactory,
+        private CartService $cartService,
+        private OrderConverter $orderConverter,
+        private EntityWriterInterface $writer,
+        private OrderDefinition $orderDefinition,
+        private CartCalculator $cartCalculator
     ) {
-        $this->connection = $connection;
-        $this->contextFactory = $contextFactory;
-        $this->cartService = $cartService;
-        $this->orderConverter = $orderConverter;
-        $this->writer = $writer;
-        $this->orderDefinition = $orderDefinition;
-        $this->cartCalculator = $cartCalculator;
     }
 
     public function getDefinition(): string

@@ -14,12 +14,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class DemodataContext
 {
-    private Context $context;
-
     /**
      * List of created entities for definition
      *
@@ -27,31 +25,18 @@ class DemodataContext
      */
     private array $entities = [];
 
-    private SymfonyStyle $console;
-
-    private Generator $faker;
-
     /**
      * @var array<string, array{definition: string, items: int, time: float}>
      */
     private array $timings;
 
-    private string $projectDir;
-
-    private DefinitionInstanceRegistry $registry;
-
     public function __construct(
-        Context $context,
-        Generator $faker,
-        string $projectDir,
-        SymfonyStyle $console,
-        DefinitionInstanceRegistry $registry
+        private Context $context,
+        private Generator $faker,
+        private string $projectDir,
+        private SymfonyStyle $console,
+        private DefinitionInstanceRegistry $registry
     ) {
-        $this->context = $context;
-        $this->faker = $faker;
-        $this->projectDir = $projectDir;
-        $this->console = $console;
-        $this->registry = $registry;
     }
 
     /**

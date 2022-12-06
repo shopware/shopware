@@ -7,3 +7,4 @@ issue: NEXT-21203
 * Removed deprecations in Core/Framework/App
 * Removed deprecations in Core/Framework/Changelog
 * Removed deprecated folder Core/Framework/Compatibility
+* Removed deprecations in Core/Framework/Demodata

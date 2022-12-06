@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class CategoryGenerator implements DemodataGeneratorInterface
 {
@@ -24,25 +24,16 @@ class CategoryGenerator implements DemodataGeneratorInterface
      */
     private array $categories = [];
 
-    private EntityRepository $categoryRepository;
-
-    private EntityRepository $cmsPageRepository;
-
     private Generator $faker;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $categoryRepository,
-        EntityRepository $cmsPageRepository,
-        Connection $connection
+        private EntityRepository $categoryRepository,
+        private EntityRepository $cmsPageRepository,
+        private Connection $connection
     ) {
-        $this->categoryRepository = $categoryRepository;
-        $this->cmsPageRepository = $cmsPageRepository;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string

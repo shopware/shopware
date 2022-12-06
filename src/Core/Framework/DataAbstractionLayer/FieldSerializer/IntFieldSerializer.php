@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class IntFieldSerializer extends AbstractFieldSerializer
 {
@@ -34,7 +34,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, $value): ?int
+    public function decode(Field $field, mixed $value): ?int
     {
         return $value === null ? null : (int) $value;
     }

@@ -14,22 +14,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var WriteCommandExtractor
-     */
-    protected $writeExtractor;
-
-    /**
      * @internal
      */
     public function __construct(
-        WriteCommandExtractor $writeExtractor
+        private WriteCommandExtractor $writeExtractor
     ) {
-        $this->writeExtractor = $writeExtractor;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -113,10 +107,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @never
-     */
-    public function decode(Field $field, $value): void
+    public function decode(Field $field, mixed $value): never
     {
         throw new DecodeByHydratorException($field);
     }

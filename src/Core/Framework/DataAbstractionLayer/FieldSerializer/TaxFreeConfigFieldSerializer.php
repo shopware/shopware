@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
 {
@@ -29,7 +29,7 @@ class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, $value): ?TaxFreeConfig
+    public function decode(Field $field, mixed $value): ?TaxFreeConfig
     {
         if ($value === null) {
             return null;

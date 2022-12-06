@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
 {
@@ -29,12 +29,7 @@ class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    /**
-     * @return CashRoundingConfig|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?CashRoundingConfig*/
+    public function decode(Field $field, mixed $value): ?CashRoundingConfig
     {
         if ($value === null) {
             return null;

@@ -15,26 +15,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var WriteCommandExtractor
-     */
-    protected $writeExtrator;
-
-    /**
      * @internal
      */
     public function __construct(
-        WriteCommandExtractor $writeExtrator
+        private WriteCommandExtractor $writeExtrator
     ) {
-        $this->writeExtrator = $writeExtrator;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -61,7 +54,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         foreach ($value as $keyValue => $subresources) {
             $mapped = $subresources;
             if ($mappingAssociation) {
-                $mapped = $this->map($referencedDefinition, $field, $mappingAssociation, $subresources);
+                $mapped = $this->map($referencedDefinition, $mappingAssociation, $subresources);
             }
 
             if (!\is_array($mapped)) {
@@ -143,12 +136,12 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    public function decode(Field $field, $value): void
+    public function decode(Field $field, mixed $value): never
     {
         throw new DecodeByHydratorException($field);
     }
 
-    protected function getMappingAssociation(
+    private function getMappingAssociation(
         EntityDefinition $referencedDefinition,
         ManyToManyAssociationField $field
     ): ?ManyToOneAssociationField {
@@ -164,21 +157,8 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         return null;
     }
 
-    /**
-     * @param array $data
-     *
-     * @deprecated tag:v6.5.0 The parameter $data will be native typed
-     * @deprecated tag:v6.5.0 The unused parameter $field will be removed
-     */
-    protected function map(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field, ManyToOneAssociationField $association, /*array */$data): array
+    private function map(EntityDefinition $referencedDefinition, ManyToOneAssociationField $association, array $data): array
     {
-        if (!\is_array($data)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Fourth parameter `$data` of method "map()" in "ManyToManyAssociationFieldSerializer" will be natively typed to `array` in v6.5.0.0.'
-            );
-        }
-
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
             $data['id'] = $data['id'] ?? Uuid::randomHex();

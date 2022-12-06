@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class CartPriceFieldSerializer extends JsonFieldSerializer
 {
@@ -32,19 +32,14 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    /**
-     * @return CartPrice|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?CartPrice*/
+    public function decode(Field $field, mixed $value): ?CartPrice
     {
         if ($value === null) {
             return null;
         }
 
         $decoded = parent::decode($field, $value);
-        if ($decoded === null) {
+        if (!\is_array($decoded)) {
             return null;
         }
 

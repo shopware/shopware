@@ -17,23 +17,19 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class LongTextFieldSerializer extends AbstractFieldSerializer
 {
-    private HtmlSanitizer $sanitizer;
-
     /**
      * @internal
      */
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        HtmlSanitizer $sanitizer
+        private HtmlSanitizer $sanitizer
     ) {
         parent::__construct($validator, $definitionRegistry);
-
-        $this->sanitizer = $sanitizer;
     }
 
     public function encode(
@@ -59,7 +55,7 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return $value;

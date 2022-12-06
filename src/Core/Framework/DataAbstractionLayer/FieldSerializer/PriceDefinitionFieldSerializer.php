@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
@@ -25,23 +26,19 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 {
-    private RuleConditionRegistry $ruleConditionRegistry;
-
     /**
      * @internal
      */
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,
-        RuleConditionRegistry $ruleConditionRegistry
+        private RuleConditionRegistry $ruleConditionRegistry
     ) {
         parent::__construct($validator, $compositeHandler);
-
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
     public function encode(
@@ -133,19 +130,14 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    /**
-     * @return AbsolutePriceDefinition|PercentagePriceDefinition|QuantityPriceDefinition|CurrencyPriceDefinition|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be PriceDefinitionInterface|null
-     */
-    public function decode(Field $field, $value)/*: ?PriceDefinitionInterface*/
+    public function decode(Field $field, mixed $value): ?PriceDefinitionInterface
     {
         if ($value === null) {
             return null;
         }
 
         $decoded = parent::decode($field, $value);
-        if ($decoded === null) {
+        if (!\is_array($decoded)) {
             return null;
         }
 

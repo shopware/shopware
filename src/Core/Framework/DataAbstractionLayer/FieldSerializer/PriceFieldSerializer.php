@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -22,23 +21,12 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @internal
-     */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        ValidatorInterface $validator
-    ) {
-        parent::__construct($validator, $definitionRegistry);
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -112,12 +100,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    /**
-     * @return PriceCollection|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?PriceCollection*/
+    public function decode(Field $field, mixed $value): ?PriceCollection
     {
         if ($value === null) {
             return null;

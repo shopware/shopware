@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
@@ -119,10 +118,6 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            $container->addCompilerPass(new AnnotationReaderCompilerPass());
-        }
 
         $container->addCompilerPass(new DemodataCompilerPass());
 

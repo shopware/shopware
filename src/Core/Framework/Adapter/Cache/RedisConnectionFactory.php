@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
@@ -16,20 +15,21 @@ class RedisConnectionFactory
 {
     /**
      * This static variable is not reset on purpose, as we may reuse existing redis connections over multiple requests
+     *
+     * @var array<string, \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy>
      */
     private static array $connections = [];
-
-    private ?string $prefix;
 
     /**
      * @internal
      */
-    public function __construct(?string $prefix = null)
+    public function __construct(private ?string $prefix = null)
     {
-        $this->prefix = $prefix;
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
      */
     public function create(string $dsn, array $options = [])
@@ -49,17 +49,5 @@ class RedisConnectionFactory
         }
 
         return self::$connections[$key];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - use create() instead
-     *
-     * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
-     */
-    public static function createConnection(string $dsn, array $options = [])
-    {
-        Feature::triggerDeprecationOrThrow('v6.5.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'create()'));
-
-        return (new self())->create($dsn, $options);
     }
 }

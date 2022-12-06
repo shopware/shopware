@@ -5,26 +5,21 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
+/**
+ * @implements \IteratorAggregate<int, string>
+ */
 class TemplateIterator implements \IteratorAggregate
 {
-    private TwigBundleIterator $templateIterator;
-
-    private array $kernelBundles;
-
     /**
      * @internal
+     *
+     * @param array<string, Bundle> $kernelBundles
      */
-    public function __construct(TwigBundleIterator $templateIterator, array $kernelBundles)
+    public function __construct(private TwigBundleIterator $templateIterator, private array $kernelBundles)
     {
-        $this->templateIterator = $templateIterator;
-        $this->kernelBundles = $kernelBundles;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will be changed to \Traversable
-     */
-    #[\ReturnTypeWillChange]
-    public function getIterator(): iterable/* :\Traversable */
+    public function getIterator(): \Traversable
     {
         $data = iterator_to_array($this->templateIterator, false);
         $search = [];

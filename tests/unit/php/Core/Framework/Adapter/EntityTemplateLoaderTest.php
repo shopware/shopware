@@ -181,32 +181,4 @@ class EntityTemplateLoaderTest extends TestCase
 
         static::assertEquals(new Source('<html></html>', '@test/test'), $result);
     }
-
-    public function testProdModeWithCompatibilityResult(): void
-    {
-        $entityTemplateLoader = new EntityTemplateLoader($this->connectionMock, 'prod');
-
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
-            [
-                [
-                    'template' => '<html></html>',
-                    'path' => '../test',
-                    'namespace' => 'test',
-                    'updatedAt' => '2000-01-01',
-                ],
-            ]
-        );
-
-        $result = $entityTemplateLoader->exists('@test/test');
-
-        static::assertTrue($result);
-
-        $result = $entityTemplateLoader->isFresh('@test/test', \time());
-
-        static::assertTrue($result);
-
-        $result = $entityTemplateLoader->getSourceContext('@test/test');
-
-        static::assertEquals(new Source('<html></html>', '@test/test'), $result);
-    }
 }

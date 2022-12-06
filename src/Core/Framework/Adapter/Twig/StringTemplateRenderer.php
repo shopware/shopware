@@ -60,19 +60,12 @@ class StringTemplateRenderer
     }
 
     /**
-     * @param bool $htmlEscape - @deprecated tag:v6.5.0 parameter $htmlEscape will be added in v6.5.0.0
+     * @param array<string, mixed> $data
      *
      * @throws StringTemplateRenderingException
      */
-    public function render(string $templateSource, array $data, Context $context /*, bool $htmlEscape = true */): string
+    public function render(string $templateSource, array $data, Context $context, bool $htmlEscape = true): string
     {
-        // @deprecated tag:v6.5.0 - Remove if/else
-        if (\func_num_args() === 4) {
-            $htmlEscape = (bool) func_get_arg(3);
-        } else {
-            $htmlEscape = true;
-        }
-
         $name = md5($templateSource . !$htmlEscape);
         $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
 

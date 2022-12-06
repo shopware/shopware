@@ -18,23 +18,14 @@ use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
  */
 class AppFlowActionProvider
 {
-    private Connection $connection;
-
-    private BusinessEventEncoder $businessEventEncoder;
-
-    private StringTemplateRenderer $templateRenderer;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        BusinessEventEncoder $businessEventEncoder,
-        StringTemplateRenderer $templateRenderer
+        private Connection $connection,
+        private BusinessEventEncoder $businessEventEncoder,
+        private StringTemplateRenderer $templateRenderer
     ) {
-        $this->connection = $connection;
-        $this->businessEventEncoder = $businessEventEncoder;
-        $this->templateRenderer = $templateRenderer;
     }
 
     /**
@@ -64,6 +55,7 @@ class AppFlowActionProvider
         );
 
         $configData = $this->resolveParamsData($event->getConfig(), $data, $context, $appFlowActionId);
+        /** @var array<string, mixed> $data */
         $data = array_merge(
             $configData,
             $availableData
@@ -103,6 +95,7 @@ class AppFlowActionProvider
         );
 
         $configData = $this->resolveParamsData($flow->getConfig(), $data, $context, $appFlowActionId);
+        /** @var array<string, mixed> $data */
         $data = array_merge(
             $configData,
             $additionData
@@ -124,7 +117,7 @@ class AppFlowActionProvider
 
     /**
      * @param array<int|string, mixed> $params
-     * @param array<int|string, mixed> $data
+     * @param array<string, mixed> $data
      *
      * @throws InvalidAppFlowActionVariableException
      *

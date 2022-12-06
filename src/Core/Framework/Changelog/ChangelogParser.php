@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Changelog;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
 class ChangelogParser
 {

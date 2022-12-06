@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
+/**
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string}
+ */
 class Feature
 {
     public const ALL_MAJOR = 'major';
@@ -16,7 +19,7 @@ class Feature
     private static array $silent = [];
 
     /**
-     * @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>
+     * @var array<string, FeatureFlagConfig>
      */
     private static array $registeredFeatures = [];
 
@@ -272,7 +275,7 @@ class Feature
     }
 
     /**
-     * @param array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData
+     * @param FeatureFlagConfig $metaData
      *
      * @internal
      */
@@ -297,7 +300,7 @@ class Feature
     }
 
     /**
-     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>|string[] $registeredFeatures
+     * @param array<string, FeatureFlagConfig>|string[] $registeredFeatures
      *
      * @internal
      */
@@ -325,7 +328,7 @@ class Feature
     /**
      * @internal
      *
-     * @return array<string, array{'name'?: string, 'default'?: boolean, 'major'?: boolean, 'description'?: string}>
+     * @return array<string, FeatureFlagConfig>
      */
     public static function getRegisteredFeatures(): array
     {

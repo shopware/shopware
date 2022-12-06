@@ -13,24 +13,18 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
 class ChangelogCreateCommand extends Command
 {
     protected static $defaultName = 'changelog:create';
 
     /**
-     * @var ChangelogGenerator
-     */
-    private $generator;
-
-    /**
      * @internal
      */
-    public function __construct(ChangelogGenerator $generator)
+    public function __construct(private ChangelogGenerator $generator)
     {
         parent::__construct();
-        $this->generator = $generator;
     }
 
     protected function configure(): void
@@ -103,6 +97,9 @@ class ChangelogCreateCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array{date: string, author: string, authorEmail: string, authorGithub: string}
+     */
     private function getDefaultData(): array
     {
         $process = new Process(['git', 'config', 'user.name']);

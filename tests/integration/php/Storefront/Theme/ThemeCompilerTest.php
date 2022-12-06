@@ -515,7 +515,8 @@ PHP_EOL;
                 $testScss,
                 new StorefrontPluginConfiguration('test'),
                 [],
-                '1337'
+                '1337',
+                Context::createDefaultContext()
             );
         } finally {
             $this->eventDispatcher->removeSubscriber($subscriber);
@@ -577,7 +578,8 @@ PHP_EOL;
             $featureMixin . $testScss,
             new StorefrontPluginConfiguration('test'),
             [],
-            '1337'
+            '1337',
+            Context::createDefaultContext()
         );
 
         static::assertSame(trim($expectedCssOutput), trim($actual));
@@ -621,7 +623,8 @@ PHP_EOL;
             [
                 'vendor' => __DIR__ . '/fixtures/ThemeWithScssVendorImports/Storefront/Resources/app/storefront/vendor',
             ],
-            '1337'
+            '1337',
+            Context::createDefaultContext()
         );
 
         static::assertSame(trim($expectedCssOutput), trim($actual));

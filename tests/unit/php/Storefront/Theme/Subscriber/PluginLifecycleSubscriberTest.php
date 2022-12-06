@@ -9,13 +9,11 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber;
@@ -39,25 +37,6 @@ class PluginLifecycleSubscriberTest extends TestCase
             $this->createMock(StorefrontPluginConfigurationFactory::class),
             $this->createMock(ThemeLifecycleHandler::class),
             $this->createMock(ThemeLifecycleService::class),
-        );
-    }
-
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testGetSubscribedEventsLegacy(): void
-    {
-        static::assertEquals(
-            [
-                PluginPreActivateEvent::class => 'pluginActivate',
-                PluginPostActivateEvent::class => 'pluginPostActivate',
-                PluginPreUpdateEvent::class => 'pluginUpdate',
-                PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
-                PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostUninstallEvent::class => 'pluginPostUninstall',
-            ],
-            PluginLifecycleSubscriber::getSubscribedEvents()
         );
     }
 

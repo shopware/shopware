@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Theme;
+namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -15,10 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
-use Shopware\Storefront\Test\Theme\fixtures\InheritanceWithConfig\InheritanceWithConfig;
-use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
-use Shopware\Storefront\Test\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
-use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -30,9 +26,14 @@ use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeSalesChannel;
 use Shopware\Storefront\Theme\ThemeSalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\InheritanceWithConfig\InheritanceWithConfig;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 
 /**
  * @internal
+ * @covers \Shopware\Storefront\Theme\ThemeLifecycleHandler
  */
 class ThemeLifecycleHandlerTest extends TestCase
 {
@@ -41,12 +42,12 @@ class ThemeLifecycleHandlerTest extends TestCase
     /**
      * @var MockObject|ThemeService
      */
-    private $themeServiceMock;
+    private ThemeService $themeServiceMock;
 
     /**
      * @var MockObject|StorefrontPluginRegistryInterface
      */
-    private $configurationRegistryMock;
+    private StorefrontPluginRegistryInterface $configurationRegistryMock;
 
     private ThemeLifecycleHandler $themeLifecycleHandler;
 

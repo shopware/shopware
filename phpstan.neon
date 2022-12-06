@@ -164,12 +164,6 @@ parameters:
             count: 1
             path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
 
-        # Can be removed with 6.5 release (NEXT-20850)
-        -
-            message: "#^PHPDoc tag @param references unknown parameter\\: \\$context$#"
-            count: 1
-            path: src/Storefront/Theme/ThemeCompiler.php
-
         # can be removed with 6.5
         -
         	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no type specified\\.$#"

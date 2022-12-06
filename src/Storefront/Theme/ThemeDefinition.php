@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -15,12 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeChildDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
@@ -75,11 +72,6 @@ class ThemeDefinition extends EntityDefinition
         ]);
 
         $fields->add(new ManyToManyAssociationField('dependentThemes', ThemeDefinition::class, ThemeChildDefinition::class, 'parent_id', 'child_id'));
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            /** @deprecated tag:v6.5.0 - `childThemes` association will be removed in v6.5.0.0  */
-            $fields->add((new OneToManyAssociationField('childThemes', ThemeDefinition::class, 'parent_theme_id'))->addFlags(new Deprecated('v6.4.8', 'v6.5.0')));
-        }
 
         return $fields;
     }

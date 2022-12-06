@@ -23973,36 +23973,6 @@ parameters:
 			path: src/Storefront/Theme/Event/ThemeIndexerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:__construct\\(\\) has parameter \\$childThemeSalesChannel with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:__construct\\(\\) has parameter \\$stillAssignedSalesChannels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:__construct\\(\\) has parameter \\$themeSalesChannel with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:formatAssignments\\(\\) has parameter \\$assignmentMapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:getAssignedSalesChannels\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:\\$stillAssignedSalesChannels type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
 			count: 2
 			path: src/Storefront/Theme/ResolvedConfigLoader.php
@@ -24201,76 +24171,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigFieldFactory\\:\\:create\\(\\) has parameter \\$configFieldArray with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigFieldFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:getBaseConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:getConfigValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:getHelpTexts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:getLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:setBaseConfig\\(\\) has parameter \\$baseConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:setConfigValues\\(\\) has parameter \\$configValues with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:setHelpTexts\\(\\) has parameter \\$helpTexts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:setLabels\\(\\) has parameter \\$labels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:\\$baseConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:\\$configValues type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:\\$helpTexts type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\:\\:\\$labels type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleHandler\\:\\:changeThemeActive\\(\\) has parameter \\$themeData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleHandler\\:\\:getThemeDataByTechnicalName\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"

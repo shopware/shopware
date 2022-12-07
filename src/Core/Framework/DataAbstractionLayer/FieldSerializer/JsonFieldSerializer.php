@@ -56,7 +56,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, mixed $value): array|object|null
+    public function decode(Field $field, mixed $value): mixed
     {
         if (!$field instanceof JsonField) {
             throw new InvalidSerializerFieldException(JsonField::class, $field);

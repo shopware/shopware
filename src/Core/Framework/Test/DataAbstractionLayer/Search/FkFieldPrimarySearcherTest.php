@@ -105,7 +105,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $criteria = new Criteria([['first_id' => $firstId, 'second_id' => $secondId]]);
+        $criteria = new Criteria([['firstId' => $firstId, 'secondId' => $secondId]]);
         $multiFkFieldPrimaryTupel = $multiPrimaryRepository->search($criteria, Context::createDefaultContext());
         $key = $firstId . '-' . $secondId;
         static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getElements());
@@ -131,7 +131,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $criteria = new Criteria([['product_id' => $this->productId, 'language_id' => Defaults::LANGUAGE_SYSTEM]]);
+        $criteria = new Criteria([['productId' => $this->productId, 'languageId' => Defaults::LANGUAGE_SYSTEM]]);
 
         $productTranslationRepository = $this->getContainer()->get('product_translation.repository');
         /** @var ProductTranslationCollection $productTranslation */

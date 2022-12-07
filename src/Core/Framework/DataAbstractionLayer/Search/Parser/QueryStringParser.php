@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class QueryStringParser
 {
@@ -269,7 +269,7 @@ class QueryStringParser
             $dateInterval->invert = 1;
         }
         $thresholdDate = $now->add($dateInterval);
-        $operator = $query['parameters']['operator'];
+        $operator = (string) $query['parameters']['operator'];
 
         // if we're matching for time until, date must be in the future
         // if we're matching for time since, date must be in the past

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
 {

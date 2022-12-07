@@ -39,6 +39,7 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         $multiFilterQueries = $multiFilter->getQueries();
 
         static::assertCount(2, $multiFilterQueries);
+        static::assertInstanceOf(EqualsFilter::class, $multiFilterQueries[0]);
         $this->assertEqualsFilter(
             $multiFilterQueries[0],
             'active',
@@ -51,11 +52,13 @@ class NavigationPageSeoUrlRouteTest extends TestCase
 
         $notFilterQueries = $notFilter->getQueries();
         static::assertCount(2, $notFilterQueries);
+        static::assertInstanceOf(EqualsFilter::class, $notFilterQueries[0]);
         $this->assertEqualsFilter(
             $notFilterQueries[0],
             'type',
             'folder'
         );
+        static::assertInstanceOf(EqualsFilter::class, $notFilterQueries[1]);
         $this->assertEqualsFilter(
             $notFilterQueries[1],
             'type',

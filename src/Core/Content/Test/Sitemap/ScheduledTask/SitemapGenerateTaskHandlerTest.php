@@ -36,20 +36,11 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     private SitemapGenerateTaskHandler $sitemapHandler;
 
-    /**
-     * @var EntityRepository
-     */
-    private $salesChannelDomainRepository;
+    private EntityRepository $salesChannelDomainRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    /**
-     * @var MockObject|MessageBusInterface
-     */
-    private $messageBusMock;
+    private MockObject&MessageBusInterface $messageBusMock;
 
     public function setUp(): void
     {
@@ -70,6 +61,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testNotHandelDuplicateWithSameLanguage(): void
     {
+        /** @var list<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-sitemap-task-handler');
@@ -118,6 +110,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testItGeneratesCorrectMessagesIfLastLanguageIsFirstOfNextSalesChannel(): void
     {
+        /** @var list<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
         $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {

@@ -29,42 +29,25 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
  * Handles all write operations in the system.
  * Builds first a command queue over the WriteCommandExtractor and let execute this queue
  * over the EntityWriteGateway (sql implementation in default).
  */
 class EntityWriter implements EntityWriterInterface
 {
-    private EntityForeignKeyResolver $foreignKeyResolver;
-
-    private WriteCommandExtractor $commandExtractor;
-
-    private EntityWriteGatewayInterface $gateway;
-
-    private LanguageLoaderInterface $languageLoader;
-
-    private DefinitionInstanceRegistry $registry;
-
-    private EntityWriteResultFactory $factory;
-
     /**
      * @internal
      */
     public function __construct(
-        WriteCommandExtractor $writeResource,
-        EntityForeignKeyResolver $foreignKeyResolver,
-        EntityWriteGatewayInterface $gateway,
-        LanguageLoaderInterface $languageLoader,
-        DefinitionInstanceRegistry $registry,
-        EntityWriteResultFactory $factory
+        private WriteCommandExtractor $commandExtractor,
+        private EntityForeignKeyResolver $foreignKeyResolver,
+        private EntityWriteGatewayInterface $gateway,
+        private LanguageLoaderInterface $languageLoader,
+        private DefinitionInstanceRegistry $registry,
+        private EntityWriteResultFactory $factory
     ) {
-        $this->foreignKeyResolver = $foreignKeyResolver;
-        $this->commandExtractor = $writeResource;
-        $this->gateway = $gateway;
-        $this->languageLoader = $languageLoader;
-        $this->registry = $registry;
-        $this->factory = $factory;
     }
 
     // TODO: prefetch
@@ -387,19 +370,19 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 if (\array_key_exists($property, $raw)) {
-                    $mapped[$field->getStorageName()] = $raw[$property];
+                    $mapped[$property] = $raw[$property];
 
                     continue;
                 }
 
                 if ($field instanceof ReferenceVersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
+                    $mapped[$property] = $writeContext->getContext()->getVersionId();
 
                     continue;
                 }
 
                 if ($field instanceof VersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
+                    $mapped[$property] = $writeContext->getContext()->getVersionId();
 
                     continue;
                 }
@@ -448,9 +431,17 @@ class EntityWriter implements EntityWriterInterface
 
         $skipped = [];
         foreach ($resolved as $primaryKey) {
-            $mappedBytes = array_map(function ($id) {
-                return Uuid::fromHexToBytes($id);
-            }, $primaryKey);
+            $mappedBytes = [];
+            /**
+             * @var string $key
+             * @var string $value
+             */
+            foreach ($primaryKey as $key => $value) {
+                /** @var StorageAware $field */
+                $field = $definition->getFields()->get($key);
+
+                $mappedBytes[$field->getStorageName()] = Uuid::fromHexToBytes($value);
+            }
 
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
@@ -461,8 +452,12 @@ class EntityWriter implements EntityWriterInterface
             }
 
             $stripped = [];
+            /**
+             * @var string $key
+             * @var string $value
+             */
             foreach ($primaryKey as $key => $value) {
-                $field = $definition->getFields()->getByStorageName($key);
+                $field = $definition->getFields()->get($key);
 
                 if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                     continue;

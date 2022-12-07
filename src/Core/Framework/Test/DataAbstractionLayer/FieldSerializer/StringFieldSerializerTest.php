@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -50,21 +49,12 @@ class StringFieldSerializerTest extends TestCase
         yield 'Update with empty and required' => [$required, '', null, true, $update];
         yield 'Update with empty and optional' => [$optional, '', null, false, $update];
 
-        if (Feature::isActive('v6.5.0.0')) {
-            yield 'Create with space and required' => [$required, ' ', null, true, $create];
-            yield 'Create with space and optional' => [$optional, ' ', null, false, $create];
-            yield 'Create with space and allow empty' => [$allowEmpty, ' ', ' ', false, $create];
-            yield 'Update with space and required' => [$required, ' ', null, true, $update];
-            yield 'Update with space and optional' => [$optional, ' ', null, false, $update];
-            yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
-        } else {
-            yield 'Create with space and required' => [$required, ' ', ' ', false, $create];
-            yield 'Create with space and optional' => [$optional, ' ', ' ', false, $create];
-            yield 'Create with space and allow empty' => [$allowEmpty, ' ', ' ', false, $create];
-            yield 'Update with space and required' => [$required, ' ', ' ', false, $update];
-            yield 'Update with space and optional' => [$optional, ' ', ' ', false, $update];
-            yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
-        }
+        yield 'Create with space and required' => [$required, ' ', null, true, $create];
+        yield 'Create with space and optional' => [$optional, ' ', null, false, $create];
+        yield 'Create with space and allow empty' => [$allowEmpty, ' ', ' ', false, $create];
+        yield 'Update with space and required' => [$required, ' ', null, true, $update];
+        yield 'Update with space and optional' => [$optional, ' ', null, false, $update];
+        yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
 
         yield 'Test max length' => [$maxLength, '123456789', '12345', true, $update];
     }

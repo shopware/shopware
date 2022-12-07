@@ -33,14 +33,11 @@ class WriterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public $id;
+    private string $id;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    private $idBytes;
+    private string $idBytes;
 
     protected function setUp(): void
     {

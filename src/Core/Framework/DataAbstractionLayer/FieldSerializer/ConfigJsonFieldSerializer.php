@@ -26,7 +26,7 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
         return parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, mixed $value): ?array
+    public function decode(Field $field, mixed $value): mixed
     {
         if (!$field instanceof ConfigJsonField) {
             throw new InvalidSerializerFieldException(ConfigJsonField::class, $field);

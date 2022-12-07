@@ -5,22 +5,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class RangeResult extends AggregationResult
 {
     /**
-     * @var array<string, int>
-     */
-    protected array $ranges = [];
-
-    /**
      * @param array<string, int> $ranges
      */
-    public function __construct(string $name, array $ranges)
+    public function __construct(string $name, protected array $ranges)
     {
         parent::__construct($name);
-        $this->ranges = $ranges;
     }
 
     /**

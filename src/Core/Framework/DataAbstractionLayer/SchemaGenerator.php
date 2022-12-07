@@ -44,7 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class SchemaGenerator
 {

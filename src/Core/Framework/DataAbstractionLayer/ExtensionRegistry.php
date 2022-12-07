@@ -5,26 +5,23 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
  * Contains all registered entity extensions in the system
  */
 class ExtensionRegistry
 {
     /**
-     * @var EntityExtension[]|iterable
-     */
-    private $extensions;
-
-    /**
      * @internal
+     *
+     * @param iterable<EntityExtension> $extensions
      */
-    public function __construct(iterable $extensions)
+    public function __construct(private iterable $extensions)
     {
-        $this->extensions = $extensions;
     }
 
     /**
-     * @return EntityExtension[]|iterable
+     * @return iterable<EntityExtension>
      */
     public function getExtensions(): iterable
     {

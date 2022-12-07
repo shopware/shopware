@@ -151,8 +151,11 @@ class ElasticsearchHelper
             return;
         }
 
+        /** @var list<string> $ids */
+        $ids = array_values($ids);
+
         $query = $this->parser->parseFilter(
-            new EqualsAnyFilter('id', array_values($ids)),
+            new EqualsAnyFilter('id', $ids),
             $definition,
             $definition->getEntityName(),
             $context

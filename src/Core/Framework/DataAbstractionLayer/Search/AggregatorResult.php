@@ -7,30 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class AggregatorResult extends Struct
 {
-    /**
-     * @var AggregationResultCollection
-     */
-    protected $aggregations;
-
-    /**
-     * @var Context
-     */
-    protected $context;
-
-    /**
-     * @var Criteria
-     */
-    protected $criteria;
-
-    public function __construct(AggregationResultCollection $aggregations, Context $context, Criteria $criteria)
-    {
-        $this->aggregations = $aggregations;
-        $this->context = $context;
-        $this->criteria = $criteria;
+    public function __construct(
+        private  AggregationResultCollection $aggregations,
+        private  Context $context,
+        private Criteria $criteria
+    ) {
     }
 
     public function getAggregations(): AggregationResultCollection

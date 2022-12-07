@@ -5,19 +5,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class SumResult extends AggregationResult
 {
-    /**
-     * @var float
-     */
-    protected $sum;
-
-    public function __construct(string $name, float $sum)
+    public function __construct(string $name, protected float $sum)
     {
         parent::__construct($name);
-        $this->sum = $sum;
     }
 
     public function getSum(): float

@@ -12,18 +12,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class ApiCriteriaValidator
 {
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry)
+    public function __construct(private DefinitionInstanceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function validate(string $entity, Criteria $criteria, Context $context): void

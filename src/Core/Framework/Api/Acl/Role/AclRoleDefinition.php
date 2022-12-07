@@ -80,7 +80,7 @@ class AclRoleDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new ListField('privileges', 'privileges'))->setStrict(true)->addFlags(new Required()),
+            (new ListField('privileges', 'privileges'))->addFlags(new Required()),
             new DateTimeField('deleted_at', 'deletedAt'),
             (new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id')),
             (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))->addFlags(new RestrictDelete()),

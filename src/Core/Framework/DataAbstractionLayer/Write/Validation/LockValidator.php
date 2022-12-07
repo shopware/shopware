@@ -12,20 +12,17 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class LockValidator implements EventSubscriberInterface
 {
     public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array

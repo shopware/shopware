@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -36,27 +35,15 @@ class RequestCriteriaBuilder
         'next-pages' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
     ];
 
-    private ?int $maxLimit;
-
-    private AggregationParser $aggregationParser;
-
-    private ApiCriteriaValidator $validator;
-
-    private CriteriaArrayConverter $converter;
-
     /**
      * @internal
      */
     public function __construct(
-        AggregationParser $aggregationParser,
-        ApiCriteriaValidator $validator,
-        CriteriaArrayConverter $converter,
-        ?int $maxLimit = null
+        private AggregationParser $aggregationParser,
+        private ApiCriteriaValidator $validator,
+        private CriteriaArrayConverter $converter,
+        private ?int $maxLimit = null
     ) {
-        $this->maxLimit = $maxLimit;
-        $this->aggregationParser = $aggregationParser;
-        $this->validator = $validator;
-        $this->converter = $converter;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -68,19 +55,6 @@ class RequestCriteriaBuilder
         }
 
         return $criteria;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Unused in core, please use the `%shopware.api.max_limit%` instead
-     */
-    public function getMaxLimit(): int
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', '%shopware.api.max_limit%')
-        );
-
-        return $this->maxLimit ?? 0;
     }
 
     public function toArray(Criteria $criteria): array
@@ -202,7 +176,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (isset($payload['fields']) && Feature::isActive('v6.5.0.0')) {
+        if (isset($payload['fields'])) {
             $criteria->addFields($payload['fields']);
         }
 

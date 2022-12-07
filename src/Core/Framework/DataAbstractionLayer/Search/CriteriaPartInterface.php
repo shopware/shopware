@@ -3,9 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 interface CriteriaPartInterface
 {
+    /**
+     * @return list<string>
+     */
     public function getFields(): array;
 }

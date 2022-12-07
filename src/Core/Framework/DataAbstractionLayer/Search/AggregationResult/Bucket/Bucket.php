@@ -6,30 +6,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class Bucket extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $key;
-
-    /**
-     * @var int
-     */
-    protected $count;
-
-    /**
-     * @var AggregationResult|null
-     */
-    protected $result;
-
-    public function __construct(?string $key, int $count, ?AggregationResult $result)
+    public function __construct(protected ?string $key, protected int $count, protected ?AggregationResult $result)
     {
-        $this->key = $key;
-        $this->count = $count;
-        $this->result = $result;
     }
 
     public function getKey(): ?string
@@ -51,13 +33,9 @@ class Bucket extends Struct
     {
         $data = get_object_vars($this);
 
-        if ($data['result'] === null) {
-            unset($data['result']);
-
-            return $data;
+        if ($this->result) {
+            $data[$this->result->getName()] = $data['result'];
         }
-
-        $data[$this->result->getName()] = $data['result'];
         unset($data['result']);
 
         return $data;

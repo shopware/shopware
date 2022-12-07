@@ -1305,11 +1305,6 @@ parameters:
 			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentDistinguishableNameGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Event\\\\PaymentMethodIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Event/PaymentMethodIndexerEvent.php
@@ -1618,11 +1613,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionExclusionUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionExclusionUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionIndexer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -2885,11 +2875,6 @@ parameters:
 			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
@@ -3063,36 +3048,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/CmsPageEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:getRandomCategoryId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Command/CreatePageCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:getRandomMediaId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Command/CreatePageCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:getRandomProductId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Command/CreatePageCommand.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:\\$categories \\(array\\<string\\>\\) does not accept array\\<array\\|string\\>\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Command/CreatePageCommand.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:\\$media \\(array\\<string\\>\\) does not accept array\\<array\\|string\\>\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Command/CreatePageCommand.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\Command\\\\CreatePageCommand\\:\\:\\$products \\(array\\<string\\>\\) does not accept array\\<array\\|string\\>\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Command/CreatePageCommand.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CmsSlotsDataResolver\\:\\:__construct\\(\\) has parameter \\$repositories with no value type specified in iterable type array\\.$#"
@@ -4520,11 +4475,6 @@ parameters:
 			path: src/Core/Content/LandingPage/Aggregate/LandingPageTranslation/LandingPageTranslationEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\DataAbstractionLayer\\\\LandingPageIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/DataAbstractionLayer/LandingPageIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Event\\\\LandingPageIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/Event/LandingPageIndexerEvent.php
@@ -4785,11 +4735,6 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderConfigurationIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderConfigurationIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:fetchChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
@@ -4798,16 +4743,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:getParentIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaIndexer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Event\\\\MediaFileExtensionWhitelistEvent\\:\\:__construct\\(\\) has parameter \\$whitelist with no value type specified in iterable type array\\.$#"
@@ -5095,11 +5030,6 @@ parameters:
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\DataAbstractionLayer\\\\NewsletterRecipientIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/DataAbstractionLayer/NewsletterRecipientIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterRecipientIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Newsletter/Event/NewsletterRecipientIndexerEvent.php
@@ -5330,22 +5260,12 @@ parameters:
 			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:getCriteria\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:getCriteria\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
 
@@ -5861,11 +5781,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:buildPayload\\(\\) has parameter \\$filter with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
 
@@ -8768,16 +8683,6 @@ parameters:
 			path: src/Core/Content/Test/Seo/HreflangLoaderTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$languageId of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainEntity\\:\\:setLanguageId\\(\\) expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/HreflangLoaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$productId of method Shopware\\\\Core\\\\Content\\\\Test\\\\Seo\\\\HreflangLoaderTest\\:\\:createParameter\\(\\) expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/HreflangLoaderTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Seo/SalesChannel/SeoUrlRouteTest.php
@@ -8846,11 +8751,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Sitemap/SalesChannel/SitemapRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\|string\\)\\: mixed\\)\\|null, Closure\\(string\\)\\: array\\{id\\: string\\}\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Sitemap/ScheduledTask/SitemapGenerateTaskHandlerTest.php
 
 		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
@@ -9043,11 +8943,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\Script\\\\Facade\\\\CacheInvalidatorFacade\\:\\:invalidate\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/Script/Facade/CacheInvalidatorFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\Script\\\\Facade\\\\WrittenEventIdCollection\\:\\:getIterator\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/Script/Facade/WrittenEventIdCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
@@ -11415,21 +11310,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldResolver/CriteriaPartResolver.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinGroup\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinGroup.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinGroup\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinGroup.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinGroup\\:\\:getQueries\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinGroup.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\QueryBuilder\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/QueryBuilder.php
@@ -11680,36 +11560,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/EntityTranslationDefinition.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityWriteResult\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityWriteResult\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityWriteResult\\:\\:getPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityWriteResult\\:\\:getPrimaryKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityWriteResult\\:\\:\\$payload type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityWriteResult\\:\\:\\$primaryKey type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\:\\:__construct\\(\\) has parameter \\$commands with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Event/BeforeDeleteEvent.php
@@ -11930,11 +11780,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Exception/SearchRequestException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\ExtensionRegistry\\:\\:__construct\\(\\) has parameter \\$extensions with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/ExtensionRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Facade\\\\AppContextCreator\\:\\:fetchPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Facade/AppContextCreator.php
@@ -12115,11 +11960,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/BlobFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ConfigJsonFieldSerializer\\:\\:decode\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ConfigJsonFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CustomFieldsSerializer\\:\\:decode\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CustomFieldsSerializer.php
@@ -12168,11 +12008,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\IdFieldSerializer\\:\\:normalize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/IdFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:decode\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:validateMapping\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -12535,266 +12370,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/SchemaGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Aggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Bucket\\\\BucketAggregation\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/BucketAggregation.php
-
-		-
-			message: "#^Cannot call method getFields\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/FilterAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Bucket\\\\FilterAggregation\\:\\:__construct\\(\\) has parameter \\$filter with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/FilterAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Bucket\\\\FilterAggregation\\:\\:addFilters\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/FilterAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Bucket\\\\FilterAggregation\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/FilterAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Bucket\\\\TermsAggregation\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/TermsAggregation.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Bucket/Bucket.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\Bucket\\:\\:\\$key \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Bucket/Bucket.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\BucketResult\\:\\:__construct\\(\\) has parameter \\$buckets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Bucket/BucketResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\BucketResult\\:\\:getKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Bucket/BucketResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\:\\:__construct\\(\\) has parameter \\$max with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/StatsResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\:\\:__construct\\(\\) has parameter \\$min with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/StatsResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\:\\:getMax\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/StatsResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\:\\:getMin\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/StatsResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\CriteriaArrayConverter\\:\\:convert\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/CriteriaArrayConverter.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/CriteriaArrayConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\CriteriaPartInterface\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/CriteriaPartInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\AndFilter\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/AndFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\ContainsFilter\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/ContainsFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\ContainsFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/ContainsFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\ContainsFilter\\:\\:getValue\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/ContainsFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsAnyFilter\\:\\:__construct\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/EqualsAnyFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsAnyFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/EqualsAnyFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsAnyFilter\\:\\:getValue\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/EqualsAnyFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsFilter\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/EqualsFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/EqualsFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsFilter\\:\\:getValue\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/EqualsFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\MultiFilter\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/MultiFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\MultiFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/MultiFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\MultiFilter\\:\\:getQueries\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/MultiFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\NandFilter\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/NandFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\NorFilter\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/NorFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\OrFilter\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/OrFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\PrefixFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/PrefixFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\RangeFilter\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\RangeFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\RangeFilter\\:\\:getParameter\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\RangeFilter\\:\\:getParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\RangeFilter\\:\\:hasParameter\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\RangeFilter\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\SuffixFilter\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/SuffixFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\XOrFilter\\:\\:__construct\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/XOrFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Grouping\\\\FieldGrouping\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Grouping/FieldGrouping.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:getDataFieldOfId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:getDataOfId\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:has\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\AggregationParser\\:\\:aggregationToArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
@@ -12955,11 +12530,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Query\\\\ScoreQuery\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Query/ScoreQuery.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:addFilter\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
@@ -13025,11 +12595,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Sorting/FieldSorting.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\AbstractTokenFilter\\:\\:filter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
@@ -13038,26 +12603,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\AbstractTokenFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern\\:\\:getAllTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/SearchPattern.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern\\:\\:getTokenTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/SearchPattern.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern\\:\\:setTokenTerms\\(\\) has parameter \\$tokenTerms with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/SearchPattern.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern\\:\\:\\$tokenTerms type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/SearchPattern.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Util\\\\AfterSort\\:\\:sort\\(\\) has parameter \\$elements with no value type specified in iterable type array\\.$#"
@@ -13150,61 +12695,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/Command/ChangeSet.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\DeleteCommand\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/DeleteCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\JsonUpdateCommand\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/JsonUpdateCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\JsonUpdateCommand\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/JsonUpdateCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\SetNullOnDeleteCommand\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/SetNullOnDeleteCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\SetNullOnDeleteCommand\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/SetNullOnDeleteCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\:\\:getPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\:\\:getPrimaryKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommand.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\:\\:\\$payload type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommand.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\:\\:\\$primaryKey type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:getCommandsForEntity\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
@@ -13225,11 +12715,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommandQueue\\:\\:\\$entityCommands type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Command/WriteCommandQueue.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\DataStack\\:\\:__construct\\(\\) has parameter \\$originalData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/DataStack.php
@@ -13243,61 +12728,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\DataStack\\:\\:update\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/DataStack.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\KeyValuePair\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/KeyValuePair.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\KeyValuePair\\:\\:getValue\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/KeyValuePair.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\KeyValuePair\\:\\:setValue\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/KeyValuePair.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DataStack\\\\KeyValuePair\\:\\:\\$value has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/KeyValuePair.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:__construct\\(\\) has parameter \\$deleted with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:__construct\\(\\) has parameter \\$notFound with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:__construct\\(\\) has parameter \\$updated with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:addUpdated\\(\\) has parameter \\$updated with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:getDeleted\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:getNotFound\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\DeleteResult\\:\\:getUpdated\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/DeleteResult.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityExistence\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
@@ -13630,11 +13060,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteCommandExtractor\\:\\:extractJsonUpdate\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteCommandExtractor\\:\\:fillRawDataWithDefaults\\(\\) has parameter \\$defaults with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
@@ -13720,74 +13145,9 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteCommandExtractor\\:\\:\\$fieldsForPrimaryKeyMapping type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:get\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:getLanguageCodeToIdMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:getLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:setLanguages\\(\\) has parameter \\$languages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:\\$languages type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:\\$paths type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteException\\:\\:getExceptions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteResult\\:\\:__construct\\(\\) has parameter \\$deleted with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteResult\\:\\:__construct\\(\\) has parameter \\$notFound with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteResult\\:\\:__construct\\(\\) has parameter \\$updated with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteResult\\:\\:getDeleted\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteResult\\:\\:getNotFound\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteResult\\:\\:getWritten\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\ActionEventCompilerPass\\:\\:getEventClasses\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -14423,11 +13783,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginFinder\\:\\:loadVendorInstalledPlugins\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/PluginFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginIdProvider\\:\\:getPluginIdByBaseClass\\(\\) should return string but returns array\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Util/PluginIdProvider.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\VersionSanitizer\\:\\:sanitizePluginVersion\\(\\) should return string but returns string\\|null\\.$#"
@@ -17490,36 +16845,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/JsonFieldSerializerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializerTest\\:\\:decodeProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/ListFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializerTest\\:\\:decodeStrictProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/ListFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializerTest\\:\\:testDecode\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/ListFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializerTest\\:\\:testDecode\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/ListFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializerTest\\:\\:testStrictDecode\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/ListFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializerTest\\:\\:testStrictDecode\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/ListFieldSerializerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializerTest\\:\\:serializerProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializerTest.php
@@ -17643,11 +16968,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:testOneToManyReadingInherited\\(\\) has parameter \\$expectedMedia with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntitySearcherTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\TestData\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -17997,16 +17317,6 @@ parameters:
 		-
 			message: "#^Cannot call method getUrl\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\WriterTest\\:\\:\\$id has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\WriterTest\\:\\:\\$idBytes has no type specified\\.$#"
-			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterTest.php
 
 		-
@@ -20550,11 +19860,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/DataAbstractionLayer/SalesChannelIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\PartialSalesChannelEntityLoadedEvent\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Entity/PartialSalesChannelEntityLoadedEvent.php
@@ -21528,16 +20833,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\NumberRange\\\\ValueGenerator\\\\IncrementArrayStorage\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/NumberRange/ValueGenerator/IncrementArrayStorage.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\System\\\\Test\\\\NumberRange\\\\ValueGenerator\\\\IncrementRedisStorageTest\\:\\:getKey\\(\\) expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/System/Test/NumberRange/ValueGenerator/IncrementRedisStorageTest.php
-
-		-
-			message: "#^Possibly invalid array key type array\\|string\\.$#"
-			count: 2
-			path: src/Core/System/Test/NumberRange/ValueGenerator/IncrementRedisStorageTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
@@ -23497,16 +22792,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\StaticFileConfigLoader\\:\\:prepareCollections\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ConfigLoader/StaticFileConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\DataAbstractionLayer\\\\ThemeIndexer\\:\\:getIterator\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/DataAbstractionLayer/ThemeIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\DataAbstractionLayer\\\\ThemeIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/DataAbstractionLayer/ThemeIndexer.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:__construct\\(\\) has parameter \\$variables with no value type specified in iterable type array\\.$#"

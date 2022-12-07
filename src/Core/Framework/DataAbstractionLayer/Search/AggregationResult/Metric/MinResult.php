@@ -5,28 +5,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class MinResult extends AggregationResult
 {
-    /**
-     * @var float|int|string|null
-     */
-    protected $min;
-
-    /**
-     * @param string|float|int|null $min
-     */
-    public function __construct(string $name, $min)
+    public function __construct(string $name, protected float|int|string|null $min)
     {
         parent::__construct($name);
-        $this->min = $min;
     }
 
-    /**
-     * @return float|int|string|null
-     */
-    public function getMin()
+    public function getMin(): float|int|string|null
     {
         return $this->min;
     }

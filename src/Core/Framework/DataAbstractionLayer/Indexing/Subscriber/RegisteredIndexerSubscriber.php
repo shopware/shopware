@@ -9,21 +9,15 @@ use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class RegisteredIndexerSubscriber implements EventSubscriberInterface
 {
-    private IndexerQueuer $indexerQueuer;
-
-    private EntityIndexerRegistry $indexerRegistry;
-
     /**
      * @internal
      */
-    public function __construct(IndexerQueuer $indexerQueuer, EntityIndexerRegistry $indexerRegistry)
+    public function __construct(private IndexerQueuer $indexerQueuer, private EntityIndexerRegistry $indexerRegistry)
     {
-        $this->indexerQueuer = $indexerQueuer;
-        $this->indexerRegistry = $indexerRegistry;
     }
 
     /**

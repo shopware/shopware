@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -109,20 +108,8 @@ class ProductIndexer extends EntityIndexer
         return 'product.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be natively typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "ProductIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->getIterator($offset);
 
         $ids = $iterator->fetch();

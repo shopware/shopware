@@ -10,31 +10,19 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ * @internal
  */
 class RepositoryFacadeHookFactory extends HookServiceFactory
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
-    private AclCriteriaValidator $criteriaValidator;
-
-    private AppContextCreator $appContextCreator;
-
     /**
      * @internal
      */
     public function __construct(
-        DefinitionInstanceRegistry $registry,
-        AppContextCreator $appContextCreator,
-        RequestCriteriaBuilder $criteriaBuilder,
-        AclCriteriaValidator $criteriaValidator
+        private DefinitionInstanceRegistry $registry,
+        private AppContextCreator $appContextCreator,
+        private RequestCriteriaBuilder $criteriaBuilder,
+        private AclCriteriaValidator $criteriaValidator
     ) {
-        $this->registry = $registry;
-        $this->appContextCreator = $appContextCreator;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->criteriaValidator = $criteriaValidator;
     }
 
     public function factory(Hook $hook, Script $script): RepositoryFacade

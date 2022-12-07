@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -1472,15 +1471,6 @@ EOF;
             if ($categoryB === $datum['categoryId']) {
                 ++$categoryBFound;
             }
-
-            if (Feature::isActive('v6.5.0.0')) {
-                continue;
-            }
-
-            static::assertArrayHasKey('product_id', $datum);
-            static::assertArrayHasKey('category_id', $datum);
-            static::assertEquals($datum['categoryId'], $datum['category_id']);
-            static::assertEquals($datum['productId'], $datum['product_id']);
         }
 
         static::assertEquals(1, $categoryAFound);

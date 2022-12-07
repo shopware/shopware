@@ -74,7 +74,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         );
 
         $fields->add(
-            (new ListField('calculated_prices', 'calculatedPrices'))->setStrict(true)->addFlags(new ApiAware(), new Runtime())
+            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
             (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime())

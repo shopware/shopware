@@ -86,9 +86,6 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->messageBus->dispatch(new IterateEntityIndexerMessage($this->getName(), null));
     }
 
-    /**
-     * @param array<string, string>|null $offset
-     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

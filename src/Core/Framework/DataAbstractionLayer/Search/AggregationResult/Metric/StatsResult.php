@@ -5,45 +5,26 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class StatsResult extends AggregationResult
 {
-    /**
-     * @var mixed|null
-     */
-    protected $min;
-
-    /**
-     * @var mixed|null
-     */
-    protected $max;
-
-    /**
-     * @var float|null
-     */
-    protected $avg;
-
-    /**
-     * @var float|null
-     */
-    protected $sum;
-
-    public function __construct(string $name, $min, $max, ?float $avg, ?float $sum)
-    {
+    public function __construct(
+        string $name,
+        protected mixed $min,
+        protected mixed $max,
+        protected ?float $avg,
+        protected ?float $sum
+    ) {
         parent::__construct($name);
-        $this->min = $min;
-        $this->max = $max;
-        $this->avg = $avg;
-        $this->sum = $sum;
     }
 
-    public function getMin()
+    public function getMin(): mixed
     {
         return $this->min;
     }
 
-    public function getMax()
+    public function getMax(): mixed
     {
         return $this->max;
     }

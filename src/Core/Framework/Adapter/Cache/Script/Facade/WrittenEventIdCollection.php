@@ -60,13 +60,13 @@ class WrittenEventIdCollection implements \IteratorAggregate
     /**
      * @internal should not be used directly, loop over an ItemsFacade directly inside twig instead
      *
-     * @return \ArrayIterator<int, string|array>
+     * @return \ArrayIterator<int, string|array<string, string>>
      */
     public function getIterator(): \ArrayIterator
     {
-        $primaryKeys = \array_map(function (EntityWriteResult $result) {
+        $primaryKeys = array_values(\array_map(function (EntityWriteResult $result) {
             return $result->getPrimaryKey();
-        }, $this->writeResults);
+        }, $this->writeResults));
 
         return new \ArrayIterator($primaryKeys);
     }

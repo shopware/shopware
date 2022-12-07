@@ -6,44 +6,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 abstract class WriteCommand
 {
-    /**
-     * @var array
-     */
-    protected $payload;
-
-    /**
-     * @var EntityDefinition
-     */
-    protected $definition;
-
-    /**
-     * @var array
-     */
-    protected $primaryKey;
-
-    /**
-     * @var EntityExistence
-     */
-    protected $existence;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
     protected bool $failed = false;
 
-    public function __construct(EntityDefinition $definition, array $payload, array $primaryKey, EntityExistence $existence, string $path)
-    {
-        $this->payload = $payload;
-        $this->definition = $definition;
-        $this->primaryKey = $primaryKey;
-        $this->existence = $existence;
-        $this->path = $path;
+    /**
+     * @param array<string, mixed> $payload
+     * @param array<string> $primaryKey
+     */
+    public function __construct(
+        protected EntityDefinition $definition,
+        protected array $payload,
+        protected array $primaryKey,
+        protected EntityExistence $existence,
+        protected string $path
+    ) {
     }
 
     abstract public function getPrivilege(): ?string;
@@ -53,6 +32,9 @@ abstract class WriteCommand
         return (bool) \count($this->payload);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;
@@ -68,6 +50,9 @@ abstract class WriteCommand
         return $this->definition->getEntityName();
     }
 
+    /**
+     * @return array<string>
+     */
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;

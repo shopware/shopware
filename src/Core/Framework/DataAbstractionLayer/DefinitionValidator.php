@@ -33,7 +33,8 @@ use Symfony\Component\String\Inflector\EnglishInflector;
 
 /**
  * @package core
- * @final tag:v6.5.0
+ *
+ * @final
  */
 class DefinitionValidator
 {
@@ -118,22 +119,10 @@ class DefinitionValidator
     ];
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
+    public function __construct(private DefinitionInstanceRegistry $registry, private Connection $connection)
     {
-        $this->registry = $registry;
-        $this->connection = $connection;
         $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
 

@@ -10,13 +10,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Event\ThemeIndexerEvent;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type Offset from IterableQuery
+ */
 class ThemeIndexer extends EntityIndexer
 {
     private IteratorFactory $iteratorFactory;
@@ -47,20 +49,8 @@ class ThemeIndexer extends EntityIndexer
         return 'theme.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "ThemeIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->getIterator($offset);
 
         $ids = $iterator->fetch();
@@ -126,6 +116,9 @@ class ThemeIndexer extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
+    /**
+     * @param Offset|null $offset
+     */
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

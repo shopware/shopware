@@ -23,11 +23,11 @@ class SyncServiceTest extends TestCase
     {
         $writeResult = new WriteResult(
             [
-                [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_DELETE)],
+                'product' => [new EntityWriteResult('deleted-id', [], 'product', EntityWriteResult::OPERATION_DELETE)],
             ],
             [],
             [
-                [new EntityWriteResult('created-id', [], 'product', EntityWriteResult::OPERATION_INSERT)],
+                'product' => [new EntityWriteResult('created-id', [], 'product', EntityWriteResult::OPERATION_INSERT)],
             ]
         );
 
@@ -62,7 +62,7 @@ class SyncServiceTest extends TestCase
         ], $result->getDeleted());
 
         static::assertSame([
-            [
+            'product' => [
                 'created-id',
             ],
         ], $result->getData());

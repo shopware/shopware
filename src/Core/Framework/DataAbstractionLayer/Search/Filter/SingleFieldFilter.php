@@ -3,19 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 abstract class SingleFieldFilter extends Filter
 {
-    /**
-     * @var bool
-     */
-    protected $isPrimary;
+    protected bool $isPrimary = false;
 
-    /**
-     * @var string|null
-     */
-    protected $resolved;
+    protected ?string $resolved = null;
 
     abstract public function getField(): string;
 

@@ -10,86 +10,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class FieldResolverContext extends Struct
 {
-    /**
-     * Contains the property path of the current field
-     * `product.manufacturer`
-     *
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * Contains the alias of the base table where the sql join has to be build on
-     * `product.manufacturer_1`
-     *
-     * @var string
-     */
-    protected $alias;
-
-    /**
-     * Contains the field which has to be resolved
-     * ManyToManyAssociationField|OneToManyAssociationField|...
-     *
-     * @var Field
-     */
-    protected $field;
-
-    /**
-     * Contains the entity definition where the field comes from
-     *
-     * @var EntityDefinition
-     */
-    protected $definition;
-
-    /**
-     * Contains the entity definition of the root table
-     *
-     * @var EntityDefinition
-     */
-    protected $rootDefinition;
-
-    /**
-     * Contains the query builder which is used to build the sql query
-     *
-     * @var QueryBuilder
-     */
-    protected $query;
-
-    /**
-     * @var Context
-     */
-    protected $context;
-
-    /**
-     * Contains the criteria element which points to the provided field. In some cases this part is a JoinGroup with different DAL filters
-     * to pre-restrict the join condition in mysql for to-many-association filters
-     *
-     * @var CriteriaPartInterface|null
-     */
-    protected $criteriaPart;
-
     public function __construct(
-        string $path,
-        string $alias,
-        Field $field,
-        EntityDefinition $definition,
-        EntityDefinition $rootDefinition,
-        QueryBuilder $query,
-        Context $context,
-        ?CriteriaPartInterface $criteriaPart
+        /** Contains the property path of the current field, e.g. `product.manufacturer` */
+        protected string $path,
+        /** Contains the alias of the base table where the sql join has to be build on, e.g. `product.manufacturer_1` */
+        protected string $alias,
+        /** Contains the field which has to be resolved, e.g. ManyToManyAssociationField|OneToManyAssociationField|... */
+        protected Field $field,
+        /** Contains the entity definition where the field comes from */
+        protected EntityDefinition $definition,
+        /** Contains the entity definition of the root table */
+        protected EntityDefinition $rootDefinition,
+        /** Contains the query builder which is used to build the sql query */
+        protected QueryBuilder $query,
+        protected Context $context,
+        /** Contains the criteria element which points to the provided field. In some cases this part is a JoinGroup with different DAL filters
+         * to pre-restrict the join condition in mysql for to-many-association filters */
+        protected ?CriteriaPartInterface $criteriaPart
     ) {
-        $this->path = $path;
-        $this->alias = $alias;
-        $this->field = $field;
-        $this->definition = $definition;
-        $this->rootDefinition = $rootDefinition;
-        $this->query = $query;
-        $this->context = $context;
-        $this->criteriaPart = $criteriaPart;
     }
 
     public function getPath(): string

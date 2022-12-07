@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class CountSorting extends FieldSorting
 {

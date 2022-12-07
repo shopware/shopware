@@ -22,7 +22,7 @@ class CriteriaTest extends TestCase
      */
     public function testStringConvert(Criteria $criteria, string $expected): void
     {
-        static::assertEquals(\json_decode((string) $criteria, true), \json_decode($expected, true));
+        static::assertEquals(\json_decode($expected, true), \json_decode((string) $criteria, true));
     }
 
     public function string_convert_provider(): \Generator
@@ -54,7 +54,7 @@ class CriteriaTest extends TestCase
 
         yield 'test query' => [
             (new Criteria())->addQuery(new ScoreQuery(new EqualsFilter('foo', 'bar'), 100)),
-            '{"total-count-mode":0,"query":[{"score":100,"query":{"type":"equals","field":"foo","value":"bar"},"scoreField":null,"extensions":[]}]}',
+            '{"total-count-mode":0,"query":[{"score":100.0,"query":{"type":"equals","field":"foo","value":"bar"},"scoreField":null,"extensions":[]}]}',
         ];
 
         yield 'test aggregation' => [

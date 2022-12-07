@@ -1,18 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Exception as DbalDriverException;
 use Doctrine\DBAL\Exception as DbalException;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1670090989AddIndexOrderOrderNumber;
 
+/**
+ * @internal
+ * @covers \Shopware\Core\Migration\V6_5\Migration1670090989AddIndexOrderOrderNumber
+ */
 class Migration1670090989AddIndexOrderOrderNumberTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     private Connection $connection;
 
     /**
@@ -22,42 +24,38 @@ class Migration1670090989AddIndexOrderOrderNumberTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->connection = KernelLifecycleManager::getConnection();
 
         $this->removeIndexIfExists();
     }
 
     /**
-     * @return void
      * @throws DbalDriverException
      * @throws DbalException
      */
     public function testOrderOrderNumberIndexWillBeAdded(): void
     {
         $this->executeMigration();
-        
-        $this->assertTrue($this->isIndexCreated());
+
+        static::assertTrue($this->isIndexCreated());
     }
 
-    /**
-     * @return void
-     */
     public function testRepetitiveMigrationExecution(): void
     {
         $e = null;
+
         try {
             $this->executeMigration();
             $this->executeMigration();
         } catch (DbalException | DbalDriverException $e) {
-            $this->fail($e->getMessage());
+            static::fail($e->getMessage());
         }
-        
-        $this->assertNull($e);
+
+        static::assertNull($e);
     }
 
     /**
-     * @return void
      * @throws DbalDriverException
      * @throws DbalException
      */
@@ -75,7 +73,7 @@ class Migration1670090989AddIndexOrderOrderNumberTest extends TestCase
         if (!$this->isIndexCreated()) {
             return;
         }
-        
+
         $this->connection->executeStatement('ALTER TABLE `order` DROP KEY `idx.order_number`');
     }
 
@@ -88,7 +86,7 @@ class Migration1670090989AddIndexOrderOrderNumberTest extends TestCase
         $key = $this->connection->executeQuery(
             'SHOW KEYS FROM `order` WHERE Column_name="order_number" AND Key_name="idx.order_number"'
         )->fetchAssociative();
-        
+
         return !empty($key);
     }
 }

@@ -27,11 +27,11 @@ class Migration1670090989AddIndexOrderOrderNumber extends MigrationStep
         $key = $connection->executeQuery(
             'SHOW KEYS FROM `order` WHERE Column_name="order_number" AND Key_name="idx.order_number"'
         )->fetchAssociative();
-        
+
         if (!empty($key)) {
             return;
         }
-        
+
         $connection->executeStatement(
             'ALTER TABLE `order` ADD KEY `idx.order_number` (`order_number`)'
         );

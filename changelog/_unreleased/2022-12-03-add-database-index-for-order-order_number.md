@@ -1,6 +1,6 @@
 ---
 title: Add database index for order.order_number
-issue: -
+issue: NEXT-24510
 author: Pavel Rossinsky
 author_email: po.rossinsky@gmail.com
 author_github: @pavel-rossinsky

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',

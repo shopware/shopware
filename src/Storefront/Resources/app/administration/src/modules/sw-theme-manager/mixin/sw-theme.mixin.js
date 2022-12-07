@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 const { Mixin } = Shopware;
 
 Mixin.register('theme', {

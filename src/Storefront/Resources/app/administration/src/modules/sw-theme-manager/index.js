@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './mixin/sw-theme.mixin';
 import './page/sw-theme-manager-detail';
 import './page/sw-theme-manager-list';

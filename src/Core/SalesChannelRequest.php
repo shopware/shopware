@@ -36,11 +36,6 @@ final class SalesChannelRequest
      */
     public const ATTRIBUTE_CSRF_PROTECTED = 'csrf_protected';
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed as the proxy will be removed
-     */
-    public const ATTRIBUTE_STORE_API_PROXY = 'sw-store-api-proxy';
-
     private function __construct()
     {
     }

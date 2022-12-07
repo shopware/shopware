@@ -18819,11 +18819,6 @@ parameters:
 			path: src/Core/Framework/Test/Routing/CoreSubscriberTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$value of method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:setServerParameter\\(\\) expects array\\|object\\|string, true given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/CoreSubscriberTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/CoreSubscriberTest.php
@@ -19327,31 +19322,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\ExtensionHelper\\:\\:removeExtensions\\(\\) has parameter \\$object with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:__construct\\(\\) has parameter \\$kernel with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestBrowser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:__construct\\(\\) has parameter \\$server with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestBrowser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:setServerParameter\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestBrowser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:setServerParameter\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestBrowser.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(string\\)\\: Unexpected token \"\\\\n     \\* \", expected variable at offset 24$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestBrowser.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestUser\\:\\:buildRole\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
@@ -22336,16 +22306,6 @@ parameters:
 			message: "#^Cannot call method getZipCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/NewsletterController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StoreApiProxyController\\:\\:clearRequestStackWithBackup\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StoreApiProxyController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\StoreApiProxyController\\:\\:restoreRequestStack\\(\\) has parameter \\$requestStackBackup with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StoreApiProxyController.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\DependencyInjection\\\\StorefrontExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"

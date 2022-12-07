@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Core\Maintenance\Maintenance;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -25,13 +24,6 @@ use Symfony\Component\Routing\Route;
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
-
-    /**
-     * @internal
-     *
-     * @deprecated tag:v6.5.0 The connection requirements should be fixed
-     */
-    public const PLACEHOLDER_DATABASE_URL = 'mysql://_placeholder.test';
 
     public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
@@ -111,11 +103,6 @@ class Kernel extends HttpKernel
 
                 yield $bundle;
             }
-        }
-
-        /* @deprecated tag:v6.5.0 Maintenance bundle need to be added to config/bundles.php file */
-        if (!\in_array('Maintenance', $instanciatedBundleNames, true)) {
-            yield new Maintenance();
         }
 
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);

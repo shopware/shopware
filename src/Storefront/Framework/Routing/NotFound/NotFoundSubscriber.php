@@ -101,7 +101,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
     public function onError(ExceptionEvent $event): void
     {
         $request = $event->getRequest();
-        if ($this->kernelDebug || $request->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)) {
+        if ($this->kernelDebug) {
             return;
         }
 

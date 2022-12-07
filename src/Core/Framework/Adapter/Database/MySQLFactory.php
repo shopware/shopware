@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Kernel;
 
 /**
  * @package core
@@ -20,7 +19,7 @@ class MySQLFactory
     {
         $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
         if ($url === false) {
-            $url = Kernel::PLACEHOLDER_DATABASE_URL;
+            throw new \RuntimeException('Environment variable "DATABASE_URL" is not set.');
         }
 
         $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');

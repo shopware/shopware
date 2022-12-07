@@ -35,22 +35,6 @@
             <tag name="twig.extension" />
         </service>
 
-        <service id="Shopware\Core\Profiling\Checkout\SalesChannelContextServiceProfiler">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
-        </service>
-
-        <service id="Shopware\Core\Profiling\Entity\EntityReaderProfiler">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-        </service>
-
-        <service id="Shopware\Core\Profiling\Entity\EntityAggregatorProfiler">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-        </service>
-
-        <service id="Shopware\Core\Profiling\Entity\EntitySearcherProfiler">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-        </service>
-
         <service id="Shopware\Core\Profiling\Subscriber\ActiveRulesDataCollectorSubscriber">
             <argument type="service" id="rule.repository"/>
 

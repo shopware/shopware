@@ -130,10 +130,7 @@
                         {# @deprecated tag:v6.5.0 - Route frontend.csrf.generateToken will be removed. #}
                         'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
                         'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
-                        'frontend.store-api.proxy': '{{ path('frontend.store-api.proxy') }}',
                     };
-                    {# @deprecated tag:v6.5.0 - storeApiProxyToken will be removed. #}
-                    window.storeApiProxyToken = '{{ sw_csrf("frontend.store-api.proxy", {"mode": "token"}) }}';
                     window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
                 </script>
             {% endblock %}

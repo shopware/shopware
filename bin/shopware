@@ -39,10 +39,7 @@ return static function (array &$context) {
         $context['INSTALL'] = true;
     }
 
-    if (trim($context['DATABASE_URL'] ?? '') === '') {
-        // fake DATABASE_URL
-        $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
-    } else if (!isset($context['INSTALL'])) {
+    if (trim($context['DATABASE_URL'] ?? '') !== '' && !isset($context['INSTALL'])) {
         $pluginLoader = new DbalKernelPluginLoader($classLoader, null, \Shopware\Core\Kernel::getConnection());
     }
 

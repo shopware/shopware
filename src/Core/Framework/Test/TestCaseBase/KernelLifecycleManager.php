@@ -66,10 +66,8 @@ class KernelLifecycleManager
 
     /**
      * Create a web client with the default kernel and disabled reboots
-     *
-     * @deprecated tag:v6.5.0 - parameter $disableCsrf will be removed as the csrf system will be removed in favor for the samesite approach
      */
-    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false, bool $disableCsrf = false): TestBrowser
+    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): TestBrowser
     {
         /** @var TestBrowser $apiBrowser */
         $apiBrowser = $kernel->getContainer()->get('test.browser');
@@ -78,13 +76,6 @@ class KernelLifecycleManager
             $apiBrowser->enableReboot();
         } else {
             $apiBrowser->disableReboot();
-        }
-        if ($apiBrowser instanceof TestBrowser) {
-            if ($disableCsrf) {
-                $apiBrowser->disableCsrf();
-            } else {
-                $apiBrowser->enableCsrf();
-            }
         }
 
         return $apiBrowser;

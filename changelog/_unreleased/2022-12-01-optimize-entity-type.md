@@ -1,7 +1,6 @@
 ---
 title: Optimize EntityType
-issue:
-flag:
+issue: NEXT-24511
 author: Jan Matthiesen
 author_email: jm@netinventors.de
 author_github: jmatthiesen81

@@ -27,11 +27,6 @@ if (fs.existsSync(flagsPath)) {
     global.featureFlags = featureFlags;
 }
 
-let refactorAlias = false;
-if (featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {
-    refactorAlias = featureFlags.FEATURE_NEXT_11634;
-}
-
 // https://regex101.com/r/OGpZFt/1
 const versionRegex = /16\.\d{1,2}\.\d{1,2}/;
 if (!versionRegex.test(process.versions.node)) {
@@ -223,25 +218,11 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     ...(() => {
-        if (refactorAlias) {
-            return {
-                resolve: {
-                    extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
-                    alias: {
-                        scss: path.join(__dirname, 'src/app/assets/scss'),
-                    },
-                },
-            };
-        }
-
         return {
             resolve: {
                 extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
                 alias: {
-                    vue$: 'vue/dist/vue.esm.js',
-                    src: path.join(__dirname, 'src'),
                     scss: path.join(__dirname, 'src/app/assets/scss'),
-                    assets: path.join(__dirname, 'static'),
                 },
             },
         };
@@ -539,19 +520,15 @@ const coreConfig = {
     },
 
     ...(() => {
-        if (refactorAlias) {
-            return {
-                resolve: {
-                    alias: {
-                        vue$: 'vue/dist/vue.esm.js',
-                        src: path.join(__dirname, 'src'),
-                        assets: path.join(__dirname, 'static'),
-                    },
+        return {
+            resolve: {
+                alias: {
+                    vue$: 'vue/dist/vue.esm.js',
+                    src: path.join(__dirname, 'src'),
+                    assets: path.join(__dirname, 'static'),
                 },
-            };
-        }
-
-        return {};
+            },
+        };
     })(),
 
     output: {
@@ -689,17 +666,13 @@ const configsForPlugins = pluginEntries.map((plugin) => {
             },
 
             ...(() => {
-                if (refactorAlias) {
-                    return {
-                        resolve: {
-                            alias: {
-                                '@administration': path.join(__dirname, 'src'),
-                            },
+                return {
+                    resolve: {
+                        alias: {
+                            '@administration': path.join(__dirname, 'src'),
                         },
-                    };
-                }
-
-                return {};
+                    },
+                };
             })(),
 
             output: {

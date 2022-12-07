@@ -1,7 +1,7 @@
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
 
-const { Component, Feature } = Shopware;
+const { Component } = Shopware;
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
@@ -32,8 +32,7 @@ Component.register('sw-tabs', {
     props: {
         positionIdentifier: {
             type: String,
-            // eslint-disable-next-line no-unneeded-ternary
-            required: Feature.isActive('FEATURE_NEXT_18129') ? true : false,
+            required: true,
             default: null,
         },
 

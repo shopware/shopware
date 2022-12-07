@@ -5,7 +5,6 @@
 import initUserInformation from './user-information.init';
 import initLanguage from './language.init';
 import initWorker from './worker.init';
-import initMarketing from './marketing.init';
 import initCookies from './cookie.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,5 +13,4 @@ export default {
     language: initLanguage,
     userInformation: initUserInformation,
     worker: initWorker,
-    marketing: initMarketing,
 };

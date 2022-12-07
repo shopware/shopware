@@ -17,20 +17,6 @@ class CartStoreService extends ApiService {
         this.name = 'cartStoreService';
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Use `LineItemType` directly instead
-     */
-    getLineItemTypes(): typeof LineItemType {
-        return LineItemType;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use `PriceType` directly instead
-     */
-    getLineItemPriceTypes(): typeof PriceType {
-        return PriceType;
-    }
-
     mapLineItemTypeToPriceType(itemType: LineItemType): PriceType {
         const mapTypes = {
             [LineItemType.PRODUCT]: PriceType.QUANTITY,

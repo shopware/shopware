@@ -1,7 +1,6 @@
 ---
 title: Change criteria defaults
 issue: NEXT-21547
-flag: FEATURE_NEXT_21547
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

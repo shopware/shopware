@@ -121,15 +121,6 @@ export default {
             default: 400,
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be replaced, use fillEmptyValues instead
-         */
-        fillEmptyDates: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
         fillEmptyValues: {
             type: String,
             required: false,
@@ -179,10 +170,7 @@ export default {
 
             let optimizedSeries = object.deepCopyObject(this.series);
 
-            /**
-             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues
-             */
-            if (this.fillEmptyValues || this.fillEmptyDates) {
+            if (this.fillEmptyValues) {
                 optimizedSeries = this.addZeroValuesToSeries(optimizedSeries);
             }
 
@@ -365,13 +353,6 @@ export default {
         },
 
         setDateTime(date) {
-            /**
-             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues, so this if can be removed
-             */
-            if (this.fillEmptyDates) {
-                this.fillEmptyValues = 'day';
-            }
-
             switch (this.fillEmptyValues) {
                 case 'day':
                 default:
@@ -389,13 +370,6 @@ export default {
         },
 
         incrementByTimeUnit(date) {
-            /**
-             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues, so this if can be removed
-             */
-            if (this.fillEmptyDates) {
-                this.fillEmptyValues = 'day';
-            }
-
             switch (this.fillEmptyValues) {
                 case 'day':
                 default:
@@ -414,11 +388,8 @@ export default {
 
         getZeroValues() {
             // check if empty dates should filled and xaxis is datetime
-            /**
-             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues
-             */
             if (!(
-                (this.fillEmptyValues || this.fillEmptyDates) &&
+                (this.fillEmptyValues) &&
                 this.options.xaxis && this.options.xaxis.type === 'datetime'
             )) {
                 return [];

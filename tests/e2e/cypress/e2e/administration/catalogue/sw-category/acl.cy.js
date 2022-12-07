@@ -45,6 +45,8 @@ describe('Category: Test ACL privileges', () => {
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
         cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('#categoryName').should('have.value', 'Home');
 
         // 'home' category should be have 'main navigation' as entry point, so there are more things

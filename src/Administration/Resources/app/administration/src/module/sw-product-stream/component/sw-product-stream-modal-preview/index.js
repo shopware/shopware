@@ -5,7 +5,7 @@
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Context, Feature } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -95,34 +95,19 @@ export default {
         },
     },
 
-    watch: {
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm() {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.isLoading = true;
-                this.loadEntityData()
-                    .then(() => {
-                        this.isLoading = false;
-                    });
-            }
-        },
-    },
-
     created() {
         this.createdComponent();
     },
 
     methods: {
-        onSearchTermChange() {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                this.page = 1;
-                this.isLoading = true;
-                this.loadEntityData()
-                    .then(() => {
-                        this.isLoading = false;
-                    });
-            }
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.page = 1;
+            this.isLoading = true;
+            this.loadEntityData()
+                .then(() => {
+                    this.isLoading = false;
+                });
         },
         onSalesChannelChange() {
             this.page = 1;

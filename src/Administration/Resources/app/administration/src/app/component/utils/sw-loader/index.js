@@ -16,16 +16,13 @@ Component.register('sw-loader', {
     template,
 
     props: {
-        /**
-         * @deprecated tag:v6.5.0 - Will be validated to be a px value greater or equal to 12px.
-         */
         size: {
             type: String,
             required: false,
             default: '50px',
-            /* validator(value) {
+            validator(value) {
                 return /^(12|[2-9][0-9]|[1-9][2-9]|[1-9]\d{2,})px$/.test(value);
-            }, */
+            },
         },
     },
 

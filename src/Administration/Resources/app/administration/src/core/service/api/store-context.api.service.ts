@@ -47,21 +47,6 @@ class StoreContextService extends ApiService {
         return this.httpClient.patch(route, context, { ...additionalParams, headers });
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed, use getSalesChannelContext instead
-     */
-    getContext(
-        salesChannelId: string,
-        source: string,
-        additionalParams = {},
-        additionalHeaders = {},
-    ) {
-        const route = `_proxy/store-api/${salesChannelId}/${source}`;
-        const headers = this.getBasicHeaders(additionalHeaders);
-
-        return this.httpClient.post(route, {}, { ...additionalParams, headers });
-    }
-
     getSalesChannelContext(
         salesChannelId: string,
         contextToken: string|null,

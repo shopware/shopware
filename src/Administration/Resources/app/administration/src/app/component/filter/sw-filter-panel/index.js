@@ -10,13 +10,6 @@ Component.register('sw-filter-panel', {
     inject: ['repositoryFactory'],
 
     props: {
-        /* @deprecated tag:v6.5.0 - Unused will be removed */
-        entity: {
-            type: String,
-            required: false,
-            default: '',
-        },
-
         filters: {
             type: Array,
             required: true,

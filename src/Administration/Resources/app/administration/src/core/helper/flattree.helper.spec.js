@@ -249,19 +249,4 @@ describe('core/helper/flattree.helper.js', () => {
             })
         ]);
     });
-
-    /** @deprecated tag:v6.5.0 can be removed when defaultPosition is removed */
-    describe('deprecated functions ', () => {
-        it('should be possible to get all registered nodes', async () => {
-            expect(flatTree.getRegisteredNodes()).toBeInstanceOf(Map);
-        });
-
-        it('can set and get the default position', async () => {
-            expect(flatTree.defaultPosition).toBe(1);
-
-            flatTree.defaultPosition = -100;
-
-            expect(flatTree.defaultPosition).toBe(-100);
-        });
-    });
 });

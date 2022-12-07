@@ -1,7 +1,6 @@
 ---
 title: Webpack alias refactor
 issue: NEXT-11634
-flag: FEATURE_NEXT_11634
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

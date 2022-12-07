@@ -32,28 +32,6 @@ describe('orderDocumentApiService', () => {
         expect(orderDocumentApiService.name).toBe('orderDocumentApiService');
     });
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    describe('create', () => {
-        it('is defined', async () => {
-            const { orderDocumentApiService } = createOrderDocumentApiService();
-
-            expect(orderDocumentApiService.create).toBeDefined();
-        });
-
-        it('calls the correct endpoint', async () => {
-            const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
-
-            const payload = {};
-            const additionalParams = {};
-
-            orderDocumentApiService.create(payload, additionalParams);
-
-            expect(clientMock.history.post[0].url).toBe('/_admin/order/document/create');
-        });
-    });
-
     describe('generate', () => {
         it('is defined', async () => {
             const { orderDocumentApiService } = createOrderDocumentApiService();
@@ -91,25 +69,6 @@ describe('orderDocumentApiService', () => {
             orderDocumentApiService.download(documentIds, additionalParams);
 
             expect(clientMock.history.post[0].url).toBe('/_action/order/document/download');
-        });
-    });
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    describe('extendingDeprecatedService', () => {
-        it('is defined', async () => {
-            const { orderDocumentApiService } = createOrderDocumentApiService();
-
-            expect(orderDocumentApiService.extendingDeprecatedService).toBeDefined();
-        });
-
-        it('calls the correct endpoint', async () => {
-            const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
-
-            orderDocumentApiService.extendingDeprecatedService();
-
-            expect(clientMock.history.get[0].url).toBe('/_action/document/extending-deprecated-service');
         });
     });
 });

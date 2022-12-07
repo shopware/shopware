@@ -104,31 +104,6 @@ class FlatTree {
         this._registeredNodes.delete(nodeIdentifier);
         return this;
     }
-
-    /**
-     * Returns the collection of the registered nodes for the data tree
-     *
-     * @deprecated tag:v6.5.0 will be removed as registered nodes should be private
-     *
-     * @returns {Map}
-     */
-    getRegisteredNodes() {
-        return this._registeredNodes;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed. treat as private
-     */
-    get defaultPosition() {
-        return this._defaultPosition;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 set in constructor. treat as private
-     */
-    set defaultPosition(value) {
-        this._defaultPosition = value;
-    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

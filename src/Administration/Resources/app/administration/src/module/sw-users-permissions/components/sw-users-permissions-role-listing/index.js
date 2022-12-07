@@ -1,7 +1,7 @@
 import template from './sw-users-permissions-role-listing.html.twig';
 import './sw-users-permissions-role-listing.scss';
 
-const { Data, Mixin, Feature } = Shopware;
+const { Data, Mixin } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -92,9 +92,8 @@ export default {
         },
 
         onSearch(searchTerm) {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.term = searchTerm;
-            }
+            this.term = searchTerm;
+
             this.$emit('get-list');
         },
 

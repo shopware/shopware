@@ -10,7 +10,7 @@ import 'src/app/component/base/sw-card';
 
 Shopware.Component.register('sw-product-properties', swProductProperties);
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
 let productPropertiesMock = [
     { id: '01', groupId: 'sizeId', name: '30' },
@@ -88,7 +88,7 @@ async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(await Component.build('sw-product-properties'), {
+    return shallowMount(await Shopware.Component.build('sw-product-properties'), {
         localVue,
         stubs: {
             'sw-inheritance-switch': {

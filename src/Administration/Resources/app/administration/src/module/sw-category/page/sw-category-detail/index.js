@@ -498,7 +498,7 @@ export default {
                 }
 
 
-                await Shopware.State.dispatch('shopwareApps/setSelectedIds', [this.landingPageId]);
+                Shopware.State.commit('shopwareApps/setSelectedIds', [this.landingPageId]);
                 await Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -532,17 +532,12 @@ export default {
                     });
             }
 
-
-            return Shopware.State.dispatch(
-                'shopwareApps/setSelectedIds',
-                [this.categoryId],
-            ).then(() => {
-                return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
-                    repository: this.categoryRepository,
-                    apiContext: Shopware.Context.api,
-                    id: this.categoryId,
-                    criteria: this.categoryCriteria,
-                });
+            Shopware.State.commit('shopwareApps/setSelectedIds', [this.categoryId]);
+            return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
+                repository: this.categoryRepository,
+                apiContext: Shopware.Context.api,
+                id: this.categoryId,
+                criteria: this.categoryCriteria,
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
                 .then(this.loadCustomFieldSet)

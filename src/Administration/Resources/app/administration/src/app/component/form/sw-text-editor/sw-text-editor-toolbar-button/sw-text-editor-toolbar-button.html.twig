@@ -81,11 +81,9 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_text_editor_toolbar_button_child_item %}
                 <div>
-                    {# @deprecated tag:v6.5.0 - Size can be removed #}
                     <sw-icon
                         v-if="child.icon"
                         :name="child.icon"
-                        size="18"
                     />
                     <div
                         v-else

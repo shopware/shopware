@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
 
-const { Mixin, Context, Feature } = Shopware;
+const { Mixin, Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -208,9 +208,8 @@ export default {
         },
 
         onChangeSearchTerm(searchTerm) {
-            if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                this.searchTerm = searchTerm;
-            }
+            this.searchTerm = searchTerm;
+
             if (searchTerm) {
                 this.page = 1;
             }

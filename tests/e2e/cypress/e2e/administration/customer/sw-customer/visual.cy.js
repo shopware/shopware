@@ -129,6 +129,7 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
+        cy.get('.sw-customer-detail__tab-addresses').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
         cy.get('.sw-modal').should('be.visible');

@@ -101,13 +101,6 @@ Component.register('sw-text-editor-toolbar', {
         this.mountedComponent();
     },
 
-    /**
-     * @deprecated tag:v6.5.0 - Use unmounted instead.
-     */
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     unmounted() {
         this.beforeUnmountedComponent();
     },
@@ -170,13 +163,6 @@ Component.register('sw-text-editor-toolbar', {
                 this.arrowPosition['--left'] = `${left}px`;
                 this.arrowPosition['--right'] = 'unset';
             }
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use `beforeUnmountedComponent` instead.
-         */
-        beforeDestroyComponent() {
-            this.beforeUnmountedComponent();
         },
 
         destroyedComponent() {

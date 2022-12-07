@@ -19,19 +19,6 @@ Component.register('sw-media-modal-folder-settings', {
     ],
 
     props: {
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed, use folderId instead
-         */
-        folder: {
-            required: false,
-            type: Object,
-            validator() {
-                console.warn('The "folder" prop is deprecated and will be removed in v6.5.0, use "folderId" instead.');
-
-                return false;
-            },
-            default: null,
-        },
         mediaFolderId: {
             required: true,
             type: String,

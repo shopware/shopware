@@ -30,8 +30,7 @@ $sw-price-field-suffix-font-weight: $font-weight-regular;
         }
 
         .sw-icon {
-            // @deprecated tag:v6.5.0 - The !important attribute can be removed
-            padding: 0 3px !important;
+            padding: 0 3px;
         }
     }
 

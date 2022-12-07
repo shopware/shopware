@@ -68,11 +68,11 @@ async function createWrapper(privileges = []) {
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
-                    <div class="sw-data-grid">
-                        <template v-for="item in dataSource">
-                            <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
-                    </div>
+                  <div class="sw-data-grid">
+                  <template v-for="item in dataSource">
+                    <slot name="actions" v-bind="{ item }"></slot>
+                  </template>
+                  </div>
                 `
             },
             'sw-empty-state': await Shopware.Component.build('sw-empty-state'),

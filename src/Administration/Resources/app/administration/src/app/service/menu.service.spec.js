@@ -30,7 +30,6 @@ describe('src/app/service/menu.service', () => {
                 expect.objectContaining({ id: 'sw.second.level.first' }),
                 expect.objectContaining({ id: 'sw.second.level.second' }),
                 expect.objectContaining({ id: 'sw.first.top.level' }),
-                expect.objectContaining({ id: 'sw-my-apps' }),
                 expect.objectContaining({ id: 'children.with.privilege' }),
                 expect.objectContaining({ id: 'children.with.privilege.first' }),
                 expect.objectContaining({ id: 'children.with.privilege.second' })
@@ -84,7 +83,7 @@ describe('src/app/service/menu.service', () => {
                 }), expect.objectContaining({
                     id: 'app-testAppA-noParent',
                     path: 'sw.my.apps.index',
-                    parent: 'sw-my-apps',
+                    parent: undefined,
                     params: {
                         appName: 'testAppA',
                         moduleName: 'noParent'
@@ -183,51 +182,6 @@ describe('src/app/service/menu.service', () => {
                         translated: true,
                         label: 'test App B english - Structure module'
                     }
-                })
-            ]);
-        });
-    });
-
-    describe('deprecated functionality', () => {
-        it('returns sorted tree when getMainMenu is called', async () => {
-            adminModules.forEach((module) => {
-                Shopware.Module.register(module.name, module);
-            });
-
-            const navigationTree = menuService.getMainMenu();
-
-
-            expect(navigationTree).toEqual([
-                expect.objectContaining({
-                    id: 'sw.first.top.level',
-                    position: 1,
-                    children: []
-                }),
-                expect.objectContaining({
-                    id: 'sw.second.top.level',
-                    position: 20,
-                    children: [
-                        expect.objectContaining({
-                            id: 'sw.second.level.first',
-                            position: 10
-                        }),
-                        expect.objectContaining({
-                            id: 'sw.second.level.second',
-                            position: 20
-                        }),
-                        expect.objectContaining({
-                            id: 'sw.second.level.last',
-                            position: 40
-                        })
-                    ]
-                }),
-                expect.objectContaining({
-                    id: 'sw-my-apps',
-                    position: 100
-                }),
-                expect.objectContaining({
-                    id: 'children.with.privilege',
-                    position: 150
                 })
             ]);
         });

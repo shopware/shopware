@@ -47,15 +47,6 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
     },
 
     getters: {
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed use privilegedExtensionBaseUrls instead.
-         */
-        allBaseUrls: state => {
-            return Object.values(state).map(extension => {
-                return extension.baseUrl;
-            });
-        },
-
         privilegedExtensionBaseUrls: state => {
             const acl = Shopware.Service('acl');
             const privilegedForAllApps = acl.can('app.all');

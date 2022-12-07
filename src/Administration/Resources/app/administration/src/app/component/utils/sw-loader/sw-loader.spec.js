@@ -30,7 +30,9 @@ describe('sr/app/component/utils/sw-loader', () => {
         expect(wrapper.vm.borderWidth).toBe('4px');
     });
 
-    it('should fallback to default values for size smaller than 12', async () => {
+    it('should throw error for size smaller than 12px', async () => {
+        const errorSpy = jest.fn();
+        jest.spyOn(global.console, 'error').mockImplementation(errorSpy);
         wrapper = await createWrapper({
             propsData: {
                 size: '11px',
@@ -38,16 +40,13 @@ describe('sr/app/component/utils/sw-loader', () => {
         });
 
         expect(wrapper.vm).toBeTruthy();
-        expect(typeof wrapper.vm.loaderSize).toBe('object');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('height')).toBe(true);
-        expect(wrapper.vm.loaderSize.height).toBe('50px');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('width')).toBe(true);
-        expect(wrapper.vm.loaderSize.width).toBe('50px');
-        expect(typeof wrapper.vm.borderWidth).toBe('string');
-        expect(wrapper.vm.borderWidth).toBe('4px');
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid prop: custom validator check failed for prop "size".'));
     });
 
-    it('should fallback to default values for none numeric values', async () => {
+    it('should throw error for none numeric values', async () => {
+        const errorSpy = jest.fn();
+        jest.spyOn(global.console, 'error').mockImplementation(errorSpy);
         wrapper = await createWrapper({
             propsData: {
                 size: 'zwölfpx',
@@ -55,13 +54,8 @@ describe('sr/app/component/utils/sw-loader', () => {
         });
 
         expect(wrapper.vm).toBeTruthy();
-        expect(typeof wrapper.vm.loaderSize).toBe('object');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('height')).toBe(true);
-        expect(wrapper.vm.loaderSize.height).toBe('50px');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('width')).toBe(true);
-        expect(wrapper.vm.loaderSize.width).toBe('50px');
-        expect(typeof wrapper.vm.borderWidth).toBe('string');
-        expect(wrapper.vm.borderWidth).toBe('4px');
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid prop: custom validator check failed for prop "size".'));
     });
 
     it('should accept valid size with px suffix', async () => {
@@ -81,7 +75,9 @@ describe('sr/app/component/utils/sw-loader', () => {
         expect(wrapper.vm.borderWidth).toBe('1px');
     });
 
-    it('should accept valid size without px suffix', async () => {
+    it('should throw error for size without px suffix', async () => {
+        const errorSpy = jest.fn();
+        jest.spyOn(global.console, 'error').mockImplementation(errorSpy);
         wrapper = await createWrapper({
             propsData: {
                 size: '24',
@@ -89,12 +85,7 @@ describe('sr/app/component/utils/sw-loader', () => {
         });
 
         expect(wrapper.vm).toBeTruthy();
-        expect(typeof wrapper.vm.loaderSize).toBe('object');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('height')).toBe(true);
-        expect(wrapper.vm.loaderSize.height).toBe('24px');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('width')).toBe(true);
-        expect(wrapper.vm.loaderSize.width).toBe('24px');
-        expect(typeof wrapper.vm.borderWidth).toBe('string');
-        expect(wrapper.vm.borderWidth).toBe('2px');
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid prop: custom validator check failed for prop "size".'));
     });
 });

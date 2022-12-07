@@ -2,20 +2,22 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/context-menu/sw-context-button';
 
-const { Component } = Shopware;
-
 async function createWrapper(additionalOptions = {}) {
     const localVue = createLocalVue();
 
-    return shallowMount(await Component.build('sw-card'), {
+    return shallowMount(await Shopware.Component.build('sw-card'), {
         localVue,
         stubs: {
-            'sw-context-button': await Component.build('sw-context-button'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-loader': true,
             'sw-icon': true,
             'sw-popover': true,
             'sw-context-menu': true,
-            'sw-ignore-class': true
+            'sw-ignore-class': true,
+            'sw-extension-component-section': true,
+        },
+        propsData: {
+            positionIdentifier: 'test',
         },
         ...additionalOptions
     });
@@ -25,6 +27,7 @@ describe('src/app/component/base/sw-card', () => {
     it('should display title', async () => {
         const options = {
             propsData: {
+                positionIdentifier: 'test',
                 title: 'test title'
             }
         };
@@ -36,6 +39,7 @@ describe('src/app/component/base/sw-card', () => {
     it('should display subtitle', async () => {
         const options = {
             propsData: {
+                positionIdentifier: 'test',
                 subtitle: 'test subtitle'
             }
         };
@@ -47,6 +51,7 @@ describe('src/app/component/base/sw-card', () => {
     it('should display loader', async () => {
         const options = {
             propsData: {
+                positionIdentifier: 'test',
                 isLoading: true
             }
         };

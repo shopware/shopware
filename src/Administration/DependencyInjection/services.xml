@@ -94,19 +94,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Administration\Controller\DocumentServiceDeprecationController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGeneratorController"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Controller\DocumentController"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="Shopware\Administration\Notification\NotificationService" public="true">
             <argument type="service" id="notification.repository"/>
         </service>
@@ -140,11 +127,6 @@
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
-
-        <service id="Shopware\Administration\Service\AdminOrderCartService">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-        </service>
 
         <service id="Shopware\Administration\Notification\NotificationDefinition">
             <tag name="shopware.entity.definition"/>

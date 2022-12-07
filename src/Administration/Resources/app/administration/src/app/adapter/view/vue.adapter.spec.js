@@ -14,8 +14,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     let vueAdapter;
 
     beforeEach(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_19822'];
-
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;

@@ -19,7 +19,7 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
                 authToken = auth.access;
 
                 cy.log('creating tax fixtures');
-                cy.createDefaultFixture('tax');
+                return cy.createDefaultFixture('tax');
             })
             .then(() => {
                 cy.log('search via admin api');
@@ -133,8 +133,7 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
             });
     });
 
-    // TODO: E2E will be fixed and removed skip in NEXT-16286
-    it('@catalogue: check that the url parameters get set', { tags: ['quarantined', 'pa-content-management'] }, () => {
+    it('@catalogue: check that the url parameters get set', { tags: ['pa-content-management'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index`);
@@ -142,7 +141,7 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
         // use the search box and check if term gets set (in the function)
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('product');
 
-        // the sorting starts with status and createdAt, witch the URL dosn't support
+        // the sorting starts with status and createdAt, witch the URL doesn't support
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
 
         cy.testListing({
@@ -160,7 +159,6 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
         cy.log('change Sorting direction from ASC to DESC');
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-
 
         cy.testListing({
             searchTerm: 'product',
@@ -189,6 +187,7 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
             page: 1,
             limit: 10
         });
+
         cy.log('go to second page');
         cy.get(':nth-child(2) > .sw-pagination__list-button').click();
         cy.get('.sw-data-grid-skeleton').should('not.exist');

@@ -612,7 +612,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         wrapper = await createWrapper(props);
 
-        expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(2);
@@ -655,7 +654,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         wrapper = await createWrapper(props);
 
-        expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(2);
@@ -698,7 +696,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         wrapper = await createWrapper(props);
 
-        expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(2);
@@ -743,7 +740,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         wrapper = await createWrapper(props);
 
-        expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(2);
@@ -791,113 +787,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         wrapper = await createWrapper(props);
 
-        expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(2);
-    });
-
-    it('should filter custom field sets when selection active and customFields selected', async () => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null
-                },
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: true,
-                getEntityName: () => {
-                    return 'product';
-                }
-            },
-            sets: createEntityCollection([{
-                id: 'set1',
-                name: 'set1',
-                config: {},
-                customFields: [{
-                    name: 'field1',
-                    type: 'text',
-                    config: {
-                        label: 'field1Label'
-                    }
-                }]
-            },
-            {
-                id: 'set2',
-                name: 'set2',
-                config: {},
-                customFields: [{
-                    name: 'field2',
-                    type: 'text',
-                    config: {
-                        label: 'field2Label'
-                    }
-                }]
-            }]),
-            showCustomFieldSetSelection: true
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.filterCustomFields).toBe(true);
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        expect(wrapper.vm.visibleCustomFieldSets[0].id).toBe('set2');
-
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(1);
-    });
-
-    it('should filter custom field sets from parent when inherited', async () => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null
-                },
-                customFieldSets: createEntityCollection(),
-                customFieldSetSelectionActive: null,
-                getEntityName: () => {
-                    return 'product';
-                }
-            },
-            sets: createEntityCollection([{
-                id: 'set1',
-                name: 'set1',
-                config: {},
-                customFields: [{
-                    name: 'field1',
-                    type: 'text',
-                    config: {
-                        label: 'field1Label'
-                    }
-                }]
-            },
-            {
-                id: 'set2',
-                name: 'set2',
-                config: {},
-                customFields: [{
-                    name: 'field2',
-                    type: 'text',
-                    config: {
-                        label: 'field2Label'
-                    }
-                }]
-            }]),
-            parentEntity: {
-                id: 'parent',
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: true
-            },
-            showCustomFieldSetSelection: true
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.filterCustomFields).toBe(true);
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        expect(wrapper.vm.visibleCustomFieldSets[0].id).toBe('set2');
-
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(1);
     });
 
     it('should initialize new custom fields on entity change', async () => {

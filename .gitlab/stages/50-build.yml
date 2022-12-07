@@ -3,7 +3,7 @@
 Component Library:
     extends: .base
     stage: build
-    image: node:14.18
+    image: node:18.12
     before_script: []
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR

@@ -18,7 +18,7 @@ variables:
     APP_SECRET: devsecret
     OPENSEARCH_URL: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
-    NODE_VERSION: 16
+    NODE_VERSION: 18
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
 # for jobs which should run on each MR/Pipeline

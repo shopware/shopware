@@ -14,6 +14,13 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
+const crypto = require('crypto');
+
+/** HACK: OpenSSL 3 does not support md4 any more,
+* but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
+*/
+const cryptoOrigCreateHash = crypto.createHash;
+crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
 
 /* eslint-disable */
 
@@ -28,10 +35,10 @@ if (fs.existsSync(flagsPath)) {
 }
 
 // https://regex101.com/r/OGpZFt/1
-const versionRegex = /16\.\d{1,2}\.\d{1,2}/;
+const versionRegex = /18\.\d{1,2}\.\d{1,2}/;
 if (!versionRegex.test(process.versions.node)) {
     console.log();
-    console.log(chalk.red('@Deprecated: You are using an incompatible Node.js version. Supported version range: ^16.0.0'));
+    console.log(chalk.red('@Deprecated: You are using an incompatible Node.js version. Supported version range: ^18.0.0'));
     console.log();
 }
 

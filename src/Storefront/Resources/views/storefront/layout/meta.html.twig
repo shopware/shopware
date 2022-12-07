@@ -141,81 +141,79 @@
             {% endblock %}
         {% endif %}
 
-        {% if feature('FEATURE_NEXT_15917') %}
-            {% block layout_head_javascript_router %}
-                {# Register all routes that will be needed in JavaScript to the window.router object #}
-                <script>
-                    window.activeNavigationId = '{{ page.header.navigation.active.id }}';
-                    window.router = {
-                        'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
-                        'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
-                        'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
-                        'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
-                        'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
-                        'frontend.cms.page': '{{ path('frontend.cms.page') }}',
-                        'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
-                        'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
-                        {# @deprecated tag:v6.5.0 - Route frontend.csrf.generateToken will be removed. #}
-                        'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
-                        'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
+        {% block layout_head_javascript_router %}
+            {# Register all routes that will be needed in JavaScript to the window.router object #}
+            <script>
+                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+                window.router = {
+                    'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
+                    'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
+                    'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                    'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
+                    'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
+                    'frontend.cms.page': '{{ path('frontend.cms.page') }}',
+                    'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
+                    'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
+                    {# @deprecated tag:v6.5.0 - Route frontend.csrf.generateToken will be removed. #}
+                    'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
+                    'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
                     };
-                    window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
-                </script>
-            {% endblock %}
+                window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
+            </script>
+        {% endblock %}
 
-            {% block layout_head_javascript_breakpoints %}
-                {# Register the available viewport breakpoints the window.breakpoints object #}
+        {% block layout_head_javascript_breakpoints %}
+            {# Register the available viewport breakpoints the window.breakpoints object #}
+            <script>
+                {% set breakpoint = {
+                    'xs': theme_config('breakpoint.xs'),
+                    'sm': theme_config('breakpoint.sm'),
+                    'md': theme_config('breakpoint.md'),
+                    'lg': theme_config('breakpoint.lg'),
+                    'xl': theme_config('breakpoint.xl')
+                } %}
+
+                window.breakpoints = {{ breakpoint|json_encode()|raw }};
+            </script>
+        {% endblock %}
+
+        {# @deprecated tag:v6.5.0 - Block layout_head_javascript_csrf will be removed. #}
+        {% block layout_head_javascript_csrf %}
+            <script>
+                window.csrf = {
+                    'enabled': '{{ shopware.csrfEnabled }}',
+                    'mode': '{{ shopware.csrfMode }}'
+                }
+            </script>
+        {% endblock %}
+
+        {% if config('core.cart.wishlistEnabled') %}
+            {% block layout_head_javascript_wishlist_state %}
                 <script>
-                    {% set breakpoint = {
-                        'xs': theme_config('breakpoint.xs'),
-                        'sm': theme_config('breakpoint.sm'),
-                        'md': theme_config('breakpoint.md'),
-                        'lg': theme_config('breakpoint.lg'),
-                        'xl': theme_config('breakpoint.xl')
-                    } %}
+                    window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
 
-                    window.breakpoints = {{ breakpoint|json_encode()|raw }};
+                    window.wishlistEnabled = {{ config('core.cart.wishlistEnabled') }};
                 </script>
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Block layout_head_javascript_csrf will be removed. #}
-            {% block layout_head_javascript_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
-                </script>
-            {% endblock %}
-
-            {% if config('core.cart.wishlistEnabled') %}
-                {% block layout_head_javascript_wishlist_state %}
-                    <script>
-                        window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
-
-                        window.wishlistEnabled = {{ config('core.cart.wishlistEnabled') }};
-                    </script>
-                {% endblock %}
-            {% endif %}
-
-            {# @internal tag:v6.5.0 - jQuery will be removed from the core. This block can be used to add jQuery as a `<script>`. #}
-            {% block layout_head_javascript_jquery %}
-            {% endblock %}
-
-            {% block layout_head_javascript_hmr_mode %}
-                {% if isHMRMode %}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js" defer></script>
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js" defer></script>
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js" defer></script>
-                    {# The storefront entry is a combined entry point which contains all plugins & themes #}
-                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
-                {% else %}
-                    {% for file in theme_config('assets.js') %}
-                        <script type="text/javascript" src="{{ asset(file, 'theme') }}" defer></script>
-                    {% endfor %}
-                {% endif %}
             {% endblock %}
         {% endif %}
+
+        {# jQuery is removed from the default Storefront since tag:v6.5.0 - This block should be used to add jQuery as a `<script>` if needed. #}
+        {% block layout_head_javascript_jquery %}
+        {% endblock %}
+
+        {% block layout_head_javascript_hmr_mode %}
+            {% if isHMRMode %}
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js" defer></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js" defer></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js" defer></script>
+                {# The storefront entry is a combined entry point which contains all plugins & themes #}
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
+            {% else %}
+                {% for file in theme_config('assets.js') %}
+                    <script type="text/javascript" src="{{ asset(file, 'theme') }}" defer></script>
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
     </head>
 {% endblock %}

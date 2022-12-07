@@ -45,11 +45,6 @@ shopware:
         major: false
         description: "Register Doi Domain"
         # issue: NEXT-16200
-      - name: FEATURE_NEXT_15917
-        default: false
-        major: true
-        description: "Move storefront script tags to head with defer"
-        # issue: NEXT-15917
       - name: FEATURE_NEXT_17275
         default: false
         major: true

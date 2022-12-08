@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Language;
 
 /**
- * @package system-settings
+ * @package core
  * @phpstan-type LanguageData array<string, array{id: string, code: string, parentId: string}>
  */
 interface LanguageLoaderInterface

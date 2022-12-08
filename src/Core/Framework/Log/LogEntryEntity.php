@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
- * @package system-settings
+ * @package core
  */
 class LogEntryEntity extends Entity
 {

@@ -5,9 +5,6 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageMigrationNotSupportedException;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 
-/**
- * @package system-settings
- */
 class IncrementStorageRegistry
 {
     /**

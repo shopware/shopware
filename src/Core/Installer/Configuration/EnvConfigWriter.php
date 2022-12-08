@@ -8,7 +8,7 @@ use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  *

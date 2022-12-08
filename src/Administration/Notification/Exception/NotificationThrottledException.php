@@ -5,9 +5,6 @@ namespace Shopware\Administration\Notification\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package system-settings
- */
 class NotificationThrottledException extends ShopwareHttpException
 {
     private int $waitTime;

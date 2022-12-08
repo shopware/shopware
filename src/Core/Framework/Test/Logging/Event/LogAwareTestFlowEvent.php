@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\LogAware;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class LogAwareTestFlowEvent extends TestFlowBusinessEvent implements LogAware
 {

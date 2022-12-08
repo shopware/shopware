@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swImportExportEditProfileModalIdentifiers from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers';

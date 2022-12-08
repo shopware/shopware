@@ -11,9 +11,6 @@ use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package system-settings
- */
 class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
     private ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry;

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-custom-field-translated-labels.html.twig';
 import './sw-custom-field-translated-labels.scss';
 

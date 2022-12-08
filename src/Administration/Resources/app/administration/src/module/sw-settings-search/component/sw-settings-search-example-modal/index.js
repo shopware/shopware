@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-search-example-modal.html.twig';
 import './sw-settings-search-example-modal.scss';
 

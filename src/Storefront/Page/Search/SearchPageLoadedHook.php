@@ -10,7 +10,9 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the SearchPage is loaded
  *
  * @hook-use-case data_loading
+ *
  * @package system-settings
+ *
  * @since 6.4.8.0
  */
 class SearchPageLoadedHook extends PageLoadedHook

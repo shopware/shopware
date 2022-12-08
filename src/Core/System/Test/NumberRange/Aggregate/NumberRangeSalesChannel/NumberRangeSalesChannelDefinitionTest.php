@@ -14,7 +14,6 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- * @package system-settings
  */
 class NumberRangeSalesChannelDefinitionTest extends TestCase
 {

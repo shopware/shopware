@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
-/**
- * @package system-settings
- */
 abstract class AbstractIncrementStorage
 {
     /**

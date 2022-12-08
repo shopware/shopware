@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Increment;
 
 /**
- * @package system-settings
+ * @package core
  */
 abstract class AbstractIncrementer
 {

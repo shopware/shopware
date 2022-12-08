@@ -13,7 +13,7 @@ use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

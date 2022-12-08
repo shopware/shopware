@@ -3,7 +3,7 @@
 namespace Shopware\Core\Installer\Requirements\Struct;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

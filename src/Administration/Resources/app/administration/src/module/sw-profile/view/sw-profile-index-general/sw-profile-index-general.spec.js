@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swProfileIndexGeneral from 'src/module/sw-profile/view/sw-profile-index-general';
 import 'src/app/component/form/select/base/sw-single-select';

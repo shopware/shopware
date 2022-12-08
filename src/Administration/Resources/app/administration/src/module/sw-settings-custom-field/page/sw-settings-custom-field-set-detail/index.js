@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-custom-field-set-detail.html.twig';
 
 const { Mixin } = Shopware;

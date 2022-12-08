@@ -9,7 +9,7 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

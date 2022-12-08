@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import unionBy from 'lodash/unionBy';
 
 import template from './sw-import-export-new-profile-wizard-mapping-page.html.twig';

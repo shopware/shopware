@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import swIntegrationList from 'src/module/sw-integration/page/sw-integration-list';
 import 'src/app/component/form/sw-field';

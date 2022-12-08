@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-country-create.html.twig';
 
 const utils = Shopware.Utils;

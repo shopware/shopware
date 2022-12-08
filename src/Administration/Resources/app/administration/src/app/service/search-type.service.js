@@ -7,7 +7,6 @@
  * @memberOf module:core/service/search-type
  * @constructor
  * @method createSearchTypeService
- * @package system-settings
  * @returns {Object}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

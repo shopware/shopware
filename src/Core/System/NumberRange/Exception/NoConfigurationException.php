@@ -5,9 +5,6 @@ namespace Shopware\Core\System\NumberRange\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package system-settings
- */
 class NoConfigurationException extends ShopwareHttpException
 {
     public function __construct(string $entityName, ?string $salesChannelId = null)

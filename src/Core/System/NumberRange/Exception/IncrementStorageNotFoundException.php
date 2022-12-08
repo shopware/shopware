@@ -4,9 +4,6 @@ namespace Shopware\Core\System\NumberRange\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package system-settings
- */
 class IncrementStorageNotFoundException extends ShopwareHttpException
 {
     /**

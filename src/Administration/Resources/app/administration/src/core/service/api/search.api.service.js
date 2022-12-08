@@ -4,7 +4,6 @@ import ApiService from '../api.service';
  * Gateway for the API end point 'product'
  * @class
  * @extends ApiService
- * @package system-settings
  */
 class SearchApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '_admin/search') {

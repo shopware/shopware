@@ -23,7 +23,7 @@ use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package system-settings
+ * @package core
  */
 class AclRoleDefinition extends EntityDefinition
 {

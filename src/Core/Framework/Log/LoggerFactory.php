@@ -8,7 +8,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LoggerInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 class LoggerFactory
 {

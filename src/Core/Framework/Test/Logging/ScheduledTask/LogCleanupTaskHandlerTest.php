@@ -19,8 +19,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class LogCleanupTaskHandlerTest extends TestCase
 {

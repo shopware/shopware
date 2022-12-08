@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 
 /**
- * @package system-settings
+ * @package core
  * @extends EntityCollection<LanguageEntity>
  */
 class LanguageCollection extends EntityCollection

@@ -1,9 +1,9 @@
-import ApiService from '../api.service';
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 /**
  * @package system-settings
  */
+import ApiService from '../api.service';
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExcludedSearchTermService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'reset-excluded-search-term') {
         super(httpClient, loginService, apiEndpoint);

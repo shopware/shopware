@@ -5,7 +5,7 @@ namespace Shopware\Core\Installer\Requirements;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

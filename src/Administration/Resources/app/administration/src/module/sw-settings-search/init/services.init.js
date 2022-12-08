@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import ProductIndexService from '../service/productIndex.api.service';
 import LiveSearchApiService from '../service/livesearch.api.service';
 import ExcludedSearchTermService from '../../../core/service/api/excludedSearchTerm.api.service';

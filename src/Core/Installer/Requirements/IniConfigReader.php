@@ -3,7 +3,7 @@
 namespace Shopware\Core\Installer\Requirements;
 
 /**
- * @package system-settings
+ * @package core
  * Extracted to be able to mock all ini values
  *
  * @internal

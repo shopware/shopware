@@ -4,8 +4,6 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "number-range"
  * @class
  * @extends ApiService
- * @package system-settings
- *
  */
 class NumberRangeApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'number-range') {

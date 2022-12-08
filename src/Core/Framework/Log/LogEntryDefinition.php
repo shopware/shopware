@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @package system-settings
+ * @package core
  */
 class LogEntryDefinition extends EntityDefinition
 {

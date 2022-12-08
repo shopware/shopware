@@ -1,6 +1,5 @@
 /**
  * @module core/factory/worker-notification
- * @package system-settings
  */
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';

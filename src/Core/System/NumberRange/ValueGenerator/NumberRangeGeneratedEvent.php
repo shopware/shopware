@@ -5,9 +5,6 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package system-settings
- */
 class NumberRangeGeneratedEvent extends Event
 {
     public const NAME = 'number_range.generated';

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

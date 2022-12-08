@@ -1,9 +1,6 @@
 import './page/sw-settings-storefront-index';
 import './component/sw-settings-storefront-configuration';
 
-/**
- * @package system-settings
- */
 Shopware.Module.register('sw-settings-storefront', {
     type: 'core',
     name: 'sw-settings-storefront',

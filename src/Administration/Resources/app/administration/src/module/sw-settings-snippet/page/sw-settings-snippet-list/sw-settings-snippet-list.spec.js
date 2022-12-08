@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import swSettingsSnippetList from 'src/module/sw-settings-snippet/page/sw-settings-snippet-list';

@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
 

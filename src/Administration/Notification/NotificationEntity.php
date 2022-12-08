@@ -7,9 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package system-settings
- */
 class NotificationEntity extends Entity
 {
     use EntityIdTrait;

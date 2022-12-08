@@ -6,9 +6,6 @@ export const POLL_BACKGROUND_INTERVAL = 30000;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_FOREGROUND_INTERVAL = 5000;
 
-/**
- * @package system-settings
- */
 class WorkerNotificationListener {
     constructor(context) {
         this._context = context;

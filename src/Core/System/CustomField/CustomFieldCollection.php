@@ -5,7 +5,7 @@ namespace Shopware\Core\System\CustomField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package system-settings
+ * @package core
  * @extends EntityCollection<CustomFieldEntity>
  */
 class CustomFieldCollection extends EntityCollection

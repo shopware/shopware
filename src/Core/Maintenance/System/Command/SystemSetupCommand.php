@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal should be used over the CLI only
  */

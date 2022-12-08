@@ -15,8 +15,6 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class IncrementStorageRegistryTest extends TestCase
 {

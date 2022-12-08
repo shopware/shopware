@@ -4,8 +4,6 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @module app/service/custom-field
- *
- * @package system-settings
  */
 
 /**

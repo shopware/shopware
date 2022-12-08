@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';

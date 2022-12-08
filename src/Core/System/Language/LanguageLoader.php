@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 
 /**
- * @package system-settings
+ * @package core
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 class LanguageLoader implements LanguageLoaderInterface

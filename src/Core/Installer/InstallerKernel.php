@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

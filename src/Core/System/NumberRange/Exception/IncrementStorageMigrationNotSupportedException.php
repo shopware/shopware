@@ -7,7 +7,6 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.5.0 will be removed, as it is not needed if we remove the `IncrementStorageInterface`
- * @package system-settings
  */
 class IncrementStorageMigrationNotSupportedException extends ShopwareHttpException
 {

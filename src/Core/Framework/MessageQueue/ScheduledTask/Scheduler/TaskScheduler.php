@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 final class TaskScheduler
 {

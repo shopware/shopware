@@ -15,7 +15,6 @@ use Shopware\Core\System\Country\CountryEntity;
 
 /**
  * @internal
- * @package system-settings
  */
 class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 {

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package system-settings
+ * @package core
  */
 class CommandAclValidationEvent extends Event
 {

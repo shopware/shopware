@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-import-export-edit-profile-general.html.twig';
 import './sw-import-export-edit-profile-general.scss';

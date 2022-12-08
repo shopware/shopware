@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 class AclApiService {
     constructor(httpClient, loginService) {
         this.httpClient = httpClient;

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {

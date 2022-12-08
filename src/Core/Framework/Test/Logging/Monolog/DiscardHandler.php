@@ -9,8 +9,6 @@ use Monolog\Handler\AbstractHandler;
  * This handler only exists, because Monolog NullHandlers cannot be specified in xml configuration files
  *
  * @see https://github.com/symfony/monolog-bundle/issues/133
- *
- * @package system-settings
  */
 class DiscardHandler extends AbstractHandler
 {

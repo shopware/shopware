@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-snippet-sidebar.html.twig';
 import './sw-settings-snippet-sidebar.scss';
 

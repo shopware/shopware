@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Log\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
- * @package system-settings
+ * @package core
  */
 class LogCleanupTask extends ScheduledTask
 {

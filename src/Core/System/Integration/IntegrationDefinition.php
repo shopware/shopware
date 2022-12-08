@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 
+/**
+ * @package system-settings
+ */
 class IntegrationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'integration';

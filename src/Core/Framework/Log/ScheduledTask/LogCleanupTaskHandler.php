@@ -10,7 +10,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

@@ -4,7 +4,6 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 * @description Exposes an user search preferences
 * @constructor
 * @param {Object} Object.userConfigRepository
-* @package system-settings
 */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function SearchPreferencesService({ userConfigRepository: _userConfigRepository }) {

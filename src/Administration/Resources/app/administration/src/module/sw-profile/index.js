@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './extension/sw-admin-menu';
 import './acl';
 

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchSearchableContentCustomfields from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields';
 import 'src/app/component/entity/sw-entity-listing';

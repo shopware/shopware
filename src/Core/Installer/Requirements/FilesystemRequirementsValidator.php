@@ -7,7 +7,7 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

@@ -6,8 +6,6 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class BarMessage implements AsyncMessageInterface
 {

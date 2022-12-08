@@ -21,9 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-/**
- * @package system-settings
- */
 class AdminSearchController extends AbstractController
 {
     private RequestCriteriaBuilder $requestCriteriaBuilder;

@@ -1,8 +1,5 @@
 import RecentlySearchService from 'src/app/service/recently-search.service';
 
-/**
- * @package system-settings
- */
 describe('app/service/recently-search.service.js', () => {
     let recentlySearchService;
 

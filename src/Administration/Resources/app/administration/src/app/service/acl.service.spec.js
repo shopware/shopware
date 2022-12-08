@@ -1,8 +1,5 @@
 import AclService from 'src/app/service/acl.service';
 
-/**
- * @package system-settings
- */
 describe('src/app/service/acl.service.ts', () => {
     beforeEach(() => {
         Shopware.Application.view = {};

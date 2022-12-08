@@ -15,6 +15,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * @internal
+ *
  * @package system-settings
  */
 class LanguageSerializerTest extends TestCase

@@ -10,7 +10,6 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 
 /**
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement ValueGeneratorPatternInterface anymore
- * @package system-settings
  */
 class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements ValueGeneratorPatternInterface
 {

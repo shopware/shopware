@@ -10,7 +10,6 @@ const { Application } = Shopware;
  * @method addShopwareUpdatesListener
  * @param loginService
  * @param serviceContainer
- * @package system-settings
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function addShopwareUpdatesListener(loginService, serviceContainer) {

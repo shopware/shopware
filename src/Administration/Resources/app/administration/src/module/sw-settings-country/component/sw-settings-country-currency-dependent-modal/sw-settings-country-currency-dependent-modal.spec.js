@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsCountryCurrencyDependentModal from 'src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal';
 

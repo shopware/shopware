@@ -8,9 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package system-settings
- */
 class UserExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

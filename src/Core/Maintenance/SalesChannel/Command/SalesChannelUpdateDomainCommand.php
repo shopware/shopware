@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 class SalesChannelUpdateDomainCommand extends Command
 {

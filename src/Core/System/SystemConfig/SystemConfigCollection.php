@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SystemConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @package system-settings
+ * @package core
  * @extends EntityCollection<SystemConfigEntity>
  */
 class SystemConfigCollection extends EntityCollection

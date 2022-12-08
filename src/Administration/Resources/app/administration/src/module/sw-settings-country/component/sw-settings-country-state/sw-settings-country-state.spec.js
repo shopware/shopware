@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsCountryState from 'src/module/sw-settings-country/component/sw-settings-country-state';
 import 'src/app/component/base/sw-card';

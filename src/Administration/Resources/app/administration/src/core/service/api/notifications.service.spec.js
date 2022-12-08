@@ -25,9 +25,6 @@ const exampleNotification = {
     timestamp: null
 };
 
-/**
- * @package system-settings
- */
 describe('notificationsService', () => {
     it('fetches notifications correctly', async () => {
         const { notificationsService, clientMock } = createNotificationsService();

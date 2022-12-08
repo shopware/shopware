@@ -7,7 +7,7 @@ use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

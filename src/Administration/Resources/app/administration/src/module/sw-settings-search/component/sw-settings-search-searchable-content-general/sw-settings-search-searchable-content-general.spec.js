@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchSearchableContentGeneral from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-general';
 import 'src/app/component/context-menu/sw-context-menu-item';

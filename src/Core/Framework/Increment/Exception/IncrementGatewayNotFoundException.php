@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package system-settings
+ * @package core
  */
 class IncrementGatewayNotFoundException extends ShopwareHttpException
 {

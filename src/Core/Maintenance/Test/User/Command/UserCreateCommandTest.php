@@ -8,7 +8,7 @@ use Shopware\Core\Maintenance\User\Command\UserCreateCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

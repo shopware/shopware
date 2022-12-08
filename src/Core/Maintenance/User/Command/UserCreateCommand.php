@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal should be used over the CLI only
  */

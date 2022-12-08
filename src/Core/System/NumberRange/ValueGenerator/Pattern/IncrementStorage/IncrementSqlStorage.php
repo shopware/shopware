@@ -11,7 +11,6 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement IncrementStorageInterface anymore, use AbstractIncrementStorage instead
- * @package system-settings
  */
 class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementStorageInterface
 {

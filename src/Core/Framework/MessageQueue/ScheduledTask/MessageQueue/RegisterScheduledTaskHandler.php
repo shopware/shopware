@@ -7,7 +7,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @final
  *

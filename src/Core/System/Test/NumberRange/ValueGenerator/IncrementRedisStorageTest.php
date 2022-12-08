@@ -15,8 +15,6 @@ use Symfony\Component\Lock\SharedLockInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 class IncrementRedisStorageTest extends TestCase
 {

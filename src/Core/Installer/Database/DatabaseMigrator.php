@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  */

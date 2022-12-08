@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ScheduledTaskEntity>
- * @package system-settings
  */
 class ScheduledTaskCollection extends EntityCollection
 {

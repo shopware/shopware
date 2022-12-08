@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package sales-channel
+ *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 class SeoResolver extends AbstractSeoResolver

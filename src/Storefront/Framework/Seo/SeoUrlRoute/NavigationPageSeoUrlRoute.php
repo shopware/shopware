@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package sales-channel
+ */
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     public const ROUTE_NAME = 'frontend.navigation.page';

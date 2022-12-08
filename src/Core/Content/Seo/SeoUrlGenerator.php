@@ -25,6 +25,9 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlGenerator
 {
     public const ESCAPE_SLUGIFY = 'slugifyurlencode';

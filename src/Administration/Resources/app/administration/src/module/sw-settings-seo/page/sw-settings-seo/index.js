@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-settings-seo.html.twig';
 
 const { Component } = Shopware;

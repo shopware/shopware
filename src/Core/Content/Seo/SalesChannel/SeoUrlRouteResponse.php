@@ -6,6 +6,9 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlRouteResponse extends StoreApiResponse
 {
     /**

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './page/sw-settings-sitemap';
 
 const { Module } = Shopware;

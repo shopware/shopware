@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package sales-channel
+ */
 class MainCategoryEntity extends Entity
 {
     use EntityIdTrait;

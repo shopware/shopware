@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package sales-channel
+ */
 class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     public const ROUTE_NAME = 'frontend.landing.page';

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Sitemap\ConfigHandler;
 
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 
+/**
+ * @package sales-channel
+ */
 class File implements ConfigHandlerInterface
 {
     /**

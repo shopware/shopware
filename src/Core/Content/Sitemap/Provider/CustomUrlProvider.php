@@ -8,6 +8,9 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class CustomUrlProvider extends AbstractUrlProvider
 {
     private ConfigHandler $configHandler;

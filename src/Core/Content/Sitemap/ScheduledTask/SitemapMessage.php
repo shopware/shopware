@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
+/**
+ * @package sales-channel
+ */
 class SitemapMessage
 {
     /**

@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Seo\Hreflang;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 /**
+ * @package sales-channel
+ *
  * @extends StructCollection<HreflangStruct>
  */
 class HreflangCollection extends StructCollection

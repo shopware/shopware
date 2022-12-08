@@ -9,6 +9,9 @@ use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;

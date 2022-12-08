@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import swSeoUrlState from './state';
 import template from './sw-seo-url.html.twig';
 

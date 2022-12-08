@@ -17,6 +17,8 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SitemapGenerateCommandTest extends TestCase

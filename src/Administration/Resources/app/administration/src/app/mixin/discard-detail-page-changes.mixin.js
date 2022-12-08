@@ -4,6 +4,7 @@ const { types, debug } = Shopware.Utils;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * Mixin which resets entity changes on page leave or if the id of the entity changes.
  * This also affects changes in associations of the entity
  *

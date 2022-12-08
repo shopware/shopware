@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @status ready
  * @description The <u>sw-button</u> component replaces the standard html button or anchor element with a custom button
  * and a multitude of options.
@@ -15,7 +16,6 @@ const { Component } = Shopware;
  *     Button
  * </sw-button>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-button', {
     template,
 

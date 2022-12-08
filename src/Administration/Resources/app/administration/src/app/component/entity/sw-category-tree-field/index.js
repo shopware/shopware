@@ -9,7 +9,9 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-category-tree-field', {
     template,
 

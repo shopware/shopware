@@ -5,6 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * A modal that prompts the user if he wants to leave a detail page with unsaved changes.
@@ -15,7 +16,6 @@ const { Component } = Shopware;
  *  <sw-discard-changes-modal v-if="showDiscardChangesModal" @keep-editing="keepEditing" @discard-changes="discardChanges">
  *  </sw-discard-changes-modal>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-discard-changes-modal', {
     template,
 

@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -34,7 +35,6 @@ const { Component } = Shopware;
  *      :is-inline-edit="true"
  *  />
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-editor', {
     template,
 

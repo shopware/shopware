@@ -6,6 +6,9 @@ const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
 const { debug } = Shopware.Utils;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Mixin.register('listing', {
     inject: ['searchRankingService', 'feature'],
 

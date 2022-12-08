@@ -6,6 +6,7 @@ const { Component, Utils } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description a search field with delayed update
  * @status ready
@@ -18,7 +19,6 @@ const { Component, Utils } = Shopware;
  *   @search-term-change="debouncedInputEvent"
  *  />
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,

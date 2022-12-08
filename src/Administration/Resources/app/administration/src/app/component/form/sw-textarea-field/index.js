@@ -6,13 +6,13 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description textarea input field.
  * @status ready
  * @example-type static
  * @component-example
  * <sw-textarea-field type="textarea" label="Name" placeholder="placeholder goes here..."></sw-textarea-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-textarea-field', {
     template,
     inheritAttrs: false,

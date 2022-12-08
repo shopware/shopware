@@ -7,6 +7,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Modal box component which can be displayed in different variants and sizes
  * @status ready
@@ -16,7 +17,6 @@ const utils = Shopware.Utils;
  *     Lorem Ipsum
  * </sw-modal>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-modal', {
     template,
 

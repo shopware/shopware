@@ -7,7 +7,9 @@ import './sw-inheritance-switch.scss';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-inheritance-switch', {
     template,
 

@@ -15,6 +15,9 @@ interface notification {
     [key: string]: string | undefined,
 }
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Mixin.register('notification', {
     methods: {
         createNotification(notification: notification) {

@@ -5,6 +5,9 @@
 const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Mixin.register('sw-inline-snippet', {
     computed: {
         swInlineSnippetLocale() {

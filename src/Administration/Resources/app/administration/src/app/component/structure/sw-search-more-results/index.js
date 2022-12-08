@@ -6,6 +6,7 @@ const { Component, Application } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description
  * Renders the search result show more based on the item type.

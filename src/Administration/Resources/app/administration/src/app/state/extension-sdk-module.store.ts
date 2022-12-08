@@ -56,7 +56,9 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     },
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default ExtensionSdkModuleStore;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

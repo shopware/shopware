@@ -5,6 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description This component highlights text based on the searchTerm using regex
  * @status ready
@@ -12,7 +13,6 @@ const { Component } = Shopware;
  * @component-example
  * <sw-highlight-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" searchTerm="sit"></sw-highlight-text>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-highlight-text', {
     template: '',
 

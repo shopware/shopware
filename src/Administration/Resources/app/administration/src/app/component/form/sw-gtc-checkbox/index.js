@@ -4,7 +4,9 @@
 
 import template from './sw-gtc-checkbox.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Shopware.Component.register('sw-gtc-checkbox', {
     template,
 

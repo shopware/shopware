@@ -6,10 +6,9 @@ import type VueRouter from 'vue-router';
 import type ApplicationBootstrapper from '../application';
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * View Adapter Boilerplate class which provides a blueprint for view adapters (like for React, VueJS, ...)
- * @class
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default abstract class ViewAdapter {
     public Application: ApplicationBootstrapper;
 

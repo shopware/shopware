@@ -6,7 +6,9 @@
 import type { Route, RouteConfig, default as Router } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function initializeTabs(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {
         Shopware.State.commit('tabs/addTabItem', componentConfig);

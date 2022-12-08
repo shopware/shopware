@@ -1,4 +1,6 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default class TimezoneService {
     /**
      * @package admin

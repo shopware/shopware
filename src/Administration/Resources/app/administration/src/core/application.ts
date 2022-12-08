@@ -25,6 +25,8 @@ interface bundlesPluginResponse {
 }
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
+ *
  * The application bootstrapper bootstraps the application and registers the necessary
  * and optional parts of the application in a shared DI container which provides you
  * with an easy-to-use way to add new services as well as decoration these services.

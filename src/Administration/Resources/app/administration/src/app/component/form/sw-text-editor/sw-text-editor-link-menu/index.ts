@@ -27,7 +27,6 @@ interface TextEditorLinkMenuConfig {
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-editor-link-menu', {
     template,
 

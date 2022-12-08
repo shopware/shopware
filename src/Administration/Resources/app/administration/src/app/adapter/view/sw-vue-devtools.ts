@@ -23,7 +23,9 @@ const HIGHLIGHT_CLASS = 'sw-devtool-element-highlight';
 const CLICKABLE_CLASS = 'sw-devtool-element-clickable';
 const DATASET_ID_PREFIX = 'sw-extension-api-dataset__';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default function setupShopwareDevtools(app: App): void {
     setupDevtoolsPlugin({
         // Options

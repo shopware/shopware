@@ -9,6 +9,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description The <u>sw-file-input</u> component can be used wherever a file input is needed.
  * @example-type code-only
  * @component-example
@@ -19,7 +20,6 @@ const utils = Shopware.Utils;
  *     :maxFileSize="8*1024*1024">
  * </sw-file-input>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-file-input', {
     template,
 

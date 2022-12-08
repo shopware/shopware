@@ -4,6 +4,7 @@ const types = Shopware.Utils.types;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @module app/mixin/validation
  */
 Mixin.register('validation', {

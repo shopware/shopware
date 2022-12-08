@@ -9,6 +9,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Component to render a postal address
  * @status ready
@@ -25,7 +26,6 @@ const { Component } = Shopware;
  *     country: { name: 'Germany' }
  * }" :formattingAddress="First Name Last Name\nGermany"></sw-address>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-address', {
     template,
 

@@ -11,7 +11,6 @@ import type { Extension } from '../../../state/extensions.store';
  * @component-example
  * <sw-iframe-renderer src="https://www.my-source.com" locationId="my-special-location" />
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-iframe-renderer', {
     template,
 

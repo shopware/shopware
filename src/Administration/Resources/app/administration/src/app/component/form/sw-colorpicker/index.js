@@ -7,6 +7,7 @@ const debounce = Shopware.Utils.debounce;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @description
  * The color picker field allows you to select a custom color.
  * @status ready
@@ -21,7 +22,6 @@ const debounce = Shopware.Utils.debounce;
  *      zIndex="100">
  * </sw-colorpicker>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-colorpicker', {
     template,
 

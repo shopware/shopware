@@ -7,6 +7,9 @@ import './sw-sidebar-collapse.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.extend('sw-sidebar-collapse', 'sw-collapse', {
     template,
 

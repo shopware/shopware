@@ -7,6 +7,7 @@ const { debounce } = Shopware.Utils;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -17,7 +18,6 @@ const { debounce } = Shopware.Utils;
  *                 :currency="{...}">
  * </sw-price-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-price-field', {
     template,
 

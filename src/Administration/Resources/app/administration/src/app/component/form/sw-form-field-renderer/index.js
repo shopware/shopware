@@ -5,6 +5,7 @@ const { types } = Shopware.Utils;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description
@@ -67,7 +68,6 @@ const { types } = Shopware.Utils;
  *     }">
  * </sw-form-field-renderer>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-form-field-renderer', {
     template,
     inheritAttrs: false,

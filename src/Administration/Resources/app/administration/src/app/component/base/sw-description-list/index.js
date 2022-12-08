@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A definition list which uses CSS grid for a column layout.
  * @status ready
@@ -20,7 +21,6 @@ const { Component } = Shopware;
  *     <dd>Lorem ipsum dolor sit amet, consetetur sadipscing elitr</dd>
  * </sw-description-list>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-description-list', {
     template,
 

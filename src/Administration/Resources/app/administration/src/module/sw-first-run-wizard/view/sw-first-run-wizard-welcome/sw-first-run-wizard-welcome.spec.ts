@@ -99,8 +99,6 @@ const searchLanguage = [
     },
 ];
 
-const searchSnippetSet = [];
-
 /**
  * @package merchant-services
  */
@@ -133,7 +131,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                 loginService: {
                     verifyUserToken: () => Promise.resolve(),
                 },
-                extensionStoreActionService: {},
                 cacheApiService: {
                     clear: () => Promise.resolve()
                 },
@@ -159,10 +156,6 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                                     search: () => Promise.resolve(searchUser),
                                     get: () => Promise.resolve(searchUser),
                                     save: () => Promise.resolve(),
-                                };
-                            case 'snippet_set':
-                                return {
-                                    search: () => Promise.resolve(searchSnippetSet)
                                 };
                             default:
                                 throw new Error(`No repositoryFactory registered for entity "${entity}"`);

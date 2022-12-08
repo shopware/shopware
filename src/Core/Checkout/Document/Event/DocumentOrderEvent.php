@@ -21,11 +21,11 @@ abstract class DocumentOrderEvent extends Event
     /**
      * @param DocumentGenerateOperation[] $operations
      */
-    public function __construct(OrderCollection $orders, array $operations, Context $context)
+    public function __construct(OrderCollection $orders, Context $context, array $operations = [])
     {
         $this->orders = $orders;
-        $this->operations = $operations;
         $this->context = $context;
+        $this->operations = $operations;
     }
 
     /**

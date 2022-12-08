@@ -1,6 +1,6 @@
 ---
 title: Extend document renderer events
-issue: NEXT-00000
+issue: NEXT-24521
 author: Felix Brucker
 author_email: felix@felixbrucker.com
 author_github: felixbrucker

@@ -117,7 +117,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         // TODO: future implementation (only fetch required data and associations)
 
-        $this->eventDispatcher->dispatch(new StornoOrdersEvent($orders, $operations, $context));
+        $this->eventDispatcher->dispatch(new StornoOrdersEvent($orders, $context, $operations));
 
         foreach ($orders as $order) {
             $orderId = $order->getId();

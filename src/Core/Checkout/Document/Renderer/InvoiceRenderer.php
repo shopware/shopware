@@ -91,7 +91,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
             /** @var OrderCollection $orders */
             $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
-            $this->eventDispatcher->dispatch(new InvoiceOrdersEvent($orders, $operations, $context));
+            $this->eventDispatcher->dispatch(new InvoiceOrdersEvent($orders, $context, $operations));
 
             foreach ($orders as $order) {
                 $orderId = $order->getId();

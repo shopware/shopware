@@ -94,10 +94,6 @@ Component.register('sw-multi-tag-select', {
         },
     },
 
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         mountedComponent() {
             this.$refs.selectionList.getFocusEl().addEventListener('keydown', this.onKeyDown);

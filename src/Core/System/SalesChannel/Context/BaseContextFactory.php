@@ -28,6 +28,8 @@ use Shopware\Core\System\Tax\TaxCollection;
 use function array_unique;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class BaseContextFactory extends AbstractBaseContextFactory

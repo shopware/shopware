@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-config.html.twig';
 
 const { Component } = Shopware;

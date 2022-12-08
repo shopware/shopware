@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
 

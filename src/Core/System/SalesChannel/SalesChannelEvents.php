@@ -4,6 +4,9 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelEvents
 {
     /**

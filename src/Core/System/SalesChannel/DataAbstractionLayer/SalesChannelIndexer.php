@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelIndexer extends EntityIndexer
 {
     public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';

@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories';
 import 'src/app/component/form/field-base/sw-contextual-field';

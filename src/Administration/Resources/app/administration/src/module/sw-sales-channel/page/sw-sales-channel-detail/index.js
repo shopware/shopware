@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-detail.html.twig';
 
 const { Component, Mixin, Context, Defaults } = Shopware;

@@ -10,6 +10,9 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class SalesChannelContextService implements SalesChannelContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';

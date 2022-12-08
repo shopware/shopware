@@ -5,6 +5,8 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package sales-channel
+ *
  * @extends EntityCollection<SalesChannelTranslationEntity>
  */
 class SalesChannelTranslationCollection extends EntityCollection

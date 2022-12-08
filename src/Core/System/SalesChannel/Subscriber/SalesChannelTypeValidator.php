@@ -11,6 +11,8 @@ use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeD
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package sales-channel
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 class SalesChannelTypeValidator implements EventSubscriberInterface

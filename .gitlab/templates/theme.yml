@@ -149,6 +149,8 @@ default:
 
 build zip:
     stage: build
+    # Revert after node is fixed in ghcr.io/friendsofshopware/platform-plugin-dev
+    allow_failure: true
     image:
         name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]

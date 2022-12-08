@@ -705,9 +705,11 @@
           "any": "At least one",
           "all": "All"
         },
-        "subCondition": "Subcondition",
+        "AddAndCondition": "Add AND condition",
+        "AddOrCondition": "Add OR condition",
+        "AddSubCondition": "Add subconditions",
         "deleteConditions": "Delete container",
-        "deleteAllConditions": "Delete all",
+        "deleteAllConditions": "Delete all conditions",
         "createBefore": "Create before",
         "createAfter": "Create after",
         "hasDeliveryFreeItemRule": "Item with free shipping",

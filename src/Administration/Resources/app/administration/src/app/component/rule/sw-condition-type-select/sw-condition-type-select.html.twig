@@ -1,52 +1,44 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_type_select %}
-<sw-arrow-field
-    class="sw-condition-type-select"
-    :class="typeSelectClasses"
+<sw-grouped-single-select
+    class="sw-condition-type-select sw-condition-type-select__select"
+    size="medium"
+    label-value="label"
+    :value-property="valueProperty"
+    label-property="translatedLabel"
+    :options="typeOptions"
+    :groups="availableGroups"
+    :placeholder="$tc('global.sw-condition.condition.placeholder')"
+    :value="currentValue"
     :disabled="disabled"
-    v-bind="arrowColor"
+    required
+    show-clearable-button
+    @change="changeType"
+    @item-selected="changeItem"
+    @search-term-change="typeSearchTerm = $event"
 >
-    <sw-grouped-single-select
-        class="sw-condition-type-select__select"
-        size="medium"
-        label-value="label"
-        :value-property="valueProperty"
-        label-property="translatedLabel"
-        :options="typeOptions"
-        :groups="availableGroups"
-        :placeholder="$tc('global.sw-condition.condition.placeholder')"
-        :value="currentValue"
-        :disabled="disabled"
-        required
-        show-clearable-button
-        @change="changeType"
-        @item-selected="changeItem"
-        @search-term-change="typeSearchTerm = $event"
+    <template
+        v-if="feature.isActive('FEATURE_NEXT_18215')"
+        #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
     >
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_18215')"
-            #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+        <li
+            is="sw-select-result"
+            v-tooltip="getTooltipConfig(item)"
+            :disabled="item.disabled || restrictedConditions[item.type] !== undefined"
+            :class="'sw-select-option--' + item.value"
+            :selected="isSelected(item)"
+            v-bind="{ item, index }"
+            @item-select="setValue"
         >
-            <li
-                is="sw-select-result"
-                v-tooltip="getTooltipConfig(item)"
-                :disabled="item.disabled || restrictedConditions[item.type] !== undefined"
-                :class="'sw-select-option--' + item.value"
-                :selected="isSelected(item)"
-                v-bind="{ item, index }"
-                @item-select="setValue"
-            >
-                <sw-highlight-text
-                    v-if="highlightSearchTerm && !isSelected(item)"
-                    :text="getKey(item, labelProperty)"
-                    :search-term="searchTerm"
-                />
-                <template v-else>
-                    {{ getKey(item, labelProperty) }}
-                </template>
-            </li>
-        </template>
-    </sw-grouped-single-select>
-
-</sw-arrow-field>
+            <sw-highlight-text
+                v-if="highlightSearchTerm && !isSelected(item)"
+                :text="getKey(item, labelProperty)"
+                :search-term="searchTerm"
+            />
+            <template v-else>
+                {{ getKey(item, labelProperty) }}
+            </template>
+        </li>
+    </template>
+</sw-grouped-single-select>
 {% endblock %}

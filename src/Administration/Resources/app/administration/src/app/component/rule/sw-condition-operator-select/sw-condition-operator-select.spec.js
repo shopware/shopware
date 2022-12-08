@@ -4,7 +4,6 @@ import 'src/app/component/rule/sw-condition-operator-select';
 async function createWrapper(customProps = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-operator-select'), {
         stubs: {
-            'sw-arrow-field': true,
             'sw-single-select': true
         },
         propsData: {
@@ -24,10 +23,8 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
     it('should have enabled fields', async () => {
         const wrapper = await createWrapper();
 
-        const arrowField = wrapper.find('sw-arrow-field-stub');
         const singleSelect = wrapper.find('sw-single-select-stub');
 
-        expect(arrowField.attributes().disabled).toBeUndefined();
         expect(singleSelect.attributes().disabled).toBeUndefined();
     });
 
@@ -36,10 +33,8 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
             disabled: true
         });
 
-        const arrowField = wrapper.find('sw-arrow-field-stub');
         const singleSelect = wrapper.find('sw-single-select-stub');
 
-        expect(arrowField.attributes().disabled).toBe('true');
         expect(singleSelect.attributes().disabled).toBe('true');
     });
 });

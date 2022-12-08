@@ -4,7 +4,6 @@ import 'src/app/component/rule/sw-condition-type-select';
 async function createWrapper(customProps = {}, customOptions = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-type-select'), {
         stubs: {
-            'sw-arrow-field': true,
             'sw-grouped-single-select': true
         },
         provide: {
@@ -38,10 +37,8 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
     it('should have enabled fields', async () => {
         const wrapper = await createWrapper();
 
-        const arrowField = wrapper.find('sw-arrow-field-stub');
         const singleSelect = wrapper.find('sw-grouped-single-select-stub');
 
-        expect(arrowField.attributes().disabled).toBeUndefined();
         expect(singleSelect.attributes().disabled).toBeUndefined();
     });
 
@@ -51,10 +48,8 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
             disabled: true
         });
 
-        const arrowField = wrapper.find('sw-arrow-field-stub');
         const singleSelect = wrapper.find('sw-grouped-single-select-stub');
 
-        expect(arrowField.attributes().disabled).toBe('true');
         expect(singleSelect.attributes().disabled).toBe('true');
     });
 

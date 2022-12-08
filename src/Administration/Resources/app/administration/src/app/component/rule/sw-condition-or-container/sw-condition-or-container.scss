@@ -1,14 +1,17 @@
 @import "~scss/variables";
 
 $sw-condition-or-container-background-even: $color-white;
-$sw-condition-or-container-background-odd: #f0f2f5;
-$sw-condition-or-container-border: #788a9b;
+$sw-condition-or-container-background-odd: $color-gray-100;
+
+// $sw-condition-or-container-border: #788a9b;
 
 .sw-condition-or-container {
-    padding: 32px 32px 16px;
+    padding: 24px;
 
     &.container-condition-level__is--even {
         background-color: $sw-condition-or-container-background-even;
+        border: 1px solid $color-gray-400;
+        border-radius: 4px;
 
         &.is--disabled {
             background-color: $color-gray-100;
@@ -17,6 +20,7 @@ $sw-condition-or-container-border: #788a9b;
 
     &.container-condition-level__is--odd {
         background-color: $sw-condition-or-container-background-odd;
+        border: 1px solid $color-gray-500;
         border-radius: 4px;
 
         &.is--disabled {
@@ -25,9 +29,10 @@ $sw-condition-or-container-border: #788a9b;
     }
 
     .condition-content__spacer--or {
-        padding: 10px 0;
-        margin-left: -10px;
-        font-weight: bold;
+        padding: 8px 0;
+        margin-left: 0;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
         display: inline-block;
         position: relative;
         width: 100%;
@@ -39,26 +44,23 @@ $sw-condition-or-container-border: #788a9b;
             top: 50%;
             width: calc(100% - 40px);
             margin-left: 48px;
-            border-top: 1px dotted $sw-condition-or-container-border;
         }
     }
 
     .sw-condition-or-container__actions {
         display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
+        margin-top: 16px;
 
         .sw-condition-or-container__actions--or {
-            margin-right: 10px;
-            text-transform: uppercase;
-        }
-
-        .sw-condition-or-container__actions--sub {
-            text-transform: uppercase;
+            margin-right: 8px;
         }
 
         .sw-condition-or-container__actions--delete {
             float: right;
+        }
+
+        :last-child {
+            margin-left: auto;
         }
     }
 }

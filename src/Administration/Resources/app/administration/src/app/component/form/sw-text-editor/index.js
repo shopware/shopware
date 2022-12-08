@@ -812,6 +812,11 @@ Component.register('sw-text-editor', {
             }
         },
 
+        onInput() {
+            this.onContentChange();
+            this.emitContent();
+        },
+
         onContentChange() {
             this.isEmpty = this.emptyCheck(this.getContentValue());
             this.placeholderVisible = this.isEmpty;

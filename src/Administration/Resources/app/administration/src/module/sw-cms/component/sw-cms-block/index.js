@@ -1,6 +1,10 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
+/**
+ * @package content
+ */
+
 const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

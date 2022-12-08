@@ -2,6 +2,10 @@
 
 import elements from '../../../../support/pages/sw-general.page-object';
 
+/**
+ * @package sales-channel
+ */
+
 describe('Theme: Test ACL privileges', () => {
     beforeEach(() => {
         cy.loginViaApi()

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import chalk from 'chalk';
 import readline from 'readline';
 import fs from 'fs';

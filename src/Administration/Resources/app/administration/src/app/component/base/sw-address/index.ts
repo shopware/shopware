@@ -7,6 +7,8 @@ import './sw-address.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Component to render a postal address
  * @status ready

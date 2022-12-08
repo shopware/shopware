@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Mixin, Filter } = Shopware;
 
 Mixin.register('salutation', {

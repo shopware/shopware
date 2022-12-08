@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
 import Sanitizer from 'src/core/helper/sanitizer.helper';

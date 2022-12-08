@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { CustomInspectorNode } from '@vue/devtools-api';
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
 import type { App } from '@vue/devtools-api/lib/esm/api/app';

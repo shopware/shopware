@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI

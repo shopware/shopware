@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module app/adapter/view/vue
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';

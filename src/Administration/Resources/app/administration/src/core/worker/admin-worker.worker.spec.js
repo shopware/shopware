@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import AdminWorker from 'src/core/worker/admin-worker.worker';
 import Axios from 'axios';
 import AxiosMockAdapter from 'axios-mock-adapter';

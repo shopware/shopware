@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/base/sw-icon';

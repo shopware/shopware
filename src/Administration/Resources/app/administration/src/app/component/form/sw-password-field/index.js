@@ -4,6 +4,8 @@ import './sw-password-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description password input field.
  * @status ready

@@ -6,6 +6,8 @@ const { mapState } = Shopware.Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders information text about the current language

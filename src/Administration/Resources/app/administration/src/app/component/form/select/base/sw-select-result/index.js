@@ -4,6 +4,8 @@ import template from './sw-select-result.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @description Base component for select results.

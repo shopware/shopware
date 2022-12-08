@@ -23,6 +23,8 @@ interface TextEditorLinkMenuConfig {
 }
 
 /**
+ * @package admin
+ *
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

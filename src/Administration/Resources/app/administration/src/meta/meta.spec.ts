@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
 import baseline from './baseline';

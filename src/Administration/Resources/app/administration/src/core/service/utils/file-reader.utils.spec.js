@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 
 jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());

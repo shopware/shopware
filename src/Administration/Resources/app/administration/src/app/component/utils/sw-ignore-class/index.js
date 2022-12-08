@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @private
  * @description Wrapper which removes class inheritance in Vue. You need to remove the class
  * in the parent component like this: "this.$refs.swIgnoreClass.$el.className = '';". Additionally

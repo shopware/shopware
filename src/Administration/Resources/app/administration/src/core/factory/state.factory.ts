@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { Store } from 'vuex';
 

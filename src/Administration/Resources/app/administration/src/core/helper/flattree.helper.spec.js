@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import FlatTree from 'src/core/helper/flattree.helper';
 
 describe('core/helper/flattree.helper.js', () => {

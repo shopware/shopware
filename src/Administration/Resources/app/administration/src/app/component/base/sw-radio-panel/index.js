@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-radio-panel.html.twig';
 import './sw-radio-panel.scss';
 

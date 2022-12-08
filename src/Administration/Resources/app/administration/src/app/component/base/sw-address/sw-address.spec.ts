@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import 'src/app/component/base/sw-address';
 import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';

@@ -3,6 +3,8 @@ const { Criteria } = Shopware.Data;
 
 
 /**
+ * @package admin
+ *
  * @module core/service/customer-group-registration-listener
  */
 

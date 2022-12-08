@@ -4,6 +4,8 @@ import './sw-text-editor-toolbar.scss';
 const { Component, Utils } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-text-editor-toolbar', {

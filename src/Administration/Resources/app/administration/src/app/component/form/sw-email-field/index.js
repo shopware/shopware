@@ -3,6 +3,8 @@ import template from './sw-email-field.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @protected
  * @description Simple email field.
  * @status ready

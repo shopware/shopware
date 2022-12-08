@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
 import 'src/app/component/base/sw-icon';

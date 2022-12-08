@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import type { ThisTypedShallowMountOptions } from '@vue/test-utils';

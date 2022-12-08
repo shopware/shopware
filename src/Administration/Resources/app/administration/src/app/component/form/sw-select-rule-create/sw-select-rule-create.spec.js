@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-select-rule-create';
 import 'src/app/component/form/select/base/sw-single-select';

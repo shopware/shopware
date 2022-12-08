@@ -7,6 +7,8 @@ const { fileSize } = Shopware.Utils.format;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @description The <u>sw-file-input</u> component can be used wherever a file input is needed.
  * @example-type code-only
  * @component-example

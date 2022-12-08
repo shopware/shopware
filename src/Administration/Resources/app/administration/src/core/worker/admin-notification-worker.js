@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Service } = Shopware;
 const READ_NOTIFICATION = 'notification.lastReadAt';
 

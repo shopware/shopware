@@ -4,6 +4,8 @@ import './sw-select-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description select input field.
  * @status ready

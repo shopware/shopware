@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-error-summary.html';
 import './sw-error-summary.scss';
 

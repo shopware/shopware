@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
 const { debug } = Shopware.Utils;

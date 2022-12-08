@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type VueRouter from 'vue-router';
 import type ApplicationBootstrapper from '../application';
 

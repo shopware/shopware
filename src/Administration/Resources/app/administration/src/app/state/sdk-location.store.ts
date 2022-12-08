@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 import type { Module } from 'vuex';
 

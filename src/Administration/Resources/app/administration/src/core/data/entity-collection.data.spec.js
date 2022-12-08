@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import EntityCollection from 'src/core/data/entity-collection.data';
 import utils from 'src/core/service/util.service';
 

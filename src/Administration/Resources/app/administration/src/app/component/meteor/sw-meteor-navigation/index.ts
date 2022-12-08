@@ -6,6 +6,8 @@ import './sw-meteor-navigation.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-meteor-navigation', {

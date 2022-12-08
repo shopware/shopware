@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-login-recovery-recovery.html.twig';
 
 const { Component } = Shopware;

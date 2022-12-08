@@ -4,6 +4,8 @@ import './sw-context-button.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type dynamic

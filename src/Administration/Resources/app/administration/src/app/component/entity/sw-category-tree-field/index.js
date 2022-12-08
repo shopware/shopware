@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 

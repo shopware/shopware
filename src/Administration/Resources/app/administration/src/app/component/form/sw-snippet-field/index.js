@@ -4,6 +4,8 @@ import './sw-snippet-field.scss';
 const { Component, State, Data: { Criteria } } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Input field that allows you to easily edit and translate snippet in a modal.
  * @status ready

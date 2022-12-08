@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';

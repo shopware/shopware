@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const apiServices = Shopware._private.ApiServices();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -1,9 +1,12 @@
 /* eslint-disable max-len */
 
 /**
+ * @package admin
+ *
  * This rule validates that no TwigJs blocks are added.
+ *
+ * @type {import('eslint').Rule.RuleModule}
  */
-/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
     meta: {
         type: 'problem',

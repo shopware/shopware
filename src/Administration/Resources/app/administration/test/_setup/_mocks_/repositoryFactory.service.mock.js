@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import chalk from 'chalk';
 import RepositoryFactory from 'src/core/data/repository-factory.data';

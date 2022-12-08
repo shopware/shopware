@@ -8,6 +8,8 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @description

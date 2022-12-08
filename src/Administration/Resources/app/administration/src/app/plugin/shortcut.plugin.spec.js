@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { mount, createLocalVue } from '@vue/test-utils';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 import 'src/app/component/form/sw-text-editor';

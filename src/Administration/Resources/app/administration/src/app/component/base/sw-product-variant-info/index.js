@@ -4,6 +4,8 @@ import './sw-product-variant-info.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  * @description Component which renders the variations of variant products.
  * @status ready

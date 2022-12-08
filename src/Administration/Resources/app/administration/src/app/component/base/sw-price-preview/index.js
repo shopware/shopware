@@ -3,6 +3,8 @@ import template from './sw-price-preview.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type static

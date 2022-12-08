@@ -3,6 +3,8 @@
 const { Directive } = Shopware;
 
 /**
+ * @package admin
+ *
  * Directive for automatic edge detection of the element place
  *
  * Usage:

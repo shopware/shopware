@@ -4,6 +4,8 @@ import './sw-text-editor.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type static

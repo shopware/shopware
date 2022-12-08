@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 
 describe('core/factory/cache-adapter.factory.js', () => {

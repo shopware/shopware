@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 
 describe('src/core/service/api/extension-sdk.service', () => {

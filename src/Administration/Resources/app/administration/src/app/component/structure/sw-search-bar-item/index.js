@@ -3,6 +3,8 @@ import './sw-search-bar-item.scss';
 
 const { Component, Application } = Shopware;
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders the search result items based on the item type.

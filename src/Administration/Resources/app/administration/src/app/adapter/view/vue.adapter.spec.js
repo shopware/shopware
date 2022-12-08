@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';

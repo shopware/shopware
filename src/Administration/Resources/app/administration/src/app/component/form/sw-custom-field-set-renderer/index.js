@@ -5,7 +5,10 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @public - @deprecated tag:v6.5.0 - Will be changed to private
+ * @private
  * @status ready
  * @description
  * Renders custom-field sets

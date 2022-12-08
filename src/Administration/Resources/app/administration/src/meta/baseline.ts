@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const missingTests = [
     'missing-tests-baseline.ts',
     'sw-vue-devtools.ts',

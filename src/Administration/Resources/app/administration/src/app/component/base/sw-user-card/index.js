@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-user-card.html.twig';
 import './sw-user-card.scss';
 

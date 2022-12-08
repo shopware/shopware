@@ -2,6 +2,8 @@ const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
 
 /**
+ * @package admin
+ *
  * @module app/mixin/validation
  */
 Mixin.register('validation', {

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type Vue from 'vue';
 import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
 import { get } from 'lodash';

@@ -56,14 +56,12 @@ class SalesChannelFavoritesService {
 
     private aclService = <AclServiceInterface> Service('acl');
 
-    constructor() {
-        void this.initService();
-    }
-
     private async initService(): Promise<void> {
         this.userConfig = await this.getUserConfig();
 
-        this.state.favorites = this.userConfig.value;
+        if (this.userConfig.value.length > 0) {
+            this.state.favorites = this.userConfig.value;
+        }
     }
 
     public getFavoriteIds(): string[] {

@@ -150,7 +150,7 @@ async function createWrapper(salesChannels = [], privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({
-                    search: (criteria, context) => {
+                    search: jest.fn((criteria, context) => {
                         const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
 
                         return Promise.resolve(new EntityCollection(
@@ -162,7 +162,7 @@ async function createWrapper(salesChannels = [], privileges = []) {
                             salesChannels.length,
                             null
                         ));
-                    }
+                    })
                 })
             }
         }
@@ -173,6 +173,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     beforeEach(async () => {
         Shopware.State.get('session').languageId = defaultAdminLanguageId;
         Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
+        Shopware.Service('salesChannelFavorites').state.favorites = [];
 
         global.repositoryFactoryMock.showError = false;
     });
@@ -232,8 +233,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper(testSalesChannels);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelItems = wrapper.findAll('.sw-admin-menu__sales-channel-item');
 
@@ -243,8 +243,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     it('It does not add a link to sales channel for non storefront sales channel', async () => {
         const wrapper = await createWrapper([headlessSalesChannel]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
@@ -257,8 +256,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper([storeFrontWithStandardDomain]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         const domainLinkButton = salesChannelMenuEntry.get('button.sw-sales-channel-menu-domain-link');
@@ -275,8 +273,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         const domainLinkButton = salesChannelMenuEntry.get('button.sw-sales-channel-menu-domain-link');
@@ -294,8 +291,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper([storefrontWithoutDefaultDomain]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         const domainLinkButton = salesChannelMenuEntry.get('button.sw-sales-channel-menu-domain-link');
@@ -310,8 +306,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     it('does not pick a storefront domain if there is none', async () => {
         const wrapper = await createWrapper([storefrontWithoutDomains]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
@@ -322,8 +317,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     it('does not show a storefront domain if storefront is not active', async () => {
         const wrapper = await createWrapper([inactiveStorefront]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
@@ -334,8 +328,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     it('shows just one saleschannel as selected', async () => {
         const wrapper = await createWrapper([storeFrontWithStandardDomain, headlessSalesChannel]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const links = wrapper.findAll('.sw-admin-menu__navigation-link');
 
@@ -369,8 +362,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper(salesChannels);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if "more" item is visible
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
@@ -403,8 +395,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper(salesChannels);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if "more" item is visible
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
@@ -438,8 +429,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             }
         ]);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if "more" item is hidden
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
@@ -461,12 +451,52 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if "more" item is hidden
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.exists()).toBe(false);
+
+        wrapper.destroy();
+    });
+
+    it('should only load the sales channel once when no favorites are defined', async () => {
+        const salesChannels = [
+            storeFrontWithStandardDomain,
+            storefrontWithoutDefaultDomain,
+            headlessSalesChannel,
+            storefrontWithoutDomains,
+            inactiveStorefront
+        ];
+
+        const wrapper = await createWrapper(salesChannels);
+
+        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(0);
+
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
+
+        wrapper.destroy();
+    });
+
+    it('should only load the sales channel once when also favorites are defined', async () => {
+        const salesChannels = [
+            storeFrontWithStandardDomain,
+            storefrontWithoutDefaultDomain,
+            headlessSalesChannel,
+            storefrontWithoutDomains,
+            inactiveStorefront
+        ];
+
+        Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
+        const wrapper = await createWrapper(salesChannels);
+
+        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(0);
+
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
 
         wrapper.destroy();
     });

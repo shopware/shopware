@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-version.html.twig';
 import './sw-version.scss';
 

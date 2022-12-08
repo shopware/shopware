@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import Criteria from './criteria.data';

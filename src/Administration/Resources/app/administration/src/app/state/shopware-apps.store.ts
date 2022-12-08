@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { Module } from 'vuex';
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 

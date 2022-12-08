@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
 

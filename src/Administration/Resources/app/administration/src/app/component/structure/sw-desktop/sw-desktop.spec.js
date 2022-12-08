@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-desktop';

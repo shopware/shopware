@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import axios from 'axios';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';

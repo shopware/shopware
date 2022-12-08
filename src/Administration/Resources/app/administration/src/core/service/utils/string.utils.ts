@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/service/utils/string
  */
 import capitalizeString from 'lodash/capitalize';

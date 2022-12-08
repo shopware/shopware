@@ -4,6 +4,8 @@ import './sw-external-link.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Link to another website outside the admin, that opens in a new browser tab
  * @status ready

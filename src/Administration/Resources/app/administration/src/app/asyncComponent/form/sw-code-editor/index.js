@@ -7,6 +7,8 @@ import './sw-code-editor.scss';
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @description

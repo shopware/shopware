@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @private
  * @status ready
  * @description

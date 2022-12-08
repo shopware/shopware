@@ -6,6 +6,8 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @description The sw-data-grid is a component to render tables with data.

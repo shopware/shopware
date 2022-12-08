@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import VueRouter from 'vue-router';
 import coreRoutes from 'src/app/route';
 

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import LocaleHelperService from 'src/app/service/locale-helper.service';
 
 describe('app/service/locale-helper.service.js', () => {

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-wrong-app-url-modal';
 import 'src/app/component/base/sw-button';

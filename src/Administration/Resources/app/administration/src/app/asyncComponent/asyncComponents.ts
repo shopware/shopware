@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* @private */
 export default () => {
     /* eslint-disable sw-deprecation-rules/private-feature-declarations */

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Module, Application } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;

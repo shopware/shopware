@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-purchase-price-field.html.twig';
 
 const { Component } = Shopware;

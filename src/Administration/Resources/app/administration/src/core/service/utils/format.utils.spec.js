@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { fileSize, date, dateWithUserTimezone, toISODate } from 'src/core/service/utils/format.utils';
 
 describe('src/core/service/utils/format.utils.js', () => {

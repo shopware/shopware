@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import AppAclService from 'src/app/service/app-acl.service';
 
 describe('app/service/app-acl.service.js', () => {

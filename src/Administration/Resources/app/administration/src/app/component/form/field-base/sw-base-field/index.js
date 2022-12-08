@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 

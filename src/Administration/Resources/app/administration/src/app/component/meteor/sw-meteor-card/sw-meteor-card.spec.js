@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-tabs';

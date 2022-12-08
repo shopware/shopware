@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter } = Shopware;
 
 describe('filter/currency.filter', () => {

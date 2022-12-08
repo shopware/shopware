@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* global adminPath */
 /* global projectRoot */
 

@@ -1,6 +1,8 @@
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
  * This plugin allows you to generate deprecations for components and properties.
  *
  * Usage in component:

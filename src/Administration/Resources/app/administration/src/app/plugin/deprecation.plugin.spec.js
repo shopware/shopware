@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import deprecationPlugin from 'src/app/plugin/deprecation.plugin';
 

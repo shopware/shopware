@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import registerAsyncComponents from 'src/app/asyncComponent/asyncComponents';
 
 describe('src/app/asyncComponent/asyncComponent', () => {

@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 /**
+ * @package admin
+ *
  * @description
  * The color picker field allows you to select a custom color.
  * @status ready

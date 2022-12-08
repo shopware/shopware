@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-list-price-field.html.twig';
 import './sw-list-price-field.scss';
 

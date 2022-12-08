@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 

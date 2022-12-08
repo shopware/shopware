@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';

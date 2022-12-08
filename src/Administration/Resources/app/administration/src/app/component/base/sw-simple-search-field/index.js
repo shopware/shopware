@@ -4,6 +4,8 @@ import './sw-simple-search-field.scss';
 const { Component, Utils } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description a search field with delayed update
  * @status ready

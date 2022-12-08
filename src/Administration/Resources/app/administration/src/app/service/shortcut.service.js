@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module app/service/shortcut
  */
 

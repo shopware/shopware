@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-help-center';
 import 'src/app/component/context-menu/sw-context-button';

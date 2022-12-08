@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import 'src/index';
 
 jest.mock('src/core/shopware', () => jest.fn());

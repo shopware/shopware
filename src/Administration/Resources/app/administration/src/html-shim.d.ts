@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 declare module '*.html.twig' {
     const content: string;
 

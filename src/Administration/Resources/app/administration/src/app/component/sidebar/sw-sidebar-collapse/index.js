@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-sidebar-collapse.html.twig';
 import './sw-sidebar-collapse.scss';
 

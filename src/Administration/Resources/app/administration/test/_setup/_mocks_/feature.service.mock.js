@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Feature from 'src/app/service/feature.service';
 
 /**

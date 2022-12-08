@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/data-grid/sw-data-grid';

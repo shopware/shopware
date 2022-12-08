@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { AxiosInstance } from 'axios';
 import Repository from './repository.data';
 import type EntityHydrator from './entity-hydrator.data';

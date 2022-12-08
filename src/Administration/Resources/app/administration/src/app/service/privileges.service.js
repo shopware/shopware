@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 
 const { warn, error } = Shopware.Utils.debug;

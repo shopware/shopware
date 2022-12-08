@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Application } = Shopware;
 const { ErrorStore } = Shopware.Data;
 const utils = Shopware.Utils;

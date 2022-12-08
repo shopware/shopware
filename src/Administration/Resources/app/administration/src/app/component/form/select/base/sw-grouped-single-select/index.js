@@ -4,6 +4,8 @@ import template from './sw-grouped-single-select.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @description The <u>sw-grouped-single-select</u> component can be used to show a single sleect with grouped result items.
  * @example-type code-only
  * @component-example

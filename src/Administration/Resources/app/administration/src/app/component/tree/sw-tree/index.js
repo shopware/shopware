@@ -5,6 +5,8 @@ const { Component } = Shopware;
 const { debounce, sort } = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type static

@@ -3,6 +3,8 @@ import './sw-boolean-radio-group.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description radio input field for boolean and named entries.
  * @status ready

@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Boolean input field based on checkbox.
  * @status ready

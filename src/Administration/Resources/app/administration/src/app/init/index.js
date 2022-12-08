@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * These types of initializers are called in the middle of the initialization process.
  * They are not allowed to depend on another initializers to suppress circular references.
  */

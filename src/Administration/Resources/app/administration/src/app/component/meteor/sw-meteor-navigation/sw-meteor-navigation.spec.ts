@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
 import type { Route } from 'vue-router';

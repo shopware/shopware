@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 let isInitialized = false;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

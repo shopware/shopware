@@ -3,6 +3,8 @@ import template from './sw-admin.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-admin', {

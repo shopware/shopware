@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/sw-number-field';

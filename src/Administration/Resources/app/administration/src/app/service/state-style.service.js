@@ -1,6 +1,7 @@
 const { deepCopyObject } = Shopware.Utils.object;
 
 /**
+ * @package admin
  *
  * @memberOf module:core/service/login
  * @constructor

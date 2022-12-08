@@ -2,6 +2,8 @@
 import MD5 from 'md5-es';
 
 /**
+ * @package admin
+ *
  * @module core/service/utils/format
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -106,7 +106,7 @@ describe('Payment: Test ACL privileges', () => {
             .contains('My description');
     });
 
-    it('@settings: can create payment', { tags: ['pa-checkout', 'quarantined'] }, () => {
+    it('@settings: can create payment', { tags: ['pa-checkout'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,
@@ -142,8 +142,7 @@ describe('Payment: Test ACL privileges', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('.sw-card__title')
-            .contains('1 Coleur');
+        cy.contains('.sw-card__title', '1 Coleur');
     });
 
     it('@settings: can delete settings-payment', { tags: ['pa-checkout'] }, () => {

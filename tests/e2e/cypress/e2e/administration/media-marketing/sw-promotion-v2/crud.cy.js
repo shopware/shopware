@@ -18,7 +18,9 @@ describe('Promotion v2: Test crud operations', () => {
         });
     });
 
-    it('@base @marketing: create, update and read promotion', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@base @marketing: create, update and read promotion', { tags: ['pa-checkout'] }, () => {
+        cy.onlyOnFeature('FEATURE_NEXT_18215');
+
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'
@@ -143,7 +145,7 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.get('.sw-promotion-discount-component')
             .should('not.exist');
-        cy.get('.sw-card--hero button')
+        cy.get('.promotion-detail-discounts__action_add button')
             .click();
         cy.get('.sw-promotion-discount-component')
             .should('be.visible');
@@ -171,8 +173,8 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.contains('.sw-data-grid__cell--name > .sw-data-grid__cell-content', 'Funicular prices');
         cy.get('.sw-data-grid__cell--active > .sw-data-grid__cell-content > span').should('have.class', 'is--active');
-        cy.contains('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content', '1 January 2222, 00:00');
-        cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222, 00:00');
+        cy.contains('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content', '1 January 2222 at 00:00');
+        cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222 at 00:00');
     });
 
     it('@base @marketing: create promotion in non system language', { tags: ['pa-checkout'] }, () => {

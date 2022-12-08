@@ -9,42 +9,44 @@
     />
     {% endblock %}
 
+    <div class="sw-condition-goods-count__value">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_condition_goods_count_field_count %}
+        <sw-number-field
+            v-model="count"
+            class="sw-contidion-goods-count__numfield"
+            size="medium"
+            number-type="int"
+            :step="1"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_condition_goods_count_filter_button %}
+        <div class="sw-condition-goods-count__filter">
+            <sw-button
+                v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
+                :disabled="disabled"
+                @click="showFilterModal = true"
+            >
+                <sw-icon
+                    name="regular-filter-s"
+                    small
+                />
+            </sw-button>
+        </div>
+        {% endblock %}
+    </div>
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_condition_goods_count_field_count %}
-    <sw-number-field
-        v-model="count"
-        size="medium"
-        number-type="int"
-        :step="1"
+    {% block sw_condition_goods_count_condition_modal %}
+    <sw-condition-modal
+        v-if="showFilterModal"
         :disabled="disabled"
+        v-bind="{ condition, conditionDataProviderService }"
+        @modal-close="showFilterModal = false"
     />
     {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_condition_goods_count_filter_button %}
-    <div class="sw-condition-goods-count__filter">
-        <sw-button
-            v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
-            :disabled="disabled"
-            @click="showFilterModal = true"
-        >
-            <sw-icon
-                name="regular-filter-s"
-                small
-            />
-        </sw-button>
-    </div>
-    {% endblock %}
 </div>
-
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_condition_goods_count_condition_modal %}
-<sw-condition-modal
-    v-if="showFilterModal"
-    :disabled="disabled"
-    v-bind="{ condition, conditionDataProviderService }"
-    @modal-close="showFilterModal = false"
->>
-</sw-condition-modal>
-    {% endblock %}
 {% endblock %}

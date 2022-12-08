@@ -705,9 +705,11 @@
           "any": "Mind. eine",
           "all": "Alle"
         },
-        "subCondition": "Unterbedingung",
+        "AddAndCondition": "UND-Bedingung hinzufügen",
+        "AddOrCondition": "ODER-Bedingung hinzufügen",
+        "AddSubCondition": "Unterbedingungen hinzufügen",
         "deleteConditions": "Container entfernen",
-        "deleteAllConditions": "Alle entfernen",
+        "deleteAllConditions": "Alle Bedingungen entfernen",
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
         "hasDeliveryFreeItemRule": "Position ist versandkostenfrei",

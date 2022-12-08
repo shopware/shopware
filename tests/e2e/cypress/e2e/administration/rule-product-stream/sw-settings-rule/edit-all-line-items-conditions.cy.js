@@ -55,7 +55,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
                 cy.get('.sw-condition-base-line-item__matches-all').should('exist');
             });
 
-            cy.get('button.sw-button').contains('And').click();
+            cy.get('button.sw-button').contains('Add AND condition').click();
 
             // create second line item conditon
             cy.get('.sw-condition').eq(1).as('second-condition');

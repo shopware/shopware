@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swMailHeaderFooterDetail from 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
 

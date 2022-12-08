@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-settings-sitemap.html.twig';
 
 const { Mixin } = Shopware;

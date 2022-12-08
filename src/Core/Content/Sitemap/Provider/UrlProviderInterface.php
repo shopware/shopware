@@ -6,6 +6,8 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package sales-channel
+ *
  * @deprecated tag:v6.5.0 - This interface will be remove, use AbstractUrlProvider instead
  */
 interface UrlProviderInterface

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import swSeoMainCategory from 'src/module/sw-settings-seo/component/sw-seo-main-category';

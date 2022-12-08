@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Seo\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlRouteNotFoundException extends ShopwareHttpException
 {
     public const ERROR_CODE = 'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND';

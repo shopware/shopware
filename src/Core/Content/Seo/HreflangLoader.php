@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @package sales-channel
+ */
 class HreflangLoader implements HreflangLoaderInterface
 {
     private RouterInterface $router;

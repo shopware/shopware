@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Seo\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package sales-channel
+ */
 class InvalidSeoUrlException extends ShopwareHttpException
 {
     public function __construct(string $message)

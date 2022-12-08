@@ -23,6 +23,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 final class SitemapGenerateTaskHandler extends ScheduledTaskHandler

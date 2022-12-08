@@ -26,6 +26,8 @@ use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 class SitemapExporterTest extends TestCase

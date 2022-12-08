@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlAssociationFieldResolver extends AbstractFieldResolver
 {
     public function join(FieldResolverContext $context): string

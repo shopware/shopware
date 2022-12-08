@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Page\Sitemap;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package sales-channel
+ */
 class SitemapPage extends Struct
 {
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Seo;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class HreflangLoaderParameter
 {
     /**

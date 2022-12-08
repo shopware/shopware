@@ -35,6 +35,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package sales-channel
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class SeoActionController extends AbstractController

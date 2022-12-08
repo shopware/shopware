@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Seo\Event;
 
+/**
+ * @package sales-channel
+ */
 class SeoEvents
 {
     /**

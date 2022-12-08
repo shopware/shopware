@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  * @group store-api
  */

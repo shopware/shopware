@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swSettingsSeo from 'src/module/sw-settings-seo/page/sw-settings-seo';
 import 'src/app/component/structure/sw-page';

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-settings-sitemap', () => import('./page/sw-settings-sitemap'));
 

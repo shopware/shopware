@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package sales-channel
+ *
  * @extends EntityCollection<SeoUrlTemplateEntity>
  */
 class SeoUrlTemplateCollection extends EntityCollection

@@ -26,6 +26,8 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  * @group cache
  * @group store-api

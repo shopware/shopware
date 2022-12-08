@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
+/**
+ * @package sales-channel
+ */
 class SeoResolverData
 {
     /**

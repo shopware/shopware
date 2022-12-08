@@ -13,6 +13,8 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  *
+ * @package sales-channel
+ *
  * @covers \Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute
  */
 class ProductPageSeoUrlRouteTest extends TestCase

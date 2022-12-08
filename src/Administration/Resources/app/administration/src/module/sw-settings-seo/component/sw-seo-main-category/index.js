@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-seo-main-category.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

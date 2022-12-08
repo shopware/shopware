@@ -8,6 +8,9 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlAssociationField extends OneToManyAssociationField
 {
     /**

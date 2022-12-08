@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Sitemap\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class AlreadyLockedException extends ShopwareHttpException
 {
     public function __construct(SalesChannelContext $salesChannelContext)

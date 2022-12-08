@@ -82,16 +82,7 @@ describe('Order: Create credit note', () => {
                 `${page.elements.dataGridRow}--0`
             );
 
-            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-                cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
-                cy.get('.sw-order-detail__smart-bar-edit-button').click();
-
-                cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-            });
-
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                cy.get(page.elements.tabs.general.gridCard).scrollIntoView();
-            });
+            cy.get(page.elements.tabs.general.gridCard).scrollIntoView();
 
             cy.clickContextMenuItem(
                 '.sw-context-menu-item',
@@ -112,9 +103,7 @@ describe('Order: Create credit note', () => {
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
             cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                page.changeActiveTab('documents');
-            });
+            page.changeActiveTab('documents');
 
             // Open Invoice modal
             cy.get(page.elements.tabs.documents.documentGrid)
@@ -123,25 +112,14 @@ describe('Order: Create credit note', () => {
 
             cy.get(page.elements.loader).should('not.exist');
 
-            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-                cy.clickContextMenuItem(
-                    '.sw-context-menu-item',
-                    '.sw-order-document-grid-button',
-                    null,
-                    'Invoice'
-                );
-            });
+            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+            cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Invoice').click();
 
-                cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Invoice').click();
-
-                cy.get('.sw-modal__footer .sw-button--primary')
-                    .should('not.be.disabled')
-                    .click();
-            });
+            cy.get('.sw-modal__footer .sw-button--primary')
+                .should('not.be.disabled')
+                .click();
 
             // Generate preview
             cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
@@ -165,25 +143,14 @@ describe('Order: Create credit note', () => {
 
             cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
 
-            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-                cy.clickContextMenuItem(
-                    '.sw-context-menu-item',
-                    '.sw-order-document-grid-button',
-                    null,
-                    'Credit note'
-                );
-            });
+            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+            cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Credit note').click();
 
-                cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Credit note').click();
-
-                cy.get('.sw-modal__footer .sw-button--primary')
-                    .should('not.be.disabled')
-                    .click();
-            });
+            cy.get('.sw-modal__footer .sw-button--primary')
+                .should('not.be.disabled')
+                .click();
 
             cy.get('#sw-field--documentConfig-custom-invoiceNumber').select('1000');
             cy.get('#sw-field--documentConfig-documentComment').type('Always get a credit note');

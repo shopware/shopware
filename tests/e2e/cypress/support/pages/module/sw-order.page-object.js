@@ -61,21 +61,19 @@ export default class OrderPageObject {
 
         let stateMachineType;
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            switch (type) {
-                case 'payment':
-                    stateMachineType = 'order_transaction';
-                    break;
-                case 'delivery':
-                    stateMachineType = 'order_delivery';
-                    break;
-                case 'order':
-                    stateMachineType = 'order';
-                    break;
-                default:
-                    console.error(`Unknown state-machine type ${type}`);
-            }
-        });
+        switch (type) {
+            case 'payment':
+                stateMachineType = 'order_transaction';
+                break;
+            case 'delivery':
+                stateMachineType = 'order_delivery';
+                break;
+            case 'order':
+                stateMachineType = 'order';
+                break;
+            default:
+                console.error(`Unknown state-machine type ${type}`);
+        }
 
         // Request we want to wait for later
         cy.intercept({
@@ -87,20 +85,12 @@ export default class OrderPageObject {
         cy.get(`${stateSelector} .sw-loader__element`).should('not.exist');
         cy.get(stateSelector).scrollIntoView();
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(stateSelector)
-                .should('be.visible')
-                .select(stateTitle);
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(stateSelector)
-                .should('be.visible')
-                .typeSingleSelect(
-                    stateTitle,
-                    stateSelector
-                );
-        });
+        cy.get(stateSelector)
+            .should('be.visible')
+            .typeSingleSelect(
+                stateTitle,
+                stateSelector
+            );
 
         cy.get('.sw-order-state-change-modal')
             .should('be.visible');
@@ -110,16 +100,10 @@ export default class OrderPageObject {
 
         cy.wait(`@${call}Call`).its('response.statusCode').should('equal', 200);
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${stateSelector} .sw-loader__element`).should('not.exist');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(stateSelector)
-                .click()
-                .find('.sw-single-select__selection-input')
-                .should('have.attr', 'placeholder', stateTitle);
-        });
+        cy.get(stateSelector)
+            .click()
+            .find('.sw-single-select__selection-input')
+            .should('have.attr', 'placeholder', stateTitle);
 
         cy.get(this.elements.loader).should('not.exist');
         cy.get(this.elements.smartBarHeader).click();
@@ -131,53 +115,37 @@ export default class OrderPageObject {
     }
 
     checkOrderHistoryEntry({ type, stateTitle, signal = 'neutral', position = 0 }) {
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            const currentStatusIcon = `.sw-order-state__${signal}-icon`;
-            const item = `.sw-order-state-history-card__${type}-state .sw-order-state-history__entry--${position}`;
+        cy.get(this.elements.tabs.details.openStateHistoryModalButton)
+            .first()
+            .should('exist')
+            .click({ force: true });
 
-            cy.get('.sw-order-state-card').scrollIntoView();
-            cy.get('.sw-order-state-card').should('be.visible');
-            cy.get(`${item} ${currentStatusIcon}`).should('be.visible');
-            cy.contains(item, stateTitle);
-        });
+        cy.get('.sw-modal').should('be.visible');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(this.elements.tabs.details.openStateHistoryModalButton)
-                .first()
-                .should('exist')
-                .click({ force: true });
+        let dataGridRow = cy.get(`.sw-modal .sw-data-grid__row--${position}`);
 
-            cy.get('.sw-modal').should('be.visible');
+        if (!position) {
+            dataGridRow = cy.get('.sw-modal .sw-data-grid__row').last();
+        }
 
-            let dataGridRow = cy.get(`.sw-modal .sw-data-grid__row--${position}`);
+        dataGridRow.should('be.visible');
 
-            if (!position) {
-                dataGridRow = cy.get('.sw-modal .sw-data-grid__row').last();
-            }
+        if (type === 'payment') {
+            type = 'transaction';
+        }
 
-            dataGridRow.should('be.visible');
+        const dataGridCell = dataGridRow.find(`.sw-data-grid__cell--${type}`);
 
-            if (type === 'payment') {
-                type = 'transaction';
-            }
+        dataGridCell.contains(stateTitle);
 
-            const dataGridCell = dataGridRow.find(`.sw-data-grid__cell--${type}`);
+        cy.get('.sw-modal__footer .sw-button')
+            .should('be.visible')
+            .click();
 
-            dataGridCell.contains(stateTitle);
-
-            cy.get('.sw-modal__footer .sw-button')
-                .should('be.visible')
-                .click();
-
-            cy.get('.sw-modal').should('not.exist');
-        });
+        cy.get('.sw-modal').should('not.exist');
     }
 
-    getStatesSelector(type, scope) {
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            return `.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`;
-        });
-
+    getStatesSelector(type) {
         switch (type) {
             case 'payment':
                 return this.elements.stateSelects.orderTransactionStateSelect;

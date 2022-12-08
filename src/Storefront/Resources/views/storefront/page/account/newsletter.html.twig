@@ -1,31 +1,12 @@
 {% block page_account_overview_newsletter_content_inner %}
-
-    {% if feature('FEATURE_NEXT_14001') %}
-        {# @deprecated tag:v6.5.0 - variables success, messages and customer will be removed and found as properties of newsletterAccountPagelet #}
-        {% set success = newsletterAccountPagelet.success %}
-        {% set messages = newsletterAccountPagelet.messages %}
-        {% set customer = newsletterAccountPagelet.customer %}
-    {% endif %}
-
     {% block page_account_overview_newsletter_content_success %}
-        {% if feature('FEATURE_NEXT_14001') %}
-            {% if newsletterAccountPagelet.messages|length > 0 %}
-                <div class="newsletter-alerts">
-                    {% for message in newsletterAccountPagelet.messages %}
-                        {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% else %}
-            {% if success is not null %}
-                <div class="newsletter-alerts">
-                    {% for message in messages %}
-                        {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if newsletterAccountPagelet.messages|length > 0 %}
+            <div class="newsletter-alerts">
+                {% for message in newsletterAccountPagelet.messages %}
+                    {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
+                {% endfor %}
+            </div>
         {% endif %}
-
     {% endblock %}
 
     {% set formAutoSubmitOptions = {
@@ -56,9 +37,6 @@
                         {% set status = false %}
                         {% if newsletterAccountPagelet.newsletterStatus == statusDirect or newsletterAccountPagelet.newsletterStatus == statusOptIn or newsletterAccountPagelet.newsletterStatus == statusNotSet %}
                             {% set status = true %}
-                        {% endif %}
-                        {% if feature('FEATURE_NEXT_14001') == false %}
-                            {% set status = customer.newsletter %}
                         {% endif %}
                         <input type="checkbox"
                                class="form-check-input"

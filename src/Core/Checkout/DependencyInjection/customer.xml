@@ -97,7 +97,6 @@
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerNewsletterSubscriber">
             <argument type="service" id="customer.repository"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14001"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber">

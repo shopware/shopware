@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentExcepti
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
 use Shopware\Core\Framework\App\Payment\Response\AsyncPayResponse;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
@@ -39,13 +38,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 
         $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
 
+        static::assertNotNull($response);
         static::assertEquals(self::REDIRECT_URL, $response->getTargetUrl());
         /** @var Request $request */
         $request = $this->getLastRequest();
         $body = $request->getBody()->getContents();
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
+        static::assertSame(hash_hmac('sha256', $body, (string) $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
@@ -76,7 +76,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
         static::assertCount(5, $content);
-        $this->assertOrderTransactionState(Feature::isActive('FEATURE_NEXT_13601') ? OrderTransactionStates::STATE_UNCONFIRMED : OrderTransactionStates::STATE_IN_PROGRESS, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
 
         $this->$finalizeFunction($token, $transactionId, $paymentMethodId);
     }
@@ -162,7 +162,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncPayResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
-        $this->appendNewResponse(new Response(200, [], json_encode($response)));
+        $this->appendNewResponse(new Response(200, [], (string) json_encode($response)));
 
         $this->expectException(AsyncPaymentProcessException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
@@ -179,7 +179,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncPayResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], json_encode($response)));
+        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], (string) json_encode($response)));
 
         $this->expectException(AsyncPaymentProcessException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
@@ -219,7 +219,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], json_encode($response)));
+        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], (string) json_encode($response)));
 
         $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -231,7 +231,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
-        $this->appendNewResponse(new Response(200, [], json_encode($response)));
+        $this->appendNewResponse(new Response(200, [], (string) json_encode($response)));
 
         $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
@@ -270,7 +270,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $body = $request->getBody()->getContents();
 
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
+        static::assertSame(hash_hmac('sha256', $body, (string) $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));

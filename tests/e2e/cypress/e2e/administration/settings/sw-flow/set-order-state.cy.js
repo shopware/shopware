@@ -109,17 +109,9 @@ describe('Flow builder: set order status testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.contains('.sw-order-state-select__order-state', 'Order status: In Progress');
-            cy.contains('.sw-order-state-select__payment-state', 'Payment status: In Progress');
-            cy.contains('.sw-order-state-select__delivery-state', 'Delivery status: Shipped');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Order status"]', 'In Progress');
-            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]', 'In Progress');
-            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Shipped');
-        });
+        cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Order status"]', 'In Progress');
+        cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]', 'In Progress');
+        cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Shipped');
     });
     it('@settings: set order state flow with force transition', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
@@ -219,16 +211,8 @@ describe('Flow builder: set order status testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.contains('.sw-order-state-select__order-state', 'Order status: Done');
-            cy.contains('.sw-order-state-select__payment-state', 'Payment status: Refunded');
-            cy.contains('.sw-order-state-select__delivery-state', 'Delivery status: Returned');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Order status"]', 'Done');
-            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]', 'Refunded');
-            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Returned');
-        });
+        cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Order status"]', 'Done');
+        cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]', 'Refunded');
+        cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Returned');
     });
 });

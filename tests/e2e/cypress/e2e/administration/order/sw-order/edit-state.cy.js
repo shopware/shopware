@@ -29,8 +29,6 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -161,8 +159,6 @@ describe('Order: Test order state', () => {
     });
 
     it('@order: edit order state on details tab', { tags: ['pa-customers-orders'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -227,8 +223,6 @@ describe('Order: Test order state', () => {
     });
 
     it('@order: check order history', { tags: ['pa-customers-orders'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later

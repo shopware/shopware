@@ -16,13 +16,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipientRoute
 {
     private SalesChannelRepository $newsletterRecipientRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepository $newsletterRecipientRepository
     ) {

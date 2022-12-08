@@ -27,8 +27,6 @@ describe('documentService', () => {
     });
 
     it('is sending create document request correctly', async () => {
-        global.activeFeatureFlags = ['v6.5.0.0'];
-
         const { documentApiService, clientMock } = getDocumentApiService();
 
         documentApiService.setListener(expectCreateDocumentFinished);
@@ -83,8 +81,6 @@ describe('documentService', () => {
     });
 
     it('is sending create document request correctly with file', async () => {
-        global.activeFeatureFlags = ['v6.5.0.0'];
-
         const { documentApiService, clientMock } = getDocumentApiService();
 
         documentApiService.setListener(expectCreateDocumentFinished);
@@ -160,8 +156,6 @@ describe('documentService', () => {
     });
 
     it('is sending create document request return error', async () => {
-        global.activeFeatureFlags = ['v6.5.0.0'];
-
         const { documentApiService, clientMock } = getDocumentApiService();
 
         documentApiService.setListener(expectCreateDocumentFailed);

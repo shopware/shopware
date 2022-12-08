@@ -6,9 +6,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
- */
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {
     protected NewsletterAccountPagelet $pagelet;

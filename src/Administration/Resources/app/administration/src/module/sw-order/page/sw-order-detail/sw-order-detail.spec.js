@@ -68,6 +68,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         Shopware.State.unregisterModule('swOrderDetail');
         Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
+
+        // versionId needed
+        await wrapper.vm.createdComponent();
     });
 
     afterEach(() => {
@@ -78,28 +81,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled edit button', async () => {
-        await wrapper.setData({ isLoading: false });
-
-        const editButton = wrapper.find('.sw-order-detail__smart-bar-edit-button');
-
-        expect(editButton.attributes().disabled).toBe('true');
-    });
-
-    it('should have an enabled edit button', async () => {
-        wrapper.destroy();
-        wrapper = await createWrapper(['order.editor']);
-
-        Shopware.State.unregisterModule('swOrderDetail');
-        Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
-
-        await wrapper.setData({ isLoading: false });
-
-        const editButton = wrapper.find('.sw-order-detail__smart-bar-edit-button');
-
-        expect(editButton.attributes().disabled).toBeUndefined();
-    });
-
     it('should not contain manual label', async () => {
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeFalsy();
     });
@@ -107,11 +88,12 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should contain manual label', async () => {
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
+        await Shopware.State.commit('swOrderDetail/setOrder', { orderNumber: 1 });
+
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
 
     it('should created a new version when component was created', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         const createNewVersionIdSpy = jest.spyOn(wrapper.vm, 'createNewVersionId');
 
         await wrapper.vm.createdComponent();
@@ -121,7 +103,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should clean up unsaved version when component gets destroyed', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         await wrapper.vm.createNewVersionId();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
 

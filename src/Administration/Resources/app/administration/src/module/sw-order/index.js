@@ -11,7 +11,6 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-order-list', () => import('./page/sw-order-list'));
 Shopware.Component.register('sw-order-detail', () => import('./page/sw-order-detail'));
 Shopware.Component.register('sw-order-create', () => import('./page/sw-order-create'));
-Shopware.Component.register('sw-order-detail-base', () => import('./view/sw-order-detail-base'));
 Shopware.Component.register('sw-order-detail-general', () => import('./view/sw-order-detail-general'));
 Shopware.Component.register('sw-order-detail-details', () => import('./view/sw-order-detail-details'));
 Shopware.Component.register('sw-order-detail-documents', () => import('./view/sw-order-detail-documents'));
@@ -35,7 +34,6 @@ Shopware.Component.register('sw-order-state-history-card', () => import('./compo
 Shopware.Component.register('sw-order-state-history-card-entry', () => import('./component/sw-order-state-history-card-entry'));
 Shopware.Component.register('sw-order-state-history-modal', () => import('./component/sw-order-state-history-modal'));
 Shopware.Component.register('sw-order-state-change-modal', () => import('./component/sw-order-state-change-modal'));
-Shopware.Component.register('sw-order-state-select', () => import('./component/sw-order-state-select'));
 Shopware.Component.register('sw-order-state-select-v2', () => import('./component/sw-order-state-select-v2'));
 Shopware.Component.register('sw-order-details-state-card', () => import('./component/sw-order-details-state-card'));
 Shopware.Component.register('sw-order-inline-field', () => import('./component/sw-order-inline-field'));
@@ -96,9 +94,7 @@ Module.register('sw-order', {
             component: 'sw-order-create',
             path: 'create',
             redirect: {
-                name: Shopware.Feature.isActive('FEATURE_NEXT_7530')
-                    ? 'sw.order.create.initial'
-                    : 'sw.order.create.base',
+                name: 'sw.order.create.initial',
             },
             meta: {
                 privilege: 'order.creator',
@@ -110,9 +106,7 @@ Module.register('sw-order', {
             component: 'sw-order-detail',
             path: 'detail/:id',
             redirect: {
-                name: Shopware.Feature.isActive('FEATURE_NEXT_7530')
-                    ? 'sw.order.detail.general'
-                    : 'sw.order.detail.base',
+                name: 'sw.order.detail.general',
             },
             meta: {
                 privilege: 'order.viewer',
@@ -148,39 +142,26 @@ Module.register('sw-order', {
 
 
 function orderDetailChildren() {
-    if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
-        return {
-            general: {
-                component: 'sw-order-detail-general',
-                path: 'general',
-                meta: {
-                    parentPath: 'sw.order.index',
-                    privilege: 'order.viewer',
-                },
-            },
-            details: {
-                component: 'sw-order-detail-details',
-                path: 'details',
-                meta: {
-                    parentPath: 'sw.order.index',
-                    privilege: 'order.viewer',
-                },
-            },
-            documents: {
-                component: 'sw-order-detail-documents',
-                path: 'documents',
-                meta: {
-                    parentPath: 'sw.order.index',
-                    privilege: 'order.viewer',
-                },
-            },
-        };
-    }
-
     return {
-        base: {
-            component: 'sw-order-detail-base',
-            path: 'base',
+        general: {
+            component: 'sw-order-detail-general',
+            path: 'general',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.viewer',
+            },
+        },
+        details: {
+            component: 'sw-order-detail-details',
+            path: 'details',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.viewer',
+            },
+        },
+        documents: {
+            component: 'sw-order-detail-documents',
+            path: 'documents',
             meta: {
                 parentPath: 'sw.order.index',
                 privilege: 'order.viewer',
@@ -190,42 +171,29 @@ function orderDetailChildren() {
 }
 
 function orderCreateChildren() {
-    if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
-        return {
-            initial: {
-                component: 'sw-order-create-initial',
-                path: 'initial',
-                meta: {
-                    parentPath: 'sw.order.index',
-                    privilege: 'order.creator',
-                },
-            },
-            general: {
-                component: 'sw-order-create-general',
-                path: 'general',
-                meta: {
-                    parentPath: 'sw.order.index',
-                    privilege: 'order.creator',
-                },
-            },
-            details: {
-                component: 'sw-order-create-details',
-                path: 'details',
-                meta: {
-                    parentPath: 'sw.order.index',
-                    privilege: 'order.creator',
-                },
-            },
-        };
-    }
-
     return {
-        base: {
-            component: 'sw-order-create-base',
-            path: 'base',
+        initial: {
+            component: 'sw-order-create-initial',
+            path: 'initial',
             meta: {
                 parentPath: 'sw.order.index',
-                privilege: 'order.viewer',
+                privilege: 'order.creator',
+            },
+        },
+        general: {
+            component: 'sw-order-create-general',
+            path: 'general',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.creator',
+            },
+        },
+        details: {
+            component: 'sw-order-create-details',
+            path: 'details',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.creator',
             },
         },
     };

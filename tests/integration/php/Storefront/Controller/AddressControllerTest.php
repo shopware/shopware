@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -163,8 +162,6 @@ class AddressControllerTest extends TestCase
 
     public function testChangeVatIds(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15957', $this);
-
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 

@@ -470,19 +470,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            // @internal (flag:FEATURE_NEXT_13250) - The IF must be removed so that $changes is filled
-            if (!Feature::isActive('FEATURE_NEXT_13250')) {
-                $ids[] = $id;
-
-                continue;
-            }
-
             $changes[$id] = $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        }
-
-        // @internal (flag:FEATURE_NEXT_13250) - The IF can be removed completely so that $changes is taken into account.
-        if (!Feature::isActive('FEATURE_NEXT_13250')) {
-            return $ids;
         }
 
         if (empty($changes)) {

@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -230,9 +229,7 @@ class AddressController extends StorefrontController
             $this->hook(new AddressBookWidgetLoadedHook($page, $context));
 
             $viewData->setPage($page);
-            if (Feature::isActive('FEATURE_NEXT_15957')) {
-                $this->handleCustomerVatIds($dataBag, $context, $customer);
-            }
+            $this->handleCustomerVatIds($dataBag, $context, $customer);
         } catch (ConstraintViolationException $formViolations) {
             $params['formViolations'] = $formViolations;
             $params['postedData'] = $dataBag->get('address');

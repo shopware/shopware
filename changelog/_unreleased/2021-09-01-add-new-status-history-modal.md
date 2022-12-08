@@ -1,7 +1,6 @@
 ---
 title: Add order status history modal
 issue: NEXT-16677
-flag: FEATURE_NEXT_7530
 author: Max Stegmeyer
 ---
 # Administration

@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used to get information about the newsletter recipients
- *
- * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
  */
 abstract class AbstractAccountNewsletterRecipientRoute
 {

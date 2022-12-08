@@ -1,7 +1,6 @@
 ---
 title: Add Order Draft view for new Order UX
 issue: NEXT-16673
-flag: FEATURE_NEXT_7530
 author: Max Stegmeyer
 author_email: m.stegmeyer@shopware.com
 ---

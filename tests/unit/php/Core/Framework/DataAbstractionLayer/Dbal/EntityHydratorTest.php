@@ -218,7 +218,7 @@ class EntityHydratorTest extends TestCase
 
         $customFields = $first->get('customTranslated');
         $translated = $first->getTranslation('customTranslated');
-        static::assertNull($customFields['custom_test_text'] ?? null);
+        static::assertArrayHasKey('custom_test_text', $customFields);
         static::assertSame('PARENT DEUTSCH', $translated['custom_test_text']);
         static::assertSame('0', $customFields['custom_test_check']);
     }

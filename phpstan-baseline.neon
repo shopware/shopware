@@ -13705,36 +13705,6 @@ parameters:
 			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\:\\:getAutoload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\:\\:getChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\:\\:setAutoload\\(\\) has parameter \\$autoload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\:\\:setChangelog\\(\\) has parameter \\$changelog with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\:\\:\\$autoload type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\:\\:\\$changelog type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
 			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
 			count: 3
 			path: src/Core/Framework/Plugin/PluginExtractor.php
@@ -13813,46 +13783,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\AbstractRouteScope\\:\\:getRoutePrefixes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Routing/AbstractRouteScope.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\\:\\:setValue\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\\:\\:\\$value type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\ContextTokenRequired\\:\\:__construct\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/ContextTokenRequired.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\LoginRequired\\:\\:__construct\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/LoginRequired.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\\:\\:getScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\\:\\:setScopes\\(\\) has parameter \\$scopes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\\:\\:\\$scopes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\ApiRequestContextResolver\\:\\:fetchIntegrationPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -14918,41 +14848,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\AdditionalPermissionValidationTest\\:\\:\\$blacklist type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/AdditionalPermissionValidationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:annotationProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:registerActionButton\\(\\) has parameter \\$actionId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:registerActionButton\\(\\) has parameter \\$appName with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:testValidateRequest\\(\\) has parameter \\$acl with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:testValidateRequest\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:testValidateRequestAsRouteAttribute\\(\\) has parameter \\$acl with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclAnnotationValidatorTest\\:\\:testValidateRequestAsRouteAttribute\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Acl/AclAnnotationValidatorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Acl\\\\AclCriteriaValidatorTest\\:\\:criteriaProvider\\(\\) has no return type specified\\.$#"
@@ -17913,21 +17808,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\RoutesAclTest\\:\\:\\$blocklist type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/RoutesAclTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\SalesChannelRequestContextResolverTest\\:\\:domainData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/SalesChannelRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\SalesChannelRequestContextResolverTest\\:\\:loginRequiredAnnotationData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/SalesChannelRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\SalesChannelRequestContextResolverTest\\:\\:testLoginRequiredAnnotation\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/SalesChannelRequestContextResolverTest.php
 
 		-
 			message: "#^Left side of && is always true\\.$#"

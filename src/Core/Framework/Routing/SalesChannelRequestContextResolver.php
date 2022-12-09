@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
@@ -26,43 +24,19 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     use RouteScopeCheckTrait;
 
     /**
-     * @var RequestContextResolverInterface
-     */
-    private $decorated;
-
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var SalesChannelContext[]
      */
-    private $cache = [];
-
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
+    private array $cache = [];
 
     /**
      * @internal
      */
     public function __construct(
-        RequestContextResolverInterface $decorated,
-        SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher,
-        RouteScopeRegistry $routeScopeRegistry
+        private RequestContextResolverInterface $decorated,
+        private SalesChannelContextServiceInterface $contextService,
+        private EventDispatcherInterface $eventDispatcher,
+        private RouteScopeRegistry $routeScopeRegistry
     ) {
-        $this->decorated = $decorated;
-        $this->contextService = $contextService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public function resolve(SymfonyRequest $request): void
@@ -146,61 +120,24 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return false;
         }
 
-        /** @var ContextTokenRequired|bool $contextTokenRequiredAnnotation */
+        /** @var bool $contextTokenRequiredAnnotation */
         $contextTokenRequiredAnnotation = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED);
 
-        if (\is_bool($contextTokenRequiredAnnotation)) {
-            return $contextTokenRequiredAnnotation;
-        }
-
-        return $contextTokenRequiredAnnotation->isRequired();
+        return $contextTokenRequiredAnnotation;
     }
 
     private function validateLogin(Request $request, SalesChannelContext $context): void
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
-                return;
-            }
-
-            if ($context->getCustomer() === null) {
-                throw CartException::customerNotLoggedIn();
-            }
-
-            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
-                throw CartException::customerNotLoggedIn();
-            }
-
+        if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
             return;
         }
 
-        /** @var LoginRequired|bool|null $loginRequired */
-        $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
-
-        if ($loginRequired === null) {
-            return;
+        if ($context->getCustomer() === null) {
+            throw CartException::customerNotLoggedIn();
         }
 
-        if (\is_bool($loginRequired)) {
-            if (!$loginRequired) {
-                return;
-            }
-
-            if ($context->getCustomer() === null) {
-                throw CartException::customerNotLoggedIn();
-            }
-
-            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
-                throw CartException::customerNotLoggedIn();
-            }
-
-            return;
+        if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
+            throw CartException::customerNotLoggedIn();
         }
-
-        if ($loginRequired->isLoggedIn($context)) {
-            return;
-        }
-
-        throw CartException::customerNotLoggedIn();
     }
 }

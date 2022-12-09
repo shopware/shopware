@@ -82,7 +82,7 @@ class PluginEntity extends Entity
     protected $upgradedAt;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -264,7 +264,7 @@ class PluginEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getIconRaw(): ?string
     {
@@ -274,7 +274,7 @@ class PluginEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setIconRaw(string $iconRaw): void
     {

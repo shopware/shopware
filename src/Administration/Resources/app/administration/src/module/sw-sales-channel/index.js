@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './service/export-template.service';
 import './product-export-templates';
 import './service/domain-link.service';

@@ -5,6 +5,8 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\System\SalesChannel\BaseContext;
 
 /**
+ * @package core
+ *
  * @internal
  */
 abstract class AbstractBaseContextFactory

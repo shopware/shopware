@@ -15,6 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
 /**
+ * @package sales-channel
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class StoreApiInfoController

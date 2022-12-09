@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @package core
+ */
 class ContextTokenResponse extends StoreApiResponse
 {
     /**

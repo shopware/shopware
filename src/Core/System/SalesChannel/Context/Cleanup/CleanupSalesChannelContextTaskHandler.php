@@ -9,6 +9,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  */
 final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler

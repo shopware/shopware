@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swSalesChannelProductsAssignmentDynamicProductGroups from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
 

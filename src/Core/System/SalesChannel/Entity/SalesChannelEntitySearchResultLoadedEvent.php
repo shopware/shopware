@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelEntitySearchResultLoadedEvent extends EntitySearchResultLoadedEvent implements ShopwareSalesChannelEvent
 {
     /**

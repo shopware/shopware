@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { mount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import EntityCollection from 'src/core/data/entity-collection.data';

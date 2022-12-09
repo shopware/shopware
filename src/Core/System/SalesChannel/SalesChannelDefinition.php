@@ -62,6 +62,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel';

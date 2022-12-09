@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swSalesChannelDetailBase from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';

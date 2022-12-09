@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package core
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ContextSwitchRoute extends AbstractContextSwitchRoute

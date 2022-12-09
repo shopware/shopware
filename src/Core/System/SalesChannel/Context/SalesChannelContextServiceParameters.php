@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class SalesChannelContextServiceParameters extends Struct
 {
     /**

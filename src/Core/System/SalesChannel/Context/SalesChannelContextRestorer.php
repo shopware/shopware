@@ -23,6 +23,9 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCrit
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class SalesChannelContextRestorer
 {
     protected CartRestorer $cartRestorer;

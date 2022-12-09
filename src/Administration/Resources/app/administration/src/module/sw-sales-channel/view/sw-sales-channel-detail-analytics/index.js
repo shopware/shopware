@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-detail-analytics.html.twig';
 
 import './sw-sales-channel-detail-analytics.scss';

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelLanguageDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel_language';

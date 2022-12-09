@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelEntityAggregationResultLoadedEvent extends EntityAggregationResultLoadedEvent implements ShopwareSalesChannelEvent
 {
     /**

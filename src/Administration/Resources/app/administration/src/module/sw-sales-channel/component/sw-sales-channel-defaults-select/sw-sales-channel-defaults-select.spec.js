@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swSalesChannelDefaultsSelect from 'src/module/sw-sales-channel/component/sw-sales-channel-defaults-select';
 

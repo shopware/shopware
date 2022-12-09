@@ -4,3 +4,4 @@ issue: NEXT-21203
 ---
 # Core
 * Removed deprecations in `Shopware\Core\Framework\DependencyInjection`.
+* Removed deprecations in `Shopware\Core\Framework\MessageQueue`.

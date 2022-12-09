@@ -10,9 +10,9 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
  * @package system-settings
+ *
+ * @internal
  */
 class MessageQueueStatsSubscriber implements EventSubscriberInterface
 {

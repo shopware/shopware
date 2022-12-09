@@ -9,7 +9,6 @@
         <parameter key="shopware.store_endpoints" type="collection">
             <parameter key="ping">/ping</parameter>
             <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
-            <parameter key="my_licenses">/swplatform/licenses</parameter><!-- TODO @deprecated tag:v6.5.0 Unused parameter will be removed -->
             <parameter key="my_plugin_licenses">/swplatform/pluginlicenses</parameter>
             <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
             <parameter key="environment_information">/swplatform/environmentinformation</parameter>

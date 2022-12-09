@@ -11075,11 +11075,6 @@ parameters:
 			path: src/Core/Framework/App/Validation/ManifestValidator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Bundle\\:\\:getServicesFilePathArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Bundle.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Command\\\\CreateHydratorCommand\\:\\:renderClass\\(\\) has parameter \\$calls with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Command/CreateHydratorCommand.php

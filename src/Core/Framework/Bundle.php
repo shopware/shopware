@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\AddCoreMigrationPathCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
@@ -115,19 +114,6 @@ abstract class Bundle extends SymfonyBundle
             ->addTag('shopware.migration_source');
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Use own migration source instead
-     */
-    protected function addCoreMigrationPath(ContainerBuilder $container, string $path, string $namespace): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $container->addCompilerPass(new AddCoreMigrationPathCompilerPass($path, $namespace));
-    }
-
     private function registerFilesystem(ContainerBuilder $container, string $key): void
     {
         $containerPrefix = $this->getContainerPrefix();
@@ -182,6 +168,9 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    /**
+     * @return list<string>
+     */
     private function getServicesFilePathArray(string $path): array
     {
         $pathArray = glob($path);

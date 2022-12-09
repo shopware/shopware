@@ -2,6 +2,10 @@
 
 import elements from "../../../../support/pages/sw-general.page-object";
 
+/**
+ * @package sales-channel
+ */
+
 const uuid = require('uuid/v4');
 
 describe('Theme: Test Inheritance', () => {

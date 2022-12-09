@@ -1,6 +1,10 @@
 import template from './sw-sales-channel-detail-theme.html.twig';
 import './sw-sales-channel-detail-theme.scss';
 
+/**
+ * @package sales-channel
+ */
+
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 

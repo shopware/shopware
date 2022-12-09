@@ -1,5 +1,9 @@
 // / <reference types="Cypress" />
 
+/**
+ * @package sales-channel
+ */
+
 describe('Theme: Test sales channel assignment', () => {
     beforeEach(() => {
         cy.loginViaApi()

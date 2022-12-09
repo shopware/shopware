@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -15,29 +16,24 @@ use function iterator_to_array;
 use function sprintf;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
+ *
+ * @phpstan-import-type FeatureFlagConfig from Feature
  */
 class ChangelogProcessor
 {
-    protected Filesystem $filesystem;
-
-    protected ChangelogParser $parser;
-
-    protected ValidatorInterface $validator;
-
-    protected array $featureFlags;
-
-    private string $projectDir;
-
     private ?string $platformRoot;
 
-    public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir, array $featureFlags)
-    {
-        $this->parser = $parser;
-        $this->validator = $validator;
-        $this->filesystem = $filesystem;
-        $this->projectDir = $projectDir;
-        $this->featureFlags = $featureFlags;
+    /**
+     * @param array<string, FeatureFlagConfig> $featureFlags
+     */
+    public function __construct(
+        protected ChangelogParser $parser,
+        protected ValidatorInterface $validator,
+        protected Filesystem $filesystem,
+        private string $projectDir,
+        protected array $featureFlags
+    ) {
     }
 
     /**
@@ -50,6 +46,8 @@ class ChangelogProcessor
 
     /**
      * @internal
+     *
+     * @param array<string, FeatureFlagConfig> $flags
      */
     public function setActiveFlags(array $flags): void
     {

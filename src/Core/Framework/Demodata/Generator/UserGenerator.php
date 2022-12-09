@@ -15,24 +15,18 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class UserGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private UserDefinition $userDefinition;
-
-    private EntityRepository $languageRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityWriterInterface $writer, UserDefinition $userDefinition, EntityRepository $languageRepository)
-    {
-        $this->writer = $writer;
-        $this->userDefinition = $userDefinition;
-        $this->languageRepository = $languageRepository;
+    public function __construct(
+        private EntityWriterInterface $writer,
+        private UserDefinition $userDefinition,
+        private EntityRepository $languageRepository
+    ) {
     }
 
     public function getDefinition(): string

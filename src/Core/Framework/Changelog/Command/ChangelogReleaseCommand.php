@@ -11,24 +11,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
 class ChangelogReleaseCommand extends Command
 {
     protected static $defaultName = 'changelog:release';
 
     /**
-     * @var ChangelogReleaseCreator
-     */
-    private $releaseCreator;
-
-    /**
      * @internal
      */
-    public function __construct(ChangelogReleaseCreator $releaseCreator)
+    public function __construct(private ChangelogReleaseCreator $releaseCreator)
     {
         parent::__construct();
-        $this->releaseCreator = $releaseCreator;
     }
 
     protected function configure(): void

@@ -152,12 +152,6 @@ parameters:
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
 
-        # Can be removed with 6.5 release (NEXT-19158)
-        -
-            message: "#^PHPDoc tag @param references unknown parameter\\: \\$htmlEscape$#"
-            count: 1
-            path: src/Core/Framework/Adapter/Twig/StringTemplateRenderer.php
-
         # Method will get third parameter in 6.5
         -
             message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) invoked with 3 parameters, 2 required\\.$#"

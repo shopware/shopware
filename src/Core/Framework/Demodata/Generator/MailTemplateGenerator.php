@@ -14,27 +14,18 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class MailTemplateGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private MailTemplateDefinition $mailTemplateDefinition;
-
-    private EntityRepository $mailTemplateTypeRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        EntityRepository $mailTemplateTypeRepository,
-        MailTemplateDefinition $mailTemplateDefinition
+        private EntityWriterInterface $writer,
+        private EntityRepository $mailTemplateTypeRepository,
+        private MailTemplateDefinition $mailTemplateDefinition
     ) {
-        $this->writer = $writer;
-        $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
-        $this->mailTemplateDefinition = $mailTemplateDefinition;
     }
 
     public function getDefinition(): string

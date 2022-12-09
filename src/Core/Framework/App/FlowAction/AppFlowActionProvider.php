@@ -8,8 +8,6 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
@@ -18,69 +16,14 @@ use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
  */
 class AppFlowActionProvider
 {
-    private Connection $connection;
-
-    private BusinessEventEncoder $businessEventEncoder;
-
-    private StringTemplateRenderer $templateRenderer;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        BusinessEventEncoder $businessEventEncoder,
-        StringTemplateRenderer $templateRenderer
+        private Connection $connection,
+        private BusinessEventEncoder $businessEventEncoder,
+        private StringTemplateRenderer $templateRenderer
     ) {
-        $this->connection = $connection;
-        $this->businessEventEncoder = $businessEventEncoder;
-        $this->templateRenderer = $templateRenderer;
-    }
-
-    /**
-     * @return array<string, array<int|string, string>>
-     *
-     * @deprecated tag:v6.5.0 Will be removed, use AppFlowActionProvider::getWebhookPayloadAndHeaders instead
-     */
-    public function getWebhookData(FlowEvent $event, string $appFlowActionId): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $context = $event->getContext();
-
-        $appFlowActionData = $this->getAppFlowActionData($appFlowActionId);
-
-        if (empty($appFlowActionData)) {
-            return [];
-        }
-
-        $availableData = $this->businessEventEncoder->encode($event->getEvent());
-        $data = array_merge(
-            $event->getConfig(),
-            $availableData
-        );
-
-        $configData = $this->resolveParamsData($event->getConfig(), $data, $context, $appFlowActionId);
-        $data = array_merge(
-            $configData,
-            $availableData
-        );
-
-        /** @var string $parameterData */
-        $parameterData = $appFlowActionData['parameters'];
-        $parameters = array_column(json_decode($parameterData, true), 'value', 'name');
-
-        /** @var string $headersData */
-        $headersData = $appFlowActionData['headers'];
-        $headers = array_column(json_decode($headersData, true), 'value', 'name');
-
-        return [
-            'payload' => $this->resolveParamsData($parameters, $data, $context, $appFlowActionId),
-            'headers' => $this->resolveParamsData($headers, $data, $context, $appFlowActionId),
-        ];
     }
 
     /**
@@ -103,6 +46,7 @@ class AppFlowActionProvider
         );
 
         $configData = $this->resolveParamsData($flow->getConfig(), $data, $context, $appFlowActionId);
+        /** @var array<string, mixed> $data */
         $data = array_merge(
             $configData,
             $additionData
@@ -124,7 +68,7 @@ class AppFlowActionProvider
 
     /**
      * @param array<int|string, mixed> $params
-     * @param array<int|string, mixed> $data
+     * @param array<string, mixed> $data
      *
      * @throws InvalidAppFlowActionVariableException
      *

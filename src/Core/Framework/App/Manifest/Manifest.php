@@ -13,9 +13,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
-use Symfony\Component\Config\Util\Exception\XmlParsingException as SymfonyXmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -24,8 +22,6 @@ use Symfony\Component\Config\Util\XmlUtils;
 class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
-
-    private const DEPRECATED_XSD_FILE = __DIR__ . '/Schema/manifest-1.0.xsd';
 
     private string $path;
 
@@ -79,26 +75,10 @@ class Manifest
         $this->storefront = $storefront;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will not validate against manifest-1.0.xsd anymore
-     */
     public static function createFromXmlFile(string $xmlFile): self
     {
         try {
-            try {
-                $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
-            } catch (SymfonyXmlParsingException $parsingException) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.5.0.0',
-                    sprintf(
-                        'Trying to parse manifest file with deprecated schema file: "%s". Reason: %s',
-                        self::DEPRECATED_XSD_FILE,
-                        $parsingException->getMessage(),
-                    )
-                );
-
-                $doc = XmlUtils::loadFile($xmlFile, self::DEPRECATED_XSD_FILE);
-            }
+            $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
 
             /** @var \DOMElement $meta */
             $meta = $doc->getElementsByTagName('meta')->item(0);

@@ -34,7 +34,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class DemodataCommand extends Command
 {
@@ -45,25 +45,15 @@ class DemodataCommand extends Command
      */
     private array $defaults = [];
 
-    private DemodataService $demodataService;
-
-    private string $kernelEnv;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
     public function __construct(
-        DemodataService $demodataService,
-        EventDispatcherInterface $eventDispatcher,
-        string $kernelEnv
+        private DemodataService $demodataService,
+        private EventDispatcherInterface $eventDispatcher,
+        private string $kernelEnv
     ) {
         parent::__construct();
-
-        $this->kernelEnv = $kernelEnv;
-        $this->demodataService = $demodataService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function addDefault(string $name, int $value): void

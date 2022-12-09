@@ -10,23 +10,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\TagDefinition;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class TagGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private TagDefinition $tagDefinition;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        TagDefinition $tagDefinition
+        private EntityWriterInterface $writer,
+        private TagDefinition $tagDefinition
     ) {
-        $this->writer = $writer;
-        $this->tagDefinition = $tagDefinition;
     }
 
     public function getDefinition(): string

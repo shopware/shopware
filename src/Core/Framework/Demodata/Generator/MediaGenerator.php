@@ -21,47 +21,26 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class MediaGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private FileSaver $mediaUpdater;
-
-    private FileNameProvider $fileNameProvider;
-
     private array $tmpImages = [];
 
-    private EntityRepository $defaultFolderRepository;
-
-    private EntityRepository $folderRepository;
-
-    private MediaDefinition $mediaDefinition;
-
     private Generator $faker;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        FileSaver $mediaUpdater,
-        FileNameProvider $fileNameProvider,
-        EntityRepository $defaultFolderRepository,
-        EntityRepository $folderRepository,
-        MediaDefinition $mediaDefinition,
-        Connection $connection
+        private EntityWriterInterface $writer,
+        private FileSaver $mediaUpdater,
+        private FileNameProvider $fileNameProvider,
+        private EntityRepository $defaultFolderRepository,
+        private EntityRepository $folderRepository,
+        private MediaDefinition $mediaDefinition,
+        private Connection $connection
     ) {
-        $this->writer = $writer;
-        $this->mediaUpdater = $mediaUpdater;
-        $this->fileNameProvider = $fileNameProvider;
-        $this->defaultFolderRepository = $defaultFolderRepository;
-        $this->folderRepository = $folderRepository;
-        $this->mediaDefinition = $mediaDefinition;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -170,14 +149,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         /** @var string $text */
         $text = $context->getFaker()->words(1, true);
 
-        /*
-         * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
-         */
-        if (\class_exists(ImagesGeneratorProvider::class)) {
-            $provider = ImagesGeneratorProvider::class;
-        } else {
-            $provider = \bheller\ImagesGenerator\ImagesGeneratorProvider::class;
-        }
+        $provider = ImagesGeneratorProvider::class;
 
         return $this->tmpImages[] = $provider::imageGenerator(
             null,

@@ -11,21 +11,15 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class MailHeaderFooterGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private MailHeaderFooterDefinition $mailHeaderFooterDefinition;
-
     /**
      * @internal
      */
-    public function __construct(EntityWriterInterface $writer, MailHeaderFooterDefinition $mailHeaderFooterDefinition)
+    public function __construct(private EntityWriterInterface $writer, private MailHeaderFooterDefinition $mailHeaderFooterDefinition)
     {
-        $this->writer = $writer;
-        $this->mailHeaderFooterDefinition = $mailHeaderFooterDefinition;
     }
 
     public function getDefinition(): string

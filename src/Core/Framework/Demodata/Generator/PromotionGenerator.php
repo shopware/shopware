@@ -15,25 +15,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class PromotionGenerator implements DemodataGeneratorInterface
 {
-    private Connection $connection;
-
     private SymfonyStyle $io;
 
     private Generator $faker;
 
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
+    public function __construct(private Connection $connection, private DefinitionInstanceRegistry $registry)
     {
-        $this->connection = $connection;
-        $this->registry = $registry;
     }
 
     public function getDefinition(): string

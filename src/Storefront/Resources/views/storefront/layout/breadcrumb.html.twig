@@ -3,18 +3,7 @@
         {% set breadcrumbCategories = sw_breadcrumb_full(category, context.context) %}
         {% set categoryId = category.id %}
 
-        {% if feature('v6.5.0.0') %}
-            {% set breadcrumbKeys = breadcrumbCategories|keys %}
-        {% else %}
-            {% sw_silent_feature_call "v6.5.0.0" %}
-                {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
-                {% set breadcrumb = sw_breadcrumb(category) %}
-                {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
-                {% set breadcrumbKeys = breadcrumb|keys %}
-                {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
-                {% set breadcrumbTypes = sw_breadcrumb_build_types(breadcrumbCategories) %}
-            {% endsw_silent_feature_call %}
-        {% endif %}
+        {% set breadcrumbKeys = breadcrumbCategories|keys %}
 
         {% if breadcrumbCategories|length > 0 %}
             <nav aria-label="breadcrumb">

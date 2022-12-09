@@ -16,24 +16,14 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class CustomerGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private EntityRepository $customerGroupRepository;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private Connection $connection;
-
     /**
      * @var list<string>
      */
     private array $salutationIds = [];
-
-    private CustomerDefinition $customerDefinition;
 
     private Generator $faker;
 
@@ -41,17 +31,12 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        Connection $connection,
-        EntityRepository $customerGroupRepository,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        CustomerDefinition $customerDefinition
+        private EntityWriterInterface $writer,
+        private Connection $connection,
+        private EntityRepository $customerGroupRepository,
+        private NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private CustomerDefinition $customerDefinition
     ) {
-        $this->writer = $writer;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->connection = $connection;
-        $this->customerDefinition = $customerDefinition;
     }
 
     public function getDefinition(): string

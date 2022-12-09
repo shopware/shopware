@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class CleanPersonalDataCommand extends Command
 {
@@ -30,20 +30,14 @@ class CleanPersonalDataCommand extends Command
 
     protected static $defaultName = 'database:clean-personal-data';
 
-    private Connection $connection;
-
-    private EntityRepository $customerRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        EntityRepository $customerRepository
+        private Connection $connection,
+        private EntityRepository $customerRepository
     ) {
         parent::__construct();
-        $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
     }
 
     protected function configure(): void

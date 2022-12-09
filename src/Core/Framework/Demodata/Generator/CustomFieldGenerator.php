@@ -13,16 +13,10 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefi
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {
-    private EntityRepository $attributeSetRepository;
-
-    private Connection $connection;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     /**
      * @var array<string, array<string, mixed>>
      */
@@ -31,26 +25,16 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $attributeSetRepository, Connection $connection, DefinitionInstanceRegistry $definitionRegistry)
-    {
-        $this->attributeSetRepository = $attributeSetRepository;
-        $this->connection = $connection;
-        $this->definitionRegistry = $definitionRegistry;
+    public function __construct(
+        private EntityRepository $attributeSetRepository,
+        private Connection $connection,
+        private DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     public function getDefinition(): string
     {
         return CustomFieldSetDefinition::class;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
-     *
-     * @return array<string, mixed>|null
-     */
-    public function getRandomSet(): ?array
-    {
-        return $this->attributeSets[array_rand($this->attributeSets)];
     }
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
@@ -82,13 +66,19 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
             $console->comment('\nSet attributes for ' . $count . ' ' . $relation . ' entities');
 
             $rndSet = $this->getRandomSet();
-            if ($rndSet !== null) {
-                $this->generateCustomFields($relation, $count, $rndSet['attributes'], $context);
-            }
+            $this->generateCustomFields($relation, $count, $rndSet['attributes'], $context);
 
             $console->progressAdvance($count);
         }
         $console->progressFinish();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getRandomSet(): array
+    {
+        return $this->attributeSets[array_rand($this->attributeSets)];
     }
 
     /**

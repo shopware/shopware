@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class FlowGenerator implements DemodataGeneratorInterface
 {
@@ -49,31 +49,19 @@ class FlowGenerator implements DemodataGeneratorInterface
      */
     private array $tags = [];
 
-    private Connection $connection;
-
     private SymfonyStyle $io;
 
     private Generator $faker;
-
-    private DefinitionInstanceRegistry $registry;
-
-    private BusinessEventCollector $eventCollector;
-
-    private FlowActionCollector $flowActionCollector;
 
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        DefinitionInstanceRegistry $registry,
-        BusinessEventCollector $eventCollector,
-        FlowActionCollector $flowActionCollector
+        private Connection $connection,
+        private DefinitionInstanceRegistry $registry,
+        private BusinessEventCollector $eventCollector,
+        private FlowActionCollector $flowActionCollector
     ) {
-        $this->connection = $connection;
-        $this->registry = $registry;
-        $this->eventCollector = $eventCollector;
-        $this->flowActionCollector = $flowActionCollector;
     }
 
     public function getDefinition(): string

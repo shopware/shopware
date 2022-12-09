@@ -11,21 +11,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
 class ChangelogChangeCommand extends Command
 {
     protected static $defaultName = 'changelog:change';
 
-    private ChangelogReleaseExporter $releaseExporter;
-
     /**
      * @internal
      */
-    public function __construct(ChangelogReleaseExporter $releaseExporter)
+    public function __construct(private ChangelogReleaseExporter $releaseExporter)
     {
         parent::__construct();
-        $this->releaseExporter = $releaseExporter;
     }
 
     protected function configure(): void
@@ -80,6 +77,9 @@ class ChangelogChangeCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, bool>
+     */
     private function getRequestedSection(InputInterface $input): array
     {
         $requested = [

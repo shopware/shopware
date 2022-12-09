@@ -16,29 +16,20 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ * @internal
  */
 class DemodataService
 {
-    private array $generators;
-
-    private string $projectDir;
-
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      *
      * @param \IteratorAggregate<DemodataGeneratorInterface> $generators
      */
     public function __construct(
-        \IteratorAggregate $generators,
-        string $projectDir,
-        DefinitionInstanceRegistry $registry
+        private \IteratorAggregate $generators,
+        private string $projectDir,
+        private DefinitionInstanceRegistry $registry
     ) {
-        $this->projectDir = $projectDir;
-        $this->generators = iterator_to_array($generators);
-        $this->registry = $registry;
     }
 
     public function generate(DemodataRequest $request, Context $context, ?SymfonyStyle $console): DemodataContext
@@ -60,7 +51,7 @@ class DemodataService
 
             $console->section(sprintf('Generating %d items for %s', $numberOfItems, $definition->getEntityName()));
 
-            $validGenerators = array_filter($this->generators, static function (DemodataGeneratorInterface $generator) use ($definitionClass) {
+            $validGenerators = array_filter(iterator_to_array($this->generators), static function (DemodataGeneratorInterface $generator) use ($definitionClass) {
                 return $generator->getDefinition() === $definitionClass;
             });
 
@@ -90,15 +81,7 @@ class DemodataService
     {
         $faker = Factory::create('de-DE');
         $faker->addProvider(new Commerce($faker));
-
-        /*
-         * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
-         */
-        if (\class_exists(ImagesGeneratorProvider::class)) {
-            $faker->addProvider(new ImagesGeneratorProvider($faker));
-        } else {
-            $faker->addProvider(new \bheller\ImagesGenerator\ImagesGeneratorProvider($faker));
-        }
+        $faker->addProvider(new ImagesGeneratorProvider($faker));
 
         return $faker;
     }

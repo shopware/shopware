@@ -94,10 +94,12 @@ describe('Product: Test pagination and the corresponding URL parameters', () => 
         cy.url().should('contain', `limit=25`);
 
         // When search for a term, none sorting is used
-        cy.get(`.sw-data-grid__cell--1 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-up-xxs').should('not.exist');
-        cy.get(`.sw-data-grid__cell--1 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-down-xxs').should('not.exist');
+        cy.get('.sw-data-grid__cell--1 > .sw-data-grid__cell-content .icon--regular-chevron-up-xxs').should('not.exist');
+        cy.get('.sw-data-grid__cell--1 > .sw-data-grid__cell-content .icon--regular-chevron-down-xxs').should('not.exist');
 
         cy.log('change Sorting direction from None to ASC');
+        // close the search bar
+        cy.get('.sw-version__title').click();
         cy.get('.sw-data-grid__cell--1 > .sw-data-grid__cell-content').click('right');
 
         cy.testListing({
@@ -160,7 +162,7 @@ describe('Product: Test pagination and the corresponding URL parameters', () => 
         });
 
         cy.log('change sorting to Available');
-        cy.get('.sw-data-grid__cell--14 > .sw-data-grid__cell-content').click('right');
+        cy.get('.sw-data-grid__cell--14 > .sw-data-grid__cell-content').click('right', { force: true });
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.testListing({

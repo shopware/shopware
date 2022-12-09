@@ -18,4 +18,15 @@
     .sw-card.is--disabled .sw-card__content {
         background-color: $color-gray-100;
     }
+
+    &__button-context-menu {
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            padding-top: 6px;
+            padding-right: 3px;
+            padding-bottom: 4px;
+            padding-left: 3px;
+        }
+    }
 }

@@ -98,6 +98,25 @@
         .sw-color-badge {
             flex-shrink: 0;
         }
+
+        .sw-data-grid__inline-edit-cancel {
+            .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding: 4px;
+            }
+        }
+
+        .sw-data-grid__inline-edit-save {
+            .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 5px;
+                padding-right: 4px;
+                padding-bottom: 5px;
+                padding-left: 4px;
+            }
+        }
     }
 
     .sw-data-grid__cell-value {

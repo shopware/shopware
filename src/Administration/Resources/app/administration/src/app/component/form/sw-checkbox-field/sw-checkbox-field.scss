@@ -87,6 +87,12 @@ $sw-field-color-inherited: $color-module-purple-900;
             border-radius: 4px;
 
             .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 5px;
+                padding-right: 4px;
+                padding-bottom: 5px;
+                padding-left: 4px;
                 display: none;
                 position: absolute;
                 top: -1px;

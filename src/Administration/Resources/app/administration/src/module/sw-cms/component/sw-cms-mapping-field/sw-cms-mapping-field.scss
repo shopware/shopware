@@ -54,6 +54,12 @@
         &:hover {
             color: $color-crimson-500;
         }
+
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            padding: 2px;
+        }
     }
 
     .sw-cms-mapping-field__mapping-value {

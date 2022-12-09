@@ -106,7 +106,7 @@ describe('Product: Test variants', () => {
         uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
         cy.awaitAndCheckNotification('File has been saved.');
 
-        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.icon--regular-link-horizontal-slash').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
@@ -236,7 +236,7 @@ describe('Product: Test variants', () => {
             .should('have.attr', 'src')
             .and('match', /sw-test-image/);
 
-        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.icon--regular-link-horizontal-slash').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
@@ -339,7 +339,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants-media-upload__image:nth-of-type(2) img')
             .should('have.attr', 'src')
             .and('match', /preview_mountain_large/);
-        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.icon--regular-link-horizontal-slash').should('be.visible');
         cy.get('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').click();
 
         // Validate product

@@ -1,6 +1,4 @@
 import template from './sw-icon.html.twig';
-import legacyIconMapping from './legacy-icon-mapping';
-import legacySpaceMapping from './legacy-space-mapping';
 import './sw-icon.scss';
 
 const { Component } = Shopware;
@@ -104,27 +102,7 @@ Component.register('sw-icon', {
                 };
             }
 
-            let additionalStyles = {};
-
-            /**
-             * @deprecated tag:v6.5.0 - Icons will no longer have space around them.
-             *
-             * The space mapping for the old icons should be removed in the
-             * next major. The space around the icons need to be set then
-             * in CSS.
-             */
-            if (!this.feature.isActive('v6.5.0.0')) {
-                const legacyName = Object.entries(legacyIconMapping).find(([oldName, newName]) => {
-                    return [oldName, newName].includes(this.iconName);
-                });
-
-                if (legacyName && legacySpaceMapping[legacyName[0]]) {
-                    additionalStyles = {
-                        ...additionalStyles,
-                        ...legacySpaceMapping[legacyName[0]],
-                    };
-                }
-            }
+            const additionalStyles = {};
 
             return {
                 color: this.color,
@@ -132,22 +110,6 @@ Component.register('sw-icon', {
                 height: size,
                 ...additionalStyles,
             };
-        },
-
-        isLegacyName() {
-            return Object.keys(legacyIconMapping).includes(this.iconName);
-        },
-
-        replacementName() {
-            if (!this.isLegacyName) {
-                return null;
-            }
-
-            return legacyIconMapping[this.iconName];
-        },
-
-        useIconKit() {
-            return this.feature.isActive('v6.5.0.0');
         },
     },
 

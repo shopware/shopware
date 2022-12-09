@@ -25,6 +25,30 @@ $sw-pagination-border-radius: $border-radius-default;
         margin: 0;
     }
 
+    .sw-pagination__page-button {
+        &-prev {
+            .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 3px;
+                padding-right: 5px;
+                padding-bottom: 3px;
+                padding-left: 5px;
+            }
+        }
+
+        &-next {
+            .sw-icon {
+                width: 16px;
+                height: 16px;
+                padding-top: 3px;
+                padding-right: 5px;
+                padding-bottom: 3px;
+                padding-left: 5px;
+            }
+        }
+    }
+
     .sw-pagination__list-button,
     .sw-pagination__page-button,
     .sw-pagination__list-separator {

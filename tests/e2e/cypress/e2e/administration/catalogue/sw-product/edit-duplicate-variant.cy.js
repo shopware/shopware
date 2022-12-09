@@ -66,7 +66,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
 
-        cy.get('.sw-field .icon--custom-inherited').first().click();
+        cy.get('.sw-field .icon--regular-link-horizontal').first().click();
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
         cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');
@@ -145,7 +145,7 @@ describe('Product: Test variants', () => {
             .scrollIntoView()
             .should('be.visible');
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
-        cy.get('.sw-field .icon--custom-inherited').first().click();
+        cy.get('.sw-field .icon--regular-link-horizontal').first().click();
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
         cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');

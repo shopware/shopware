@@ -33,6 +33,15 @@ $sw-context-button-color-disabled: $color-gray-100;
         padding: 0 8px;
         outline: none;
 
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            padding-top: 5px;
+            padding-right: 1px;
+            padding-bottom: 5px;
+            padding-left: 2px;
+        }
+
         &:hover,
         &.is--active {
             border-color: $sw-context-button-color-border;

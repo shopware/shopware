@@ -54,6 +54,22 @@
         &.sw-tabs__arrow--right {
             left: auto;
             right: 0;
+
+            .sw-icon {
+                padding-top: 7px;
+                padding-right: 5px;
+                padding-bottom: 7px;
+                padding-left: 5px;
+            }
+        }
+
+        &.sw-tabs__arrow--left {
+            .sw-icon {
+                padding-top: 7px;
+                padding-right: 5px;
+                padding-bottom: 7px;
+                padding-left: 5px;
+            }
         }
 
         &.sw-tabs__arrow--disabled {

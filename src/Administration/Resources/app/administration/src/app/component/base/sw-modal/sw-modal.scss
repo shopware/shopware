@@ -140,6 +140,12 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
             background-color: $color-gray-200;
             color: $color-darkgray-200;
         }
+
+        .sw-icon {
+            width: 16px;
+            height: 16px;
+            padding: 3px;
+        }
     }
 
     .sw-modal__body {

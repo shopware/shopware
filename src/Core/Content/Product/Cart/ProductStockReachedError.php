@@ -22,7 +22,9 @@ class ProductStockReachedError extends Error
      */
     protected $quantity;
 
-    public function __construct(string $id, string $name, int $quantity)
+    protected bool $resolved;
+
+    public function __construct(string $id, string $name, int $quantity, bool $resolved = true)
     {
         $this->id = $id;
 
@@ -35,6 +37,7 @@ class ProductStockReachedError extends Error
         parent::__construct($this->message);
         $this->name = $name;
         $this->quantity = $quantity;
+        $this->resolved = $resolved;
     }
 
     public function getParameters(): array
@@ -64,11 +67,16 @@ class ProductStockReachedError extends Error
 
     public function getLevel(): int
     {
-        return self::LEVEL_WARNING;
+        return $this->resolved ? self::LEVEL_WARNING : self::LEVEL_ERROR;
     }
 
     public function blockOrder(): bool
     {
         return true;
+    }
+
+    public function isPersistent(): bool
+    {
+        return $this->resolved;
     }
 }

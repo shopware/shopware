@@ -183,7 +183,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<bool|int>>
+     * @return \Traversable<string, array{0: bool, 1: int}>
      */
     public function advancedPricingProvider(): \Traversable
     {
@@ -311,9 +311,9 @@ class ProductCartProcessorTest extends TestCase
     /**
      * @dataProvider productFeatureProdiver
      *
-     * @param array<string, mixed> $testedFeature
-     * @param array<mixed> $productData
-     * @param array<mixed> $expectedFeature
+     * @param array{type: string} $testedFeature
+     * @param array<string, mixed> $productData
+     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
@@ -347,7 +347,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string, array<mixed>|float|int|string|null>>>
+     * @return array{
+     *     0: array{type: string},
+     *     1: array<string, mixed>,
+     *     2: array{type: string, value: mixed, label: string}
+     *     }[]
      */
     public function productFeatureProdiver(): array
     {
@@ -628,7 +632,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int|string>>
+     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
      */
     public function productDeliverabilityProvider(): array
     {
@@ -875,7 +879,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|null $features
+     * @param array{type: string}[]|null $features
      *
      * @return array<string, mixed>
      */

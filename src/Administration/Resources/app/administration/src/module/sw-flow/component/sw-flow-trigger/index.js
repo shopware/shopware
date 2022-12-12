@@ -73,6 +73,10 @@ export default {
             return this.getEventTree(this.events);
         },
 
+        isTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapGetters('swFlowState', ['isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),

@@ -13,7 +13,7 @@
                 disabled: !eventName,
             }"
             class="sw-flow-trigger__search-field"
-            required
+            :required="!isTemplate"
             :label="$tc('sw-flow.detail.trigger.name')"
             :disabled="disabled"
             :error="flowEventNameError"

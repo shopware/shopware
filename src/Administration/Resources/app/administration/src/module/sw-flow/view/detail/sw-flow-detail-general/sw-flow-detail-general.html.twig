@@ -6,6 +6,7 @@
     <sw-card
         class="sw-flow-detail-general__general-card"
         position-identifier="sw-flow-detail-general"
+        :class="{'sw-flow-detail-general__template': isTemplate }"
         :title="$tc('sw-flow.detail.labelGeneralCard')"
         :is-loading="isLoading"
     >
@@ -14,7 +15,7 @@
         <sw-text-field
             v-model="flow.name"
             class="sw-flow-detail-general__general-name"
-            required
+            :required="!isTemplate"
             :disabled="!acl.can('flow.editor')"
             :label="$tc('sw-flow.detail.labelGeneralInformationName')"
             :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationName')"

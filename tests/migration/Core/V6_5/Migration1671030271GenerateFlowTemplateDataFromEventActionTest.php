@@ -23,6 +23,12 @@ class Migration1671030271GenerateFlowTemplateDataFromEventActionTest extends Tes
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        $migration = new Migration1671030271GenerateFlowTemplateDataFromEventAction();
+        static::assertEquals('1671030271', $migration->getCreationTimestamp());
+    }
+
     public function testGenerateDefaultFlowTemplates(): void
     {
         $migration = new Migration1671029945CreateFlowTemplateTable();

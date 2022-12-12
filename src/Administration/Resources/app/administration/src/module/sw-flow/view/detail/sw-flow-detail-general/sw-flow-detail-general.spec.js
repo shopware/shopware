@@ -85,4 +85,17 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
             expect(inputElement.attributes().disabled).toBeTruthy();
         });
     });
+
+    it('should not able to edit flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+        await wrapper.setProps({
+            isTemplate: true,
+        });
+
+        const alertElement = wrapper.findAll('.sw-flow-detail-general__template');
+        expect(alertElement.exists()).toBeTruthy();
+    });
 });

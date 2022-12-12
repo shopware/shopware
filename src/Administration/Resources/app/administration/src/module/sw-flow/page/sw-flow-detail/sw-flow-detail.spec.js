@@ -153,6 +153,7 @@ async function createWrapper(
                 `
             },
             'sw-skeleton': true,
+            'sw-alert': true,
         }
     });
 }
@@ -342,5 +343,18 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             { id: '900a915617054a5b8acbfda1a35831fa_new', parentId: 'd2b3a82c22284566b6a56fb47d577bfd_new' },
             { id: 'f1beccf9c40244e6ace2726d2afc476c_new', parentId: '900a915617054a5b8acbfda1a35831fa_new' },
         ])));
+    });
+
+    it('should be show the warning message not able to edited flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ], {
+            type: 'template'
+        }, {}, null, Promise.resolve(), {
+            flowTemplateId: ID_FLOW_TEMPLATE
+        });
+
+        const alertElement = wrapper.findAll('.sw-flow-detail__template');
+        expect(alertElement.exists()).toBeTruthy();
     });
 });

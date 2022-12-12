@@ -75,6 +75,7 @@
       "messageDeleteSuccess": "Flow deleted.",
       "messageDeleteError": "Flow could not be deleted.",
       "messageSaveError": "Flow could not be saved.",
+      "messageWarningSave": "Flow templates cannot be edited.",
       "messageError": "An error occurred.",
       "messageRequiredEventName": "Please choose a trigger event before saving.",
       "messageRequiredEmptyFields": "Please enter a rule or action name before saving.",

@@ -476,11 +476,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Facade/StatesFacade.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Hook\\\\CartHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Hook/CartHook.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$lineItemsToRemoveIDs has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilder.php
@@ -1781,11 +1776,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartTestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartTestHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
 
@@ -8935,11 +8925,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Cache/InvalidateCacheEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\Script\\\\CacheInvalidationHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/Script/CacheInvalidationHook.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\Script\\\\Facade\\\\CacheInvalidatorFacade\\:\\:invalidate\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/Script/Facade/CacheInvalidatorFacade.php
@@ -10108,16 +10093,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppDeletedEvent\\:\\:getWebhookPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Event/AppDeletedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\Hooks\\\\AppLifecycleHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Event/Hooks/AppLifecycleHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\Hooks\\\\AppScriptConditionHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Event/Hooks/AppScriptConditionHook.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\ManifestChangedEvent\\:\\:getWebhookPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -14000,11 +13975,6 @@ parameters:
 			path: src/Core/Framework/Script/Api/ApiHook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ApiHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Api/ApiHook.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ApiHook\\:\\:\\$request type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Api/ApiHook.php
@@ -14075,11 +14045,6 @@ parameters:
 			path: src/Core/Framework/Script/Api/StoreApiCacheKeyHook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Api/StoreApiCacheKeyHook.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook\\:\\:\\$query type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Api/StoreApiCacheKeyHook.php
@@ -14140,11 +14105,6 @@ parameters:
 			path: src/Core/Framework/Script/Api/StoreApiResponseHook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiResponseHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Api/StoreApiResponseHook.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiResponseHook\\:\\:\\$query type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Api/StoreApiResponseHook.php
@@ -14163,51 +14123,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\Debug\\:\\:\\$dumps type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Debugging/Debug.php
-
-		-
-			message: "#^Method \"init\" of class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:add\\(\\) has parameter \\$deprecations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:getHooks\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:getScripts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\\:\\:\\$deprecationNotices type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/Hook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\InterfaceHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/InterfaceHook.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Script\\:\\:__construct\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
@@ -14248,11 +14163,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$script has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Execution/ScriptLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Executor\\\\ScriptExecutor\\:\\:execute\\(\\) has parameter \\$scriptContext with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Executor/ScriptExecutor.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:__construct\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
@@ -17965,17 +17875,7 @@ parameters:
 			path: src/Core/Framework/Test/Script/Execution/FunctionWillBeRequiredTestHook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\FunctionWillBeRequiredTestHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/FunctionWillBeRequiredTestHook.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\SalesChannelTestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/SalesChannelTestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\SalesChannelTestHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Script/Execution/SalesChannelTestHook.php
 
@@ -18021,11 +17921,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:__construct\\(\\) has parameter \\$deprecatedServices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/TestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Script\\\\Execution\\\\TestHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Script/Execution/TestHook.php
 
@@ -21514,11 +21409,6 @@ parameters:
 			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:\\$query type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
@@ -21622,11 +21512,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Page\\\\Address\\\\AddressEditorModalStruct\\:\\:\\$messages type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\PageLoadedHook\\:\\:getServiceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/PageLoadedHook.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinder\\:\\:find\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"

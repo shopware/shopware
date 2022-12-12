@@ -12,7 +12,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ * @internal
  */
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
@@ -21,6 +21,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
      */
     protected array $traces = [];
 
+    /**
+     * @var list<string>
+     */
     protected static array $deprecationNotices = [];
 
     public static function addDeprecationNotice(string $deprecationNotice): void
@@ -31,14 +34,6 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         $this->data = $this->traces;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed, use `initHook` instead
-     */
-    public function init(string $hook): void
-    {
-        // dummy implementation to not break
     }
 
     public function initHook(Hook $hook): void
@@ -81,6 +76,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         return \count($this->data);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getHooks(): array
     {
         if ($this->data instanceof Data) {
@@ -90,6 +88,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         return array_keys($this->data);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getScripts(string $hook): array
     {
         return $this->data[$hook] ?? [];
@@ -137,9 +138,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     }
 
     /**
-     * @return array|Data
+     * @return array<string, mixed>|Data
      */
-    public function getData()
+    public function getData(): array|Data
     {
         return $this->data;
     }
@@ -158,6 +159,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         $this->traces = [];
     }
 
+    /**
+     * @param list<string> $deprecations
+     */
     private function add(Hook $hook, string $name, float $took, Debug $output, array $deprecations): void
     {
         $deprecations = array_count_values($deprecations);

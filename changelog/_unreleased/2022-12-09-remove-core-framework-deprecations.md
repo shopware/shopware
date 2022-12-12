@@ -8,4 +8,5 @@ issue: NEXT-21203
 * Removed deprecations in `Shopware\Core\Framework\Migration`.
 * Removed deprecations in `Shopware\Core\Framework\Plugin`.
 * Removed deprecations in `Shopware\Core\Framework\Routing`.
+* * Removed deprecations in `Shopware\Core\Framework\Script`.
 * Removed deprecations in document templates.

@@ -8,7 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Can be implemented by hooks to provide services with the sales channel context.
  * The services can inject the context beforehand and provide a narrow API to the developer.
  *
- * @deprecated tag:v6.5.0 will be marked internal
+ * @internal
  */
 interface SalesChannelContextAware
 {

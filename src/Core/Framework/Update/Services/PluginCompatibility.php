@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Struct\Version;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be considered internal
+ * @internal
  *
  * @phpstan-type Compatibility array{name: string, managedByComposer: bool, installedVersion: ?string, statusVariant: ?string, statusColor: ?string, statusMessage: string, statusName: string}
  */

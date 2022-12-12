@@ -18305,11 +18305,6 @@ parameters:
 			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/UnstructuredObjectBusinessEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\\:\\:createRecursiveFileIterator\\(\\) return type with generic class RecursiveIteratorIterator does not specify its types\\: T$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\CheckerInterface\\:\\:check\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Update/Checkers/CheckerInterface.php

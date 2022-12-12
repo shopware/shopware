@@ -313,7 +313,7 @@ return (new Config())
                 continue;
             }
 
-            if ($file->status !== File::STATUS_REMOVED && preg_match('/^([-\.\w\/]+)$/', $file->name) === 0) {
+            if ($file->status !== File::STATUS_REMOVED && preg_match('/^([-+\.\w\/]+)$/', $file->name) === 0) {
                 $invalidFiles[] = $file->name;
             }
         }

@@ -50,7 +50,7 @@ rl.question(chalk.blueBright('Enter the component name/path you want to test: ')
         const fileName = orgFileName.substr(orgFileName.indexOf('app/administration/src') + 19, orgFileName.length);
         let specFileName = '';
 
-        if (fileName.endsWith('index.js') || fileName.endsWith('index.ts')) {
+        if (fileName.endsWith('index.js') || fileName.endsWith('index.ts')) {
             const regex = /^.*\/(.*)\/index\.(js|ts)/;
             const [_, lastFolder, fileExtension] = fileName.match(regex);
 

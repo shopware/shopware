@@ -48,10 +48,7 @@ class ArrayStruct extends Struct implements \ArrayAccess
         return $this->offsetGet($key);
     }
 
-    /**
-     * @return array<string|int, mixed>
-     */
-    public function set(string|int $key, mixed $value): array
+    public function set(string|int $key, mixed $value): mixed
     {
         return $this->data[$key] = $value;
     }

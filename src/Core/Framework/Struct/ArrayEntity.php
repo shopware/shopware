@@ -119,10 +119,8 @@ class ArrayEntity extends Entity implements \ArrayAccess
 
     /**
      * @param string $key
-     *
-     * @return array<string, mixed>
      */
-    public function set($key, mixed $value): array
+    public function set($key, mixed $value): mixed
     {
         return $this->data[$key] = $value;
     }

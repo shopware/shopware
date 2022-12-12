@@ -158,7 +158,7 @@ class EntityIndexerRegistry implements MessageSubscriberInterface
         /** @var ArrayStruct<string, mixed> $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
 
-        $message->addSkip(...$skip->all());
+        $message->addSkip(...$skip->get('skips'));
     }
 
     /**

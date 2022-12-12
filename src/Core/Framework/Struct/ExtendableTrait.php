@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Feature;
-
 /**
  * @package core
  */
@@ -19,20 +17,9 @@ trait ExtendableTrait
     /**
      * Adds a new extension struct into the class storage.
      * The passed name is used as unique identifier and has to be stored too.
-     *
-     * @deprecated tag:v6.5.0 - second param $extension will not allow null anymore
      */
-    public function addExtension(string $name, ?Struct $extension): void
+    public function addExtension(string $name, Struct $extension): void
     {
-        if ($extension === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Second parameter `$extension` of method `addExtension()` in `ExtendableTrait` will no accept null anymore in v6.5.0.0.'
-            );
-
-            return;
-        }
-
         $this->extensions[$name] = $extension;
     }
 

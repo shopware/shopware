@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class EmailFieldSerializer extends AbstractFieldSerializer
 {
@@ -32,12 +32,7 @@ class EmailFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue();
     }
 
-    /**
-     * @return string|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?string*/
+    public function decode(Field $field, mixed $value): ?string
     {
         return $value;
     }

@@ -9,19 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
  */
 class ManyToManyIdField extends ListField
 {
-    /**
-     * @var string
-     */
-    private $associationName;
-
     public function __construct(
         string $storageName,
         string $propertyName,
-        string $associationName
+        private string $associationName
     ) {
         parent::__construct($storageName, $propertyName, IdField::class);
-        $this->setStrict(true);
-        $this->associationName = $associationName;
         $this->addFlags(new WriteProtected());
     }
 

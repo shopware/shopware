@@ -54,15 +54,17 @@ class RuleGenerator implements DemodataGeneratorInterface
     {
         $this->faker = $context->getFaker();
 
-        $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext());
-        $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext());
+        /** @var list<string> $paymentMethodIds */
+        $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
+        /** @var list<string> $shippingMethodIds */
+        $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
 
         $criteria = (new Criteria())->addFilter(
             new NotFilter(
                 NotFilter::CONNECTION_AND,
                 [
-                    new EqualsAnyFilter('rule.shippingMethods.id', $shippingMethodIds->getIds()),
-                    new EqualsAnyFilter('rule.paymentMethods.id', $paymentMethodIds->getIds()),
+                    new EqualsAnyFilter('rule.shippingMethods.id', $shippingMethodIds),
+                    new EqualsAnyFilter('rule.paymentMethods.id', $paymentMethodIds),
                 ]
             )
         );

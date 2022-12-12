@@ -10,18 +10,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 class BucketResult extends AggregationResult
 {
     /**
-     * @var Bucket[]
+     * @param list<Bucket> $buckets
      */
-    protected $buckets;
-
-    public function __construct(string $name, array $buckets)
+    public function __construct(string $name, protected array $buckets)
     {
         parent::__construct($name);
-        $this->buckets = $buckets;
     }
 
     /**
-     * @return Bucket[]
+     * @return list<Bucket>
      */
     public function getBuckets(): array
     {
@@ -33,6 +30,9 @@ class BucketResult extends AggregationResult
         usort($this->buckets, $closure);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getKeys(): array
     {
         $keys = [];
@@ -40,7 +40,7 @@ class BucketResult extends AggregationResult
             $keys[] = $bucket->getKey();
         }
 
-        return $keys;
+        return array_filter($keys);
     }
 
     public function has(?string $key): bool

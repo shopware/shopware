@@ -36,23 +36,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderRoute extends AbstractOrderRoute
 {
-    private EntityRepository $orderRepository;
-
-    private EntityRepository $promotionRepository;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $orderRepository,
-        EntityRepository $promotionRepository,
-        RateLimiter $rateLimiter
+        private EntityRepository $orderRepository,
+        private EntityRepository $promotionRepository,
+        private  RateLimiter $rateLimiter
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->promotionRepository = $promotionRepository;
-        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractOrderRoute
@@ -100,7 +91,7 @@ class OrderRoute extends AbstractOrderRoute
         // Handle guest authentication if deeplink is set
         if (!$context->getCustomer() && $deepLinkFilter !== null) {
             try {
-                $cacheKey = strtolower($deepLinkFilter->getValue()) . '-' . $request->getClientIp();
+                $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
                 $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
             } catch (RateLimitExceededException $exception) {

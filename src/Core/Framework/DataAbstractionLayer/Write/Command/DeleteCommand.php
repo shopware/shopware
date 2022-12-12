@@ -13,6 +13,9 @@ class DeleteCommand extends WriteCommand implements ChangeSetAware
 {
     use ChangeSetAwareTrait;
 
+    /**
+     * @param array<string> $primaryKey
+     */
     public function __construct(EntityDefinition $definition, array $primaryKey, EntityExistence $existence)
     {
         parent::__construct($definition, [], $primaryKey, $existence, '');

@@ -13,24 +13,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 class PluginIdProvider
 {
     /**
-     * @var EntityRepository
-     */
-    private $pluginRepo;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $pluginRepo)
+    public function __construct(private EntityRepository $pluginRepo)
     {
-        $this->pluginRepo = $pluginRepo;
     }
 
     public function getPluginIdByBaseClass(string $pluginBaseClassName, Context $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('baseClass', $pluginBaseClassName));
-        $pluginIds = $this->pluginRepo->searchIds($criteria, $context)->getIds();
+        /** @var string $id */
+        $id = $this->pluginRepo->searchIds($criteria, $context)->firstId();
 
-        return array_pop($pluginIds);
+        return $id;
     }
 }

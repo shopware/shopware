@@ -497,6 +497,7 @@ class ThemeLifecycleService
             ) {
                 continue;
             }
+            /** @var string $lastNotSameTheme */
             $lastNotSameTheme = str_replace('@', '', $themeName);
         }
 

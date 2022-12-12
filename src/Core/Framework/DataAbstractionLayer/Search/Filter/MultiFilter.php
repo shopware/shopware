@@ -17,20 +17,14 @@ class MultiFilter extends Filter
         self::CONNECTION_XOR,
     ];
 
-    /**
-     * @var Filter[]
-     */
-    protected $queries;
+    protected string $operator;
 
     /**
-     * @var string
+     * @param  Filter[] $queries
      */
-    protected $operator;
-
-    public function __construct(string $operator, array $queries = [])
+    public function __construct(string $operator, protected array $queries = [])
     {
         $this->operator = mb_strtoupper(trim($operator));
-        $this->queries = $queries;
 
         if (!\in_array($this->operator, self::VALID_OPERATORS, true)) {
             throw new \InvalidArgumentException('Operator ' . $this->operator . ' not allowed');
@@ -44,6 +38,9 @@ class MultiFilter extends Filter
         return $this;
     }
 
+    /**
+     * @return Filter[]
+     */
     public function getQueries(): array
     {
         return $this->queries;

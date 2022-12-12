@@ -13,24 +13,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class WriteCommandQueue
 {
     /**
      * @var array<string, WriteCommand[]>
      */
-    private $commands = [];
+    private array $commands = [];
 
     /**
-     * @var array[]
+     * @var array<string, WriteCommand[]>
      */
-    private $entityCommands = [];
+    private array $entityCommands = [];
 
     /**
      * @var EntityDefinition[]
      */
-    private $definitions = [];
+    private array $definitions = [];
 
     public function add(EntityDefinition $senderIdentification, WriteCommand $command): void
     {

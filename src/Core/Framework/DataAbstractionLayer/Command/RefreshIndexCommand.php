@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class RefreshIndexCommand extends Command implements EventSubscriberInterface
 {
@@ -20,15 +20,12 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     protected static $defaultName = 'dal:refresh:index';
 
-    private EntityIndexerRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(EntityIndexerRegistry $registry)
+    public function __construct(private EntityIndexerRegistry $registry)
     {
         parent::__construct();
-        $this->registry = $registry;
     }
 
     /**

@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class NandFilter extends NotFilter
 {
+    /**
+     * @param Filter[] $queries
+     */
     public function __construct(array $queries = [])
     {
         parent::__construct(self::CONNECTION_AND, $queries);

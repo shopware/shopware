@@ -38,7 +38,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 
 /**
  * @package core
- * @final tag:v6.5.0
+ *
+ * @final
  */
 class EntityGenerator
 {

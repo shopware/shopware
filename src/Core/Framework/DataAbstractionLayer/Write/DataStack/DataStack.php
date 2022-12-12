@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  *
  * Start with original raw result
  *  -> each step removes one from the raw set and possibly adds one to the result set
@@ -34,7 +34,7 @@ class DataStack
     /**
      * @var KeyValuePair[]
      */
-    private $data = [];
+    private array $data = [];
 
     public function __construct(array $originalData)
     {

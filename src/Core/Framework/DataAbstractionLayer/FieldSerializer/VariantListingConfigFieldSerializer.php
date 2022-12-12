@@ -55,7 +55,7 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         yield 'configurator_group_config' => $configuratorGroupConfig;
     }
 
-    public function decode(Field $field, $value): ?VariantListingConfig
+    public function decode(Field $field, mixed $value): ?VariantListingConfig
     {
         if ($value === null) {
             return null;

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * This class acts only as helper/common class for all dbal operations for entity definitions.
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class EntityDefinitionQueryHelper
 {
@@ -580,13 +580,6 @@ class EntityDefinitionQueryHelper
             foreach ($primaryKey as $propertyName => $value) {
                 $field = $definition->getFields()->get($propertyName);
 
-                /*
-                 * @deprecated tag:v6.5.0 - with 6.5.0 the only passing the propertyName will be supported
-                 */
-                if (!$field) {
-                    $field = $definition->getFields()->getByStorageName($propertyName);
-                }
-
                 if (!$field) {
                     throw new UnmappedFieldException($propertyName, $definition);
                 }
@@ -603,15 +596,9 @@ class EntityDefinitionQueryHelper
 
                 $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-                /*
-                 * @deprecated tag:v6.5.0 - check for duplication in accessors will be removed,
-                 * when we only support propertyNames to be used in search and when IdSearchResult only returns the propertyNames
-                 */
-                if (!\array_key_exists($accessor, $where)) {
-                    $where[$accessor] = $accessor . ' = :' . $key;
+                $where[$accessor] = $accessor . ' = :' . $key;
 
-                    $query->setParameter($key, $value);
-                }
+                $query->setParameter($key, $value);
             }
 
             $wheres[] = '(' . implode(' AND ', $where) . ')';

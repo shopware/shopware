@@ -6,36 +6,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class JoinGroup extends Filter
 {
     /**
-     * @var SingleFieldFilter[]
+     * @param SingleFieldFilter[] $queries
      */
-    protected $queries;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var string
-     */
-    protected $suffix;
-
-    /**
-     * @var string
-     */
-    protected $operator;
-
-    public function __construct(array $queries, string $path, string $suffix, string $operator)
-    {
-        $this->queries = $queries;
-        $this->path = $path;
-        $this->suffix = $suffix;
-        $this->operator = $operator;
+    public function __construct(
+        private array $queries,
+        private string $path,
+        private string $suffix,
+        private string $operator
+    ) {
     }
 
     public function getFields(): array
@@ -70,6 +53,9 @@ class JoinGroup extends Filter
         $this->operator = $operator;
     }
 
+    /**
+     * @return SingleFieldFilter[]
+     */
     public function getQueries(): array
     {
         return $this->queries;

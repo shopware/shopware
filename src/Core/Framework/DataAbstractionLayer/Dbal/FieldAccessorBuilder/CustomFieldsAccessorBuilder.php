@@ -11,23 +11,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\System\CustomField\CustomFieldService;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
 {
     /**
-     * @var CustomFieldService
-     */
-    private $customFieldService;
-
-    /**
      * @internal
      */
-    public function __construct(CustomFieldService $attributeService, Connection $connection)
+    public function __construct(private CustomFieldService $customFieldService, Connection $connection)
     {
         parent::__construct($connection);
-
-        $this->customFieldService = $attributeService;
     }
 
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string

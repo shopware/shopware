@@ -38,7 +38,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use function array_filter;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class EntityReader implements EntityReaderInterface
 {
@@ -46,32 +46,14 @@ class EntityReader implements EntityReaderInterface
     public const FOREIGN_KEYS = 'foreignKeys';
     public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
-    private Connection $connection;
-
-    private EntityHydrator $hydrator;
-
-    private EntityDefinitionQueryHelper $queryHelper;
-
-    private SqlQueryParser $parser;
-
-    private CriteriaQueryBuilder $criteriaQueryBuilder;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        Connection $connection,
-        EntityHydrator $hydrator,
-        EntityDefinitionQueryHelper $queryHelper,
-        SqlQueryParser $parser,
-        CriteriaQueryBuilder $criteriaQueryBuilder,
-        LoggerInterface $logger
+        private Connection $connection,
+        private EntityHydrator $hydrator,
+        private EntityDefinitionQueryHelper $queryHelper,
+        private SqlQueryParser $parser,
+        private CriteriaQueryBuilder $criteriaQueryBuilder,
+        private LoggerInterface $logger
     ) {
-        $this->connection = $connection;
-        $this->hydrator = $hydrator;
-        $this->queryHelper = $queryHelper;
-        $this->parser = $parser;
-        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
-        $this->logger = $logger;
     }
 
     /**

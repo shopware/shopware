@@ -454,10 +454,10 @@ class EntityRepositoryTest extends TestCase
 
         $versionManager = $this->createMock(VersionManager::class);
         $writeResult = new WriteResult(
-            [[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_DELETE)]],
+            ['product' => [new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_DELETE)]],
             [],
             [
-                [new EntityWriteResult('foo', [], 'product_translation', EntityWriteResult::OPERATION_DELETE)],
+                'product_translation' => [new EntityWriteResult('foo', [], 'product_translation', EntityWriteResult::OPERATION_DELETE)],
             ]
         );
 

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class BoolFieldSerializer extends AbstractFieldSerializer
 {
@@ -33,7 +33,7 @@ class BoolFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue() ? 1 : 0;
     }
 
-    public function decode(Field $field, $value): ?bool
+    public function decode(Field $field, mixed $value): ?bool
     {
         if ($value === null) {
             return null;

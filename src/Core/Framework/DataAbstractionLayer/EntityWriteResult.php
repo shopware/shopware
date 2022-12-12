@@ -16,70 +16,41 @@ class EntityWriteResult
     public const OPERATION_DELETE = 'delete';
 
     /**
-     * @var array|string
+     * @param array<string, string>|string $primaryKey
+     * @param array<string, mixed> $payload
      */
-    protected $primaryKey;
-
-    /**
-     * @var array
-     */
-    protected $payload;
-
-    /**
-     * @var EntityExistence|null
-     */
-    protected $existence;
-
-    /**
-     * @var string
-     */
-    protected $entityName;
-
-    /**
-     * @var string
-     */
-    protected $operation;
-
-    /**
-     * @var ChangeSet|null
-     */
-    protected $changeSet;
-
-    /**
-     * @param array|string $primaryKey
-     */
-    public function __construct($primaryKey, array $payload, string $entityName, string $operation, ?EntityExistence $existence = null, ?ChangeSet $changeSet = null)
-    {
-        $this->primaryKey = $primaryKey;
-        $this->payload = $payload;
-        $this->existence = $existence;
-
-        $this->entityName = $entityName;
+    public function __construct(
+        private array|string $primaryKey,
+        private array $payload,
+        private string $entityName,
+        private string $operation,
+        private ?EntityExistence $existence = null,
+        private ?ChangeSet $changeSet = null
+    ) {
         $this->operation = mb_strtolower($operation);
 
         if (!\in_array($this->operation, [self::OPERATION_DELETE, self::OPERATION_INSERT, self::OPERATION_UPDATE], true)) {
             throw new \RuntimeException(sprintf('Unexpected write result operation %s', $operation));
         }
-        $this->changeSet = $changeSet;
     }
 
     /**
-     * @return array|string
+     * @return array<string, string>|string
      */
-    public function getPrimaryKey()
+    public function getPrimaryKey(): array|string
     {
         return $this->primaryKey;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getProperty(string $property)
+    public function getProperty(string $property): mixed
     {
         return $this->payload[$property] ?? null;
     }

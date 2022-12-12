@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class RangeFilter extends SingleFieldFilter
 {
@@ -16,16 +16,6 @@ class RangeFilter extends SingleFieldFilter
     public const GT = 'gt';
 
     /**
-     * @var string
-     */
-    protected $field;
-
-    /**
-     * @var array
-     */
-    protected $parameters = [];
-
-    /**
      * @example
      *
      * new RangeFilter('price', [
@@ -36,19 +26,19 @@ class RangeFilter extends SingleFieldFilter
      * new RangeFilter('price', [
      *      RangeFilter::GT => 5.99
      * ])
+     *
+     * @param array<string, float|int|string> $parameters
      */
-    public function __construct(string $field, array $parameters = [])
+    public function __construct(private string $field, private array $parameters = [])
     {
-        $this->field = $field;
-        $this->parameters = $parameters;
     }
 
-    public function hasParameter(string $key)
+    public function hasParameter(string $key): bool
     {
         return \array_key_exists($key, $this->parameters);
     }
 
-    public function getParameter(string $key)
+    public function getParameter(string $key): float|int|string|null
     {
         if (!$this->hasParameter($key)) {
             return null;
@@ -62,6 +52,9 @@ class RangeFilter extends SingleFieldFilter
         return $this->field;
     }
 
+    /**
+     * @return array<string, float|int|string>
+     */
     public function getParameters(): array
     {
         return $this->parameters;

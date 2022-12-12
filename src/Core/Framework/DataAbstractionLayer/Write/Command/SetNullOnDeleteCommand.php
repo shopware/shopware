@@ -6,16 +6,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class SetNullOnDeleteCommand extends UpdateCommand
 {
-    private bool $enforcedByConstraint;
-
-    public function __construct(EntityDefinition $definition, array $payload, array $primaryKey, EntityExistence $existence, string $path, bool $enforcedByConstraint)
-    {
+    /**
+     * @param array<string, mixed> $payload
+     * @param array<string> $primaryKey
+     */
+    public function __construct(
+        EntityDefinition $definition,
+        array $payload,
+        array $primaryKey,
+        EntityExistence $existence,
+        string $path,
+        private bool $enforcedByConstraint
+    ) {
         parent::__construct($definition, $payload, $primaryKey, $existence, $path);
-        $this->enforcedByConstraint = $enforcedByConstraint;
     }
 
     public function isValid(): bool

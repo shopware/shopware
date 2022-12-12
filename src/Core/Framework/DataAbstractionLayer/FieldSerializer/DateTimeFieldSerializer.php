@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class DateTimeFieldSerializer extends AbstractFieldSerializer
 {
@@ -52,7 +52,7 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
 
-    public function decode(Field $field, $value): ?\DateTimeInterface
+    public function decode(Field $field, mixed $value): ?\DateTimeInterface
     {
         return $value === null ? null : new \DateTimeImmutable($value);
     }

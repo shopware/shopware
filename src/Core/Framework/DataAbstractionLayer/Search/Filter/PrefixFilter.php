@@ -3,20 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class PrefixFilter extends SingleFieldFilter
 {
-    protected string $field;
+    private string $value;
 
-    protected string $value;
-
-    /**
-     * @param string|float|int|null $value
-     */
-    public function __construct(string $field, $value)
+    public function __construct(private string $field, string|bool|float|int|null $value)
     {
-        $this->field = $field;
         $this->value = (string) $value;
     }
 

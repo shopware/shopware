@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints\Timezone;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class TimeZoneFieldSerializer extends AbstractFieldSerializer
 {
@@ -35,7 +35,7 @@ class TimeZoneFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return $value;

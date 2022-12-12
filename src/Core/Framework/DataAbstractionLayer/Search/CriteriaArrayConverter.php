@@ -21,6 +21,9 @@ class CriteriaArrayConverter
         $this->aggregationParser = $aggregationParser;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function convert(Criteria $criteria): array
     {
         $array = [
@@ -66,7 +69,7 @@ class CriteriaArrayConverter
         }
 
         if (\count($criteria->getSorting())) {
-            $array['sort'] = json_decode(json_encode($criteria->getSorting()), true);
+            $array['sort'] = json_decode(json_encode($criteria->getSorting(), \JSON_THROW_ON_ERROR), true);
 
             foreach ($array['sort'] as &$sort) {
                 $sort['order'] = $sort['direction'];
@@ -79,7 +82,11 @@ class CriteriaArrayConverter
             $array['query'] = [];
 
             foreach ($criteria->getQueries() as $query) {
-                $arrayQuery = json_decode(json_encode($query), true);
+                $arrayQuery = [
+                    'score' => $query->getScore(),
+                    'scoreField' => $query->getScoreField(),
+                    'extensions' => $query->getExtensions(),
+                ];
                 $arrayQuery['query'] = QueryStringParser::toArray($query->getQuery());
                 $array['query'][] = $arrayQuery;
             }

@@ -20,51 +20,27 @@ class CreatePageCommand extends Command
     protected static $defaultName = 'cms:page:create';
 
     /**
-     * @var EntityRepository
+     * @var array<string>
      */
-    private $cmsPageRepository;
-
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private array $products;
 
     /**
      * @var array<string>
      */
-    private $products;
+    private array $categories;
 
     /**
      * @var array<string>
      */
-    private $categories;
-
-    /**
-     * @var EntityRepository
-     */
-    private $categoryRepository;
-
-    /**
-     * @var array<string>
-     */
-    private $media;
-
-    /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
+    private array $media;
 
     public function __construct(
-        EntityRepository $cmsPageRepository,
-        EntityRepository $productRepository,
-        EntityRepository $categoryRepository,
-        EntityRepository $mediaRepository
+        private EntityRepository $cmsPageRepository,
+        private EntityRepository $productRepository,
+        private EntityRepository $categoryRepository,
+        private EntityRepository $mediaRepository
     ) {
         parent::__construct();
-        $this->cmsPageRepository = $cmsPageRepository;
-        $this->productRepository = $productRepository;
-        $this->categoryRepository = $categoryRepository;
-        $this->mediaRepository = $mediaRepository;
     }
 
     protected function configure(): void
@@ -152,10 +128,12 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            $this->products = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            /** @var list<string> $productIds */
+            $productIds = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $this->products = $productIds;
         }
 
-        return $this->products[array_rand($this->products, 1)];
+        return $this->products[array_rand($this->products)];
     }
 
     private function getRandomCategoryId(): string
@@ -164,10 +142,12 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            $this->categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            /** @var list<string> $categoryIds */
+            $categoryIds = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $this->categories = $categoryIds;
         }
 
-        return $this->categories[array_rand($this->categories, 1)];
+        return $this->categories[array_rand($this->categories)];
     }
 
     private function getRandomMediaId(): string
@@ -176,9 +156,11 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            $this->media = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            /** @var list<string> $mediaIds */
+            $mediaIds = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $this->media = $mediaIds;
         }
 
-        return $this->media[array_rand($this->media, 1)];
+        return $this->media[array_rand($this->media)];
     }
 }

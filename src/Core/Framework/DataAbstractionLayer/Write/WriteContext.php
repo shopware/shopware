@@ -6,9 +6,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
+ * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 class WriteContext
 {
@@ -17,42 +20,39 @@ class WriteContext
     private const SPACER = '::';
 
     /**
-     * @var array
+     * @var array<string, string>
      */
-    private $paths = [];
+    private array $paths = [];
 
     /**
-     * @var Context
+     * @var LanguageData
      */
-    private $context;
+    private array $languages;
 
     /**
-     * @var array
+     * @var array<string, string>|null
      */
-    private $languages;
+    private ?array $languageCodeIdMapping;
 
-    /**
-     * @var array<string>|null
-     */
-    private $languageCodeIdMapping;
+    private WriteException $exceptions;
 
-    /**
-     * @var WriteException
-     */
-    private $exceptions;
-
-    private function __construct(Context $context)
+    private function __construct(private Context $context)
     {
-        $this->context = $context;
         $this->exceptions = new WriteException();
     }
 
+    /**
+     * @param LanguageData $languages
+     */
     public function setLanguages(array $languages): void
     {
         $this->languages = $languages;
         $this->languageCodeIdMapping = null;
     }
 
+    /**
+     * @return LanguageData
+     */
     public function getLanguages(): array
     {
         if (empty($this->languages)) {
@@ -85,7 +85,7 @@ class WriteContext
         $this->paths[$this->buildPathName($entity, $propertyName)] = $value;
     }
 
-    public function get(string $entity, string $propertyName)
+    public function get(string $entity, string $propertyName): string
     {
         $path = $this->buildPathName($entity, $propertyName);
 
@@ -140,6 +140,9 @@ class WriteContext
         $this->exceptions = new WriteException();
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getLanguageCodeToIdMapping(): array
     {
         if ($this->languageCodeIdMapping !== null) {

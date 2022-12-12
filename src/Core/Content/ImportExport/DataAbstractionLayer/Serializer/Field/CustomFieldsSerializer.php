@@ -71,6 +71,7 @@ class CustomFieldsSerializer extends FieldSerializer
         // retrieve the raw json to decode it and unset it from specific customField values -
         // merge it with values for customFields imported with specific keys if the latter exist
         if (isset($value[0]) && \is_string($value[0])) {
+            /** @var array<mixed>|null $customFieldsFromJson */
             $customFieldsFromJson = $this->customFieldsSerializer->decode($field, $value[0]);
 
             unset($value[0]);
@@ -106,7 +107,7 @@ class CustomFieldsSerializer extends FieldSerializer
 
         $customFields = $this->customFieldsSerializer->decode($field, $customFields);
 
-        if (!$customFields) {
+        if (!\is_array($customFields)) {
             return null;
         }
 

@@ -5,19 +5,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class CountResult extends AggregationResult
 {
-    /**
-     * @var int
-     */
-    protected $count;
-
-    public function __construct(string $name, int $count)
+    public function __construct(string $name, protected int $count)
     {
         parent::__construct($name);
-        $this->count = $count;
     }
 
     public function getCount(): int

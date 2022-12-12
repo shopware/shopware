@@ -65,14 +65,11 @@ use Shopware\Elasticsearch\Sort\CountSort;
  */
 class CriteriaParser
 {
-    private EntityDefinitionQueryHelper $helper;
-
     /**
      * @internal
      */
-    public function __construct(EntityDefinitionQueryHelper $helper)
+    public function __construct(private EntityDefinitionQueryHelper $helper)
     {
-        $this->helper = $helper;
     }
 
     public function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context): string

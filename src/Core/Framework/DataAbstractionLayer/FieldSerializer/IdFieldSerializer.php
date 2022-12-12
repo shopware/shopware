@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class IdFieldSerializer extends AbstractFieldSerializer
 {
@@ -51,7 +51,7 @@ class IdFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return null;

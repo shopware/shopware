@@ -23,27 +23,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class SqlQueryParser
 {
     /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(EntityDefinitionQueryHelper $queryHelper, Connection $connection)
+    public function __construct(private EntityDefinitionQueryHelper $queryHelper, private Connection $connection)
     {
-        $this->queryHelper = $queryHelper;
-        $this->connection = $connection;
     }
 
     public function parseRanking(
@@ -219,21 +207,14 @@ class SqlQueryParser
         $result = new ParseResult();
 
         if ($field instanceof ListField) {
-            if (\is_array($query->getValue())) {
-                $where = [];
+            $where = [];
 
-                foreach ($query->getValue() as $value) {
-                    $key = $this->getKey();
-                    $where[] = sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
-                    $result->addParameter($key, $value);
-                }
-                $result->addWhere('(' . implode(' OR ', $where) . ')');
-
-                return $result;
+            foreach ($query->getValue() as $value) {
+                $key = $this->getKey();
+                $where[] = sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
+                $result->addParameter($key, $value);
             }
-
-            $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
-            $result->addParameter($key, $query->getValue());
+            $result->addWhere('(' . implode(' OR ', $where) . ')');
 
             return $result;
         }
@@ -242,9 +223,9 @@ class SqlQueryParser
 
         $value = array_values($query->getValue());
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = array_map(function (string $id) {
-                return Uuid::fromHexToBytes($id);
-            }, $value);
+            $value = array_filter(array_map(function (bool|float|int|string $id): string {
+                return Uuid::fromHexToBytes((string) $id);
+            }, $value));
         }
         $result->addParameter($key, $value, Connection::PARAM_STR_ARRAY);
 
@@ -280,7 +261,7 @@ class SqlQueryParser
         }
 
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = Uuid::fromHexToBytes($value);
+            $value = Uuid::fromHexToBytes((string) $value);
         }
 
         $result->addParameter($key, $value);

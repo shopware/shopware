@@ -6,25 +6,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class JsonUpdateCommand extends UpdateCommand
 {
     /**
-     * @var string
+     * @param array<string, mixed> $payload
+     * @param array<string> $primaryKey
      */
-    private $storageName;
-
     public function __construct(
         EntityDefinition $definition,
-        string $storageName,
+        private string $storageName,
         array $payload,
         array $primaryKey,
         EntityExistence $existence,
         string $path
     ) {
         parent::__construct($definition, $payload, $primaryKey, $existence, $path);
-        $this->storageName = $storageName;
     }
 
     public function getStorageName(): string

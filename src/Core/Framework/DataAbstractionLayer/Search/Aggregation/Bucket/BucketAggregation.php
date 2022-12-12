@@ -9,15 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
  */
 class BucketAggregation extends Aggregation
 {
-    /**
-     * @var Aggregation|null
-     */
-    protected $aggregation;
-
-    public function __construct(string $name, string $field, ?Aggregation $aggregation)
+    public function __construct(string $name, string $field, protected ?Aggregation $aggregation)
     {
         parent::__construct($name, $field);
-        $this->aggregation = $aggregation;
     }
 
     public function getFields(): array

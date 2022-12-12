@@ -11,23 +11,17 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ * @internal
  */
 class SalesChannelRepositoryFacadeHookFactory extends HookServiceFactory
 {
-    private SalesChannelDefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelDefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder
+        private SalesChannelDefinitionInstanceRegistry $registry,
+        private RequestCriteriaBuilder $criteriaBuilder
     ) {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function factory(Hook $hook, Script $script): SalesChannelRepositoryFacade

@@ -103,7 +103,7 @@ class CustomerDefinition extends EntityDefinition
             (new PasswordField('password', 'password'))->removeFlag(ApiAware::class),
             (new EmailField('email', 'email'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new StringField('title', 'title'))->addFlags(new ApiAware()),
-            (new ListField('vat_ids', 'vatIds', StringField::class))->setStrict(true)->addFlags(new ApiAware()),
+            (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware()),
             (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware()),
             (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),

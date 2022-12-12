@@ -15,32 +15,20 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class CustomFieldsSerializer extends JsonFieldSerializer
 {
-    /**
-     * @var WriteCommandExtractor
-     */
-    private $writeExtractor;
-
-    /**
-     * @var CustomFieldService
-     */
-    private $attributeService;
-
     /**
      * @internal
      */
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,
-        CustomFieldService $attributeService,
-        WriteCommandExtractor $writeExtractor
+        private CustomFieldService $attributeService,
+        private WriteCommandExtractor $writeExtractor
     ) {
         parent::__construct($validator, $compositeHandler);
-        $this->attributeService = $attributeService;
-        $this->writeExtractor = $writeExtractor;
     }
 
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
@@ -81,12 +69,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         yield $field->getStorageName() => parent::encodeJson($encoded);
     }
 
-    /**
-     * @return array|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?array*/
+    public function decode(Field $field, mixed $value): array|object|null
     {
         if (!$field instanceof CustomFields) {
             throw new InvalidSerializerFieldException(CustomFields::class, $field);

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class VersionFieldSerializer implements FieldSerializerInterface
 {
@@ -48,13 +48,12 @@ class VersionFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromHexToBytes($data->getValue());
     }
 
-    /**
-     * @param string $value
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will change to ?string
-     */
-    public function decode(Field $field, $value): string
+    public function decode(Field $field, mixed $value): ?string
     {
-        return Uuid::fromBytesToHex($value);
+        try {
+            return Uuid::fromBytesToHex($value);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

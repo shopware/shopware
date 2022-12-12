@@ -6,19 +6,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class FilterAggregation extends BucketAggregation
 {
     /**
-     * @var Filter[]
+     * @param Filter[] $filter
      */
-    protected $filter;
-
-    public function __construct(string $name, Aggregation $aggregation, array $filter)
+    public function __construct(string $name, Aggregation $aggregation, private array $filter)
     {
         parent::__construct($name, '', $aggregation);
-        $this->filter = $filter;
     }
 
     /**
@@ -31,7 +28,7 @@ class FilterAggregation extends BucketAggregation
 
     public function getFields(): array
     {
-        $fields = $this->aggregation->getFields();
+        $fields = $this->aggregation?->getFields() ?? [];
 
         foreach ($this->filter as $filter) {
             $nested = $filter->getFields();
@@ -43,6 +40,9 @@ class FilterAggregation extends BucketAggregation
         return $fields;
     }
 
+    /**
+     * @param Filter[] $filters
+     */
     public function addFilters(array $filters): void
     {
         foreach ($filters as $filter) {

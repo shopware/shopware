@@ -19,16 +19,14 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class JsonFieldSerializer extends AbstractFieldSerializer
 {
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
-     *
-     * @param mixed $value
      */
-    public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_IGNORE): string
+    public static function encodeJson(mixed $value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_IGNORE): string
     {
         return (string) json_encode($value, $options);
     }
@@ -58,12 +56,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    /**
-     * @return array|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?array*/
+    public function decode(Field $field, mixed $value): mixed
     {
         if (!$field instanceof JsonField) {
             throw new InvalidSerializerFieldException(JsonField::class, $field);

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 class DateHistogramAggregation extends BucketAggregation
 {
@@ -18,31 +18,16 @@ class DateHistogramAggregation extends BucketAggregation
     public const PER_QUARTER = 'quarter';
     public const PER_YEAR = 'year';
 
-    /**
-     * @var FieldSorting|null
-     */
-    protected $sorting;
-
-    /**
-     * @var string|null
-     */
-    protected $format;
-
-    /**
-     * @var string
-     */
-    protected $interval;
-
-    protected ?string $timeZone;
+    private string $interval;
 
     public function __construct(
         string $name,
         string $field,
         string $interval,
-        ?FieldSorting $sorting = null,
+        private ?FieldSorting $sorting = null,
         ?Aggregation $aggregation = null,
-        ?string $format = null,
-        ?string $timeZone = null
+        private ?string $format = null,
+        private ?string $timeZone = null
     ) {
         parent::__construct($name, $field, $aggregation);
 
@@ -56,9 +41,6 @@ class DateHistogramAggregation extends BucketAggregation
         }
 
         $this->interval = $interval;
-        $this->format = $format;
-        $this->sorting = $sorting;
-        $this->timeZone = $timeZone;
     }
 
     public function getFormat(): ?string

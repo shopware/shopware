@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class RepositorySearchDetector
 {

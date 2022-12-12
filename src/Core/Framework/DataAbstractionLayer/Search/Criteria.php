@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -607,8 +606,6 @@ class Criteria extends Struct implements \Stringable
      */
     public function addFields(array $fields): self
     {
-        Feature::throwException('v6.5.0.0', 'Partial data loading is not active', false);
-
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;

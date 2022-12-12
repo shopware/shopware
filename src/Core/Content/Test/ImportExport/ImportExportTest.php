@@ -69,6 +69,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportTest extends AbstractImportExportTest
 {

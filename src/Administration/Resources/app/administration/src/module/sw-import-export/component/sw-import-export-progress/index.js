@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-progress.html.twig';
 import './sw-import-export-progress.scss';
 

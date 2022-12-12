@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class CustomerSerializerTest extends TestCase
 {

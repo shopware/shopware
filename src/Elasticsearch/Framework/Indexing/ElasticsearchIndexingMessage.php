@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchIndexingMessage implements AsyncMessageInterface
 {

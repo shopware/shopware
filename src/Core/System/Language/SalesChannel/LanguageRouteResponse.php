@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package system-settings
+ */
 class LanguageRouteResponse extends StoreApiResponse
 {
     /**

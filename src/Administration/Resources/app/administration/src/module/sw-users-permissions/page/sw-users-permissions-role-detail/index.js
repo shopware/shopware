@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-role-detail.html.twig';
 
 const { Mixin } = Shopware;

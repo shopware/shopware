@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchSearchIndex from 'src/module/sw-settings-search/component/sw-settings-search-search-index';
 import 'src/app/component/base/sw-button';

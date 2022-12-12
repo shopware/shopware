@@ -7,7 +7,7 @@ use OpenSearch\Connections\ConnectionInterface;
 use OpenSearch\Namespaces\NamespaceBuilderInterface;
 
 /**
- * @package core
+ * @package system-settings
  * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
  */
 class ClientProfiler extends Client

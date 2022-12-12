@@ -14,6 +14,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * @package system-settings
+ */
 class ValidateSnippetsCommand extends Command
 {
     protected static $defaultName = 'snippets:validate';

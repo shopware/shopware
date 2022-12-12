@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchIndexingCommand extends Command
 {

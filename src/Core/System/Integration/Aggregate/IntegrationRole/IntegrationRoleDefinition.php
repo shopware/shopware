@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
+/**
+ * @package system-settings
+ */
 class IntegrationRoleDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'integration_role';

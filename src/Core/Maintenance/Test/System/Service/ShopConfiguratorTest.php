@@ -14,7 +14,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  */

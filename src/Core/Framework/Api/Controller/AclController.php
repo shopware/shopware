@@ -19,6 +19,8 @@ use function array_merge;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class AclController extends AbstractController
 {

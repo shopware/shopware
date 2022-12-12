@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package system-settings
+ */
 class ImportExportProfileTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = ImportExportProfileDefinition::ENTITY_NAME . '_translation';

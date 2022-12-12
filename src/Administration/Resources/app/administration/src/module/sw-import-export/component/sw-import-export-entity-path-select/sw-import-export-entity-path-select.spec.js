@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';

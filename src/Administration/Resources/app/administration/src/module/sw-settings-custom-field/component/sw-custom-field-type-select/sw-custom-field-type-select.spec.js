@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swCustomFieldTypeBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';

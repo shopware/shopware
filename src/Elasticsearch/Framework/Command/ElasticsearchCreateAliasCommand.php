@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchCreateAliasCommand extends Command
 {

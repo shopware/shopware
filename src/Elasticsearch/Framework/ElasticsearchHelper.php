@@ -18,7 +18,7 @@ use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchHelper
 {

@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Search;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package system-settings
+ */
 class SearchPage extends Page
 {
     /**

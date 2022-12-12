@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-custom-field-set-detail-base.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

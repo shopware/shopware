@@ -2,6 +2,9 @@
 
 namespace Shopware\Recovery\Update\Struct;
 
+/**
+ * @package system-settings
+ */
 class Version extends Struct
 {
     /**

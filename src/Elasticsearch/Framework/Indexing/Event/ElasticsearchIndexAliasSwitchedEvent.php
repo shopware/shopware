@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchIndexAliasSwitchedEvent
 {

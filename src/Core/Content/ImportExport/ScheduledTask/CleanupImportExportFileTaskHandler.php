@@ -10,6 +10,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
 {

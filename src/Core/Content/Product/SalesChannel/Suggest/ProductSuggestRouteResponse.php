@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package system-settings
+ */
 class ProductSuggestRouteResponse extends StoreApiResponse
 {
     /**

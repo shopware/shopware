@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swUsersPermissionsPermissionsGrid from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';

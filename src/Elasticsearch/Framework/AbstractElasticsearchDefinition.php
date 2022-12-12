@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
 /**
- * @package core
+ * @package system-settings
  */
 abstract class AbstractElasticsearchDefinition
 {

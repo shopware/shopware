@@ -8,6 +8,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 final class DeleteFileHandler implements MessageHandlerInterface
 {

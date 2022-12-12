@@ -1,6 +1,8 @@
 import ApiService from '../api.service';
 
-
+/**
+ * @package system-settings
+ */
 class SystemConfigApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'system-config') {
         super(httpClient, loginService, apiEndpoint);

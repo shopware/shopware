@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @package system-settings
+ */
 class CountryTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'country_translation';

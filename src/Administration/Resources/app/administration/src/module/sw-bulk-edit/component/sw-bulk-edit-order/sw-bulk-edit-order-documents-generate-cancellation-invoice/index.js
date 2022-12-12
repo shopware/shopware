@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 const { State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

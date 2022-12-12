@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  */

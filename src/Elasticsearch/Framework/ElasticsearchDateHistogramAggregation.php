@@ -6,7 +6,7 @@ use OpenSearchDSL\Aggregation\AbstractAggregation;
 use OpenSearchDSL\Aggregation\Type\BucketingTrait;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @internal
  */

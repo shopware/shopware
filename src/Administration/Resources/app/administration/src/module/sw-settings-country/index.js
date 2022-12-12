@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './component/sw-settings-country-address-handling';
 import './component/sw-settings-country-new-snippet-modal';
 import './component/sw-multi-snippet-drag-and-drop';

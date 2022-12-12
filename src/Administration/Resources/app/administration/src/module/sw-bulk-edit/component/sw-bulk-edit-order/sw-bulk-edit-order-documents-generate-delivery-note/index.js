@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-order-documents-generate-delivery-note.html.twig';
 
 const { State } = Shopware;

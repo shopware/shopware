@@ -4,6 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "config"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class ConfigApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'config') {

@@ -45,6 +45,8 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be considered internal
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class UpdateController extends AbstractController
 {

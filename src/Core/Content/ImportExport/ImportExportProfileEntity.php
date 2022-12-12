@@ -6,6 +6,9 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package system-settings
+ */
 class ImportExportProfileEntity extends Entity
 {
     use EntityIdTrait;

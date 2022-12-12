@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
 /**
- * @package core
+ * @package system-settings
  */
 abstract class AbstractElasticsearchSearchHydrator
 {

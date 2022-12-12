@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
 /**
  * @internal We might break this in v6.2
+ *
+ * @package system-settings
  */
 class DeleteExpiredFilesService
 {

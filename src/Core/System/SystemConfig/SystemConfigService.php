@@ -24,6 +24,9 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function json_decode;
 
+/**
+ * @package system-settings
+ */
 class SystemConfigService
 {
     private Connection $connection;

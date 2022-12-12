@@ -8,6 +8,9 @@ use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractFileService
 {
     abstract public function getDecorated(): AbstractFileService;

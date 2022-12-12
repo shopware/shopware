@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 const { Module } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;

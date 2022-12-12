@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class CountryStateControllerTest extends TestCase
 {

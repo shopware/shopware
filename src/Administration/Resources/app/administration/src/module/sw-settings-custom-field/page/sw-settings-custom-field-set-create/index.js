@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-custom-field-set-create.html.twig';
 
 const { Criteria } = Shopware.Data;

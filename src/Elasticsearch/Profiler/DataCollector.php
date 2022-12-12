@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollector;
 
 /**
- * @package core
+ * @package system-settings
  * @phpstan-import-type RequestInfo from ClientProfiler
  */
 class DataCollector extends BaseDataCollector

@@ -7,6 +7,9 @@ const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './acl';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

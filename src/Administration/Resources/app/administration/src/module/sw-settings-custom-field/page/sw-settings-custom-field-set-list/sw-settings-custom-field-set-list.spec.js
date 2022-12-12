@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import swSettingsCustomFieldSetList from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';

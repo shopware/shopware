@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swUsersPermissionsRoleViewDetailed from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
 

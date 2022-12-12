@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class SystemDefaultValidator implements EventSubscriberInterface
 {

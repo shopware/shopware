@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 
+/**
+ * @package system-settings
+ */
 class XmlFileWriterFactory extends AbstractWriterFactory
 {
     /**

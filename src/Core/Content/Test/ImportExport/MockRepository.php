@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 
 /**
  * @internal can only be used in test setups where bypass finals is activated
+ *
+ * @package system-settings
  */
 class MockRepository extends EntityRepository
 {

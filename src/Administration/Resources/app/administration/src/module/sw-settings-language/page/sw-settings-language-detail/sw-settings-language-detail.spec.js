@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import swSettingsLanguageDetail from 'src/module/sw-settings-language/page/sw-settings-language-detail';

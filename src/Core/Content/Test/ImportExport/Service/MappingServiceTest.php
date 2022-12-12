@@ -23,6 +23,8 @@ use const PHP_EOL;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MappingServiceTest extends TestCase
 {

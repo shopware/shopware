@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './acl';
 
 const { Module } = Shopware;

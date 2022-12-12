@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchEntityAggregatorSearchEvent extends Event implements ShopwareEvent
 {

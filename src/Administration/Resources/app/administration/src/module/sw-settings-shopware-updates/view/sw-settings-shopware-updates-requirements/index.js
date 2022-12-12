@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-shopware-updates-requirements.html.twig';
 
 const { Component } = Shopware;

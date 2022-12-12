@@ -28,6 +28,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MediaSerializerTest extends TestCase
 {

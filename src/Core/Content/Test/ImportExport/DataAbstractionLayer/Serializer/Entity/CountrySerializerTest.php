@@ -14,6 +14,8 @@ use Shopware\Core\System\Country\CountryDefinition;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class CountrySerializerTest extends TestCase
 {

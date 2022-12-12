@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-cache-modal.twig';
 
 const { Mixin } = Shopware;

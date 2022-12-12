@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard';
 import 'src/app/component/structure/sw-page';

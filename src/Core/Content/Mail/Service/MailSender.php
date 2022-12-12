@@ -9,6 +9,9 @@ use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mime\Email;
 
+/**
+ * @package system-settings
+ */
 class MailSender extends AbstractMailSender
 {
     /**

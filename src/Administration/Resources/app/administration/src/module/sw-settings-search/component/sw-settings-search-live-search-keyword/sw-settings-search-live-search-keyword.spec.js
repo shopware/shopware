@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchLiveSearchKeyword from 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
 

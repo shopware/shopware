@@ -6,7 +6,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
- * @package core
+ * @package system-settings
  */
 class CreateAliasTask extends ScheduledTask
 {

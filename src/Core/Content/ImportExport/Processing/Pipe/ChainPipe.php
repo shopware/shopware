@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @package system-settings
+ */
 class ChainPipe extends AbstractPipe
 {
     /**

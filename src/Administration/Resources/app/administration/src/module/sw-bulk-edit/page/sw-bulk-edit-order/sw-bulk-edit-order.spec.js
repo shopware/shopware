@@ -59,6 +59,9 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
+/**
+ * @package system-settings
+ */
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
     let routes;

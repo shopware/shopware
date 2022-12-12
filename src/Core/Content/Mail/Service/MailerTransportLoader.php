@@ -10,6 +10,8 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MailerTransportLoader
 {

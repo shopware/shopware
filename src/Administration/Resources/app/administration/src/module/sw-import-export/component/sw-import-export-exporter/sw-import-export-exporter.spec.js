@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import swImportExportExporter from 'src/module/sw-import-export/component/sw-import-export-exporter';
 import 'src/app/component/form/select/entity/sw-entity-single-select';

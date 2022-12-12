@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './mixin/sw-settings-list.mixin';
 import './acl';
 

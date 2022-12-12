@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import swUsersPermissionsRoleDetail from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
 import 'src/app/component/base/sw-button-process';

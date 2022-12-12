@@ -38,6 +38,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class ImportExportActionController extends AbstractController
 {

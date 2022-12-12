@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 /**
- * @package core
+ * @package system-settings
  *
  * @phpstan-import-type Offset from IterableQuery
  */

@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 
+/**
+ * @package system-settings
+ */
 class SnippetValidator implements SnippetValidatorInterface
 {
     /**

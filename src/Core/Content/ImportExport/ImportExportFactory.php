@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package system-settings
+ */
 class ImportExportFactory
 {
     private ImportExportService $importExportService;

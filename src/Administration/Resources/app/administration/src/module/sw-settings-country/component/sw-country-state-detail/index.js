@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-country-state-detail.html.twig';
 
 const { Mixin } = Shopware;

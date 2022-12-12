@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework;
 
 /**
- * @package core
+ * @package system-settings
  */
 class ElasticsearchRegistry
 {

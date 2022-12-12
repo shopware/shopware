@@ -12,6 +12,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 final class ImportExportHandler implements MessageHandlerInterface
 {

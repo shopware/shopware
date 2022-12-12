@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportFileApiTest extends TestCase
 {

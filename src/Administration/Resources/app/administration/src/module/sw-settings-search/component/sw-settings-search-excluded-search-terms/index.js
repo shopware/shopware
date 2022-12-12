@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-search-excluded-search-terms.html.twig';
 import './sw-settings-search-excluded-search-terms.scss';
 

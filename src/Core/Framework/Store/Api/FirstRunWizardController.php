@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,16 +26,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FirstRunWizardController extends AbstractController
 {
-    private FirstRunWizardClient $frwClient;
-
-    private EntityRepository $pluginRepo;
-
     public function __construct(
-        FirstRunWizardClient $frwClient,
-        EntityRepository $pluginRepo
+        private readonly FirstRunWizardService $frwService,
+        private readonly EntityRepository $pluginRepo
     ) {
-        $this->frwClient = $frwClient;
-        $this->pluginRepo = $pluginRepo;
     }
 
     /**
@@ -45,7 +39,7 @@ class FirstRunWizardController extends AbstractController
     public function frwStart(Context $context): JsonResponse
     {
         try {
-            $this->frwClient->startFrw($context);
+            $this->frwService->startFrw($context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -63,7 +57,7 @@ class FirstRunWizardController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $languagePlugins = $this->frwClient->getLanguagePlugins($plugins, $context);
+            $languagePlugins = $this->frwService->getLanguagePlugins($plugins, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -84,7 +78,7 @@ class FirstRunWizardController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $languagePlugins = $this->frwClient->getDemoDataPlugins($plugins, $context);
+            $languagePlugins = $this->frwService->getDemoDataPlugins($plugins, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -102,7 +96,7 @@ class FirstRunWizardController extends AbstractController
     public function getRecommendationRegions(Context $context): JsonResponse
     {
         try {
-            $recommendationRegions = $this->frwClient->getRecommendationRegions($context);
+            $recommendationRegions = $this->frwService->getRecommendationRegions($context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -126,7 +120,7 @@ class FirstRunWizardController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $recommendations = $this->frwClient->getRecommendations($plugins, $region, $category, $context);
+            $recommendations = $this->frwService->getRecommendations($plugins, $region, $category, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -151,7 +145,7 @@ class FirstRunWizardController extends AbstractController
         }
 
         try {
-            $this->frwClient->frwLogin($shopwareId, $password, $context);
+            $this->frwService->frwLogin($shopwareId, $password, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -166,7 +160,7 @@ class FirstRunWizardController extends AbstractController
     public function getDomainList(Context $context): JsonResponse
     {
         try {
-            $domains = $this->frwClient->getLicenseDomains($context);
+            $domains = $this->frwService->getLicenseDomains($context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -187,7 +181,7 @@ class FirstRunWizardController extends AbstractController
         $testEnvironment = $params->getBoolean('testEnvironment');
 
         try {
-            $domainStruct = $this->frwClient->verifyLicenseDomain($domain, $context, $testEnvironment);
+            $domainStruct = $this->frwService->verifyLicenseDomain($domain, $context, $testEnvironment);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -202,10 +196,10 @@ class FirstRunWizardController extends AbstractController
     public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
     {
         $failed = $params->getBoolean('failed');
-        $this->frwClient->finishFrw($failed, $context);
+        $this->frwService->finishFrw($failed, $context);
 
         try {
-            $this->frwClient->upgradeAccessToken($context);
+            $this->frwService->upgradeAccessToken($context);
         } catch (\Exception $e) {
         }
 

@@ -31,8 +31,12 @@ class StoreServiceTest extends TestCase
         $adminStoreContext = $this->createAdminStoreContext();
 
         $newToken = 'updated-store-token';
-        $accessTokenStruct = new AccessTokenStruct();
-        $accessTokenStruct->setShopUserToken((new ShopUserTokenStruct())->assign(['token' => $newToken]));
+        $accessTokenStruct = new AccessTokenStruct(
+            new ShopUserTokenStruct(
+                $newToken,
+                new \DateTimeImmutable()
+            )
+        );
 
         $this->storeService->updateStoreToken(
             $adminStoreContext,

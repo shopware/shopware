@@ -134,7 +134,7 @@ class PluginManagementServiceTest extends TestCase
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
-            $this->getContainer()->get('shopware.store_client')
+            $this->getContainer()->get('shopware.store_download_client')
         );
     }
 

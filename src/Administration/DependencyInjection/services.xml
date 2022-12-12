@@ -24,7 +24,7 @@
         <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <argument>%kernel.supported_api_versions%</argument>
             <argument type="service" id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>

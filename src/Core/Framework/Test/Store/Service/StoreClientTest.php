@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class StoreClientTest extends TestCase
@@ -61,7 +63,7 @@ class StoreClientTest extends TestCase
         static::assertEquals([
             'appName' => 'testApp',
             'payload' => '[this can be anything]',
-        ], \json_decode($lastRequest->getBody()->getContents(), true));
+        ], \json_decode($lastRequest->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR));
     }
 
     public function testItUpdatesUserTokenAfterLogin(): void
@@ -91,7 +93,7 @@ class StoreClientTest extends TestCase
             'shopwareId' => 'shopwareId',
             'password' => 'password',
             'shopwareUserId' => $contextSource->getUserId(),
-        ], \json_decode($lastRequest->getBody()->getContents(), true));
+        ], \json_decode($lastRequest->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR));
 
         // token from login.json
         static::assertEquals(

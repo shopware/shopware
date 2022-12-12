@@ -11,19 +11,20 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class ShopUserTokenStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $token;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $expirationDate;
+    public function __construct(
+        protected string $token,
+        protected \DateTimeInterface $expirationDate,
+    ) {
+    }
 
     public function getToken(): string
     {
         return $this->token;
+    }
+
+    public function getExpirationDate(): \DateTimeInterface
+    {
+        return $this->expirationDate;
     }
 
     public function getApiAlias(): string

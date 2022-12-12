@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -44,7 +44,7 @@ class AdministrationController extends AbstractController
 {
     private TemplateFinder $finder;
 
-    private FirstRunWizardClient $firstRunWizardClient;
+    private FirstRunWizardService $firstRunWizardService;
 
     private SnippetFinderInterface $snippetFinder;
 
@@ -76,7 +76,7 @@ class AdministrationController extends AbstractController
      */
     public function __construct(
         TemplateFinder $finder,
-        FirstRunWizardClient $firstRunWizardClient,
+        FirstRunWizardService $firstRunWizardService,
         SnippetFinderInterface $snippetFinder,
         array $supportedApiVersions,
         KnownIpsCollectorInterface $knownIpsCollector,
@@ -89,7 +89,7 @@ class AdministrationController extends AbstractController
         DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->finder = $finder;
-        $this->firstRunWizardClient = $firstRunWizardClient;
+        $this->firstRunWizardService = $firstRunWizardService;
         $this->snippetFinder = $snippetFinder;
         $this->supportedApiVersions = $supportedApiVersions;
         $this->knownIpsCollector = $knownIpsCollector;
@@ -121,7 +121,7 @@ class AdministrationController extends AbstractController
             'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
-            'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
+            'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
         ]);

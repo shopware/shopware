@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
@@ -21,19 +21,13 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     private const SHOPWARE_TOKEN_HEADER = 'X-Shopware-Token';
 
-    private AbstractStoreRequestOptionsProvider $optionsProvider;
-
-    private EntityRepository $userConfigRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractStoreRequestOptionsProvider $optionsProvider,
-        EntityRepository $userConfigRepository
+        private readonly AbstractStoreRequestOptionsProvider $optionsProvider,
+        private readonly EntityRepository $userConfigRepository
     ) {
-        $this->optionsProvider = $optionsProvider;
-        $this->userConfigRepository = $userConfigRepository;
     }
 
     public function getAuthenticationHeader(Context $context): array
@@ -78,12 +72,12 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter('userId', $contextSource->getUserId()),
-            new EqualsFilter('key', FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN),
+            new EqualsFilter('key', FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN),
         );
 
         /** @var UserConfigEntity|null $userConfig */
         $userConfig = $this->userConfigRepository->search($criteria, $context)->first();
 
-        return $userConfig === null ? null : $userConfig->getValue()[FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null;
+        return $userConfig === null ? null : $userConfig->getValue()[FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null;
     }
 }

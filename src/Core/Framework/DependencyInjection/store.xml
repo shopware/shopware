@@ -35,11 +35,22 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\FirstRunWizardController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="plugin.repository" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardService">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument>%shopware.store.frw%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
@@ -54,16 +65,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument>%shopware.store.frw%</argument>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
-            <argument type="service" id="user_config.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService" lazy="true">

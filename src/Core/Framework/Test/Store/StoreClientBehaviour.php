@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -54,7 +54,10 @@ trait StoreClientBehaviour
 
         $this->getUserRepository()->create($data, Context::createDefaultContext());
 
-        return Context::createDefaultContext(new AdminApiSource($userId));
+        $source = new AdminApiSource($userId);
+        $source->setIsAdmin(true);
+
+        return Context::createDefaultContext($source);
     }
 
     protected function getStoreTokenFromContext(Context $context): string
@@ -84,13 +87,13 @@ trait StoreClientBehaviour
         $source = $context->getSource();
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter('userId', $source->getUserId()),
-            new EqualsFilter('key', FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN),
+            new EqualsFilter('key', FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN),
         );
 
         /** @var UserConfigEntity|null $config */
         $config = $this->getContainer()->get('user_config.repository')->search($criteria, $context)->first();
 
-        return $config ? $config->getValue()[FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
+        return $config ? $config->getValue()[FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
     }
 
     protected function setFrwUserToken(Context $context, string $frwUserToken): void
@@ -103,9 +106,9 @@ trait StoreClientBehaviour
         $this->getContainer()->get('user_config.repository')->create([
             [
                 'userId' => $source->getUserId(),
-                'key' => FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN,
+                'key' => FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN,
                 'value' => [
-                    FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
+                    FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
                 ],
             ],
         ], Context::createDefaultContext());

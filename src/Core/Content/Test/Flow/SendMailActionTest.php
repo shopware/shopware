@@ -9,10 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -23,7 +20,6 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
-use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailService as EMailService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -37,8 +33,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -118,8 +112,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -156,15 +148,11 @@ class SendMailActionTest extends TestCase
         static::assertNotEquals($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
         static::assertNotEquals($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -273,8 +261,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -290,15 +276,11 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -355,8 +337,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -372,15 +352,11 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         if ($hasEmail) {
             static::assertIsArray($mailService->data);
@@ -440,8 +416,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -457,15 +431,11 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         static::assertIsNotObject($mailFilterEvent);
         static::assertEquals(0, $mailService->calls);
@@ -511,8 +481,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -531,15 +499,11 @@ class SendMailActionTest extends TestCase
         static::expectException(MailEventConfigurationException::class);
         static::expectExceptionMessage('The recipient value in the flow action configuration is missing.');
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -584,8 +548,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -601,15 +563,11 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -672,8 +630,6 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -693,15 +649,11 @@ class SendMailActionTest extends TestCase
 
         $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, $function);
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
-        } else {
-            $flowFactory = $this->getContainer()->get(FlowFactory::class);
-            $flow = $flowFactory->create($event);
-            $flow->setConfig($config);
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
 
-            $subscriber->handleFlow($flow);
-        }
+        $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
         static::assertEmpty($translator->getSnippetSetId());
@@ -802,28 +754,14 @@ class SendMailActionTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
 
-            $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
-            $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
+        $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
 
-            static::assertNotNull($document);
+        static::assertNotNull($document);
 
-            return $document->getId();
-        }
-
-        $documentService = $this->getContainer()->get(DocumentService::class);
-
-        $documentStruct = $documentService->create(
-            $orderId,
-            DeliveryNoteGenerator::DELIVERY_NOTE,
-            FileTypes::PDF,
-            new DocumentConfiguration(),
-            $context
-        );
-
-        return $documentStruct->getId();
+        return $document->getId();
     }
 
     private function getDocIdByType(string $documentType): ?string

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
@@ -35,11 +35,11 @@ class HookableEventFactory
     /**
      * @return Hookable[]
      */
-    public function createHookablesFor($event): array
+    public function createHookablesFor(object $event): array
     {
         // BusinessEvent are the generic Events that get wrapped around the specific events
         // we don't want to dispatch those to the webhooks
-        if ($event instanceof FlowEvent) {
+        if ($event instanceof StorableFlow) {
             return [];
         }
 

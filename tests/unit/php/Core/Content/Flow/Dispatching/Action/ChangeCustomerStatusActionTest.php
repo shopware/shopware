@@ -8,7 +8,6 @@ use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -44,23 +43,6 @@ class ChangeCustomerStatusActionTest extends TestCase
         static::assertSame(
             [CustomerAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                ChangeCustomerStatusAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.change.customer.status' => 'handle'],
-            ChangeCustomerStatusAction::getSubscribedEvents()
         );
     }
 

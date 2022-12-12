@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
@@ -28,7 +27,6 @@ use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -60,8 +58,6 @@ class FlowExecutorTest extends TestCase
      */
     public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new TestDataCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
@@ -222,8 +218,6 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteIfWithRuleEvaluation(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
         $ruleLoader = $this->createMock(AbstractRuleLoader::class);
@@ -244,50 +238,6 @@ class FlowExecutorTest extends TestCase
         $flow = new StorableFlow('bar', Context::createDefaultContext());
         $flow->setFlowState(new FlowState());
         $flow->setData(OrderAware::ORDER, $order);
-
-        $scopeBuilder->method('build')->willReturn(
-            new FlowRuleScope($order, new Cart('test', 'test'), $this->createMock(SalesChannelContext::class))
-        );
-
-        $rule = new OrderTagRule(OrderTagRule::OPERATOR_EQ, [$tagId]);
-        $ruleEntity = new RuleEntity();
-        $ruleEntity->setId($ruleId);
-        $ruleEntity->setPayload($rule);
-        $ruleEntity->setAreas([RuleAreas::FLOW_AREA]);
-        $ruleLoader->method('load')->willReturn(new RuleCollection([$ruleEntity]));
-
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, []);
-        $flowExecutor->executeIf($ifSequence, $flow);
-
-        static::assertEquals($trueCaseSequence, $flow->getFlowState()->currentSequence);
-    }
-
-    public function testExecuteIfWithRuleEvaluationDeprecated(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
-        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
-        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
-
-        $trueCaseSequence = new Sequence();
-        $trueCaseSequence->assign(['sequenceId' => 'foobar']);
-        $ruleId = Uuid::randomHex();
-        $ifSequence = new IfSequence();
-        $ifSequence->assign(['ruleId' => $ruleId, 'trueCase' => $trueCaseSequence]);
-
-        $order = new OrderEntity();
-        $tagId = Uuid::randomHex();
-        $tag = new TagEntity();
-        $tag->setId($tagId);
-        $order->setTags(new TagCollection([$tag]));
-        $originalEvent = $this->createMock(OrderPaymentMethodChangedEvent::class);
-        $originalEvent->method('getOrder')->willReturn($order);
-
-        $flow = new StorableFlow('bar', Context::createDefaultContext());
-        $flow->setOriginalEvent($originalEvent);
-        $flow->setFlowState(new FlowState($originalEvent));
 
         $scopeBuilder->method('build')->willReturn(
             new FlowRuleScope($order, new Cart('test', 'test'), $this->createMock(SalesChannelContext::class))

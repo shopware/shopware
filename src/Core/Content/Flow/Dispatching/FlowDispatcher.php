@@ -7,10 +7,8 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -58,26 +56,16 @@ class FlowDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
-            $this->dispatcher->dispatch($flowLogEvent, $flowLogEvent->getName());
-        }
+        $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
+        $this->dispatcher->dispatch($flowLogEvent, $flowLogEvent->getName());
 
-        if (
-            $event instanceof FlowEvent
-            || ($event instanceof StoppableEventInterface && $event->isPropagationStopped())
+        if (($event instanceof StoppableEventInterface && $event->isPropagationStopped())
             || $event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)
         ) {
             return $event;
         }
 
         $storableFlow = $this->flowFactory->create($event);
-
-        /** @deprecated tag:v6.5.0 Will be removed */
-        if (!Feature::isActive('v6.5.0.0')) {
-            $storableFlow->setOriginalEvent($event);
-        }
-
         $this->callFlowExecutor($storableFlow);
 
         return $event;

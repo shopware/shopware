@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -89,11 +88,6 @@ class FlowActionCollector
     {
         $requirementsName = [];
         foreach ($service->requirements() as $requirement) {
-            /** @deprecated tag:v6.5.0 will be removed in v6.5.0 */
-            if (!Feature::isActive('v6.5.0.0')) {
-                $requirementsName[] = $requirement;
-            }
-
             $className = explode('\\', $requirement);
             $requirementsName[] = lcfirst(end($className));
         }

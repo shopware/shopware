@@ -12345,11 +12345,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldVisibility.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\:\\:__construct\\(\\) has parameter \\$data with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexingMessage.php
@@ -19810,11 +19805,6 @@ parameters:
 			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\\\HookableEventFactory\\:\\:createHookablesFor\\(\\) has parameter \\$event with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/Hookable/HookableEventFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\\\WriteResultMerger\\:\\:findWriteResultByPrimaryKey\\(\\) has parameter \\$entityKey with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/Hookable/WriteResultMerger.php
@@ -19843,21 +19833,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookCollection\\:\\:filterForEvent\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/WebhookCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookDispatcher\\:\\:getPayloadForWebhook\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/WebhookDispatcher.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookDispatcher\\:\\:isEventDispatchingAllowed\\(\\) has parameter \\$affectedRoles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/WebhookDispatcher.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookDispatcher\\:\\:\\$privileges type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/WebhookDispatcher.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\SalesChannel\\\\Command\\\\SalesChannelListCommand\\:\\:renderJson\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"

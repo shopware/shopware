@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package business-ops
@@ -37,16 +34,6 @@ class StorableFlow
     protected array $data = [];
 
     /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    private ?FlowEventAware $originalEvent = null;
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    private ?FlowEvent $flowEvent = null;
-
-    /**
      * @param array<string, mixed> $store
      * @param array<string, mixed> $data
      */
@@ -60,58 +47,6 @@ class StorableFlow
         $this->context = $context;
         $this->data = $data;
         $this->store = $store;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function setOriginalEvent(FlowEventAware $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->originalEvent = $event;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function getOriginalEvent(): ?FlowEventAware
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->originalEvent;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function setFlowEvent(FlowEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->flowEvent = $event;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed
-     */
-    public function getFlowEvent(): ?FlowEvent
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->flowEvent;
     }
 
     public function getName(): string

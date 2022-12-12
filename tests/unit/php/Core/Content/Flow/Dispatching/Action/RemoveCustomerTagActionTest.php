@@ -8,7 +8,6 @@ use Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -45,23 +44,6 @@ class RemoveCustomerTagActionTest extends TestCase
         static::assertSame(
             [CustomerAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                RemoveCustomerTagAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.remove.customer.tag' => 'handle'],
-            RemoveCustomerTagAction::getSubscribedEvents()
         );
     }
 

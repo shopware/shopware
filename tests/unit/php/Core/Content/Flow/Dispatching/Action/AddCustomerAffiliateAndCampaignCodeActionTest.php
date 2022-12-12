@@ -9,7 +9,6 @@ use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaig
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -51,23 +50,6 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         static::assertSame(
             [CustomerAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                AddCustomerAffiliateAndCampaignCodeAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.add.customer.affiliate.and.campaign.code' => 'handle'],
-            AddCustomerAffiliateAndCampaignCodeAction::getSubscribedEvents()
         );
     }
 

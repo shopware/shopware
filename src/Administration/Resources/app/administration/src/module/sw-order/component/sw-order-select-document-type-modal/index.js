@@ -1,6 +1,10 @@
 import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

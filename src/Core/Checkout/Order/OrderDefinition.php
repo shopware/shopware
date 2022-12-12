@@ -47,6 +47,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package customer-order
+ */
 class OrderDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order';

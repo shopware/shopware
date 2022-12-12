@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use function array_filter;
 
 /**
- * @package checkout
+ * @package customer-order
  *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})

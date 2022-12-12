@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import swOrderPromotionField from 'src/module/sw-order/component/sw-order-promotion-field';
 
+/**
+ * @package customer-order
+ */
+
 const orderFixture = {
     id: '2720b2fa-2ddc-479b-8c93-864fc8978f77',
     versionId: '305d71dc-7e9d-4ce2-a563-ecf91edd9cb3',

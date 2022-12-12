@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @covers \Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer
  */

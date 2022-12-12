@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterface;
 
+/**
+ * @package customer-order
+ */
 class LegacyPasswordVerifier
 {
     /**

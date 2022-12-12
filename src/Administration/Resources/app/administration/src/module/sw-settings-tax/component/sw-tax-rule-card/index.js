@@ -1,6 +1,10 @@
 import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 

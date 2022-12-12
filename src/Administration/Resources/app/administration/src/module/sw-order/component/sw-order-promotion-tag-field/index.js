@@ -1,6 +1,10 @@
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Utils } = Shopware;
 const { format } = Utils;
 

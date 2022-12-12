@@ -17,6 +17,9 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+/**
+ * @package customer-order
+ */
 class DocumentTemplateRenderer
 {
     private TemplateFinder $templateFinder;

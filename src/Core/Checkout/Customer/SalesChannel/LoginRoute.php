@@ -30,6 +30,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class LoginRoute extends AbstractLoginRoute

@@ -1,5 +1,9 @@
 import './acl';
 
+/**
+ * @package customer-order
+ */
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-tax-list', () => import('./page/sw-settings-tax-list'));
 Shopware.Component.register('sw-settings-tax-detail', () => import('./page/sw-settings-tax-detail'));

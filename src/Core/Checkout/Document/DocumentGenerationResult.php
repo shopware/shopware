@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package customer-order
+ *
  * @final
  */
 class DocumentGenerationResult extends Struct

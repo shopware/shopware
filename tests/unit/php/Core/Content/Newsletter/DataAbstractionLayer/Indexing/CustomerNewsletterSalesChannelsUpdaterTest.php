@@ -9,6 +9,8 @@ use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsl
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @covers \Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater
  */

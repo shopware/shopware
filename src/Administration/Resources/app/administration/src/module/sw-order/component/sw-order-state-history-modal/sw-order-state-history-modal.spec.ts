@@ -7,6 +7,10 @@ import 'src/app/component/grid/sw-pagination';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Vue from 'vue';
 
+/**
+ * @package customer-order
+ */
+
 function getCollection(entity, collection) {
     return new EntityCollection(
         `/${entity}`,

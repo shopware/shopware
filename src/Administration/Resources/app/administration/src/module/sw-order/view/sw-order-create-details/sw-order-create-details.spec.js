@@ -4,6 +4,10 @@ import swOrderCreateDetails from 'src/module/sw-order/view/sw-order-create-detai
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-create-details', swOrderCreateDetails);
 
 async function createWrapper() {

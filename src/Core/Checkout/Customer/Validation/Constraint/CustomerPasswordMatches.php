@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class CustomerPasswordMatches extends Constraint
 {

@@ -6,6 +6,9 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 
+/**
+ * @package customer-order
+ */
 class NewsletterEvents
 {
     /**

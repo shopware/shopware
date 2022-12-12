@@ -8,6 +8,9 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-button';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

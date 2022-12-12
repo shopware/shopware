@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class CustomerVatIdentificationValidator extends ConstraintValidator
 {

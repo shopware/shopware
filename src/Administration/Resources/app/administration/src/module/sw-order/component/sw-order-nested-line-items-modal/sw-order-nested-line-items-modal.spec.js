@@ -2,6 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swOrderNestedLineItemsModal from 'src/module/sw-order/component/sw-order-nested-line-items-modal';
 import swOrderNestedLineItemsRow from 'src/module/sw-order/component/sw-order-nested-line-items-row';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-nested-line-items-modal', swOrderNestedLineItemsModal);
 Shopware.Component.register('sw-order-nested-line-items-row', swOrderNestedLineItemsRow);
 

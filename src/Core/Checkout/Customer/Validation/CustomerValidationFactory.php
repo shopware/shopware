@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package checkout
+ * @package customer-order
  *
  * @Decoratable
  */

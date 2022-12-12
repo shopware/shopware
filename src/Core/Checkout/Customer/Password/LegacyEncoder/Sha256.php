@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Password\LegacyEncoder;
 
+/**
+ * @package customer-order
+ */
 class Sha256 implements LegacyEncoderInterface
 {
     public function getName(): string

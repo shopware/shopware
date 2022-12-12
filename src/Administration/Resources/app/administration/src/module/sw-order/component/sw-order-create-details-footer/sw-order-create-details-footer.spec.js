@@ -2,6 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 import swOrderCreateDetailsFooter from 'src/module/sw-order/component/sw-order-create-details-footer';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-create-details-footer', swOrderCreateDetailsFooter);
 
 async function createWrapper() {

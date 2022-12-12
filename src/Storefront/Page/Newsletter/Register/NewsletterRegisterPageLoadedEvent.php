@@ -8,6 +8,8 @@ use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed
  */
 class NewsletterRegisterPageLoadedEvent extends PageLoadedEvent

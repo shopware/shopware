@@ -1,6 +1,10 @@
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 

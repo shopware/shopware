@@ -1,5 +1,9 @@
 import swOrderUserCard from 'src/module/sw-order/component/sw-order-user-card';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-user-card', swOrderUserCard);
 
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {

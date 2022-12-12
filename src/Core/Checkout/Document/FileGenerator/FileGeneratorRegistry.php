@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document\FileGenerator;
 
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
 
+/**
+ * @package customer-order
+ */
 class FileGeneratorRegistry
 {
     /**

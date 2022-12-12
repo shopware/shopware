@@ -1,5 +1,9 @@
 import template from './sw-order-state-history-card.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

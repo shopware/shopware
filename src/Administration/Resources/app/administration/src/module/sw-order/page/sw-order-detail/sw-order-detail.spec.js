@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import swOrderDetail from 'src/module/sw-order/page/sw-order-detail';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-detail', swOrderDetail);
 
 async function createWrapper(privileges = []) {

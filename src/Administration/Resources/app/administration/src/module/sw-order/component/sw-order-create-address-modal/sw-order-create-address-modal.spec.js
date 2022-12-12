@@ -5,6 +5,10 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-card';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-create-address-modal', swOrderCreateAddressModal);
 
 const { Classes: { ShopwareError } } = Shopware;

@@ -51,6 +51,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group slow
  * @group store-api

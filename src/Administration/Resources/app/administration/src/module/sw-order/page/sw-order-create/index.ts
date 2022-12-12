@@ -4,6 +4,10 @@ import swOrderState from '../../state/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Context, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

@@ -2,6 +2,10 @@ import template from './sw-order-line-items-grid.html.twig';
 import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Utils } = Shopware;
 const { get, format } = Utils;
 

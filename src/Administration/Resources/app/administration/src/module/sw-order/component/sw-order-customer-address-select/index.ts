@@ -6,6 +6,10 @@ import type CriteriaType from '../../../../core/data/criteria.data';
 import type { Customer, CustomerAddress } from '../../order.types';
 import type Repository from '../../../../core/data/repository.data';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 

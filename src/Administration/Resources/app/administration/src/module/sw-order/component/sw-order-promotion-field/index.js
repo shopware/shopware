@@ -1,6 +1,10 @@
 import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
 const { ChangesetGenerator } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();

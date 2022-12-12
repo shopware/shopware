@@ -1,6 +1,10 @@
 import template from './sw-order-details-state-card.html.twig';
 import './sw-order-details-state-card.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -2,6 +2,10 @@ import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

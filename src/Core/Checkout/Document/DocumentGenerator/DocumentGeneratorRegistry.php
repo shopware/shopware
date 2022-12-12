@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeExcept
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed
  */
 class DocumentGeneratorRegistry

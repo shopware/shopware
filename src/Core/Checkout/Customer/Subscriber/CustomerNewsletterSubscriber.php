@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - newsletter field in customer will be removed in version 6.5.0.
  * So this subscriber will be removed also on v.6.5.0
  * Please don't use this subscriber for further extensions

@@ -24,6 +24,8 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */

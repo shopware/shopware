@@ -2,6 +2,10 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsDeliveryTimeList from 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-list';
 import 'src/app/component/base/sw-card';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-settings-delivery-time-list', swSettingsDeliveryTimeList);
 
 async function createWrapper(privileges = []) {

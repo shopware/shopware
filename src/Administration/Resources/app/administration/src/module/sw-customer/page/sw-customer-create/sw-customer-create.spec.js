@@ -3,6 +3,10 @@ import swCustomerCreate from 'src/module/sw-customer/page/sw-customer-create';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 

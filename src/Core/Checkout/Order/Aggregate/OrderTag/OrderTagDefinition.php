@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package customer-order
+ */
 class OrderTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'order_tag';

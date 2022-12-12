@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 
+/**
+ * @package customer-order
+ */
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'delivery_time_translation';

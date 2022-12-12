@@ -1,5 +1,9 @@
 import './acl';
 
+/**
+ * @package customer-order
+ */
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-delivery-time-list', () => import('./page/sw-settings-delivery-time-list'));
 Shopware.Component.register('sw-settings-delivery-time-detail', () => import('./page/sw-settings-delivery-time-detail'));

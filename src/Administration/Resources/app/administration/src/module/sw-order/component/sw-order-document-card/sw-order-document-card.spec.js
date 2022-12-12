@@ -7,6 +7,10 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-document-card', swOrderDocumentCard);
 Shopware.Component.register('sw-order-select-document-type-modal', swOrderSelectDocumentTypeModal);
 Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);

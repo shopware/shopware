@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 final class DocumentRoute extends AbstractDocumentRoute

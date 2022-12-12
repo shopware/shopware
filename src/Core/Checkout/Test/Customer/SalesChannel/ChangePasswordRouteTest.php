@@ -11,6 +11,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

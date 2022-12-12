@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<DocumentEntity>
  */
 class DocumentCollection extends EntityCollection

@@ -1,6 +1,10 @@
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

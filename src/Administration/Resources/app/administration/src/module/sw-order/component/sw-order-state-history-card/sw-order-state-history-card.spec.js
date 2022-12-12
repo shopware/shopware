@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import swOrderStateHistoryCard from 'src/module/sw-order/component/sw-order-state-history-card';
 import swOrderStateChangeModal from 'src/module/sw-order/component/sw-order-state-change-modal';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-order-state-history-card', swOrderStateHistoryCard);
 Shopware.Component.register('sw-order-state-change-modal', swOrderStateChangeModal);
 

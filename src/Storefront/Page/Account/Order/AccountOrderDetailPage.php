@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package customer-order
+ */
 class AccountOrderDetailPage extends Page
 {
     /**

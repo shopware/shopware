@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Event;
 
+/**
+ * @package customer-order
+ */
 final class CreditNoteOrdersEvent extends DocumentOrderEvent
 {
 }

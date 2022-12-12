@@ -10,6 +10,10 @@ import type {
     Cart,
 } from '../../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 

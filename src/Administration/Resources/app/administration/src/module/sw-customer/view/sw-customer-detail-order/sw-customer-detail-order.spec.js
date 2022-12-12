@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import swCustomerDetailOrder from 'src/module/sw-customer/view/sw-customer-detail-order';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 Shopware.Component.register('sw-customer-detail-order', swCustomerDetailOrder);
 
 const orderFixture = [{

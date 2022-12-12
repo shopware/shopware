@@ -13,6 +13,9 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/utils/sw-vnode-renderer';
 import 'src/app/component/form/field-base/sw-contextual-field';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(customPropsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

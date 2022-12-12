@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package customer-order
+ */
 class CustomerGroupRegistrationSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'customer_group_registration_sales_channels';

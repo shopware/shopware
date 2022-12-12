@@ -1,5 +1,9 @@
 import template from './sw-customer-detail-base.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -3,6 +3,10 @@ import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;

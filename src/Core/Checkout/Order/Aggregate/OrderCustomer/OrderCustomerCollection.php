@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<OrderCustomerEntity>
  */
 class OrderCustomerCollection extends EntityCollection

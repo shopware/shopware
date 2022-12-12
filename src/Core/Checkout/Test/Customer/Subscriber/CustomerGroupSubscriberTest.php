@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class CustomerGroupSubscriberTest extends TestCase

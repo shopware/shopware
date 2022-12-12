@@ -19,6 +19,9 @@ use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoade
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package customer-order
+ */
 class AccountOverviewPageLoader
 {
     /**

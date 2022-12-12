@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<CustomerRecoveryEntity>
  */
 class CustomerRecoveryCollection extends EntityCollection

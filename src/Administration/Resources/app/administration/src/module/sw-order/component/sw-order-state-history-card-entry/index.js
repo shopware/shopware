@@ -1,6 +1,10 @@
 import './sw-order-state-history-card-entry.scss';
 import template from './sw-order-state-history-card-entry.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

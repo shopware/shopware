@@ -2,6 +2,10 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { EntityDefinition, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();

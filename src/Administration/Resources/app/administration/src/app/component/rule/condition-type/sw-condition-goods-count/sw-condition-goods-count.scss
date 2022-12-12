@@ -6,7 +6,7 @@
 
 .sw-condition-goods-count__value {
     display: grid;
-    grid-template-columns: 1fr 40px;
+    grid-template-columns: 1fr auto;
     border: 1px solid $color-gray-500;
     border-radius: $border-radius-default;
     overflow: hidden;
@@ -19,14 +19,23 @@
 
     .sw-condition-goods-count__filter {
         background-color: $color-white;
+        padding: 4px;
 
         .sw-button {
             height: 100%;
             display: flex;
             align-items: center;
             border: none;
-            background: $color-white;
+            background: $color-gray-100;
             padding: 2px 11px;
+
+            &:hover {
+                background: $color-gray-200;
+            }
+        }
+
+        .sw-icon {
+            color: $color-darkgray-200;
         }
     }
 }

@@ -392,5 +392,44 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.emitted('media-upload-remove-image')).toBeTruthy();
     });
+
+    it('should check file type correct no matter in which sequence the accept types were set', async () => {
+        const file = {
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        };
+
+        await wrapper.setProps({
+            fileAccept: 'application/pdf, image/*'
+        });
+
+        let isTypeAccepted = wrapper.vm.checkFileType(file);
+        expect(isTypeAccepted).toBeTruthy();
+
+        await wrapper.setProps({
+            fileAccept: 'image/*, application/pdf'
+        });
+
+        isTypeAccepted = wrapper.vm.checkFileType(file);
+        expect(isTypeAccepted).toBeTruthy();
+    });
+
+    it('should allow wildcard in the chunck of the file type', async () => {
+        await wrapper.setProps({
+            fileAccept: '*/svg'
+        });
+
+        let isTypeAccepted = wrapper.vm.checkFileType({
+            name: 'dummy.png',
+            type: 'image/png'
+        });
+        expect(isTypeAccepted).toBeFalsy();
+
+        isTypeAccepted = wrapper.vm.checkFileType({
+            name: 'dummy.svg',
+            type: 'image/svg'
+        });
+        expect(isTypeAccepted).toBeTruthy();
+    });
 });
 

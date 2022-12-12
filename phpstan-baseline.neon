@@ -14345,41 +14345,6 @@ parameters:
 			path: src/Core/Framework/Plugin/KernelPluginCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getBundles\\(\\) has parameter \\$kernelParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getBundles\\(\\) has parameter \\$loadedBundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getBundles\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getPluginInfos\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:mapPsrPaths\\(\\) has parameter \\$psr with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:mapPsrPaths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:\\$pluginInfos type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\StaticKernelPluginLoader\\:\\:__construct\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
@@ -18377,11 +18342,6 @@ parameters:
 		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
 			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 5
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php
 
 		-

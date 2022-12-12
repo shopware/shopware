@@ -11,4 +11,5 @@ issue: NEXT-21203
 * Removed deprecations in `Shopware\Core\Framework\Script`.
 * Removed deprecations in `Shopware\Core\Framework\Struct`.
 * Removed deprecations in `Shopware\Core\Framework\Update`.
+* Removed deprecations in `Shopware\Core\Framework\Webhook`.
 * Removed deprecations in document templates.

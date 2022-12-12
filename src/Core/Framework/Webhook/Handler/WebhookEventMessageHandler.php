@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
 final class WebhookEventMessageHandler implements MessageHandlerInterface
 {

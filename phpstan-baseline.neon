@@ -18685,36 +18685,6 @@ parameters:
 			path: src/Core/Framework/Validation/WriteConstraintViolationException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\\:\\:getRequestContent\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\\:\\:getResponseContent\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\\:\\:setRequestContent\\(\\) has parameter \\$requestContent with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\\:\\:setResponseContent\\(\\) has parameter \\$responseContent with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\\:\\:\\$requestContent type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\\:\\:\\$responseContent type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\:\\:getWebhookPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/Hookable.php

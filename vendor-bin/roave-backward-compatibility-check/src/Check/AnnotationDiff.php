@@ -8,12 +8,8 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Roave\BackwardCompatibility\Change;
 use Roave\BackwardCompatibility\Changes;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\RouteScope;
 use Symfony\Component\Routing\Annotation\Route;
 use function dirname;
 use function get_class;
@@ -35,30 +31,6 @@ class AnnotationDiff
                 'methods' => 'array'
             ]
         ],
-        'RouteScope' => [
-            'class' => RouteScope::class,
-            'index' => 'scopes',
-            'numeric' => ['scopes'],
-            'check' => [
-                'scopes' => 'array',
-            ]
-        ],
-        'LoginRequired' => [
-            'class' => LoginRequired::class,
-            'index' => 'unknown',
-            'numeric' => ['allowGuest'],
-            'check' => [
-                'allowGuest' => 'string',
-            ]
-        ],
-        'ContextTokenRequired' => [
-            'class' => ContextTokenRequired::class,
-            'index' => 'unknown',
-            'numeric' => ['required'],
-            'check' => [
-                'required' => 'string',
-            ]
-        ],
         'Entity' => [
             'class' => Entity::class,
             'index' => 'unknown',
@@ -73,14 +45,6 @@ class AnnotationDiff
             'numeric' => ['value'],
             'check' => [
                 'value' => 'string',
-            ],
-        ],
-        'Acl' => [
-            'class' => Acl::class,
-            'index' => 'unknown',
-            'numeric' => ['privileges'],
-            'check' => [
-                'privileges' => 'array',
             ],
         ],
     ];
@@ -239,13 +203,8 @@ class AnnotationDiff
         require_once dirname(__DIR__, 4) . '/vendor/symfony/routing/Annotation/Route.php';
         require_once dirname(__DIR__, 4) . '/vendor/sensio/framework-extra-bundle/src/Configuration/ConfigurationInterface.php';
         require_once dirname(__DIR__, 4) . '/vendor/sensio/framework-extra-bundle/src/Configuration/ConfigurationAnnotation.php';
-        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/RouteScope.php';
-        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/RouteScope.php';
-        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/LoginRequired.php';
-        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/ContextTokenRequired.php';
         require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Entity.php';
         require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Since.php';
-        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Acl.php';
 
         self::$docParser = new DocParser();
         $mapping = [];

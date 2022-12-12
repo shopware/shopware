@@ -111,6 +111,7 @@ export default {
             showLayoutAssignmentModal: false,
             showLayoutSetAsDefaultModal: false,
             showMissingElementModal: false,
+            cmsMissingElementDontRemind: false,
             isDefaultLayout: false,
 
             /** @deprecated tag:v6.5.0 - will be removed without replacement */
@@ -807,6 +808,10 @@ export default {
         },
 
         pageIsValid() {
+            if (localStorage.getItem('cmsMissingElementDontRemind') === 'true') {
+                this.cmsMissingElementDontRemind = true;
+            }
+
             this.validationWarnings = [];
             Shopware.State.dispatch('error/resetApiErrors');
 
@@ -817,7 +822,7 @@ export default {
                 this.slotValidation(),
             ].every(validation => validation);
 
-            if (valid && this.validationWarnings.length > 0) {
+            if (!this.cmsMissingElementDontRemind && valid && this.validationWarnings.length > 0) {
                 this.showMissingElementModal = true;
             }
 
@@ -1260,6 +1265,7 @@ export default {
 
         onCloseMissingElementModal() {
             this.showMissingElementModal = false;
+            this.cmsMissingElementDontRemind = false;
 
             this.$nextTick(() => {
                 this.loadPage(this.pageId);
@@ -1267,11 +1273,19 @@ export default {
         },
 
         onSaveMissingElementModal() {
+            if (this.cmsMissingElementDontRemind) {
+                localStorage.setItem('cmsMissingElementDontRemind', true);
+            }
+
             this.showMissingElementModal = false;
 
             this.$nextTick(() => {
                 this.onSaveEntity();
             });
+        },
+
+        onChangeDontRemindCheckbox() {
+            this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
         },
     },
 };

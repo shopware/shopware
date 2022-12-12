@@ -40,5 +40,9 @@ export default {
         onSave() {
             this.$emit('modal-save');
         },
+
+        onChangeDontRemindCheckbox() {
+            this.$emit('modal-dont-remind-change');
+        },
     },
 };

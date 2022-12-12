@@ -5,7 +5,7 @@ namespace Shopware\Docs\Inspection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Console\Command\Command;
@@ -60,7 +60,7 @@ class ModuleInspector
                     ->addMarkers('custom events', $this->findCustomEvents($module));
             },
             self::TAG_BUSINESS_EVENT_DISPATCHER => function (ModuleTag $moduleTag, SplFileInfo $module): void {
-                $moduleTag->addMarkers('business events', $this->containsSubclassesOf($module, BusinessEventInterface::class));
+                $moduleTag->addMarkers('business events', $this->containsSubclassesOf($module, FlowEventAware::class));
             },
             self::TAG_EXTENSION => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag

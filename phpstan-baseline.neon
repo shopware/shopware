@@ -12291,21 +12291,6 @@ parameters:
 			path: src/Core/Framework/Event/Annotation/Event.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$interfaces has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/BusinessEventCollector.php
@@ -16339,11 +16324,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$record of method Shopware\\\\Core\\\\Framework\\\\Log\\\\Monolog\\\\ExcludeExceptionHandler\\:\\:handle\\(\\) expects array\\{message\\: string, context\\: array, level\\: 100\\|200\\|250\\|300\\|400\\|500\\|550\\|600, level_name\\: 'ALERT'\\|'CRITICAL'\\|'DEBUG'\\|'EMERGENCY'\\|'ERROR'\\|'INFO'\\|'NOTICE'\\|'WARNING', channel\\: string, datetime\\: DateTimeImmutable, extra\\: array\\}, array given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Log/Monolog/ExcludeExceptionHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Logging\\\\Event\\\\LogAwareTestBusinessEvent\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Logging/Event/LogAwareTestBusinessEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Logging\\\\Event\\\\LogAwareTestFlowEvent\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"

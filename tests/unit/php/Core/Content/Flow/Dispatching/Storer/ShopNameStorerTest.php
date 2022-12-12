@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ShopNameAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ShopNameStorer;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestFlowEventEvent;
 
 /**
  * @package business-ops
@@ -36,7 +36,7 @@ class ShopNameStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowEventEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ShopNameAware::SHOP_NAME, $stored);
@@ -101,7 +101,7 @@ class ShopNameStorerTest extends TestCase
             true,
         ];
 
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowEventEvent::class);
         yield 'Store with not Aware' => [
             $event,
             false,

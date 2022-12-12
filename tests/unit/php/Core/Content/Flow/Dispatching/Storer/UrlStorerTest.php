@@ -8,7 +8,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestFlowEventEvent;
 
 /**
  * @package business-ops
@@ -36,7 +36,7 @@ class UrlStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowEventEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(UrlAware::URL, $stored);

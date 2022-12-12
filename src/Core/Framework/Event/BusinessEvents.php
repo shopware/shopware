@@ -30,11 +30,6 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 final class BusinessEvents
 {
     /**
-     * @Event("Shopware\Core\Framework\Event\BusinessEvent")
-     */
-    public const GLOBAL_EVENT = 'shopware.global_business_event';
-
-    /**
      * @Event("Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent")
      */
     public const CHECKOUT_CUSTOMER_BEFORE_LOGIN = CustomerBeforeLoginEvent::EVENT_NAME;

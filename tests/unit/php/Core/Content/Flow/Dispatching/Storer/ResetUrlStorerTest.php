@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestFlowEventEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
@@ -36,7 +36,7 @@ class ResetUrlStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowEventEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ResetUrlAware::RESET_URL, $stored);

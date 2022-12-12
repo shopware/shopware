@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
@@ -29,10 +29,7 @@ class BusinessEventEncoderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var BusinessEventEncoder
-     */
-    private $businessEventEncoder;
+    private BusinessEventEncoder $businessEventEncoder;
 
     public function setUp(): void
     {
@@ -42,7 +39,7 @@ class BusinessEventEncoderTest extends TestCase
     /**
      * @dataProvider getEvents
      */
-    public function testScalarEvents(BusinessEventInterface $event): void
+    public function testScalarEvents(FlowEventAware $event): void
     {
         $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
         static::assertTrue(

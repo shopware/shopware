@@ -61,10 +61,6 @@ class BusinessEventCollector
      */
     public function define(string $class, ?string $name = null): ?BusinessEventDefinition
     {
-        if ($class === BusinessEvent::class) {
-            return null;
-        }
-
         $instance = (new \ReflectionClass($class))
             ->newInstanceWithoutConstructor();
 
@@ -83,9 +79,7 @@ class BusinessEventCollector
         $aware = [];
         foreach ($interfaces as $interface) {
             if (is_subclass_of($interface, FlowEventAware::class)
-                && $interface !== FlowEventAware::class
-                && $interface !== MailActionInterface::class
-                && $interface !== BusinessEventInterface::class) {
+                && $interface !== FlowEventAware::class) {
                 $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }

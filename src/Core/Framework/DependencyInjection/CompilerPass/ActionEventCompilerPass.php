@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Shopware\Core\Framework\Event\Annotation\Event;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -21,7 +20,6 @@ class ActionEventCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $classes = [];
-        /** @var BusinessEventInterface $eventClass */
         foreach ($this->getEventClasses() as $eventClass) {
             if (!is_subclass_of($eventClass, FlowEventAware::class, true)) {
                 continue;

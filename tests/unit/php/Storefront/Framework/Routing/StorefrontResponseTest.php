@@ -40,7 +40,7 @@ class StorefrontResponseTest extends TestCase
         $response->setData([]);
         static::assertEmpty($response->getData());
 
-        /** @deprecated tag:v6.5.0 - This can be removed if parameter `$data` will be strictly typed to `array` in `setData` */
+        /** @deprecated tag:v6.6.0 - This can be removed if parameter `$data` will be strictly typed to `array` in `setData` */
         $this->expectDeprecationMessageMatches('/deprecated functionality:/');
         $response->setData(null);
     }
@@ -65,7 +65,6 @@ class StorefrontResponseTest extends TestCase
             'bar',
             new SalesChannelEntity(),
             new CurrencyEntity(),
-            new CustomerGroupEntity(),
             new CustomerGroupEntity(),
             new TaxCollection(),
             new PaymentMethodEntity(),

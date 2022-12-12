@@ -4,14 +4,17 @@ namespace Shopware\Docs\Command;
 
 use Shopware\Docs\Convert\CredentialsService;
 use Shopware\Docs\Convert\WikiApiService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'docs:remove-all',
+    description: 'Remove all articles and categories from the wiki',
+)]
 class RemoveArticlesAndCategoriesCommand extends Command
 {
-    protected static $defaultName = 'docs:remove-all';
-
     /**
      * @var string
      */

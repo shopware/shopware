@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Command;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,10 +15,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'framework:schema',
+    description: 'Dumps the schema of the given entity',
+)]
 class DumpSchemaCommand extends Command
 {
-    protected static $defaultName = 'framework:schema';
-
     /**
      * @var DefinitionService
      */

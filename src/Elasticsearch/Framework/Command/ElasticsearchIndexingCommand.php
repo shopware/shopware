@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,11 +16,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package system-settings
  */
+#[AsCommand(
+    name: 'es:index',
+    description: 'Index all entities into elasticsearch',
+)]
 class ElasticsearchIndexingCommand extends Command
 {
     use ConsoleProgressTrait;
-
-    protected static $defaultName = 'es:index';
 
     private ElasticsearchIndexer $indexer;
 

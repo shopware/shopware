@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,10 +20,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'plugin:zip-import',
+    description: 'Imports a plugin from a zip file',
+)]
 class PluginZipImportCommand extends Command
 {
-    protected static $defaultName = 'plugin:zip-import';
-
     protected CacheClearer $cacheClearer;
 
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,10 +19,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package content
  */
+#[AsCommand(
+    name: 'media:generate-media-types',
+    description: 'Generates media types for all media files',
+)]
 class GenerateMediaTypesCommand extends Command
 {
-    protected static $defaultName = 'media:generate-media-types';
-
     /**
      * @var SymfonyStyle
      */

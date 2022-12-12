@@ -7,6 +7,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,10 +23,12 @@ use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
  *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'system:setup',
+    description: 'Setup the system',
+)]
 class SystemSetupCommand extends Command
 {
-    public static $defaultName = 'system:setup';
-
     private string $projectDir;
 
     private JwtCertificateGenerator $jwtCertificateGenerator;

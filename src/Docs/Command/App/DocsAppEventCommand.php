@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Docs\Inspection\ArrayWriter;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,10 +17,12 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
+#[AsCommand(
+    name: 'docs:app-system-events',
+    description: 'Dump the app events',
+)]
 class DocsAppEventCommand extends Command
 {
-    protected static $defaultName = 'docs:app-system-events';
-
     private string $listEventPath = __DIR__ . '/../../Resources/current/47-app-system-guide/webhook-events-reference.md';
 
     private string $templateEvents = __DIR__ . '/../../Resources/hookableEventsList.md.twig';

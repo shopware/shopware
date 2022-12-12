@@ -5,16 +5,19 @@ namespace Shopware\Storefront\Theme\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'theme:compile',
+    description: 'Compile the theme',
+)]
 class ThemeCompileCommand extends Command
 {
-    protected static $defaultName = 'theme:compile';
-
     private SymfonyStyle $io;
 
     private ThemeService $themeService;

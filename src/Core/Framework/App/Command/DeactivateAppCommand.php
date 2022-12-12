@@ -5,15 +5,18 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[AsCommand(
+    name: 'app:deactivate',
+    description: 'Deactivates an app',
+)]
 class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';
-
-    protected static $defaultName = 'app:deactivate';
 
     /**
      * @var AppStateService

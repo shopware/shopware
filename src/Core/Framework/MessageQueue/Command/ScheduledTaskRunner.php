@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\MessageQueue\Command;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,10 +15,12 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'scheduled-task:run',
+    description: 'Runs scheduled tasks',
+)]
 class ScheduledTaskRunner extends Command
 {
-    protected static $defaultName = 'scheduled-task:run';
-
     /**
      * @var TaskScheduler
      */

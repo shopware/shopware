@@ -12,16 +12,19 @@ use Shopware\Docs\Inspection\ErdDefinition;
 use Shopware\Docs\Inspection\ErdGenerator;
 use Shopware\Docs\Inspection\MarkdownErdDumper;
 use Shopware\Docs\Inspection\PlantUmlErdDumper;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(
+    name: 'docs:dump-erd',
+    description: 'Dump the entity relationship diagram',
+)]
 class DocsDumpErd extends Command
 {
-    protected static $defaultName = 'docs:dump-erd';
-
     /**
      * @var array<class-string>
      */

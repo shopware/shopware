@@ -11,16 +11,19 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'theme:dump',
+    description: 'Dump the theme configuration',
+)]
 class ThemeDumpCommand extends Command
 {
-    protected static $defaultName = 'theme:dump';
-
     private StorefrontPluginRegistryInterface$pluginRegistry;
 
     private ThemeFileResolver $themeFileResolver;

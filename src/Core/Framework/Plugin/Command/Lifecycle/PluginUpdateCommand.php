@@ -4,17 +4,20 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'plugin:update',
+    description: 'Updates a plugin',
+)]
 class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'update';
-
-    protected static $defaultName = 'plugin:update';
 
     protected function configure(): void
     {

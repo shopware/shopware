@@ -12,6 +12,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,10 +24,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'sales-channel:list',
+    description: 'Lists all sales channels',
+)]
 class SalesChannelListCommand extends Command
 {
-    protected static $defaultName = 'sales-channel:list';
-
     private EntityRepository $salesChannelRepository;
 
     public function __construct(

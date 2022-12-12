@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,10 +13,12 @@ use Symfony\Component\Console\Question\Question;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'plugin:create',
+    description: 'Creates a new plugin',
+)]
 class PluginCreateCommand extends Command
 {
-    protected static $defaultName = 'plugin:create';
-
     private string $composerTemplate = <<<EOL
 {
   "name": "swag/plugin-skeleton",

@@ -9,8 +9,6 @@ framework:
     http_method_override: true
     router:
         utf8: true
-    messenger:
-        reset_on_message: true
     php_errors:
         log: true
 

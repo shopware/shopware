@@ -8,6 +8,7 @@ use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,10 +20,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'system:install',
+    description: 'Installs the Shopware 6 system',
+)]
 class SystemInstallCommand extends Command
 {
-    public static $defaultName = 'system:install';
-
     private string $projectDir;
 
     private SetupDatabaseAdapter $setupDatabaseAdapter;

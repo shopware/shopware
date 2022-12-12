@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,10 +14,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package system-settings
  */
+#[AsCommand(
+    name: 'es:index:cleanup',
+    description: 'Clean outdated indices',
+)]
 class ElasticsearchCleanIndicesCommand extends Command
 {
-    protected static $defaultName = 'es:index:cleanup';
-
     private ElasticsearchOutdatedIndexDetector $outdatedIndexDetector;
 
     private Client $client;

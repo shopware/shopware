@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,10 +17,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @package system-settings
  */
+#[AsCommand(
+    name: 'es:reset',
+    description: 'Reset the elasticsearch index',
+)]
 class ElasticsearchResetCommand extends Command
 {
-    protected static $defaultName = 'es:reset';
-
     private ElasticsearchOutdatedIndexDetector $detector;
 
     private Client $client;

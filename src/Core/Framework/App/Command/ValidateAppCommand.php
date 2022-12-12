@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,10 +19,12 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal only for use by the app-system
  */
+#[AsCommand(
+    name: 'app:validate',
+    description: 'Validates an app',
+)]
 class ValidateAppCommand extends Command
 {
-    protected static $defaultName = 'app:validate';
-
     /**
      * @var ManifestValidator
      */

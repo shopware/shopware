@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,11 +13,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package core
  */
+#[AsCommand(
+    name: 'plugin:uninstall',
+    description: 'Uninstall a plugin',
+)]
 class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'uninstall';
-
-    protected static $defaultName = 'plugin:uninstall';
 
     protected function configure(): void
     {

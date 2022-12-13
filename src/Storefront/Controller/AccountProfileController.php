@@ -8,8 +8,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRo
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;

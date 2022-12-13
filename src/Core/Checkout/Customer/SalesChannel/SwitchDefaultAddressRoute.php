@@ -7,8 +7,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

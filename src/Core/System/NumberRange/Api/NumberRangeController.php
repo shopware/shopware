@@ -4,7 +4,6 @@ namespace Shopware\Core\System\NumberRange\Api;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

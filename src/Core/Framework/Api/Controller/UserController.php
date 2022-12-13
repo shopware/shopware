@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;

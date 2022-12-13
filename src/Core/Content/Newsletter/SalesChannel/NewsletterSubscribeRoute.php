@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;

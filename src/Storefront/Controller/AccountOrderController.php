@@ -16,8 +16,6 @@ use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;

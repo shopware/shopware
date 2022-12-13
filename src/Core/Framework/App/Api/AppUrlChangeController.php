@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundHttpException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

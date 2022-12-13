@@ -3,8 +3,6 @@
 namespace Shopware\Core\System\SystemConfig\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;

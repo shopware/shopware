@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

@@ -8,8 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

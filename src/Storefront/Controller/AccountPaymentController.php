@@ -5,8 +5,6 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;

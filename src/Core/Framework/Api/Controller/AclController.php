@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

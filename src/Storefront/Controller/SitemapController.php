@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoadedHook;

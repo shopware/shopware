@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;

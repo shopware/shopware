@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Api\Acl\fixtures;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

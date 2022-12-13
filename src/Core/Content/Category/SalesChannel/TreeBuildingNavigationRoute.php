@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;

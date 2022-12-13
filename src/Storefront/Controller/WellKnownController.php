@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 

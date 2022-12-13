@@ -132,3 +132,8 @@ vendor-bin/**/composer.lock
 # nix
 .direnv/
 .phpbench/*
+
+# Devenv
+.devenv*
+devenv.local.nix
+

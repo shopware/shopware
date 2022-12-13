@@ -1256,16 +1256,6 @@ parameters:
 			path: src/Core/Checkout/Document/Renderer/RendererResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\:\\:writeRecords\\(\\) has parameter \\$records with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Service/DocumentGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$document of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\:\\:ensureDocumentMediaFileGenerated\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Service/DocumentGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\ReferenceInvoiceLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Service/ReferenceInvoiceLoader.php
@@ -2934,11 +2924,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Validation\\\\CustomerValidationFactoryTest\\:\\:getCreateTestData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Validation/CustomerValidationFactoryTest.php
-
-		-
-			message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\>\\:\\:getMock\\(\\) contains unresolvable type\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentMergerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionBuilder\\:\\:add\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
@@ -5196,51 +5181,6 @@ parameters:
 			path: src/Core/Content/Mail/Service/AbstractMailService.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:assertValidAddresses\\(\\) has parameter \\$addresses with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:create\\(\\) has parameter \\$additionalData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:create\\(\\) has parameter \\$attachments with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:create\\(\\) has parameter \\$binAttachments with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:create\\(\\) has parameter \\$contents with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:create\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:create\\(\\) has parameter \\$sender with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:formatMailAddresses\\(\\) has parameter \\$addresses with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailFactory\\:\\:formatMailAddresses\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Mail/Service/MailFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Aggregate\\\\MailTemplateType\\\\MailTemplateTypeEntity\\:\\:getAvailableEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/MailTemplate/Aggregate/MailTemplateType/MailTemplateTypeEntity.php
@@ -5629,11 +5569,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:fetchFolder\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaService\\:\\:getAttachment\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\:\\:addFlags\\(\\) has parameter \\$flags with no value type specified in iterable type array\\.$#"

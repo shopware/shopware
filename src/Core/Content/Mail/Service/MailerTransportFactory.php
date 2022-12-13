@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
@@ -18,22 +20,46 @@ class MailerTransportFactory extends Transport
 {
     private SystemConfigService $configService;
 
+    private MailAttachmentsBuilder $attachmentsBuilder;
+
+    private FilesystemInterface $filesystem;
+
+    private EntityRepositoryInterface $documentRepository;
+
     /**
      * @internal
      */
-    public function __construct(iterable $factories, SystemConfigService $configService)
-    {
+    public function __construct(
+        iterable $factories,
+        SystemConfigService $configService,
+        MailAttachmentsBuilder $attachmentsBuilder,
+        FilesystemInterface $filesystem,
+        EntityRepositoryInterface $documentRepository
+    ) {
         parent::__construct($factories);
         $this->configService = $configService;
+        $this->attachmentsBuilder = $attachmentsBuilder;
+        $this->filesystem = $filesystem;
+        $this->documentRepository = $documentRepository;
     }
 
     public function fromString(string $dsn): TransportInterface
     {
         if (trim($this->configService->getString('core.mailerSettings.emailAgent')) === '') {
-            return parent::fromString($dsn);
+            return new MailerTransportDecorator(
+                parent::fromString($dsn),
+                $this->attachmentsBuilder,
+                $this->filesystem,
+                $this->documentRepository
+            );
         }
 
-        return $this->create();
+        return new MailerTransportDecorator(
+            $this->create(),
+            $this->attachmentsBuilder,
+            $this->filesystem,
+            $this->documentRepository
+        );
     }
 
     public function create(?SystemConfigService $configService = null): TransportInterface

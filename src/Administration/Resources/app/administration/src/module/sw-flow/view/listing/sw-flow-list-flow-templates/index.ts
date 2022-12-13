@@ -12,14 +12,12 @@ interface FlowTemplateEntity extends Entity {
     eventName: string,
 }
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// @ts-expect-error
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-list-flow-templates', {
     template,
 
     inject: ['acl', 'repositoryFactory'],
@@ -43,7 +41,6 @@ export default {
         total: number,
         isLoading: boolean,
         flowTemplates: Array<FlowTemplateEntity>|null,
-        selectedItems: Array<FlowTemplateEntity>,
         } {
         return {
             sortBy: 'createdAt',
@@ -51,7 +48,6 @@ export default {
             total: 0,
             isLoading: false,
             flowTemplates: null,
-            selectedItems: [],
         };
     },
 
@@ -107,7 +103,7 @@ export default {
     },
 
     watch: {
-        searchTerm(value: string): void {
+        searchTerm(value): void {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.onSearch(value);
         },
@@ -161,18 +157,5 @@ export default {
                 },
             });
         },
-
-        updateRecords(result: EntityCollection) {
-            // @ts-expect-error
-            this.flowTemplates = result as unknown as Array<FlowTemplateEntity>;
-
-            // @ts-expect-error
-            this.total = result.total;
-        },
-
-        selectionChange(selection: { [key:string]: FlowTemplateEntity }) {
-            // @ts-expect-error
-            this.selectedItems = Object.values(selection);
-        },
     },
-};
+});

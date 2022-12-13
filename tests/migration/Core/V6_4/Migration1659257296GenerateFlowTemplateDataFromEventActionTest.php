@@ -9,6 +9,8 @@ use Shopware\Core\Migration\V6_4\Migration1659256999CreateFlowTemplateTable;
 use Shopware\Core\Migration\V6_4\Migration1659257296GenerateFlowTemplateDataFromEventAction;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Migration\V6_4\Migration1659257296GenerateFlowTemplateDataFromEventAction
  */

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep

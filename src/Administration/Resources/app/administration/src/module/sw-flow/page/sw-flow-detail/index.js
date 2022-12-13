@@ -490,35 +490,7 @@ export default {
                     flow.name = data.name;
                     flow.eventName = data.config?.eventName;
                     flow.description = data.config?.description;
-
-                    const parentIds = {};
-                    const sequences = (data.config?.sequences ?? [])
-                        .sort((a, b) => b.parentId?.localeCompare(a.parentId))
-                        .map(sequence => {
-                            sequence = this.createSequenceEntity(sequence);
-
-                            parentIds[sequence.id] = Utils.createId();
-                            sequence.id = parentIds[sequence.id];
-
-                            return sequence;
-                        });
-
-                    // update parentId of sequence
-                    for (let i = 0; i < sequences.length; i += 1) {
-                        if (!sequences[i].parentId) {
-                            break;
-                        }
-
-                        sequences[i].parentId = parentIds[sequences[i].id];
-                    }
-
-                    flow.sequences = new EntityCollection(
-                        this.flowSequenceRepository.source,
-                        this.flowSequenceRepository.entityName,
-                        Context.api,
-                        null,
-                        sequences,
-                    );
+                    flow.sequences = this.buildSequencesFromConfig(data.config?.sequences ?? []);
 
                     State.commit('swFlowState/setFlow', flow);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(flow));
@@ -551,6 +523,46 @@ export default {
             });
 
             return entity;
+        },
+
+        buildSequencesFromConfig(sequences) {
+            const parentIds = {};
+
+            sequences = sequences.map(sequence => {
+                sequence = this.createSequenceEntity(sequence);
+                parentIds[sequence.id] = Utils.createId();
+
+                return { ...sequence, id: parentIds[sequence.id] };
+            });
+
+            // update parentId of sequence
+            for (let i = 0; i < sequences.length; i += 1) {
+                if (sequences[i].parentId !== null) {
+                    sequences[i].parentId = parentIds[sequences[i].parentId];
+                }
+            }
+
+            sequences = this.rearrangeSequences(sequences);
+
+            return new EntityCollection(
+                this.flowSequenceRepository.source,
+                this.flowSequenceRepository.entityName,
+                Context.api,
+                null,
+                sequences,
+            );
+        },
+
+        rearrangeSequences(sequences) {
+            return sequences.reduce((accumulator, currentSequence) => {
+                const parent = accumulator.find(x => x.id === currentSequence.parentId);
+                let index = accumulator.indexOf(parent);
+
+                index = index !== -1 ? index + 1 : 0;
+                accumulator.splice(index, 0, currentSequence);
+
+                return accumulator;
+            }, []);
         },
     },
 };

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1659256999CreateFlowTemplateTable;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Migration\V6_4\Migration1659256999CreateFlowTemplateTable
  */

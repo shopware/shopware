@@ -1,23 +1,17 @@
+import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import type { MetaInfo } from 'vue-meta';
 import template from './sw-flow-index.html.twig';
 import './sw-flow-index.scss';
 
-const { Mixin } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-index', {
     template,
 
     inject: ['acl', 'repositoryFactory'],
-
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
 
     data(): {
         isLoading: boolean,
@@ -44,6 +38,10 @@ export default {
         flowRepository(): Repository {
             return this.repositoryFactory.create('flow');
         },
+
+        flowCriteria(): CriteriaType {
+            return new Criteria(1, null);
+        },
     },
 
     created(): void {
@@ -56,8 +54,7 @@ export default {
         },
 
         async getTotal(): Promise<void> {
-            const criteria = new Criteria(1, null);
-            const { total } = await this.flowRepository.searchIds(criteria);
+            const { total } = await this.flowRepository.searchIds(this.flowCriteria);
             this.total = total;
         },
 
@@ -69,4 +66,4 @@ export default {
             this.term = term;
         },
     },
-};
+});

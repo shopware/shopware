@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 

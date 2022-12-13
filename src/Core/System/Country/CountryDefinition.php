@@ -30,6 +30,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannel
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
+/**
+ * @package system-settings
+ */
 class CountryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'country';

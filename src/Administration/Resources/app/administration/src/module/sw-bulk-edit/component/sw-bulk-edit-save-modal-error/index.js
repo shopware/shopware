@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-save-modal-error.html.twig';
 
 const { Component } = Shopware;

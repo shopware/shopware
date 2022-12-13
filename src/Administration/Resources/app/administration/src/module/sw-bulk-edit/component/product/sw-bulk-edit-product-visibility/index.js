@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-product-visibility.html.twig';
 
 const { Component, Context } = Shopware;

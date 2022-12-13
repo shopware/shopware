@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
 

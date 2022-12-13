@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './component/sw-settings-mailer-smtp';
 import './page/sw-settings-mailer';
 

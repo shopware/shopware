@@ -14,7 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
 /**
- * @internal
+ * @internal can only be used in test setups where bypass finals is activated
+ *
+ * @package system-settings
  */
 class MockRepository implements EntityRepositoryInterface
 {

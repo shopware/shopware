@@ -31,6 +31,11 @@ import 'src/app/component/media/sw-media-media-item';
 import 'src/app/component/media/sw-media-base-item';
 import 'src/app/component/media/sw-media-preview-v2';
 
+/**
+ * @package system-settings
+ * @param entities
+ * @returns {EntityCollection}
+ */
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }

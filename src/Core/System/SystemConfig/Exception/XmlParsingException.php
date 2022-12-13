@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SystemConfig\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package system-settings
+ */
 class XmlParsingException extends ShopwareHttpException
 {
     public function __construct(string $xmlFile, string $message)

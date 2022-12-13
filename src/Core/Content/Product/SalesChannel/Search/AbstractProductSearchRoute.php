@@ -7,6 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package system-settings
  * This route is used for the product search in the search pages
  */
 abstract class AbstractProductSearchRoute

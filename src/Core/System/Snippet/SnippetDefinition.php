@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
+/**
+ * @package system-settings
+ */
 class SnippetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'snippet';

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractReader
 {
     /**

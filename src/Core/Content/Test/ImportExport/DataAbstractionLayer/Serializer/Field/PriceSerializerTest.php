@@ -14,6 +14,8 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class PriceSerializerTest extends TestCase
 {

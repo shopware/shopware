@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
 import BulkEditBaseHandler from 'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler';
 

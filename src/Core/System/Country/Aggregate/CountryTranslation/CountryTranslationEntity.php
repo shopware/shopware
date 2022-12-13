@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @package system-settings
+ */
 class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
 

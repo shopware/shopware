@@ -12,6 +12,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * The `config` service allows you to access the shop's and your app's configuration values.
  *
  * @script-service miscellaneous
+ *
+ * @package system-settings
  */
 class SystemConfigFacade
 {

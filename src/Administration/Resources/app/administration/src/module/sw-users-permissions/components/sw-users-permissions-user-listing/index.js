@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 

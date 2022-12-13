@@ -9,6 +9,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class RegisterScheduledTaskHandlerTest extends TestCase
 {

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractWriterFactory
 {
     abstract public function create(ImportExportLogEntity $logEntity): AbstractWriter;

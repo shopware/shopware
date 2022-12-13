@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-bulk-edit-product-description.html.twig';
 
 const { Component } = Shopware;

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Util\Random;
 
+/**
+ * @package system-settings
+ */
 class ImportExportFileEntity extends Entity
 {
     use EntityIdTrait;

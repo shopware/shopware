@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import ImportExportProfileMappingService from 'src/module/sw-import-export/service/importExportProfileMapping.service';
 // eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';

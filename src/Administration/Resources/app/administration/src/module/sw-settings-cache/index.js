@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-cache-index';
 import './component/sw-settings-cache-modal';
 import './acl';

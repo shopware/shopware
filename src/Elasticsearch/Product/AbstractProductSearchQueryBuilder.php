@@ -6,6 +6,9 @@ use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @package core
+ */
 abstract class AbstractProductSearchQueryBuilder
 {
     abstract public function getDecorated(): AbstractProductSearchQueryBuilder;

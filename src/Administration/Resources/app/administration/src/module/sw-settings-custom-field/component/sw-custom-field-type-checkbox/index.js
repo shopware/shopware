@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 const { Component } = Shopware;
 
 Component.extend('sw-custom-field-type-checkbox', 'sw-custom-field-type-base', {

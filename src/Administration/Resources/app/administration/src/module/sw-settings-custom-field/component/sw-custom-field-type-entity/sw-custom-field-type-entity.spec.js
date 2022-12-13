@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-entity';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';

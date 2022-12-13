@@ -7,6 +7,9 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
+/**
+ * @package system-settings
+ */
 class Config
 {
     use JsonSerializableTrait;

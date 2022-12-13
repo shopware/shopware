@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Language;
 
+/**
+ * @package system-settings
+ */
 class LanguageEvents
 {
     /**

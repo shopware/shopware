@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';

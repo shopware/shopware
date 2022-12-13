@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
 

@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * When an language is created, we need to trigger an indexing for that

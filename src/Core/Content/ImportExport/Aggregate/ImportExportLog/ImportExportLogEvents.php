@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog;
 
+/**
+ * @package system-settings
+ */
 class ImportExportLogEvents
 {
     /**

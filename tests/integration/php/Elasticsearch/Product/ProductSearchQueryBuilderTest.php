@@ -31,6 +31,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Product\ProductSearchQueryBuilder
+ *
+ * @package system-settings
  */
 class ProductSearchQueryBuilderTest extends TestCase
 {

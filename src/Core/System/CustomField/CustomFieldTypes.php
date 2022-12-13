@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\CustomField;
 
+/**
+ * @package system-settings
+ */
 final class CustomFieldTypes
 {
     public const BOOL = 'bool';

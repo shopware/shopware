@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package system-settings
+ */
 class UserAccessKeyEntity extends Entity
 {
     use EntityIdTrait;

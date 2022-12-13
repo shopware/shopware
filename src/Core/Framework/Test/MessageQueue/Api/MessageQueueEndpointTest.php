@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MessageQueueEndpointTest extends TestCase
 {

@@ -7,6 +7,9 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKe
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 
+/**
+ * @package system-settings
+ */
 class PipeFactory extends AbstractPipeFactory
 {
     private DefinitionInstanceRegistry $definitionInstanceRegistry;

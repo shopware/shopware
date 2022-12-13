@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 

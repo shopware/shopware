@@ -20,6 +20,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package system-settings
+ */
 class CachedProductSearchRoute extends AbstractProductSearchRoute
 {
     private const NAME = 'product-search-route';

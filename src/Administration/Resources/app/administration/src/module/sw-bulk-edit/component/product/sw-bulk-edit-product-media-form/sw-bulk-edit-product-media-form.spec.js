@@ -8,6 +8,11 @@ import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/utils/sw-popover';
 
+/**
+ * @param privileges
+ * @package system-settings
+ * @returns {Promise<Wrapper<Vue>>}
+ */
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);

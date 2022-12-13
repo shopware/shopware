@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<CountryTranslationEntity>
+ *
+ * @package system-settings
  */
 class CountryTranslationCollection extends EntityCollection
 {

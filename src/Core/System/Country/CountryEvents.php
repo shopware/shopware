@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Country;
 
+/**
+ * @package system-settings
+ */
 class CountryEvents
 {
     /**

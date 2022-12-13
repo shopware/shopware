@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/module/sw-settings-search/page/sw-settings-search';

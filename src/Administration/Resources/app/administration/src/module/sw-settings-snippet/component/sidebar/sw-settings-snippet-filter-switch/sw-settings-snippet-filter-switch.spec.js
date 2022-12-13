@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';
 import 'src/app/component/form/sw-field';

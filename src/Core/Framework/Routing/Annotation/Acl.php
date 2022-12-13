@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Feature;
 /**
  * @deprecated tag:v6.5.0 - Use route defaults with "_acl". Example: @Route(defaults={"_acl"={"product:read"})
  * @Annotation
+ *
+ * @package system-settings
  */
 class Acl extends ConfigurationAnnotation
 {

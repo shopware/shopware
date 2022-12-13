@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-integration-list';
 import './acl';
 

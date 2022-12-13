@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ */
 class EntityPipe extends AbstractPipe
 {
     private SerializerRegistry $serializerRegistry;

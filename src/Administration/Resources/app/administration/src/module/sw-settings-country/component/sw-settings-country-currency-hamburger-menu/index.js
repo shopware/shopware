@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-country-currency-hamburger-menu.html.twig';
 import './sw-settings-country-currency-hamburger-menu.scss';
 

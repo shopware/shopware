@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-settings-custom-field-set-create';
 import './page/sw-settings-custom-field-set-list';
 import './page/sw-settings-custom-field-set-detail';

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package system-settings
+ */
 class ImportExportMessage
 {
     private Context $context;

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ */
 class UpdateBy extends Struct
 {
     protected string $entityName;

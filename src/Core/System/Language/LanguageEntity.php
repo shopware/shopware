@@ -61,6 +61,9 @@ use Shopware\Core\System\StateMachine\StateMachineTranslationCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
+/**
+ * @package system-settings
+ */
 class LanguageEntity extends Entity
 {
     use EntityIdTrait;

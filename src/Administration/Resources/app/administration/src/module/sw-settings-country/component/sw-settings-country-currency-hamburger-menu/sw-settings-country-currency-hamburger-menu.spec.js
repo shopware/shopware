@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu';
 import 'src/app/component/context-menu/sw-context-button';

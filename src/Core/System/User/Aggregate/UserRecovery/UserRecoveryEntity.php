@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package system-settings
+ */
 class UserRecoveryEntity extends Entity
 {
     use EntityIdTrait;

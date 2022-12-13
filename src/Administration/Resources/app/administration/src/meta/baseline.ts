@@ -619,6 +619,7 @@ const missingTests = [
     'sw-promotion-v2-wizard-discount-selection/index.js',
     'sw-promotion-v2-sales-channel-select/index.js',
     'sw-promotion-v2/index.js',
+    'promotion.types.ts',
     'promotion-code.api.service.js',
     'sw-property-detail-base/index.js',
     'sw-property-option-detail/index.js',

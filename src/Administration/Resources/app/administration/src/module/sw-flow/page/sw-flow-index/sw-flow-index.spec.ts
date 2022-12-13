@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/page/sw-flow-index';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-flow-index'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-flow-index'), {
         mocks: {
             $route: {
                 query: {
@@ -71,7 +71,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-flow/page/sw-flow-index', () => {
     it('should be able to create a flow ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.creator'
         ]);
 
@@ -81,14 +81,14 @@ describe('module/sw-flow/page/sw-flow-index', () => {
     });
 
     it('should be not able to create a flow ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const createButton = wrapper.find('.sw-flow-list__create');
 
         expect(createButton.attributes().disabled).toBeTruthy();
     });
 
     it('should be show a number of flows ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');

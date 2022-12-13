@@ -115,7 +115,7 @@ async function createWrapper(
         } },
 
         mocks: {
-            $route: { params: param, query: query },
+            $route: { params: param, query: query }
         },
 
         propsData: {
@@ -287,5 +287,54 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('should be able to rearrange sequences', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const sequences = [
+            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
+            { id: 'eb342595680d42edbf05e8a953b70fc8', parentId: '944dd8656af44ab982598edb6ad41d58' },
+            { id: 'aa25ec634f474d87a5598b6a90d038ec', parentId: 'f1beccf9c40244e6ace2726d2afc476c' },
+            { id: '944dd8656af44ab982598edb6ad41d58', parentId: 'e4b79d717a684f589257ece332504b96' },
+            { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
+            { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
+            { id: 'c81366118ba64359895bb412602ef8a8', parentId: null },
+            { id: 'e4b79d717a684f589257ece332504b96', parentId: null },
+        ];
+
+        expect(wrapper.vm.rearrangeSequences(sequences)).toEqual([
+            { id: 'e4b79d717a684f589257ece332504b96', parentId: null },
+            { id: 'c81366118ba64359895bb412602ef8a8', parentId: null },
+            { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
+            { id: '944dd8656af44ab982598edb6ad41d58', parentId: 'e4b79d717a684f589257ece332504b96' },
+            { id: 'aa25ec634f474d87a5598b6a90d038ec', parentId: 'f1beccf9c40244e6ace2726d2afc476c' },
+            { id: 'eb342595680d42edbf05e8a953b70fc8', parentId: '944dd8656af44ab982598edb6ad41d58' },
+            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
+            { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
+        ]);
+    });
+
+    it('should be able to build sequence collection from config of flow template', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const sequences = [
+            { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
+            { id: 'd2b3a82c22284566b6a56fb47d577bfd', parentId: null },
+            { id: 'f1beccf9c40244e6ace2726d2afc476c', parentId: '900a915617054a5b8acbfda1a35831fa' },
+        ];
+
+        jest.spyOn(Shopware.Utils, 'createId')
+            .mockReturnValueOnce('900a915617054a5b8acbfda1a35831fa_new')
+            .mockReturnValueOnce('d2b3a82c22284566b6a56fb47d577bfd_new')
+            .mockReturnValueOnce('f1beccf9c40244e6ace2726d2afc476c_new');
+
+        expect(JSON.stringify(wrapper.vm.buildSequencesFromConfig(sequences))).toEqual(JSON.stringify(getSequencesCollection([
+            { id: 'd2b3a82c22284566b6a56fb47d577bfd_new', parentId: null },
+            { id: '900a915617054a5b8acbfda1a35831fa_new', parentId: 'd2b3a82c22284566b6a56fb47d577bfd_new' },
+            { id: 'f1beccf9c40244e6ace2726d2afc476c_new', parentId: '900a915617054a5b8acbfda1a35831fa_new' },
+        ])));
     });
 });

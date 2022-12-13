@@ -1,8 +1,10 @@
-import './page/sw-flow-list';
+import './page/sw-flow-index';
 import './page/sw-flow-detail';
 import './view/detail/sw-flow-detail-flow';
-import './component/sw-flow-sequence-modal';
 import './view/detail/sw-flow-detail-general';
+import './view/listing/sw-flow-list';
+import './view/listing/sw-flow-list-flow-templates';
+import './component/sw-flow-sequence-modal';
 import './component/sw-flow-trigger';
 import './component/sw-flow-sequence';
 import './component/sw-flow-sequence-action';
@@ -49,11 +51,32 @@ Module.register('sw-flow', {
 
     routes: {
         index: {
-            component: 'sw-flow-list',
+            component: 'sw-flow-index',
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
                 privilege: 'flow.viewer',
+            },
+            redirect: {
+                name: 'sw.flow.index.flows',
+            },
+            children: {
+                flows: {
+                    component: 'sw-flow-list',
+                    path: 'flows',
+                    meta: {
+                        parentPath: 'sw.flow.index',
+                        privilege: 'flow.viewer',
+                    },
+                },
+                templates: {
+                    component: 'sw-flow-list-flow-templates',
+                    path: 'templates',
+                    meta: {
+                        parentPath: 'sw.flow.index',
+                        privilege: 'flow.viewer',
+                    },
+                },
             },
         },
         detail: {

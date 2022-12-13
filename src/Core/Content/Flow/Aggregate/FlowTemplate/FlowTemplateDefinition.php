@@ -4,13 +4,15 @@ namespace Shopware\Core\Content\Flow\Aggregate\FlowTemplate;
 
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package business-ops
+ */
 class FlowTemplateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'flow_template';
@@ -32,7 +34,7 @@ class FlowTemplateDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.5.0.0';
+        return '6.4.18.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -40,7 +42,7 @@ class FlowTemplateDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name', 255))->addFlags(new Required()),
-            (new FlowTemplateConfigField('config', 'config'))->addFlags(new ApiAware()),
+            new FlowTemplateConfigField('config', 'config'),
         ]);
     }
 }

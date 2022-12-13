@@ -41,9 +41,6 @@ class FlowDefinition extends EntityDefinition
         return FlowEntity::class;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getDefaults(): array
     {
         return [

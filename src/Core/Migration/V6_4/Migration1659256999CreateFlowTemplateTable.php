@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class Migration1659256999CreateFlowTemplateTable extends MigrationStep

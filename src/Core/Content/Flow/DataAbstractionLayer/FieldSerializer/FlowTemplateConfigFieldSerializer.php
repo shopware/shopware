@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
@@ -33,30 +35,29 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         $value = $data->getValue();
-        if (!\array_key_exists('description', $value)) {
-            $value['description'] = null;
+
+        if (!\is_array($value)) {
+            yield $field->getStorageName() => null;
         }
 
-        if (\array_key_exists('sequences', $value)) {
-            foreach ($value['sequences'] as $index => $sequence) {
-                $value['sequences'][$index] = array_merge(
-                    [
-                        'parentId' => null,
-                        'ruleId' => null,
-                        'position' => 1,
-                        'displayGroup' => 1,
-                        'trueCase' => 0,
-                    ],
-                    $value['sequences'][$index]
-                );
-            }
-        }
+        $value = array_merge([
+            'description' => null,
+            'sequences' => [],
+        ], $value);
 
-        if ($value !== null) {
-            $value = JsonFieldSerializer::encodeJson($value);
-        }
+        $sequences = $value['sequences'];
 
-        yield $field->getStorageName() => $value;
+        $value['sequences'] = array_map(function ($item) {
+            return array_merge([
+                'parentId' => null,
+                'ruleId' => null,
+                'position' => 1,
+                'displayGroup' => 1,
+                'trueCase' => 0,
+            ], $item);
+        }, $sequences);
+
+        yield $field->getStorageName() => JsonFieldSerializer::encodeJson($value);
     }
 
     protected function getConstraints(Field $field): array

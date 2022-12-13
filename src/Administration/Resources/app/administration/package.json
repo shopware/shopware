@@ -188,10 +188,6 @@
     "webpack-hot-middleware": "2.25.1",
     "xml2js": "0.4.23"
   },
-  "engines": {
-    "node": "^18.0.0",
-    "npm": "^8.0.0"
-  },
   "browserslist": [
     "last 2 versions",
     "safari >= 7"

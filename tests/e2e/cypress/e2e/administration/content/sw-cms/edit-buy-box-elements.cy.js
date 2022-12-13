@@ -67,7 +67,10 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Replace current element with buy box element
         cy.get('.sw-cms-slot .sw-cms-slot__element-action').first().click();
         cy.get('.sw-cms-slot__element-selection').should('be.visible');
-        cy.get('.sw-cms-el-preview-buy-box').click();
+        cy.get('.sw-cms-el-preview-buy-box + .element-selection__overlay-action-select').first().invoke('show');
+        cy.get('.sw-cms-el-preview-buy-box + .element-selection__overlay-action-select').first().should('be.visible');
+        cy.get('.sw-cms-el-preview-buy-box + .element-selection__overlay-action-select').first().click();
+
 
         // Configure element product
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');

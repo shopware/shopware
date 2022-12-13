@@ -159,6 +159,9 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_overview_category_options %}
+                    <option value="favorite">
+                        {{ $tc('sw-cms.detail.label.blockCategoryFavorite') }}
+                    </option>
                     <option value="text">
                         {{ $tc('sw-cms.detail.label.blockCategoryText') }}
                     </option>
@@ -190,20 +193,55 @@
             <div
                 class="sw-cms-sidebar__block-selection"
             >
+                <sw-empty-state
+                    v-if="cmsBlocksBySelectedBlockCategory.length === 0 && currentBlockCategory === 'favorite'"
+                    icon="solid-heart"
+                    :absolute="false"
+                    :title="$tc('sw-cms.detail.title.blockFavoriteEmptyState')"
+                >
+                    {{ $tc('sw-cms.detail.label.blockFavoriteEmptyState') }}
+                </sw-empty-state>
                 <div
-                    v-for="block in cmsBlocks"
+                    v-for="block in cmsBlocksBySelectedBlockCategory"
                     :key="block.name"
+                    class="sw-cms-sidebar__block"
                 >
 
-                    <div
-                        v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }"
-                        class="sw-cms-sidebar__block-preview"
-                        :class="{ 'has--no-label': !block.label }"
-                    >
+                    <div class="sw-cms-sidebar__block-preview-with-actions">
+                        <div
+                            v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }"
+                            class="sw-cms-sidebar__block-preview"
+                            :class="{ 'has--no-label': !block.label }"
+                        >
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_sidebar_block_overview_preview_component %}
+                            <component :is="block.previewComponent" />
+                            {% endblock %}
+                        </div>
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_sidebar_block_overview_preview_component %}
-                        <component :is="block.previewComponent" />
+                        {% block sw_cms_sidebar_block_overview_preview_favorite_action %}
+                        <sw-button
+                            class="sw-cms-sidebar__block-favorite"
+                            size="small"
+                            square
+                            block
+                            @click="onToggleBlockFavorite(block.name)"
+                        >
+                            <sw-icon
+                                v-if="cmsBlockFavorites.isFavorite(block.name)"
+                                name="solid-heart"
+                                size="20"
+                                class="sw-cms-sidebar__icon-cms-block-favorite"
+                            />
+                            <sw-icon
+                                v-else
+                                name="regular-heart"
+                                size="20"
+                                class="sw-cms-sidebar__icon-cms-block-favorite"
+                            />
+                        </sw-button>
                         {% endblock %}
                     </div>
 

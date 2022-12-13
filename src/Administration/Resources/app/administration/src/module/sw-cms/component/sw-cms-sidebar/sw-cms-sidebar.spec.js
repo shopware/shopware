@@ -139,6 +139,11 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                     save: () => {}
                 })
             },
+            cmsBlockFavorites: {
+                isFavorite() {
+                    return false;
+                }
+            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return cmsBlockRegistry ?? {
@@ -431,18 +436,22 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = await createWrapper({
             cmsBlockRegistry: {
                 product_list_block: {
+                    name: 'product_list_block',
                     category: 'text',
                     hidden: false,
                 },
                 listing_block: {
+                    name: 'listing_block',
                     category: 'text',
                     hidden: false,
                 },
                 product_list_hidden_block: {
+                    name: 'product_list_hidden_block',
                     category: 'text',
                     hidden: true,
                 },
                 product_list_different_category: {
+                    name: 'product_list_different_category',
                     category: 'product',
                     hidden: false,
                 }
@@ -451,7 +460,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(Object.keys(wrapper.vm.cmsBlocks)).toStrictEqual(['product_list_block']);
+        expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map(block => block.name)).toStrictEqual(['product_list_block']);
     });
 
     it('should apply default data when dropping new elements', async () => {

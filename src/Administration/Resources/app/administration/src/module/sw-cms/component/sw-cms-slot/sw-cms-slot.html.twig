@@ -115,45 +115,86 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_element_modal_selection %}
-        <div class="sw-cms-slot__element-selection">
+        <div class="sw-cms-slot__modal-container">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_cms_slot_content_element_modal_selection_element %}
-            <template v-for="(element, index) in cmsElements">
-                <div
-                    v-if="!element.hidden && element.previewComponent"
-                    :key="index"
-                    class="element-selection__element-wrapper"
-                    @click="onSelectElement(element)"
-                    @keydown.enter="onSelectElement(element)"
-                >
-                    <div class="element-selection__element">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_slot_content_element_modal_selection_element_component %}
-                        <component
-                            :is="element.previewComponent"
-                            class="sw-cms-slot__element-preview"
-                            :element-data="element"
-                        />
-                        {% endblock %}
+            {% block sw_cms_slot_content_element_modal_selection_groups %}
+            <sw-sidebar-collapse
+                v-for="cmsElementGroup in groupedCmsElements"
+                :key="cmsElementGroup.title"
+                expand-on-loading
+                expand-chevron-direction="up"
+            >
+                <template #header>
+                    {{ $tc(cmsElementGroup.title) }}
+                </template>
 
+                <template #content>
+                    <div class="sw-cms-slot__element-selection">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
-                        <div class="element-selection__overlay">
-                            <sw-icon
-                                name="regular-repeat"
-                                size="28"
-                            />
-                        </div>
+                        {% block sw_cms_slot_content_element_modal_selection_element %}
+                        <template
+                            v-for="element in cmsElementGroup.items"
+                            class="element-selection__element-wrapper"
+                        >
+                            <div
+                                v-if="!element.hidden && element.previewComponent"
+                                :key="element.name"
+                            >
+                                <div class="element-selection__element">
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_slot_content_element_modal_selection_element_component %}
+                                    <component
+                                        :is="element.previewComponent"
+                                        class="sw-cms-slot__element-preview"
+                                        :element-data="element"
+                                    />
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
+                                    <div
+                                        class="element-selection__overlay element-selection__overlay-action-select"
+                                        @click="onSelectElement(element)"
+                                        @keydown.enter="onSelectElement(element)"
+                                    >
+                                        <sw-icon
+                                            name="regular-repeat"
+                                            size="28"
+                                        />
+                                    </div>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_slot_content_element_modal_selection_element_overlay_favorite %}
+                                    <div
+                                        class="element-selection__overlay element-selection__overlay-action-favorite"
+                                        @click="onToggleElementFavorite(element.name)"
+                                        @keydown.enter="onToggleElementFavorite(element.name)"
+                                    >
+                                        <sw-icon
+                                            v-if="cmsElementFavorites.isFavorite(element.name)"
+                                            name="solid-heart"
+                                            size="28"
+                                        />
+                                        <sw-icon
+                                            v-else
+                                            name="regular-heart"
+                                            size="28"
+                                        />
+                                    </div>
+                                {% endblock %}
+                                </div>
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_cms_slot_content_element_modal_selection_element_label %}
+                                <span class="element-selection__label">{{ $tc(element.label) }}</span>
+                            {% endblock %}
+                            </div>
+                        </template>
                         {% endblock %}
                     </div>
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_slot_content_element_modal_selection_element_label %}
-                    <span class="element-selection__label">{{ $tc(element.label) }}</span>
-
-                    {% endblock %}
-                </div>
-            </template>
+                </template>
+            </sw-sidebar-collapse>
             {% endblock %}
         </div>
         {% endblock %}

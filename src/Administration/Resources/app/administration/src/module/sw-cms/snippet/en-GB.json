@@ -92,6 +92,7 @@
         "pageTypeProduct": "Product page",
         "demoEntity": "Preview entity",
         "blockCategorySelection": "Block category",
+        "blockCategoryFavorite": "Favourites",
         "blockCategoryText": "Text",
         "blockCategoryTextImage": "Text & images",
         "blockCategorySidebar": "Sidebar",
@@ -132,10 +133,11 @@
         "lockedNotification": "This is a locked default layout you may use for your content from the get-go. Note that you cannot edit this template! If you want to adapt the layout to your needs, just duplicate the layout and alter the duplicate.",
         "headlineEmptyState": "Space for creativity",
         "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
-        "defaultLayout": "Default layout"
+        "defaultLayout": "Default layout",
+        "blockFavoriteEmptyState": "Click the heart-shaped symbol next to a block to mark them as favourites and conveniently collect them in one place."
       },
       "notification": {
-        "pageInvalid": "Errors occured. Please check the error list in the editor.",
+        "pageInvalid": "Errors occurred. Please check the error list in the editor.",
         "errorCollectionText": "Page could not be saved, because of the following errors:",
         "warningCollectionText": "The following, recommended elements are missing in  this layout:",
         "messageMissingFields": "Some required fields were not filled in.",
@@ -166,7 +168,8 @@
       },
       "title": {
         "elementSettingsModal": "Element settings",
-        "elementChangeModal": "Replace element"
+        "elementChangeModal": "Replace element",
+        "blockFavoriteEmptyState": "No favourite blocks yet"
       },
       "tooltip": {
         "blockNameField": "Name each block individually to keep track of your work.",
@@ -207,6 +210,12 @@
           },
           "infoText": {
             "listingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
+          }
+        },
+        "switch": {
+          "groups": {
+            "all": "All elements",
+            "favorites": "Favourite elements"
           }
         }
       },

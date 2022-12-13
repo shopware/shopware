@@ -20,6 +20,7 @@ export default {
         'cmsService',
         'repositoryFactory',
         'feature',
+        'cmsBlockFavorites',
     ],
 
     mixins: [
@@ -75,9 +76,7 @@ export default {
             const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
 
             const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
-                return block.category === this.currentBlockCategory &&
-                    block.hidden !== true &&
-                    this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+                return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
             });
 
             return Object.fromEntries(blocks);
@@ -161,10 +160,30 @@ export default {
             return false;
         },
 
+        cmsBlocksBySelectedBlockCategory() {
+            const result = Object.values(this.cmsBlocks).filter(b => b.hidden !== true);
+
+            if (this.currentBlockCategory === 'favorite') {
+                return result.filter(b => this.cmsBlockFavorites.isFavorite(b.name));
+            }
+
+            return result.filter(b => b.category === this.currentBlockCategory);
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
+                this.currentBlockCategory = 'favorite';
+            }
+        },
+
         onPageTypeChange(pageType) {
             this.$emit('page-type-change', pageType);
         },
@@ -518,6 +537,10 @@ export default {
             section.backgroundMedia = mediaItem;
 
             this.pageUpdate();
+        },
+
+        onToggleBlockFavorite(blockName) {
+            this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
         },
 
         successfulUpload(media, section) {

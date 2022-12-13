@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class TestFlowBusinessEvent extends Event implements FlowEventAware
 {
-    public const EVENT_NAME = 'test.business_event';
+    public const EVENT_NAME = 'test.flow_event';
 
     /**
      * @var string

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -35,8 +34,6 @@ class ChangeCustomerGroupActionTest extends TestCase
 
     private EntityRepository $flowRepository;
 
-    private Connection $connection;
-
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
@@ -47,8 +44,6 @@ class ChangeCustomerGroupActionTest extends TestCase
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->ids = new TestDataCollection();
@@ -58,9 +53,6 @@ class ChangeCustomerGroupActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testChangeCustomerGroupAction(): void

@@ -15,6 +15,7 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
 {
     public function testNoSalesChannelIsAssignedForCustomerRecoveryEventAsDefault(): void
     {
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
         $connection = KernelLifecycleManager::getConnection();
 
         $migration = new Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent();

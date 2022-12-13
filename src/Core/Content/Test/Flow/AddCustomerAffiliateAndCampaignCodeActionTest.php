@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -26,13 +25,9 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 
     private EntityRepository $flowRepository;
 
-    private Connection $connection;
-
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
@@ -43,9 +38,6 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**

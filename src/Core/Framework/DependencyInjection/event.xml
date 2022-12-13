@@ -6,10 +6,6 @@
 
     <services>
 
-        <service id="Shopware\Core\Framework\Event\EventAction\EventActionDefinition">
-            <tag name="shopware.entity.definition" entity="event_action" />
-        </service>
-
         <service id="Shopware\Core\Framework\Event\BusinessEventRegistry" public="true">
         </service>
 
@@ -27,14 +23,6 @@
         <service id="Shopware\Core\Framework\Event\Command\DebugDumpBusinessEventsCommand">
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition">
-            <tag name="shopware.entity.definition" entity="event_action_rule"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="event_action_sales_channel"/>
         </service>
     </services>
 </container>

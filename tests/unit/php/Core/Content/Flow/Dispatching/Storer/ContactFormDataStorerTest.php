@@ -8,9 +8,9 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Test\Event\TestFlowEventEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
@@ -39,7 +39,7 @@ class ContactFormDataStorerTest extends TestCase
 
     public function testStoreNotAware(): void
     {
-        $event = $this->createMock(TestFlowEventEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ContactFormDataAware::CONTACT_FORM_DATA, $stored);

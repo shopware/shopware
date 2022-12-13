@@ -12291,41 +12291,6 @@ parameters:
 			path: src/Core/Framework/Event/Annotation/Event.php
 
 		-
-			message: "#^PHPDoc tag @var for variable \\$interfaces has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDefinition\\:\\:__construct\\(\\) has parameter \\$aware with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDefinition\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDefinition\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDefinition\\:\\:setData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventDefinition.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDefinition\\:\\:\\$aware type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventDefinition.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDefinition\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventDefinition.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventRegistry\\:\\:addClasses\\(\\) has parameter \\$classes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/BusinessEventRegistry.php
@@ -12356,61 +12321,6 @@ parameters:
 			path: src/Core/Framework/Event/DataMappingEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\\:\\:getCustomFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\\:\\:setConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\\:\\:setCustomFields\\(\\) has parameter \\$customFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\ArrayType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/ArrayType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EntityCollectionType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/EntityCollectionType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EntityType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/EntityType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EventDataCollection\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/EventDataCollection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EventDataCollection\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/EventDataCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\EventDataType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/EventDataType.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\MailRecipientStruct\\:\\:__construct\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/EventData/MailRecipientStruct.php
@@ -12431,19 +12341,9 @@ parameters:
 			path: src/Core/Framework/Event/EventData/MailRecipientStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\ObjectType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/ObjectType.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\ObjectType\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/EventData/ObjectType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\ScalarValueType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/ScalarValueType.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowLogEvent\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -12519,11 +12419,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Log\\\\LogAware\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Log/LogAware.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Log\\\\LogAwareBusinessEventInterface\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Log/LogAwareBusinessEventInterface.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Log\\\\Monolog\\\\ExcludeExceptionHandler\\:\\:__construct\\(\\) has parameter \\$excludeExceptionList with no value type specified in iterable type array\\.$#"
@@ -17359,11 +17254,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\EntityBusinessEvent\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/EntityBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\InvalidEventType\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/InvalidEventType.php
 
 		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"

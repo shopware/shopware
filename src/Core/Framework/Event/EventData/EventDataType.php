@@ -4,5 +4,8 @@ namespace Shopware\Core\Framework\Event\EventData;
 
 interface EventDataType
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array;
 }

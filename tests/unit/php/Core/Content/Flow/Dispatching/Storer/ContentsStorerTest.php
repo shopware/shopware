@@ -8,7 +8,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ContentsStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Framework\Test\Event\TestFlowEventEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 
 /**
  * @package business-ops
@@ -36,7 +36,7 @@ class ContentsStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestFlowEventEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ContentsAware::CONTENTS, $stored);

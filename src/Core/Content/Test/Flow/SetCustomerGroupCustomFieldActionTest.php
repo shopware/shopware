@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -28,13 +27,9 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
     private EntityRepository $flowRepository;
 
-    private Connection $connection;
-
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
@@ -43,9 +38,6 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     /**

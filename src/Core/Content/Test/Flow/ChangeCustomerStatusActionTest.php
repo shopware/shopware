@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -33,8 +32,6 @@ class ChangeCustomerStatusActionTest extends TestCase
 
     private EntityRepository $flowRepository;
 
-    private Connection $connection;
-
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
@@ -45,8 +42,6 @@ class ChangeCustomerStatusActionTest extends TestCase
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->ids = new TestDataCollection();
@@ -56,9 +51,6 @@ class ChangeCustomerStatusActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testChangeCustomerStatusAction(): void

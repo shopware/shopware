@@ -82,7 +82,7 @@ class PluginEntity extends Entity
     protected $upgradedAt;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -114,7 +114,7 @@ class PluginEntity extends Entity
     protected $supportLink;
 
     /**
-     * @var array|null
+     * @var array<string, list<string>>|null
      */
     protected $changelog;
 
@@ -129,7 +129,7 @@ class PluginEntity extends Entity
     protected $paymentMethods;
 
     /**
-     * @var array
+     * @var array<string, array<string, list<string>|string>>
      */
     protected $autoload;
 
@@ -264,7 +264,7 @@ class PluginEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getIconRaw(): ?string
     {
@@ -274,7 +274,7 @@ class PluginEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setIconRaw(string $iconRaw): void
     {
@@ -331,11 +331,17 @@ class PluginEntity extends Entity
         $this->supportLink = $supportLink;
     }
 
+    /**
+     * @return array<string, list<string>>|null
+     */
     public function getChangelog(): ?array
     {
         return $this->changelog;
     }
 
+    /**
+     * @param array<string, list<string>> $changelog
+     */
     public function setChangelog(array $changelog): void
     {
         $this->changelog = $changelog;
@@ -361,11 +367,17 @@ class PluginEntity extends Entity
         $this->paymentMethods = $paymentMethods;
     }
 
+    /**
+     * @return array<string, array<string, list<string>|string>>
+     */
     public function getAutoload(): array
     {
         return $this->autoload;
     }
 
+    /**
+     * @param array<string, array<string, list<string>|string>> $autoload
+     */
     public function setAutoload(array $autoload): void
     {
         $this->autoload = $autoload;

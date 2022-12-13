@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,46 +40,10 @@ class AclAnnotationValidatorTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.5.0 - _acl is not a object anymore
      * @dataProvider annotationProvider
-     */
-    public function testValidateRequest(array $privileges, array $acl, bool $pass): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $source = new AdminApiSource(null, null);
-        $source->setPermissions($privileges);
-
-        $context = new Context(
-            $source,
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM]
-        );
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ACL, new Acl(['value' => $acl]));
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-
-        $kernel = $this->createMock(Kernel::class);
-
-        $exception = null;
-
-        try {
-            $this->validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
-        } catch (\Exception $e) {
-            $exception = $e;
-        }
-
-        if ($pass) {
-            static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
-        } else {
-            static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
-        }
-    }
-
-    /**
-     * @dataProvider annotationProvider
+     *
+     * @param list<string> $privileges
+     * @param list<string> $acl
      */
     public function testValidateRequestAsRouteAttribute(array $privileges, array $acl, bool $pass): void
     {
@@ -114,44 +76,6 @@ class AclAnnotationValidatorTest extends TestCase
         } else {
             static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
         }
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - _acl is not a object anymore
-     */
-    public function testValidateAppRequestDeprecated(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $actionId = Uuid::randomHex();
-        $appName = 'AppSuccess';
-        $this->registerActionButton($appName, $actionId);
-
-        $source = new AdminApiSource(null, null);
-        $source->setPermissions(['app.' . $appName]);
-        $context = new Context(
-            $source,
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM]
-        );
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ACL, new Acl(['value' => ['app']]));
-        $request->attributes->set('id', $actionId);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-
-        $kernel = $this->createMock(Kernel::class);
-
-        $exception = null;
-
-        try {
-            $this->validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
-        } catch (\Exception $e) {
-            $exception = $e;
-        }
-
-        static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
     public function testValidateAppRequest(): void
@@ -187,44 +111,6 @@ class AclAnnotationValidatorTest extends TestCase
         static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - _acl is not a object anymore
-     */
-    public function testValidateAppRequestFailDeprecated(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $actionId = Uuid::randomHex();
-        $appName = 'AppFail';
-        $this->registerActionButton($appName, $actionId);
-
-        $source = new AdminApiSource(null, null);
-        $source->setPermissions(['app.fail']);
-        $context = new Context(
-            $source,
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM]
-        );
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ACL, new Acl(['value' => ['app']]));
-        $request->attributes->set('id', $actionId);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
-
-        $kernel = $this->createMock(Kernel::class);
-
-        $exception = null;
-
-        try {
-            $this->validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
-        } catch (\Exception $e) {
-            $exception = $e;
-        }
-
-        static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
-    }
-
     public function testValidateAppRequestFail(): void
     {
         $actionId = Uuid::randomHex();
@@ -258,7 +144,10 @@ class AclAnnotationValidatorTest extends TestCase
         static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
-    public function annotationProvider(): iterable
+    /**
+     * @return list<array{0: list<string>, 1: list<string>, 2: bool}>
+     */
+    public function annotationProvider(): array
     {
         return [
             [
@@ -292,7 +181,7 @@ class AclAnnotationValidatorTest extends TestCase
         ];
     }
 
-    private function registerActionButton($appName, $actionId): void
+    private function registerActionButton(string $appName, string $actionId): void
     {
         $this->appRepository->create([[
             'name' => $appName,

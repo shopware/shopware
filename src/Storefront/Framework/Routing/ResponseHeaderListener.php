@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class ResponseHeaderListener implements EventSubscriberInterface
 {
@@ -26,14 +25,6 @@ class ResponseHeaderListener implements EventSubscriberInterface
     ];
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed, use onResponse() instead
-     */
-    public function __invoke(ResponseEvent $event): void
-    {
-        $this->onResponse($event);
-    }
-
-    /**
      * @return array<string, array{0: string, 1: int}>
      */
     public static function getSubscribedEvents(): array
@@ -46,12 +37,8 @@ class ResponseHeaderListener implements EventSubscriberInterface
     public function onResponse(ResponseEvent $event): void
     {
         $response = $event->getResponse();
-        /** @var RouteScope|list<string> $scopes */
+        /** @var list<string> $scopes */
         $scopes = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if ($scopes instanceof RouteScope) {
-            $scopes = $scopes->getScopes();
-        }
 
         if (!\in_array(StorefrontRouteScope::ID, $scopes, true) && !$response instanceof StorefrontResponse) {
             return;

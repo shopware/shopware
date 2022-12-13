@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
 /**
@@ -135,34 +134,10 @@ class MigrationCollection
      */
     private function getMigrationData(string $className, MigrationStep $migrationStep): array
     {
-        $default = [
+        return [
             'class' => $className,
             'creation_timestamp' => $migrationStep->getCreationTimestamp(),
         ];
-
-        /** @var array{class: class-string<MigrationStep>, creation_timestamp: int, update?: string, update_destructive?: string, message?: string} $default */
-        Feature::callSilentIfInactive('v6.6.0.0', function () use ($className, &$default): void {
-            $oldName = $this->migrationSource->mapToOldName($className);
-            if ($oldName === null) {
-                return;
-            }
-
-            /** @var false|array{class: class-string<MigrationStep>, creation_timestamp: int, update: string, update_destructive: string, message: string} $row */
-            $row = $this->connection->fetchAssociative(
-                'SELECT * FROM migration WHERE class = :class',
-                ['class' => $oldName]
-            );
-
-            if ($row === false) {
-                return;
-            }
-
-            $row['class'] = $className;
-
-            $default = $row;
-        });
-
-        return $default;
     }
 
     private function ensureStepsLoaded(): void

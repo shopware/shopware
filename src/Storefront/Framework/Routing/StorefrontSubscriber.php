@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
@@ -284,11 +283,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|list<string> $scope */
+        /** @var list<string> $scope */
         $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        if ($scope instanceof RouteScope) {
-            $scope = $scope->getScopes();
-        }
 
         if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;

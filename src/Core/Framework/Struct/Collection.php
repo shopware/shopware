@@ -199,12 +199,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will be changed to \Traversable
-     *
      * @return \Generator<TElement>
      */
-    #[\ReturnTypeWillChange]
-    public function getIterator(): \Generator/* :\Traversable */
+    public function getIterator(): \Traversable
     {
         yield from $this->elements;
     }

@@ -25,9 +25,6 @@ All blocks of this template are available in the template which renders this tem
                 {% else %}
                     {% set notSpecified = billingAddress.salutation.salutationKey is same as('not_specified') %}
 
-                    {# @deprecated tag:v6.5.0 - Will be removed #}
-                    {% block document_recipient_sender %}{% endblock %}
-
                     {% if billingAddress.company %}
                         {{ billingAddress.company }}<br>
                     {% endif %}

@@ -4,34 +4,27 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package core
+ *
+ * @implements \ArrayAccess<string, mixed>
  */
 class ArrayEntity extends Entity implements \ArrayAccess
 {
-    /**
-     * @var array
-     */
-    protected $data;
+    protected ?string $_entityName = 'array-entity';
 
     /**
-     * @var string|null
+     * @param array<string, mixed> $data
      */
-    protected $_entityName = 'array-entity';
-
-    public function __construct(array $data = [])
+    public function __construct(protected array $data = [])
     {
-        $this->data = $data;
     }
 
     /**
      * @param string $name
-     *
-     * @return string|int|float|bool|array|object|null
      */
-    public function __get($name)
+    public function __get($name): mixed
     {
         if (FieldVisibility::$isInTwigRenderingContext) {
             $this->checkIfPropertyAccessIsAllowed($name);
@@ -42,19 +35,16 @@ class ArrayEntity extends Entity implements \ArrayAccess
 
     /**
      * @param string $name
-     * @param string|int|float|bool|array|object|null $value
      */
-    public function __set($name, $value): void
+    public function __set($name, mixed $value): void
     {
         $this->data[$name] = $value;
     }
 
     /**
      * @param string $name
-     *
-     * @return bool
      */
-    public function __isset($name)
+    public function __isset($name): bool
     {
         if (FieldVisibility::$isInTwigRenderingContext && !$this->isPropertyVisible($name)) {
             return false;
@@ -83,10 +73,9 @@ class ArrayEntity extends Entity implements \ArrayAccess
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to bool
+     * @param string $offset
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         if (FieldVisibility::$isInTwigRenderingContext && !$this->isPropertyVisible($offset)) {
             return false;
@@ -96,10 +85,9 @@ class ArrayEntity extends Entity implements \ArrayAccess
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to mixed
+     * @param string $offset
      */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         if (FieldVisibility::$isInTwigRenderingContext) {
             $this->checkIfPropertyAccessIsAllowed($offset);
@@ -108,26 +96,38 @@ class ArrayEntity extends Entity implements \ArrayAccess
         return $this->data[$offset] ?? null;
     }
 
-    public function offsetSet($offset, $value): void
+    /**
+     * @param string $offset
+     */
+    public function offsetSet($offset, mixed $value): void
     {
         $this->data[$offset] = $value;
     }
 
+    /**
+     * @param string $offset
+     */
     public function offsetUnset($offset): void
     {
         unset($this->data[$offset]);
     }
 
-    public function get(string $key)
+    public function get(string $key): mixed
     {
         return $this->offsetGet($key);
     }
 
-    public function set($key, $value)
+    /**
+     * @param string $key
+     */
+    public function set($key, mixed $value): mixed
     {
         return $this->data[$key] = $value;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function assign(array $options)
     {
         $this->data = array_replace_recursive($this->data, $options);
@@ -139,27 +139,30 @@ class ArrayEntity extends Entity implements \ArrayAccess
         return $this;
     }
 
-    public function all()
+    /**
+     * @return array<string, mixed>
+     */
+    public function all(): array
     {
         return $this->data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getVars(): array
     {
         $vars = parent::getVars();
 
-        if (Feature::isActive('v6.5.0.0')) {
-            unset($vars['data']);
-        }
+        unset($vars['data']);
 
         return array_merge($vars, $this->data);
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to mixed
+     * @return array<string, mixed>
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array/* :mixed */
+    public function jsonSerialize(): array
     {
         $jsonArray = parent::jsonSerialize();
 

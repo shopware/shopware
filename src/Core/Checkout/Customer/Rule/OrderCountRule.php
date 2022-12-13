@@ -14,14 +14,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class OrderCountRule extends Rule
 {
+    public const RULE_NAME = 'customerOrderCount';
+
     protected string $operator;
 
     protected int $count;
-
-    public function getName(): string
-    {
-        return 'customerOrderCount';
-    }
 
     public function match(RuleScope $scope): bool
     {

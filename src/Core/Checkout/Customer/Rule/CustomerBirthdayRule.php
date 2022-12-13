@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerBirthdayRule extends Rule
 {
+    public const RULE_NAME = 'customerBirthday';
+
     protected ?string $birthday;
 
     protected string $operator;
@@ -27,11 +29,6 @@ class CustomerBirthdayRule extends Rule
         parent::__construct();
         $this->operator = $operator;
         $this->birthday = $birthday;
-    }
-
-    public function getName(): string
-    {
-        return 'customerBirthday';
     }
 
     public function getConstraints(): array

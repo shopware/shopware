@@ -13,8 +13,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemPropertyRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemProperty';
+
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $identifiers;
 
@@ -30,11 +32,6 @@ class LineItemPropertyRule extends Rule
         parent::__construct();
         $this->identifiers = $identifiers;
         $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemProperty';
     }
 
     public function match(RuleScope $scope): bool
@@ -68,6 +65,8 @@ class LineItemPropertyRule extends Rule
     {
         $properties = $lineItem->getPayloadValue('propertyIds') ?? [];
         $options = $lineItem->getPayloadValue('optionIds') ?? [];
+
+        /** @var list<string> $ids */
         $ids = array_merge($properties, $options);
 
         return RuleComparison::uuids($ids, $this->identifiers, $this->operator);

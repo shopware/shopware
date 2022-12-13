@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class AndRule extends Container
 {
+    public const RULE_NAME = 'andContainer';
+
     public function match(RuleScope $scope): bool
     {
         foreach ($this->rules as $rule) {
@@ -21,10 +23,5 @@ class AndRule extends Container
         }
 
         return true;
-    }
-
-    public function getName(): string
-    {
-        return 'andContainer';
     }
 }

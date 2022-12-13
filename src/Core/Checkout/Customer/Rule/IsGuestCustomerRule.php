@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsGuestCustomerRule extends Rule
 {
+    public const RULE_NAME = 'customerIsGuest';
+
     protected bool $isGuest;
 
     /**
@@ -46,11 +48,6 @@ class IsGuestCustomerRule extends Rule
         return [
             'isGuest' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsGuest';
     }
 
     public function getConfig(): RuleConfig

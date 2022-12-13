@@ -15,14 +15,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class DaysSinceLastLoginRule extends Rule
 {
+    public const RULE_NAME = 'customerDaysSinceLastLogin';
+
     protected string $operator = Rule::OPERATOR_EQ;
 
     protected ?int $daysPassed = null;
-
-    public function getName(): string
-    {
-        return 'customerDaysSinceLastLogin';
-    }
 
     public function match(RuleScope $scope): bool
     {

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class XorRule extends Container
 {
+    public const RULE_NAME = 'xorContainer';
+
     public function match(RuleScope $scope): bool
     {
         $matches = 0;
@@ -23,10 +25,5 @@ class XorRule extends Container
         }
 
         return $matches === 1;
-    }
-
-    public function getName(): string
-    {
-        return 'xorContainer';
     }
 }

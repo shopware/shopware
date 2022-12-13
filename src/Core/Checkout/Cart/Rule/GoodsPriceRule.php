@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class GoodsPriceRule extends FilterRule
 {
+    public const RULE_NAME = 'cartGoodsPrice';
+
     protected float $amount;
 
     protected string $operator;
@@ -60,10 +62,5 @@ class GoodsPriceRule extends FilterRule
             'amount' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartGoodsPrice';
     }
 }

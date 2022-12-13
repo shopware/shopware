@@ -153,7 +153,7 @@ class CustomerEntity extends Entity
     protected ?TagCollection $tags = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $tagIds = null;
 
@@ -694,7 +694,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getTagIds(): ?array
     {
@@ -702,7 +702,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @param array<string> $tagIds
+     * @param list<string> $tagIds
      */
     public function setTagIds(array $tagIds): void
     {

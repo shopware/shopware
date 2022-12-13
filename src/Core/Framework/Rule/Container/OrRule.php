@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class OrRule extends Container
 {
+    public const RULE_NAME = 'orContainer';
+
     public function match(RuleScope $scope): bool
     {
         foreach ($this->rules as $rule) {
@@ -19,10 +21,5 @@ class OrRule extends Container
         }
 
         return false;
-    }
-
-    public function getName(): string
-    {
-        return 'orContainer';
     }
 }

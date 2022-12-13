@@ -23,7 +23,7 @@ class SalesChannelRuleTest extends TestCase
     /**
      * @dataProvider provideTestData
      *
-     * @param string[] $salesChannelIds
+     * @param list<string> $salesChannelIds
      */
     public function testMatchesWithCorrectSalesChannel(string $operator, string $currentSalesChannel, ?array $salesChannelIds, bool $expected): void
     {

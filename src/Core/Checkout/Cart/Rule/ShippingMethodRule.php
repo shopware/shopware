@@ -14,8 +14,10 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class ShippingMethodRule extends Rule
 {
+    public const RULE_NAME = 'shippingMethod';
+
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $shippingMethodIds;
 
@@ -32,11 +34,6 @@ class ShippingMethodRule extends Rule
             'shippingMethodIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'shippingMethod';
     }
 
     public function getConfig(): RuleConfig

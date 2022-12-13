@@ -15,8 +15,10 @@ use Shopware\Core\System\Country\CountryDefinition;
  */
 class BillingCountryRule extends Rule
 {
+    public const RULE_NAME = 'customerBillingCountry';
+
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $countryIds;
 
@@ -25,7 +27,7 @@ class BillingCountryRule extends Rule
     /**
      * @internal
      *
-     * @param array<string>|null $countryIds
+     * @param list<string>|null $countryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
@@ -76,11 +78,6 @@ class BillingCountryRule extends Rule
         $constraints['countryIds'] = RuleConstraints::uuids();
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerBillingCountry';
     }
 
     public function getConfig(): RuleConfig

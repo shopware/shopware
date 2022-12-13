@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemActualStockRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemActualStock';
+
     protected ?int $stock;
 
     protected string $operator;
@@ -29,11 +31,6 @@ class LineItemActualStockRule extends Rule
 
         $this->operator = $operator;
         $this->stock = $stock;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemActualStock';
     }
 
     public function match(RuleScope $scope): bool

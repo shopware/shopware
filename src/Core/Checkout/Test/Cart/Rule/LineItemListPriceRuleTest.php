@@ -404,9 +404,13 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertInstanceOf(LineItem::class, $lineItem);
         $scope = new LineItemScope($lineItem, $context);
         foreach ($rules as $rule) {
-            // test combination with currency rule to validate currency list prices
+            // test combination with currency rule to validate currency list prices+
+
+            /** @var list<string> $currencyIds */
+            $currencyIds = array_values($ids->getList(['currency']));
+
             $wrapper = new AndRule([
-                new CurrencyRule(CurrencyRule::OPERATOR_EQ, $ids->getList(['currency'])),
+                new CurrencyRule(CurrencyRule::OPERATOR_EQ, $currencyIds),
                 $rule,
             ]);
 

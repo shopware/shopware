@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsCompanyRule extends Rule
 {
+    public const RULE_NAME = 'customerIsCompany';
+
     /**
      * @var bool
      */
@@ -49,11 +51,6 @@ class IsCompanyRule extends Rule
         return [
             'isCompany' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsCompany';
     }
 
     public function getConfig(): RuleConfig

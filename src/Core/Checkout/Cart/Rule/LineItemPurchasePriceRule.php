@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemPurchasePriceRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemPurchasePrice';
+
     protected ?float $amount;
 
     protected string $operator;
@@ -31,11 +33,6 @@ class LineItemPurchasePriceRule extends Rule
         $this->isNet = $isNet;
         $this->operator = $operator;
         $this->amount = $amount;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemPurchasePrice';
     }
 
     public function match(RuleScope $scope): bool

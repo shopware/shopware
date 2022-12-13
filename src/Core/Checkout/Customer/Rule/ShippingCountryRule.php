@@ -16,20 +16,19 @@ use Shopware\Core\System\Country\CountryDefinition;
  */
 class ShippingCountryRule extends Rule
 {
-    /**
-     * @var array<string>|null
-     */
-    protected $countryIds;
+    public const RULE_NAME = 'customerShippingCountry';
 
     /**
-     * @var string
+     * @var list<string>|null
      */
-    protected $operator;
+    protected ?array $countryIds;
+
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param array<string>|null $countryIds
+     * @param list<string>|null $countryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
@@ -73,11 +72,6 @@ class ShippingCountryRule extends Rule
         $constraints['countryIds'] = RuleConstraints::uuids();
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerShippingCountry';
     }
 
     public function getConfig(): RuleConfig

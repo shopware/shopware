@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemIsNewRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemIsNew';
+
     protected bool $isNew;
 
     /**
@@ -24,11 +26,6 @@ class LineItemIsNewRule extends Rule
         parent::__construct();
 
         $this->isNew = $isNew;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemIsNew';
     }
 
     /**

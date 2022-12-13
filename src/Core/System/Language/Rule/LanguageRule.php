@@ -16,8 +16,10 @@ use Shopware\Core\System\Language\LanguageDefinition;
  */
 class LanguageRule extends Rule
 {
+    public const RULE_NAME = 'language';
+
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $languageIds;
 
@@ -26,7 +28,7 @@ class LanguageRule extends Rule
     /**
      * @internal
      *
-     * @param array<string>|null $languageIds
+     * @param list<string>|null $languageIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $languageIds = null)
     {
@@ -54,11 +56,6 @@ class LanguageRule extends Rule
             'operator' => RuleConstraints::uuidOperators(false),
             'languageIds' => RuleConstraints::uuids(),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'language';
     }
 
     public function getConfig(): RuleConfig

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PromotionLineItemRule extends Rule
 {
+    public const RULE_NAME = 'promotionLineItem';
+
     /**
      * @var list<string>|null
      */
@@ -81,11 +83,6 @@ class PromotionLineItemRule extends Rule
             'identifiers' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'promotionLineItem';
     }
 
     public function getConfig(): RuleConfig

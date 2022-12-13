@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class EmailRule extends Rule
 {
-    private const NAME = 'customerEmail';
+    public const RULE_NAME = 'customerEmail';
 
     protected ?string $email;
 
@@ -56,11 +56,6 @@ class EmailRule extends Rule
             'operator' => RuleConstraints::stringOperators(false),
             'email' => RuleConstraints::string(),
         ];
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getConfig(): RuleConfig

@@ -13,19 +13,19 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItem';
+
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $identifiers;
 
     protected string $operator;
 
     /**
-     * @param list<string> $identifiers
+     * @param list<string>|null $identifiers
      *
      * @internal
-     *
-     * @param array<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -55,7 +55,7 @@ class LineItemRule extends Rule
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getIdentifiers(): ?array
     {
@@ -68,11 +68,6 @@ class LineItemRule extends Rule
             'identifiers' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItem';
     }
 
     private function lineItemMatches(LineItem $lineItem): bool

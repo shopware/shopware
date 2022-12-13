@@ -17,16 +17,20 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class CustomerCustomFieldRule extends Rule
 {
+    public const RULE_NAME = 'customerCustomField';
+
     protected string $operator;
 
+    /**
+     * @var array<string, string>
+     */
     protected array $renderedField;
 
-    /**
-     * @var string|int|float|bool|null
-     */
-    protected $renderedFieldValue;
+    protected string|int|bool|null|float $renderedFieldValue;
 
     /**
+     * @param array<string, string> $renderedField
+     *
      * @internal
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
@@ -35,11 +39,6 @@ class CustomerCustomFieldRule extends Rule
 
         $this->operator = $operator;
         $this->renderedField = $renderedField;
-    }
-
-    public function getName(): string
-    {
-        return 'customerCustomField';
     }
 
     /**
@@ -137,9 +136,10 @@ class CustomerCustomFieldRule extends Rule
     }
 
     /**
-     * @return string|int|float|bool|null
+     * @param array<string, mixed> $customFields
+     * @param array<string, string> $renderedField
      */
-    private function getValue(array $customFields, array $renderedField)
+    private function getValue(array $customFields, array $renderedField): float|bool|int|string|null
     {
         if ($this->isSwitchOrBoolField($renderedField)) {
             if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
@@ -158,10 +158,9 @@ class CustomerCustomFieldRule extends Rule
 
     /**
      * @param string|int|float|bool|null $renderedFieldValue
-     *
-     * @return string|int|float|bool|null
+     * @param array<string, string> $renderedField
      */
-    private function getExpectedValue($renderedFieldValue, array $renderedField)
+    private function getExpectedValue($renderedFieldValue, array $renderedField): float|bool|int|string|null
     {
         if ($this->isSwitchOrBoolField($renderedField) && \is_string($renderedFieldValue)) {
             return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);

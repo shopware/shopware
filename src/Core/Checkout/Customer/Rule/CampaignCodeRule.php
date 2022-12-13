@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CampaignCodeRule extends Rule
 {
+    public const RULE_NAME = 'customerCampaignCode';
+
     protected string $operator;
 
     protected ?string $campaignCode = null;
@@ -28,11 +30,6 @@ class CampaignCodeRule extends Rule
 
         $this->operator = $operator;
         $this->campaignCode = $campaignCode;
-    }
-
-    public function getName(): string
-    {
-        return 'customerCampaignCode';
     }
 
     public function match(RuleScope $scope): bool

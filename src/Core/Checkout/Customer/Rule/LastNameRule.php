@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LastNameRule extends Rule
 {
+    public const RULE_NAME = 'customerLastName';
+
     protected ?string $lastName;
 
     protected string $operator;
@@ -59,11 +61,6 @@ class LastNameRule extends Rule
         $constraints['lastName'] = RuleConstraints::string();
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerLastName';
     }
 
     public function getConfig(): RuleConfig

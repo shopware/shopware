@@ -10,6 +10,8 @@ use Symfony\Component\Validator\Constraints\Range;
  */
 class WeekdayRule extends Rule
 {
+    public const RULE_NAME = 'dayOfWeek';
+
     protected string $operator;
 
     protected ?int $dayOfWeek;
@@ -23,11 +25,6 @@ class WeekdayRule extends Rule
 
         $this->operator = $operator;
         $this->dayOfWeek = $dayOfWeek;
-    }
-
-    public function getName(): string
-    {
-        return 'dayOfWeek';
     }
 
     public function match(RuleScope $scope): bool

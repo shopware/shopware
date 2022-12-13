@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class PromotionCodeOfTypeRule extends Rule
 {
+    public const RULE_NAME = 'promotionCodeOfType';
+
     protected ?string $promotionCodeType;
 
     protected string $operator;
@@ -71,11 +73,6 @@ class PromotionCodeOfTypeRule extends Rule
             'promotionCodeType' => RuleConstraints::string(),
             'operator' => RuleConstraints::stringOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'promotionCodeOfType';
     }
 
     public function getConfig(): RuleConfig

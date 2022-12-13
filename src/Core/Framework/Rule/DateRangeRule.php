@@ -12,6 +12,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class DateRangeRule extends Rule
 {
+    public const RULE_NAME = 'dateRange';
+
     /**
      * @var \DateTimeInterface|string|null
      */
@@ -83,10 +85,5 @@ class DateRangeRule extends Rule
             'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
             'useTime' => [new NotNull(), new Type('bool')],
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'dateRange';
     }
 }

@@ -621,56 +621,6 @@ parameters:
 			path: src/Core/Checkout/Cart/PriceDefinitionFactory.php
 
 		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemInCategoryRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemInProductStreamRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemOfManufacturerRule.php
-
-		-
-			message: "#^Parameter \\#1 \\$itemValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemPropertyRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemPropertyRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Rule/LineItemRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Rule/LineItemTagRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemTaxationRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/PaymentMethodRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/ShippingMethodRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\AbstractCartItemAddRoute\\:\\:add\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/SalesChannel/AbstractCartItemAddRoute.php
@@ -819,71 +769,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Password\\\\LegacyPasswordVerifier\\:\\:\\$encoder \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Password\\\\LegacyEncoder\\\\LegacyEncoderInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Password/LegacyPasswordVerifier.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingCountryRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingStateRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:__construct\\(\\) has parameter \\$renderedField with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:getExpectedValue\\(\\) has parameter \\$renderedField with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:getValue\\(\\) has parameter \\$customFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:getValue\\(\\) has parameter \\$renderedField with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:\\$renderedField type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerGroupRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:stringArray\\(\\) expects list\\<string\\>, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerNumberRule.php
-
-		-
-			message: "#^Parameter \\#1 \\$itemValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerTagRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerTagRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/ShippingCountryRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/ShippingStateRule.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -2834,16 +2719,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Indexing\\\\FlowPayloadUpdater\\:\\:update\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Indexing/FlowPayloadUpdater.php
-
-		-
-			message: "#^Parameter \\#1 \\$itemValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Rule/OrderTagRule.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Rule/OrderTagRule.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportLog\\\\ImportExportLogEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -13396,31 +13271,6 @@ parameters:
 			path: src/Core/Framework/Rule/RuleConstraints.php
 
 		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/SalesChannelRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:render\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/ScriptRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:setConstraints\\(\\) has parameter \\$constraints with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/ScriptRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:\\$constraints type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/ScriptRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:\\$values type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/ScriptRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ApiHook\\:\\:__construct\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Api/ApiHook.php
@@ -17096,16 +16946,6 @@ parameters:
 			path: src/Core/Framework/Test/Rule/PaymentMethodRuleAccessibleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\RuleTest\\:\\:getRules\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/RuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\RuleTest\\:\\:getRulesWithEmptyOperator\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/RuleTest.php
-
-		-
 			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|string\\|null\\.$#"
 			count: 6
 			path: src/Core/Framework/Test/Rule/ScriptRuleTest.php
@@ -18496,11 +18336,6 @@ parameters:
 			path: src/Core/System/Currency/Aggregate/CurrencyTranslation/CurrencyTranslationCollection.php
 
 		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/Currency/Rule/CurrencyRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\CustomEntityEntity\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/CustomEntityEntity.php
@@ -18694,11 +18529,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection\\:\\:getParentIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageCollection.php
-
-		-
-			message: "#^Parameter \\#2 \\$ruleValue of static method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:uuids\\(\\) expects list\\<string\\|null\\>\\|null, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Core/System/Language/Rule/LanguageRule.php
 
 		-
 			message: "#^Parameter \\#1 \\$writeCommands of method Shopware\\\\Core\\\\System\\\\Language\\\\TranslationValidator\\:\\:getDeletedSystemTranslationViolations\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Command\\\\WriteCommand\\> given\\.$#"

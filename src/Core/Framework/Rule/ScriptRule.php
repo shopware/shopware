@@ -12,7 +12,11 @@ use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
+use Symfony\Component\Validator\Constraint;
 use Twig\Cache\FilesystemCache;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 
 /**
@@ -22,10 +26,18 @@ use Twig\Extension\DebugExtension;
  */
 class ScriptRule extends Rule
 {
+    public const RULE_NAME = 'scriptRule';
+
     protected string $script = '';
 
+    /**
+     * @var array<string, Constraint[]>
+     */
     protected array $constraints = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $values = [];
 
     protected ?\DateTimeInterface $lastModified = null;
@@ -88,21 +100,29 @@ class ScriptRule extends Rule
         }
     }
 
+    /**
+     * @return array<string, Constraint[]>
+     */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
+    /**
+     * @param array<string, Constraint[]> $constraints
+     */
     public function setConstraints(array $constraints): void
     {
         $this->constraints = $constraints;
     }
 
-    public function getName(): string
-    {
-        return 'scriptRule';
-    }
-
+    /**
+     * @param array<string, mixed> $context
+     *
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {

@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CustomerAgeRule extends Rule
 {
+    public const RULE_NAME = 'customerAge';
+
     protected string $operator;
 
     protected ?float $age = null;
@@ -28,11 +30,6 @@ class CustomerAgeRule extends Rule
 
         $this->operator = $operator;
         $this->age = $age;
-    }
-
-    public function getName(): string
-    {
-        return 'customerAge';
     }
 
     public function match(RuleScope $scope): bool

@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class BillingCityRule extends Rule
 {
+    public const RULE_NAME = 'customerBillingCity';
+
     protected ?string $cityName;
 
     protected string $operator;
@@ -68,11 +70,6 @@ class BillingCityRule extends Rule
         $constraints['cityName'] = [new NotBlank(), new Type('string')];
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerBillingCity';
     }
 
     public function getConfig(): RuleConfig

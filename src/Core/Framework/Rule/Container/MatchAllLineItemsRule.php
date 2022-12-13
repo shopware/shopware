@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class MatchAllLineItemsRule extends Container
 {
+    public const RULE_NAME = 'allLineItemsContainer';
+
     protected ?int $minimumShouldMatch = null;
 
     protected ?string $type = null;
@@ -72,11 +74,6 @@ class MatchAllLineItemsRule extends Container
         }
 
         return true;
-    }
-
-    public function getName(): string
-    {
-        return 'allLineItemsContainer';
     }
 
     public function getConstraints(): array

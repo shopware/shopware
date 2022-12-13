@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class IsActiveRule extends Rule
 {
+    public const RULE_NAME = 'customerIsActive';
+
     protected bool $isActive;
 
     /**
@@ -36,11 +38,6 @@ class IsActiveRule extends Rule
         }
 
         return $this->isActive === $customer->getActive();
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsActive';
     }
 
     public function getConfig(): RuleConfig

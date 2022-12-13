@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemReleaseDateRule extends Rule
 {
+    public const RULE_NAME = 'cartLineItemReleaseDate';
+
     protected ?string $lineItemReleaseDate;
 
     protected string $operator;
@@ -28,11 +30,6 @@ class LineItemReleaseDateRule extends Rule
 
         $this->lineItemReleaseDate = $lineItemReleaseDate;
         $this->operator = $operator;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemReleaseDate';
     }
 
     public function getConstraints(): array

@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class ShippingStreetRule extends Rule
 {
+    public const RULE_NAME = 'customerShippingStreet';
+
     protected ?string $streetName;
 
     protected string $operator;
@@ -59,11 +61,6 @@ class ShippingStreetRule extends Rule
         $constraints['streetName'] = RuleConstraints::string();
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerShippingStreet';
     }
 
     public function getConfig(): RuleConfig

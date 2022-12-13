@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class CartHasDeliveryFreeItemRule extends Rule
 {
+    public const RULE_NAME = 'cartHasDeliveryFreeItem';
+
     protected bool $allowed;
 
     /**
@@ -24,11 +26,6 @@ class CartHasDeliveryFreeItemRule extends Rule
         parent::__construct();
 
         $this->allowed = $allowed;
-    }
-
-    public function getName(): string
-    {
-        return 'cartHasDeliveryFreeItem';
     }
 
     public function match(RuleScope $scope): bool

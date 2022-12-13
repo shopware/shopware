@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
  */
 class LineItemGoodsTotalRule extends FilterRule
 {
+    public const RULE_NAME = 'cartLineItemGoodsTotal';
+
     protected int $count;
 
     protected string $operator;
@@ -60,10 +62,5 @@ class LineItemGoodsTotalRule extends FilterRule
             'count' => RuleConstraints::int(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemGoodsTotal';
     }
 }

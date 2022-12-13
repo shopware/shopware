@@ -6,14 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
@@ -73,7 +72,6 @@ class SendMailActionTest extends TestCase
         $this->mailTemplate = new MailTemplateEntity();
         $this->mailService = $this->createMock(AbstractMailService::class);
         $this->mailTemplateRepository = $this->createMock(EntityRepositoryInterface::class);
-        $documentGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->translator = $this->createMock(Translator::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
@@ -81,11 +79,6 @@ class SendMailActionTest extends TestCase
         $this->action = new SendMailAction(
             $this->mailService,
             $this->mailTemplateRepository,
-            $this->createMock(MediaService::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(DocumentService::class),
-            $documentGenerator,
             $this->createMock(LoggerInterface::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(EntityRepositoryInterface::class),
@@ -130,7 +123,9 @@ class SendMailActionTest extends TestCase
 
     public function testActionExecuted(): void
     {
+        $orderId = Uuid::randomHex();
         $mailTemplateId = Uuid::randomHex();
+        $this->mailTemplate->setId($mailTemplateId);
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
             'recipient' => ['type' => 'customer'],
@@ -152,12 +147,18 @@ class SendMailActionTest extends TestCase
                 'mediaIds' => [],
                 'senderName' => null,
                 'senderMail' => 'foo@example.com',
+                'attachmentsConfig' => new MailAttachmentsConfig(
+                    Context::createDefaultContext(),
+                    $this->mailTemplate,
+                    new MailSendSubscriberConfig(false, [], []),
+                    $config,
+                    $orderId
+                ),
             ],
             'context' => Context::createDefaultContext(),
         ];
 
         $templateData = new MailRecipientStruct($expected['data']['recipients']);
-        $this->mailTemplate->setId($mailTemplateId);
 
         $this->flow->expects(static::exactly(2))
             ->method('hasStore')
@@ -172,7 +173,7 @@ class SendMailActionTest extends TestCase
                 ]],
                 [],
                 Defaults::SALES_CHANNEL,
-                Uuid::randomHex(),
+                $orderId,
             );
 
         $this->flow->expects(static::exactly(2))

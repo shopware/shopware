@@ -76,11 +76,6 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="media.repository"/>
-            <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="mail_template_type.repository"/>

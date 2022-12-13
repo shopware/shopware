@@ -141,6 +141,9 @@ class MediaService
         return $this->fileFetcher->fetchRequestData($request, $tempFile ?: '');
     }
 
+    /**
+     * @return array{content: string, fileName: non-falsy-string, mimeType: string|null}
+     */
     public function getAttachment(MediaEntity $media, Context $context): array
     {
         $fileBlob = '';

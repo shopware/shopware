@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -22,19 +21,21 @@ class MailFactory extends AbstractMailFactory
     private $validator;
 
     /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
      * @internal
      */
-    public function __construct(ValidatorInterface $validator, FilesystemInterface $filesystem)
+    public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
-        $this->filesystem = $filesystem;
     }
 
+    /**
+     * @param string[] $sender
+     * @param string[] $recipients
+     * @param string[] $contents
+     * @param string[] $attachments
+     * @param mixed[] $additionalData
+     * @param array<int, mixed[]>|null $binAttachments
+     */
     public function create(
         string $subject,
         array $sender,
@@ -46,10 +47,11 @@ class MailFactory extends AbstractMailFactory
     ): Email {
         $this->assertValidAddresses(array_keys($recipients));
 
-        $mail = (new Email())
+        $mail = (new Mail())
             ->subject($subject)
             ->from(...$this->formatMailAddresses($sender))
-            ->to(...$this->formatMailAddresses($recipients));
+            ->to(...$this->formatMailAddresses($recipients))
+            ->setMailAttachmentsConfig($additionalData['attachmentsConfig'] ?? null);
 
         foreach ($contents as $contentType => $data) {
             if ($contentType === 'text/html') {
@@ -62,7 +64,7 @@ class MailFactory extends AbstractMailFactory
         $attach = Feature::isActive('v6.5.0.0') ? 'attach' : 'embed';
 
         foreach ($attachments as $url) {
-            $mail->$attach($this->filesystem->read($url) ?: '', basename($url), $this->filesystem->getMimetype($url) ?: null);
+            $mail->addAttachmentUrl($url);
         }
 
         if (isset($binAttachments)) {
@@ -103,6 +105,8 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
+     * @param string[] $addresses
+     *
      * @throws ConstraintViolationException
      */
     private function assertValidAddresses(array $addresses): void
@@ -122,6 +126,11 @@ class MailFactory extends AbstractMailFactory
         }
     }
 
+    /**
+     * @param string[] $addresses
+     *
+     * @return string[]
+     */
     private function formatMailAddresses(array $addresses): array
     {
         $formattedAddresses = [];

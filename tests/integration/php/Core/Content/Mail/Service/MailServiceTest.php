@@ -33,7 +33,7 @@ class MailServiceTest extends TestCase
 
     public function testPluginsCanExtendMailData(): void
     {
-        $renderer = $this->getContainer()->get(StringTemplateRenderer::class);
+        $renderer = clone $this->getContainer()->get(StringTemplateRenderer::class);
         $property = ReflectionHelper::getProperty(StringTemplateRenderer::class, 'twig');
         $environment = new TestEnvironment($property->getValue($renderer)->getLoader());
         $property->setValue($renderer, $environment);

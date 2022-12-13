@@ -4,6 +4,8 @@ import template from './sw-hidden-iframes.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-hidden-iframes', {

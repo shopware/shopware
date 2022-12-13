@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Punycode from 'punycode';
 
 const { Filter } = Shopware;

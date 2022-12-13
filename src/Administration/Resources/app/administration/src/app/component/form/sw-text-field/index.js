@@ -3,6 +3,8 @@ import template from './sw-text-field.html.twig';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
  * @protected
  * @description Simple text field.
  * @status ready

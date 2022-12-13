@@ -4,6 +4,8 @@ import './sw-product-image.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  * @description Component which renders an image.
  * @status ready

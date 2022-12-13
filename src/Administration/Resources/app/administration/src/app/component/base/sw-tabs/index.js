@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
 

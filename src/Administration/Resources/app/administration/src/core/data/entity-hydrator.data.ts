@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import types from 'src/core/service/utils/types.utils';
 import type { AxiosResponse } from 'axios';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';

@@ -3,6 +3,8 @@ import './sw-image-preview-modal.scss';
 
 const { Component } = Shopware;
 /**
+ * @package admin
+ *
  * @private
  * @status ready
  * @example-type static

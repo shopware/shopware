@@ -7,6 +7,8 @@ import objectPick from 'lodash/pick';
 import type from 'src/core/service/utils/types.utils';
 
 /**
+ * @package admin
+ *
  * @module core/service/utils/object
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

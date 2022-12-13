@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-card-filter.html.twig';
 import './sw-card-filter.scss';
 

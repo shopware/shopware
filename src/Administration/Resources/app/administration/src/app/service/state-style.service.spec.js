@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import StateStyleService from 'src/app/service/state-style.service';
 
 describe('src/app/service/state-style.service.js', () => {

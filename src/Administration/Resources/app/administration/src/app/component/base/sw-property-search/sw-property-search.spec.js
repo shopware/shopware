@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-property-search';
 import 'src/app/component/form/sw-field';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-collapse';
 import 'src/app/component/sidebar/sw-sidebar-collapse';

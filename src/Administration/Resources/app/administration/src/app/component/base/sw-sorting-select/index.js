@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-sorting-select.html.twig';
 
 const { Component } = Shopware;

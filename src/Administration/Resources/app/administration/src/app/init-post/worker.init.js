@@ -7,6 +7,8 @@ let enabled = false;
 let enabledNotification = false;
 
 /**
+ * @package admin
+ *
  * Starts the worker
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

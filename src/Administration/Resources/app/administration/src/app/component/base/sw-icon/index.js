@@ -5,6 +5,8 @@ const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Renders an icon from the icon library.
  * @status ready

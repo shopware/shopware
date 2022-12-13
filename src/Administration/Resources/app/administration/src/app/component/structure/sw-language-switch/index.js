@@ -6,6 +6,8 @@ const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders a language switcher.

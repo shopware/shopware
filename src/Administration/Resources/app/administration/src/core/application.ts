@@ -3,6 +3,8 @@ import Vue from 'vue';
 import type ViewAdapter from './adapter/view.adapter';
 import type { ContextState } from '../app/state/context.store';
 /**
+ * @package admin
+ *
  * @module core/application
  */
 

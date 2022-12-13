@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-dynamic-url-field';
 

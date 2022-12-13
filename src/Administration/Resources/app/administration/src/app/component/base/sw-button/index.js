@@ -4,6 +4,8 @@ import template from './sw-button.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @status ready
  * @description The <u>sw-button</u> component replaces the standard html button or anchor element with a custom button
  * and a multitude of options.

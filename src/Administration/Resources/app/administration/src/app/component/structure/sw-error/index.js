@@ -4,6 +4,8 @@ import template from './sw-error.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders a error page.

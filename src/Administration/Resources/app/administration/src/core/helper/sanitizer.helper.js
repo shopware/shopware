@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import domPurify from 'dompurify';
 
 /**
@@ -53,7 +57,7 @@ export default class Sanitizer {
         if (!middlewareNames.includes(middlewareName)) {
             Shopware.Utils.debug.warn(
                 'Sanitizer',
-                `No middleware found for name "${middlewareName}", 
+                `No middleware found for name "${middlewareName}",
                 the following are available: ${middlewareNames.join(', ')}`,
             );
             return false;
@@ -74,7 +78,7 @@ export default class Sanitizer {
         if (!middlewareNames.includes(middlewareName)) {
             Shopware.Utils.debug.warn(
                 'Sanitizer',
-                `No middleware found for name "${middlewareName}", 
+                `No middleware found for name "${middlewareName}",
                 the following are available: ${middlewareNames.join(', ')}`,
             );
             return false;

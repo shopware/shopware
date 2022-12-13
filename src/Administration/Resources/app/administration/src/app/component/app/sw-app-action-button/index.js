@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-app-action-button.html.twig';
 import './sw-app-action-button.scss';
 

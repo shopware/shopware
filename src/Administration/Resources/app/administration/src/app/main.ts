@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /** Initializer */
 import initializers from 'src/app/init';
 import preInitializer from 'src/app/init-pre/';

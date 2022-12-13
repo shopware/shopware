@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import baseComponents from 'src/app/component/components';
 import registerAsyncComponents from 'src/app/asyncComponent/asyncComponents';
 

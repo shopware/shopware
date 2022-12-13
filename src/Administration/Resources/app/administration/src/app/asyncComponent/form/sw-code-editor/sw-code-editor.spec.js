@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import SwCodeEditor from 'src/app/asyncComponent/form/sw-code-editor';
 

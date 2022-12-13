@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

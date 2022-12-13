@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { config, mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/base/sw-tabs';

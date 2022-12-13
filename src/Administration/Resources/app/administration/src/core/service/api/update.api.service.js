@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const ApiService = Shopware.Classes.ApiService;
 
 /**

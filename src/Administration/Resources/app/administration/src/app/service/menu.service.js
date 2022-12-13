@@ -1,4 +1,8 @@
 /**
+ * @package admin
+ */
+
+/**
  * @module app/service/menu
  * @method createMenuService
  * @memberOf module:app/service/menu

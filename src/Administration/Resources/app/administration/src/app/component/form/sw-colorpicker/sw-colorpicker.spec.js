@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-colorpicker';
 import 'src/app/component/form/field-base/sw-contextual-field';

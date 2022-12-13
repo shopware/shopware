@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vuex from 'vuex';
 import SessionStore from 'src/app/state/session.store';
 

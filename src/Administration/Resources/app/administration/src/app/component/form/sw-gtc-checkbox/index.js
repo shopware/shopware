@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-gtc-checkbox.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

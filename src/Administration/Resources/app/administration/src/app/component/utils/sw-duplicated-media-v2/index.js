@@ -5,6 +5,8 @@ const { Component, Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @private
  */
 

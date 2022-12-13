@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 // eslint-disable-next-line import/no-unresolved

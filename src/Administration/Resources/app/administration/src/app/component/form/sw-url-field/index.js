@@ -12,6 +12,8 @@ const URL_REGEX = {
 };
 
 /**
+ * @package admin
+ *
  * @public
  * @description URL field component which supports a switch for https and http.
  * @status ready

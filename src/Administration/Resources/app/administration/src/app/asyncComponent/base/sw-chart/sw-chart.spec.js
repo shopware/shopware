@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import SwChart from 'src/app/asyncComponent/base/sw-chart';
 import en from 'apexcharts/dist/locales/en.json';

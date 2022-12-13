@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import createMenuService from 'src/app/service/menu.service';
 
 /** fixtures */

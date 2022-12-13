@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 type ServiceObject = {
     get: <SN extends keyof ServiceContainer>(serviceName: SN) => ServiceContainer[SN],
     list: () => (keyof ServiceContainer)[],

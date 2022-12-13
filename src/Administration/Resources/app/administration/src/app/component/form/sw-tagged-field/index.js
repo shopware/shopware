@@ -4,6 +4,8 @@ import './sw-tagged-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status deprecated
  * @example-type code-only

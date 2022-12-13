@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { Module } from 'vuex';
 import type { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
 

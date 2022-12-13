@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * Directive for responsive element classes
  *
  * Usage:

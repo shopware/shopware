@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-block-field.html.twig';
 import './sw-block-field.scss';
 

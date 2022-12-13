@@ -4,6 +4,8 @@ import './sw-textarea-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
  * @description textarea input field.
  * @status ready
  * @example-type static

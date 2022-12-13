@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable max-len */
 
 const getAsyncExpressionName = (node) => {

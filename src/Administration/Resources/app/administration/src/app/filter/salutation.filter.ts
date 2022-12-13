@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter, Defaults } = Shopware;
 
 type SalutationType = {

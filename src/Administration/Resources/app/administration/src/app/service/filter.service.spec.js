@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import FilterService from 'src/app/service/filter.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';

@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/context
  * @param {Object} context
  * @type factory

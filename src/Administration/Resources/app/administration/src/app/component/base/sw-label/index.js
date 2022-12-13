@@ -4,6 +4,8 @@ import template from './sw-label.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type dynamic

@@ -31,7 +31,6 @@
 
         <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">
             <argument type="service" id="validator"/>
-            <argument type="service" id="shopware.filesystem.public"/>
         </service>
 
         <!-- Controller -->
@@ -67,11 +66,21 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
         </service>
 
+        <service id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="core_mailer" alias="mailer" />
 
         <service id="Shopware\Core\Content\Mail\Service\MailerTransportLoader">
             <argument type="service" id="mailer.transport_factory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="document.repository"/>
         </service>
 
         <service id="mailer.default_transport" class="Symfony\Component\Mailer\Transport\TransportInterface">

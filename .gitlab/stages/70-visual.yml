@@ -8,6 +8,7 @@ Percy:
             alias: database
     variables:
         PERCY_ENABLE: $CYPRESS_PERCY_USAGE
+        PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
         CYPRESS_localUsage: 'true'
         CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
         CYPRESS_baseUrl: "http://localhost:8000"

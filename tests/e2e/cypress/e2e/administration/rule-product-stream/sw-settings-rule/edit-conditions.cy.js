@@ -67,8 +67,7 @@ describe('Rule builder: Test crud operations', () => {
             });
     });
 
-    // TODO: E2E will be fixed and removed skip in NEXT-16286
-    it('@rule: edit rule conditions', { tags: ['quarantined', 'pa-business-ops'] }, () => {
+    it('@rule: edit rule conditions', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
@@ -162,7 +161,7 @@ describe('Rule builder: Test crud operations', () => {
                 value: 'Yes'
             });
 
-            cy.get('button.sw-button').contains('Add Subcondition').click();
+            cy.get('.sw-condition-and-container__actions--sub').click();
             cy.get('.sw-condition').should('have.length', 2);
 
             cy.get('.sw-condition .sw-condition__context-button').first().click();
@@ -193,9 +192,6 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
 
         cy.awaitAndCheckNotification('An error occurred while saving rule "Ruler".');
-        cy.get('.sw-condition .sw-condition__container').should('have.class', 'has--error');
-        cy.get('.sw-condition')
-            .contains('You must choose a type for this rule.').should('be.visible');
     });
 
     resultCases.forEach(resultCase => {

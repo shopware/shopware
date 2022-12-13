@@ -34,8 +34,6 @@
             <argument type="service" id="shopware.elasticsearch.logger" />
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
-
         <service id="OpenSearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
@@ -154,7 +152,6 @@
 
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%elasticsearch.product.custom_fields_mapping%</argument>
             <argument type="service" id="event_dispatcher"/>

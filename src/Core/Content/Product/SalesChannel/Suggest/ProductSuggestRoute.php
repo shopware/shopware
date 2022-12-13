@@ -10,9 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -78,10 +76,6 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
         );
 
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
-        }
 
         $this->searchBuilder->build($request, $criteria, $context);
 

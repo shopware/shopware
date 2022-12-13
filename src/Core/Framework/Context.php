@@ -19,83 +19,36 @@ class Context extends Struct
     public const USER_SCOPE = 'user';
     public const CRUD_API_SCOPE = 'crud';
 
-    /**
-     * @deprecated tag:v6.5.0 - Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::STATE_ELASTICSEARCH_AWARE` on Criteria instead
-     */
-    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
     public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
      * @var non-empty-array<string>
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
-    protected $languageIdChain;
+    protected array $languageIdChain;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
-     */
-    protected $versionId;
+    protected string $versionId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var float
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `float` in future versions
-     */
-    protected $currencyFactor;
+    protected float $currencyFactor;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
-     */
-    protected $scope = self::USER_SCOPE;
+    protected string $scope = self::USER_SCOPE;
 
     /**
      * @var array<string>
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
-    protected $ruleIds;
+    protected array $ruleIds;
 
-    /**
-     * @var ContextSource
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `ContextSource` in future versions
-     */
-    protected $source;
+    protected ContextSource $source;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `bool` in future versions
-     */
-    protected $considerInheritance;
+    protected bool $considerInheritance;
 
     /**
      * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-     *
-     * @var string
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
      */
-    protected $taxState = CartPrice::TAX_STATE_GROSS;
+    protected string $taxState = CartPrice::TAX_STATE_GROSS;
 
-    /**
-     * @var CashRoundingConfig
-     *
-     * @deprecated tag:v6.5.0 prop will be natively typed as `CashRoundingConfig` in future versions
-     */
-    protected $rounding;
+    protected CashRoundingConfig $rounding;
 
     /**
      * @param array<string> $languageIdChain

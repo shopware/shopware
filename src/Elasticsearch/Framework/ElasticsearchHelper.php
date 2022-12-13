@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -68,19 +67,6 @@ class ElasticsearchHelper
         $this->throwException = $throwException;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - use logAndThrowException instead
-     */
-    public function logOrThrowException(\Throwable $exception): bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'logAndThrowException()')
-        );
-
-        return $this->logAndThrowException($exception);
-    }
-
     public function logAndThrowException(\Throwable $exception): bool
     {
         $this->logger->critical($exception->getMessage());
@@ -115,29 +101,15 @@ class ElasticsearchHelper
 
     /**
      * Validates if it is allowed do execute the search request over elasticsearch
-     *
-     * @deprecated tag:v6.5.0 - Parameter $criteria will be required
      */
-    public function allowSearch(EntityDefinition $definition, Context $context/*, Criteria $criteria */): bool
+    public function allowSearch(EntityDefinition $definition, Context $context, Criteria $criteria): bool
     {
-        /** @var Criteria|null $criteria */
-        $criteria = \func_num_args() >= 3 ? func_get_arg(2) : null;
-
-        if ($criteria === null) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The parameter $criteria is required in allowSearch');
-        }
-
         if (!$this->searchEnabled) {
             return false;
         }
 
         if (!$this->isSupported($definition)) {
             return false;
-        }
-
-        // @deprecated tag:v6.5.0 whole if block can be removed
-        if ($criteria === null || !$criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE)) {
-            return $context->hasState(Context::STATE_ELASTICSEARCH_AWARE);
         }
 
         return $criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE);

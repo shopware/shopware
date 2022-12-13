@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
-use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
@@ -24,8 +24,8 @@ class IndexerOffsetTest extends TestCase
     public function testItConvertsDefinitionsToSerilizeableNamesAndCanDoAnDefinitionRoudTrip(): void
     {
         $definitions = [
-            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), [], new EventDispatcher(), $this->createMock(AbstractProductSearchQueryBuilder::class)),
-            new MockElasticsearchDefinition(new EntityMapper()),
+            new ElasticsearchProductDefinition(new ProductDefinition(), $this->createMock(Connection::class), [], new EventDispatcher(), $this->createMock(AbstractProductSearchQueryBuilder::class)),
+            new MockElasticsearchDefinition(),
         ];
 
         $timestamp = (new \DateTime())->getTimestamp();
@@ -87,5 +87,10 @@ class MockElasticsearchDefinition extends AbstractElasticsearchDefinition
     public function getEntityDefinition(): EntityDefinition
     {
         return new ProductManufacturerDefinition();
+    }
+
+    public function getMapping(Context $context): array
+    {
+        return [];
     }
 }

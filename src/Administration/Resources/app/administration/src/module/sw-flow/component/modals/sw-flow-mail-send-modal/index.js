@@ -125,6 +125,14 @@ export default {
                     ...this.recipientCustom,
                 ];
             }
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
+                .includes(this.triggerEvent.name)) {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
 
             const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
 

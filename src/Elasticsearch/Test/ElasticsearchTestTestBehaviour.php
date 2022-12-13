@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 trait ElasticsearchTestTestBehaviour
 {

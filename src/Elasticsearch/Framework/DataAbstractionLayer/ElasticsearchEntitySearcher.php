@@ -19,7 +19,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {

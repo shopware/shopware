@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @package system-settings
+ * @package core
  */
 #[AsCommand(
     name: 'es:reset',

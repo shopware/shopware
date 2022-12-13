@@ -6,7 +6,7 @@ use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Sort\FieldSort;
 
 /**
- * @package system-settings
+ * @package core
  */
 class CountSort extends FieldSort
 {

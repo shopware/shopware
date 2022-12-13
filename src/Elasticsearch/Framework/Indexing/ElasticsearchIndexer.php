@@ -30,7 +30,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  * @final

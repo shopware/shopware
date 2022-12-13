@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 #[AsCommand(
     name: 'es:index',

@@ -19,7 +19,7 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {

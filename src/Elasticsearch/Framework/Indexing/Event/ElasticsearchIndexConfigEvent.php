@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ElasticsearchIndexConfigEvent implements ShopwareEvent
 {

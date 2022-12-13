@@ -24,6 +24,8 @@ describe('Promotion v2: Test code operations', () => {
         // Select fixed code type and edit manually
         cy.get(promotionCodeFixedSelector).should('not.exist');
         cy.get('#sw-field--selectedCodeType').select('Fixed promotion code');
+        cy.get(promotionCodeFixedSelector).should('exist');
+        cy.get(promotionCodeFixedSelector).scrollIntoView();
         cy.get(promotionCodeFixedSelector).should('be.visible');
         cy.get(promotionCodeFixedSelector).type(testPromoCode);
 
@@ -43,6 +45,8 @@ describe('Promotion v2: Test code operations', () => {
     it("@base @marketing: show empty state, if there're no individual codes", { tags: ['pa-checkout'] }, () => {
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').scrollIntoView();
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
             .scrollIntoView()
@@ -75,6 +79,8 @@ describe('Promotion v2: Test code operations', () => {
         }).as('loadCodes');
 
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').scrollIntoView();
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
             .scrollIntoView()

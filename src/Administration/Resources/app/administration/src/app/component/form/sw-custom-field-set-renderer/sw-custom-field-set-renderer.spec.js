@@ -32,14 +32,18 @@ import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/media/sw-media-field';
-import 'src/app/component/media/sw-media-media-item';
-import 'src/app/component/media/sw-media-base-item';
-import 'src/app/component/media/sw-media-preview-v2';
+import SwMediaField from 'src/app/asyncComponent/media/sw-media-field';
+import SwMediaMediaItem from 'src/app/asyncComponent/media/sw-media-media-item';
+import SwMediaBaseItem from 'src/app/asyncComponent/media/sw-media-base-item';
+import SwMediaPreviewV2 from 'src/app/asyncComponent/media/sw-media-preview-v2';
 import 'src/app/filter/media-name.filter';
 import 'src/app/component/utils/sw-skeleton';
 import 'src/app/component/utils/sw-skeleton-bar';
 
+Shopware.Component.register('sw-media-field', SwMediaField);
+Shopware.Component.register('sw-media-media-item', SwMediaMediaItem);
+Shopware.Component.register('sw-media-base-item', SwMediaBaseItem);
+Shopware.Component.register('sw-media-preview-v2', SwMediaPreviewV2);
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);

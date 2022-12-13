@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
-import 'src/app/component/media/sw-media-upload-v2';
+import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
 import 'src/app/component/form/sw-file-input';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
@@ -14,6 +14,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
  */
 
 Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
+Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
 
 const orderFixture = {
     id: '1234',

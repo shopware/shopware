@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
- * @package system-settings
+ * @package core
  */
 class UnsupportedElasticsearchDefinitionException extends ShopwareHttpException
 {

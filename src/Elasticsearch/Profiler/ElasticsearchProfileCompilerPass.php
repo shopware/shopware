@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {

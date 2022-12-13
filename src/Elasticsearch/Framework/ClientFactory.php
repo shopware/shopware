@@ -7,7 +7,7 @@ use OpenSearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ClientFactory
 {

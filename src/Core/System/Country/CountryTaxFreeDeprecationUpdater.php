@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package system-settings
+ * @package core
  *
  * @internal
  *

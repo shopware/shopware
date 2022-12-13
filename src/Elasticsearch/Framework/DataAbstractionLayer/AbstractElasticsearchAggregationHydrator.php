@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
- * @package system-settings
+ * @package core
  */
 abstract class AbstractElasticsearchAggregationHydrator
 {

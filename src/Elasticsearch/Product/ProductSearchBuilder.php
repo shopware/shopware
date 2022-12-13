@@ -11,7 +11,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {

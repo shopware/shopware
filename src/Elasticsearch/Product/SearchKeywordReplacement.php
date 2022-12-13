@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 /**
- * @package system-settings
+ * @package core
  */
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {

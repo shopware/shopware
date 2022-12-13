@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
- * @package system-settings
+ * @package core
  */
 abstract class AbstractProductSearchQueryBuilder
 {

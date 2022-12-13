@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Language\LanguageCollection;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ElasticsearchOutdatedIndexDetector
 {

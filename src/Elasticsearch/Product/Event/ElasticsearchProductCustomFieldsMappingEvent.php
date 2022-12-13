@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
- * @package system-settings
+ * @package core
  */
 class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
 {

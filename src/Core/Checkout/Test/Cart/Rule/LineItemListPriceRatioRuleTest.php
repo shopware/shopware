@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRatioRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -76,6 +75,9 @@ class LineItemListPriceRatioRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -104,13 +106,6 @@ class LineItemListPriceRatioRuleTest extends TestCase
         // OPERATOR_EMPTY
         yield 'match / operator empty / is empty' => [Rule::OPERATOR_EMPTY, null, 100, null, true];
         yield 'no match / operator empty / is not empty' => [Rule::OPERATOR_EMPTY, 100, 200, 250, false];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true];
-            yield 'no match / operator empty / without price' => [Rule::OPERATOR_EMPTY, 100, 200, 300, false, true];
-
-            return;
-        }
 
         yield 'match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true];
         yield 'match / operator empty / without price' => [Rule::OPERATOR_EMPTY, 100, 200, 300, true, true];
@@ -210,6 +205,9 @@ class LineItemListPriceRatioRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -242,18 +240,6 @@ class LineItemListPriceRatioRuleTest extends TestCase
         yield 'match / operator empty / is empty' => [Rule::OPERATOR_EMPTY, null, 100, null, 100, null, true];
         yield 'no match / operator empty / is not empty' => [Rule::OPERATOR_EMPTY, 100, 100, 200, 250, 300, false, false, false, 100, 200];
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, 200, 100, false, true, true];
-            yield 'no match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 0, 100, 100, 100, 100, false, true];
-            yield 'no match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 0, 100, 100, 100, 100, false, false, true];
-
-            yield 'no match / operator empty / item 1 and 2 without price' => [Rule::OPERATOR_EMPTY, 200, 100, 300, 200, 100, false, true, true];
-            yield 'no match / operator empty / item 1 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, 100, 100, false, true];
-            yield 'no match / operator empty / item 2 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, 100, 100, false, false, true];
-
-            return;
-        }
-
         yield 'match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, 200, 100, true, true, true];
         yield 'match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, 100, 100, true, true];
         yield 'match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, 100, 100, true, false, true];
@@ -264,7 +250,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
     }
 
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testMatchWithEmptyListPrice(): void
     {

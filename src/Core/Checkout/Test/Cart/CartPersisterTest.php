@@ -54,7 +54,7 @@ class CartPersisterTest extends TestCase
         }
 
         static::assertInstanceOf(CartTokenNotFoundException::class, $e);
-        static::assertSame('not_existing_token', $e->getToken());
+        static::assertSame('not_existing_token', $e->getParameter('token'));
     }
 
     public function testLoadWithExistingToken(): void

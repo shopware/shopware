@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -306,6 +305,9 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<string|bool>>
+     */
     public function getMatchValuesNumeric(): array
     {
         return [
@@ -352,6 +354,9 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return \Traversable<string, array<string|bool|null>>
+     */
     public function getMatchValuesAlphanumeric(): \Traversable
     {
         yield 'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'];
@@ -365,13 +370,6 @@ class ShippingZipCodeRuleTest extends TestCase
         yield 'operator_empty / not match / zip code' => [Rule::OPERATOR_EMPTY, false, '56GG0'];
         yield 'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' ', ' '];
         yield 'operator_empty / match null / zip code' => [Rule::OPERATOR_EMPTY, true, null, ' '];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_neq / no match / no address' => [Rule::OPERATOR_NEQ, false, 'ky', '', true];
-            yield 'operator_empty / no match / no address' => [Rule::OPERATOR_EMPTY, false, 'ky', '', true];
-
-            return;
-        }
 
         yield 'operator_neq / match / no address' => [Rule::OPERATOR_NEQ, true, 'ky', '', true];
         yield 'operator_empty / match / no address' => [Rule::OPERATOR_EMPTY, true, 'ky', '', true];

@@ -23,7 +23,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -265,9 +264,6 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
                 static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
-                if (!Feature::isActive('v6.5.0.0')) {
-                    static::assertStringContainsString('VAT-123123', $rendered);
-                }
                 static::assertStringContainsString('123123123', $rendered);
             },
         ];
@@ -315,10 +311,6 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
                 static::assertStringContainsString($orderAddress->getCity(), $rendered);
                 static::assertStringContainsString($orderAddress->getCountry()->getName(), $rendered);
-                if (!Feature::isActive('v6.5.0.0')) {
-                    static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
-                    static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
-                }
             },
         ];
 

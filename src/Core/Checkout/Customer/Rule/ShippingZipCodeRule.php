@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\ZipCodeRule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -20,10 +19,6 @@ class ShippingZipCodeRule extends ZipCodeRule
         }
 
         if (!$address = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

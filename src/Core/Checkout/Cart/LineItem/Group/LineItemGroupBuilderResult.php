@@ -8,17 +8,17 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 class LineItemGroupBuilderResult
 {
     /**
-     * @var array
+     * @var array<mixed>
      */
-    private $results = [];
+    private array $results = [];
 
     /**
      * added as additional requirement "on-top"
      * of the existing result list
      *
-     * @var array
+     * @var array<mixed>
      */
-    private $countResults = [];
+    private array $countResults = [];
 
     /**
      * Adds a new group to the provided group definition result.
@@ -160,7 +160,7 @@ class LineItemGroupBuilderResult
 
     private function addGroupAggregationTotal(string $key, LineItemGroup $group): void
     {
-        /** @var array $total */
+        /** @var array<mixed> $total */
         $total = $this->results[$key]['total'];
 
         foreach ($group->getItems() as $tuple) {

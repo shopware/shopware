@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -23,27 +23,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderConverterController extends AbstractController
 {
-    /**
-     * @var OrderConverter
-     */
-    private $orderConverter;
+    private OrderConverter $orderConverter;
 
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
-    /**
-     * @var EntityRepository
-     */
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
     /**
      * @internal
      */
     public function __construct(
         OrderConverter $orderConverter,
-        CartPersisterInterface $cartPersister,
+        AbstractCartPersister $cartPersister,
         EntityRepository $orderRepository
     ) {
         $this->orderConverter = $orderConverter;

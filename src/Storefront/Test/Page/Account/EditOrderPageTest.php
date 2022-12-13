@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
@@ -14,7 +13,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -106,11 +104,7 @@ class EditOrderPageTest extends TestCase
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoader::class, $event);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->expectException(OrderException::class);
-        } else {
-            $this->expectException(OrderPaidException::class);
-        }
+        $this->expectException(OrderException::class);
 
         $request->request->set('orderId', $orderId);
         $this->getPageLoader()->load($request, $context);
@@ -252,6 +246,9 @@ class EditOrderPageTest extends TestCase
         return $paymentId;
     }
 
+    /**
+     * @param array<string, int> $options
+     */
     private function createCustomPaymentMethod(SalesChannelContext $context, array $options): PaymentMethodEntity
     {
         $paymentId = Uuid::randomHex();

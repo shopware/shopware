@@ -3,11 +3,9 @@
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -16,10 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class ProductLineItemFactory implements LineItemFactoryInterface
 {
-    /**
-     * @var PriceDefinitionFactory
-     */
-    private $priceDefinitionFactory;
+    private PriceDefinitionFactory $priceDefinitionFactory;
 
     /**
      * @internal
@@ -34,6 +29,9 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         return $type === LineItem::PRODUCT_LINE_ITEM_TYPE;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
         $lineItem = new LineItem($data['id'], LineItem::PRODUCT_LINE_ITEM_TYPE, $data['referencedId'] ?? null, $data['quantity'] ?? 1);
@@ -47,6 +45,9 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         return $lineItem;
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
         if (isset($data['referencedId'])) {
@@ -62,11 +63,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         }
 
         if (isset($data['priceDefinition']) && !$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::insufficientPermission();
-            }
-
-            throw new InsufficientPermissionException();
+            throw CartException::insufficientPermission();
         }
 
         if (isset($data['priceDefinition'])) {

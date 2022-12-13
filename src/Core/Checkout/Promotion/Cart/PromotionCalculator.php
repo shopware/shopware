@@ -4,12 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
@@ -23,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -119,11 +115,7 @@ class PromotionCalculator
      *
      * @throws DiscountCalculatorNotFoundException
      * @throws InvalidPriceDefinitionException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
@@ -207,6 +199,8 @@ class PromotionCalculator
      * This function builds a complete list of promotions
      * that are excluded somehow.
      * The validation which one to take will be done later.
+     *
+     * @return array<mixed, boolean>
      */
     private function buildExclusions(LineItemCollection $discountLineItems, Cart $calculated, SalesChannelContext $context): array
     {
@@ -270,19 +264,22 @@ class PromotionCalculator
      * @throws FilterSorterNotFoundException
      * @throws InvalidPriceDefinitionException
      * @throws InvalidScopeDefinitionException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      * @throws LineItemGroupPackagerNotFoundException
      * @throws LineItemGroupSorterNotFoundException
      * @throws SetGroupNotFoundException
      */
     private function calculateDiscount(LineItem $lineItem, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
     {
+        /** @var string $label */
+        $label = $lineItem->getLabel();
+
+        /** @var PriceDefinitionInterface $priceDefinition */
+        $priceDefinition = $lineItem->getPriceDefinition();
+
         $discount = new DiscountLineItem(
-            $lineItem->getLabel(),
-            $lineItem->getPriceDefinition(),
+            $label,
+            $priceDefinition,
             $lineItem->getPayload(),
             $lineItem->getReferencedId()
         );
@@ -456,9 +453,7 @@ class PromotionCalculator
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     private function enrichPackagesWithCartData(DiscountPackageCollection $result, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {

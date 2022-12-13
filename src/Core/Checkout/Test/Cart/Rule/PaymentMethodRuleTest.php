@@ -228,6 +228,9 @@ class PaymentMethodRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
+    /**
+     * @return array<array<string|bool|array<string, string|array<string>>>>
+     */
     public function matchDataProvider(): array
     {
         return [
@@ -292,6 +295,8 @@ class PaymentMethodRuleTest extends TestCase
 
     /**
      * @dataProvider matchDataProvider
+     *
+     * @param array<string, string|array<string>> $ruleProperties
      */
     public function testMatch(array $ruleProperties, string $paymentMethodId, bool $expected): void
     {

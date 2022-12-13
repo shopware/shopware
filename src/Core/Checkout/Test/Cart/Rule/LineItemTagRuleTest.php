@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -320,16 +319,14 @@ class LineItemTagRuleTest extends TestCase
 
         static::assertFalse($match);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $lineItemCollection->add($this->createLineItem());
-            $cart = $this->createCart($lineItemCollection);
+        $lineItemCollection->add($this->createLineItem());
+        $cart = $this->createCart($lineItemCollection);
 
-            $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
-                new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
-            );
+        $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
+            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+        );
 
-            static::assertTrue($match);
-        }
+        static::assertTrue($match);
     }
 
     public function testConstraints(): void
@@ -388,23 +385,21 @@ class LineItemTagRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<string|bool|null>>
+     */
     public function getMatchValues(): array
     {
-        $testCases = [
+        return [
             'operator_oq / not match / tagId' => [Rule::OPERATOR_EQ, false, 'kyln000'],
             'operator_oq / match / tagId' => [Rule::OPERATOR_EQ, true, 'kyln123'],
             'operator_neq / match / tagId' => [Rule::OPERATOR_NEQ, true, 'kyln000'],
             'operator_neq / not match / tagId' => [Rule::OPERATOR_NEQ, false, 'kyln123', false],
             'operator_empty / not match / tagId' => [Rule::OPERATOR_EMPTY, false, 'kyln123', false],
             'operator_empty / match / tagId' => [Rule::OPERATOR_EMPTY, true, null],
+            'operator_neq / match / tagId and item without tag' => [Rule::OPERATOR_NEQ, true, 'kyln123'],
+            'operator_empty / match / tagId and item without tag' => [Rule::OPERATOR_EMPTY, true, 'kyln123'],
         ];
-
-        if (Feature::isActive('v6.5.0.0')) {
-            $testCases['operator_neq / match / tagId and item without tag'] = [Rule::OPERATOR_NEQ, true, 'kyln123'];
-            $testCases['operator_empty / match / tagId and item without tag'] = [Rule::OPERATOR_EMPTY, true, 'kyln123'];
-        }
-
-        return $testCases;
     }
 
     /**

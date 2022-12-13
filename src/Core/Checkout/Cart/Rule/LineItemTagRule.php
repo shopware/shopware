@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -25,6 +24,8 @@ class LineItemTagRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -49,16 +50,6 @@ class LineItemTagRule extends Rule
             return false;
         }
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $identifiers = [];
-
-            foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
-                $identifiers = array_merge($identifiers, $this->extractTagIds($lineItem));
-            }
-
-            return RuleComparison::uuids($identifiers, $this->identifiers, $this->operator);
-        }
-
         foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if (RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator)) {
                 return true;
@@ -68,6 +59,9 @@ class LineItemTagRule extends Rule
         return false;
     }
 
+    /**
+     * @return array|\Symfony\Component\Validator\Constraint[][]
+     */
     public function getConstraints(): array
     {
         $constraints = [
@@ -90,6 +84,9 @@ class LineItemTagRule extends Rule
             ->entitySelectField('identifiers', TagDefinition::ENTITY_NAME, true);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function extractTagIds(LineItem $lineItem): array
     {
         if (!$lineItem->hasPayloadValue('tagIds')) {

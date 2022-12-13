@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -21,15 +23,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NewsletterController extends StorefrontController
 {
-    /**
-     * @var NewsletterSubscribePageLoader
-     */
-    private $newsletterConfirmRegisterPageLoader;
+    private NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader;
 
-    /**
-     * @var AbstractNewsletterConfirmRoute
-     */
-    private $newsletterConfirmRoute;
+    private AbstractNewsletterConfirmRoute $newsletterConfirmRoute;
 
     private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
 

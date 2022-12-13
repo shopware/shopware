@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -22,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CartLoadRoute extends AbstractCartLoadRoute
 {
-    private CartPersisterInterface $persister;
+    private AbstractCartPersister $persister;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -32,7 +32,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
      * @internal
      */
     public function __construct(
-        CartPersisterInterface $persister,
+        AbstractCartPersister $persister,
         EventDispatcherInterface $eventDispatcher,
         CartCalculator $cartCalculator
     ) {

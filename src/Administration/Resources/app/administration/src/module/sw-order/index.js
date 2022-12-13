@@ -1,7 +1,6 @@
 import './acl';
 
 import './mixin/cart-notification.mixin';
-import './mixin/order-cart.mixin';
 
 import defaultSearchConfiguration from './default-search-configuration';
 

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
-use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -126,7 +125,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     }
 
     /**
-     * @throws MissingLineItemPriceException
+     * @throws CartException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
@@ -139,11 +138,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition = $item->getPriceDefinition();
 
                 if (!$definition instanceof QuantityPriceDefinition) {
-                    if (Feature::isActive('v6.5.0.0')) {
-                        throw CartException::missingLineItemPrice($item->getId());
-                    }
-
-                    throw new MissingLineItemPriceException($item->getId());
+                    throw CartException::missingLineItemPrice($item->getId());
                 }
                 $definition->setQuantity($item->getQuantity());
 

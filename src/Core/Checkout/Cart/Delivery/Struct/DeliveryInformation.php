@@ -15,9 +15,7 @@ class DeliveryInformation extends Struct
     protected $stock;
 
     /**
-     * @deprecated tag:v6.5.0 - Type will change to ?float
-     *
-     * @var float
+     * @var float|null
      */
     protected $weight;
 
@@ -62,7 +60,7 @@ class DeliveryInformation extends Struct
         ?float $length = null
     ) {
         $this->stock = $stock;
-        $this->weight = (float) $weight; // Cast has to be removed, if type of weight has changed
+        $this->weight = $weight;
         $this->freeDelivery = $freeDelivery;
         $this->restockTime = $restockTime;
         $this->deliveryTime = $deliveryTime;
@@ -81,10 +79,7 @@ class DeliveryInformation extends Struct
         $this->stock = $stock;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to ?float
-     */
-    public function getWeight(): float /* ?float */
+    public function getWeight(): ?float
     {
         return $this->weight;
     }

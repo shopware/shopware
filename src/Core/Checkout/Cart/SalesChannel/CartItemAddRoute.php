@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
@@ -26,25 +26,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CartItemAddRoute extends AbstractCartItemAddRoute
 {
-    /**
-     * @var CartCalculator
-     */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var LineItemFactoryRegistry
-     */
-    private $lineItemFactory;
+    private LineItemFactoryRegistry $lineItemFactory;
 
     private RateLimiter $rateLimiter;
 
@@ -53,7 +41,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      */
     public function __construct(
         CartCalculator $cartCalculator,
-        CartPersisterInterface $cartPersister,
+        AbstractCartPersister $cartPersister,
         EventDispatcherInterface $eventDispatcher,
         LineItemFactoryRegistry $lineItemFactory,
         RateLimiter $rateLimiter

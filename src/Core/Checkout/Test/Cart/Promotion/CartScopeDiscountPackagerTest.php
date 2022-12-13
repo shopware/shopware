@@ -27,6 +27,9 @@ class CartScopeDiscountPackagerTest extends TestCase
 
     /**
      * @dataProvider buildPackagesProvider
+     *
+     * @param LineItem[] $items
+     * @param array<string> $expected
      */
     public function testBuildPackages(array $items, array $expected): void
     {
@@ -38,8 +41,8 @@ class CartScopeDiscountPackagerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $discount = new DiscountLineItem('test', new QuantityPriceDefinition(10, new TaxRuleCollection([]), 1), [
-            'discountScope' => null,
-            'discountType' => null,
+            'discountScope' => 'scope',
+            'discountType' => 'type',
             'filter' => [],
         ], null);
 
@@ -54,7 +57,7 @@ class CartScopeDiscountPackagerTest extends TestCase
         static::assertEquals($expected, $ids);
     }
 
-    public function buildPackagesProvider()
+    public function buildPackagesProvider(): \Generator
     {
         $stackable = new LineItem('stackable', LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $stackable->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));

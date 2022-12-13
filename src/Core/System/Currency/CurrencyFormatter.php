@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Currency;
 
-use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
@@ -45,7 +44,10 @@ class CurrencyFormatter
             return (string) $formatter->formatCurrency($price, $currency);
         }
 
-        if (!$context->hasState(DocumentService::GENERATING_PDF_STATE)) {
+        /**
+         * @depretacted tag:v6.5.0 - DocumentService::GENERATING_PDF_STATE is removed - block should be removed with FEATURE_NEXT_15053
+         */
+        if (!$context->hasState(/*DocumentService::GENERATING_PDF_STATE*/ 'generating-pdf')) {
             return (string) $formatter->formatCurrency($price, $currency);
         }
 

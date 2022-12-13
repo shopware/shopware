@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
@@ -33,7 +33,7 @@ class StorefrontCartFacade
 
     private CartCalculator $calculator;
 
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     /**
      * @internal
@@ -44,7 +44,7 @@ class StorefrontCartFacade
         BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher,
         AbstractContextSwitchRoute $contextSwitchRoute,
         CartCalculator $calculator,
-        CartPersisterInterface $cartPersister
+        AbstractCartPersister $cartPersister
     ) {
         $this->cartService = $cartService;
         $this->blockedShippingMethodSwitcher = $blockedShippingMethodSwitcher;

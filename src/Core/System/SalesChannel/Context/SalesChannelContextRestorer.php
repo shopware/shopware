@@ -6,8 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -72,15 +70,11 @@ class SalesChannelContextRestorer
     {
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw new OrderNotFoundException($orderId);
+            throw OrderException::orderNotFound($orderId);
         }
 
         if ($order->getOrderCustomer() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('orderCustomer');
-            }
-
-            throw new MissingOrderRelationException('orderCustomer');
+            throw OrderException::missingAssociation('orderCustomer');
         }
 
         $customer = $order->getOrderCustomer()->getCustomer();
@@ -237,11 +231,7 @@ class SalesChannelContextRestorer
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('transactions');
-            }
-
-            throw new MissingOrderRelationException('transactions');
+            throw OrderException::missingAssociation('transactions');
         }
 
         foreach ($transactions as $transaction) {

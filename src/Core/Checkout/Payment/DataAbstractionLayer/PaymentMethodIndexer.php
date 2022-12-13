@@ -45,6 +45,9 @@ class PaymentMethodIndexer extends EntityIndexer
         return 'payment_method.indexer';
     }
 
+    /**
+     * @param array<mixed>|null $offset
+     */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->paymentMethodRepository->getDefinition(), $offset);

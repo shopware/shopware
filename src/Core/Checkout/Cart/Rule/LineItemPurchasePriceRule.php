@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -76,16 +75,12 @@ class LineItemPurchasePriceRule extends Rule
     }
 
     /**
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      * @throws UnsupportedOperatorException
      */
     private function matchPurchasePriceCondition(LineItem $lineItem): bool
     {
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
-
-        if ((!$purchasePriceAmount || !$this->amount) && !Feature::isActive('v6.5.0.0')) {
-            return $this->operator === self::OPERATOR_EMPTY;
-        }
 
         return RuleComparison::numeric($purchasePriceAmount, $this->amount, $this->operator);
     }

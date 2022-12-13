@@ -3,9 +3,9 @@
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
@@ -42,7 +42,7 @@ class CartLoadRouteTest extends TestCase
 
     private AbstractSalesChannelContextFactory $salesChannelFactory;
 
-    private CartPersisterInterface $cartPersister;
+    private AbstractCartPersister $cartPersister;
 
     public function setUp(): void
     {
@@ -68,7 +68,7 @@ class CartLoadRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);
@@ -77,6 +77,8 @@ class CartLoadRouteTest extends TestCase
 
     /**
      * @dataProvider dataProviderPaymentMethodRule
+     *
+     * @param array<string, string|array<string, string>>|null $ruleConditions
      */
     public function testFilledCart(?array $ruleConditions, int $errorCount): void
     {
@@ -125,7 +127,7 @@ class CartLoadRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -134,7 +136,10 @@ class CartLoadRouteTest extends TestCase
         static::assertCount($errorCount, $response['errors']);
     }
 
-    public function dataProviderPaymentMethodRule()
+    /**
+     * @return array<string, array<int|array<string, string|array<string, string>>|null>>
+     */
+    public function dataProviderPaymentMethodRule(): array
     {
         return [
             'No Rule' => [

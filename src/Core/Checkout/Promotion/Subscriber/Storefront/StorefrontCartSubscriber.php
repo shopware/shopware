@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Promotion\Subscriber\Storefront;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -19,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {
@@ -116,9 +114,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
-     * @throws PayloadKeyNotFoundException
+     * @throws CartException
      */
     private function checkFixedDiscountItems(Cart $cart, LineItem $lineItem): void
     {

@@ -43,11 +43,6 @@ interface SwOrderState {
     defaultSalesChannel: SalesChannel | null,
     context: SalesChannelContext,
     customer: Customer | null,
-
-    /**
-     * @deprecated tag:v6.5.0 - Use `context.currency` instead
-     */
-    currency: Currency,
 }
 
 const SwOrderStore: Module<SwOrderState, VuexRootState> = {
@@ -64,13 +59,6 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
             },
             deliveries: [],
         } as unknown as Cart,
-        currency: {
-            shortName: 'EUR',
-            symbol: '€',
-            totalRounding: {
-                decimals: 2,
-            },
-        } as unknown as Currency,
         context: {
             token: '',
             customer: null,
@@ -129,7 +117,6 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
 
         setCurrency(state: SwOrderState, currency: Currency) {
             state.context.currency = currency;
-            state.currency = currency;
         },
 
         setContext(state: SwOrderState, context: SalesChannelContext) {

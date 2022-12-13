@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -32,20 +31,11 @@ class BillingStreetRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $conditionRepository;
+    private EntityRepository $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     private BillingStreetRule $rule;
 
@@ -228,6 +218,9 @@ class BillingStreetRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return \Traversable<string, array<string|bool>>
+     */
     public function getMatchValues(): \Traversable
     {
         yield 'operator_oq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'];
@@ -236,19 +229,6 @@ class BillingStreetRuleTest extends TestCase
         yield 'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', true];
-            yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', false, true];
-
-            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, '', true];
-            yield 'operator_empty / no match / no address' => [Rule::OPERATOR_EMPTY, false, '', false, true];
-
-            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_EMPTY, false, '', true];
-            yield 'operator_neq / no match / no address' => [Rule::OPERATOR_EMPTY, false, '', false, true];
-
-            return;
-        }
 
         yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', true];
         yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', false, true];

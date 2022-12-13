@@ -200,6 +200,9 @@ class PromotionCodeOfTypeRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<string|bool|null>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

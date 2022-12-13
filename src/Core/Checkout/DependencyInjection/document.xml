@@ -5,53 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator">
-            <tag name="file.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry">
-            <argument type="tagged" tag="file.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator">
-            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="document.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator">
-            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="document.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator">
-            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="document.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
-            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="document.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry">
-            <argument type="tagged" tag="document.generator"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Document\DocumentDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -80,21 +33,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\DocumentService">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="document.repository"/>
-            <argument type="service" id="document_type.repository"/>
-            <argument type="service" id="document_base_config.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="event_dispatcher"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Document\DocumentGeneratorController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
@@ -188,10 +127,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Controller\DocumentController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentMerger"/>
-            <argument type="service" id="document.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

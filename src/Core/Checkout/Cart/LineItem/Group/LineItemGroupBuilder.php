@@ -3,8 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
@@ -116,7 +115,7 @@ class LineItemGroupBuilder
             $lineItemsToRemove[$itemToRemove->getLineItemId()] = $itemToRemove;
         }
 
-        /** @var array $lineItemsToRemoveIDs */
+        /** @var array<string> $lineItemsToRemoveIDs */
         $lineItemsToRemoveIDs = array_keys($lineItemsToRemove);
 
         $newRestOfCart = new LineItemFlatCollection();
@@ -169,8 +168,7 @@ class LineItemGroupBuilder
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
+     * @throws CartException
      */
     private function splitQuantities(LineItemCollection $cartItems, SalesChannelContext $context): LineItemFlatCollection
     {

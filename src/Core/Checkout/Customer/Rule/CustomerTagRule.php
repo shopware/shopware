@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -17,18 +16,17 @@ use Shopware\Core\System\Tag\TagDefinition;
  */
 class CustomerTagRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     /**
      * @var array<string>|null
      */
-    protected $identifiers;
+    protected ?array $identifiers = null;
 
     /**
      * @internal
+     *
+     * @param array<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -49,10 +47,6 @@ class CustomerTagRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -81,6 +75,9 @@ class CustomerTagRule extends Rule
             ->entitySelectField('identifiers', TagDefinition::ENTITY_NAME, true);
     }
 
+    /**
+     * @return array<string>
+     */
     private function extractTagIds(CustomerEntity $customer): array
     {
         $tagIds = $customer->getTagIds();

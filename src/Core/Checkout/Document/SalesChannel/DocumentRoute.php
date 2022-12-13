@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -44,7 +44,7 @@ final class DocumentRoute extends AbstractDocumentRoute
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response
     {
         if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $download = $request->query->getBoolean('download');

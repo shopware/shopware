@@ -5,11 +5,6 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -29,65 +23,29 @@ class Cart extends Struct
 {
     use StateAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $token;
+    protected string $token;
 
-    /**
-     * @var CartPrice
-     */
-    protected $price;
+    protected CartPrice $price;
 
-    /**
-     * @var LineItemCollection
-     */
-    protected $lineItems;
+    protected LineItemCollection $lineItems;
 
-    /**
-     * @var ErrorCollection
-     */
-    protected $errors;
+    protected ErrorCollection $errors;
 
-    /**
-     * @var DeliveryCollection
-     */
-    protected $deliveries;
+    protected DeliveryCollection $deliveries;
 
-    /**
-     * @var TransactionCollection
-     */
-    protected $transactions;
+    protected TransactionCollection $transactions;
 
-    /**
-     * @var bool
-     */
-    protected $modified = false;
+    protected bool $modified = false;
 
-    /**
-     * @var string|null
-     */
-    protected $customerComment;
+    protected ?string $customerComment = null;
 
-    /**
-     * @var string|null
-     */
-    protected $affiliateCode;
+    protected ?string $affiliateCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $campaignCode;
+    protected ?string $campaignCode = null;
 
-    /**
-     * @var CartDataCollection|null
-     */
-    private $data;
+    private ?CartDataCollection $data = null;
 
     /**
      * @var array<string>
@@ -161,9 +119,7 @@ class Cart extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function addLineItems(LineItemCollection $lineItems): void
     {
@@ -197,9 +153,7 @@ class Cart extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function add(LineItem $lineItem): self
     {
@@ -222,27 +176,18 @@ class Cart extends Struct
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
+     * @throws CartException
      */
     public function remove(string $key): void
     {
         $item = $this->get($key);
 
         if (!$item) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::lineItemNotFound($key);
-            }
-
-            throw new LineItemNotFoundException($key);
+            throw CartException::lineItemNotFound($key);
         }
 
         if (!$item->isRemovable()) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::lineItemNotRemovable($key);
-            }
-
-            throw new LineItemNotRemovableException($key);
+            throw CartException::lineItemNotRemovable($key);
         }
 
         $this->lineItems->remove($key);

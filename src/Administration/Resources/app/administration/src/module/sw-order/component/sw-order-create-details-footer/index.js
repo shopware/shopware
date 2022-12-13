@@ -11,11 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    /**
-     * @deprecated tag:v6.5.0 will be removed without replacement.
-     */
-    inject: ['feature'],
-
     props: {
         cart: {
             type: Object,

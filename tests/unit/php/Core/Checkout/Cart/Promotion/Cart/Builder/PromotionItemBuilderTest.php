@@ -4,8 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
@@ -36,7 +35,7 @@ class PromotionItemBuilderTest extends TestCase
     /**
      * @var MockObject&SalesChannelContext
      */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {
@@ -58,8 +57,7 @@ class PromotionItemBuilderTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testLineItemType(): void
@@ -88,8 +86,7 @@ class PromotionItemBuilderTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testLineItemKey(): void
@@ -117,8 +114,7 @@ class PromotionItemBuilderTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testLineItemReferenceId(): void
@@ -143,8 +139,7 @@ class PromotionItemBuilderTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPriceTypePercentage(): void
@@ -173,8 +168,7 @@ class PromotionItemBuilderTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testPriceTypeAbsolute(): void
@@ -405,8 +399,7 @@ class PromotionItemBuilderTest extends TestCase
      * @group promotions
      * @dataProvider getDefaultCurrencyDataProvider
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function testDefaultCurrencyFactor(string $type): void

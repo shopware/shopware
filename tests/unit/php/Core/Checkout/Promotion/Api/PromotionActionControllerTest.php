@@ -7,9 +7,6 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Promotion\Api\PromotionActionController;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
-use Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader;
-use Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover;
 
 /**
  * @internal
@@ -21,9 +18,6 @@ class PromotionLineItemRuleTest extends TestCase
 {
     private PromotionActionController $promotionActionController;
 
-    /**
-     * @deprecated tag:v6.5.0 - `PromotionCodesLoader`, `PromotionCodesRemover` & `FilterServiceRegistry` mocks are no longer needed in setUp()
-     */
     public function setUp(): void
     {
         $packager = $this->createMock(LineItemGroupCountPackager::class);
@@ -38,10 +32,7 @@ class PromotionLineItemRuleTest extends TestCase
         );
 
         $this->promotionActionController = new PromotionActionController(
-            $this->createMock(PromotionCodesLoader::class),
-            $this->createMock(PromotionCodesRemover::class),
-            $serviceRegistry,
-            $this->createMock(FilterServiceRegistry::class),
+            $serviceRegistry
         );
     }
 

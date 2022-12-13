@@ -11,12 +11,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -41,7 +35,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -211,28 +204,16 @@ class OrderConverter
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws MissingOrderRelationException
+     * @throws CartException
      */
     public function convertToCart(OrderEntity $order, Context $context): Cart
     {
         if ($order->getLineItems() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('lineItems');
-            }
-
-            throw new MissingOrderRelationException('lineItems');
+            throw OrderException::missingAssociation('lineItems');
         }
 
         if ($order->getDeliveries() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('deliveries');
-            }
-
-            throw new MissingOrderRelationException('deliveries');
+            throw OrderException::missingAssociation('deliveries');
         }
 
         $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
@@ -243,11 +224,7 @@ class OrderConverter
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         $orderNumber = $order->getOrderNumber();
         if ($orderNumber === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingOrderNumber($order->getId());
-            }
-
-            throw new OrderInconsistentException($order->getId(), 'orderNumber is required');
+            throw OrderException::missingOrderNumber($order->getId());
         }
 
         $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
@@ -276,18 +253,10 @@ class OrderConverter
     public function assembleSalesChannelContext(OrderEntity $order, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         if ($order->getTransactions() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('transactions');
-            }
-
-            throw new MissingOrderRelationException('transactions');
+            throw OrderException::missingAssociation('transactions');
         }
         if ($order->getOrderCustomer() === null) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::missingAssociation('orderCustomer');
-            }
-
-            throw new MissingOrderRelationException('orderCustomer');
+            throw OrderException::missingAssociation('orderCustomer');
         }
 
         $customerId = $order->getOrderCustomer()->getCustomerId();

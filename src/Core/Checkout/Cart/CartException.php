@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,21 +41,16 @@ class CartException extends HttpException
 
     public static function tokenNotFound(string $token): self
     {
-        return new CartTokenNotFoundException($token);
-//        @deprecated tag:v6.5.0 - Remove above line and use line below instead
-//        return new CartTokenNotFoundException(Response::HTTP_NOT_FOUND, self::TOKEN_NOT_FOUND_CODE, 'Cart with token {{ token }} not found.', ['token' => $token]);
+        return new CartTokenNotFoundException(Response::HTTP_NOT_FOUND, self::TOKEN_NOT_FOUND_CODE, 'Cart with token {{ token }} not found.', ['token' => $token]);
     }
 
     public static function customerNotLoggedIn(): self
     {
-        return new CustomerNotLoggedInException();
-
-//        @deprecated tag:v6.5.0 - Remove above line and use line below instead
-//        return new CustomerNotLoggedInException(
-//            Response::HTTP_FORBIDDEN,
-//            self::CUSTOMER_NOT_LOGGED_IN_CODE,
-//            'Customer is not logged in.'
-//        );
+        return new CustomerNotLoggedInException(
+            Response::HTTP_FORBIDDEN,
+            self::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'Customer is not logged in.'
+        );
     }
 
     public static function insufficientPermission(): self
@@ -73,10 +67,6 @@ class CartException extends HttpException
      */
     public static function invalidCart(ErrorCollection $errors)
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            return new InvalidCartException($errors);
-        }
-
         $message = [];
         foreach ($errors as $error) {
             $message[] = $error->getId() . ': ' . $error->getMessage();

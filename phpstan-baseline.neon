@@ -956,11 +956,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Rule/CustomerTagRule.php
 
 		-
-			message: "#^Parameter \\#2 \\$hash of function password_verify expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php

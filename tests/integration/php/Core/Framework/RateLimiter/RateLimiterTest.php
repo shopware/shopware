@@ -7,7 +7,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
-use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
@@ -124,8 +124,8 @@ class RateLimiterTest extends TestCase
     {
         $route = new LoginRoute(
             $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(AccountService::class),
             $this->getContainer()->get('customer.repository'),
-            $this->getContainer()->get(LegacyPasswordVerifier::class),
             $this->getContainer()->get(CartRestorer::class),
             $this->getContainer()->get('request_stack'),
             $this->mockResetLimiter([

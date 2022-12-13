@@ -80,7 +80,7 @@ class DocumentGenerator
         /** @var DocumentEntity|null $document */
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
-        if ($document === null) {
+        if (!$document instanceof DocumentEntity) {
             throw new InvalidDocumentException($documentId);
         }
 

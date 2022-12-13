@@ -2,9 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
 use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\ConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
@@ -27,12 +32,19 @@ class MailerTransportLoaderTest extends TestCase
             $transport,
             new ConfigService([
                 'core.mailerSettings.emailAgent' => '',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class)
         );
 
         $trans = $loader->fromString('smtp://localhost:25');
 
-        static::assertInstanceOf(EsmtpTransport::class, $trans);
+        static::assertInstanceOf(MailerTransportDecorator::class, $trans);
+
+        $decorated = ReflectionHelper::getPropertyValue($trans, 'decorated');
+
+        static::assertInstanceOf(EsmtpTransport::class, $decorated);
     }
 
     public function testFactoryWithLocal(): void
@@ -42,12 +54,19 @@ class MailerTransportLoaderTest extends TestCase
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => null,
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class)
         );
 
         $mailer = $factory->fromString('null://null');
 
-        static::assertInstanceOf(SendmailTransport::class, $mailer);
+        static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
+
+        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+
+        static::assertInstanceOf(SendmailTransport::class, $decorated);
     }
 
     /**
@@ -67,13 +86,19 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.password' => 'root',
                 'core.mailerSettings.encryption' => $encryption,
                 'core.mailerSettings.authenticationMethod' => 'cram-md5',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class)
         );
 
-        /** @var EsmtpTransport $mailer */
         $mailer = $loader->fromString('null://null');
 
-        static::assertInstanceOf(EsmtpTransport::class, $mailer);
+        static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
+
+        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+
+        static::assertInstanceOf(EsmtpTransport::class, $decorated);
     }
 
     /**
@@ -93,7 +118,10 @@ class MailerTransportLoaderTest extends TestCase
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => '-t && echo bla',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class)
         );
 
         static::expectException(\RuntimeException::class);
@@ -108,7 +136,10 @@ class MailerTransportLoaderTest extends TestCase
             $this->getTransportFactory(),
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'test',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class)
         );
 
         static::expectException(\RuntimeException::class);

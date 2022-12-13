@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Flow;
+namespace Shopware\Tests\Integration\Core\Content\Flow;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -21,13 +21,13 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
-use Shopware\Core\Content\Mail\Service\MailService as EMailService;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
+use Shopware\Core\Content\Mail\Service\MailFactory;
+use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
@@ -39,7 +39,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 
 /**
@@ -83,7 +83,9 @@ class SendMailActionTest extends TestCase
             'documentTypeIds' => $documentTypeIds,
         ]);
 
-        $order = $orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('transactions.stateMachineState');
+        $order = $orderRepository->search($criteria, $context)->first();
         $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $documentIdOlder = null;
@@ -106,13 +108,16 @@ class SendMailActionTest extends TestCase
             );
         }
 
-        $mailService = new TestEmailService();
+        $transportDecorator = new MailerTransportDecorator(
+            $this->createMock(TransportInterface::class),
+            $this->getContainer()->get(MailAttachmentsBuilder::class),
+            $this->getContainer()->get('shopware.filesystem.public'),
+            $this->getContainer()->get('document.repository')
+        );
+        $mailService = new TestEmailService($this->getContainer()->get(MailFactory::class), $transportDecorator);
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -154,7 +159,7 @@ class SendMailActionTest extends TestCase
 
         $subscriber->handleFlow($flow);
 
-        static::assertIsObject($mailFilterEvent);
+        static::assertInstanceOf(FlowSendMailActionEvent::class, $mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
         static::assertIsArray($mailService->data);
         static::assertArrayHasKey('recipients', $mailService->data);
@@ -190,8 +195,8 @@ class SendMailActionTest extends TestCase
             static::assertInstanceOf(DocumentEntity::class, $oldDocument);
             static::assertFalse($oldDocument->getSent());
 
-            // version does not changed
-            static::assertEquals($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
+            // new document with new version id, old document with old version id
+            static::assertEquals($mailFilterEvent->getContext()->getVersionId(), $newDocument->getOrderVersionId());
             static::assertEquals($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
         }
     }
@@ -259,9 +264,6 @@ class SendMailActionTest extends TestCase
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -335,9 +337,6 @@ class SendMailActionTest extends TestCase
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -414,9 +413,6 @@ class SendMailActionTest extends TestCase
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -479,9 +475,6 @@ class SendMailActionTest extends TestCase
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -546,9 +539,6 @@ class SendMailActionTest extends TestCase
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -628,9 +618,6 @@ class SendMailActionTest extends TestCase
         $subscriber = new SendMailAction(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -741,6 +728,13 @@ class SendMailActionTest extends TestCase
             'lineItems' => [],
             'deliveries' => [
             ],
+            'transactions' => [
+                [
+                    'paymentMethodId' => $this->getValidPaymentMethodId(),
+                    'stateId' => $stateId,
+                    'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ],
+            ],
             'context' => '{}',
             'payload' => '{}',
         ];
@@ -782,61 +776,7 @@ class SendMailActionTest extends TestCase
  *
  * @internal
  */
-class TestMailSendSubscriber implements EventSubscriberInterface
-{
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            MailBeforeValidateEvent::class => 'sendMail',
-        ];
-    }
-
-    public function sendMail(MailBeforeValidateEvent $event): void
-    {
-        $event->addTemplateData('myTestAddTemplateKey', 'myTestAddTemplateValue');
-        $templateData = $event->getTemplateData();
-        $templateData['myTestTemplateKey'] = 'myTestTemplateValue';
-        $event->setTemplateData($templateData);
-
-        $event->addData('myTestAddKey', 'myTestAddValue');
-        $data = $event->getData();
-        $data['myTestKey'] = 'myTestValue';
-        $event->setData($data);
-    }
-}
-
-/**
- * @package business-ops
- *
- * @internal
- */
-class TestStopSendSubscriber implements EventSubscriberInterface
-{
-    /**
-     * @var MailBeforeSentEvent
-     */
-    public $event;
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            MailBeforeSentEvent::class => 'doNotSent',
-        ];
-    }
-
-    public function doNotSent(MailBeforeSentEvent $event): void
-    {
-        $this->event = $event;
-        $event->stopPropagation();
-    }
-}
-
-/**
- * @package business-ops
- *
- * @internal
- */
-class TestEmailService extends EMailService
+class TestEmailService extends MailService
 {
     public float $calls = 0;
 
@@ -845,8 +785,14 @@ class TestEmailService extends EMailService
      */
     public ?array $data = null;
 
-    public function __construct()
+    private ?MailFactory $mailFactory;
+
+    private ?MailerTransportDecorator $decorator;
+
+    public function __construct(?MailFactory $mailFactory = null, ?MailerTransportDecorator $decorator = null)
     {
+        $this->mailFactory = $mailFactory;
+        $this->decorator = $decorator;
     }
 
     /**
@@ -857,6 +803,21 @@ class TestEmailService extends EMailService
     {
         $this->data = $data;
         ++$this->calls;
+
+        if ($this->mailFactory && $this->decorator) {
+            $mail = $this->mailFactory->create(
+                $data['subject'],
+                ['foo@example.com' => 'foobar'],
+                $data['recipients'],
+                [],
+                [],
+                $data,
+                $data['binAttachments'] ?? null
+            );
+            $this->decorator->send($mail);
+
+            return $mail;
+        }
 
         return null;
     }

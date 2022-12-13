@@ -5,6 +5,10 @@ import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-document/page/sw-settings-document-list/';
 
+/**
+ * @package customer-order
+ */
+
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-document-list'), {
         data() {

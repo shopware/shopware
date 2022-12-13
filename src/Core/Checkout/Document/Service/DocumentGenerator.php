@@ -30,6 +30,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package customer-order
+ */
 final class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;

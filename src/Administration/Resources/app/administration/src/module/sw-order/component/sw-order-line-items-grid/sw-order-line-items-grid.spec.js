@@ -3,6 +3,10 @@ import 'src/module/sw-order/component/sw-order-line-items-grid';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 
+/**
+ * @package customer-order
+ */
+
 const mockItems = [
     {
         id: '1',

@@ -52,7 +52,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class CustomerDefinition extends EntityDefinition
 {

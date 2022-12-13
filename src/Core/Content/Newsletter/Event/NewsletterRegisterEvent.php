@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware
 {
     public const EVENT_NAME = 'newsletter.register';

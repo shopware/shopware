@@ -1,5 +1,8 @@
 import 'src/module/sw-order/component/sw-order-user-card';
 
+/**
+ * @package customer-order
+ */
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {
     let userCard;
 

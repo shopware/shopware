@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<OrderDeliveryEntity>
  */
 class OrderDeliveryCollection extends EntityCollection

@@ -2,6 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-nested-line-items-modal';
 import 'src/module/sw-order/component/sw-order-nested-line-items-row';
 
+/**
+ * @package customer-order
+ */
+
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');
     // id: 1.2.3.4.5 -> tax: 1.2345%

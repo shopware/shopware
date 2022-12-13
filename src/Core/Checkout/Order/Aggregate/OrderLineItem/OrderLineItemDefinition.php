@@ -36,6 +36,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class OrderLineItemDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order_line_item';

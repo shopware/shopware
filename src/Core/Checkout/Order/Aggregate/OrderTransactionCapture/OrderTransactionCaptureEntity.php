@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
+/**
+ * @package customer-order
+ */
 class OrderTransactionCaptureEntity extends Entity
 {
     use EntityIdTrait;

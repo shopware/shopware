@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package customer-order
+ */
 class AccountEditOrderPage extends Page
 {
     /**

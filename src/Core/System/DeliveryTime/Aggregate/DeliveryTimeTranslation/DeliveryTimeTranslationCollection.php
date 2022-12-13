@@ -5,6 +5,8 @@ namespace Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<DeliveryTimeTranslationEntity>
  */
 class DeliveryTimeTranslationCollection extends EntityCollection

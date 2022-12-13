@@ -1,6 +1,10 @@
 import template from './sw-order-details-state-card.html.twig';
 import './sw-order-details-state-card.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 

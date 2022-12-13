@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package checkout
+ * @package customer-order
  *
  * @Decoratable
  */

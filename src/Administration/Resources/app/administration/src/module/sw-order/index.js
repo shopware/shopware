@@ -61,6 +61,10 @@ import './component/sw-order-customer-address-select';
 
 import defaultSearchConfiguration from './default-search-configuration';
 
+/**
+ * @package customer-order
+ */
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

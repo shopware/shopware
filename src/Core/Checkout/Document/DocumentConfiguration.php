@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package customer-order
+ */
 class DocumentConfiguration extends Struct
 {
     /**

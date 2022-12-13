@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 
 /**
+ * @package customer-order
+ *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Document\Service\PdfRenderer

@@ -23,6 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
+/**
+ * @package customer-order
+ */
 class OrderTransactionCaptureDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'order_transaction_capture';

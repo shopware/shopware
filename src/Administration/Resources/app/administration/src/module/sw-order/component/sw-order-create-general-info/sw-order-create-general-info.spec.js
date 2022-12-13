@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-create-general-info';
 
+/**
+ * @package customer-order
+ */
+
 const cart = {
     price: {
         totalPrice: 20.01,

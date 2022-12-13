@@ -4,6 +4,7 @@ import template from './sw-order-state-select.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package customer-order
  * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

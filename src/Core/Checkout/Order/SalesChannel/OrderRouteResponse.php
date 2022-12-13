@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package customer-order
+ */
 class OrderRouteResponse extends StoreApiResponse
 {
     /**

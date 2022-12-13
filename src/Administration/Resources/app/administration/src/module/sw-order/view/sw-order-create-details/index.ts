@@ -14,6 +14,10 @@ import { LineItemType } from '../../order.types';
 import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 

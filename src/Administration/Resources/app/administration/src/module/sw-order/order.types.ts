@@ -1,6 +1,10 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 
+/**
+ * @package customer-order
+ */
+
 interface PaymentMethod extends Entity {
     translated: {
         name: string,

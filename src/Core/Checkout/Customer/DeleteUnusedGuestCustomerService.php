@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class DeleteUnusedGuestCustomerService
 {

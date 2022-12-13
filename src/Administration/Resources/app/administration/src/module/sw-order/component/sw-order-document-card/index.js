@@ -7,6 +7,10 @@ import '../sw-order-document-settings-delivery-note-modal';
 import '../sw-order-document-settings-credit-note-modal';
 import '../sw-order-document-settings-modal';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

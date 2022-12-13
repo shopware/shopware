@@ -8,6 +8,10 @@ import 'src/app/component/base/sw-button';
 
 import orderStore from 'src/module/sw-order/state/order.store';
 
+/**
+ * @package customer-order
+ */
+
 const lineItem = {
     label: 'Product',
     productId: 'product1'

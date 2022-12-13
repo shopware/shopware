@@ -2,6 +2,10 @@ import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion/helper/pr
 import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Utils, Service } = Shopware;
 const { format } = Utils;
 

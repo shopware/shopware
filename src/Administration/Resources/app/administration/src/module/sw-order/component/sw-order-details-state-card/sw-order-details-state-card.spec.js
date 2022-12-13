@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-details-state-card';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 const orderMock = {
     orderNumber: 10000,
     transactions: [

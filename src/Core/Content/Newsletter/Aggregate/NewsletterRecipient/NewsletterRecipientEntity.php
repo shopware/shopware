@@ -10,6 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 
+/**
+ * @package customer-order
+ */
 class NewsletterRecipientEntity extends Entity
 {
     use EntityIdTrait;

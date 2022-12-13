@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<CustomerGroupEntity>
  */
 class CustomerGroupCollection extends EntityCollection

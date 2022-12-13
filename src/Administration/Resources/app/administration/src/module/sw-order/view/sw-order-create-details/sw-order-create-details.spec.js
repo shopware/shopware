@@ -4,6 +4,10 @@ import 'src/module/sw-order/view/sw-order-create-details';
 import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
+/**
+ * @package customer-order
+ */
+
 async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);

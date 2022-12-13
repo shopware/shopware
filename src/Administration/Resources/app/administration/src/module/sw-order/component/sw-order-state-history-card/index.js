@@ -1,6 +1,10 @@
 import template from './sw-order-state-history-card.html.twig';
 import '../sw-order-state-change-modal';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

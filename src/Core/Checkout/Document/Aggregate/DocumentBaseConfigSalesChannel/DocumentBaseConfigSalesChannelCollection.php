@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChann
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<DocumentBaseConfigSalesChannelEntity>
  */
 class DocumentBaseConfigSalesChannelCollection extends EntityCollection

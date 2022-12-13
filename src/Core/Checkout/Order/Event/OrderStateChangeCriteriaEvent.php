@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Order\Event;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class OrderStateChangeCriteriaEvent extends Event
 {
     /**

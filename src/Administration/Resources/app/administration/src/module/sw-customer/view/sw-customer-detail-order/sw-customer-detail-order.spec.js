@@ -2,6 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/view/sw-customer-detail-order';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 const orderFixture = [{
     orderNumber: '10062',
     id: '1234',

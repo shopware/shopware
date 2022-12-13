@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-product-select';
 
+/**
+ * @package customer-order
+ */
+
 const createWrapper = async () => {
     return shallowMount(await Shopware.Component.build('sw-order-product-select'), {
         propsData: {

@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
  * @Route(defaults={"_routeScope"={"store-api"}})
  */

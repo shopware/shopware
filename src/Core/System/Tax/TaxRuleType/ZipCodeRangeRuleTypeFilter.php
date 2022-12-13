@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
+/**
+ * @package customer-order
+ */
 class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
     public const TECHNICAL_NAME = 'zip_code_range';

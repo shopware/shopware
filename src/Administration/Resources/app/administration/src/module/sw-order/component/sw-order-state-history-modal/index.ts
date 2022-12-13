@@ -5,6 +5,10 @@ import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-order-state-history-modal.html.twig';
 import type { StateMachineState, StateMachineHistory, Order } from '../../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

@@ -4,6 +4,10 @@ import './page/sw-settings-delivery-time-create';
 
 import './acl';
 
+/**
+ * @package customer-order
+ */
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

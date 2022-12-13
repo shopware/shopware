@@ -42,6 +42,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class DocumentGeneratorTest extends TestCase

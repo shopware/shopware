@@ -1,6 +1,10 @@
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
 const { Criteria } = Shopware.Data;

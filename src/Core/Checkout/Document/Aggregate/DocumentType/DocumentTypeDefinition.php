@@ -21,6 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class DocumentTypeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'document_type';

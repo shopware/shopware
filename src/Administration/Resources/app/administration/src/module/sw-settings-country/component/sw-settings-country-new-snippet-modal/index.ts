@@ -22,6 +22,8 @@ interface TreeItem {
 }
 
 /**
+ * @package customer-order
+ *
  * @private
  */
 Component.register('sw-settings-country-new-snippet-modal', {

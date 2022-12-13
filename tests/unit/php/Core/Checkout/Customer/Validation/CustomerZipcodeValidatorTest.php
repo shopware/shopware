@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @covers \Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator
  */

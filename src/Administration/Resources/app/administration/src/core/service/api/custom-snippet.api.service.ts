@@ -40,6 +40,9 @@ interface Address {
     additionalAddressLine2?: string,
 }
 
+/**
+ * @package customer-order
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class CustomSnippetApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {

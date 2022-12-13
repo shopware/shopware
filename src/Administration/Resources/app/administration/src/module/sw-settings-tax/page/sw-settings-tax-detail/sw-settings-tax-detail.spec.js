@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/page/sw-settings-tax-detail';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
     return shallowMount(await Shopware.Component.build('sw-settings-tax-detail'), {
         mocks: {

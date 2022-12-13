@@ -1,6 +1,9 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };
 

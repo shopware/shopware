@@ -29,6 +29,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class CustomerValueResolverTest extends TestCase

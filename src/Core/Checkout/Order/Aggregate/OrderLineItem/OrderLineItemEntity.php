@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package customer-order
+ */
 class OrderLineItemEntity extends Entity
 {
     use EntityIdTrait;

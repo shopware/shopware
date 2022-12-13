@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Order\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package customer-order
+ */
 class PaymentMethodNotChangeableException extends ShopwareHttpException
 {
     public function __construct(string $id)

@@ -3,6 +3,9 @@ import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 
+/**
+ * @package customer-order
+ */
 async function createWrapper() {
     const localVue = createLocalVue();
 

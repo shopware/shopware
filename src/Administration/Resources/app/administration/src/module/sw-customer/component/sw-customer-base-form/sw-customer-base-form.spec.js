@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-base-form';
 
+/**
+ * @package customer-order
+ */
+
 const customer = {
     id: '1',
     email: null,

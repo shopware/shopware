@@ -9,6 +9,8 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<OrderEntity>
  */
 class OrderCollection extends EntityCollection

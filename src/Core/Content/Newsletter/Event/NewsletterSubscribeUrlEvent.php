@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
     private string $subscribeUrl;

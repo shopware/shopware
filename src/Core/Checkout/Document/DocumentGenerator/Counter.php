@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package customer-order
+ */
 class Counter
 {
     private int $counter = 0;

@@ -1,5 +1,9 @@
 import template from './sw-order-detail-base.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Utils, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { get, format, array } = Utils;

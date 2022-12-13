@@ -1,5 +1,9 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 
 Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-settings-modal', {

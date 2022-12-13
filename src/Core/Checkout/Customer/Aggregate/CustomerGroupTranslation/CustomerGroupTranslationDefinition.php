@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class CustomerGroupTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'customer_group_translation';

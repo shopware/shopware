@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 class CustomerValueResolver implements ArgumentValueResolverInterface
 {

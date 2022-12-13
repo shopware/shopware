@@ -13,7 +13,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * @package checkout
+ * @package customer-order
  *
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})

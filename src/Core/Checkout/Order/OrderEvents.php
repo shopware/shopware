@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 
+/**
+ * @package customer-order
+ */
 class OrderEvents
 {
     /**

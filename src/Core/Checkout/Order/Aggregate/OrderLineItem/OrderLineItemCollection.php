@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<OrderLineItemEntity>
  */
 class OrderLineItemCollection extends EntityCollection

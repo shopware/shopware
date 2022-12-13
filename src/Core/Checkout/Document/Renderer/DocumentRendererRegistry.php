@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package customer-order
+ */
 final class DocumentRendererRegistry
 {
     /**

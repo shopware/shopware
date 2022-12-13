@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

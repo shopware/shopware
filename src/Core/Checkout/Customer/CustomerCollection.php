@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @package checkout
+ * @package customer-order
  *
  * @extends EntityCollection<CustomerEntity>
  */

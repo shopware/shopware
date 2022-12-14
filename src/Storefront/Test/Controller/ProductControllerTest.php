@@ -94,6 +94,7 @@ class ProductControllerTest extends TestCase
             ])
         );
 
+        /** @var string $responseContent */
         $responseContent = $response->getContent();
         $content = (array) json_decode($responseContent);
 
@@ -237,8 +238,11 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
+        /** @var string $content */
+        $content = $response->getContent();
+
         $crawler = new Crawler();
-        $crawler->addHtmlContent($response->getContent());
+        $crawler->addHtmlContent($content);
 
         $blueFound = false;
         $greenFound = false;
@@ -287,6 +291,9 @@ class ProductControllerTest extends TestCase
         static::assertFalse($mFound, 'Option m was found.');
     }
 
+    /**
+     * @return iterable<array<int, bool|string>>
+     */
     public function variantProvider(): iterable
     {
         yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
@@ -364,7 +371,7 @@ class ProductControllerTest extends TestCase
         return $request;
     }
 
-    private function createProduct(array $config = []): string
+    private function createProduct(): string
     {
         $id = Uuid::randomHex();
 
@@ -384,8 +391,6 @@ class ProductControllerTest extends TestCase
                 return ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
             }, $ids),
         ];
-
-        $product = array_replace_recursive($product, $config);
 
         $repository = $this->getContainer()->get('product.repository');
 
@@ -446,12 +451,19 @@ class ProductControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        /** @var string $content */
+        $content = $response->getContent();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
         $browser->request('GET', '/');
+
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+
+        /** @var SalesChannelContext $context */
+        $context = $response->getContext();
+        static::assertNotNull($context->getCustomer());
 
         return $browser;
     }

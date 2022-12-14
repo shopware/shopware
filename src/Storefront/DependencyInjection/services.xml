@@ -309,11 +309,6 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader"
                  decorates="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader">
 
@@ -440,10 +435,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader">

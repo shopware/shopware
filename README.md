@@ -13,7 +13,7 @@
 </div>
 
 
-<p align="center"><a href="https://shopware.com" target="_blank" rel="noopener noreferrer"><img width="250" src="https://backupsw5temp.shopware.com/media/image/dd/e4/b3/composable-customer-experience-illustration.png"></a></p>
+<p align="center"><a href="https://shopware.com" target="_blank" rel="noopener noreferrer"><img width="250" src="https://images.ctfassets.net/nqzs8zsepqpi/34zKqvPxTYtsQppJpgC9It/3b6901d9ba7082d5b4081d7171b268bf/composable-customer-experience-illustration.png"></a></p>
 
 <h1 align="center">Shopware</h1>
 

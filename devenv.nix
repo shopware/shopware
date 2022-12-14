@@ -74,5 +74,6 @@
 
   env.APP_URL = "http://localhost:8000";
   env.APP_SECRET = "devsecret";
+  env.CYPRESS_baseUrl = "http://localhost:8000";
   env.DATABASE_URL = "mysql://root@localhost:3306/shopware";
 }

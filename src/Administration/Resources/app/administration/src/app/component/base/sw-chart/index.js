@@ -7,6 +7,8 @@ const { object } = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type static

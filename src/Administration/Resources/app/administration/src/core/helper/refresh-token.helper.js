@@ -1,4 +1,8 @@
 /**
+ * @package admin
+ */
+
+/**
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.
  * @class
  */

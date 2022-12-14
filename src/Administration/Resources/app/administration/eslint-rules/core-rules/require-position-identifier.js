@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 const utils = require('eslint-plugin-vue/lib/utils');
 

@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/service/utils
  */
 import throttle from 'lodash/throttle';

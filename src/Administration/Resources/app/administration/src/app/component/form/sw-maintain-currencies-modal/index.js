@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 

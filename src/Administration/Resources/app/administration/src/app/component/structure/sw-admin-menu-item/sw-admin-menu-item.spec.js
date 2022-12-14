@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';

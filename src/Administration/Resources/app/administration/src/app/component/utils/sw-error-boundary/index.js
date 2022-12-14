@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @private
  * @description
  * The component catches all errors in subcomponent which aren't handled before.

@@ -4,6 +4,8 @@ import './sw-tree-input-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  * @status ready
  * @example-type code-only

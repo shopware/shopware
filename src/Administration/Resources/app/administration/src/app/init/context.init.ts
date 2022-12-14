@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import { publish } from '@shopware-ag/admin-extension-sdk/es/channel';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/directive/dragdrop.directive';
 

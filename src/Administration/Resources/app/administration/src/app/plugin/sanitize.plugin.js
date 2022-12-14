@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { warn } = Shopware.Utils.debug;
 const Sanitizer = Shopware.Helper.SanitizerHelper;
 

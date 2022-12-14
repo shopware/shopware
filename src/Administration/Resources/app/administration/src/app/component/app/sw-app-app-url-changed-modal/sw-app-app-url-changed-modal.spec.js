@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-app-url-changed-modal';
 import 'src/app/component/base/sw-button';

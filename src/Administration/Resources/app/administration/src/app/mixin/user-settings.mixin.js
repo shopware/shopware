@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import type { Module } from 'vuex';

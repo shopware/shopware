@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter } = Shopware;
 const { fileSize } = Shopware.Utils.format;
 

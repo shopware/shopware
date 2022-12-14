@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { FullState } from '../../core/factory/state.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

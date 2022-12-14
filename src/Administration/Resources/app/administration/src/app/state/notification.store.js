@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const { Application, State } = Shopware;

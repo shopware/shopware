@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { types } from '../service/util.service';
 
 /**

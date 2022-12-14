@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, RouterLinkStub } from '@vue/test-utils';
 import 'src/app/component/utils/sw-internal-link';
 

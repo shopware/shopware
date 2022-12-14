@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Mixin } = Shopware;
 
 Mixin.register('remove-api-error', {

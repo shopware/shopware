@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';

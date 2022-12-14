@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-one-to-many-grid.html.twig';
 
 const { Component } = Shopware;

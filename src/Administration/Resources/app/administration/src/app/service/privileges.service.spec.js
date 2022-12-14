@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import PrivilegesService from 'src/app/service/privileges.service';
 
 describe('src/app/service/privileges.service.js', () => {

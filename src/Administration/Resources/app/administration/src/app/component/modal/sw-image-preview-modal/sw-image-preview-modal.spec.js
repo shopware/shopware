@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/modal/sw-image-preview-modal';
 import 'src/app/component/media/sw-image-slider';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/extension-api/sw-iframe-renderer';

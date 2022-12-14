@@ -1,6 +1,8 @@
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description select input field. Values will be transformed to numbers.
  * @status ready

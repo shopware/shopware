@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import deDEMessages from 'src/app/snippet/de-DE.json';
 import enGBMessages from 'src/app/snippet/en-GB.json';
 

@@ -4,6 +4,8 @@ import './sw-sidebar-item.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type code-only

@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * Shopware End Developer API
  * @module Shopware
  * @ignore

@@ -5,6 +5,8 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Modal box component which can be displayed in different variants and sizes
  * @status ready

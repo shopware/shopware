@@ -4,6 +4,8 @@ import './sw-confirm-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Text field with additional confirmation buttons inlined in the field itself.
  * @status ready

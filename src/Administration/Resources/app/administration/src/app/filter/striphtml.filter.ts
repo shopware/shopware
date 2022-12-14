@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter } = Shopware;
 
 Filter.register('striphtml', (value: string): string => {

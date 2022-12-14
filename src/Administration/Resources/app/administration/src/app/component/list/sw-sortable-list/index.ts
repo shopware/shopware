@@ -31,6 +31,8 @@ interface ScrollOnDragConf {
 }
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type static

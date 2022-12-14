@@ -4,6 +4,8 @@ import './sw-select-base.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @description Base component for creating new select components. Uses sw-field base components as basic structure.

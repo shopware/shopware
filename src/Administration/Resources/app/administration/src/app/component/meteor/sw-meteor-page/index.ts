@@ -12,6 +12,8 @@ type ComponentData = {
 }
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-meteor-page', {

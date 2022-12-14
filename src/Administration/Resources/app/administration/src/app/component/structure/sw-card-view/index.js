@@ -4,6 +4,8 @@ import './sw-card-view.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Container for the <sw-card> component.

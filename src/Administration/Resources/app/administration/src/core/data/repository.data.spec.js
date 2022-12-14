@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import RepositoryData from 'src/core/data/repository.data';
 import IdCollection from 'src/../test/_helper_/id.collection';

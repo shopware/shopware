@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');

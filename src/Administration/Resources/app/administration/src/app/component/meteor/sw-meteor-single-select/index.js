@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import './sw-meteor-single-select.scss';
 import template from './sw-meteor-single-select.html.twig';
 

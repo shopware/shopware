@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import string from 'src/core/service/utils/string.utils';
 
 // these tests use Blob objects to simulate a File objects

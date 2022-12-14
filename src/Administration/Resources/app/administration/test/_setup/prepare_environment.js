@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { config, enableAutoDestroy } from '@vue/test-utils';
 import Vue from 'vue';
 

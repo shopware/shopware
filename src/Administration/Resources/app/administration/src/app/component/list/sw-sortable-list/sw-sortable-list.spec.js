@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 import 'src/app/component/list/sw-sortable-list';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-circle-icon';
 import 'src/app/component/base/sw-label';

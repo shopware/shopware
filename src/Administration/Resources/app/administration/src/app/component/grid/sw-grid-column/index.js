@@ -4,6 +4,8 @@ import template from './sw-grid-column.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  */
 Component.register('sw-grid-column', {

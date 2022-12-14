@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import AppActionButtonService, { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';

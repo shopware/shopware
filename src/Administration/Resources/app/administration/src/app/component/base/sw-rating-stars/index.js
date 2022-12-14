@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-rating-stars.html.twig';
 import './sw-rating-stars.scss';
 

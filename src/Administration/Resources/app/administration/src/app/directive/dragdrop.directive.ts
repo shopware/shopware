@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { types } = Shopware.Utils;
 
 interface DropConfig<DATA = unknown> {

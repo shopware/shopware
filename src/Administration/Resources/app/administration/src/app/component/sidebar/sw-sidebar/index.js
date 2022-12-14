@@ -4,6 +4,8 @@ import './sw-sidebar.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type static

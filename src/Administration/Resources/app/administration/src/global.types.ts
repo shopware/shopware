@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';

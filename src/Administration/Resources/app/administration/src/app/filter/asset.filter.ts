@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 Shopware.Filter.register('asset', (value: string) => {
     if (!value) {
         return '';

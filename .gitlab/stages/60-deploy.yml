@@ -27,7 +27,6 @@ Repository Split:
         - if: '$CI_COMMIT_REF_PROTECTED != "true"'
           when: 'never'
         - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/'
-        - if: '$CI_COMMIT_BRANCH == "saas-release"'
     environment:
         name: Github
         url: https://github.com/shopware
@@ -35,6 +34,7 @@ Repository Split:
         GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project
     script:
         - apt update && apt install -y wget git
+        - git config --global --add safe.directory '*'
 
         # download tool
         - wget https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz

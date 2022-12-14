@@ -65,7 +65,7 @@ With Shopware you control your destiny. Always having access to the source, you 
 
 Open commerce empowers you to seize the collective force of our community and partnerships. You benefit from a worldwide network of established developers, looking into the future of ecommerce and continuously advancing the platform in order to meet the latest market developments. It is exactly this focus that makes the difference and enables our merchants to grow strongly and sustainably in the ever-evolving world of digital commerce.
 
-<img src='https://backupsw5temp.shopware.com/media/image/0a/6e/57/open-commerce-platform-mood-image.png'></td>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/6L9YIBLLZ5cOdUSDmgcER/234366961af834327d17621c26ede892/open-commerce-platform-mood-image.png'></td>
 
 
 
@@ -82,20 +82,20 @@ Open commerce empowers you to seize the collective force of our community and pa
 ## Business Model Composer
 ### Plug and play your business model:
 
-<img src='https://backupsw5temp.shopware.com/media/image/d2/6d/6e/business-model-composer-illustration.png'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/nmbB4kx2XgV9gIJtkVWI6/6c3f14eb022b54d980a10be703fd4710/business-model-composer-illustration.png'>
 
 <p>
 Adapt fast and test various business models on-time: Digital events, subscription services, consultations, and highly customisable goods – whether to buy or to rent. There are no limits to the power of human imagination. Dare to dream, we'll make it happen!
 </p>
 
 
-<img src='https://backupsw5temp.shopware.com/media/vector/c1/5d/9f/flowbuilder.svg'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/2fzpK9THpmhh285950bwPl/8d018b21e1173cafb767a8120e2d9b8b/flowbuilder.svg'>
 
 
 #### The Flow-builder makes the implementation of business processes easy
 
 
-<img src='https://backupsw5temp.shopware.com/media/vector/09/d0/ab/flow-builder-intro-illustration.svg'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/5WUwOmbBzXKujLraK02eAp/a0e208a7df0d5517df419be279578dc0/flow-builder-intro-illustration.svg'>
 
 <img src='https://assets.shopware.com/media/icons/marketing/blue/business-models-on-time.svg' width='32' align='left'>&nbsp;
 **Run different business models on-time with one solution** <br />
@@ -109,7 +109,7 @@ Adapt fast and test various business models on-time: Digital events, subscriptio
 
 ## Composable Customer Experience
 
-<p align="center"><img src='https://backupsw5temp.shopware.com/media/image/dd/e4/b3/composable-customer-experience-illustration.png' width=500 align='center'></p>
+<p align="center"><img src='https://images.ctfassets.net/nqzs8zsepqpi/2mI5yTktojiFqNsB66pCsA/752bbd8eddb1b2d587d43d4cec09ffa7/composable-customer-experience-illustration.png' width=500 align='center'></p>
 
 <br />
 
@@ -161,7 +161,7 @@ Together with our friends of [VueStorefront](https://github.com/vuestorefront) w
 * Made for enterprise-level complexity
 
 <div align="center">
-<img align='center' src='https://backupsw5temp.shopware.com/media/vector/90/68/81/shopware-pwa-framework.svg'>
+<img align='center' src='https://images.ctfassets.net/nqzs8zsepqpi/6raZzvIPlRGUhSZGMpKg4F/c6f3d96d223c886f0134baf5069bea80/shopware-pwa-framework.svg'>
 </div>
 
 
@@ -177,7 +177,7 @@ Get started with the [design documentation](https://shopware.design/).
 
 Shopware 6 is a lean and extremely flexible product that can be easily adapted to meet your requirements – and the Plugin Manager is your command centre for managing the apps and themes added to your shop. Using this module, you can install, purchase, update or delete apps.
 
-<img src='https://backupsw5temp.shopware.com/media/image/2b/e5/c2/EN-Plugin_Manager_Updates-190520.png'>
+<img src='https://images.ctfassets.net/nqzs8zsepqpi/37KEQR5sgxpBlar7Q5PyGL/6f638937957a6eefeca74af83b28d5ba/EN-Plugin_Manager_Updates-190520.png'>
 <br />
 <br />
 <p align="center">

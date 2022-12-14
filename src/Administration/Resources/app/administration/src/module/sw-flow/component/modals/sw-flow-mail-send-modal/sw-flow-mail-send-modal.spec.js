@@ -121,7 +121,7 @@ async function createWrapper(sequence = {}) {
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-text-field': await Shopware.Component.build('sw-text-field'),
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-switch-field': true,
+            'sw-help-text': true,
             'sw-icon': true,
             'sw-field-error': {
                 props: ['error'],
@@ -440,19 +440,48 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         expect(wrapper.vm.showReplyToField).toBeTruthy();
         expect(wrapper.vm.replyToError).toBeNull();
+        expect(wrapper.vm.replyToOptions).not.toContain(wrapper.vm.recipientContactFormMail[0]);
 
-        await wrapper.setData({
-            replyTo: 'foobar'
-        });
+        wrapper.vm.changeShowReplyToField('foobar');
+        await flushPromises();
         wrapper.vm.onAddAction();
 
         expect(wrapper.vm.replyToError._code).toBe('INVALID_MAIL');
 
-        await wrapper.setData({
-            showReplyToField: false
-        });
-        wrapper.vm.changeShowReplyToField(false);
+        wrapper.vm.changeShowReplyToField('default');
+        await flushPromises();
 
+        expect(wrapper.vm.showReplyToField).toBeFalsy();
+        expect(wrapper.vm.replyTo).toBeNull();
+        expect(wrapper.vm.replyToError).toBeNull();
+
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.replyToError).toBeNull();
+    });
+
+    it('should validate reply to field with contact form trigger', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            triggerEvent: { name: 'contact_form.send' }
+        });
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.showReplyToField).toBeFalsy();
+        expect(wrapper.vm.replyToError).toBeNull();
+        expect(wrapper.vm.replyToOptions).toContain(wrapper.vm.recipientContactFormMail[0]);
+
+        wrapper.vm.changeShowReplyToField('foobar');
+        await flushPromises();
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.showReplyToField).toBeTruthy();
+        expect(wrapper.vm.replyToError._code).toBe('INVALID_MAIL');
+
+        wrapper.vm.changeShowReplyToField('contactFormMail');
+        await flushPromises();
+
+        expect(wrapper.vm.showReplyToField).toBeFalsy();
         expect(wrapper.vm.replyTo).toBeNull();
         expect(wrapper.vm.replyToError).toBeNull();
 

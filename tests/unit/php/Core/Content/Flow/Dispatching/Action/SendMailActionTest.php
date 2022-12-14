@@ -103,7 +103,12 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
-    public function testActionExecuted(): void
+    /**
+     * @dataProvider replyToProvider
+     *
+     * @param array<string, string> $exptectedReplyTo
+     */
+    public function testActionExecuted(?string $replyTo, array $exptectedReplyTo = []): void
     {
         $orderId = Uuid::randomHex();
         $mailTemplateId = Uuid::randomHex();
@@ -112,7 +117,7 @@ class SendMailActionTest extends TestCase
             'mailTemplateId' => $mailTemplateId,
             'recipient' => ['type' => 'customer'],
             'documentTypeIds' => null,
-            'replyTo' => 'foo@example.com',
+            'replyTo' => $replyTo,
         ]);
 
         $expected = [
@@ -128,7 +133,6 @@ class SendMailActionTest extends TestCase
                 'subject' => null,
                 'mediaIds' => [],
                 'senderName' => null,
-                'senderMail' => 'foo@example.com',
                 'attachmentsConfig' => new MailAttachmentsConfig(
                     Context::createDefaultContext(),
                     $this->mailTemplate,
@@ -142,11 +146,13 @@ class SendMailActionTest extends TestCase
 
         $templateData = new MailRecipientStruct($expected['data']['recipients']);
 
+        $expected['data'] = array_merge($expected['data'], $exptectedReplyTo);
+
         $this->flow->expects(static::exactly(2))
             ->method('hasStore')
             ->willReturn(true);
 
-        $this->flow->expects(static::exactly(5))
+        $this->flow->expects(static::exactly(6))
             ->method('getStore')
             ->willReturnOnConsecutiveCalls(
                 TestDefaults::SALES_CHANNEL,
@@ -156,6 +162,11 @@ class SendMailActionTest extends TestCase
                 [],
                 TestDefaults::SALES_CHANNEL,
                 $orderId,
+                [
+                    'email' => 'customer@example.com',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                ],
             );
 
         $this->flow->expects(static::exactly(2))
@@ -191,6 +202,16 @@ class SendMailActionTest extends TestCase
             ->with($expected['data'], $expected['context'], ['mailStruct' => $templateData]);
 
         $this->action->handleFlow($this->flow);
+    }
+
+    public function replyToProvider(): \Generator
+    {
+        yield 'no reply to' => [null];
+        yield 'custom reply to' => ['foo@example.com', ['senderMail' => 'foo@example.com']];
+        yield 'contact form reply to' => ['contactFormMail', [
+            'senderMail' => 'customer@example.com',
+            'senderName' => '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} {% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}',
+        ]];
     }
 
     public function testActionWithNotAware(): void

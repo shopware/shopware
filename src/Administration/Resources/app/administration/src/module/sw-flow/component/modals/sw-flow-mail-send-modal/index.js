@@ -35,7 +35,6 @@ export default {
             selectedRecipient: null,
             mailTemplateIdError: null,
             recipientGridError: null,
-            showReplyToField: false,
             replyTo: null,
             replyToError: null,
         };
@@ -154,6 +153,36 @@ export default {
             }];
         },
 
+        replyToOptions() {
+            if (this.triggerEvent.name === 'contact_form.send') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientContactFormMail,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            return [
+                ...this.recipientDefault,
+                ...this.recipientCustom,
+            ];
+        },
+
+        replyToSelection() {
+            switch (this.replyTo) {
+                case null:
+                    return 'default';
+                case 'contactFormMail':
+                    return 'contactFormMail';
+                default:
+                    return 'custom';
+            }
+        },
+
+        showReplyToField() {
+            return !(this.replyTo === null || this.replyTo === 'contactFormMail');
+        },
+
         ...mapState('swFlowState', ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
@@ -187,7 +216,6 @@ export default {
                 }
 
                 if (config.replyTo) {
-                    this.showReplyToField = true;
                     this.replyTo = config.replyTo;
                 }
 
@@ -441,10 +469,20 @@ export default {
             return itemIndex !== this.recipients.length - 1;
         },
 
-        changeShowReplyToField(show) {
-            if (!show) {
-                this.replyToError = null;
-                this.replyTo = null;
+        changeShowReplyToField(value) {
+            switch (value) {
+                case 'default':
+                    this.replyToError = null;
+                    this.replyTo = null;
+
+                    return;
+                case 'contactFormMail':
+                    this.replyToError = null;
+                    this.replyTo = null;
+
+                    return;
+                default:
+                    this.replyTo = '';
             }
         },
 

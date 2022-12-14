@@ -20,7 +20,7 @@ class LineItemCustomFieldRule extends Rule
     protected string $operator;
 
     /**
-     * @var mixed[]
+     * @var array<string, mixed>
      */
     protected array $renderedField;
 
@@ -30,9 +30,9 @@ class LineItemCustomFieldRule extends Rule
     protected $renderedFieldValue;
 
     /**
-     * @internal
+     * @param array<string, mixed> $renderedField
      *
-     * @param array|mixed[] $renderedField
+     * @internal
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
     {
@@ -60,7 +60,7 @@ class LineItemCustomFieldRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->isCustomFieldValid($lineItem)) {
                 return true;
             }
@@ -153,8 +153,8 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
-     * @param array<mixed> $customFields
-     * @param array|mixed[] $renderedField
+     * @param array<string, mixed> $customFields
+     * @param array<string, mixed> $renderedField
      *
      * @return string|int|float|bool|null
      */
@@ -177,7 +177,7 @@ class LineItemCustomFieldRule extends Rule
 
     /**
      * @param string|int|float|bool|null $renderedFieldValue
-     * @param array|mixed[] $renderedField
+     * @param array<string, mixed> $renderedField
      *
      * @return string|int|float|bool|null
      */

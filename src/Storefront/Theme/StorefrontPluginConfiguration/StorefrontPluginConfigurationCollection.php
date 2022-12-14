@@ -9,6 +9,24 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class StorefrontPluginConfigurationCollection extends Collection
 {
+    public function __construct(iterable $elements = [])
+    {
+        parent::__construct([]);
+
+        foreach ($elements as $element) {
+            $this->validateType($element);
+
+            $this->set($element->getTechnicalName(), $element);
+        }
+    }
+
+    public function add($element): void
+    {
+        $this->validateType($element);
+
+        $this->set($element->getTechnicalName(), $element);
+    }
+
     public function getByTechnicalName(string $name): ?StorefrontPluginConfiguration
     {
         return $this->filter(function (StorefrontPluginConfiguration $config) use ($name) {

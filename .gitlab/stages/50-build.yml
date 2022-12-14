@@ -5,6 +5,7 @@ Component Library:
     stage: build
     image: node:18.12
     before_script: []
+    needs: []
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR
     rules:

@@ -6,6 +6,8 @@ Upload Component Library:
     image: python:latest
     rules:
         - if: '$CI_COMMIT_BRANCH == "trunk" && $CI_PIPELINE_SOURCE == "schedule"'
+          when: manual
+          allow_failure: true
     dependencies:
         - Component Library
     environment:

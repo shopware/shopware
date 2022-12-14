@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -29,8 +28,6 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ProductController;
-use Shopware\Storefront\Page\Product\Configurator\FoundCombination as FoundCombinationStorefront;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPage;
@@ -69,11 +66,6 @@ class ProductControllerTest extends TestCase
     private $seoUrlPlaceholderHandlerMock;
 
     /**
-     * @var MockObject|ProductCombinationFinder
-     */
-    private $productCombinationFinderMock;
-
-    /**
      * @var MockObject|MinimalQuickViewPageLoader
      */
     private $minimalQuickViewPageLoaderMock;
@@ -100,7 +92,6 @@ class ProductControllerTest extends TestCase
         $this->productPageLoaderMock = $this->createMock(ProductPageLoader::class);
         $this->findVariantRouteMock = $this->createMock(FindProductVariantRoute::class);
         $this->seoUrlPlaceholderHandlerMock = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $this->productCombinationFinderMock = $this->createMock(ProductCombinationFinder::class);
         $this->minimalQuickViewPageLoaderMock = $this->createMock(MinimalQuickViewPageLoader::class);
         $this->productReviewSaveRouteMock = $this->createMock(AbstractProductReviewSaveRoute::class);
         $this->systemConfigServiceMock = $this->createMock(SystemConfigService::class);
@@ -108,7 +99,6 @@ class ProductControllerTest extends TestCase
 
         $this->controller = new ProductControllerTestClass(
             $this->productPageLoaderMock,
-            $this->productCombinationFinderMock,
             $this->findVariantRouteMock,
             $this->minimalQuickViewPageLoaderMock,
             $this->productReviewSaveRouteMock,
@@ -202,45 +192,6 @@ class ProductControllerTest extends TestCase
         static::assertEquals('{"url":"https:\/\/test.com\/test","productId":"' . $ids->get('variantId') . '"}', $response->getContent());
     }
 
-    public function testSwitchVariantReturnOld(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $ids = new IdsCollection();
-
-        $options = [
-            $ids->get('group1') => $ids->get('option1'),
-            $ids->get('group2') => $ids->get('option2'),
-        ];
-
-        $request = new Request(
-            [
-                'switched' => $ids->get('element'),
-                'options' => json_encode($options),
-            ]
-        );
-
-        $this->productCombinationFinderMock->method('find')->with(
-            $ids->get('product'),
-            $ids->get('element'),
-            $options
-        )
-            ->willReturn(
-                new FoundCombinationStorefront($ids->get('variantId'), $options)
-            );
-
-        $this->seoUrlPlaceholderHandlerMock->method('generate')->with(
-            'frontend.detail.page',
-            ['productId' => $ids->get('variantId')]
-        )->willReturn('https://test.com/test');
-
-        $this->seoUrlPlaceholderHandlerMock->method('replace')->willReturnArgument(0);
-
-        $response = $this->controller->switch($ids->get('product'), $request, $this->createMock(SalesChannelContext::class));
-
-        static::assertEquals('{"url":"https:\/\/test.com\/test","productId":"' . $ids->get('variantId') . '"}', $response->getContent());
-    }
-
     public function testSwitchVariantException(): void
     {
         $ids = new IdsCollection();
@@ -250,11 +201,7 @@ class ProductControllerTest extends TestCase
             $ids->get('group2') => $ids->get('option2'),
         ];
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $this->findVariantRouteMock->method('load')->willThrowException(new VariantNotFoundException($ids->get('product'), $options));
-        } else {
-            $this->productCombinationFinderMock->method('find')->willThrowException(new ProductNotFoundException($ids->get('product')));
-        }
+        $this->findVariantRouteMock->method('load')->willThrowException(new VariantNotFoundException($ids->get('product'), $options));
 
         $response = $this->controller->switch($ids->get('product'), new Request(), $this->createMock(SalesChannelContext::class));
 

@@ -10,6 +10,9 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
 {
+    /**
+     * @return string[]
+     */
     public static function getServiceIds(): array
     {
         return [

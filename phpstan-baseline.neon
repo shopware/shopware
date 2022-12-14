@@ -20897,11 +20897,6 @@ parameters:
 			path: src/Storefront/Controller/CaptchaController.php
 
 		-
-			message: "#^PHPDoc tag @var for variable \\$options has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CmsController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterComfortFeaturesCookie\\(\\) has parameter \\$cookieGroups with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Controller/CookieController.php
@@ -21357,11 +21352,6 @@ parameters:
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinder\\:\\:find\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Configurator/ProductCombinationFinder.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\\:\\:getMatrix\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Product/Review/RatingMatrix.php
@@ -21435,36 +21425,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CookieControllerTest.php
-
-		-
-			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ProductControllerTest\\:\\:createProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ProductControllerTest\\:\\:variantProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$content of method Symfony\\\\Component\\\\DomCrawler\\\\Crawler\\:\\:addHtmlContent\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SearchControllerTest\\:\\:getProviderInvalidTerms\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -22055,21 +22015,6 @@ parameters:
 			message: "#^Cannot call method getVars\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/NavigationPageTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinderTest\\:\\:\\$groupIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Configurator/ProductCombinationFinderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinderTest\\:\\:\\$optionIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Configurator/ProductCombinationFinderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinderTest\\:\\:\\$variantIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Configurator/ProductCombinationFinderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Review\\\\RatingMatrixTest\\:\\:getDatabaseMatrixAggregationArray\\(\\) return type has no value type specified in iterable type array\\.$#"

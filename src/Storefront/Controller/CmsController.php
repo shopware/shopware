@@ -9,14 +9,12 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,7 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package content
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class CmsController extends StorefrontController
 {
@@ -49,11 +47,6 @@ class CmsController extends StorefrontController
     private AbstractFindProductVariantRoute $findVariantRoute;
 
     /**
-     * @deprecated tag:v6.5.0 - will be removed
-     */
-    private ProductCombinationFinder $productCombinationFinder;
-
-    /**
      * @internal
      */
     public function __construct(
@@ -63,7 +56,6 @@ class CmsController extends StorefrontController
         AbstractProductDetailRoute $productRoute,
         ProductReviewLoader $productReviewLoader,
         AbstractFindProductVariantRoute $findVariantRoute,
-        ProductCombinationFinder $productCombinationFinder,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->cmsRoute = $cmsRoute;
@@ -73,7 +65,6 @@ class CmsController extends StorefrontController
         $this->productReviewLoader = $productReviewLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->findVariantRoute = $findVariantRoute;
-        $this->productCombinationFinder = $productCombinationFinder;
     }
 
     /**
@@ -173,32 +164,21 @@ class CmsController extends StorefrontController
         /** @var string $elementId */
         $elementId = $request->query->get('elementId');
 
-        /** @var array|null $options */
+        /** @var string[]|null $options */
         $options = json_decode($request->query->get('options', ''), true);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $variantResponse = $this->findVariantRoute->load(
-                $productId,
-                new Request(
-                    [
-                        'switchedGroup' => $request->query->get('switched'),
-                        'options' => $options ?? [],
-                    ]
-                ),
-                $context
-            );
+        $variantResponse = $this->findVariantRoute->load(
+            $productId,
+            new Request(
+                [
+                    'switchedGroup' => $request->query->get('switched'),
+                    'options' => $options ?? [],
+                ]
+            ),
+            $context
+        );
 
-            $newProductId = $variantResponse->getFoundCombination()->getVariantId();
-        } else {
-            $finderResponse = $this->productCombinationFinder->find(
-                $productId,
-                $request->query->get('switched'),
-                $options ?? [],
-                $context
-            );
-
-            $newProductId = $finderResponse->getVariantId();
-        }
+        $newProductId = $variantResponse->getFoundCombination()->getVariantId();
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();

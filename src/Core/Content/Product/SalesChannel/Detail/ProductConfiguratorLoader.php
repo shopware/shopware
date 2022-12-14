@@ -22,14 +22,14 @@ class ProductConfiguratorLoader
 {
     private EntityRepository $configuratorRepository;
 
-    private AvailableCombinationLoader $combinationLoader;
+    private AbstractAvailableCombinationLoader $combinationLoader;
 
     /**
      * @internal
      */
     public function __construct(
         EntityRepository $configuratorRepository,
-        AvailableCombinationLoader $combinationLoader
+        AbstractAvailableCombinationLoader $combinationLoader
     ) {
         $this->combinationLoader = $combinationLoader;
         $this->configuratorRepository = $configuratorRepository;

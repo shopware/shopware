@@ -197,9 +197,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $mailEvent instanceof OrderAware ? $mailEvent->getOrderId() : null,
         ));
 
-        if (!empty($eventConfig['replyTo'])) {
-            $data->set('senderMail', $eventConfig['replyTo']);
-        }
+        $this->setReplyTo($data, $eventConfig, $contactFormData);
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $event));
 
@@ -283,9 +281,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $flow->getStore(OrderAware::ORDER_ID),
         ));
 
-        if (!empty($eventConfig['replyTo'])) {
-            $data->set('senderMail', $eventConfig['replyTo']);
-        }
+        $this->setReplyTo($data, $eventConfig, $flow->getStore('contactFormData', []));
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
 
@@ -457,5 +453,33 @@ class SendMailAction extends FlowAction implements DelayableAction
             default:
                 return $mailStructRecipients;
         }
+    }
+
+    /**
+     * @param array<string, mixed> $eventConfig
+     * @param array<int|string, mixed> $contactFormData
+     */
+    private function setReplyTo(DataBag $data, array $eventConfig, array $contactFormData): void
+    {
+        if (empty($eventConfig['replyTo']) || !\is_string($eventConfig['replyTo'])) {
+            return;
+        }
+
+        if ($eventConfig['replyTo'] !== self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL) {
+            $data->set('senderMail', $eventConfig['replyTo']);
+
+            return;
+        }
+
+        if (empty($contactFormData['email']) || !\is_string($contactFormData['email'])) {
+            return;
+        }
+
+        $data->set(
+            'senderName',
+            '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} '
+            . '{% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}'
+        );
+        $data->set('senderMail', $contactFormData['email']);
     }
 }

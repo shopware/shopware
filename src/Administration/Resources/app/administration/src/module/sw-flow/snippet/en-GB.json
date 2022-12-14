@@ -335,7 +335,8 @@
       "reminded": "Reminded",
       "unconfirmed": "Unconfirmed",
       "pending": "Pending",
-      "changed": "Changed"
+      "changed": "Changed",
+      "update": "Update"
     }
   },
   "sw-privileges": {

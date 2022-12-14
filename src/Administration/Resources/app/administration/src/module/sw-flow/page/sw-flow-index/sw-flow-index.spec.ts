@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/page/sw-flow-index';
+import swFlowIndex from 'src/module/sw-flow/page/sw-flow-index';
+
+Shopware.Component.register('sw-flow-index', swFlowIndex);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-flow-index'), {

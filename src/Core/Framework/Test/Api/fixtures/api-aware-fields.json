@@ -1452,7 +1452,6 @@
     "app_flow_action_translation.updatedAt",
     "app_flow_action_translation.appFlowActionId",
     "app_flow_action_translation.languageId",
-    "flow_template.config",
     "flow_template.createdAt",
     "flow_template.updatedAt"
 ]

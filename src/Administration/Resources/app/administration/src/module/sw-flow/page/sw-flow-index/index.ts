@@ -4,11 +4,14 @@ import type { MetaInfo } from 'vue-meta';
 import template from './sw-flow-index.html.twig';
 import './sw-flow-index.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ * @package business-ops
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-index', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['acl', 'repositoryFactory'],

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Flow\Aggregate\FlowTemplate;
 
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -43,7 +42,7 @@ class FlowTemplateDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name', 255))->addFlags(new Required()),
-            (new FlowTemplateConfigField('config', 'config'))->addFlags(new ApiAware()),
+            new FlowTemplateConfigField('config', 'config'),
         ]);
     }
 }

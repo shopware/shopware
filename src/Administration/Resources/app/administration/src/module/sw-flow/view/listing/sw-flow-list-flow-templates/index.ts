@@ -12,18 +12,27 @@ interface FlowTemplateEntity extends Entity {
     eventName: string,
 }
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+interface GridColumn {
+    property: string,
+    dataIndex?: string,
+    label: string,
+    allowResize?: boolean,
+    sortable?: boolean,
+}
 
-// @ts-expect-error
+const { Mixin, Data: { Criteria } } = Shopware;
+
+/**
+ * @private
+ * @package business-ops
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-list-flow-templates', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['acl', 'repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification'),
         Mixin.getByName('listing'),
     ],
 
@@ -53,6 +62,7 @@ Component.register('sw-flow-list-flow-templates', {
 
     metaInfo(): MetaInfo {
         return {
+            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             title: this.$createTitle() as string,
         };
@@ -67,18 +77,17 @@ Component.register('sw-flow-list-flow-templates', {
             const criteria = new Criteria(1, 25);
 
             if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm as string);
+                criteria.setTerm(this.searchTerm);
             }
 
-            criteria
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
+            // @ts-expect-error - Mixin methods are not recognized
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection))
                 .addSorting(Criteria.sort('updatedAt', 'DESC'));
 
             return criteria;
         },
 
-        flowTemplateColumns() {
+        flowTemplateColumns(): GridColumn[] {
             return [
                 {
                     property: 'name',
@@ -103,9 +112,13 @@ Component.register('sw-flow-list-flow-templates', {
     },
 
     watch: {
-        searchTerm(value): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.onSearch(value);
+        searchTerm: {
+            immediate: true,
+            handler(value): void {
+                // @ts-expect-error - Mixin methods are not recognized
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                this.onSearch(value);
+            },
         },
     },
 
@@ -121,24 +134,21 @@ Component.register('sw-flow-list-flow-templates', {
         },
 
         getList(): void {
-            // @ts-expect-error
             this.isLoading = true;
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             this.flowTemplateRepository.search(this.flowTemplateCriteria)
                 .then((data: EntityCollection) => {
-                    // @ts-expect-error
-                    this.total = data.total;
-                    // @ts-expect-error
+                    this.total = data.total as number;
                     this.flowTemplates = data as unknown as Array<FlowTemplateEntity>;
                 })
                 .finally(() => {
-                    // @ts-expect-error
                     this.isLoading = false;
                 });
         },
 
         createFlowFromTemplate(item: FlowTemplateEntity): void {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.$router.push({ name: 'sw.flow.create', params: { flowTemplateId: item.id } });
         },
 
@@ -147,6 +157,7 @@ Component.register('sw-flow-list-flow-templates', {
                 return;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.$router.push({
                 name: 'sw.flow.detail',
                 params: {

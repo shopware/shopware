@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_4;
+namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @internal
  */
-class Migration1659256999CreateFlowTemplateTable extends MigrationStep
+class Migration1671029945CreateFlowTemplateTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1659256999;
+        return 1671029945;
     }
 
     public function update(Connection $connection): void

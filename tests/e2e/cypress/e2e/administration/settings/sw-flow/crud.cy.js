@@ -32,8 +32,8 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.get('.sw-flow-detail__tab-flow').click();
         cy.get('.sw-flow-trigger__input-field').type('order placed');
-        cy.get('.sw-flow-trigger__search-result').should('be.visible');
-        cy.get('.sw-flow-trigger__search-result').eq(0).click();
+        cy.get('.sw-flow-trigger__search-results').should('be.visible');
+        cy.get('.sw-flow-trigger__search-results').eq(0).click();
 
         // Save
         cy.get('.sw-flow-detail__save').click();
@@ -189,7 +189,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.wait('@duplicateData').its('response.statusCode').should('equal', 200);
 
         // Verify correct detail page
-        cy.get('.smart-bar__header h2').contains('Order placed - Copy');
+        cy.contains('.smart-bar__header h2', 'Order placed - Copy');
 
         // Verify duplicated element
         cy.get(page.elements.smartBarBack).click();

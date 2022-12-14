@@ -530,9 +530,11 @@ export default {
 
             sequences = sequences.map(sequence => {
                 sequence = this.createSequenceEntity(sequence);
-                parentIds[sequence.id] = Utils.createId();
 
-                return { ...sequence, id: parentIds[sequence.id] };
+                parentIds[sequence.id] = Utils.createId();
+                sequence.id = parentIds[sequence.id];
+
+                return sequence;
             });
 
             // update parentId of sequence

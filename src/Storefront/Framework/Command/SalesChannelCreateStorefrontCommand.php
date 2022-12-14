@@ -14,6 +14,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @final
+ */
 #[AsCommand(
     name: 'sales-channel:create:storefront',
     description: 'Creates a new storefront sales channel',
@@ -43,6 +46,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         $this
             ->addOption('url', null, InputOption::VALUE_REQUIRED, 'App URL for storefront')
             ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set')
+            ->addOption('isoCode', null, InputOption::VALUE_REQUIRED, 'Snippet set iso code')
         ;
     }
 
@@ -53,7 +57,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
-        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
+        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId($input->getOption('isoCode'));
 
         return [
             'domains' => [
@@ -69,17 +73,16 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         ];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:visibility-change - Will be made private when parent implementation is removed
-     */
-    protected function getSnippetSetId(): string
+    private function getSnippetSetId(?string $isoCode = 'en-GB'): string
     {
+        $isoCode = $isoCode ?: 'en-GB';
+        $isoCode = str_replace('_', '-', $isoCode);
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', 'en-GB'));
+            ->addFilter(new EqualsFilter('iso', $isoCode));
 
         /** @var string|null $id */
-        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
+        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         if ($id === null) {
             throw new \InvalidArgumentException('Unable to get default SnippetSet. Please provide a valid SnippetSetId.');

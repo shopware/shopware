@@ -174,8 +174,6 @@ export default {
                 this.userRepository.save(this.user, context)
                     .then(async () => {
                         await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-
-                        document.location.reload();
                     })
                     .finally(() => {
                         this.showConfirmLanguageSwitchModal = false;

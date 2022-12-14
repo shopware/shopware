@@ -13,14 +13,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\System\User\Command\UserCreateCommand">
-            <argument type="service" id="Shopware\Core\Maintenance\User\Service\UserProvisioner"/>
-        </service>
-
-        <service id="Shopware\Core\System\User\Command\UserChangePasswordCommand">
-            <argument type="service" id="user.repository"/>
-        </service>
-
         <service id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\XmlReader;
 
 /**
@@ -15,30 +14,21 @@ class ActionButton extends XmlElement
     public const TRANSLATABLE_FIELDS = ['label'];
 
     /**
-     * @var array
+     * @var array<string>
      */
-    protected $label = [];
+    protected array $label = [];
+
+    protected string $action;
+
+    protected string $entity;
+
+    protected string $view;
+
+    protected string $url;
 
     /**
-     * @var string
+     * @param array<string, string> $data
      */
-    protected $action;
-
-    /**
-     * @var string
-     */
-    protected $entity;
-
-    /**
-     * @var string
-     */
-    protected $view;
-
-    /**
-     * @var string
-     */
-    protected $url;
-
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -51,6 +41,9 @@ class ActionButton extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -67,6 +60,9 @@ class ActionButton extends XmlElement
         return $data;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getLabel(): array
     {
         return $this->label;
@@ -92,12 +88,17 @@ class ActionButton extends XmlElement
         return $this->url;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
-            $values[$attribute->name] = XmlReader::phpize($attribute->value);
+        if (is_iterable($element->attributes)) {
+            foreach ($element->attributes as $attribute) {
+                $values[$attribute->name] = XmlReader::phpize($attribute->value);
+            }
         }
 
         foreach ($element->childNodes as $child) {

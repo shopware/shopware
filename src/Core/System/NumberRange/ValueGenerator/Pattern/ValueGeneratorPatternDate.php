@@ -2,16 +2,12 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement ValueGeneratorPatternInterface anymore
- *
  * @package checkout
  */
-class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueGeneratorPatternInterface
+class ValueGeneratorPatternDate extends AbstractValueGenerator
 {
     public const STANDARD_FORMAT = 'Y-m-d';
 
@@ -20,6 +16,9 @@ class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueG
         return 'date';
     }
 
+    /**
+     * @param array<int, string>|null $args
+     */
     public function generate(array $config, ?array $args = null, ?bool $preview = false): string
     {
         if ($args === null || \count($args) === 0) {
@@ -32,24 +31,5 @@ class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueG
     public function getDecorated(): AbstractValueGenerator
     {
         throw new DecorationPatternException(self::class);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed, use `generate()` instead
-     */
-    public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternDate::generate()')
-        );
-
-        $config = [
-            'id' => $configuration->getId(),
-            'start' => $configuration->getStart(),
-            'pattern' => $configuration->getPattern() ?? '',
-        ];
-
-        return $this->generate($config, $args, $preview);
     }
 }

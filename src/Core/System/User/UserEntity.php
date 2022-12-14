@@ -41,7 +41,7 @@ class UserEntity extends Entity
     protected $username;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string
      */
@@ -123,7 +123,7 @@ class UserEntity extends Entity
     protected $recoveryUser;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -207,7 +207,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getPassword(): string
     {
@@ -217,7 +217,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setPassword(string $password): void
     {
@@ -325,7 +325,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getStoreToken(): ?string
     {
@@ -335,7 +335,7 @@ class UserEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setStoreToken(?string $storeToken): void
     {

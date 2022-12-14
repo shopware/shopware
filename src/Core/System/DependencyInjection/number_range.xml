@@ -47,11 +47,6 @@
                      method="getStorage"/>
         </service>
 
-        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface"
-                 alias="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage">
-            <deprecated package="shopware/core" version="6.5.0">tag:v6.5.0 "%alias_id%" service alias is deprecated, use "Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage" instead.</deprecated>
-        </service>
-
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage">
             <argument type="service" id="shopware.number_range.redis"/>
             <argument type="service" id="lock.factory"/>

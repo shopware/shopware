@@ -82,10 +82,6 @@ base-uri 'self';
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <service id="Shopware\Core\System\User\Service\UserProvisioner">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
         <!-- Migration -->
         <service id="Shopware\Core\Framework\Migration\MigrationSource.core"
                  class="Shopware\Core\Framework\Migration\MigrationSource">

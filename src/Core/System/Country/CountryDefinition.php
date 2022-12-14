@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -100,11 +99,8 @@ class CountryDefinition extends EntityDefinition
             (new StringField('iso3', 'iso3'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new BoolField('display_state_in_registration', 'displayStateInRegistration'))->addFlags(new ApiAware()),
             (new BoolField('force_state_in_registration', 'forceStateInRegistration'))->addFlags(new ApiAware()),
-            (new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware()),
             (new BoolField('check_vat_id_pattern', 'checkVatIdPattern'))->addFlags(new ApiAware()),
             (new BoolField('vat_id_required', 'vatIdRequired'))->addFlags(new ApiAware()),
-            (new BoolField('tax_free', 'taxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')),
-            (new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')),
             (new StringField('vat_id_pattern', 'vatIdPattern'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()),

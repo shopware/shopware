@@ -10,10 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class LanguageForeignKeyDeleteException extends ShopwareHttpException
 {
-    /**
-     * @deprecated tag:v6.5.0 - $language parameter will be removed
-     */
-    public function __construct(string $language, $e)
+    public function __construct(?\Throwable $e = null)
     {
         parent::__construct(
             'The language cannot be deleted because foreign key constraints exist.',

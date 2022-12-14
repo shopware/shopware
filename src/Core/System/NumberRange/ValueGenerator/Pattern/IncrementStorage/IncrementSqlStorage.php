@@ -4,23 +4,14 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement IncrementStorageInterface anymore, use AbstractIncrementStorage instead
- *
  * @package checkout
  */
-class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementStorageInterface
+class IncrementSqlStorage extends AbstractIncrementStorage
 {
-    /**
-     * @deprecated tag:v6.5.0 property will be removed as it is unused
-     */
-    protected string $connectorId = 'standard_pattern_connector';
-
     private Connection $connection;
 
     /**
@@ -29,44 +20,6 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed use `reserve()` instead
-     */
-    public function pullState(NumberRangeEntity $configuration): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::reserve()')
-        );
-
-        $config = [
-            'id' => $configuration->getId(),
-            'start' => $configuration->getStart(),
-            'pattern' => $configuration->getPattern() ?? '',
-        ];
-
-        return (string) $this->reserve($config);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed use `preview()` instead
-     */
-    public function getNext(NumberRangeEntity $configuration): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::preview()')
-        );
-
-        $config = [
-            'id' => $configuration->getId(),
-            'start' => $configuration->getStart(),
-            'pattern' => $configuration->getPattern() ?? '',
-        ];
-
-        return (string) $this->preview($config);
     }
 
     public function reserve(array $config): int

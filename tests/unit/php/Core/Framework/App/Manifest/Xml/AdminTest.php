@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**

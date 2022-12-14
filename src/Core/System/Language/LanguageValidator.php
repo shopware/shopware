@@ -22,7 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class LanguageValidator implements EventSubscriberInterface
 {
@@ -33,11 +33,6 @@ class LanguageValidator implements EventSubscriberInterface
     public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
 
     public const VIOLATION_DEFAULT_LANGUAGE_PARENT = 'default_language_parent_violation';
-
-    /**
-     * @deprecated tag:v6.5.0 - const will be removed in v6.5.0
-     */
-    public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_SYSTEM];
 
     private Connection $connection;
 

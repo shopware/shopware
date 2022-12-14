@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,8 +25,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class SalesChannelContextRestorer
 {
-    protected CartRestorer $cartRestorer;
-
     private AbstractSalesChannelContextFactory $factory;
 
     private CartRuleLoader $cartRuleLoader;
@@ -49,7 +46,6 @@ class SalesChannelContextRestorer
         OrderConverter $orderConverter,
         EntityRepository $orderRepository,
         Connection $connection,
-        CartRestorer $cartRestorer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->factory = $factory;
@@ -57,7 +53,6 @@ class SalesChannelContextRestorer
         $this->orderConverter = $orderConverter;
         $this->orderRepository = $orderRepository;
         $this->connection = $connection;
-        $this->cartRestorer = $cartRestorer;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -186,19 +181,6 @@ class SalesChannelContextRestorer
         $salesChannelContext->getContext()->addState(...$context->getStates());
 
         return $salesChannelContext;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use Shopware\Core\System\SalesChannel\Context\CartRestore::restore function instead
-     */
-    public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Shopware\Core\System\SalesChannel\Context\CartRestore::restore()')
-        );
-
-        return $this->cartRestorer->restore($customerId, $currentContext);
     }
 
     /**

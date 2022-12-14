@@ -191,7 +191,6 @@ trait BasicTestDataBehaviour
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)
-            ->addFilter(new EqualsFilter('taxFree', 0))
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('shippingAvailable', true))
             ->addSorting(new FieldSorting('iso'));

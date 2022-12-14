@@ -5,7 +5,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
@@ -67,18 +66,8 @@ class SalesChannelContextPersister
         );
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - parameter $salesChannelId will be required
-     */
-    public function delete(string $token, ?string $salesChannelId = null, ?string $customerId = null): void
+    public function delete(string $token, string $salesChannelId, ?string $customerId = null): void
     {
-        if ($salesChannelId === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0.0'
-            );
-        }
-
         $this->connection->executeStatement(
             'DELETE FROM sales_channel_api_context WHERE token = :token',
             [

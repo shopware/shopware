@@ -18,7 +18,7 @@ class SalesChannelExceptionHandler implements ExceptionHandlerInterface
     public function matchException(\Exception $e): ?\Exception
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*sales_channel_domain.*CONSTRAINT `fk.sales_channel_domain.language_id`/', $e->getMessage())) {
-            return new LanguageOfSalesChannelDomainDeleteException('', $e);
+            return new LanguageOfSalesChannelDomainDeleteException($e);
         }
 
         return null;

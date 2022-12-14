@@ -5,6 +5,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import baseline from './baseline';
+import packageJson from '../../package.json';
 
 
 const getAllFiles = (dirPath: string, arrayOfFiles: Array<string> = null): Array<string> => {
@@ -30,7 +31,7 @@ const testAbleFiles = getAllFiles(path.join(adminPath, rootPath)).filter(file =>
     return file.match(/^.*(?<!\.spec)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
 });
 
-describe('Administration meta test', () => {
+describe('Administration meta tests', () => {
     it.each(testAbleFiles)('should have a spec file for %s', (file) => {
         // Match 0 holds the whole file path
         // Match 1 holds the last folder name e.g. "adapter"
@@ -67,5 +68,14 @@ describe('Administration meta test', () => {
         const fileIsTested = specFileExists || specFileWithFolderNameExists || specFileAlternativeExtensionExists || specFileWithFolderNameAlternativeExtensionExists;
 
         expect(fileIsTested).toBeTruthy();
+    });
+
+    it('should have engine information in package.json', () => {
+        expect(typeof packageJson).toBe('object');
+        expect(packageJson.hasOwnProperty('engines')).toBe(true);
+        expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
+        expect(packageJson.engines.node).toBe('^18.0.0');
+        expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
+        expect(packageJson.engines.npm).toBe('^8.0.0');
     });
 });

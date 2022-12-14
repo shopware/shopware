@@ -271,11 +271,17 @@ declare module 'bottlejs' { // Use the same module name as the import string
  */
 declare module 'vue-router' {
     interface RouteConfig {
+        name: string,
         coreRoute: boolean,
         type: ModuleTypes,
         flag: string,
         isChildren: boolean,
         routeKey: string,
+        children: RouteConfig[],
+        path: string,
+        meta: {
+            parentPath?: string,
+        }
     }
 }
 

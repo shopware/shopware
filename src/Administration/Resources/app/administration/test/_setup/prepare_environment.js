@@ -149,8 +149,6 @@ global.console.warn = (...args) => {
             return;
         }
 
-        console.log(allowedError.msg, args[0]);
-
         if (typeof allowedError.msg === 'string') {
             silenceWarn = args[0].includes(allowedError.msg);
 

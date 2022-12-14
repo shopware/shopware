@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line import/no-named-default
-import type { Route, RouteConfig, default as Router } from 'vue-router';
+import type { Route, RouteConfig, RawLocation, default as Router } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -18,7 +18,7 @@ export default function initializeTabs(): void {
         if (router && router.currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
 
-            router.replace(router.resolve(router.currentRoute.fullPath).route);
+            void router.replace(router.resolve(router.currentRoute.fullPath).route as RawLocation);
         }
     });
 
@@ -40,7 +40,7 @@ export default function initializeTabs(): void {
 
             createRouteForTabItem(to, router, next);
 
-            next(router.resolve(to.fullPath).route);
+            next(router.resolve(to.fullPath).route as RawLocation);
         });
     });
 }
@@ -71,7 +71,7 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): voi
     }
 
     const dynamicPath = getDynamicPath(to.fullPath, router);
-    const parentRoute = getParentRoute(dynamicPath, router);
+    const parentRoute = getParentRoute(dynamicPath, router as Router & { options?: { routes: RouteConfig[] } });
 
     if (parentRoute && parentRoute.children) {
         const firstChild = parentRoute.children[0];
@@ -120,7 +120,7 @@ function getParentRoute(
     dynamicPath: string,
     router: Router & { options?: { routes: RouteConfig[] } },
 ): RouteConfig|undefined {
-    const { routes } = router.options!;
+    const { routes } = router.options;
 
     // Get the deepest matching route
     const deepestMatchingRoute = findDeepestMatchingRoute(routes, (route) => {

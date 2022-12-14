@@ -308,6 +308,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         router = new VueRouter({
             routes
         });
+        const orgPush = router.push;
+        router.push = (location) => {
+            return orgPush.call(router, location).catch(() => {});
+        };
     });
 
     beforeEach(async () => {

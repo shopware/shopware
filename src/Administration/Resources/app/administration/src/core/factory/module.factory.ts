@@ -421,7 +421,6 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
     Object.keys(routeComponents).forEach((componentKey) => {
-        // @ts-expect-error - we know that the key exists
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const component = routeComponents[componentKey];
 
@@ -435,11 +434,11 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
             return;
         }
 
+        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         componentList[componentKey] = component;
     });
 
-    // @ts-expect-error
     route.components = componentList;
 
     return route;

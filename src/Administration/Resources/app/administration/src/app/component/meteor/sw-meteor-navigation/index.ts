@@ -26,7 +26,7 @@ Component.register('sw-meteor-navigation', {
             return this.parentRoute !== null;
         },
 
-        parentRoute(): RawLocation|null {
+        parentRoute(): RawLocation|Route|null {
             if (this.fromLink && this.fromLink.name !== null) {
                 return this.fromLink;
             }
@@ -35,7 +35,7 @@ Component.register('sw-meteor-navigation', {
             if (typeof this.$route?.meta?.parentPath === 'string') {
                 return {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    name: this.$route.meta.parentPath as string,
+                    name: this.$route.meta.parentPath,
                 };
             }
 

@@ -8,6 +8,10 @@ import swCmsSection from 'src/module/sw-cms/component/sw-cms-section';
 Shopware.Component.register('sw-cms-section', swCmsSection);
 
 async function createWrapper() {
+    if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
+        Shopware.State.unregisterModule('cmsPageState');
+    }
+
     Shopware.State.registerModule('cmsPageState', {
         namespaced: true,
         state: {

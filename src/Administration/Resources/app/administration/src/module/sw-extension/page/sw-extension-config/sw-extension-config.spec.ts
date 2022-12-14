@@ -3,7 +3,6 @@ import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/meteor/sw-meteor-page';
 import swExtensionConfigPage from 'src/module/sw-extension/page/sw-extension-config';
-import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import Vue from 'vue';
 
 Shopware.Component.register('sw-extension-config', swExtensionConfigPage);
@@ -65,10 +64,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     beforeAll(async () => {
         SwExtensionConfig = await Shopware.Component.build('sw-extension-config');
         SwMeteorPage = await Shopware.Component.build('sw-meteor-page');
-        Shopware.State.registerModule('shopwareExtensions', extensionStore);
     });
 
     beforeEach(async () => {
+        if (typeof Shopware.State.get('shopwareExtensions') !== 'undefined') {
+            Shopware.State.unregisterModule('shopwareExtensions');
+        }
+
         Shopware.State.registerModule('shopwareExtensions', {
             state: {
                 myExtensions: { data: { length: 0, find: () => null, } },

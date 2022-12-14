@@ -54,7 +54,9 @@ async function createWrapper(privileges = [], isNew = true) {
             'sw-custom-field-type-base': true,
             'sw-custom-field-translated-labels': true,
             'sw-single-select': true,
-            'sw-field': true
+            'sw-field': true,
+            'sw-switch-field': true,
+            'sw-button': true,
         }
     });
 }

@@ -33,7 +33,7 @@ export default function initializeWindow(): void {
             return;
         }
 
-        $router.push({
+        void $router.push({
             name: name && name.length > 0 ? name : undefined,
             params,
             path: path && path.length > 0 ? path : undefined,

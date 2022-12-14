@@ -501,6 +501,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
 
+    ruleConditionService.addCondition('customerCreatedByAdmin', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.customerCreatedByAdminRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+
     ruleConditionService.addCondition('orderTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTagRule',

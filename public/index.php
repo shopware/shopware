@@ -11,7 +11,7 @@ $_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
 require_once __DIR__ . '/../vendor/autoload_runtime.php';
 
-if (!file_exists(__DIR__ . '/../.env')) {
+if (!file_exists(__DIR__ . '/../.env') && !file_exists(__DIR__ . '/../.env.dist') && !file_exists(__DIR__ . '/../.env.local.php')) {
     $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 

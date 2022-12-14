@@ -6,9 +6,10 @@
     :closable="false"
     @modal-close="onClose"
 >
-    <sw-switch-field
-        v-model="showReplyToField"
+    <sw-single-select
+        :value="replyToSelection"
         class="sw-flow-mail-send-modal__use-different-reply-to"
+        :options="replyToOptions"
         :label="$tc('sw-flow.modals.mail.useDifferentReplyToLabel')"
         :help-text="buildReplyToTooltip('sw-flow.modals.mail.tooltipDifferentReplyTo')"
         @change="changeShowReplyToField"

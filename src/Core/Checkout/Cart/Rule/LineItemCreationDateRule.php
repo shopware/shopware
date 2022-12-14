@@ -63,7 +63,7 @@ class LineItemCreationDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesCreationDate($lineItem, $ruleValue)) {
                 return true;
             }

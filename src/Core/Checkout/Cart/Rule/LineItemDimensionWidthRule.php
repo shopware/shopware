@@ -47,7 +47,7 @@ class LineItemDimensionWidthRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchWidthDimension($lineItem)) {
                 return true;
             }

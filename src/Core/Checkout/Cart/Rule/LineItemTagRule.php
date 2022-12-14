@@ -50,7 +50,7 @@ class LineItemTagRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if (RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator)) {
                 return true;
             }
@@ -85,7 +85,7 @@ class LineItemTagRule extends Rule
     }
 
     /**
-     * @return array<mixed>
+     * @return list<string>
      */
     private function extractTagIds(LineItem $lineItem): array
     {

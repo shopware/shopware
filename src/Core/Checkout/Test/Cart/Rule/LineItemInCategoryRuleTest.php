@@ -71,18 +71,13 @@ class LineItemInCategoryRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return array<string, array<array<string>|string|bool>>
-     */
-    public function getLineItemScopeTestData(): array
+    public function getLineItemScopeTestData(): \Generator
     {
-        return [
-            'single product / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['1'], true],
-            'single product / equal / no match' => [['1', '2'], Rule::OPERATOR_EQ, ['3'], false],
-            'single product / not equal / match category id' => [['1', '2'], Rule::OPERATOR_NEQ, ['3'], true],
-            'single product / empty / match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, [], true],
-            'single product / empty / no match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, ['3'], false],
-        ];
+        yield 'single product / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['1'], true];
+        yield 'single product / equal / no match' => [['1', '2'], Rule::OPERATOR_EQ, ['3'], false];
+        yield 'single product / not equal / match category id' => [['1', '2'], Rule::OPERATOR_NEQ, ['3'], true];
+        yield 'single product / empty / match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, [], true];
+        yield 'single product / empty / no match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, ['3'], false];
     }
 
     /**
@@ -149,19 +144,14 @@ class LineItemInCategoryRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return array<string, array<array<string>|string|bool>>
-     */
-    public function getCartRuleScopeTestData(): array
+    public function getCartRuleScopeTestData(): \Generator
     {
-        return [
-            'multiple products / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['2'], true],
-            'multiple products / equal / no match' => [['4', '5'], Rule::OPERATOR_EQ, ['2'], false],
-            'multiple products / not equal / match category id' => [['5', '6'], Rule::OPERATOR_NEQ, ['2'], true],
-            'multiple products / not equal / no match category id' => [['1', '2'], Rule::OPERATOR_NEQ, ['2'], false],
-            'multiple products / empty / match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, [], true],
-            'multiple products / empty / no match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, ['2'], false],
-        ];
+        yield 'multiple products / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['2'], true];
+        yield 'multiple products / equal / no match' => [['4', '5'], Rule::OPERATOR_EQ, ['2'], false];
+        yield 'multiple products / not equal / match category id' => [['5', '6'], Rule::OPERATOR_NEQ, ['2'], true];
+        yield 'multiple products / not equal / no match category id' => [['1', '2'], Rule::OPERATOR_NEQ, ['2'], false];
+        yield 'multiple products / empty / match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, [], true];
+        yield 'multiple products / empty / no match category id' => [['1', '2'], Rule::OPERATOR_EMPTY, ['2'], false];
     }
 
     public function testNotAvailableOperatorIsUsed(): void
@@ -177,6 +167,28 @@ class LineItemInCategoryRuleTest extends TestCase
             $this->createLineItemWithCategories(['3']),
             $this->createMock(SalesChannelContext::class)
         ));
+    }
+
+    public function testOnlyMatchesGoods(): void
+    {
+        $this->rule->assign([
+            'categoryIds' => ['1'],
+            'operator' => Rule::OPERATOR_NEQ,
+        ]);
+
+        $lineItemCollection = new LineItemCollection([
+            ($this->createLineItemWithCategories(['1'])),
+            ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setGood(false),
+        ]);
+
+        $cart = $this->createCart($lineItemCollection);
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertFalse($match);
     }
 
     public function testConstraints(): void

@@ -56,7 +56,7 @@ class LineItemOfManufacturerRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }

@@ -44,7 +44,7 @@ class LineItemStockRule extends Rule
         }
 
         if ($scope instanceof CartRuleScope) {
-            return $this->matchStockFromCollection($scope->getCart()->getLineItems()->getFlat());
+            return $this->matchStockFromCollection($scope->getCart()->getLineItems()->filterGoodsFlat());
         }
 
         return false;

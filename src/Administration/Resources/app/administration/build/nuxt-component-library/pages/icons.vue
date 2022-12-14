@@ -20,7 +20,7 @@
 
 <script>
     import iconComponents from 'src/app/assets/icons/icons';
-    const iconNames = iconComponents.legacy.map((comp) => comp.name);
+    const iconNames = iconComponents.map((comp) => comp.name);
 
     export default {
 

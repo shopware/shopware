@@ -20,7 +20,7 @@ const { warn } = Shopware.Utils.debug;
  *     <sw-icon name="regular-tools-alt" color="#d35400"></sw-icon>
  *     <sw-icon name="regular-user" color="#c0392b"></sw-icon>
  *     <sw-icon name="regular-circle" color="#fc427b"></sw-icon>
- *     <sw-icon name="default-regular-bell" color="#f1c40f"></sw-icon>
+ *     <sw-icon name="regular-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

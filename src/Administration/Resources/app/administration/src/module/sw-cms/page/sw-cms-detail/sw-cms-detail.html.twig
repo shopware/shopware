@@ -321,7 +321,6 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_sidebar %}
-                {# @deprecated tag:v6.5.0 - Event listener will for 'block-navigator-sort' will be removed #}
                 <sw-cms-sidebar
                     ref="cmsSidebar"
                     :page="page"
@@ -332,7 +331,6 @@
                     @block-duplicate="onBlockDuplicate"
                     @section-duplicate="onSectionDuplicate"
                     @block-stage-drop="onPageUpdate"
-                    @block-navigator-sort="onBlockNavigatorSort"
                     @page-type-change="onPageTypeChange"
                     @page-update="onPageUpdate"
                     @page-save="onPageSave"
@@ -343,12 +341,10 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_layout_assignment_modal %}
-                {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
                 <sw-cms-layout-assignment-modal
                     v-if="showLayoutAssignmentModal"
                     :page="page"
                     @modal-close="closeLayoutAssignmentModal"
-                    @confirm="onConfirmLayoutAssignment"
                 />
                 {% endblock %}
 

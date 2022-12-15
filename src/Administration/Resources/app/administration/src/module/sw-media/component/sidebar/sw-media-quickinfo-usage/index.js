@@ -11,8 +11,6 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
-    inject: ['feature'],
-
     props: {
         item: {
             required: true,

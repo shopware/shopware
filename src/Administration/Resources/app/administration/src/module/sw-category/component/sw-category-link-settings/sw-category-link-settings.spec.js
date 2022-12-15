@@ -1,14 +1,12 @@
 /**
  * @package content
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import swCategoryLinkSettings from 'src/module/sw-category/component/sw-category-link-settings';
 
 Shopware.Component.register('sw-category-link-settings', swCategoryLinkSettings);
 
-async function createWrapper(privileges = [], category = {}) {
-    const localVue = createLocalVue();
-
+async function createWrapper(category = {}) {
     const responses = global.repositoryFactoryMock.responses;
 
     responses.addResponse({
@@ -29,7 +27,6 @@ async function createWrapper(privileges = [], category = {}) {
     });
 
     return shallowMount(await Shopware.Component.build('sw-category-link-settings'), {
-        localVue,
         stubs: {
             'sw-card': true,
             'sw-text-field': true,
@@ -38,17 +35,6 @@ async function createWrapper(privileges = [], category = {}) {
             'sw-switch-field': true,
             'sw-category-tree-field': true
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
-            }
-        },
         propsData: {
             category
         }
@@ -56,6 +42,10 @@ async function createWrapper(privileges = [], category = {}) {
 }
 
 describe('src/module/sw-category/component/sw-category-link-settings', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -63,9 +53,8 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have an enabled text field for old configuration', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+        const wrapper = await createWrapper({
             linkType: null,
             externalLink: 'https://'
         });
@@ -83,9 +72,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have an enabled text field for external link', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'external'
         });
 
@@ -102,9 +91,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have enabled select fields for internal link', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'product'
         });
 
@@ -130,9 +119,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have correct select fields on entity switch', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'product',
             internalLink: 'someUuid'
         });
@@ -143,9 +132,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should clean up on switch to internal', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'external',
             externalLink: 'https://'
         });
@@ -159,9 +148,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should clean up on switch to external', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'internal',
             internalLink: 'someUuid'
         });
@@ -174,7 +163,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have disabled fields with no rights', async () => {
-        const wrapper = await createWrapper([], {
+        const wrapper = await createWrapper({
             linkType: 'external'
         });
 
@@ -189,9 +178,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should show only categories with type page', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'category',
             internalLink: 'someUuid'
         });
@@ -204,9 +193,9 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have correct internal link', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ], {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
             linkType: 'category',
             internalLink: 'someUuid'
         });

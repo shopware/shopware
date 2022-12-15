@@ -20,6 +20,10 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
     };
 
     beforeEach(async () => {
+        if (Shopware.State.get('swCategoryDetail')) {
+            Shopware.State.unregisterModule('swCategoryDetail');
+        }
+
         Shopware.State.registerModule('swCategoryDetail', {
             namespaced: true,
             state: {

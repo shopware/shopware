@@ -140,13 +140,6 @@ export default {
             },
         },
 
-        /**
-        * @deprecated tag:v6.5.0 - Use properties directly
-        */
-        displayedProperties() {
-            return this.properties;
-        },
-
         showPropertySelection() {
             return !this.properties.length < 1;
         },

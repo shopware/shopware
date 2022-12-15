@@ -38,6 +38,10 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-category/component/sw-category-layout-card', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -55,8 +59,6 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     });
 
     it('should have an disabled cms list item', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         const cmsListItem = wrapper.find('.sw-cms-list-item');
@@ -75,8 +77,6 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     });
 
     it('should have an disabled button for changing the layout', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         const changeLayoutButton = wrapper.find('.sw-category-detail-layout__change-layout-action');
@@ -95,8 +95,6 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     });
 
     it('should have an disabled button for open the page builder', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
@@ -119,8 +117,6 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     });
 
     it('should have an disabled button for resetting the layout', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

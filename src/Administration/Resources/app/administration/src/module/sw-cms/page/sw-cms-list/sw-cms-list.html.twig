@@ -90,35 +90,10 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_list_listing_actions_sorting_select %}
                             <sw-sorting-select
-                                v-if="feature.isActive('FEATURE_NEXT_6758')"
-                                :value="sortingConCat"
+                                :sort-by="sortBy"
+                                :sort-direction="sortDirection"
                                 @sorting-changed="onSort"
                             />
-                            {% endblock %}
-
-                            <!-- @deprecated tag:v6.5.0 use twig block above -->
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_list_listing_actions_sorting_legacy_select %}
-                            <sw-select-field
-                                v-else
-                                name="sortType"
-                                :label="$tc('sw-cms.sorting.labelSort')"
-                                :value="sortingConCat"
-                                aside
-                                @change="onSortingChanged"
-                            >
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_list_listing_actions_sorting_options %}
-                                <option
-                                    v-for="sortOption in sortOptions"
-                                    :key="sortOption.value"
-                                    :value="sortOption.value"
-                                >
-                                    {{ sortOption.name }}
-                                </option>
-                                {% endblock %}
-                            </sw-select-field>
                             {% endblock %}
 
                         </div>
@@ -366,9 +341,8 @@
                                             {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                         </sw-context-menu-item>
 
-                                        <!-- @deprecated tag:v6.5.0 default layouts for products will be enabled -->
                                         <sw-context-menu-item
-                                            v-else-if="feature.isActive('v6.5.0.0') && item.type === 'product_detail' && !(defaultProductId === item.id)"
+                                            v-else-if="item.type === 'product_detail' && !(defaultProductId === item.id)"
                                             class="sw-cms-list-item__option-set-as-default"
                                             :disabled="!acl.can('cms.editor')"
                                             @click="onOpenLayoutSetAsDefault(item)"

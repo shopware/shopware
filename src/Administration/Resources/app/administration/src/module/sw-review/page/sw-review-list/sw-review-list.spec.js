@@ -1,17 +1,13 @@
 /**
  * @package content
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import swReviewList from 'src/module/sw-review/page/sw-review-list';
 
 Shopware.Component.register('sw-review-list', swReviewList);
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-review-list'), {
-        localVue,
         mocks: {
             $route: {
                 query: {
@@ -43,15 +39,6 @@ async function createWrapper(privileges = []) {
                         }]);
                     }
                 })
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
             },
             searchRankingService: {}
         },
@@ -92,9 +79,9 @@ describe('module/sw-review/page/sw-review-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'review.deleter'
-        ]);
+        global.activeAclRoles = ['review.deleter'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
@@ -110,9 +97,9 @@ describe('module/sw-review/page/sw-review-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'review.editor'
-        ]);
+        global.activeAclRoles = ['review.editor'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');

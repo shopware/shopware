@@ -25,20 +25,6 @@ export default {
     },
 
     computed: {
-        landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
-        },
-
-        cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
-        },
-
-        ...mapPropertyErrors('landingPage', [
-            'name',
-            'url',
-            'salesChannels',
-        ]),
-
         ...mapState('swCategoryDetail', {
             customFieldSetsArray: state => {
                 if (!state.customFieldSets) {
@@ -48,5 +34,19 @@ export default {
                 return state.customFieldSets;
             },
         }),
+
+        ...mapPropertyErrors('landingPage', [
+            'name',
+            'url',
+            'salesChannels',
+        ]),
+
+        landingPage() {
+            return Shopware.State.get('swCategoryDetail').landingPage;
+        },
+
+        cmsPage() {
+            return Shopware.State.get('cmsPageState').currentPage;
+        },
     },
 };

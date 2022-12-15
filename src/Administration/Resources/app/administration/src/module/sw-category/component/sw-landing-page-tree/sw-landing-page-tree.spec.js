@@ -8,7 +8,7 @@ import swCategoryState from 'src/module/sw-category/page/sw-category-detail/stat
 
 Shopware.Component.register('sw-landing-page-tree', swLandingPageTree);
 
-async function createWrapper(privileges = ['landing_page.creator', 'landing_page.editor']) {
+async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -53,13 +53,6 @@ async function createWrapper(privileges = ['landing_page.creator', 'landing_page
                     ])
                 })
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
         },
         propsData: {
             currentLanguageId: '1a2b3c'
@@ -68,12 +61,16 @@ async function createWrapper(privileges = ['landing_page.creator', 'landing_page
 }
 
 describe('src/module/sw-category/component/sw-landing-page-tree', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swCategoryDetail', swCategoryState);
-    });
-
     let oldSystemLanguageId = null;
     beforeEach(async () => {
+        global.activeAclRoles = ['landing_page.creator', 'landing_page.editor'];
+
+        if (Shopware.State.get('swCategoryDetail')) {
+            Shopware.State.unregisterModule('swCategoryDetail');
+        }
+
+        Shopware.State.registerModule('swCategoryDetail', swCategoryState);
+
         // this is normally set by the shopware runtime
         // but needed for this unit tests because the component relies on this value.
         oldSystemLanguageId = Shopware.Context.api.systemLanguageId;

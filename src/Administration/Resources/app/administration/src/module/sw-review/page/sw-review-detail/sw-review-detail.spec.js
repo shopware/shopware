@@ -8,7 +8,7 @@ import 'src/app/mixin/salutation.mixin';
 
 Shopware.Component.register('sw-review-detail', swReviewDetail);
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.filter('date', v => v);
@@ -58,15 +58,6 @@ async function createWrapper(privileges = []) {
                     }
                 })
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
-            },
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([])
             }
@@ -102,12 +93,15 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-review/page/sw-review-detail', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
-        wrapper.destroy();
     });
 
     it('should not be able to save the review', async () => {
@@ -116,13 +110,12 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
-        wrapper.destroy();
     });
 
     it('should be able to save the review', async () => {
-        const wrapper = await createWrapper([
-            'review.editor'
-        ]);
+        global.activeAclRoles = ['review.editor'];
+
+        const wrapper = await createWrapper();
         await wrapper.setData({
             isLoading: false
         });
@@ -131,7 +124,6 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
-        wrapper.destroy();
     });
 
     it('should not be able to edit review fields', async () => {
@@ -146,13 +138,12 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeTruthy();
         expect(activeField.attributes().disabled).toBeTruthy();
         expect(commentField.attributes().disabled).toBeTruthy();
-        wrapper.destroy();
     });
 
     it('should be able to edit review fields', async () => {
-        const wrapper = await createWrapper([
-            'review.editor'
-        ]);
+        global.activeAclRoles = ['review.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setData({ isLoading: false });
 
@@ -163,6 +154,5 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeFalsy();
         expect(activeField.attributes().disabled).toBeFalsy();
         expect(commentField.attributes().disabled).toBeFalsy();
-        wrapper.destroy();
     });
 });

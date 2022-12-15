@@ -108,8 +108,11 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-button': {
                 template: '<div class="sw-button" @click="$emit(`click`)"></div>'
             },
-            'sw-sidebar': await Shopware.Component.build('sw-sidebar'),
-            'sw-sidebar-item': true,
+            'sw-sidebar': true,
+            'sw-sidebar-item': {
+                template: '<div class="sw-sidebar-item"><slot #default /></div>',
+                props: ['disabled'],
+            },
             'sw-sidebar-collapse': await Shopware.Component.build('sw-sidebar-collapse'),
             'sw-text-field': true,
             'sw-select-field': true,
@@ -183,40 +186,38 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
 }
 
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
-    it('should be a Vue.js component', async () => {
+    beforeEach(() => {
         global.activeAclRoles = [];
+    });
 
+    it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('disable all sidebar items', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
 
-        const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
+        const sidebarItems = wrapper.findAll('.sw-sidebar-item');
         expect(sidebarItems.length).toBe(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
-            expect(sidebarItem.attributes().disabled).toBe('true');
+            expect(sidebarItem.props('disabled')).toBe(true);
         });
     });
 
     it('enable all sidebar items', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
-        const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
+        const sidebarItems = wrapper.findAll('.sw-sidebar-item');
         expect(sidebarItems.length).toBe(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
-            expect(sidebarItem.attributes().disabled).toBeUndefined();
+            expect(sidebarItem.props('disabled')).toBe(false);
         });
     });
 
@@ -248,8 +249,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
 
     it('should correctly adjust the sectionId when drag sorting (cross section)', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         const blockDrag = {
@@ -281,8 +280,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         // Check initial state of modal and localStorage
@@ -312,8 +309,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should continue prompting a warning when entering the navigator, when "Do not remind me" option has not been checked once', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         // Check initial state of modal and localStorage
@@ -341,40 +336,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.showSidebarNavigatorModal).toBe(true);
     });
 
-    it('should keep the id when duplicating blocks', async () => {
-        global.activeAclRoles = [];
-
-        const wrapper = await createWrapper();
-
-        const block = getBlockData();
-
-        const clonedBlock = wrapper.vm.cloneBlock(block, 'random_id');
-
-        expect(clonedBlock.id).toBe('1a2b');
-    });
-
-    it('should keep the id when duplicating slots', async () => {
-        global.activeAclRoles = [];
-
-        const wrapper = await createWrapper();
-
-        const block = getBlockData();
-
-        const newBlock = { id: 'random_id', slots: [] };
-
-        wrapper.vm.cloneSlotsInBlock(block, newBlock);
-
-        const [slot] = newBlock.slots;
-
-        expect(slot.id).toBe('some-slot-id');
-    });
-
     it('should fire event to open layout assignment modal', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-cms-sidebar__layout-assignment-open').vm.$emit('click');
+        wrapper.find('.sw-cms-sidebar__layout-assignment-open').vm.$emit('click');
 
         await wrapper.vm.$nextTick();
 
@@ -382,8 +347,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should show tooltip and disable layout type select when page type is product detail', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -393,8 +356,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             }
         });
 
+        await flushPromises();
 
-        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+        const layoutTypeSelect = wrapper.get('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
 
         expect(layoutTypeSelect.attributes()['tooltip-message'])
             .toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
@@ -403,8 +367,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

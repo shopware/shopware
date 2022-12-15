@@ -82,9 +82,11 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-layout-modal', () => {
-    it('should search cms pages with criteria filters', async () => {
+    beforeEach(() => {
         global.activeAclRoles = [];
+    });
 
+    it('should search cms pages with criteria filters', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -107,8 +109,6 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
     });
 
     it('should search cms pages without criteria filters', async () => {
-        global.activeAclRoles = [];
-
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

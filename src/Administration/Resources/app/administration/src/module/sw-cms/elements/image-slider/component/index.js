@@ -113,14 +113,6 @@ export default {
     },
 
     watch: {
-        // @deprecated tag:v6.5.0 use sliderItems instead
-        'element.data.sliderItems': {
-            handler() {
-                return null;
-            },
-            deep: true,
-        },
-
         sliderItems: {
             handler() {
                 if (this.sliderItems && this.sliderItems.length > 0) {

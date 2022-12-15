@@ -6,56 +6,50 @@ import swMediaIndex from 'src/module/sw-media/page/sw-media-index';
 
 Shopware.Component.register('sw-media-index', swMediaIndex);
 
-describe('src/module/sw-media/page/sw-media-index', () => {
-    async function createWrapper(privileges = []) {
-        return shallowMount(await Shopware.Component.build('sw-media-index'), {
-            stubs: {
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-page': {
-                    template: '<div><slot name="smart-bar-actions"></slot></div>'
-                },
-                'sw-search-bar': true,
-                'sw-media-sidebar': true,
-                'sw-upload-listener': true,
-                'sw-language-switch': true,
-                'router-link': true,
-                'sw-media-upload-v2': true
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-media-index'), {
+        stubs: {
+            'sw-context-button': true,
+            'sw-context-menu-item': true,
+            'sw-icon': true,
+            'sw-button': true,
+            'sw-page': {
+                template: '<div><slot name="smart-bar-actions"></slot></div>'
             },
-            mocks: {
-                $route: {
-                    query: ''
-                }
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve();
-                        },
-                        get: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        }
-                    })
-                },
-                mediaService: {},
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
-                    }
-                }
+            'sw-search-bar': true,
+            'sw-media-sidebar': true,
+            'sw-upload-listener': true,
+            'sw-language-switch': true,
+            'router-link': true,
+            'sw-media-upload-v2': true
+        },
+        mocks: {
+            $route: {
+                query: ''
             }
-        });
-    }
+        },
+        provide: {
+            repositoryFactory: {
+                create: () => ({
+                    create: () => {
+                        return Promise.resolve();
+                    },
+                    get: () => {
+                        return Promise.resolve();
+                    },
+                    search: () => {
+                        return Promise.resolve();
+                    }
+                })
+            },
+            mediaService: {},
+        }
+    });
+}
+describe('src/module/sw-media/page/sw-media-index', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
 
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
@@ -78,9 +72,9 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     });
 
     it('should not be able to upload a new medium', async () => {
-        const wrapper = await createWrapper([
-            'media.viewer'
-        ]);
+        global.activeAclRoles = ['media.viewer'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('sw-media-upload-v2-stub');
@@ -88,9 +82,9 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     });
 
     it('should be able to upload a new medium', async () => {
-        const wrapper = await createWrapper([
-            'media.creator'
-        ]);
+        global.activeAclRoles = ['media.creator'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('sw-media-upload-v2-stub');

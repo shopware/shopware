@@ -46,7 +46,6 @@ export default {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             limit: 10,
-            selected: null,
             selectedPageObject: null,
             isLoading: false,
             term: null,
@@ -120,7 +119,6 @@ export default {
         preSelection: {
             handler: function handler(newSelection) {
                 this.selectedPageObject = newSelection;
-                this.selected = newSelection?.id;
             },
             immediate: true,
         },
@@ -144,33 +142,27 @@ export default {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;
-
-                /** @deprecated tag:v6.5.0 - Use this.pages directly */
-                return this.pages;
             }).catch(() => {
                 this.isLoading = false;
             });
         },
 
         selectLayout() {
-            this.$emit('modal-layout-select', this.selected, this.selectedPageObject);
+            this.$emit('modal-layout-select', this.selectedPageObject?.id, this.selectedPageObject);
             this.closeModal();
         },
 
         selectInGrid(column) {
-            const columnEntries = Object.entries(column);
+            const columnEntries = Object.values(column);
             if (columnEntries.length === 0) {
-                [this.selected, this.selectedPageObject] = [null, null];
+                this.selectedPageObject = null;
                 return;
             }
 
-            // replace with page.id
-            [this.selected, this.selectedPageObject] = columnEntries[0];
+            this.selectedPageObject = columnEntries[0];
         },
 
-        /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
-        selectItem(layoutId, page) {
-            this.selected = layoutId; // replace with page.id
+        selectItem(page) {
             this.selectedPageObject = page;
         },
 
@@ -197,17 +189,11 @@ export default {
             ];
         },
 
-        /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
-        onSelection(layoutId, page) {
-            this.selected = layoutId; // replace with page.id
-            this.selectedPageObject = page;
-        },
 
         closeModal() {
-            this.$emit('modal-close');
-            this.selected = null;
             this.selectedPageObject = null;
             this.term = null;
+            this.$emit('modal-close');
         },
 
         getPageType(page) {

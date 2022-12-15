@@ -65,6 +65,10 @@ async function createWrapper() {
 
 describe('src/module/sw-category/component/sw-category-tree', () => {
     beforeAll(() => {
+        if (Shopware.State.get('swCategoryDetail')) {
+            Shopware.State.unregisterModule('swCategoryDetail');
+        }
+
         Shopware.State.registerModule('swCategoryDetail', swCategoryState);
     });
 

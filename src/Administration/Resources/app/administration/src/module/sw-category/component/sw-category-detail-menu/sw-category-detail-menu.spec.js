@@ -6,7 +6,7 @@ import swCategoryDetailMenu from 'src/module/sw-category/component/sw-category-d
 
 Shopware.Component.register('sw-category-detail-menu', swCategoryDetailMenu);
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-category-detail-menu'), {
         stubs: {
             'sw-card': true,
@@ -23,16 +23,6 @@ async function createWrapper(privileges = []) {
                 }
             },
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
-            openMediaSidebar: () => {},
-        },
         propsData: {
             category: {
                 getEntityName: () => {}
@@ -42,6 +32,10 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-category/component/sw-category-detail-menu', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -49,9 +43,9 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     });
 
     it('should enable the visibility switch field when the acl privilege is missing', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         const switchField = wrapper.find('sw-switch-field-stub');
 
@@ -65,9 +59,9 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         expect(switchField.attributes().disabled).toBe('true');
     });
     it('should enable the media upload', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
 
@@ -81,9 +75,9 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         expect(mediaUpload.attributes().disabled).toBe('true');
     });
     it('should enable the text editor for the description', async () => {
-        const wrapper = await createWrapper([
-            'category.editor'
-        ]);
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
 
         const textEditor = wrapper.find('sw-text-editor-stub');
 

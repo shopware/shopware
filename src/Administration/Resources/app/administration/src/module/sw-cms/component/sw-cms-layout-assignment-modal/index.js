@@ -345,8 +345,6 @@ export default {
                 .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
                 .then(() => {
                     this.onModalClose(true);
-                    /** @deprecated tag:v6.5.0 event can be removed completely */
-                    this.$emit('confirm');
                 }).catch(() => {
                     this.isLoading = false;
                 });

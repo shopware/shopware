@@ -50,13 +50,6 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - removed without replacement
-         */
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
         isMediaObject() {
             return this.item.type === 'media';
         },
@@ -92,13 +85,6 @@ export default {
     methods: {
         createdComponent() {
             this.loadCustomFieldSets();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Use loadCustomFieldSets() instead
-         */
-        async getCustomFieldSets() {
-            return this.loadCustomFieldSets();
         },
 
         loadCustomFieldSets() {

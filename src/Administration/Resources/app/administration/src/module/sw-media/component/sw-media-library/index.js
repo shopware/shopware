@@ -11,7 +11,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'searchRankingService', 'feature'],
+    inject: ['repositoryFactory', 'acl', 'searchRankingService'],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),

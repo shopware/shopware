@@ -16,7 +16,8 @@ const mockItems = [
         label: 'Product item',
         quantity: 1,
         payload: {
-            options: []
+            options: [],
+            productNumber: 'product number',
         },
         priceDefinition: {
             price: 200,
@@ -160,7 +161,7 @@ async function createWrapper({ privileges = [] }) {
                     shortName: 'EUR'
                 },
                 lineItems: [],
-                taxStatus: ''
+                taxStatus: '',
             },
             context: {
                 authToken: {
@@ -449,8 +450,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--2');
+        const columnVat = header.find('.sw-data-grid__cell--5');
+        const columnPrice = header.find('.sw-data-grid__cell--3');
         expect(columnVat.exists()).toBe(false);
         expect(columnPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
     });
@@ -493,7 +494,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--3');
+        columnTotal = header.find('.sw-data-grid__cell--4');
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
 
         await wrapper.setProps({
@@ -505,7 +506,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--4');
+        columnTotal = header.find('.sw-data-grid__cell--5');
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
@@ -517,7 +518,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--4');
+        columnTotal = header.find('.sw-data-grid__cell--5');
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
     });
 
@@ -816,5 +817,49 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
         expect(deleteItemModal.exists()).toBeFalsy();
+    });
+
+    it('should show product number column', async () => {
+        const wrapper = await createWrapper({});
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+            }
+        });
+
+        const header = wrapper.find('.sw-data-grid__header');
+        const columnProductNumber = header.find('.sw-data-grid__cell--2');
+
+        expect(columnProductNumber.text()).toEqual('sw-order.detailBase.columnProductNumber');
+    });
+
+    it('should show items correctly when search by product number', async () => {
+        const wrapper = await createWrapper({});
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            }
+        });
+
+        wrapper.vm.$refs.dataGrid.currentColumns.map((item) => {
+            if (item.property === 'payload.productNumber') {
+                item.visible = true;
+            }
+
+            return item;
+        });
+
+        await wrapper.setData({
+            searchTerm: 'product number'
+        });
+
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const productLabel = firstRow.find('.sw-data-grid__cell--label');
+
+        expect(productLabel.text()).toEqual('Product item');
     });
 });

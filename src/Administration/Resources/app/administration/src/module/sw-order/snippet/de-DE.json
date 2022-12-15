@@ -198,6 +198,7 @@
       "columnTax": "Steuersatz",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
+      "columnProductNumber": "Produktnummer",
       "contextMenuShowProduct": "Produkt anzeigen",
       "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",

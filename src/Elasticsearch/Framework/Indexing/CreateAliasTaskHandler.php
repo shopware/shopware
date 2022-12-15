@@ -13,23 +13,10 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitc
 /**
  * @package core
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
 final class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
-    private Client $client;
-
-    private Connection $connection;
-
-    private ElasticsearchHelper $elasticsearchHelper;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $config;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      *
@@ -37,18 +24,13 @@ final class CreateAliasTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        Client $client,
-        Connection $connection,
-        ElasticsearchHelper $elasticsearchHelper,
-        array $config,
-        EventDispatcherInterface $eventDispatcher
+        private Client $client,
+        private Connection $connection,
+        private ElasticsearchHelper $elasticsearchHelper,
+        private array $config,
+        private EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->elasticsearchHelper = $elasticsearchHelper;
-        $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

@@ -10,8 +10,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,7 +39,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
     {
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
@@ -276,7 +273,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
     {
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [
                 'test1' => 'text',
@@ -312,7 +308,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $productDefinition = $this->createMock(ProductDefinition::class);
         $definition = new ElasticsearchProductDefinition(
             $productDefinition,
-            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
@@ -320,23 +315,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
 
         static::assertSame($productDefinition, $definition->getEntityDefinition());
-    }
-
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testExtendDocument(): void
-    {
-        $definition = new ElasticsearchProductDefinition(
-            $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
-            $this->createMock(Connection::class),
-            [],
-            new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
-        );
-
-        static::assertEquals(['foo' => 'bar'], $definition->extendDocuments(['foo' => 'bar'], Context::createDefaultContext()));
     }
 
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
@@ -350,7 +328,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
@@ -378,7 +355,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
             $connection,
             [],
             new EventDispatcher(),
@@ -453,41 +429,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testFetchFormatsCustomFields(): void
-    {
-        $connection = $this->getConnection();
-
-        $definition = new ElasticsearchProductDefinition(
-            $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
-            $connection,
-            ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
-            new EventDispatcher(),
-            $this->createMock(AbstractProductSearchQueryBuilder::class)
-        );
-
-        $documents = $definition->fetch(['1'], Context::createDefaultContext());
-
-        static::assertArrayHasKey('1', $documents);
-        static::assertArrayHasKey('customFields', $documents['1']);
-        static::assertArrayHasKey('bool', $documents['1']['customFields']);
-        static::assertIsBool($documents['1']['customFields']['bool']);
-        static::assertArrayHasKey('int', $documents['1']['customFields']);
-        static::assertIsFloat($documents['1']['customFields']['int']);
-        static::assertArrayHasKey('unknown', $documents['1']['customFields']);
-        static::assertSame('foo', $documents['1']['customFields']['unknown']);
-    }
-
     public function testFetchFormatsCustomFieldsAndRemovesNotMappedFields(): void
     {
         $connection = $this->getConnection();
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
-            $this->createMock(EntityMapper::class),
             $connection,
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),

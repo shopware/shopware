@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -66,81 +65,6 @@ class ProductSuggestRouteTest extends TestCase
         );
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testLoadSuccessfullyWithout65(): void
-    {
-        $request = new Request();
-        $request->query->set('search', 'test');
-
-        $criteria = new Criteria();
-
-        $this->listingLoader->expects(static::once())
-            ->method('load')
-            ->willReturn(new ProductListingResult(
-                ProductDefinition::ENTITY_NAME,
-                1,
-                new EntityCollection([]),
-                null,
-                $criteria,
-                Context::createDefaultContext()
-            ));
-
-        $this->searchBuilder->expects(static::once())->method('build');
-
-        $suggestCrtieriaEventFired = false;
-        $this->eventDispatcher->addListener(
-            ProductEvents::PRODUCT_SUGGEST_CRITERIA,
-            static function (ProductSuggestCriteriaEvent $event) use (&$suggestCrtieriaEventFired): void {
-                $suggestCrtieriaEventFired = true;
-
-                static::assertTrue(
-                    $event->getContext()->hasState(Context::STATE_ELASTICSEARCH_AWARE),
-                    'Context should be Elasticsearch aware'
-                );
-                static::assertTrue(
-                    $event->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE),
-                    'Criteria should be Elasticsearch aware'
-                );
-            }
-        );
-
-        $suggestResultEventFired = false;
-        $this->eventDispatcher->addListener(
-            ProductEvents::PRODUCT_SUGGEST_RESULT,
-            static function (ProductSuggestResultEvent $event) use (&$suggestResultEventFired): void {
-                $suggestResultEventFired = true;
-
-                static::assertTrue(
-                    $event->getResult()->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE),
-                    'Criteria should be Elasticsearch aware'
-                );
-            }
-        );
-
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-
-        $result = $this->getProductSuggestRoute()->load(
-            $request,
-            $salesChannelContext,
-            $criteria
-        );
-
-        static::assertInstanceOf(ProductSuggestRouteResponse::class, $result);
-
-        static::assertTrue(
-            $suggestCrtieriaEventFired,
-            sprintf('Event %s was not fired', ProductEvents::PRODUCT_SUGGEST_CRITERIA)
-        );
-
-        static::assertTrue(
-            $suggestResultEventFired,
-            sprintf('Event %s was not fired', ProductEvents::PRODUCT_SUGGEST_CRITERIA)
-        );
-    }
-
     public function testLoadSuccessfully(): void
     {
         $request = new Request();
@@ -161,16 +85,12 @@ class ProductSuggestRouteTest extends TestCase
 
         $this->searchBuilder->expects(static::once())->method('build');
 
-        $suggestCrtieriaEventFired = false;
+        $suggestCriteriaEventFired = false;
         $this->eventDispatcher->addListener(
             ProductEvents::PRODUCT_SUGGEST_CRITERIA,
-            static function (ProductSuggestCriteriaEvent $event) use (&$suggestCrtieriaEventFired): void {
-                $suggestCrtieriaEventFired = true;
+            static function (ProductSuggestCriteriaEvent $event) use (&$suggestCriteriaEventFired): void {
+                $suggestCriteriaEventFired = true;
 
-                static::assertFalse(
-                    $event->getContext()->hasState(Context::STATE_ELASTICSEARCH_AWARE),
-                    'Context should be no longer Elasticsearch aware'
-                );
                 static::assertTrue(
                     $event->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE),
                     'Criteria should be Elasticsearch aware'
@@ -203,7 +123,7 @@ class ProductSuggestRouteTest extends TestCase
         static::assertInstanceOf(ProductSuggestRouteResponse::class, $result);
 
         static::assertTrue(
-            $suggestCrtieriaEventFired,
+            $suggestCriteriaEventFired,
             sprintf('Event %s was not fired', ProductEvents::PRODUCT_SUGGEST_CRITERIA)
         );
 

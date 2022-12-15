@@ -278,7 +278,6 @@ class ElasticsearchProductTest extends TestCase
         try {
             $this->ids = $ids;
             $context = $this->context;
-            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))

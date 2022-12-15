@@ -4,33 +4,24 @@ namespace Shopware\Core\Content\Product\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  */
+#[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
+
 final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
     public function __construct(
         EntityRepository $repository,
-        Connection $connection
+        private Connection $connection
     ) {
         parent::__construct($repository);
-        $this->connection = $connection;
-    }
-
-    /**
-     * @return iterable<class-string<ScheduledTask>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        yield CleanupProductKeywordDictionaryTask::class;
     }
 
     public function run(): void

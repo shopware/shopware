@@ -3,14 +3,15 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Message;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
  *
  * @internal
  */
-final class CleanupOldCacheFoldersHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+final class CleanupOldCacheFoldersHandler
 {
     private CacheClearer $cacheClearer;
 
@@ -22,13 +23,5 @@ final class CleanupOldCacheFoldersHandler implements MessageSubscriberInterface
     public function __invoke(CleanupOldCacheFolders $message): void
     {
         $this->cacheClearer->cleanupOldContainerCacheDirectories();
-    }
-
-    /**
-     * @return iterable<string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [CleanupOldCacheFolders::class];
     }
 }

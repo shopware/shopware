@@ -3,34 +3,20 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
  *
  * @internal
  */
+#[AsMessageHandler(handles: InvalidateCacheTask::class)]
 final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 {
-    private CacheInvalidator $cacheInvalidator;
-
-    private int $delay;
-
-    public function __construct(EntityRepository $scheduledTaskRepository, CacheInvalidator $cacheInvalidator, int $delay)
+    public function __construct(EntityRepository $scheduledTaskRepository, private CacheInvalidator $cacheInvalidator, private int $delay)
     {
         parent::__construct($scheduledTaskRepository);
-
-        $this->cacheInvalidator = $cacheInvalidator;
-        $this->delay = $delay;
-    }
-
-    /**
-     * @return iterable<class-string<ScheduledTask>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [InvalidateCacheTask::class];
     }
 
     public function run(): void

@@ -38,8 +38,8 @@ class RedisConnectionFactory
         $key = $dsn . $configHash . $this->prefix;
 
         if (!isset(self::$connections[$key]) || (
-            \method_exists(self::$connections[$key], 'isConnected') && self::$connections[$key]->isConnected() === false))
-        {
+            \method_exists(self::$connections[$key], 'isConnected') && self::$connections[$key]->isConnected() === false
+        )) {
             /** @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis */
             $redis = RedisAdapter::createConnection($dsn, $options);
 

@@ -12,47 +12,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
  */
+#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
-    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    private EntityRepository $salesChannelRepository;
-
-    private EntityRepository $productExportRepository;
-
-    private MessageBusInterface $messageBus;
-
     /**
      * @internal
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $productExportRepository,
-        MessageBusInterface $messageBus
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private EntityRepository $salesChannelRepository,
+        private EntityRepository $productExportRepository,
+        private MessageBusInterface $messageBus
     ) {
         parent::__construct($scheduledTaskRepository);
-
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->productExportRepository = $productExportRepository;
-        $this->messageBus = $messageBus;
-    }
-
-    /**
-     * @return iterable<class-string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ProductExportGenerateTask::class,
-        ];
     }
 
     public function run(): void

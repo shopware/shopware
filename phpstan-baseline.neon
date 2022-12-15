@@ -17276,31 +17276,6 @@ parameters:
 			path: src/Core/Framework/Test/Validation/HappyPathValidatorTest.php
 
 		-
-			message: "#^Cannot call method getBody\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Webhook/Handler/WebhookEventMessageHandlerTest.php
-
-		-
-			message: "#^Cannot call method getHeaderLine\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 8
-			path: src/Core/Framework/Test/Webhook/Handler/WebhookEventMessageHandlerTest.php
-
-		-
-			message: "#^Cannot call method getMethod\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Webhook/Handler/WebhookEventMessageHandlerTest.php
-
-		-
-			message: "#^Cannot call method hasHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Webhook/Handler/WebhookEventMessageHandlerTest.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$subscribedMessages has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/Handler/WebhookEventMessageHandlerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\Hookable\\\\HookableBusinessEventTest\\:\\:getEventsWithPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Webhook/Hookable/HookableBusinessEventTest.php

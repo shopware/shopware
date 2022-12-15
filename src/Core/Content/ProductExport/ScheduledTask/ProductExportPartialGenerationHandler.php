@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -23,67 +22,32 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
  */
-final class ProductExportPartialGenerationHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+final class ProductExportPartialGenerationHandler
 {
-    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    private EntityRepository $productExportRepository;
-
-    private ProductExportGeneratorInterface $productExportGenerator;
-
-    private int $readBufferSize;
-
-    private MessageBusInterface $messageBus;
-
-    private ProductExportFileHandlerInterface $productExportFileHandler;
-
-    private ProductExportRendererInterface $productExportRender;
-
-    private Translator $translator;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
-
-    private SalesChannelContextPersister $contextPersister;
-
-    private Connection $connection;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     /**
      * @internal
      */
     public function __construct(
-        ProductExportGeneratorInterface $productExportGenerator,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $productExportRepository,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        MessageBusInterface $messageBus,
-        ProductExportRendererInterface $productExportRender,
-        Translator $translator,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        SalesChannelContextPersister $contextPersister,
-        Connection $connection,
-        int $readBufferSize,
-        LanguageLocaleCodeProvider $languageLocaleProvider
+        private ProductExportGeneratorInterface $productExportGenerator,
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private EntityRepository $productExportRepository,
+        private ProductExportFileHandlerInterface $productExportFileHandler,
+        private  MessageBusInterface $messageBus,
+        private ProductExportRendererInterface $productExportRender,
+        private Translator $translator,
+        private SalesChannelContextServiceInterface $salesChannelContextService,
+        private SalesChannelContextPersister $contextPersister,
+        private Connection $connection,
+        private int $readBufferSize,
+        private LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
-        $this->productExportGenerator = $productExportGenerator;
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->productExportRepository = $productExportRepository;
-        $this->productExportFileHandler = $productExportFileHandler;
-        $this->messageBus = $messageBus;
-        $this->productExportRender = $productExportRender;
-        $this->translator = $translator;
-        $this->salesChannelContextService = $salesChannelContextService;
-        $this->contextPersister = $contextPersister;
-        $this->connection = $connection;
-        $this->readBufferSize = $readBufferSize;
-        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public function __invoke(ProductExportPartialGeneration $productExportPartialGeneration): void
@@ -124,16 +88,6 @@ final class ProductExportPartialGenerationHandler implements MessageSubscriberIn
         }
 
         $this->finalizeExport($productExport, $filePath);
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ProductExportPartialGeneration::class,
-        ];
     }
 
     private function getContext(ProductExportPartialGeneration $productExportPartialGeneration): Context

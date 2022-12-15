@@ -9,7 +9,7 @@ use Shopware\Core\Kernel;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -17,7 +17,8 @@ use Symfony\Component\Routing\RouterInterface;
  *
  * @internal
  */
-final class CacheWarmerTaskHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+final class CacheWarmerTaskHandler
 {
     private Kernel $kernel;
 
@@ -57,14 +58,6 @@ final class CacheWarmerTaskHandler implements MessageSubscriberInterface
             // after the request handled, the collection has to be reset for the next request
             $this->cacheTagCollection->reset();
         }
-    }
-
-    /**
-     * @return iterable<string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [WarmUpMessage::class];
     }
 
     private function createHttpCacheKernel(string $cacheId): HttpCache

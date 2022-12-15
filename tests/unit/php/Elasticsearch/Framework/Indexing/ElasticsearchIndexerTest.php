@@ -124,17 +124,6 @@ class ElasticsearchIndexerTest extends TestCase
         parent::setUp();
     }
 
-    public function testHandleMessages(): void
-    {
-        static::assertSame(
-            [
-                ElasticsearchIndexingMessage::class,
-                ElasticsearchLanguageIndexIteratorMessage::class,
-            ],
-            ElasticsearchIndexer::getHandledMessages()
-        );
-    }
-
     public function testIterateESDisabled(): void
     {
         $this->helper = $this->createMock(ElasticsearchHelper::class);

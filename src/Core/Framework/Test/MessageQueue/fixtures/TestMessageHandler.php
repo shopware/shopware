@@ -2,24 +2,15 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue\fixtures;
 
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  */
-final class TestMessageHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+final class TestMessageHandler
 {
-    public function __invoke(): void
+    public function __invoke(FooMessage|BarMessage $msg): void
     {
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        yield FooMessage::class;
-        yield BarMessage::class;
     }
 }

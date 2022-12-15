@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue;
 
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
@@ -13,28 +12,18 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
  *
  * @internal
  */
-class RegisterScheduledTaskHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+class RegisterScheduledTaskHandler
 {
-    private TaskRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(TaskRegistry $registry)
+    public function __construct(private TaskRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function __invoke(RegisterScheduledTaskMessage $message): void
     {
         $this->registry->registerTasks();
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [RegisterScheduledTaskMessage::class];
     }
 }

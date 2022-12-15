@@ -8,35 +8,29 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
  *
  * @internal
  */
-final class WebhookEventMessageHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
 
-    private Client $client;
-
-    private EntityRepository $webhookRepository;
-
-    private EntityRepository $webhookEventLogRepository;
-
     /**
      * @internal
      */
-    public function __construct(Client $client, EntityRepository $webhookRepository, EntityRepository $webhookEventLogRepository)
-    {
-        $this->client = $client;
-        $this->webhookRepository = $webhookRepository;
-        $this->webhookEventLogRepository = $webhookEventLogRepository;
+    public function __construct(
+        private Client $client,
+        private EntityRepository $webhookRepository,
+        private EntityRepository $webhookEventLogRepository
+    ) {
     }
 
     public function __invoke(WebhookEventMessage $message): void
@@ -135,13 +129,5 @@ final class WebhookEventMessageHandler implements MessageHandlerInterface
 
             throw new \RuntimeException(\sprintf('Message %s failed', static::class));
         }
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [WebhookEventMessage::class];
     }
 }

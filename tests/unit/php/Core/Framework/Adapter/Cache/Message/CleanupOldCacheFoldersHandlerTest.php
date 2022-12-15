@@ -14,11 +14,6 @@ use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler;
  */
 class CleanupOldCacheFoldersHandlerTest extends TestCase
 {
-    public function testGetHandledMessages(): void
-    {
-        static::assertEquals([CleanupOldCacheFolders::class], CleanupOldCacheFoldersHandler::getHandledMessages());
-    }
-
     public function testInvoke(): void
     {
         $cacheClearer = $this->createMock(CacheClearer::class);

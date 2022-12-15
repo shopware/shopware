@@ -5,40 +5,27 @@ namespace Shopware\Core\Framework\Log\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
  *
  * @internal
  */
+#[AsMessageHandler(handles: LogCleanupTask::class)]
 final class LogCleanupTaskHandler extends ScheduledTaskHandler
 {
-    protected SystemConfigService $systemConfigService;
-
-    protected Connection $connection;
-
     /**
      * @internal
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        SystemConfigService $systemConfigService,
-        Connection $connection
+        private SystemConfigService $systemConfigService,
+        private Connection $connection
     ) {
         parent::__construct($scheduledTaskRepository);
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
-    }
-
-    /**
-     * @return iterable<class-string<ScheduledTask>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [LogCleanupTask::class];
     }
 
     public function run(): void

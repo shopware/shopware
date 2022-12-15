@@ -7,30 +7,29 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
  *
  * @internal
  */
+#[AsMessageHandler(handles: DeleteCascadeAppsTask::class)]
+
 final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
     private const HARD_DELETE_AFTER_DAYS = 1;
 
-    private EntityRepository $aclRoleRepository;
-
-    private EntityRepository $integrationRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $scheduledTaskRepository, EntityRepository $aclRoleRepository, EntityRepository $integrationRepository)
-    {
+    public function __construct(
+        EntityRepository $scheduledTaskRepository,
+        private EntityRepository $aclRoleRepository,
+        private EntityRepository $integrationRepository
+    ) {
         parent::__construct($scheduledTaskRepository);
-        $this->aclRoleRepository = $aclRoleRepository;
-        $this->integrationRepository = $integrationRepository;
     }
 
     public function run(): void
@@ -45,14 +44,6 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 
         $this->deleteIds($this->aclRoleRepository, $criteria, $context);
         $this->deleteIds($this->integrationRepository, $criteria, $context);
-    }
-
-    /**
-     * @return iterable<class-string<ScheduledTask>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [DeleteCascadeAppsTask::class];
     }
 
     private function deleteIds(EntityRepository $repository, Criteria $criteria, Context $context): void

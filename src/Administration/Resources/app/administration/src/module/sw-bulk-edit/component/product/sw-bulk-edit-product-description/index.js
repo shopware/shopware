@@ -17,8 +17,6 @@ export default {
                     return;
                 }
 
-                this.$refs.textEditor.innerHTML = '';
-                this.content = this.value;
                 this.isEmpty = this.emptyCheck(this.content);
                 this.placeholderVisible = this.isEmpty;
 

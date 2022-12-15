@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * @package storefront
+ * @internal
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package storefront
  */
 class CartMergedSubscriber implements EventSubscriberInterface
 {

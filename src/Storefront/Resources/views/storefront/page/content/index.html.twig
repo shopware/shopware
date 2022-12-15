@@ -14,14 +14,8 @@
             {% endblock %}
 
             {% block cms_content %}
-                {# @deprecated tag:v6.5.0 - keep if branch - page.cmsPage will be removed. Use page.landingPage.cmsPage instead #}
-                {% if feature('v6.5.0.0') %}
-                    {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
-                    {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
-                {% else %}
-                    {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
-                    {% set cmsPage = page.cmsPage %}
-                {% endif %}
+                {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
+                {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
                 {% set landingPage = page.landingPage ? page.landingPage : {} %}
                 <div class="{{ cmsPageClasses }}">
                     {% block page_content_blocks %}

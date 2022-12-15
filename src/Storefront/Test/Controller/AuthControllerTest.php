@@ -17,7 +17,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -419,11 +418,10 @@ class AuthControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertStringContainsString($recoveryCreated['hash'], (string) $response->getContent());
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertEquals($recoveryCreated['hash'], AuthTestSubscriber::$renderEvent->getParameters()['page']->getHash());
-            static::assertFalse(AuthTestSubscriber::$renderEvent->getParameters()['page']->isHashExpired());
-            static::assertInstanceOf(AccountRecoverPasswordPage::class, AuthTestSubscriber::$page);
-        }
+
+        static::assertEquals($recoveryCreated['hash'], AuthTestSubscriber::$renderEvent->getParameters()['page']->getHash());
+        static::assertFalse(AuthTestSubscriber::$renderEvent->getParameters()['page']->isHashExpired());
+        static::assertInstanceOf(AccountRecoverPasswordPage::class, AuthTestSubscriber::$page);
     }
 
     public function testAccountRecoveryPasswordExpired(): void

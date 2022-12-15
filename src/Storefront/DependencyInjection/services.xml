@@ -92,9 +92,6 @@
 
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
-            <argument>%storefront.csrf.enabled%</argument>
-            <argument>%storefront.csrf.mode%</argument>
-
             <tag name="twig.extension"/>
         </service>
 
@@ -139,27 +136,6 @@
             <tag name="twig.extension"/>
         </service>
 
-
-        <service id="Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension">
-            <tag name="twig.extension"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Csrf\SessionProvider" lazy="true">
-            <deprecated package="shopware/storefront" version="6.5.0.0">This service %service_id% is deprecated. Please inject request_stack and use the session from current request</deprecated>
-            <argument type="service" id="session"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler" public="true">
-            <argument type="service" id="security.csrf.token_manager"/>
-            <argument>%storefront.csrf.enabled%</argument>
-            <argument>%storefront.csrf.mode%</argument>
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="session.storage.factory"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
@@ -181,7 +157,6 @@
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler"/>
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
@@ -205,17 +180,6 @@
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Csrf\CsrfRouteListener">
-            <argument type="service" id="security.csrf.token_manager"/>
-            <argument>%storefront.csrf.enabled%</argument>
-            <argument>%storefront.csrf.mode%</argument>
-            <argument type="service" id="translator"/>
-
-            <tag name="kernel.event_subscriber"/>
-            <tag name="kernel.reset" method="reset"/>
-            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">
@@ -300,8 +264,6 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">

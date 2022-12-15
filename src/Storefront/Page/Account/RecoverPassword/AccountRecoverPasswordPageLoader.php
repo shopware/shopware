@@ -7,7 +7,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -48,14 +47,10 @@ class AccountRecoverPasswordPageLoader
      */
     public function load(Request $request, SalesChannelContext $context, string $hash): AccountRecoverPasswordPage
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $context);
 
-            /** @var AccountRecoverPasswordPage $page */
-            $page = AccountRecoverPasswordPage::createFrom($page);
-        } else {
-            $page = new AccountRecoverPasswordPage();
-        }
+        /** @var AccountRecoverPasswordPage $page */
+        $page = AccountRecoverPasswordPage::createFrom($page);
         $page->setHash($hash);
 
         $customerHashCriteria = new Criteria();

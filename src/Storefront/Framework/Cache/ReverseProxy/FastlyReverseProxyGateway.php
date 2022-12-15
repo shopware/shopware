@@ -80,11 +80,9 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @inerhitDoc
-     *
-     * @deprecated tag:v6.5.0 - Parameter $response will be required reason:class-hierarchy-change
+     * @param string[] $tags
      */
-    public function tag(array $tags, string $url/*, Response $response */): void
+    public function tag(array $tags, string $url, Response $response): void
     {
         if ($this->instanceTag !== '') {
             $tags[] = $this->instanceTag;

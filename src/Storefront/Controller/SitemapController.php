@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package sales-channel
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class SitemapController extends StorefrontController
 {

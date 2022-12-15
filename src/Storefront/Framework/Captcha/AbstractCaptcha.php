@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -16,22 +15,13 @@ abstract class AbstractCaptcha
      * to be let through. This may be determined based on the given request, but
      * also the shop's configuration or other sources.
      *
-     * @deprecated tag:v6.5.0 - Parameter $captchaConfig will be mandatory in future implementation
+     * @param array<string, bool> $captchaConfig
      */
-    public function supports(Request $request /* , array $captchaConfig */): bool
+    public function supports(Request $request, array $captchaConfig): bool
     {
-        if (\func_num_args() < 2 || !\is_array(func_get_arg(1))) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Method `supports()` in `AbstractCaptcha` expects passing the `$captchaConfig` as array as the second parameter in v6.5.0.0.'
-            );
-        }
-
         if (!$request->isMethod(Request::METHOD_POST)) {
             return false;
         }
-
-        $captchaConfig = \func_get_args()[1] ?? [];
 
         if (empty($captchaConfig)) {
             return false;
@@ -43,9 +33,9 @@ abstract class AbstractCaptcha
     /**
      * isValid returns true, when the captcha contained in the request is valid.
      *
-     * @deprecated tag:v6.5.0 - Parameter $captchaConfig will be mandatory in future implementation
+     * @param array<string, bool> $captchaConfig
      */
-    abstract public function isValid(Request $request /* , array $captchaConfig */): bool;
+    abstract public function isValid(Request $request, array $captchaConfig): bool;
 
     /**
      * getName returns a unique technical name identifying this captcha.
@@ -65,6 +55,8 @@ abstract class AbstractCaptcha
      * getData returns data the captcha might need to render in the template for
      * the user to be able to correctly fill in the captcha value, for example
      * an image of distorted text.
+     *
+     * @return array<string|int, mixed>|null
      */
     public function getData(): ?array
     {

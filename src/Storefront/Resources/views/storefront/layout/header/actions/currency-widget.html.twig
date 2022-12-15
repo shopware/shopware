@@ -11,11 +11,6 @@
                       class="currency-form"
                       data-form-auto-submit="true">
 
-                    {# @deprecated tag:v6.5.0 - Block layout_header_actions_currency_widget_form_csrf will be removed. #}
-                    {% block layout_header_actions_currency_widget_form_csrf %}
-                        {{ sw_csrf('frontend.checkout.configure') }}
-                    {% endblock %}
-
                     {% block layout_header_actions_currency_widget_content %}
                         <div class="currencies-menu dropdown">
                             {% block layout_header_actions_currency_widget_dropdown_toggle %}

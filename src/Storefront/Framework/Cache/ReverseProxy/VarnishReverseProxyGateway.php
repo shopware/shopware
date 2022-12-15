@@ -44,11 +44,9 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<string> $tags
-     *
-     * @deprecated tag:v6.5.0 - Parameter $response will be required reason:class-hierarchy-change
+     * @param string[] $tags
      */
-    public function tag(array $tags, string $url/*, Response $response */): void
+    public function tag(array $tags, string $url, Response $response): void
     {
         /** @var Response|null $response */
         $response = \func_num_args() === 3 ? func_get_arg(2) : null;
@@ -104,5 +102,10 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
         ]);
 
         $pool->promise()->wait();
+    }
+
+    public function banAll(): void
+    {
+        $this->ban(['/']);
     }
 }

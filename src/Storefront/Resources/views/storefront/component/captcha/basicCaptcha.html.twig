@@ -11,7 +11,6 @@
         preCheck: preCheck,
         preCheckRoute : {
             path: path('frontend.captcha.basic-captcha.validate'),
-            token: sw_csrf('frontend.captcha.basic-captcha.validate', {'mode': 'token'})
         }
     } %}
 

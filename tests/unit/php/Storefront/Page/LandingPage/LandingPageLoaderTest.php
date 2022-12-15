@@ -22,7 +22,6 @@ use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -94,12 +93,8 @@ class LandingPageLoaderTest extends TestCase
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            /** @phpstan-ignore-next-line */
-            $cmsPageLoaded = $page->getLandingPage()->getCmsPage();
-        } else {
-            $cmsPageLoaded = $page->getCmsPage();
-        }
+        /** @phpstan-ignore-next-line */
+        $cmsPageLoaded = $page->getLandingPage()->getCmsPage();
 
         static::assertEquals($cmsPage, $cmsPageLoaded);
     }

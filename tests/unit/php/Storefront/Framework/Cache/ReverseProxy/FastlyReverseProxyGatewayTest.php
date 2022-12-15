@@ -43,10 +43,11 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
     public function testTagDeprecated(): void
     {
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Parameter $response is required for FastlyReverseProxyGateway');
+        static::expectException(\ArgumentCountError::class);
+        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway::tag()');
 
         $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', '', 'http://localhost');
+        /** @phpstan-ignore-next-line  */
         $gateway->tag(['foo', 'bla'], '');
     }
 

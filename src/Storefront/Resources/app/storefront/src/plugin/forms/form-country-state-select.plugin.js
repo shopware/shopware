@@ -82,9 +82,6 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - stateRequired has to be set from the calling instance 'frontend.country.country-data' will no longer provide this value
-     */
     requestStateData(countryId, countryStateId = null, stateRequired = false) {
         const payload = JSON.stringify({ countryId });
 

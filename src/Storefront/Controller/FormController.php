@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package content
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class FormController extends StorefrontController
 {
@@ -119,6 +119,9 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
+    /**
+     * @return array<int, array<string|int, mixed>>
+     */
     private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
         try {
@@ -161,6 +164,9 @@ class FormController extends StorefrontController
         return $response;
     }
 
+    /**
+     * @return array<int, array<string|int, mixed>>
+     */
     private function handleUnsubscribe(RequestDataBag $data, SalesChannelContext $context): array
     {
         try {

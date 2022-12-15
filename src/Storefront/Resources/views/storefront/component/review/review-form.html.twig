@@ -16,11 +16,6 @@
               data-form-ajax-submit="true"
               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
-            {# @deprecated tag:v6.5.0 - Block component_review_form_csrf will be removed. #}
-            {% block component_review_form_csrf %}
-                {{ sw_csrf('frontend.detail.review.save') }}
-            {% endblock %}
-
             {% block component_review_form_forward %}
                 <input type="hidden"
                        name="forwardTo"

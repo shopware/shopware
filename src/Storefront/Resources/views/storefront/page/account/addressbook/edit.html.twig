@@ -18,14 +18,7 @@
                     {% block page_account_address_form_edit %}
                         <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { 'addressId': page.address.id }) }}"
-                              data-form-csrf-handler="true"
                               data-form-validation="true">
-
-                            {# @deprecated tag:v6.5.0 - Block page_account_address_form_edit_csrf will be removed. #}
-                            {% block page_account_address_form_edit_csrf %}
-                                {{ sw_csrf('frontend.account.address.edit.save') }}
-                            {% endblock %}
-
                             {% block page_account_address_form_edit_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     'data': page.address,

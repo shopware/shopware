@@ -15,16 +15,6 @@
 
         {% block buy_widget_configurator_form %}
             <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
-
-                {# @deprecated tag:v6.5.0 - Block buy_widget_configurator_csrf will be removed. #}
-                {% block buy_widget_configurator_csrf %}
-                    {% if elementId is defined and elementId is not null %}
-                        {{ sw_csrf('frontend.cms.buybox.switch') }}
-                    {% else %}
-                        {{ sw_csrf('frontend.detail.switch') }}
-                    {% endif %}
-                {% endblock %}
-
                 {% block buy_widget_configurator_groups %}
                     {% for group in configuratorSettings %}
                         {% block buy_widget_configurator_group %}

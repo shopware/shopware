@@ -71,10 +71,6 @@ parameters:
                 - src/**/*Test.php
                 - tests/**/*Test.php
 
-        # @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455)
-        -
-            message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
-            path: src/Storefront/Framework/Captcha/CaptchaRouteListener.php
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
@@ -132,12 +128,6 @@ parameters:
             message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
-
-        # Method will get third parameter in 6.5
-        -
-            message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) invoked with 3 parameters, 2 required\\.$#"
-            count: 1
-            path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
 
         # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
         - '#Trait .* is used zero times and is not analysed.#'

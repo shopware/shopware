@@ -77,12 +77,6 @@ class ContextControllerContextTest extends TestCase
             'domains' => $domains,
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $this->languageId]],
         ]);
-
-        // HACK to deactivate csrf protection. The check is only done once per request
-        $this->browser->request(
-            'POST',
-            $this->defaultBaseUrl . '/checkout/language'
-        );
     }
 
     protected function tearDown(): void

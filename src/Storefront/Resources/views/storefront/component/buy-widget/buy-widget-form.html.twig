@@ -6,11 +6,6 @@
         class="buy-widget"
         data-add-to-cart="true">
 
-        {# @deprecated tag:v6.5.0 - Block buy_widget_buy_form_inner_csrf will be removed. #}
-        {% block buy_widget_buy_form_inner_csrf %}
-            {{ sw_csrf('frontend.checkout.line-item.add') }}
-        {% endblock %}
-
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
         {% block buy_widget_buy_container %}
             {% if buyable %}

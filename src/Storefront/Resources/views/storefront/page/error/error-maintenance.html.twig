@@ -119,16 +119,6 @@
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
                 </script>
             {% endblock %}
-
-            {% block error_maintenance_script_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
-                </script>
-            {% endblock %}
-
             {% block error_maintenance_script_reload %}
                 <script>
                     setTimeout(function () {

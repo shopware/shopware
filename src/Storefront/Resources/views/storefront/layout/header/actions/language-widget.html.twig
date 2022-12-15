@@ -11,11 +11,6 @@
                       class="language-form"
                       data-form-auto-submit="true">
 
-                    {# @deprecated tag:v6.5.0 - Block layout_header_actions_language_widget_form_csrf will be removed. #}
-                    {% block layout_header_actions_language_widget_form_csrf %}
-                        {{ sw_csrf('frontend.checkout.switch-language') }}
-                    {% endblock %}
-
                     {% block layout_header_actions_language_widget_content %}
                         {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
                         {# @deprecated tag:v6.5.0 - Remove else cases, to maintain correct split of isoCode #}

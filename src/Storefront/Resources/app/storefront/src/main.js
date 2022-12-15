@@ -57,10 +57,6 @@ import ProductSliderPlugin from 'src/plugin/slider/product-slider.plugin';
 import ZoomModalPlugin from 'src/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/plugin/magnifier/magnifier.plugin';
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
-/** @deprecated tag:v6.5.0 - CmsSlotReload plugin is deprecated. Functionality moved to ListingPlugin */
-import CmsSlotReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-reload.plugin';
-/** @deprecated tag:v6.5.0 - CmsSlotHistoryReload plugin is deprecated. Functionality moved to ListingPlugin */
-import CmsSlotHistoryReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 import RemoteClickPlugin from 'src/plugin/remote-click/remote-click.plugin';
 import AddressEditorPlugin from 'src/plugin/address-editor/address-editor.plugin';
 import DateFormat from 'src/plugin/date-format/date-format.plugin';
@@ -76,8 +72,6 @@ import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 import ListingSortingPlugin from 'src/plugin/listing/listing-sorting.plugin';
 import DatePickerPlugin from 'src/plugin/date-picker/date-picker.plugin';
-/** @deprecated tag:v6.5.0 - FormCsrfHandler will be removed without replacement */
-import FormCsrfHandlerPlugin from 'src/plugin/forms/form-csrf-handler.plugin';
 import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
 import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
 import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
@@ -85,8 +79,6 @@ import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 import GoogleReCaptchaV2Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin';
 import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
-/** @deprecated tag:v6.5.0 - SwagBlockLink plugin will be removed without replacement */
-import SwagBlockLink from 'src/helper/block-link.helper';
 import ClearInputPlugin from 'src/plugin/clear-input-button/clear-input.plugin';
 import CmsGdprVideoElement from 'src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin';
 import WishlistWidgetPlugin from 'src/plugin/header/wishlist-widget.plugin';
@@ -143,10 +135,6 @@ PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slid
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
-/** @deprecated tag:v6.5.0 - CmsSlotReload plugin is deprecated. Functionality moved to ListingPlugin */
-PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
-/** @deprecated tag:v6.5.0 - CmsSlotHistoryReload plugin is deprecated. Functionality moved to ListingPlugin */
-PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
@@ -165,8 +153,6 @@ PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]'); //
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
-/** @deprecated tag:v6.5.0 - SwagBlockLink plugin will be removed without replacement */
-PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]'); // Not used in core, but implemented for plugins
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
@@ -190,11 +176,6 @@ if (window.wishlistEnabled) {
 
     PluginManager.register('AddToWishlist', AddToWishlistPlugin, '[data-add-to-wishlist]');
     PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
-}
-
-/** @deprecated tag:v6.5.0 - CSRF will be removed */
-if (!Feature.isActive('v6.5.0.0') && window.csrf.enabled && window.csrf.mode === 'ajax') {
-    PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
 }
 
 if (window.gtagActive) {

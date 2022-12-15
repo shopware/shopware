@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package system-settings
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class SearchController extends StorefrontController
 {

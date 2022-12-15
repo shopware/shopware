@@ -41,20 +41,10 @@
             {% block single_cms_page_main %}
                 <main class="content-main">
                     {% block single_cms_page_main_content %}
-                        {# @deprecated tag:v6.5.0 - keep if branch - page.cmsPage will be removed. Use page.landingPage.cmsPage instead #}
-                        {% if feature('v6.5.0.0') %}
-                            {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
-                        {% else %}
-                            {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
-                        {% endif %}
+                        {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
                         <div class="{{ cmsPageClasses }}">
                             {% block page_content_blocks %}
-                                {# @deprecated tag:v6.5.0 - keep if branch - page.cmsPage will be removed. Use page.landingPage.cmsPage instead #}
-                                {% if feature('v6.5.0.0') %}
-                                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.landingPage.cmsPage, 'landingPage': page.landingPage} %}
-                                {% else %}
-                                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage, 'landingPage': page.landingPage} %}
-                                {% endif %}
+                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.landingPage.cmsPage, 'landingPage': page.landingPage} %}
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -112,15 +102,6 @@
                     } %}
 
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
-                </script>
-            {% endblock %}
-
-            {% block single_cms_page_script_csrf %}
-                <script>
-                    window.csrf = {
-                        'enabled': '{{ shopware.csrfEnabled }}',
-                        'mode': '{{ shopware.csrfMode }}'
-                    }
                 </script>
             {% endblock %}
         {% endblock %}

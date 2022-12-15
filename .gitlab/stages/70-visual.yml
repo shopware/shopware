@@ -8,7 +8,7 @@ Percy:
             alias: database
     variables:
         PERCY_ENABLE: $CYPRESS_PERCY_USAGE
-        PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+        PERCY_TARGET_BRANCH: '6.4'
         CYPRESS_localUsage: 'true'
         CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
         CYPRESS_baseUrl: "http://localhost:8000"
@@ -21,6 +21,9 @@ Percy:
           when: never
         - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
           when: never
+        - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME != null'
+          variables:
+            PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:

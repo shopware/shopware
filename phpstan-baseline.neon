@@ -14418,26 +14418,6 @@ parameters:
 			path: src/Core/Framework/Test/App/ActionButton/AppActionLoaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\ActionButton\\\\ExecutorTest\\:\\:signResponse\\(\\) has parameter \\$responseData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/ActionButton/ExecutorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of static method Opis\\\\JsonSchema\\\\Schema\\:\\:fromJsonString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/ActionButton/ExecutorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$shopUrl of class Shopware\\\\Core\\\\Framework\\\\App\\\\ActionButton\\\\AppAction constructor expects string, bool\\|float\\|int\\|string\\|null given\\.$#"
-			count: 8
-			path: src/Core/Framework/Test/App/ActionButton/ExecutorTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$key of function hash_hmac expects string, string\\|null given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/App/ActionButton/ExecutorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\ActionButton\\\\Response\\\\ActionButtonResponseFactoryTest\\:\\:provideActionTypes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/ActionButton/Response/ActionButtonResponseFactoryTest.php
@@ -21048,11 +21028,6 @@ parameters:
 			message: "#^Offset 0 does not exist on array\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/Command/ThemeDumpCommandTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of function array_map expects array, array\\<int, string\\>\\|false given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Theme/Command/ThemePrepareIconsCommandTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseAvailableThemeProviderTest\\:\\:getThemeId\\(\\) should return string but returns string\\|null\\.$#"

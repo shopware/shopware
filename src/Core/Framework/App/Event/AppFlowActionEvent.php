@@ -14,7 +14,7 @@ class AppFlowActionEvent extends Event implements Hookable
     private string $name;
 
     /**
-     * @var array<int|string, string>
+     * @var array<string, string>
      */
     private array $headers;
 
@@ -24,7 +24,7 @@ class AppFlowActionEvent extends Event implements Hookable
     private array $payload;
 
     /**
-     * @param array<int|string, string> $headers
+     * @param array<string, string> $headers
      * @param array<mixed> $payload
      */
     public function __construct(string $name, array $headers, array $payload)
@@ -40,7 +40,7 @@ class AppFlowActionEvent extends Event implements Hookable
     }
 
     /**
-     * @return array<int|string, string>
+     * @return array<string, string>
      */
     public function getWebhookHeaders(): array
     {

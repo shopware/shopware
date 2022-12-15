@@ -27,7 +27,7 @@ class AppFlowActionProvider
     }
 
     /**
-     * @return array<string, array<int|string, string>>
+     * @return array<string, array<string, string>>
      */
     public function getWebhookPayloadAndHeaders(StorableFlow $flow, string $appFlowActionId): array
     {
@@ -54,10 +54,12 @@ class AppFlowActionProvider
 
         /** @var string $parameterData */
         $parameterData = $appFlowActionData['parameters'];
+        /** @var array<string, string> $parameters */
         $parameters = array_column(json_decode($parameterData, true), 'value', 'name');
 
         /** @var string $headersData */
         $headersData = $appFlowActionData['headers'];
+        /** @var array<string, string> $headers */
         $headers = array_column(json_decode($headersData, true), 'value', 'name');
 
         return [
@@ -67,12 +69,12 @@ class AppFlowActionProvider
     }
 
     /**
-     * @param array<int|string, mixed> $params
+     * @param array<string, string> $params
      * @param array<string, mixed> $data
      *
      * @throws InvalidAppFlowActionVariableException
      *
-     * @return array<int|string, string>
+     * @return array<string, string>
      */
     private function resolveParamsData(array $params, array $data, Context $context, string $appFlowActionId): array
     {

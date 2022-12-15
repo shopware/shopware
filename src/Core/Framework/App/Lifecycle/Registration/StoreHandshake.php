@@ -49,7 +49,7 @@ class StoreHandshake implements AppHandshakeInterface
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => $date->getTimestamp(),
+            'timestamp' => (string) $date->getTimestamp(),
         ]);
 
         $signature = $this->signPayload($uri->getQuery());

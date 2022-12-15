@@ -29,7 +29,7 @@
     },
     "require": {
         "php": "~8.1.0 || ~8.2.0",
-        "cocur/slugify": "4.0.0",
+        "cocur/slugify": "^4.3.0",
         "erusev/parsedown-extra": "0.8.1",
         "guzzlehttp/guzzle": "~7.4.5",
         "phpdocumentor/reflection-docblock": "^5.3.0",

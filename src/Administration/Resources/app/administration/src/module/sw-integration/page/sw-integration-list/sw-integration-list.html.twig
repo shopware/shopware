@@ -211,6 +211,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_grid %}
                 <sw-entity-listing
+                    v-if="integrations && integrations.length > 0"
                     :items="integrations"
                     :columns="integrationColumns"
                     :repository="integrationRepository"
@@ -335,16 +336,16 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_empty_state %}
                 <sw-empty-state
-                    v-if="!integrations"
+                    v-else
                     :title="$tc('sw-integration.list.messageEmpty')"
                     :subline="$tc('sw-integration.list.sublineEmpty')"
                 />
                 {% endblock %}
                 {% endblock %}
             </sw-card>
-            {% endblock %}
+        {% endblock %}
         </sw-card-view>
+        {% endblock %}
     </template>
-    {% endblock %}
 </sw-page>
 {% endblock %}

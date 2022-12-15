@@ -267,4 +267,26 @@ describe('when has not privilege', () => {
 
         expect(adminRoleSwitch.attributes().disabled).toBeTruthy();
     });
+
+    it('should have integration criteria with filters', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const criteria = wrapper.vm.integrationCriteria;
+
+        expect(criteria.filters).toStrictEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    field: 'deletedAt',
+                    type: 'equals',
+                    value: null,
+                }),
+                expect.objectContaining({
+                    field: 'app.id',
+                    type: 'equals',
+                    value: null,
+                })
+            ])
+        );
+    });
 });

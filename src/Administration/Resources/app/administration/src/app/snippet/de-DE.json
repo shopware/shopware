@@ -1221,7 +1221,7 @@
     "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
     "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
     "ruleCard": "Bedingungen",
-    "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+    "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
     "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {

@@ -50,6 +50,12 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         cy.get('.sw-flow-rule-modal').should('be.visible');
 
+        cy.get('.sw-flow-rule-modal__tab-detail').click();
+        cy.get('.sw-flow-rule-modal__name').type('Time rule');
+        cy.get('.sw-flow-rule-modal__priority').type('1000');
+
+        cy.get('.sw-flow-rule-modal__tab-rule').click();
+
         // fill rule data
         cy.get('.sw-condition').then((conditionElement) => {
             cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
@@ -61,11 +67,6 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
                         .click();
                 });
         });
-
-        cy.get('.sw-flow-rule-modal__tab-detail').click();
-
-        cy.get('.sw-flow-rule-modal__name').type('Time rule');
-        cy.get('.sw-flow-rule-modal__priority').type('1000');
 
         cy.get('.sw-flow-rule-modal__save-button').click();
         cy.get('.sw-flow-rule-modal').should('not.exist');
@@ -129,13 +130,14 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-rule-modal').should('be.visible');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.contains('.sw-condition-type-select', 'Day of the week');
-        cy.contains('.sw-condition-operator-select', 'Is equal to');
-        cy.contains('.sw-condition-tree', 'Sunday');
-
         cy.get('.sw-flow-rule-modal__tab-detail').click();
         cy.get('.sw-flow-rule-modal__name').clear();
         cy.get('.sw-flow-rule-modal__name').type('Weekend sales');
+
+        cy.get('.sw-flow-rule-modal__tab-rule').click();
+        cy.contains('.sw-condition-type-select', 'Day of the week');
+        cy.contains('.sw-condition-operator-select', 'Is equal to');
+        cy.contains('.sw-condition-tree', 'Sunday');        
 
         cy.get('.sw-flow-rule-modal__save-button').click();
         cy.get('.sw-flow-rule-modal').should('not.exist');

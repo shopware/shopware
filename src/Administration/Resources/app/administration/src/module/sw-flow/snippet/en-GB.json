@@ -143,8 +143,8 @@
       "rule": {
         "labelAddNewRule": "Add new rule",
         "labelEditRule": "Edit rule",
-        "tabRule": "Rule",
-        "tabDetail": "Details",
+        "tabRule": "Condition",
+        "tabDetail": "General",
         "buttonAddRule": "Save and apply",
         "labelName": "Name",
         "placeholderName": "Enter rule name...",

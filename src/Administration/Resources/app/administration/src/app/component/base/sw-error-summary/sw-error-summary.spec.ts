@@ -7,6 +7,10 @@ import 'src/app/component/base/sw-error-summary/index';
 import 'src/app/component/base/sw-alert/index';
 
 async function createWrapper(errors = {}, options = {}) {
+    if (typeof Shopware.State.get('error') !== 'undefined') {
+        Shopware.State.unregisterModule('error');
+    }
+
     Shopware.State.registerModule('error', {
         namespaced: true,
 
@@ -14,6 +18,7 @@ async function createWrapper(errors = {}, options = {}) {
             api: errors,
         },
     });
+    Shopware.State.getters['error/getAllApiErrors'] = () => [errors];
 
     return shallowMount(await Shopware.Component.build('sw-error-summary'), {
         stubs: {

@@ -159,6 +159,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
     const consoleError = console.error;
 
     beforeAll(() => {
+        if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
+            Shopware.State.unregisterModule('cmsPageState');
+        }
+
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             actions: {
@@ -257,6 +261,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should always show the correct menu, even with the defaults not matching the userConfig', async () => {
         wrapper.destroy();
+        Shopware.State.unregisterModule('swProductDetail');
 
         const keys = ['general_information', 'prices', 'deliverability'];
         const mockKey = 'mock_key_without_result';
@@ -349,7 +354,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show correct config when there is system config data', async () => {
-        if (wrapper) wrapper.destroy();
+        if (wrapper) {
+            wrapper.destroy();
+            Shopware.State.unregisterModule('swProductDetail');
+        }
+
         wrapper = await createWrapper(
             () => Promise.resolve([{
                 id: '98432def39fc4624b33213a56b8c944d',

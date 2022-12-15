@@ -35,22 +35,19 @@ let TwigTemplates = null;
  */
 Twig.extend(TwigCore => {
     /**
-     * Remove tokens 2 (output_whitespace_pre), 3 (output_whitespace_post), 4 (output_whitespace_both) and 8 (output).
+     * Remove tokens output_whitespace_pre, output_whitespace_post, output_whitespace_both and output.
      * This tokens are used for functions and data output.
      * Since the data binding is done in Vue this could lead to syntax issues.
      * We are only using the block system for template inheritance.
      *
      * @type {Array<any>}
      */
-    TwigCore.token.definitions = [
-        TwigCore.token.definitions[0],
-        TwigCore.token.definitions[1],
-        TwigCore.token.definitions[5],
-        TwigCore.token.definitions[6],
-        TwigCore.token.definitions[7],
-        TwigCore.token.definitions[9],
-        TwigCore.token.definitions[10],
-    ];
+    TwigCore.token.definitions = TwigCore.token.definitions.filter(token => {
+        return token.type !== TwigCore.token.type.output_whitespace_pre &&
+            token.type !== TwigCore.token.type.output_whitespace_post &&
+            token.type !== TwigCore.token.type.output_whitespace_both &&
+            token.type !== TwigCore.token.type.output;
+    });
 
     /**
      * Twig inheritance extension.
@@ -67,13 +64,10 @@ Twig.extend(TwigCore => {
         parse(token, context, chain) {
             return {
                 chain,
-                output: TwigCore.placeholders.parent,
+                output: '{{|PARENT|}}',
             };
         },
     });
-
-    /** Make the placeholders available in the exposed Twig object. */
-    TwigCore.exports.placeholders = TwigCore.placeholders;
 
     /** Make the Twig template cache registry available. */
     TwigCore.exports.getRegistry = function getRegistry() {
@@ -93,7 +87,7 @@ Twig.extend(TwigCore => {
  * Escaped parent placeholder
  * @type {string}
  */
-const parentPlaceholder = Twig.placeholders.parent.replace(/\|/g, '\\|');
+const parentPlaceholder = '{{\\|PARENT\\|}}';
 
 /**
  * Parent placeholder as regular expression
@@ -327,11 +321,11 @@ function resolveTokens(tokens, overrideTokens) {
     }
 
     return tokens.reduce((acc, token) => {
-        if (token.type !== 'logic' || !token.token || !token.token.block) {
+        if (token.type !== 'logic' || !token.token || !token.token.blockName) {
             return [...acc, token];
         }
 
-        const blockName = token.token.block;
+        const blockName = token.token.blockName;
         const isInOverrides = findBlock(blockName, overrideTokens);
 
         if (isInOverrides) {
@@ -420,7 +414,7 @@ function resolveExtendTokens(tokens, item) {
  */
 function normalizeTokens(tokens, extensionTokens) {
     const result = tokens.reduce((acc, token) => {
-        if (token.token && !findNestedBlock(token.token.block, extensionTokens)) {
+        if (token.token && !findNestedBlock(token.token.blockName, extensionTokens)) {
             return [...acc, ...token.token.output];
         }
 
@@ -438,7 +432,7 @@ function normalizeTokens(tokens, extensionTokens) {
  */
 function findNestedBlock(blockName, tokens) {
     const result = tokens.find((t) => {
-        const exists = t.token && t.token.block === blockName;
+        const exists = t.token && t.token.blockName === blockName;
 
         return exists || (t.token && findNestedBlock(blockName, t.token.output));
     });
@@ -454,7 +448,7 @@ function findNestedBlock(blockName, tokens) {
  */
 function findBlock(blockName, tokens) {
     const result = tokens.find((t) => {
-        return t.token && t.token.block === blockName;
+        return t.token && t.token.blockName === blockName;
     });
 
     return result;
@@ -466,7 +460,7 @@ function resolveToken(token, itemTokens, name) {
         return token;
     }
 
-    const tokenBlockName = token.token.block;
+    const tokenBlockName = token.token.blockName;
     const isIn = findBlock(tokenBlockName, itemTokens);
 
     if (isIn) {

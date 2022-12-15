@@ -86,7 +86,7 @@ export default Component.wrapComponentConfig({
         },
 
         cartDelivery(): CartDelivery | null {
-            return get(this.cart, 'deliveries[0]', null) as CartDelivery | null;
+            return get(this.cart, 'deliveries[0]', null);
         },
 
         shippingCosts: {
@@ -199,7 +199,7 @@ export default Component.wrapComponentConfig({
         createdComponent(): void {
             if (!this.customer) {
                 this.$nextTick(() => {
-                    this.$router.push({ name: 'sw.order.create.initial' });
+                    void this.$router.push({ name: 'sw.order.create.initial' });
                 });
             }
 

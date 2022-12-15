@@ -98,7 +98,7 @@ export default Component.wrapComponentConfig({
                 this.isSaveSuccessful = true;
 
                 // @ts-expect-error
-                this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit.id } });
+                void this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit.id } });
 
                 this.isLoading = false;
             }).catch(() => {

@@ -468,6 +468,10 @@ Shopware.Directive.register('draggable', {
             }
         }
 
+        if (!el.dragConfig) {
+            el.dragConfig = {} as DragConfig;
+        }
+
         Object.assign(el.dragConfig, dragConfig);
     },
 
@@ -514,11 +518,14 @@ Shopware.Directive.register('droppable', {
 
     update: (el: HTMLElement, binding: { value: unknown }) => {
         const dropZone = dropZones.find(zone => zone.el === el);
+        if (!dropZone) {
+            return;
+        }
 
         if (types.isObject(binding.value)) {
-            Object.assign(dropZone && dropZone.dropConfig, binding.value);
+            Object.assign(dropZone.dropConfig, binding.value);
         } else {
-            Object.assign(dropZone && dropZone.dropConfig, { data: binding.value });
+            Object.assign(dropZone.dropConfig, { data: binding.value });
         }
     },
 });

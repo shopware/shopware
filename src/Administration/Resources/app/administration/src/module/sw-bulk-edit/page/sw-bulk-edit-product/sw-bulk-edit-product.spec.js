@@ -330,6 +330,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         router = new VueRouter({
             routes
         });
+        const orgPush = router.push;
+        router.push = (location) => {
+            return orgPush.call(router, location).catch(() => {});
+        };
 
         Shopware.Application.getContainer('factory').apiService.register('calculate-price', {
             calculatePrice: () => {
@@ -363,11 +367,18 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         });
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
         console.error = jest.fn();
+        global.allowedErrors = [
+            ...global.allowedErrors,
+            {
+                method: 'warn',
+                msg: /\[vuex\].*/
+            }
+        ];
     });
 
     afterEach(() => {
         wrapper.destroy();
-        wrapper.vm.$router.push({ path: 'confirm' });
+        router.push({ path: 'confirm' });
         console.error = consoleError;
     });
 

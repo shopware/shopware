@@ -99,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         redirectToOrderList(): void {
-            this.$router.push({ name: 'sw.order.index' });
+            void this.$router.push({ name: 'sw.order.index' });
         },
 
         saveFinish(): void {
@@ -108,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
+            void this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
         },
 
         onSaveOrder(): Promise<void> {

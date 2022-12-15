@@ -65,7 +65,7 @@ export default Component.wrapComponentConfig({
         },
 
         taxStatus(): string {
-            return get(this.cart, 'price.taxStatus', '') as string;
+            return get(this.cart, 'price.taxStatus', '');
         },
 
         shippingCostsDetail(): string | null {
@@ -122,7 +122,7 @@ export default Component.wrapComponentConfig({
         createdComponent(): void {
             if (!this.customer) {
                 this.$nextTick(() => {
-                    this.$router.push({ name: 'sw.order.create.initial' });
+                    void this.$router.push({ name: 'sw.order.create.initial' });
                 });
 
                 return;

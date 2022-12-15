@@ -5,3 +5,6 @@ issue: NEXT-21203
 # Core
 * Removed deprecated `BusinessEventInterface` and `BusinessEvent`
 * Removed remaining deprecatiMoveDataFromEvons in `Core/Framework/Event`
+___
+# Administration
+* Removed deprecated `event-action` module and all references to deprecated `event-action` entity.

@@ -912,7 +912,6 @@
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
-      "event_action": "Business-Events",
       "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
       "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
       "product_feature_set": "Neues Template | Neue Templates",
@@ -1435,7 +1434,6 @@
       "cartPromotions": "Warenkorb-Regel|Warenkorb-Regeln",
       "promotionDiscounts": "Produkt-Regel|Produkt-Regeln",
       "promotionSetGroups": "Produkt-Regel|Produkt-Regeln",
-      "eventActions": "Business-Event-Regel|Business-Event-Regeln",
       "notEqualsViolationTooltip": "Diese Regel verwendet Bedingungen, die die Zuweisung zu {entityLabel} verhindern. Diese Bedingungen sind: {conditions}.",
       "equalsAnyViolationTooltip": "Diese Regel muss mindestens eine der folgenden Bedingungen verwenden, um {entityLabel} zugewiesen zu werden: {conditions}."
     },

@@ -912,7 +912,6 @@
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/export profile | Import/export profiles",
       "feature_set": "Template | Templates",
-      "event_action": "Business events",
       "property_group": "Property group | Property groups",
       "document_base_config": "Document base config | Document base configs",
       "product_feature_set": "New template | New templates",
@@ -1435,7 +1434,6 @@
       "cartPromotions": "shopping cart rule|shopping cart rules",
       "promotionDiscounts": "product rule|product rules",
       "promotionSetGroups": "product rule|product rules",
-      "eventActions": "business event rule|business event rules",
       "notEqualsViolationTooltip": "This rule uses conditions that prevent assignment to {entityLabel}. These conditions are: {conditions}.",
       "equalsAnyViolationTooltip": "This rule must use at least one of the following conditions to be able to assign it to {entityLabel}: {conditions}."
     },

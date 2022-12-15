@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;

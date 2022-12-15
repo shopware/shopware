@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\MessageQueue\Api;
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

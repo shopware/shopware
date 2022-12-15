@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Storefront\Framework\Csrf\CsrfModes;
 use Shopware\Storefront\Framework\Csrf\Exception\CsrfNotEnabledException;

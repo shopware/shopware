@@ -14,7 +14,9 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 
 const { Component, State, Mixin } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default class VueAdapter extends ViewAdapter {
     /**
      * @constructor

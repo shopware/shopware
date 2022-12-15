@@ -37,7 +37,9 @@ const ExtensionComponentSectionsStore: Module<ExtensionComponentSectionsState, V
     },
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default ExtensionComponentSectionsStore;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ExtensionComponentSectionsState, ComponentSectionEntry };

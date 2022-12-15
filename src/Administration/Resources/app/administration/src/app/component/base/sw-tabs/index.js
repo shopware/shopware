@@ -10,6 +10,7 @@ const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders tabs. Each item references a route or emits a custom event.
  * @status ready
@@ -24,7 +25,6 @@ const dom = Shopware.Utils.dom;
  *     </sw-tabs-item>
  * </sw-tabs>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-tabs', {
     template,
 

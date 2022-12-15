@@ -14,6 +14,7 @@ const URL_REGEX = {
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description URL field component which supports a switch for https and http.
  * @status ready

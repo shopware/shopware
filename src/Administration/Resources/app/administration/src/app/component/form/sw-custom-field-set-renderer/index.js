@@ -14,7 +14,6 @@ const { Criteria } = Shopware.Data;
  * @example-type code-only
  * @component-example
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-custom-field-set-renderer', {
     template,
 

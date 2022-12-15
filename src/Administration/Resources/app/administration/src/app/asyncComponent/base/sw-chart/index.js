@@ -8,6 +8,7 @@ const { warn } = Shopware.Utils.debug;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static

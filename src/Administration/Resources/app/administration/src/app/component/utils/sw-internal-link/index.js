@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Link to another route inside the administration
  * @status ready

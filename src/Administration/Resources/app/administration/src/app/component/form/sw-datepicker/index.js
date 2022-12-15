@@ -10,6 +10,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Datepicker wrapper for date inputs. For all configuration options visit:
  * <a href="https://flatpickr.js.org/options/">https://flatpickr.js.org/options/</a>.

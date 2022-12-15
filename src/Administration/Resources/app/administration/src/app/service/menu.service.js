@@ -1,8 +1,7 @@
 /**
  * @package admin
- */
-
-/**
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @module app/service/menu
  * @method createMenuService
  * @memberOf module:app/service/menu
@@ -10,7 +9,6 @@
  * @returns {{getMainMenu: getMainMenu, addItem: FlatTree.add, removeItem: FlatTree.remove}}
  * @constructor
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createMenuService(moduleFactory) {
     return {
         getNavigationFromAdminModules,

@@ -4,6 +4,9 @@
 
 const { Mixin } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Mixin.register('remove-api-error', {
     created() {
         if (typeof this.$options.$apiErrorHandler === 'function') {

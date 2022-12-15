@@ -48,7 +48,9 @@ const ModalsStore: Module<ModalsState, VuexRootState> = {
     },
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default ModalsStore;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ModalsState };

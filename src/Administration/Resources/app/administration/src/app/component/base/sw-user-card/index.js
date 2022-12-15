@@ -8,6 +8,7 @@ import './sw-user-card.scss';
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders a compact user information card using the provided user data.
  * @status ready
@@ -48,7 +49,6 @@ const { Component } = Shopware;
  * </template>
  * </sw-user-card>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-user-card', {
     template,
 

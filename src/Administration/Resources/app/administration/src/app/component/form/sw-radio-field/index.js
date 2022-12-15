@@ -6,6 +6,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description radio input field.
  * @status ready
@@ -22,7 +23,6 @@ const { Component, Mixin } = Shopware;
  *          {'value': 'value5', 'name': 'Label #5'}
  * ]"></sw-radio-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-radio-field', {
     template,
     inheritAttrs: false,

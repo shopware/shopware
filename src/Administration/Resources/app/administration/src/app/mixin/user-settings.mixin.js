@@ -5,6 +5,9 @@
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Mixin.register('user-settings', {
     inject: [
         'acl',

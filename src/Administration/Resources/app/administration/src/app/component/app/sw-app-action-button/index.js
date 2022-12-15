@@ -7,7 +7,9 @@ import './sw-app-action-button.scss';
 
 const { Component, State, Context } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-app-action-button', {
     template,
 

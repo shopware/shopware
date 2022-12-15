@@ -5,6 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A container, which creates a collapsible list of items.
  * @status ready
@@ -15,7 +16,6 @@ const { Component } = Shopware;
  *     <div #content>Content slot</div>
  * </sw-collapse>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-collapse', {
     template,
 

@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @status ready
  * @description The <u>sw-button-group</u> is a container element for sw-button and sw-context-button elements.
  * @example-type static
@@ -16,7 +17,6 @@ const { Component } = Shopware;
  *     <sw-button>Button 3</sw-button>
  * </sw-button-group>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-button-group', {
     template,
 

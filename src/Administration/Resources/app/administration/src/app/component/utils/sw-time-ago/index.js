@@ -3,6 +3,7 @@ import template from './sw-time-ago.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Render datetimes with relative values like "13 minutes ago"
  * @status ready

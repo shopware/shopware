@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A card is a flexible and extensible content container.
  * @status ready
@@ -15,7 +16,6 @@ const { Component } = Shopware;
  *     Your content
  * </sw-card>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card', {
     template,
 

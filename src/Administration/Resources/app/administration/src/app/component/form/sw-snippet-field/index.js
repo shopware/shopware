@@ -6,6 +6,7 @@ const { Component, State, Data: { Criteria } } = Shopware;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Input field that allows you to easily edit and translate snippet in a modal.
  * @status ready
@@ -13,7 +14,6 @@ const { Component, State, Data: { Criteria } } = Shopware;
  * @component-example
  * <sw-snippet-field snippet="myPlugin.test.snippet" fieldType="text"></sw-switch-field>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-snippet-field', {
     template,
 

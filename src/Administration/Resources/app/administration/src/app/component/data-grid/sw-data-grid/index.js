@@ -8,6 +8,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description The sw-data-grid is a component to render tables with data.
@@ -28,7 +29,6 @@ const utils = Shopware.Utils;
  *     ]">
  * </sw-data-grid>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-data-grid', {
     template,
 

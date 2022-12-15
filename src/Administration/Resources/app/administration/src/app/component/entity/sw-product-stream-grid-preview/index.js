@@ -4,7 +4,9 @@ import './sw-product-stream-grid-preview.scss';
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-product-stream-grid-preview', {
     template,
 

@@ -81,7 +81,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const conditionElement = wrapper.find('.sw-flow-rule-modal__rule');
+        const conditionElement = wrapper.find('.sw-flow-rule-modal__tab-rule');
         expect(conditionElement.exists()).toBe(true);
 
         const fieldClasses = [

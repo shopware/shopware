@@ -185,7 +185,7 @@ describe('Rule builder: Test crud operations', () => {
 
         cy.get('.sw-alert--error .sw-alert__message')
             .should('be.visible')
-            .contains('An error occurred while saving rule "".');
+            .contains('An error occurred while saving rule');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {

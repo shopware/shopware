@@ -191,7 +191,7 @@ describe('Rule builder: Test crud operations', () => {
 
         cy.get('button.sw-button').contains('Save').click();
 
-        cy.awaitAndCheckNotification('An error occurred while saving rule "Ruler".');
+        cy.awaitAndCheckNotification('An error occurred while saving rule');
     });
 
     resultCases.forEach(resultCase => {

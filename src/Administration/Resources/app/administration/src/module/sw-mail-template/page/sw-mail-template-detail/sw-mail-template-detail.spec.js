@@ -158,11 +158,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
                 'sw-tree-input-field': await Shopware.Component.build('sw-tree-input-field'),
                 'sw-confirm-field': true,
-                'icons-regular-chevron-right-xxs': true,
                 'sw-loader': true,
-                'icons-multicolor-folder-tree': true,
                 'sw-vnode-renderer': true,
-                'icons-regular-chevron-down-xxs': true,
                 'sw-data-grid': {
                     props: ['dataSource'],
                     template: `

@@ -11,7 +11,6 @@ window.Shopware = Shopware;
 
 const DeviceHelper = require('src/app/plugin/device-helper.plugin').default;
 const ValidationService = require('src/core/service/validation.service').default;
-const iconComponents = require('src/app/assets/icons/icons').default;
 const VuexModules = require('src/app/state/index').default;
 const ShortcutService = require('src/app/service/shortcut.service').default;
 
@@ -71,16 +70,7 @@ directiveRegistry.forEach((directive, name) => {
     Vue.directive(name, directive);
 });
 
-const iconNames = [];
-iconComponents.forEach((component) => {
-    Shopware.Component.register(component.name, component);
-    iconNames.push(component.name);
-});
-
 Shopware.Application
-    .addServiceProvider('iconNames', () => {
-        return iconNames;
-    })
     .addServiceProvider('feature', () => {
         return {
             isActive: () => {

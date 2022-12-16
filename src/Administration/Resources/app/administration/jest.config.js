@@ -41,6 +41,15 @@ module.exports = {
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
     ],
 
+    transform: {
+        // stringify svg imports
+        '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
+    },
+
+    transformIgnorePatterns: [
+        'node_modules/(?!@shopware-ag/meteor-icon-kit|other)',
+    ],
+
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
         vue$: 'vue/dist/vue.common.dev.js',

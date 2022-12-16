@@ -42,6 +42,10 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 
     private function getLastModified(string $path): string
     {
+        if ($path === '') {
+            return '';
+        }
+
         $cacheKey = 'metaDataFlysystem-' . md5($path);
 
         /** @var ItemInterface $item */

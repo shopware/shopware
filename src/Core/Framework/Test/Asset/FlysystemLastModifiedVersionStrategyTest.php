@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Asset;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
@@ -54,5 +55,15 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
         static::assertSame('http://shopware.com/folder', $this->asset->getUrl('folder'));
         static::assertSame('http://shopware.com/not_existing/bla', $this->asset->getUrl('not_existing/bla'));
         static::assertSame('http://shopware.com/folder', $this->asset->getUrl('folder'));
+    }
+
+    public function testWithEmptyString(): void
+    {
+        $fs = $this->createMock(FilesystemOperator::class);
+        $fs->expects(static::never())->method('lastModified');
+
+        $strategy = new FlysystemLastModifiedVersionStrategy('test', $fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));
+
+        static::assertSame('', $strategy->getVersion(''));
     }
 }

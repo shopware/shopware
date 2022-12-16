@@ -84,7 +84,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
         $event = new WorkerMessageFailedEvent(
             new Envelope($webhookEventMessage),
-            'v65',
+            'async',
             new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
         );
 

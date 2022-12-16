@@ -42,10 +42,15 @@ class SystemRestoreDatabaseCommand extends Command
 
         $path = sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
 
+        $portString = '';
+        if ($params['password'] ?? '') {
+            $portString = '-p' . escapeshellarg($params['password']);
+        }
+
         $cmd = sprintf(
-            'mysql -u %s -p%s -h %s --port=%s %s < %s',
+            'mysql -u %s %s -h %s --port=%s %s < %s',
             escapeshellarg($params['user'] ?? ''),
-            escapeshellarg($params['password'] ?? ''),
+            $portString,
             escapeshellarg($params['host'] ?? ''),
             escapeshellarg((string) ($params['port'] ?? '')),
             escapeshellarg($dbName),

@@ -483,7 +483,6 @@
         "acl_role": "ACL role",
         "acl_user_role": "ACL user role",
         "dead_message": "Dead message",
-        "event_action": "Event action",
         "message_queue_stats": "Message queue stats",
         "notification": "Notification",
         "plugin": "Plugin",

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\DataStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 
 /**
  * @package business-ops
@@ -36,7 +36,7 @@ class DataStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(DataAware::DATA, $stored);

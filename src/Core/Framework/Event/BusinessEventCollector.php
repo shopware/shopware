@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class BusinessEventCollector
@@ -61,10 +60,6 @@ class BusinessEventCollector
      */
     public function define(string $class, ?string $name = null): ?BusinessEventDefinition
     {
-        if ($class === BusinessEvent::class) {
-            return null;
-        }
-
         $instance = (new \ReflectionClass($class))
             ->newInstanceWithoutConstructor();
 
@@ -77,15 +72,13 @@ class BusinessEventCollector
             return null;
         }
 
-        /** @var array $interfaces */
+        /** @var array<class-string<object>> $interfaces */
         $interfaces = class_implements($instance);
 
         $aware = [];
         foreach ($interfaces as $interface) {
             if (is_subclass_of($interface, FlowEventAware::class)
-                && $interface !== FlowEventAware::class
-                && $interface !== MailActionInterface::class
-                && $interface !== BusinessEventInterface::class) {
+                && $interface !== FlowEventAware::class) {
                 $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }
@@ -94,9 +87,6 @@ class BusinessEventCollector
         return new BusinessEventDefinition(
             $name,
             $class,
-            $instance instanceof MailAware,
-            $instance instanceof LogAware,
-            $instance instanceof SalesChannelAware,
             $instance::getAvailableData()->toArray(),
             $aware
         );

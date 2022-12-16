@@ -27,8 +27,6 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -400,13 +398,6 @@ class SalesChannelEntity extends Entity
      * @var CustomerGroupCollection|null
      */
     protected $customerGroupsRegistrations;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var EventActionCollection|null
-     */
-    protected $eventActions;
 
     /**
      * @var CustomerCollection|null
@@ -1087,32 +1078,6 @@ class SalesChannelEntity extends Entity
     public function setCustomerGroupsRegistrations(CustomerGroupCollection $customerGroupsRegistrations): void
     {
         $this->customerGroupsRegistrations = $customerGroupsRegistrations;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function getEventActions(): ?EventActionCollection
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->eventActions;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function setEventActions(EventActionCollection $eventActions): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->eventActions = $eventActions;
     }
 
     public function getBoundCustomers(): ?CustomerCollection

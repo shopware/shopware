@@ -500,34 +500,6 @@ class InfoControllerTest extends TestCase
         }
     }
 
-    public function testMailAwareBusinessEventRoute(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-        $url = '/api/_info/events.json';
-        $client = $this->getBrowser();
-        $client->request('GET', $url);
-
-        $content = $client->getResponse()->getContent();
-        static::assertNotFalse($content);
-        static::assertJson($content);
-
-        $response = json_decode($content, true);
-
-        static::assertSame(200, $client->getResponse()->getStatusCode());
-
-        foreach ($response as $event) {
-            if ($event['name'] === 'mail.after.create.message' || $event['name'] === 'mail.before.send' || $event['name'] === 'mail.sent') {
-                static::assertFalse($event['mailAware']);
-                static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
-
-                continue;
-            }
-            static::assertTrue($event['mailAware']);
-            static::assertTrue(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
-            static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], true));
-        }
-    }
-
     private function createApp(string $appId, string $aclRoleId): void
     {
         $this->getContainer()->get(Connection::class)->insert('app', [

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -17,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package customer-order
  */
-class CustomerSetDefaultBillingAddressEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent
+class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent
 {
     public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
 

@@ -18,6 +18,11 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
 {
     use MigrationTestTrait;
 
+    public function setUp(): void
+    {
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
+    }
+
     public function testStateMigration(): void
     {
         $connection = KernelLifecycleManager::getConnection();

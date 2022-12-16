@@ -54,7 +54,6 @@ export default {
             shippingMethods: null,
             paymentMethods: null,
             promotions: null,
-            eventActions: null,
             associationSteps: [5, 10],
             associationEntities: null,
             deleteModal: false,
@@ -67,13 +66,7 @@ export default {
 
     computed: {
         getRuleAssignmentConfiguration() {
-            const config = RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
-
-            if (this.feature.isActive('v6.5.0.0')) {
-                delete config.event_action;
-            }
-
-            return config;
+            return RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
         },
 
         /* eslint-disable max-len */

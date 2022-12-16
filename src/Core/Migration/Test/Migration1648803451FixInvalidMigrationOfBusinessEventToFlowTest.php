@@ -30,6 +30,8 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     public function setUp(): void
     {
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
+
         $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);

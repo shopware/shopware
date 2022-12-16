@@ -70,6 +70,7 @@ parameters:
             message: '#Unreachable statement - code above always terminates.#'
             paths:
                 - src/**/*Test.php
+                - tests/**/*Test.php
 
         # @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455)
         -
@@ -154,6 +155,14 @@ parameters:
             message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
             count: 1
             path: src/Core/Content/Test/ImportExport/MockRepository.php
+
+        - # Tests are skipped in setup, leading to phpstan errors, should be re-enabled with NEXT-24549
+            message: "#^Property .* is never written, only read.$#"
+            paths:
+                - src/Core/Migration/Test/Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest.php
+                - src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
+                - src/Core/Migration/Test/Migration1632215760MoveDataFromEventActionToFlowTest.php
+                - src/Core/Migration/Test/Migration1625583619MoveDataFromEventActionToFlowTest.php
 
 services:
     -

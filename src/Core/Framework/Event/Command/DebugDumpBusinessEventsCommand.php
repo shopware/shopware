@@ -39,8 +39,8 @@ class DebugDumpBusinessEventsCommand extends Command
         foreach ($result as $definition) {
             $table->addRow([
                 $definition->getName(),
-                (int) $definition->isMailAware(),
-                (int) $definition->isLogAware(),
+                (int) $definition->getAware('mailAware'),
+                (int) $definition->getAware('logAware'),
                 $definition->getClass(),
             ]);
         }

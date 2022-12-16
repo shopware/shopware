@@ -3,16 +3,16 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
  */
-class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
+class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
     /**
      * @var TaxCollection

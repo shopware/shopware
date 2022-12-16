@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
@@ -52,7 +52,7 @@ class HookableEventFactoryTest extends TestCase
     public function testDoesCreateHookableBusinessEvent(): void
     {
         $hookables = $this->hookableEventFactory->createHookablesFor(
-            new TestBusinessEvent(Context::createDefaultContext())
+            new TestFlowBusinessEvent(Context::createDefaultContext())
         );
 
         static::assertCount(1, $hookables);

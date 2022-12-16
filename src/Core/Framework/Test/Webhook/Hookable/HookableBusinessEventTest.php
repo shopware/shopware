@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
@@ -49,7 +49,7 @@ class HookableBusinessEventTest extends TestCase
     /**
      * @dataProvider getEventsWithoutPermissions
      */
-    public function testIsAllowedForNonEntityBasedEvents(BusinessEventInterface $rootEvent): void
+    public function testIsAllowedForNonEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
@@ -62,7 +62,7 @@ class HookableBusinessEventTest extends TestCase
     /**
      * @dataProvider getEventsWithPermissions
      */
-    public function testIsAllowedForEntityBasedEvents(BusinessEventInterface $rootEvent): void
+    public function testIsAllowedForEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,

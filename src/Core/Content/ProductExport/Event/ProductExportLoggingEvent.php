@@ -6,7 +6,6 @@ use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -14,7 +13,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware, MailAware, NameAware
+class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware
 {
     public const NAME = 'product_export.log';
 

@@ -10,6 +10,17 @@ import 'src/app/component/structure/sw-admin-menu-item';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
 
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/user-config',
+    status: 200,
+    response: {
+        data: []
+    }
+});
+
 const defaultAdminLanguageId = '6a357734-afe4-4f17-a814-fb89ce9724fc';
 
 const headlessSalesChannel = {

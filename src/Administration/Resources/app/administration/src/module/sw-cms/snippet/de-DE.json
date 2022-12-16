@@ -92,6 +92,7 @@
         "pageTypeProduct": "Produktseite",
         "demoEntity": "Vorschau-Datensatz",
         "blockCategorySelection": "Block-Kategorie",
+        "blockCategoryFavorite": "Favoriten",
         "blockCategoryText": "Text",
         "blockCategoryTextImage": "Text & Bild",
         "blockCategorySidebar": "Sidebar",
@@ -132,7 +133,8 @@
         "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
-        "defaultLayout": "Standardlayout"
+        "defaultLayout": "Standardlayout",
+        "blockFavoriteEmptyState": "Klicke auf das Herz in einem Block, um ihn als Favorit zu markieren und finde ihn hier wieder."
       },
       "notification": {
         "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",
@@ -166,7 +168,8 @@
       },
       "title": {
         "elementSettingsModal": "Element-Einstellungen",
-        "elementChangeModal": "Element austauschen"
+        "elementChangeModal": "Element austauschen",
+        "blockFavoriteEmptyState": "Noch keine Favoriten"
       },
       "tooltip": {
         "blockNameField": "Benenne jeden Block individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu behalten.",
@@ -207,6 +210,12 @@
           },
           "infoText": {
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
+          }
+        },
+        "switch": {
+          "groups": {
+            "all": "Alle Elemente",
+            "favorites": "Favorisierte Elemente"
           }
         }
       },

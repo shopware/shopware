@@ -1,7 +1,4 @@
-/**
- * @package sales-channel
- */
-import SalesChannelFavoritesService from 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
+import CmsBlockFavorites from 'src/module/sw-cms/service/cms-block-favorites.service';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -10,12 +7,14 @@ responses.addResponse({
     url: '/search/user-config',
     status: 200,
     response: {
-        data: [{
-            id: '8badf7ebe678ab968fe88c269c214ea6',
-            userId: '8fe88c269c214ea68badf7ebe678ab96',
-            key: SalesChannelFavoritesService.USER_CONFIG_KEY,
-            value: []
-        }]
+        data: {
+            data: [{
+                id: '8badf7ebe678ab968fe88c269c214ea6',
+                userId: '8fe88c269c214ea68badf7ebe678ab96',
+                key: CmsBlockFavorites.USER_CONFIG_KEY,
+                value: []
+            }]
+        }
     }
 });
 
@@ -28,7 +27,7 @@ responses.addResponse({
     }
 });
 
-describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.js', () => {
+describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     let service;
 
     beforeEach(() => {
@@ -36,24 +35,24 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
             id: '8fe88c269c214ea68badf7ebe678ab96'
         };
 
-        service = new SalesChannelFavoritesService();
+        service = new CmsBlockFavorites();
     });
 
-    it('getFavoriteIds > should return favorites from internal state', async () => {
+    it('getFavoriteBlockNames > should return favorites from internal state', () => {
         const expected = ['foo', 'bar'];
         service.state.favorites = expected;
 
-        expect(service.getFavoriteIds()).toEqual(expected);
+        expect(service.getFavoriteBlockNames()).toEqual(expected);
     });
 
-    it('isFavorite > checks if given string is included in favorites', async () => {
+    it('isFavorite > checks if given string is included in favorites', () => {
         const expected = 'bar';
         service.state.favorites = ['foo', 'bar'];
 
         expect(service.isFavorite(expected)).toBeTruthy();
     });
 
-    it('update > pushes new item to favorites and calls "saveUserConfig"', async () => {
+    it('update > pushes new item to favorites and calls "saveUserConfig"', () => {
         const newItem = 'biz';
 
         service.saveUserConfig = jest.fn();
@@ -65,7 +64,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(service.saveUserConfig).toBeCalled();
     });
 
-    it('update > removes existing item from favorites and calls "saveUserConfig"', async () => {
+    it('update > removes existing item from favorites and calls "saveUserConfig"', () => {
         const removedItem = 'bar';
 
         service.saveUserConfig = jest.fn();
@@ -77,7 +76,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(service.saveUserConfig).toBeCalled();
     });
 
-    it('update > does not add or remove items with a wrong state', async () => {
+    it('update > does not add or remove items with a wrong state', () => {
         const existingItem = 'foo';
         const nonExistingItem = 'biz';
 
@@ -90,19 +89,19 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(service.isFavorite(existingItem)).toBeTruthy();
     });
 
-    it('createUserConfigEntity > entity has specific values', async () => {
+    it('createUserConfigEntity > entity has specific values', () => {
         const expectedValues = {
             userId: Shopware.State.get('session').currentUser.id,
-            key: SalesChannelFavoritesService.USER_CONFIG_KEY,
+            key: CmsBlockFavorites.USER_CONFIG_KEY,
             value: []
         };
 
-        const entity = service.createUserConfigEntity(SalesChannelFavoritesService.USER_CONFIG_KEY);
+        const entity = service.createUserConfigEntity(CmsBlockFavorites.USER_CONFIG_KEY);
 
         expect(entity).toMatchObject(expectedValues);
     });
 
-    it('handleEmptyUserConfig > replaces the property "value" with an empty array', async () => {
+    it('handleEmptyUserConfig > replaces the property "value" with an empty array', () => {
         const userConfigMock = {
             value: {}
         };
@@ -113,13 +112,13 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
     });
 
     it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria(SalesChannelFavoritesService.USER_CONFIG_KEY);
+        const criteria = service.getCriteria(CmsBlockFavorites.USER_CONFIG_KEY);
 
-        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: SalesChannelFavoritesService.USER_CONFIG_KEY });
+        expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: CmsBlockFavorites.USER_CONFIG_KEY });
         expect(criteria.filters).toContainEqual({ type: 'equals', field: 'userId', value: '8fe88c269c214ea68badf7ebe678ab96' });
     });
 
-    it('getCurrentUserId > returns the userId of the current session user', async () => {
+    it('getCurrentUserId > returns the userId of the current session user', () => {
         expect(service.getCurrentUserId()).toEqual('8fe88c269c214ea68badf7ebe678ab96');
     });
 });

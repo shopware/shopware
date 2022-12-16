@@ -75,7 +75,9 @@ class ResponseRegistry {
 
     getResponse({ url, method }) {
         return this.registry.find(response => {
-            return url.match(response.url) && response.method.toUpperCase() === method.toUpperCase();
+            const isUrlValid = response.url instanceof RegExp ? response.url.match(url) : response.url === url;
+
+            return isUrlValid && response.method.toUpperCase() === method.toUpperCase();
         });
     }
 }

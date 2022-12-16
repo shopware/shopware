@@ -10,6 +10,15 @@ const { Component } = Shopware;
 Component.extend('sw-sidebar-collapse', 'sw-collapse', {
     template,
 
+    props: {
+        expandChevronDirection: {
+            type: String,
+            required: false,
+            default: 'right',
+            validator: (value) => ['up', 'left', 'right', 'bottom'].includes(value),
+        },
+    },
+
     computed: {
         expandButtonClass() {
             return {

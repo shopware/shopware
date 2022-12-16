@@ -68,7 +68,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             router,
             stubs: {
                 'sw-page': await Shopware.Component.build('sw-page'),
-                'sw-loader': await Shopware.Component.build('sw-loader'),
+                'sw-loader': true,
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-select-field': await Shopware.Component.build('sw-select-field'),
                 'sw-bulk-edit-custom-fields': await Shopware.Component.build('sw-bulk-edit-custom-fields'),
@@ -316,16 +316,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             }
         });
 
+        mockResponses.addResponse({
+            method: 'Post',
+            url: '/user-config',
+            status: 200,
+            response: {
+                data: []
+            }
+        });
+
         Shopware.State.commit('shopwareApps/setSelectedIds', [selectedOrderId]);
     });
 
     afterEach(() => {
-        wrapper.destroy();
         wrapper.vm.$router.push({ path: 'confirm' });
-    });
-
-    beforeAll(() => {
-        jest.spyOn(global.console, 'error').mockImplementation(() => {});
     });
 
     it('should show all form fields', async () => {

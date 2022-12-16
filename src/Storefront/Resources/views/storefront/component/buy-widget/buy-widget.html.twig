@@ -57,12 +57,6 @@
             {% endblock %}
         {% endblock %}
 
-        {% if not feature('FEATURE_NEXT_16992') %}
-            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
-            {% block buy_widget_not_available %}
-            {% endblock %}
-        {% endif %}
-
         {% block buy_widget_buy_container %}
             <div itemprop="offers"
                  itemscope
@@ -125,15 +119,6 @@
                             </p>
                         </div>
                     {% endblock %}
-
-                    {# @deprecated tag:v6.5.0 - Will be removed - The variable will be moved into block `buy_widget_reviews` #}
-                    {% set remoteClickOptions = {
-                        selector: "#review-tab-" ~ product.id,
-                        scrollToElement: true
-                    } %}
-
-                    {# @deprecated tag:v6.5.0 - Will be removed - The variable will be moved into block `buy_widget_reviews` #}
-                    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
 
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}

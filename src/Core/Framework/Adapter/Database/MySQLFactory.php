@@ -37,12 +37,12 @@ class MySQLFactory
             $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
             $parameters['primary'] = ['url' => $url];
             $parameters['replica'] = [
-                ['url' => $replicaUrl],
+                ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']],
             ];
 
             $i = 0;
             while ($replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_' . (++$i) . '_URL')) {
-                $parameters['replica'][] = ['url' => $replicaUrl];
+                $parameters['replica'][] = ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']];
             }
         }
 

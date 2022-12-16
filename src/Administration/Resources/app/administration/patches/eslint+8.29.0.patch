@@ -1,16 +1,16 @@
 diff --git a/node_modules/eslint/lib/linter/linter.js b/node_modules/eslint/lib/linter/linter.js
-index 5c1a8d7..d1473b1 100644
+index 764ea5f..7281ccf 100644
 --- a/node_modules/eslint/lib/linter/linter.js
 +++ b/node_modules/eslint/lib/linter/linter.js
-@@ -658,6 +658,7 @@ function parse(text, parser, providedParserOptions, filePath) {
-         const parserServices = parseResult.services || {};
-         const visitorKeys = parseResult.visitorKeys || evk.KEYS;
-         const scopeManager = parseResult.scopeManager || analyzeScope(ast, parserOptions, visitorKeys);
+@@ -813,6 +813,7 @@ function parse(text, languageOptions, filePath) {
+ 
+         debug("Scope analysis:", filePath);
+         const scopeManager = parseResult.scopeManager || analyzeScope(ast, languageOptions, visitorKeys);
 +        const sourceCode = stripUnicodeBOM(parseResult.modifiedSourceCode || text).replace(astUtils.shebangPattern, (match, captured) => `//${captured}`);
  
-         return {
-             success: true,
-@@ -669,7 +670,7 @@ function parse(text, parser, providedParserOptions, filePath) {
+         debug("Scope analysis successful:", filePath);
+ 
+@@ -826,7 +827,7 @@ function parse(text, languageOptions, filePath) {
               * In that case, linter needs all the values that `parseForESLint()` returned.
               */
              sourceCode: new SourceCode({

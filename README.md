@@ -354,6 +354,67 @@ You have a question regarding contribution, or you want to contribute in another
 
 Please write us an email: contributors@shopware.com
 
+### Installation of Shopware for contributors
+
+The installation process is slightly different for working on the platform. It's not necessary to create a new project and install the platform as a dependency. Instead, we will work on it directly.
+
+Let's start by cloning the platform repository
+
+```bash
+> git clone git@github.com:shopware/platform.git shopware-platform
+```
+
+Change directory into our newly cloned project:
+
+```bash
+> cd shopware-platform
+```
+
+Install the Composer dependencies
+
+```bash
+> composer update
+```
+
+Now we start our service containers:
+
+```bash
+> docker compose up -d
+```
+
+Now, set up the Shopware environment with the following command:
+
+```bash
+> ./bin/console system:setup
+```
+
+URL to your /public folder should be: `http://localhost:8000`
+
+For the database details, use the following:
+
+Host: 127.0.0.1
+User: root
+Password: root
+Database: shopware
+
+At the end, the system will create a `.env` file containing the provided configuration.
+
+Now we install Shopware with:
+
+```bash
+> composer setup
+```
+
+This will run the migrations, install dependencies and build the assets.
+
+Start the webserver:
+
+```bash
+symfony server:start -d
+```
+
+To be sure that the installation succeeded, just open the following URL in your favorite browser: [localhost:8000](http://localhost:8000/)
+
 ### Code Contribution
 
 If you have decided to contribute code to Shopware and become a member of the Shopware community,

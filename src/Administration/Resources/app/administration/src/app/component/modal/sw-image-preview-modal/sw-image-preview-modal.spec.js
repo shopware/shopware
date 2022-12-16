@@ -4,7 +4,9 @@
 
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/modal/sw-image-preview-modal';
-import 'src/app/component/media/sw-image-slider';
+import SwImageSlider from 'src/app/asyncComponent/media/sw-image-slider';
+
+Shopware.Component.register('sw-image-slider', SwImageSlider);
 
 const mediaItems = [
     {

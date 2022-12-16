@@ -31,10 +31,10 @@ import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/media/sw-media-field';
-import 'src/app/component/media/sw-media-media-item';
-import 'src/app/component/media/sw-media-base-item';
-import 'src/app/component/media/sw-media-preview-v2';
+import SwMediaField from 'src/app/asyncComponent/media/sw-media-field';
+import SwMediaMediaItem from 'src/app/asyncComponent/media/sw-media-media-item';
+import SwMediaBaseItem from 'src/app/asyncComponent/media/sw-media-base-item';
+import SwMediaPreviewV2 from 'src/app/asyncComponent/media/sw-media-preview-v2';
 import 'src/app/filter/media-name.filter';
 import swSystemConfig from 'src/module/sw-settings/component/sw-system-config';
 import 'src/app/component/base/sw-card';
@@ -45,6 +45,10 @@ import 'src/app/component/form/sw-url-field';
 import 'src/app/component/form/sw-password-field';
 import 'src/app/filter/unicode-uri';
 
+Shopware.Component.register('sw-media-field', SwMediaField);
+Shopware.Component.register('sw-media-media-item', SwMediaMediaItem);
+Shopware.Component.register('sw-media-base-item', SwMediaBaseItem);
+Shopware.Component.register('sw-media-preview-v2', SwMediaPreviewV2);
 Shopware.Component.register('sw-system-config', swSystemConfig);
 
 /** @type Wrapper */

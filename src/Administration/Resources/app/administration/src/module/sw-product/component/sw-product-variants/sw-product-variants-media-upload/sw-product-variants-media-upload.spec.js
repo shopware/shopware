@@ -3,12 +3,13 @@
  */
 
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/media/sw-media-upload-v2';
+import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
 import swProductVariantsMediaUpload from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 Shopware.Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', swProductVariantsMediaUpload);
+Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload', () => {
     let wrapper;

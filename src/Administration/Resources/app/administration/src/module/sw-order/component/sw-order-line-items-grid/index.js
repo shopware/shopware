@@ -62,7 +62,13 @@ Component.register('sw-order-line-items-grid', {
                     return false;
                 }
 
-                return keyWords.every(key => item.label.toLowerCase().includes(key.toLowerCase()));
+                const targets = [item.label.toLowerCase()];
+
+                if (this.isProductNumberColumnVisible && item.payload?.productNumber) {
+                    targets.push(item.payload.productNumber.toLowerCase());
+                }
+
+                return keyWords.every(key => targets.some(i => i.includes(key.toLowerCase())));
             });
         },
 
@@ -104,6 +110,13 @@ Component.register('sw-order-line-items-grid', {
                 inlineEdit: true,
                 multiLine: true,
             }, {
+                property: 'payload.productNumber',
+                dataIndex: 'payload.productNumber',
+                label: 'sw-order.detailBase.columnProductNumber',
+                allowResize: false,
+                align: 'left',
+                visible: false,
+            }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
                 label: this.unitPriceLabel,
@@ -138,6 +151,11 @@ Component.register('sw-order-line-items-grid', {
 
         salesChannelId() {
             return this.order?.salesChannelId ?? '';
+        },
+
+        isProductNumberColumnVisible() {
+            return this.$refs.dataGrid?.currentColumns
+                .find(item => item.property === 'payload.productNumber')?.visible;
         },
     },
     methods: {
@@ -205,6 +223,9 @@ Component.register('sw-order-line-items-grid', {
             item.totalPrice = '...';
             item.precision = 2;
             item.label = '';
+            item.payload = {
+                productNumber: '',
+            };
 
             return item;
         },

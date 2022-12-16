@@ -80,6 +80,11 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', () => import('./sw
  * @private
  * @package content
  */
+Shopware.Component.register('sw-cms-missing-element-modal', () => import('./sw-cms-missing-element-modal'));
+/*
+ * @private
+ * @package content
+ */
 Shopware.Component.extend(
     'sw-cms-product-assignment',
     'sw-many-to-many-assignment-card',

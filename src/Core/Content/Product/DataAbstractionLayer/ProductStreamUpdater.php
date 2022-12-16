@@ -97,6 +97,8 @@ class ProductStreamUpdater extends EntityIndexer
         }
 
         $criteria->setLimit(150);
+        $message->getContext()->setConsiderInheritance(true);
+
         $iterator = new RepositoryIterator(
             $this->repository,
             $message->getContext(),

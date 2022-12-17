@@ -66,7 +66,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'v65']);
+        $client->request('POST', $url, ['receiver' => 'async']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -102,7 +102,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'v65']);
+        $client->request('POST', $url, ['receiver' => 'async']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
         $response = json_decode((string) $client->getResponse()->getContent(), true);
@@ -331,6 +331,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     ");
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

@@ -7640,10 +7640,7 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\ScheduledTask\\\\ProductExportGenerateTaskHandlerTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/ScheduledTask/ProductExportGenerateTaskHandlerTest.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExportGeneratorTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -16230,10 +16227,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Logging/ScheduledTask/LogCleanupTaskHandlerTest.php
 
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Api/ConsumeMessagesControllerTest.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

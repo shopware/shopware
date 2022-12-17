@@ -52,7 +52,7 @@ framework:
 
         transports:
             failed: "%env(MESSENGER_TRANSPORT_FAILURE_DSN)%"
-            v65:
+            async:
                 dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
                 serializer: messenger.transport.symfony_serializer
                 retry_strategy:
@@ -62,7 +62,7 @@ framework:
                     max_delay: 0
 
         routing:
-            'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': v65
+            'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
 
 sensio_framework_extra:
     router:

@@ -60,9 +60,9 @@ class ConsumeMessagesControllerTest extends TestCase
         // consume the queued task
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'v65']);
+        $client->request('POST', $url, ['receiver' => 'async']);
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $client->getResponse()->getStatusCode(), \print_r($response, true));
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
@@ -83,7 +83,7 @@ class ConsumeMessagesControllerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'v65']);
+        $client->request('POST', $url, ['receiver' => 'async']);
 
         $entries = $this->gateway->list('message_queue_stats');
 

@@ -33,7 +33,7 @@ trait QueueTestBehaviour
         $locator = $this->getContainer()->get('messenger.test_receiver_locator');
 
         /** @var ReceiverInterface $receiver */
-        $receiver = $locator->get('v65');
+        $receiver = $locator->get('async');
 
         /** @var MessageBusInterface $bus */
         $bus = $this->getContainer()->get('messenger.bus.test_shopware');

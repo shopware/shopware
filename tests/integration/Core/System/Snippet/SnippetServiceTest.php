@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
+use Faker\Factory;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -914,6 +915,56 @@ json
         $result = $service->getList(0, 25, Context::createDefaultContext(), [], []);
 
         static::assertSame(['total' => 0, 'data' => []], $result);
+    }
+
+    /**
+     * Checks if snippets remain searchable when a large snippet is present.
+     * Context: https://github.com/shopware/platform/issues/2886
+     */
+    public function testTermFilterLargeSnippet(): void
+    {
+        $faker = Factory::create();
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
+            <<<json
+{
+    "foo": {
+        "baz": "foo_baz",
+        "bas": "foo_bas"
+    },
+    "bar": {
+        "zz": "bar_zz"
+    }
+}
+json
+        );
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $snippetValue = $faker->realText(5000);
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => $snippetValue,
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $service = $this->getSnippetService($snippetFile);
+        $result = $service->getList(1, 25, Context::createDefaultContext(), ['namespace' => ['foo']], []);
+
+        $this->assertSnippetResult($result, 'foo.ab', $fooId, $snippetValue, '', $snippetValue);
     }
 
     /**

@@ -736,6 +736,13 @@
           "columnManufacturerLabel": "Hersteller"
         }
       },
+      "cmsMissingElementModal": {
+        "headline": "Fehlende Elemente",
+        "title": "Das Element <span>{element}</span> fehlt in dieser Produkt-Detailseite. | Die Elemente <span>{element}</span> fehlen in dieser Produkt-Detailseite.",
+        "subtitle": "Kunden, die diese Seite besuchen, erhalten möglicherweise nicht alle wichtigen Produkt-Informationen.",
+        "paragraph": "Möchtest Du das Layout trotzdem speichern?",
+        "buttonSave": "Layout speichern"
+      },
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",
         "edit": "Bearbeiten",

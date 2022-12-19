@@ -114,6 +114,7 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 /public/bundles/
 /var/
 /vendor/
+phpstan.neon
 ###< symfony/framework-bundle ###
 
 config/jwt/

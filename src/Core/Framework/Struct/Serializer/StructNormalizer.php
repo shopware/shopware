@@ -17,16 +17,16 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     /**
      * Internal cache property which contains created reflection classes
      *
-     * @var \ReflectionClass[]
+     * @var \ReflectionClass<object>[]
      */
-    private $classes = [];
+    private array $classes = [];
 
     /**
      * {@inheritdoc}
      *
      * @return array<string, mixed>
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize(mixed $object, ?string $format = null, array $context = [])
     {
         $encoder = new JsonEncode();
 
@@ -35,16 +35,22 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<string, mixed> $context
      */
-    public function supportsNormalization($data, $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Struct;
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @param array<string, mixed> $context
+     *
      * @return mixed
      */
-    public function denormalize($data, $type = null, $format = null, array $context = [])
+    public function denormalize(mixed $data, ?string $type = null, ?string $format = null, array $context = [])
     {
         if (\is_string($data) && $date = $this->createDate($data)) {
             return $date;
@@ -73,12 +79,17 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<string, mixed> $context
      */
-    public function supportsDenormalization($data, $type, $format = null): bool
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return \is_array($data) && \array_key_exists('_class', $data);
     }
 
+    /**
+     * @param array<string, mixed> $argument
+     */
     private function isObject(array $argument): bool
     {
         return isset($argument['_class']);
@@ -86,6 +97,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * @param class-string<object> $class
+     * @param array<mixed> $arguments
      */
     private function createInstance(string $class, array $arguments): Struct
     {
@@ -152,6 +164,8 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * @param class-string<object> $class
+     *
+     * @return \ReflectionClass<object>
      */
     private function getReflectionClass(string $class): \ReflectionClass
     {

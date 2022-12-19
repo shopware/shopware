@@ -8,40 +8,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @package core
  */
-class CriteriaValueResolver implements ArgumentValueResolverInterface
+class CriteriaValueResolver implements ValueResolverInterface
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(private DefinitionInstanceRegistry $registry, private RequestCriteriaBuilder $criteriaBuilder)
     {
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
-    }
-
-    public function supports(Request $request, ArgumentMetadata $argument): bool
-    {
-        return $argument->getType() === Criteria::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
+        if ($argument->getType() !== Criteria::class) {
+            return;
+        }
+
         $annotation = $request->attributes->get('_entity');
 
         if (!$annotation instanceof Entity) {

@@ -1621,36 +1621,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/CustomerBuilder.php
 
 		-
-			message: "#^Cannot call method next\\(\\) on iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/CustomerValueResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\CustomerValueResolverTest\\:\\:loginRequiredAnnotationData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/CustomerValueResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\CustomerValueResolverTest\\:\\:\\$browser is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/CustomerValueResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\CustomerValueResolverTest\\:\\:\\$contextService is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/CustomerValueResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\CustomerValueResolverTest\\:\\:\\$contextToken is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/CustomerValueResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\CustomerValueResolverTest\\:\\:\\$customerRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/CustomerValueResolverTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\DeleteUnusedGuestCustomerServiceTest\\:\\:createOrderForCustomer\\(\\) has parameter \\$customer with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/DeleteUnusedGuestCustomerServiceTest.php
@@ -11726,11 +11696,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityExists\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityExists.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityNotExists\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php
@@ -13644,26 +13609,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructDecoder\\:\\:format\\(\\) has parameter \\$decoded with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:createInstance\\(\\) has parameter \\$arguments with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:isObject\\(\\) has parameter \\$argument with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:\\$classes with generic class ReflectionClass does not specify its types\\: T$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:addArrayExtension\\(\\) has parameter \\$extension with no value type specified in iterable type array\\.$#"

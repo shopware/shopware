@@ -5,21 +5,20 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @package customer-order
  */
-class CustomerValueResolver implements ArgumentValueResolverInterface
+class CustomerValueResolver implements ValueResolverInterface
 {
-    public function supports(Request $request, ArgumentMetadata $argument): bool
-    {
-        return $argument->getType() === CustomerEntity::class;
-    }
-
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
+        if ($argument->getType() !== CustomerEntity::class) {
+            return;
+        }
+
         $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
 
         if ($loginRequired !== true) {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerValueResolver;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -21,11 +22,8 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
@@ -39,55 +37,20 @@ class CustomerValueResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
+    private AccountService $accountService;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
-
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var string
-     */
-    private $contextToken;
-
-    /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->repository = $this->getContainer()->get('currency.repository');
-        $this->contextService = $this->getContainer()->get(SalesChannelContextService::class);
 
         $this->createTestSalesChannel();
-
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->accountService = $this->getContainer()->get(AccountService::class);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
@@ -124,8 +87,10 @@ class CustomerValueResolverTest extends TestCase
         $exception = null;
 
         try {
-            $generator = $resolver->resolve($request, new ArgumentMetadata('', 'CustomerEntity', false, false, ''));
-            $generator->next();
+            $generator = $resolver->resolve($request, new ArgumentMetadata('', CustomerEntity::class, false, false, ''));
+            if ($generator instanceof \Traversable) {
+                iterator_to_array($generator);
+            }
         } catch (\Exception $e) {
             $exception = $e;
         }
@@ -137,6 +102,9 @@ class CustomerValueResolverTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{0: bool, 1: bool, 2: bool}>
+     */
     public function loginRequiredAnnotationData(): array
     {
         return [

@@ -130,11 +130,6 @@
             <directory>tests/migration</directory>
         </testsuite>
 
-        <testsuite name="docs">
-            <directory>src/Docs/Test</directory>
-            <directory suffix="example.php">src/Docs/Resources/current/</directory>
-        </testsuite>
-
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>

@@ -22,7 +22,6 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludePaths:
-        - src/Docs/*
         - src/Recovery/*
 
         # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421

@@ -14,6 +14,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class GuestWishlistPageletLoader
 {
     private const LIMIT = 100;

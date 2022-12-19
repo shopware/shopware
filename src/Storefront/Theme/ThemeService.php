@@ -18,6 +18,9 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package storefront
+ */
 class ThemeService
 {
     private StorefrontPluginRegistryInterface $extensionRegistery;

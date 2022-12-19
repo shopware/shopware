@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class OffcanvasCartPage extends Page
 {
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Page;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class MetaInformation extends Struct
 {
     /**

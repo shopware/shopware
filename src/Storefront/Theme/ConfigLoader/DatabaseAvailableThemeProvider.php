@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeCollection;
 
+/**
+ * @package storefront
+ */
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     private EntityRepositoryInterface $salesChannelRepository;

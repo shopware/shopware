@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @package storefront
+ */
 class ConfigExtension extends AbstractExtension
 {
     /**

@@ -15,6 +15,9 @@ use function func_get_arg;
 use function implode;
 use function sprintf;
 
+/**
+ * @package storefront
+ */
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';

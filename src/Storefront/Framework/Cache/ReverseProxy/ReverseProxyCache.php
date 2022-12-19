@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use function array_values;
 
 /**
+ * @package storefront
+ *
  * @template TCachedContent
  */
 class ReverseProxyCache implements StoreInterface

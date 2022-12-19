@@ -7,6 +7,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
+ * @package storefront
+ *
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
 class CachedDomainLoader extends AbstractDomainLoader

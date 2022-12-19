@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Page\Product\Review;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package storefront
+ *
  * @deprecated tag:v6.5.0 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement instead
  */
 class MatrixElement

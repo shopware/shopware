@@ -6,6 +6,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
+/**
+ * @package storefront
+ */
 class TemplateConfigAccessor
 {
     /**

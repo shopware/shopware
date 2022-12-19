@@ -9,6 +9,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
+/**
+ * @package storefront
+ */
 class SalesChannelExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

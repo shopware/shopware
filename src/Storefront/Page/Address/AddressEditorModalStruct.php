@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Page;
 
 /**
+ * @package storefront
+ *
  * @codeCoverageIgnore
  */
 class AddressEditorModalStruct extends Struct

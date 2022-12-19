@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
+/**
+ * @package storefront
+ */
 class CacheRouteWarmerRegistry
 {
     /**

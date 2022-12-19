@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 abstract class AbstractHttpCacheKeyGenerator
 {
     /**

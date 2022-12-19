@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Framework;
 
+/**
+ * @package storefront
+ */
 interface ThemeInterface
 {
 }

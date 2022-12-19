@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package storefront
+ *
  * @see https://github.com/varnish/varnish-modules/blob/master/src/vmod_xkey.vcc
  */
 class VarnishReverseProxyGateway extends AbstractReverseProxyGateway

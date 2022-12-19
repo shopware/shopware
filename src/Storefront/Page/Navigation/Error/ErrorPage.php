@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Navigation\Error;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class ErrorPage extends Page
 {
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package storefront
+ */
 class ThemeCompilerConcatenatedScriptsEvent extends Event
 {
     /**

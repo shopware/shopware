@@ -7,6 +7,9 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package storefront
+ */
 class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     public const THEME_INDEX = 'theme-config/index.json';

@@ -41,35 +41,58 @@ class PackageAnnotationRule implements Rule
         'inventory' => [
             '/Shopware\\\\Core\\\\Content\\\\(Product|ProductExport|Property)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Currency|Unit)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Product',
         ],
         'content' => [
             '/Shopware\\\\Core\\\\Content\\\\(Media|Category|Cms|ContactForm|LandingPage)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Cms',
+            '/Shopware\\\\Storefront\\\\Page\\\\LandingPage',
+            '/Shopware\\\\Storefront\\\\Page\\\\Contact',
+            '/Shopware\\\\Storefront\\\\Page\\\\Navigation',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Menu',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Footer',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Header',
         ],
         'system-settings' => [
             '/Shopware\\\\Core\\\\Content\\\\(ImportExport|Mail|)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Update)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Country|CustomField|Integration|Language|Locale|Snippet|User)\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Country',
+            '/Shopware\\\\Storefront\\\\Page\\\\Suggest',
+            '/Shopware\\\\Storefront\\\\Page\\\\Search',
         ],
         'sales-channel' => [
             '/Shopware\\\\Core\\\\Content\\\\(MailTemplate|Seo|Sitemap)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(SalesChannel)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Sitemap',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Captcha',
         ],
         'customer-order' => [
             '/Shopware\\\\Core\\\\Content\\\\(Newsletter)\\\\/',
             '/Shopware\\\\Core\\\\Checkout\\\\(Customer|Document|Order)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|Salutation|Tax)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Newsletter',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter',
+            '/Shopware\\\\Storefront\\\\Page\\\\Maintenance',
+            '/Shopware\\\\Storefront\\\\Page\\\\Address',
+            '/Shopware\\\\Storefront\\\\Page\\\\Account',
         ],
         'checkout' => [
             '/Shopware\\\\Core\\\\Checkout\\\\(Cart|Payment|Promotion|Shipping)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|NumberRange|StateMachine)\\\\/',
             '/Shopware\\\\Storefront\\\\(Checkout)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Wishlist/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist',
+            '/Shopware\\\\Storefront\\\\Page\\\\Checkout',
         ],
         'merchant-services' => [
             '/Shopware\\\\Core\\\\Framework\\\\(Store)\\\\/',
         ],
         'storefront' => [
-            '/Shopware\\\\Storefront\\\\(DependencyInjection)\\\\/',
+            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework)\\\\/',
         ],
+        '' => [
+        ]
     ];
 
     public function getNodeType(): string

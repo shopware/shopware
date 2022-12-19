@@ -4,7 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\Rector;
 
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassLike;
 use Rector\Core\Rector\AbstractRector;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
@@ -23,12 +23,12 @@ PHP;
 
     public function getNodeTypes(): array
     {
-        return [Class_::class];
+        return [ClassLike::class];
     }
 
     public function refactor(Node $node): ?Node
     {
-        if (!$node instanceof Class_) {
+        if (!$node instanceof ClassLike) {
             return null;
         }
 
@@ -45,6 +45,8 @@ PHP;
         $doc = $node->getDocComment();
         if ($doc === null) {
             $node->setDocComment(new Doc(\sprintf($this->template, $area)));
+
+            return $node;
         }
 
         $text = $node->getDocComment()->getText();
@@ -84,7 +86,7 @@ class Foo{}'
         );
     }
 
-    private function getArea(Class_ $node): ?string
+    private function getArea(ClassLike $node): ?string
     {
         try {
             $namespace = $node->namespacedName->toString();
@@ -103,7 +105,7 @@ class Foo{}'
         return null;
     }
 
-    private function isTestClass(Class_ $node): bool
+    private function isTestClass(ClassLike $node): bool
     {
         try {
             $namespace = $node->namespacedName->toString();
@@ -111,6 +113,6 @@ class Foo{}'
             return true;
         }
 
-        return \str_contains($namespace, 'Shopware\\Tests\\') || \str_contains($namespace, '\\Test\\');
+        return \str_contains($namespace, '\\Tests\\') || \str_contains($namespace, '\\Test\\');
     }
 }

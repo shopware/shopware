@@ -39,12 +39,6 @@ const baseAction = {
         'de-DE': 'Product hinzufügen',
         'en-GB': 'Add product'
     },
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    openNewTab: false,
     url: 'http://test-url/actions/product/add'
 };
 
@@ -74,22 +68,6 @@ describe('sw-app-action-button', () => {
         expect(wrapper.vm.$el).toBeInstanceOf(HTMLDivElement);
     });
 
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    it('is an anchor if action is a link', async () => {
-        wrapper = await createWrapper({
-            ...baseAction,
-            openNewTab: true
-        });
-
-        expect(wrapper.vm.$el).toBeInstanceOf(HTMLAnchorElement);
-        expect(wrapper.attributes('href')).toBe(baseAction.url);
-        expect(wrapper.attributes('target')).toBe('_blank');
-    });
-
     it('should render a icon if set', async () => {
         wrapper = await createWrapper(baseAction);
 
@@ -116,11 +94,7 @@ describe('sw-app-action-button', () => {
         expect(icon.exists()).toBe(false);
     });
 
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "emits call to action if it is not a link" text
-     * will be replaced with "should emit call to action"
-     */
-    it('emits call to action if it is not a link', async () => {
+    it('should emit call to action', async () => {
         const actionListener = jest.fn();
 
         wrapper = await createWrapper(baseAction, {
@@ -131,25 +105,5 @@ describe('sw-app-action-button', () => {
 
         expect(actionListener).toBeCalled();
         expect(actionListener).toBeCalledWith(baseAction);
-    });
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    it('follows the link if clicked', async () => {
-        const actionListener = jest.fn();
-
-        wrapper = await createWrapper({
-            ...baseAction,
-            openNewTab: true
-        }, {
-            'run-app-action': actionListener
-        });
-
-        await wrapper.trigger('click');
-
-        expect(actionListener).not.toBeCalled();
     });
 });

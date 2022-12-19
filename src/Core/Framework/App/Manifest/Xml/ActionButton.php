@@ -39,15 +39,6 @@ class ActionButton extends XmlElement
      */
     protected $url;
 
-    /**
-     * @var bool
-     *
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    protected $openNewTab = false;
-
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -99,20 +90,6 @@ class ActionButton extends XmlElement
     public function getUrl(): string
     {
         return $this->url;
-    }
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
-     * It will no longer be used in the manifest.xml file
-     * and will be processed in the Executor with an OpenNewTabResponse response instead.
-     */
-    public function isOpenNewTab(): bool
-    {
-        if (Feature::isActive('FEATURE_NEXT_14360')) {
-            throw new \Exception('Deprecated: isOpenNewTab property is deprecated...');
-        }
-
-        return $this->openNewTab;
     }
 
     private static function parse(\DOMElement $element): array

@@ -1,7 +1,6 @@
 ---
 title: Build Action Button messaging system
 issue: NEXT-14360
-flag: FEATURE_NEXT_14360
 ---
 # Core
 * Added following response classes to define the response formats:

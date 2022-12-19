@@ -30,7 +30,7 @@
     "uuid": "3.3.3"
   },
   "devDependencies": {
-    "@percy/cli": "^1.0.0",
+    "@percy/cli": "^1.16.0",
     "cypress": "10.7.0",
     "cypress-grep": "^3.0.2",
     "mochawesome-merge": "^4.2.0",

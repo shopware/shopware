@@ -7,6 +7,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @implements Rule<InClassNode>
@@ -22,7 +23,7 @@ class PackageAnnotationRule implements Rule
      */
     public const PRODUCT_AREA_MAPPING = [
         'core' => [
-            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection|)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',
             '/Shopware\\\\Core\\\\DevOps\\\\/',
             '/Shopware\\\\Core\\\\Installer\\\\/',
@@ -41,34 +42,56 @@ class PackageAnnotationRule implements Rule
         'inventory' => [
             '/Shopware\\\\Core\\\\Content\\\\(Product|ProductExport|Property)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Currency|Unit)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Product\\\\/',
         ],
         'content' => [
             '/Shopware\\\\Core\\\\Content\\\\(Media|Category|Cms|ContactForm|LandingPage)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Cms\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\LandingPage\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Contact\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Navigation\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Menu\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Footer\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\/',
         ],
         'system-settings' => [
-            '/Shopware\\\\Core\\\\Content\\\\(ImportExport|Mail|)\\\\/',
+            '/Shopware\\\\Core\\\\Content\\\\(ImportExport|Mail)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Update)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Country|CustomField|Integration|Language|Locale|Snippet|User)\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Country\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Suggest\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Search\\\\/',
         ],
         'sales-channel' => [
             '/Shopware\\\\Core\\\\Content\\\\(MailTemplate|Seo|Sitemap)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(SalesChannel)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Captcha\\\\/',
         ],
         'customer-order' => [
             '/Shopware\\\\Core\\\\Content\\\\(Newsletter)\\\\/',
             '/Shopware\\\\Core\\\\Checkout\\\\(Customer|Document|Order)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|Salutation|Tax)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Maintenance\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Address\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Account\\\\/',
         ],
         'checkout' => [
             '/Shopware\\\\Core\\\\Checkout\\\\(Cart|Payment|Promotion|Shipping)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|NumberRange|StateMachine)\\\\/',
-            '/Shopware\\\\Storefront\\\\(Checkout)\\\\/',
+            '/Shopware\\\\Storefront\\\\Checkout\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\/',
         ],
         'merchant-services' => [
-            '/Shopware\\\\Core\\\\Framework\\\\(Store)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
         ],
         'storefront' => [
-            '/Shopware\\\\Storefront\\\\(DependencyInjection)\\\\/',
+            '/Shopware\\\\Storefront\\\\Theme\\\\/',
+            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Theme|Test)\\\\/',
         ],
     ];
 
@@ -127,6 +150,14 @@ class PackageAnnotationRule implements Rule
     {
         $namespace = $node->getClassReflection()->getName();
 
-        return \str_contains($namespace, 'Shopware\\Tests\\') || \str_contains($namespace, '\\Test\\');
+        if (\str_contains($namespace, '\\Tests\\') || \str_contains($namespace, '\\Test\\')) {
+            return true;
+        }
+
+        if ($node->getClassReflection()->getParentClass() === null) {
+            return false;
+        }
+
+        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 }

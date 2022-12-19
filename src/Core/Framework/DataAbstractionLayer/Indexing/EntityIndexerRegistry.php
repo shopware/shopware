@@ -9,9 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEn
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -22,7 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @phpstan-import-type Offset from IterableQuery
  */
-class EntityIndexerRegistry implements MessageSubscriberInterface
+#[AsMessageHandler]
+class EntityIndexerRegistry
 {
     public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
 
@@ -44,10 +44,7 @@ class EntityIndexerRegistry implements MessageSubscriberInterface
     ) {
     }
 
-    /**
-     * @param EntityIndexingMessage|IterateEntityIndexerMessage $message
-     */
-    public function __invoke($message): void
+    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
     {
         if ($message instanceof EntityIndexingMessage) {
             $indexer = $this->getIndexer($message->getIndexer());
@@ -68,15 +65,6 @@ class EntityIndexerRegistry implements MessageSubscriberInterface
 
             $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
         }
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        yield EntityIndexingMessage::class;
-        yield IterateEntityIndexerMessage::class;
     }
 
     /**

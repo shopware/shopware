@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Webhook\Handler;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
@@ -28,15 +29,6 @@ class WebhookEventMessageHandlerTest extends TestCase
     public function setUp(): void
     {
         $this->webhookEventMessageHandler = $this->getContainer()->get(WebhookEventMessageHandler::class);
-    }
-
-    public function testGetHandledMessages(): void
-    {
-        /** @var array $subscribedMessages */
-        $subscribedMessages = $this->webhookEventMessageHandler::getHandledMessages();
-
-        static::assertCount(1, $subscribedMessages);
-        static::assertEquals(WebhookEventMessage::class, $subscribedMessages[0]);
     }
 
     public function testSendSuccessful(): void
@@ -93,6 +85,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $timestamp = time();
         $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
         $body = json_decode($payload);
 
@@ -174,6 +167,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $timestamp = time();
         $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
         $body = json_decode($payload);
 

@@ -6,10 +6,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 /**
  * @package core
+ *
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - Won't implement MessageSubscriberInterface anymore, tag all ScheduledTaskHandlers with #[AsMessageHandler] instead
  */
 abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
@@ -51,6 +54,26 @@ abstract class ScheduledTaskHandler implements MessageSubscriberInterface
         }
 
         $this->rescheduleTask($task, $taskEntity);
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - method will be removed, tag all ScheduledTaskHandlers with #[AsMessageHandler] instead
+     *
+     * @return iterable<string>
+     */
+    public static function getHandledMessages(): iterable
+    {
+        $reflection = new \ReflectionClass(static::class);
+        $attributes = $reflection->getAttributes(AsMessageHandler::class);
+
+        $messageClasses = [];
+        foreach ($attributes as $attribute) {
+            /** @var AsMessageHandler $messageAttribute */
+            $messageAttribute = $attribute->newInstance();
+            $messageClasses[] = $messageAttribute->handles;
+        }
+
+        return array_filter($messageClasses);
     }
 
     abstract public function run(): void;

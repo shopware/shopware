@@ -7,7 +7,7 @@ use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -15,19 +15,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @package system-settings
  */
-final class ImportExportHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ImportExportHandler
 {
-    private MessageBusInterface $messageBus;
-
-    private ImportExportFactory $importExportFactory;
-
     /**
      * @internal
      */
-    public function __construct(MessageBusInterface $messageBus, ImportExportFactory $importExportFactory)
+    public function __construct(private MessageBusInterface $messageBus, private ImportExportFactory $importExportFactory)
     {
-        $this->messageBus = $messageBus;
-        $this->importExportFactory = $importExportFactory;
     }
 
     public function __invoke(ImportExportMessage $message): void

@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -26,7 +25,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -35,67 +34,29 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  * @final
  */
-class ElasticsearchIndexer implements MessageHandlerInterface
+#[AsMessageHandler]
+class ElasticsearchIndexer
 {
-    private Connection $connection;
-
-    private ElasticsearchHelper $helper;
-
-    private ElasticsearchRegistry $registry;
-
-    private IndexCreator $indexCreator;
-
-    private IteratorFactory $iteratorFactory;
-
-    private Client $client;
-
-    private LoggerInterface $logger;
-
-    private EntityRepository $currencyRepository;
-
-    private EntityRepository $languageRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private int $indexingBatchSize;
-
-    private MessageBusInterface $bus;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        ElasticsearchHelper $helper,
-        ElasticsearchRegistry $registry,
-        IndexCreator $indexCreator,
-        IteratorFactory $iteratorFactory,
-        Client $client,
-        LoggerInterface $logger,
-        EntityRepository $currencyRepository,
-        EntityRepository $languageRepository,
-        EventDispatcherInterface $eventDispatcher,
-        int $indexingBatchSize,
-        MessageBusInterface $bus
+        private Connection $connection,
+        private ElasticsearchHelper $helper,
+        private ElasticsearchRegistry $registry,
+        private IndexCreator $indexCreator,
+        private IteratorFactory $iteratorFactory,
+        private Client $client,
+        private LoggerInterface $logger,
+        private EntityRepository $currencyRepository,
+        private EntityRepository $languageRepository,
+        private  EventDispatcherInterface $eventDispatcher,
+        private int $indexingBatchSize,
+        private MessageBusInterface $bus
     ) {
-        $this->connection = $connection;
-        $this->helper = $helper;
-        $this->registry = $registry;
-        $this->indexCreator = $indexCreator;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->client = $client;
-        $this->logger = $logger;
-        $this->currencyRepository = $currencyRepository;
-        $this->languageRepository = $languageRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->indexingBatchSize = $indexingBatchSize;
-        $this->bus = $bus;
     }
 
-    /**
-     * @param ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message
-     */
-    public function __invoke(AsyncMessageInterface $message): void
+    public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
     {
         if (!$this->helper->allowIndexing()) {
             return;
@@ -175,17 +136,6 @@ class ElasticsearchIndexer implements MessageHandlerInterface
         foreach ($messages as $message) {
             $this->__invoke($message);
         }
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            ElasticsearchIndexingMessage::class,
-            ElasticsearchLanguageIndexIteratorMessage::class,
-        ];
     }
 
     /**

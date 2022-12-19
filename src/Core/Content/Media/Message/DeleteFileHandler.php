@@ -5,26 +5,21 @@ namespace Shopware\Core\Content\Media\Message;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\Visibility;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package content
  *
  * @internal
  */
-final class DeleteFileHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class DeleteFileHandler
 {
-    private FilesystemOperator $filesystemPublic;
-
-    private FilesystemOperator $filesystemPrivate;
-
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystemPublic, FilesystemOperator $filesystemPrivate)
+    public function __construct(private FilesystemOperator $filesystemPublic, private FilesystemOperator $filesystemPrivate)
     {
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemPrivate = $filesystemPrivate;
     }
 
     public function __invoke(DeleteFileMessage $message): void

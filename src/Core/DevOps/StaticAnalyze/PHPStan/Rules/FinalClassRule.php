@@ -7,7 +7,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
@@ -42,19 +42,13 @@ class FinalClassRule implements Rule
 
     private function isMessageHandler(InClassNode $node): bool
     {
-        $class = $node->getClassReflection();
+        $class = $node->getClassReflection()->getNativeReflection();
 
         if ($class->isAbstract()) {
             // abstract base classes should not be final
             return false;
         }
 
-        foreach ($class->getInterfaces() as $interface) {
-            if ($interface->getName() === MessageHandlerInterface::class) {
-                return true;
-            }
-        }
-
-        return false;
+        return !empty($class->getAttributes(AsMessageHandler::class));
     }
 }

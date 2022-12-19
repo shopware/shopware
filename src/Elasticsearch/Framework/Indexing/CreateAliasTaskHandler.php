@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package core
  *
  * @internal
  */
+#[AsMessageHandler(handles: CreateAliasTask::class)]
 final class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -31,14 +33,6 @@ final class CreateAliasTaskHandler extends ScheduledTaskHandler
         private EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
-    }
-
-    /**
-     * @return iterable<class-string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        yield CreateAliasTask::class;
     }
 
     public function run(): void

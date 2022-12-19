@@ -26,8 +26,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SalesChannelCreateCommand extends Command
 {
-    protected static $defaultName = 'sales-channel:create';
-
     private SalesChannelCreator $salesChannelCreator;
 
     public function __construct(

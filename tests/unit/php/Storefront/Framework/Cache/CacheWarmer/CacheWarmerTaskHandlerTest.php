@@ -67,11 +67,6 @@ class CacheWarmerTaskHandlerTest extends TestCase
         );
     }
 
-    public function testGetHandledMessages(): void
-    {
-        static::assertEquals([WarmUpMessage::class], CacheWarmerTaskHandler::getHandledMessages());
-    }
-
     public function testInvokeWithNotMatchingCacheIds(): void
     {
         $this->cacheIdLoader->expects(static::once())->method('load')->willReturn('cacheId');

@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue\fixtures;
 
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  */
-final class DummyHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class DummyHandler
 {
     private object $lastMessage;
 

@@ -7,33 +7,24 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @package content
  *
  * @internal
  */
-final class GenerateThumbnailsHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+final class GenerateThumbnailsHandler
 {
-    private ThumbnailService $thumbnailService;
-
-    private EntityRepository $mediaRepository;
-
     /**
      * @internal
      */
-    public function __construct(ThumbnailService $thumbnailService, EntityRepository $mediaRepository)
+    public function __construct(private ThumbnailService $thumbnailService, private EntityRepository $mediaRepository)
     {
-        $this->thumbnailService = $thumbnailService;
-        $this->mediaRepository = $mediaRepository;
     }
 
-    /**
-     * @param GenerateThumbnailsMessage|UpdateThumbnailsMessage $msg
-     */
-    public function __invoke($msg): void
+    public function __invoke(GenerateThumbnailsMessage|UpdateThumbnailsMessage $msg): void
     {
         $context = $msg->readContext();
 
@@ -51,14 +42,5 @@ final class GenerateThumbnailsHandler implements MessageSubscriberInterface
         } else {
             $this->thumbnailService->generate($entities, $context);
         }
-    }
-
-    /**
-     * @return iterable<class-string<AsyncMessageInterface>>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        yield GenerateThumbnailsMessage::class;
-        yield UpdateThumbnailsMessage::class;
     }
 }

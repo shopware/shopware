@@ -10,7 +10,7 @@ import 'src/helper/polyfill-loader.helper';
 /**
  * import base requirements
  */
-import 'bootstrap';
+import * as bootstrap from 'bootstrap';
 
 /*
 import helpers
@@ -92,6 +92,7 @@ import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
+window.bootstrap = bootstrap;
 
 /*
 initialisation

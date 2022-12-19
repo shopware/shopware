@@ -304,7 +304,6 @@ let webpackConfig = {
     plugins: [
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
-            bootstrap: require.resolve('bootstrap/dist/js/bootstrap.esm'),
             Popper: ['popper.js', 'default'],
         }),
         new WebpackBar({

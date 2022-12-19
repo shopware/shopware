@@ -43,11 +43,16 @@ class SystemDumpDatabaseCommand extends Command
 
         $path = sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
 
+        $portString = '';
+        if ($params['password'] ?? '') {
+            $portString = '-p' . escapeshellarg($params['password']);
+        }
+
         file_put_contents($path, 'SET unique_checks=0;SET foreign_key_checks=0;');
         $cmd = sprintf(
-            'mysqldump -u %s -p%s -h %s --port=%s -q --opt --hex-blob --no-autocommit %s %s >> %s',
+            'mysqldump -u %s %s -h %s --port=%s -q --opt --hex-blob --no-autocommit %s %s >> %s',
             escapeshellarg($params['user'] ?? ''),
-            escapeshellarg($params['password'] ?? ''),
+            $portString,
             escapeshellarg($params['host'] ?? ''),
             escapeshellarg((string) ($params['port'] ?? '')),
             $this->getIgnoreTableStmt($input, $dbName),

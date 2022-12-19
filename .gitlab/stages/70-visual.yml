@@ -21,12 +21,10 @@ Percy:
           when: never
         - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
           when: never
-        - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME != null'
-          variables:
-            PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:
+        - if [ ! -z $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ]; then export PERCY_TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; fi
         - composer run init:e2e:admin
         - composer run e2e:prepare
         - composer run e2e:admin:percy -- exec -- cypress run

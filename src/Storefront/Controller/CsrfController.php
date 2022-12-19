@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
+ * @package storefront
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - class will be removed as the csrf system will be removed in favor for the samesite approach

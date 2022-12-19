@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Event\RouteRequest;
 
+/**
+ * @package storefront
+ */
 class LanguageRouteRequestEvent extends RouteRequestEvent
 {
 }

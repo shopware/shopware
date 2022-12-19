@@ -9,6 +9,9 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @package storefront
+ */
 class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfigurationFactory
 {
     /**

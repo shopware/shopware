@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Product\QuickView;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class MinimalQuickViewPage extends Struct
 {
     /**

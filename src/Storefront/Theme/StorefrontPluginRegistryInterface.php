@@ -6,6 +6,8 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
 /**
+ * @package storefront
+ *
  * @Decoratable
  */
 interface StorefrontPluginRegistryInterface

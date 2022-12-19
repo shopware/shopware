@@ -11,6 +11,9 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
+/**
+ * @package storefront
+ */
 class ProductPage extends Page
 {
     /**

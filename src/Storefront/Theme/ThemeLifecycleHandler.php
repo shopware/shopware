@@ -13,6 +13,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 
+/**
+ * @package storefront
+ */
 class ThemeLifecycleHandler
 {
     private ThemeLifecycleService $themeLifecycleService;

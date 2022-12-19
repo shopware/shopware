@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Wishlist;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRouteResponse;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class WishlistPage extends Page
 {
     /**

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package storefront
+ *
  * @deprecated tag:v6.5.0 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix instead
  */
 class RatingMatrix extends Struct

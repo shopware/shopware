@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
+ * @package storefront
+ *
  * We have this extra class to have the session object injected in a lazy way to not initialize it on injection
  *
  * @internal

@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Theme;
 
 /**
+ * @package storefront
+ *
  * @internal - may be changed in the future
  */
 abstract class AbstractScssCompiler

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
+/**
+ * @package storefront
+ */
 class ThemeEntity extends Entity
 {
     use EntityIdTrait;

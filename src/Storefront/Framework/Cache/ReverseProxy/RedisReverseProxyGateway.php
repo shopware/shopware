@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 use function sprintf;
 
+/**
+ * @package storefront
+ */
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
     /**

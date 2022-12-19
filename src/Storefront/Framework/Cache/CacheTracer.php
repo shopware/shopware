@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
 /**
+ * @package storefront
+ *
  * @extends AbstractCacheTracer<mixed|null>
  */
 class CacheTracer extends AbstractCacheTracer

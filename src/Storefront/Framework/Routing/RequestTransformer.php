@@ -10,6 +10,8 @@ use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package storefront
+ *
  * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */

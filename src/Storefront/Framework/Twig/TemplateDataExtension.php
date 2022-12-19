@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
+/**
+ * @package storefront
+ */
 class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**

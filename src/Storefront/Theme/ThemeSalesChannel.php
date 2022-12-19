@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class ThemeSalesChannel extends Struct
 {
     protected string $themeId;

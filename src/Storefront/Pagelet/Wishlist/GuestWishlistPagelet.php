@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Pagelet\Wishlist;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Storefront\Pagelet\Pagelet;
 
+/**
+ * @package storefront
+ */
 class GuestWishlistPagelet extends Pagelet
 {
     /**

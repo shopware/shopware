@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Framework\Csrf;
 
 /**
+ * @package storefront
+ *
  * @deprecated tag:v6.5.0 - class will be removed as the csrf system will be removed in favor for the samesite approach
  */
 final class CsrfModes

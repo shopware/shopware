@@ -8,6 +8,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 
+/**
+ * @package storefront
+ */
 class TwigDateRequestListener implements EventSubscriberInterface
 {
     public const TIMEZONE_COOKIE = 'timezone';

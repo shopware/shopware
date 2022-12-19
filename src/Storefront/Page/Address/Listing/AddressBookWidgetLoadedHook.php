@@ -9,6 +9,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * Triggered when the AddressBookWidget is loaded
  *
+ * @package storefront
+ *
  * @hook-use-case data_loading
  *
  * @since 6.4.8.0

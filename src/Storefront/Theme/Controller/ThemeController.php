@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package storefront
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class ThemeController extends AbstractController

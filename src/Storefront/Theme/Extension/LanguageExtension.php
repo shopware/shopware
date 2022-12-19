@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
+/**
+ * @package storefront
+ */
 class LanguageExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

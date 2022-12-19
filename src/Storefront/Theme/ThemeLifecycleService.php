@@ -20,6 +20,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 
+/**
+ * @package storefront
+ */
 class ThemeLifecycleService
 {
     private StorefrontPluginRegistryInterface $pluginRegistry;

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package storefront
+ */
 class ThemeConfigValueAccessor
 {
     private AbstractResolvedConfigLoader $themeConfigLoader;

@@ -12,6 +12,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use function sprintf;
 use const JSON_THROW_ON_ERROR;
 
+/**
+ * @package storefront
+ */
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
     private FilesystemOperator $filesystem;

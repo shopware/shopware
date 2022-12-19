@@ -7,6 +7,9 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @package core
+ */
 class IconTemplateLoader extends AbstractTemplateLoader
 {
     private AbstractTemplateLoader $inner;

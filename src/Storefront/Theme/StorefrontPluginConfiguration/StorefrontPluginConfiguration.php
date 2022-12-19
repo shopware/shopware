@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class StorefrontPluginConfiguration extends Struct
 {
     protected ?array $themeConfig = [];

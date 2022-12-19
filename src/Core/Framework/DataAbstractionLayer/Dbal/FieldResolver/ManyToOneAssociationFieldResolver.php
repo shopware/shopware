@@ -19,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {

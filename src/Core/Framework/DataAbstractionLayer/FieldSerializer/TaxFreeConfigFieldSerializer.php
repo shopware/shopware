@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
 {

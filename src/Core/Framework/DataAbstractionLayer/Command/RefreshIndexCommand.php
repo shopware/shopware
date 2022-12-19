@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 #[AsCommand(
     name: 'dal:refresh:index',

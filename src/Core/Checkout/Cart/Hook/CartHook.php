@@ -11,13 +11,14 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 /**
  * @package checkout
  */
-
 /**
  * Triggered during the cart calculation process.
  *
  * @hook-use-case cart_manipulation
  *
  * @since 6.4.8.0
+ *
+ * @package checkout
  */
 class CartHook extends Hook implements CartAware
 {

@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @package administration
+ */
 class AdminProductStreamController extends AbstractController
 {
     private ProductDefinition $productDefinition;

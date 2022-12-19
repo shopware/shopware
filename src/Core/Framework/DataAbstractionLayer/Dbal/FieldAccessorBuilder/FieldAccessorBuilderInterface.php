@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 /**
  * @internal
+ *
+ * @package core
  */
 interface FieldAccessorBuilderInterface
 {

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 
+/**
+ * @package administration
+ */
 class AdminSearcher
 {
     private DefinitionInstanceRegistry $definitionRegistry;

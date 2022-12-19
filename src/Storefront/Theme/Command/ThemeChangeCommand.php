@@ -20,6 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package storefront
+ */
 #[AsCommand(
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',

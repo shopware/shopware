@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 
+/**
+ * @package core
+ */
 class HookableEventDoc
 {
     private const WRITE_EVENT_DESCRIPTION_TEMPLATE = 'Triggers when a %s is %s';

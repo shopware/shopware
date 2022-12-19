@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework;
 
+/**
+ * @package core
+ */
 interface ShopwareException extends \Throwable
 {
     public function getErrorCode(): string;

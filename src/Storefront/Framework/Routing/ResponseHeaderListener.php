@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class ResponseHeaderListener implements EventSubscriberInterface
 {

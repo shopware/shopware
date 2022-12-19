@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class DateTimeFieldSerializer extends AbstractFieldSerializer
 {

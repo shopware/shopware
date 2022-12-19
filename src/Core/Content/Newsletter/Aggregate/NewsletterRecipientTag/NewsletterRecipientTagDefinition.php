@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package customer-order
+ */
 class NewsletterRecipientTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'newsletter_recipient_tag';

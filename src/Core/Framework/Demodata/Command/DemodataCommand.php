@@ -36,6 +36,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 #[AsCommand(
     name: 'framework:demodata',

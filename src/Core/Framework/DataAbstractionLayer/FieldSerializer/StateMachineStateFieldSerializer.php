@@ -14,6 +14,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class StateMachineStateFieldSerializer extends FkFieldSerializer
 {

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer as DalCustomFieldsSerializer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 
+/**
+ * @package core
+ */
 class CustomFieldsSerializer extends FieldSerializer
 {
     private DalCustomFieldsSerializer $customFieldsSerializer;

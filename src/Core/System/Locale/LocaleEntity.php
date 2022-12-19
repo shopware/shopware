@@ -9,6 +9,9 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\User\UserCollection;
 
+/**
+ * @package system-settings
+ */
 class LocaleEntity extends Entity
 {
     use EntityIdTrait;

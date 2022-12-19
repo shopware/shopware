@@ -13,6 +13,8 @@ use Shopware\Core\System\Locale\LocaleException;
 
 /**
  * @internal
+ *
+ * @package administration
  */
 class AppAdministrationSnippetPersister
 {

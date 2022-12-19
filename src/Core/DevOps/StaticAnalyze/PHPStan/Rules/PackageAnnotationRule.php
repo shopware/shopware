@@ -93,6 +93,9 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Theme\\\\/',
             '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Theme|Test)\\\\/',
         ],
+        'administration' => [
+            '/Shopware\\\\Administration\\\\/',
+        ],
     ];
 
     public function getNodeType(): string
@@ -111,29 +114,30 @@ class PackageAnnotationRule implements Rule
             return [];
         }
 
-        $area = $this->getProductArea($node);
-
         if ($this->hasPackageAnnotation($node)) {
             return [];
         }
 
-        return [sprintf('This class is missing the "@package" annotation (recommendation: %s)', $area ?? 'unknown')];
+        return [];
+
+        // will be activated in a separate MR
+//        return [sprintf('This class is missing the "@package" annotation (recommendation: %s)', $this->getProductArea($node) ?? 'unknown')];
     }
 
-    private function getProductArea(InClassNode $node): ?string
-    {
-        $namespace = $node->getClassReflection()->getName();
-
-        foreach (self::PRODUCT_AREA_MAPPING as $area => $regexes) {
-            foreach ($regexes as $regex) {
-                if (preg_match($regex, $namespace)) {
-                    return $area;
-                }
-            }
-        }
-
-        return null;
-    }
+//    private function getProductArea(InClassNode $node): ?string
+//    {
+//        $namespace = $node->getClassReflection()->getName();
+//
+//        foreach (self::PRODUCT_AREA_MAPPING as $area => $regexes) {
+//            foreach ($regexes as $regex) {
+//                if (preg_match($regex, $namespace)) {
+//                    return $area;
+//                }
+//            }
+//        }
+//
+//        return null;
+//    }
 
     private function hasPackageAnnotation(InClassNode $class): bool
     {
@@ -143,7 +147,7 @@ class PackageAnnotationRule implements Rule
             return false;
         }
 
-        return \str_contains($doc->getText(), sprintf('@package'));
+        return \str_contains($doc->getText(), '@package');
     }
 
     private function isTestClass(InClassNode $node): bool
@@ -151,6 +155,11 @@ class PackageAnnotationRule implements Rule
         $namespace = $node->getClassReflection()->getName();
 
         if (\str_contains($namespace, '\\Tests\\') || \str_contains($namespace, '\\Test\\')) {
+            return true;
+        }
+
+        $file = (string) $node->getClassReflection()->getFileName();
+        if (\str_contains($file, '/tests/') || \str_contains($file, '/Tests/') || \str_contains($file, '/Test/')) {
             return true;
         }
 

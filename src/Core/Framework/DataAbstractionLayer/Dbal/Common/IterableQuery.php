@@ -8,6 +8,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
  * @internal
  *
  * @phpstan-type Offset array{offset: int|null}
+ *
+ * @package core
  */
 interface IterableQuery
 {

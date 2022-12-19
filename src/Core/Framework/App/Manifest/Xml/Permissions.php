@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class Permissions extends XmlElement
 {

@@ -18,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package core
  */
 class ScriptApiRoute
 {

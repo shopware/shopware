@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be used to delete addresses
+ *
+ * @package customer-order
  */
 abstract class AbstractDeleteAddressRoute
 {

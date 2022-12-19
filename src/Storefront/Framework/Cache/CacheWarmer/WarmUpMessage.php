@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
+/**
+ * @package storefront
+ */
 class WarmUpMessage implements AsyncMessageInterface
 {
     /**

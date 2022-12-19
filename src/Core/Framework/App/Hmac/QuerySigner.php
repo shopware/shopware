@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class QuerySigner
 {

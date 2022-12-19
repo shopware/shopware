@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class PrimaryKeyBag
 {

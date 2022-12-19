@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
+/**
+ * @package inventory
+ */
 class MinOrderQuantityError extends Error
 {
     protected string $id;

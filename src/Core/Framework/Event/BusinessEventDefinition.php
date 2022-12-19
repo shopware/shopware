@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package business-ops
+ */
 class BusinessEventDefinition extends Struct
 {
     /**

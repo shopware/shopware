@@ -12,6 +12,8 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  * @internal
  *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
+ *
+ * @package core
  */
 class WriteContext
 {

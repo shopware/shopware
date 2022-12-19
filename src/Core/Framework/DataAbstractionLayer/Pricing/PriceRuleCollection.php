@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<PriceRuleEntity>
+ *
+ * @package core
  */
 class PriceRuleCollection extends EntityCollection
 {

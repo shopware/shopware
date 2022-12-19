@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ResponseHeaderListener implements EventSubscriberInterface
 {

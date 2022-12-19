@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
+ *
+ * @package core
  */
 abstract class Aggregation extends Struct implements CriteriaPartInterface
 {

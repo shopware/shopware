@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1669124190AddDoctrineMessengerTable extends MigrationStep
 {

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class StoreHandshake implements AppHandshakeInterface
 {

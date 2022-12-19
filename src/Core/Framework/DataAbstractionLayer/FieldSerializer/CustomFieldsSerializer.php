@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CustomFieldsSerializer extends JsonFieldSerializer
 {

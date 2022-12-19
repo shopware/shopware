@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
+ *
+ * @package core
  */
 class Criteria extends Struct implements \Stringable
 {

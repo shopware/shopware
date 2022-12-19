@@ -19,6 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * this means that e.g. product prices are already calculated based on the current context.
  *
  * @script-service data_loading
+ *
+ * @package core
  */
 class SalesChannelRepositoryFacade
 {

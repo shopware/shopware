@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 
 /**
  * @final
+ *
+ * @package core
  */
 class CountResult extends AggregationResult
 {

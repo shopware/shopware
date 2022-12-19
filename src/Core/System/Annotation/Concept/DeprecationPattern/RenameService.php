@@ -16,6 +16,8 @@ use Doctrine\Common\Annotations\Annotation;
  * Also deprecate the old service and link to the new Service in the deprecation annotation
  *
  * If you can remove the deprecation you have to copy the code over from the old to the new Service and can than delete the old service with it's service definition in the DIC.
+ *
+ * @package core
  */
 class RenameService
 {

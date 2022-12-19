@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package system-settings
+ */
 class UpdateApiSignatureValidationException extends ShopwareHttpException
 {
     public function __construct(string $reason)

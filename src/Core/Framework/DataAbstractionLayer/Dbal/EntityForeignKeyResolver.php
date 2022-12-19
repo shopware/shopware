@@ -28,6 +28,8 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
  *
  * @internal
+ *
+ * @package core
  */
 class EntityForeignKeyResolver
 {

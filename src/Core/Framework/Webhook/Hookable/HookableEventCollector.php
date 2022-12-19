@@ -21,6 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class HookableEventCollector
 {

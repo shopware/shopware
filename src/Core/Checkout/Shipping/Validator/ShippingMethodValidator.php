@@ -16,6 +16,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @package checkout
  */
 class ShippingMethodValidator implements EventSubscriberInterface
 {

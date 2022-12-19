@@ -7,6 +7,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 abstract class AbstractAppDeltaProvider
 {

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package storefront
+ */
 class ThemeDependencies extends Struct
 {
     protected ?string $id;

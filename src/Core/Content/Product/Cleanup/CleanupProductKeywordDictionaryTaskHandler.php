@@ -9,6 +9,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 #[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
 

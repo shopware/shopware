@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
+ *
+ * @package core
  */
 class IdSearchResult extends Struct
 {

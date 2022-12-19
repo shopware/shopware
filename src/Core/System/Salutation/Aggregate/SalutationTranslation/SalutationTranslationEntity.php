@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @package customer-order
+ */
 class SalutationTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

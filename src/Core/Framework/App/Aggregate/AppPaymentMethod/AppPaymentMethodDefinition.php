@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class AppPaymentMethodDefinition extends EntityDefinition
 {

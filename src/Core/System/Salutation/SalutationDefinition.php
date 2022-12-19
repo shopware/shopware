@@ -21,6 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
 
+/**
+ * @package customer-order
+ */
 class SalutationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'salutation';

@@ -18,6 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class PaymentMethodPersister
 {

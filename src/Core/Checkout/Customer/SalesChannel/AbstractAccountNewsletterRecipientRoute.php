@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used to get information about the newsletter recipients
+ *
+ * @package customer-order
  */
 abstract class AbstractAccountNewsletterRecipientRoute
 {

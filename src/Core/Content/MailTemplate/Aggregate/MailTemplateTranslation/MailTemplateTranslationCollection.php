@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<MailTemplateTranslationEntity>
+ *
+ * @package sales-channel
  */
 class MailTemplateTranslationCollection extends EntityCollection
 {

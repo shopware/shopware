@@ -9,6 +9,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 #[AsCommand(
     name: 'app:activate',

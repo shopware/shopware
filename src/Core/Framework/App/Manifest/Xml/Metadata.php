@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class Metadata extends XmlElement
 {

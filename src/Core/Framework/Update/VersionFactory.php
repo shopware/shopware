@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update;
 
 use Shopware\Core\Framework\Update\Struct\Version;
 
+/**
+ * @package system-settings
+ */
 class VersionFactory
 {
     private const TEST_VERSION_ARRAY = [

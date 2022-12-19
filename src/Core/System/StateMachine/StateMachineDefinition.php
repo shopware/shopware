@@ -19,6 +19,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachi
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition;
 
+/**
+ * @package checkout
+ */
 class StateMachineDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'state_machine';

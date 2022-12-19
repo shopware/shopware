@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
 
+/**
+ * @package inventory
+ */
 class ProductExportResult
 {
     /**

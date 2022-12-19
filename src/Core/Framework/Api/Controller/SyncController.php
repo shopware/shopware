@@ -20,6 +20,8 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package core
  */
 class SyncController extends AbstractController
 {

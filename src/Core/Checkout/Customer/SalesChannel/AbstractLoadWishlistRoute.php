@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package customer-order
+ */
 abstract class AbstractLoadWishlistRoute
 {
     abstract public function getDecorated(): AbstractLoadWishlistRoute;

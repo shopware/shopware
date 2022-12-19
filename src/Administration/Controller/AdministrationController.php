@@ -39,6 +39,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
+ *
+ * @package administration
  */
 class AdministrationController extends AbstractController
 {

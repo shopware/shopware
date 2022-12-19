@@ -4,6 +4,9 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 
+/**
+ * @package core
+ */
 class PriceField extends Field
 {
     use RequiredTrait;

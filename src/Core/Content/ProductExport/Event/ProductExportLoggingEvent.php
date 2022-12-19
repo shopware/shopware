@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package inventory
+ */
 class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware
 {
     public const NAME = 'product_export.log';

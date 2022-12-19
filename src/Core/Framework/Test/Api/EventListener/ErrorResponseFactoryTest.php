@@ -7,6 +7,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * @package core
+ */
 class SimpleShopwareHttpException extends ShopwareHttpException
 {
     public const EXCEPTION_CODE = 'FRAMEWORK__TEST_EXCEPTION';

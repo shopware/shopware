@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 
+/**
+ * @package core
+ */
 class CalculatedCheapestPrice extends CalculatedPrice
 {
     /**

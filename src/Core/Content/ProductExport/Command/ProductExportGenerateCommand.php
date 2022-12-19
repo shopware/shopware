@@ -15,6 +15,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package inventory
+ */
 #[AsCommand(
     name: 'product-export:generate',
     description: 'Generates a product export file',

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
+use Symfony\Component\Validator\Constraint;
 
 /**
  * @package business-ops
@@ -60,7 +61,7 @@ class LineItemTagRule extends Rule
     }
 
     /**
-     * @return array|\Symfony\Component\Validator\Constraint[][]
+     * @return array|Constraint[][]
      */
     public function getConstraints(): array
     {

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * @package core
+ */
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**

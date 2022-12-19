@@ -28,6 +28,9 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateE
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class StateMachineRegistry
 {
     private EntityRepository $stateMachineRepository;

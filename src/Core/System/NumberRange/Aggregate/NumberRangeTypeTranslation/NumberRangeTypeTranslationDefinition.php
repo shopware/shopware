@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 
+/**
+ * @package checkout
+ */
 class NumberRangeTypeTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'number_range_type_translation';

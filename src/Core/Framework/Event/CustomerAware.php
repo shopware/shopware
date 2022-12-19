@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event;
 
+/**
+ * @package business-ops
+ */
 interface CustomerAware extends FlowEventAware
 {
     public const CUSTOMER_ID = 'customerId';

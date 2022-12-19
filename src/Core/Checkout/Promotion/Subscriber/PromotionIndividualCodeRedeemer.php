@@ -19,6 +19,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package checkout
  */
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {

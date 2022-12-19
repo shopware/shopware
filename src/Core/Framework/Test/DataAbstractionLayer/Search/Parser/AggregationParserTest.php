@@ -314,7 +314,7 @@ class AggregationParserTest extends TestCase
 
         $agg = $criteria->getAggregation('range_test');
 
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation $agg */
+        /** @var RangeAggregation $agg */
         static::assertInstanceOf(RangeAggregation::class, $agg);
         $computedRanges = $agg->getRanges();
 

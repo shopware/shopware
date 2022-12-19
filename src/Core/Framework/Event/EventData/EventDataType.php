@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+/**
+ * @package business-ops
+ */
 interface EventDataType
 {
     /**

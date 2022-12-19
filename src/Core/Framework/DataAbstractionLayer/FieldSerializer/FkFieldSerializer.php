@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class FkFieldSerializer extends AbstractFieldSerializer
 {

@@ -53,6 +53,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class AppLifecycle extends AbstractAppLifecycle
 {

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 
 /**
  * @final
+ *
+ * @package core
  */
 class DateHistogramResult extends BucketResult
 {

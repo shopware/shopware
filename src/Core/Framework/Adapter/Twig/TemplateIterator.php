@@ -7,6 +7,8 @@ use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
 /**
  * @implements \IteratorAggregate<int, string>
+ *
+ * @package core
  */
 class TemplateIterator implements \IteratorAggregate
 {

@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CartPriceFieldSerializer extends JsonFieldSerializer
 {

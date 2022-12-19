@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class RemoteAddressFieldSerializer extends AbstractFieldSerializer
 {

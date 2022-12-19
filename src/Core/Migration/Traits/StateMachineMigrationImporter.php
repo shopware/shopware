@@ -11,6 +11,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 
+/**
+ * @package core
+ */
 class StateMachineMigrationImporter
 {
     use ImportTranslationsTrait;

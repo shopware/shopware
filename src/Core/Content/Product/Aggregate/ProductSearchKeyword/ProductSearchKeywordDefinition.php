@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_search_keyword';

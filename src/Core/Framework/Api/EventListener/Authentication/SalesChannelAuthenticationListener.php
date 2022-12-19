@@ -18,6 +18,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {

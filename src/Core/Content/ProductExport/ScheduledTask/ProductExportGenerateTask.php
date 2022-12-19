@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @package inventory
+ */
 class ProductExportGenerateTask extends ScheduledTask
 {
     public static function getTaskName(): string

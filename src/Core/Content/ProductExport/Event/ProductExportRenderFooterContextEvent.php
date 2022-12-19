@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductExport\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package inventory
+ */
 class ProductExportRenderFooterContextEvent extends Event
 {
     public const NAME = 'product_export.render.footer_context';

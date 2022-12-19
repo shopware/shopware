@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Script\Execution\Awareness;
 
 /**
  * @internal
+ *
+ * @package core
  */
 interface StoppableHook
 {

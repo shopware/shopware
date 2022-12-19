@@ -29,6 +29,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
  *
  * @internal
+ *
+ * @package core
  */
 class EntityDefinitionQueryHelper
 {

@@ -10,6 +10,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package content
+ */
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     /**

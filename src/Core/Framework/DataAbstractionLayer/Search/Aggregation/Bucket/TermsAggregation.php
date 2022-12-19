@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
  * @final
+ *
+ * @package core
  */
 class TermsAggregation extends BucketAggregation
 {

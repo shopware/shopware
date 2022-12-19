@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package system-settings
+ */
 class DeactivateExtensionsStep
 {
     public const UPDATE_DEACTIVATED_PLUGINS = 'core.update.deactivatedPlugins';

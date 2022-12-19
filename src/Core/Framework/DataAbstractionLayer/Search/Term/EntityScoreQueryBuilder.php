@@ -20,6 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class EntityScoreQueryBuilder
 {

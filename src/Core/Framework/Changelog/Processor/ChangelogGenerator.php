@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Changelog\ChangelogDefinition;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ChangelogGenerator extends ChangelogProcessor
 {

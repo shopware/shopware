@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class JsonRequestTransformerListener implements EventSubscriberInterface
 {

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App\Exception;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class AppLicenseCouldNotBeVerifiedException extends AppRegistrationException
 {

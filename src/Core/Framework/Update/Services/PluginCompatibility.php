@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Update\Struct\Version;
  * @internal
  *
  * @phpstan-type Compatibility array{name: string, managedByComposer: bool, installedVersion: ?string, statusVariant: ?string, statusColor: ?string, statusMessage: string, statusName: string}
+ *
+ * @package system-settings
  */
 class PluginCompatibility
 {

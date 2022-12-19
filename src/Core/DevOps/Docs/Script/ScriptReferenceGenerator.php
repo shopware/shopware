@@ -4,6 +4,8 @@ namespace Shopware\Core\DevOps\Docs\Script;
 
 /**
  * @internal
+ *
+ * @package core
  */
 interface ScriptReferenceGenerator
 {

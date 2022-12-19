@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class QueryStringParser
 {

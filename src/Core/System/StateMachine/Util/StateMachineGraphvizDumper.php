@@ -4,6 +4,9 @@ namespace Shopware\Core\System\StateMachine\Util;
 
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
+/**
+ * @package checkout
+ */
 class StateMachineGraphvizDumper
 {
     protected static array $defaultOptions = [

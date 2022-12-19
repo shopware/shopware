@@ -70,7 +70,7 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
-     * @return array|\Symfony\Component\Validator\Constraint[][]
+     * @return array|Constraint[][]
      */
     public function getConstraints(): array
     {

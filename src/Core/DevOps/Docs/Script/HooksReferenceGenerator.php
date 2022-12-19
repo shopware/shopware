@@ -21,6 +21,8 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
@@ -83,7 +85,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $hookClasses = [];
 
         $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../../..')
-            ->exclude('*/Test/*', '*/vendor/*')
+            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/StaticAnalyze*')
             ->findClassNames();
 
         foreach ($shopwareClasses as $class) {

@@ -11,6 +11,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
 {

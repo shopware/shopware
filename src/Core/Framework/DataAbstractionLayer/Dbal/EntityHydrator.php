@@ -32,6 +32,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Allows to hydrate database values into struct objects.
  *
  * @internal
+ *
+ * @package core
  */
 class EntityHydrator
 {

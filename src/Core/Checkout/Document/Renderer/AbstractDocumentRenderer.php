@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package customer-order
+ */
 abstract class AbstractDocumentRenderer
 {
     abstract public function supports(): string;

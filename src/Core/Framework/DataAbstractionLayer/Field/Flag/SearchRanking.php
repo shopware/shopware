@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
  * Defines the weight for a search query on the entity for this field
+ *
+ * @package core
  */
 class SearchRanking extends Flag
 {

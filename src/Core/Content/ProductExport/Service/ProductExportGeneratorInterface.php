@@ -6,6 +6,9 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 
+/**
+ * @package inventory
+ */
 interface ProductExportGeneratorInterface
 {
     public function generate(

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class Script extends Struct
 {

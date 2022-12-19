@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ReferenceVersionFieldSerializer implements FieldSerializerInterface
 {

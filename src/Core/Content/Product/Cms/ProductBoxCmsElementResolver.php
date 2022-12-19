@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package inventory
+ */
 class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
 {
     private SystemConfigService $systemConfigService;

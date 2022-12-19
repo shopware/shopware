@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Salutation\Event;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 
+/**
+ * @package customer-order
+ */
 class SalutationRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

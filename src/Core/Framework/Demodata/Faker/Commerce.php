@@ -6,6 +6,8 @@ use Bezhanov\Faker\Provider\Commerce as FakerCommerce;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Commerce extends FakerCommerce
 {

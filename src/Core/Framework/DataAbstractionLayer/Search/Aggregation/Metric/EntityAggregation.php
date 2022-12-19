@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 
 /**
  * @final
+ *
+ * @package core
  */
 class EntityAggregation extends Aggregation
 {

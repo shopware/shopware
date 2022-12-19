@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
 {

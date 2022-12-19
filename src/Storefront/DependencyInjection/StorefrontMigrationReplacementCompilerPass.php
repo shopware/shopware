@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package storefront
+ */
 class StorefrontMigrationReplacementCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

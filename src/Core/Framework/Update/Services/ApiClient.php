@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @package system-settings
+ */
 final class ApiClient
 {
     private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';

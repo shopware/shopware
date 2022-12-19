@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class IntFieldSerializer extends AbstractFieldSerializer
 {

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
 /**
  * @final
+ *
+ * @package core
  */
 class SearchTerm
 {

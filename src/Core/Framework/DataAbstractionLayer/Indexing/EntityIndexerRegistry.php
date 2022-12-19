@@ -20,6 +20,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @phpstan-import-type Offset from IterableQuery
+ *
+ * @package core
  */
 #[AsMessageHandler]
 class EntityIndexerRegistry

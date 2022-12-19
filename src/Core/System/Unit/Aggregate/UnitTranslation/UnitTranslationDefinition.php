@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Unit\UnitDefinition;
 
+/**
+ * @package inventory
+ */
 class UnitTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'unit_translation';

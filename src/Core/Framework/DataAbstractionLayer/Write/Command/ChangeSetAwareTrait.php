@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 /**
  * @internal
+ *
+ * @package core
  */
 trait ChangeSetAwareTrait
 {

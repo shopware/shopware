@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package customer-order
+ */
 class CustomerWishlistProductDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_wishlist_product';

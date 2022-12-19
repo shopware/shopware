@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 
 /**
  * @internal
+ *
+ * @package core
  */
 interface EntityWriteGatewayInterface
 {

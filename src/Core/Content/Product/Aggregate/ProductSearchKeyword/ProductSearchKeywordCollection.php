@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ProductSearchKeywordEntity>
+ *
+ * @package inventory
  */
 class ProductSearchKeywordCollection extends EntityCollection
 {

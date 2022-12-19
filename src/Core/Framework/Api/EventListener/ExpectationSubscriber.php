@@ -17,6 +17,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  *
  * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
+ *
+ * @package core
  */
 class ExpectationSubscriber implements EventSubscriberInterface
 {

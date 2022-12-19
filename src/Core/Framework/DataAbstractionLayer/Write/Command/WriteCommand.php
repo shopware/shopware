@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
  * @internal
+ *
+ * @package core
  */
 abstract class WriteCommand
 {

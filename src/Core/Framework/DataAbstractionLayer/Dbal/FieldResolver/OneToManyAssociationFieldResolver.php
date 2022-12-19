@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 
 /**
  * @internal
+ *
+ * @package core
  */
 class OneToManyAssociationFieldResolver extends AbstractFieldResolver
 {

@@ -11,6 +11,9 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @package storefront
+ */
 #[AsCommand(
     name: 'theme:create',
     description: 'Create a new theme',

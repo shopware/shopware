@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 /**
  * @final
+ *
+ * @package core
  */
 class CascadeDeleteCommand extends DeleteCommand
 {

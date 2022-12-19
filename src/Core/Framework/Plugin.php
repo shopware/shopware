@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
+/**
+ * @package core
+ */
 abstract class Plugin extends Bundle
 {
     /**

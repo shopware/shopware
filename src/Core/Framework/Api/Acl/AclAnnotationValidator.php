@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class AclAnnotationValidator implements EventSubscriberInterface
 {

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
  * @final
+ *
+ * @package core
  */
 class NandFilter extends NotFilter
 {

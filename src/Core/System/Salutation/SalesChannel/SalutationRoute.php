@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package customer-order
  */
 class SalutationRoute extends AbstractSalutationRoute
 {

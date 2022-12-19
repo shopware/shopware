@@ -10,6 +10,8 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class ConfigValidator extends AbstractManifestValidator
 {

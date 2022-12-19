@@ -7,6 +7,9 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
+/**
+ * @package core
+ */
 abstract class AbstractFieldSerializer
 {
     /**

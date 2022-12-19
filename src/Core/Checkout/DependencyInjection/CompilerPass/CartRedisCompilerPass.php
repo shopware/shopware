@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @package core
+ */
 class CartRedisCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

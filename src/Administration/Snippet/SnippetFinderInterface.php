@@ -2,6 +2,9 @@
 
 namespace Shopware\Administration\Snippet;
 
+/**
+ * @package administration
+ */
 interface SnippetFinderInterface
 {
     /**

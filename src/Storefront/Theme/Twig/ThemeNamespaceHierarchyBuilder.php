@@ -15,6 +15,8 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface, ResetInterface
 {

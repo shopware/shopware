@@ -17,6 +17,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CustomerGenerator implements DemodataGeneratorInterface
 {

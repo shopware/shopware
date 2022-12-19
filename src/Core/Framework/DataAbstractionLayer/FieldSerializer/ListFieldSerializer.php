@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ListFieldSerializer extends AbstractFieldSerializer
 {

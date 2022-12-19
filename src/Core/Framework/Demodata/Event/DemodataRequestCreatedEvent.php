@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class DemodataRequestCreatedEvent extends Event
 {

@@ -9,6 +9,9 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @package inventory
+ */
 class ProductExportEntity extends Entity
 {
     use EntityIdTrait;

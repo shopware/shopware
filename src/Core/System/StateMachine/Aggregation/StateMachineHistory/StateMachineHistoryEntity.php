@@ -8,6 +8,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package checkout
+ */
 class StateMachineHistoryEntity extends Entity
 {
     use EntityIdTrait;

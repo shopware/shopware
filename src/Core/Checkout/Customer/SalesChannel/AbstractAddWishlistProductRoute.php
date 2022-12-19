@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 
+/**
+ * @package customer-order
+ */
 abstract class AbstractAddWishlistProductRoute
 {
     abstract public function getDecorated(): AbstractAddWishlistProductRoute;

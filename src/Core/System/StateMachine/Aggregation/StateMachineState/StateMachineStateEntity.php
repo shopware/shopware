@@ -14,6 +14,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachi
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
+/**
+ * @package checkout
+ */
 class StateMachineStateEntity extends Entity
 {
     use EntityIdTrait;

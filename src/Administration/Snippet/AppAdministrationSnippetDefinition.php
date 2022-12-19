@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
+/**
+ * @package administration
+ */
 class AppAdministrationSnippetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_administration_snippet';

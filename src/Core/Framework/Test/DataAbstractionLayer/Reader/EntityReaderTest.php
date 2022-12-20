@@ -1425,6 +1425,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(3);
         $customer = $repository->search($criteria, $context)->get($id);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
     }
@@ -2223,6 +2224,9 @@ class EntityReaderTest extends TestCase
 
     /**
      * @dataProvider casesToManyPaginated
+     *
+     * @param list<array<string, mixed>> $data
+     * @param list<string> $expected
      */
     public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
     {
@@ -2280,6 +2284,9 @@ class EntityReaderTest extends TestCase
         static::assertCount(0, $productMediaCollection);
     }
 
+    /**
+     * @return iterable<string, array{0: list<array<string, mixed>>, 1: callable(Criteria): void, 2: list<string>}>
+     */
     public function casesToManyPaginated(): iterable
     {
         yield 'Multi sort' => [
@@ -2392,6 +2399,9 @@ class EntityReaderTest extends TestCase
 
     /**
      * @dataProvider casesToManyReadPaginatedInherited
+     *
+     * @param array<string, mixed> $criteriaConfig
+     * @param list<string> $expectedMedia
      */
     public function testOneToManyReadingInherited(array $criteriaConfig, array $expectedMedia, string $type): void
     {
@@ -2446,6 +2456,9 @@ class EntityReaderTest extends TestCase
         })));
     }
 
+    /**
+     * @return iterable<string, array{0: array<string, mixed>, 1: list<string>, 2: string}>
+     */
     public function casesToManyReadPaginatedInherited(): iterable
     {
         yield 'parent-data: with limit at 2 with 3 elements' => [

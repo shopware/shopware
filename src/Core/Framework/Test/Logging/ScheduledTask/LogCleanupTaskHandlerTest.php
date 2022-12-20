@@ -84,6 +84,9 @@ class LogCleanupTaskHandlerTest extends TestCase
         static::assertSame(LogCleanupTask::getDefaultInterval(), $task->getRunInterval());
     }
 
+    /**
+     * @param list<string> $expectedMessages
+     */
     private function runWithOptions(int $age, int $maxEntries, array $expectedMessages): void
     {
         $this->systemConfigService->set('core.logging.entryLifetimeSeconds', $age);

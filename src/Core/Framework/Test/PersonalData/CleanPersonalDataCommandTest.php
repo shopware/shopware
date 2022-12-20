@@ -29,15 +29,9 @@ class CleanPersonalDataCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -327,11 +321,17 @@ class CleanPersonalDataCommandTest extends TestCase
         $this->connection->insert('cart', $cartData);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function fetchAllCustomers(): array
     {
         return $this->connection->fetchAllAssociative('SELECT * FROM customer');
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function fetchAllCarts(): array
     {
         return $this->connection->fetchAllAssociative('SELECT * FROM cart');

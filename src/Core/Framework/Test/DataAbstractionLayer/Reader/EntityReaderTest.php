@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -97,8 +96,6 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingAddsImplicitAssociationToRequestedFields(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new IdsCollection();
 
         $product = (new ProductBuilder($ids, 'p1'))
@@ -135,8 +132,6 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToOne(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new IdsCollection();
 
         $product = (new ProductBuilder($ids, 'p1'))
@@ -169,8 +164,6 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingOneToMany(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new IdsCollection();
 
         $this->categoryRepository->upsert([
@@ -228,8 +221,6 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToMany(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new IdsCollection();
 
         $products = [
@@ -2190,36 +2181,6 @@ class EntityReaderTest extends TestCase
         $repository->create($data, Context::createDefaultContext());
 
         $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
-
-        static::assertEquals(1, $result->getTotal());
-        static::assertEquals(1, $result->count());
-    }
-
-    /**
-     * @deprecated tag: v6.5.0 - Can be safely removed when we remove support for reading of storage
-     */
-    public function testReadWithNonIdPKOverStorageName(): void
-    {
-        $id1 = Uuid::randomHex();
-        $id2 = Uuid::randomHex();
-
-        $data = [
-            [
-                'testField' => $id1,
-                'name' => 'test1',
-            ],
-            [
-                'testField' => $id2,
-                'name' => 'test2',
-            ],
-        ];
-
-        /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
-
-        $repository->create($data, Context::createDefaultContext());
-
-        $result = $repository->search(new Criteria([['test_field' => $id1]]), Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
         static::assertEquals(1, $result->count());

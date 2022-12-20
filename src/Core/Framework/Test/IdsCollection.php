@@ -27,20 +27,6 @@ class IdsCollection
         $this->ids = $ids;
     }
 
-    /**
-     * @phpstan-ignore-next-line
-     *
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    public function __get($name)
-    {
-        if ($name === 'context') {
-            \trigger_deprecation('shopware/core', '', 'IdsCollection->context is deprecated. Use Context::createDefaultContext() instead');
-
-            return Context::createDefaultContext();
-        }
-    }
-
     public function create(string $key): string
     {
         if (isset($this->ids[$key])) {
@@ -164,15 +150,5 @@ class IdsCollection
         }
 
         return implode(', ', $keys);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use Context::createDefaultContext() instead
-     */
-    public function getContext(): Context
-    {
-        \trigger_deprecation('shopware/core', '', 'IdsCollection->getContext is deprecated. Use Context::createDefaultContext() instead');
-
-        return Context::createDefaultContext();
     }
 }

@@ -125,25 +125,6 @@ class Feature
         }
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed, use Feature::isActive instead
-     *
-     * @param object $object
-     * @param mixed[] $arguments
-     */
-    public static function ifActiveCall(string $flagName, $object, string $methodName, ...$arguments): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::isActive')
-        );
-        $closure = function () use ($object, $methodName, $arguments): void {
-            $object->{$methodName}(...$arguments);
-        };
-
-        self::ifActive($flagName, \Closure::bind($closure, $object, $object));
-    }
-
     public static function skipTestIfInActive(string $flagName, TestCase $test): void
     {
         if (self::isActive($flagName)) {
@@ -160,34 +141,6 @@ class Feature
         }
 
         $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
-    }
-
-    /**
-     * Triggers a silenced deprecation notice.
-     *
-     * @param string $sinceVersion  The version of the package that introduced the deprecation
-     * @param string $removeVersion The version of the package when the deprectated code will be removed
-     * @param string $message       The message of the deprecation
-     * @param mixed  ...$args       Values to insert in the message using printf() formatting
-     *
-     * @deprecated tag:v6.5.0 - will be removed, use `triggerDeprecationOrThrow` instead
-     */
-    public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
-    {
-        self::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            self::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::triggerDeprecationOrThrow()')
-        );
-
-        $message = 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message;
-
-        if (self::isActive($flag) || !self::has($flag)) {
-            if (\PHP_SAPI !== 'cli') {
-                ScriptTraces::addDeprecationNotice(sprintf($message, ...$args));
-            }
-
-            trigger_deprecation('shopware/core', $sinceVersion, $message, $args);
-        }
     }
 
     public static function throwException(string $flag, string $message, bool $state = true): void

@@ -24,8 +24,6 @@ class FeatureTest extends TestCase
 
     public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
-    private ?\stdClass $indicator;
-
     /**
      * @var string[]
      */
@@ -122,25 +120,6 @@ class FeatureTest extends TestCase
             $indicator = true;
         });
         static::assertTrue($indicator);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - can safely be removed as the tested method will also be removed
-     */
-    public function testTheMethodGetsExecutes(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $this->setUpFixtures();
-        $this->indicator = null;
-
-        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate');
-        static::assertNull($this->indicator);
-
-        $_SERVER['FEATURE_NEXT_101'] = '1';
-
-        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate', new \stdClass());
-        static::assertInstanceOf(\stdClass::class, $this->indicator);
     }
 
     public function testConfigGetAllReturnsAllAndTracksState(): void
@@ -612,15 +591,5 @@ class FeatureTest extends TestCase
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
 
         Feature::registerFeatures($registeredFlags);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Can be removed as the test that uses this will also be removed
-     *
-     * @phpstan-ignore-next-line
-     */
-    private function indicate(?\stdClass $arg = null): void
-    {
-        $this->indicator = $arg;
     }
 }

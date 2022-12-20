@@ -281,6 +281,7 @@ PHP Full:
         RUNNER_INSTANCE_TYPE: m5.large
         ALLOW_FAILURE: "false"
         REDIS_URL: redis://redis:6379
+        SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
     rules:
         - !reference [.rules, skip]
         - if: !reference [.rules, run-allow-failure, if ]

@@ -27,13 +27,13 @@ class TermFilter extends AbstractFilter implements SnippetFilterInterface
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                $term = sprintf('/%s/i', $requestFilterValue);
-                $keyMatch = preg_match($term, $snippet['translationKey']);
-                $valueMatch = preg_match($term, $snippet['value']);
-
-                if ($keyMatch === 0 && $valueMatch === 0) {
+                $keyMatch = mb_stripos($snippet['translationKey'], $requestFilterValue);
+                $valueMatch = mb_stripos($snippet['value'], $requestFilterValue);
+                
+                if ($keyMatch === false && $valueMatch === false) {
                     continue;
                 }
+
                 $result[$setId]['snippets'][$translationKey] = $snippet;
             }
         }

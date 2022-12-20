@@ -64,6 +64,8 @@
         <sw-label
             appearance="pill"
             size="medium"
+            :caps="true"
+            :dismissable="false"
             class="sw-flow-sequence-condition__true-label"
         >
             {{ $tc('sw-flow.detail.sequence.labelTrue') }}
@@ -94,6 +96,8 @@
         <sw-label
             appearance="pill"
             size="medium"
+            :caps="true"
+            :dismissable="false"
             class="sw-flow-sequence-condition__false-label"
         >
             {{ $tc('sw-flow.detail.sequence.labelFalse') }}
@@ -366,7 +370,7 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_title %}
-            <h3>{{ $tc('sw-flow.detail.sequence.conditionExplainsTitle') }}</h3>
+            <h4>{{ $tc('sw-flow.detail.sequence.conditionExplainsTitle') }}</h4>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

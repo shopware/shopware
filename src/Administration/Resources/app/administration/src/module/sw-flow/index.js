@@ -128,7 +128,7 @@ Module.register('sw-flow', {
     settingsItem: {
         group: 'shop',
         to: 'sw.flow.index',
-        icon: 'default-symbol-flow',
+        icon: 'regular-flow',
         privilege: 'flow.viewer',
     },
 });

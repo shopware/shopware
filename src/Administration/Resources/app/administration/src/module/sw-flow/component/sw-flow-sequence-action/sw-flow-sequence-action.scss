@@ -49,6 +49,7 @@
         display: flex;
         padding: 16px 16px 12px 24px;
         justify-content: space-between;
+        align-items: baseline;
         max-height: 55px;
         border-bottom: 1px solid $color-gray-300;
     }
@@ -142,6 +143,7 @@
 
     &__action-description {
         font-size: $font-size-xs;
+        line-height: $line-height-sm;
         margin-left: 20px;
     }
 

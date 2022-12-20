@@ -16,7 +16,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [

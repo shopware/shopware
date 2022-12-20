@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -259,8 +260,18 @@ class ImportExport
         $this->eventDispatcher->dispatch($enrichEvent);
 
         if ($criteria->getSorting() === []) {
-            // default sorting
-            $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+            $fields = $this->repository->getDefinition()->getFields();
+            $autoIncrementFields = $fields->filterInstance(AutoIncrementField::class);
+
+            if ($autoIncrementFields->count() > 0) {
+                /** @var AutoIncrementField $autoIncrementField */
+                foreach ($autoIncrementFields as $autoIncrementField) {
+                    $criteria->addSorting(new FieldSorting($autoIncrementField->getPropertyName(), FieldSorting::ASCENDING));
+                }
+            } elseif ($fields->has('createdAt')) {
+                // default sorting
+                $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+            }
         }
         $criteria->addSorting(new FieldSorting('id'));
 

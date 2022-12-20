@@ -301,7 +301,7 @@ export default class ShopwareExtensionService {
 
     private createLinkToModule(appName: string) {
         return {
-            name: 'sw.my.apps.index',
+            name: 'sw.extension.module',
             params: {
                 appName,
             },

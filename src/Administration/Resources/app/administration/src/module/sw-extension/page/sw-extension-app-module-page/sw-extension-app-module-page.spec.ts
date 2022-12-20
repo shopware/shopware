@@ -1,17 +1,17 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-page';
-import swMyAppsPage from 'src/module/sw-my-apps/page/sw-my-apps-page';
-import swMyAppsErrorPage from 'src/module/sw-my-apps/component/sw-my-apps-error-page';
+import SwExtensionsAppModulePage from 'src/module/sw-extension/page/sw-extension-app-module-page';
+import SwExtensionsAppModuleErrorPage from 'src/module/sw-extension/component/sw-extension-app-module-error-page';
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
 
-Shopware.Component.register('sw-my-apps-page', swMyAppsPage);
-Shopware.Component.register('sw-my-apps-error-page', swMyAppsErrorPage);
+Shopware.Component.register('sw-extension-app-module-page', SwExtensionsAppModulePage);
+Shopware.Component.register('sw-extension-my-apps-error-page', SwExtensionsAppModuleErrorPage);
 
 /**
  * @package merchant-services
  */
-describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
+describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
     let wrapper = null;
 
     beforeAll(() => {
@@ -27,11 +27,11 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
         const localVue = createLocalVue();
         localVue.filter('asset', (value) => value);
 
-        return shallowMount(await Shopware.Component.build('sw-my-apps-page'), {
+        return shallowMount(await Shopware.Component.build('sw-extension-app-module-page'), {
             localVue,
             propsData,
             stubs: {
-                'sw-my-apps-error-page': await Shopware.Component.build('sw-my-apps-error-page'),
+                'sw-extension-app-module-error-page': await Shopware.Component.build('sw-extension-my-apps-error-page'),
                 'sw-page': await Shopware.Component.build('sw-page'),
                 'sw-notification-center': true,
                 'sw-help-center': true,
@@ -44,7 +44,7 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
                 $route: {
                     meta: {
                         $module: {
-                            title: 'sw-my-apps.general.mainMenuItemGeneral'
+                            title: 'sw-extension-my-apps.general.mainMenuItemGeneral'
                         }
                     }
                 }
@@ -84,7 +84,7 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
             moduleName: 'notAvailable'
         });
 
-        expect(wrapper.get('.smart-bar__header h2').text()).toBe('sw-my-apps.general.mainMenuItemGeneral');
+        expect(wrapper.get('.smart-bar__header h2').text()).toBe('sw-extension-my-apps.general.mainMenuItemGeneral');
     });
 
     it('shows error page if module can not load', async () => {
@@ -101,7 +101,7 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
         jest.runAllTimers();
         await wrapper.vm.$nextTick();
 
-        wrapper.get('.sw-my-apps-error-page');
+        wrapper.get('.sw-extension-app-module-error-page');
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 
@@ -126,7 +126,7 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
         jest.runAllTimers();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-my-apps-error-page').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
         expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
     });
 });

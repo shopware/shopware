@@ -36,12 +36,14 @@ Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', () => i
 Shopware.Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', () => import('./component/sw-ratings/sw-extension-rating-modal'));
 Shopware.Component.register('sw-extension-adding-failed', () => import('./component/sw-extension-adding-failed'));
 Shopware.Component.register('sw-extension-adding-success', () => import('./component/sw-extension-adding-success'));
+Shopware.Component.register('sw-extension-app-module-error-page', () => import('./component/sw-extension-app-module-error-page'));
+Shopware.Component.register('sw-extension-app-module-page', () => import('./page/sw-extension-app-module-page'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @deprecated tag:v6.5.0 - Will be private
+ * @package merchant-services
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-extension', {
     type: 'core',
     title: 'sw-extension-store.title',
@@ -157,6 +159,20 @@ Shopware.Module.register('sw-extension', {
         'store.landing-page': {
             path: 'store/landing-page',
             component: 'sw-extension-store-landing-page',
+        },
+
+        module: {
+            path: 'module/:appName/:moduleName?',
+            component: 'sw-extension-app-module-page',
+            props: {
+                default(route) {
+                    const { appName, moduleName } = route.params;
+                    return {
+                        appName,
+                        moduleName,
+                    };
+                },
+            },
         },
     },
 

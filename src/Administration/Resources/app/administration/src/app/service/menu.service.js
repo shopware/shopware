@@ -63,7 +63,7 @@ export default function createMenuService(moduleFactory) {
             }
 
             if (appModule.source) {
-                entry.path = 'sw.my.apps.index';
+                entry.path = 'sw.extension.module';
                 entry.params = { appName: app.name, moduleName: appModule.name };
             }
 

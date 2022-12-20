@@ -13,6 +13,6 @@ final class AnnotationClassCheck implements ClassBased
     {
         $identifier = $fromClass->getName();
 
-        return AnnotationDiff::diff($identifier, $fromClass->getDocComment(), $toClass->getDocComment());
+        return AnnotationDiff::diff($identifier, $fromClass->getDocComment() ?? '', $toClass->getDocComment() ?? '');
     }
 }

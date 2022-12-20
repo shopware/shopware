@@ -41,7 +41,7 @@ class PrivateHandshake implements AppHandshakeInterface
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => $date->getTimestamp(),
+            'timestamp' => (string) $date->getTimestamp(),
         ]);
 
         $signature = hash_hmac('sha256', $uri->getQuery(), $this->secret);

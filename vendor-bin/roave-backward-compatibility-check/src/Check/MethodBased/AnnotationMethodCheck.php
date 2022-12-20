@@ -13,6 +13,6 @@ final class AnnotationMethodCheck implements MethodBased
     {
         $identifier = $fromMethod->getDeclaringClass()->getName() . ':' . $fromMethod->getName();
 
-        return AnnotationDiff::diff($identifier, $fromMethod->getDocComment(), $toMethod->getDocComment());
+        return AnnotationDiff::diff($identifier, $fromMethod->getDocComment() ?? '', $toMethod->getDocComment() ?? '');
     }
 }

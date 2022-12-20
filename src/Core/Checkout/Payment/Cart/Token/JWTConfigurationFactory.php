@@ -22,9 +22,14 @@ class JWTConfigurationFactory
         ?Encoder $encoder = null,
         ?Decoder $decoder = null
     ): Configuration {
+        /** @var non-empty-string $privateKeyText */
+        $privateKeyText = $privateKey->getKeyContents();
+        /** @var non-empty-string $publicKeyText */
+        $publicKeyText = $publicKey->getKeyContents();
+
         if ($privateKey->getKeyPath() === '') {
-            $privateKey = InMemory::plainText($privateKey->getKeyContents(), $privateKey->getPassPhrase() ?? '');
-            $publicKey = InMemory::plainText($publicKey->getKeyContents(), $publicKey->getPassPhrase() ?? '');
+            $privateKey = InMemory::plainText($privateKeyText, $privateKey->getPassPhrase() ?? '');
+            $publicKey = InMemory::plainText($publicKeyText, $publicKey->getPassPhrase() ?? '');
         } else {
             $privateKey = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase() ?? '');
             $publicKey = InMemory::file($publicKey->getKeyPath(), $publicKey->getPassPhrase() ?? '');

@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework\Test\App\ActionButton;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Opis\JsonSchema\Schema;
+use Opis\JsonSchema\Errors\ErrorFormatter;
+use Opis\JsonSchema\Resolvers\SchemaResolver;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
@@ -42,7 +43,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://test.com/my-action',
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -64,10 +65,9 @@ class ExecutorTest extends TestCase
 
         $result = $this->validateRequestSchema($body);
 
-        $message = $this->parseSchemaErrors($result);
+        static::assertTrue($result->isValid(), $this->parseSchemaErrors($result));
 
-        static::assertTrue($result->isValid(), $message);
-
+        static::assertIsString($action->getAppSecret());
         static::assertEquals(
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
@@ -82,7 +82,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -103,7 +103,7 @@ class ExecutorTest extends TestCase
         $targetUrl = 'https://my-server.com';
         $action = new AppAction(
             $targetUrl,
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -122,6 +122,7 @@ class ExecutorTest extends TestCase
         static::assertEquals($targetUrl, (string) $request->getUri());
 
         $body = $request->getBody()->getContents();
+        static::assertIsString($action->getAppSecret());
         static::assertEquals(
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
@@ -135,7 +136,7 @@ class ExecutorTest extends TestCase
     public function testContentIsCorrect(): void
     {
         $targetUrl = 'https://test.com/my-action';
-        $shopUrl = EnvironmentHelper::getVariable('APP_URL');
+        $shopUrl = (string) EnvironmentHelper::getVariable('APP_URL');
         $appVersion = '1.0.0';
         $entity = 'product';
         $actionName = 'detail';
@@ -184,6 +185,7 @@ class ExecutorTest extends TestCase
         static::assertTrue(Uuid::isValid($data['meta']['reference']));
         static::assertEquals($context->getLanguageId(), $data['meta']['language']);
 
+        static::assertIsString($action->getAppSecret());
         static::assertEquals(
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
@@ -198,7 +200,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -221,10 +223,9 @@ class ExecutorTest extends TestCase
 
         $result = $this->validateRequestSchema($body);
 
-        $message = $this->parseSchemaErrors($result);
+        static::assertTrue($result->isValid(), $this->parseSchemaErrors($result));
 
-        static::assertTrue($result->isValid(), $message);
-
+        static::assertIsString($action->getAppSecret());
         static::assertEquals(
             hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
@@ -239,7 +240,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -260,7 +261,7 @@ class ExecutorTest extends TestCase
         $appSecret = 's3cr3t';
         $action = new AppAction(
             'https://brokenServer.com',
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -289,7 +290,7 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://test.com/my-action',
-            EnvironmentHelper::getVariable('APP_URL'),
+            (string) EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -308,25 +309,31 @@ class ExecutorTest extends TestCase
 
     private function parseSchemaErrors(ValidationResult $result): string
     {
-        $message = '';
-
-        foreach ($result->getErrors() as $validationError) {
-            $message .= sprintf("Validation error at '%s' : %s \n", implode(',', $validationError->dataPointer()), $validationError->keyword());
-            $message .= json_encode($validationError->keywordArgs(), \JSON_PRETTY_PRINT);
+        $error = $result->error();
+        if (!$error) {
+            return '';
         }
 
-        return $message;
+        return print_r((new ErrorFormatter())->format($error), true);
     }
 
     private function validateRequestSchema(string $body): ValidationResult
     {
         $requestData = json_decode($body);
-        $schema = Schema::fromJsonString(file_get_contents(self::SCHEMA_LOCATION));
         $validator = new Validator();
+        /** @var SchemaResolver $resolver */
+        $resolver = $validator->resolver();
+        $resolver->registerFile(
+            'http://api.example.com/appActionEndpointSchema.json',
+            self::SCHEMA_LOCATION
+        );
 
-        return $validator->schemaValidation($requestData, $schema);
+        return $validator->validate($requestData, 'http://api.example.com/appActionEndpointSchema.json');
     }
 
+    /**
+     * @param array<string, mixed>|null $responseData
+     */
     private function signResponse(string $appSecret, ?array $responseData = null): void
     {
         $responseData = $responseData ?: [

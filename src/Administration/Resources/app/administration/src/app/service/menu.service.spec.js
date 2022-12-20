@@ -27,7 +27,7 @@ describe('src/app/service/menu.service', () => {
 
             const navigationEntries = menuService.getNavigationFromAdminModules();
 
-            expect(navigationEntries).toHaveLength(12);
+            expect(navigationEntries).toHaveLength(11);
             expect(navigationEntries).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: 'sw.second.top.level' }),
                 expect.objectContaining({ id: 'sw.second.level.last' }),
@@ -65,11 +65,11 @@ describe('src/app/service/menu.service', () => {
         it('returns modules from apps', async () => {
             const navigation = menuService.getNavigationFromApps(testApps);
 
-            expect(navigation).toHaveLength(5);
+            expect(navigation).toHaveLength(4);
             expect(navigation).toEqual([
                 expect.objectContaining({
                     id: 'app-testAppA-standardModule',
-                    path: 'sw.my.apps.index',
+                    path: 'sw.extension.module',
                     parent: 'sw-catalogue',
                     params: {
                         appName: 'testAppA',
@@ -78,24 +78,15 @@ describe('src/app/service/menu.service', () => {
                 }),
                 expect.objectContaining({
                     id: 'app-testAppA-noPosition',
-                    path: 'sw.my.apps.index',
+                    path: 'sw.extension.module',
                     parent: 'sw.second.top.level',
                     params: {
                         appName: 'testAppA',
                         moduleName: 'noPosition'
                     }
                 }), expect.objectContaining({
-                    id: 'app-testAppA-noParent',
-                    path: 'sw.my.apps.index',
-                    parent: undefined,
-                    params: {
-                        appName: 'testAppA',
-                        moduleName: 'noParent'
-                    },
-                    position: 50
-                }), expect.objectContaining({
                     id: 'app-testAppB-default',
-                    path: 'sw.my.apps.index',
+                    path: 'sw.extension.module',
                     parent: 'app-testAppB-structure',
                     params: {
                         appName: 'testAppB',
@@ -127,12 +118,6 @@ describe('src/app/service/menu.service', () => {
                     label: {
                         translated: true,
                         label: 'test App A deutsch - Modul ohne Position'
-                    }
-                }), expect.objectContaining({
-                    id: 'app-testAppA-noParent',
-                    label: {
-                        translated: true,
-                        label: 'test App A deutsch - Modul ohne Parent'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',
@@ -167,12 +152,6 @@ describe('src/app/service/menu.service', () => {
                     label: {
                         translated: true,
                         label: 'test App A english - Module without position'
-                    }
-                }), expect.objectContaining({
-                    id: 'app-testAppA-noParent',
-                    label: {
-                        translated: true,
-                        label: 'test App A english - Module without parent'
                     }
                 }), expect.objectContaining({
                     id: 'app-testAppB-default',

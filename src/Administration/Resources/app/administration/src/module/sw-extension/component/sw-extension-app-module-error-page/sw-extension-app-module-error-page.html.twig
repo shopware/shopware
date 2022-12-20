@@ -1,0 +1,20 @@
+<div class="sw-extension-app-module-error-page">
+    <img
+        :src="'administration/static/img/error-pages/app-error.svg' | asset"
+        alt="Error page background with a cute little space kitty"
+        class="sw-extension-app-module-error-page__illustration"
+    >
+
+    <div class="sw-extension-app-module-error-page__text-content">
+        <h3>{{ $tc('sw-extension.sw-extension-app-module-error-page.error.heading') }}</h3>
+        <p>{{ $tc('sw-extension.sw-extension-app-module-error-page.error.phrase') }}</p>
+        <p>{{ $tc('sw-extension.sw-extension-app-module-error-page.error.info') }}</p>
+
+        <sw-button
+            variant="primary"
+            @click="goBack"
+        >
+            {{ $tc('sw-extension.sw-extension-app-module-error-page.error.lblBackButton') }}
+        </sw-button>
+    </div>
+</div>

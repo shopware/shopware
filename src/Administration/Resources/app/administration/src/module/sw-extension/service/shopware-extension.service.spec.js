@@ -382,7 +382,7 @@ describe('shopware-extension.service', () => {
                 type: shopwareExtensionService.EXTENSION_TYPES.APP,
                 name: 'testAppA'
             })).toEqual({
-                name: 'sw.my.apps.index',
+                name: 'sw.extension.module',
                 params: {
                     appName: 'testAppA'
                 }

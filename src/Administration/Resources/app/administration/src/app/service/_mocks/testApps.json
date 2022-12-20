@@ -24,15 +24,6 @@
         },
         "parent": "sw.second.top.level",
         "source": "https:\/\/shopware.apps\/"
-      },
-      {
-        "name": "noParent",
-        "label": {
-          "de-DE": "Modul ohne Parent",
-          "en-GB": "Module without parent"
-        },
-        "position": 50,
-        "source": "https:\/\/shopware.apps\/"
       }
     ],
     "mainModule": {

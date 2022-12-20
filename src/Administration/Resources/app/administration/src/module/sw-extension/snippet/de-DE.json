@@ -92,6 +92,14 @@
       "store": "Store",
       "purchased": "Meine Erweiterungen",
       "support": "Support"
+    },
+    "sw-extension-app-module-error-page": {
+      "error": {
+        "heading": "Hoppla! Du bist zu schnell und hast die Orientierung verloren.",
+        "phrase": "Die Seite, die Du gesucht hast, liegt außerhalb unserer Reichweite. Vielleicht ist die Seite umgezogen, existiert nicht mehr oder Du magst einfach unsere 404-Seite. Wir werden es wahrscheinlich nie erfahren.",
+        "info": "Mach Dir keine Sorgen! Wir haben eine Weltraumrettungskatze entsandt, die Dich wieder in Sicherheit bringen wird.",
+        "lblBackButton": "Zurück"
+      }
     }
   },
   "sw-extension-store": {

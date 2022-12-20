@@ -28,7 +28,7 @@ const documentTypeMock = [
     },
     {
         technicalName: 'storno',
-        translated: { name: 'Storno bill' },
+        translated: { name: 'Cancellation invoice' },
         id: '3'
     },
     {

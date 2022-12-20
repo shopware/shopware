@@ -366,7 +366,7 @@ class DocumentGeneratorTest extends TestCase
         $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
 
         static::assertNotNull($invoice);
-        //create a storno bill which references the invoice
+        //create a cancellation invoice which references the invoice
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], $invoice->getId());
 
         $stornoStruct = $this->documentGenerator->generate(StornoRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();

@@ -25,7 +25,7 @@ author_github: OliverSkroblin
 * Removed `message_queue_stats` entity
 * Removed `src/Core/Framework/Resources/config/packages/enqueue.yaml` configuration
 * Changed message queue configuration inside `src/Core/Framework/Resources/config/packages/framework.yaml`
-  * Changed `default_transport_name` to `v65`
+  * Changed `default_transport_name` to `async`
   * Added `MESSENGER_TRANSPORT_DSN` and `MESSENGER_TRANSPORT_FAILURE_DSN` which are configured with a doctrine transport by default
   * Added new `messenger.transport.symfony_serializer` which uses json format to serialize messages
 ___
@@ -41,7 +41,7 @@ class EntityIndexingMessage implements AsyncMessageInterface
 ```
 
 ## Changed default queue name
-Before 6.5 our default message queue transport name were `default`. We changed this to `v65` to ensure that application which are running with the 6.5 are not handling the message of the 6.4.
+Before 6.5 our default message queue transport name were `default`. We changed this to `async` to ensure that application which are running with the 6.5 are not handling the message of the 6.4.
 
 You are now able to configure own transports and dispatch message over your own transports by adding new transports within the `framework.messenger.transports` configuration. For more details, see official symfony documentation: https://symfony.com/doc/current/messenger.html
 

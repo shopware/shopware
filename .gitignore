@@ -68,7 +68,6 @@ npm-debug.log
 
 # User configurations
 app/config/parameters.yml
-src/Docs/Command/wiki.secret
 
 # tooling
 /dev-ops/docker/_volumes
@@ -86,7 +85,6 @@ src/Docs/Command/wiki.secret
 .env.dev
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
-/src/Docs/**/dist
 src/Core/DevOps/Locust/fixtures/*
 src/Core/DevOps/Locust/env.json
 src/Core/DevOps/Locust/**/__pycache__/

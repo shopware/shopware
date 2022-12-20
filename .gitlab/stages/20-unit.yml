@@ -341,13 +341,12 @@ PHP Full:
         - >
             if [ "$ONLY_CORE" == "true" ]; then
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
-                sed -i '/ Shopware\\Docs/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php
                 sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
                 rm -rf tests/integration/php/Administration
                 rm -rf tests/integration/php/Elasticsearch
                 rm -rf tests/integration/php/Storefront
-                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", ."autoload-dev", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Docs\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", ."autoload-dev", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
                 composer dump-autoload
             fi
         - FAILED=0

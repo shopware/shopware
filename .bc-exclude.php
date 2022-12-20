@@ -2,7 +2,6 @@
 
 return [
     'filePatterns' => [
-        '**/src/Docs/**', // Deprecated
         '**/Test/**', // Testing
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency

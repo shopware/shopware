@@ -1,4 +1,5 @@
 # 2020-08-12 - Handling feature flags
+# Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
 
 ## Context
 
@@ -12,11 +13,11 @@ This adr should be used as a reference to implement a feature and get sure a MR 
 
 ## Detailed cases
 ### New Entity Definitions
-New Entity Definitions have to be hidden behind the flag in the container. [how to](./../../60-references-internals/10-core/20-feature-flag-handling.md#using-flags-for-services)
+New Entity Definitions have to be hidden behind the flag in the container.
 ### New Services and other classes (subscriber, event, resolver)
-New Services have to be hidden behind the flag in the container. [how to](./../../60-references-internals/10-core/20-feature-flag-handling.md#using-flags-for-services)
+New Services have to be hidden behind the flag in the container.
 ### Changes in current classes
-Changes inside current classes should be conditioned with the flag. [how to](./../../60-references-internals/10-core/20-feature-flag-handling.md#using-flags-in-methods)
+Changes inside current classes should be conditioned with the flag.
 ### Additions to current classes
 Access to new constants or public functions cannot be prevented by the feature flag system. In this case you have to annotate the not available part with an *@internal (flag:FEATURE_NEXT_1128)* comment
 ```php

@@ -53,28 +53,30 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
     });
 
     it('should show alert box with errors', async () => {
-        wrapper = await createWrapper({
-            entity: {
-                someId: {
-                    someProperty: {
-                        _code: 'error-1',
-                        _detail: 'Error 1',
-                        selfLink: 'error-1',
+        wrapper = await createWrapper(
+            {
+                entity: {
+                    someId: {
+                        someProperty: {
+                            _code: 'error-1',
+                            _detail: 'Error 1',
+                            selfLink: 'error-1',
+                        },
+                        otherProperty: {
+                            _code: 'error-1',
+                            _detail: 'Error 1',
+                            selfLink: 'error-2',
+                        },
+                        somethingStrange: null,
                     },
-                    otherProperty: {
-                        _code: 'error-1',
-                        _detail: 'Error 1',
-                        selfLink: 'error-2',
-                    },
-                    somethingStrange: null,
                 },
             },
-        },
-        {
-            mocks: {
-                $te: () => false,
+            {
+                mocks: {
+                    $te: () => false,
+                }
             }
-        });
+        );
         await flushPromises();
 
         const alert = wrapper.find('.sw-alert');

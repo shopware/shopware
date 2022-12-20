@@ -153,17 +153,15 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.vm.value[1]).toEqual('symbol/dash');
         expect(wrapper.vm.value[0]).toEqual('address/company');
 
-        await wrapper.vm.onDrop(
-            {
-                index: 0,
-                linePosition: 0,
-                snippet: 'address/company'
-            }, {
-                index: 1,
-                linePosition: 0,
-                snippet: 'symbol/dash'
-            },
-        );
+        await wrapper.vm.onDrop({
+            index: 0,
+            linePosition: 0,
+            snippet: 'address/company'
+        }, {
+            index: 1,
+            linePosition: 0,
+            snippet: 'symbol/dash'
+        },);
 
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
@@ -218,17 +216,15 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await wrapper.vm.onDragEnter(null, null);
         expect(wrapper.emitted()).toEqual({});
 
-        await wrapper.vm.onDrop(
-            {
-                index: 0,
-                linePosition: 1,
-                snippet: 'address/company'
-            }, {
-                index: 1,
-                linePosition: 0,
-                snippet: 'symbol/dash'
-            },
-        );
+        await wrapper.vm.onDrop({
+            index: 0,
+            linePosition: 1,
+            snippet: 'address/company'
+        }, {
+            index: 1,
+            linePosition: 0,
+            snippet: 'symbol/dash'
+        },);
 
         expect(wrapper.emitted()['drop-end']).toBeTruthy();
     });

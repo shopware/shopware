@@ -77,7 +77,7 @@ class SyntaxValidationTemplateError extends Error {
                 detail: 'Ooops, syntax eror',
             }]
         }
-    }
+    };
 }
 
 describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {

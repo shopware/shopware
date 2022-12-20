@@ -748,11 +748,13 @@ export default {
                 },
             );
 
-            Shopware.State.dispatch('error/addApiError',
+            Shopware.State.dispatch(
+                'error/addApiError',
                 {
                     expression: `landing_page.${this.landingPage.id}.salesChannels`,
                     error: shopwareError,
-                });
+                },
+            );
 
             this.createNotificationError({
                 message: this.$tc(

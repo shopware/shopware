@@ -2,10 +2,11 @@
  * @package admin
  */
 
-import AppActionButtonService, { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
+import AppActionButtonService from 'src/core/service/api/app-action-button.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
+import InvalidActionButtonParameterError from './errors/InvalidActionButtonParameterError';
 
 function createAppActionButtonService() {
     const client = createHTTPClient();

@@ -1,9 +1,12 @@
-import Vue from 'vue';
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import type { Wrapper } from '@vue/test-utils';
 import swOrderDetailDetails from 'src/module/sw-order/view/sw-order-detail-details';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Wrapper } from '@vue/test-utils';
 
 const orderMock = {
     orderCustomer: {

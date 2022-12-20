@@ -228,8 +228,10 @@ export default class Repository {
     }
 
     /**
+     * @deprecated tag:v6.6.0.0 - Default param context will be last
      * Clones an existing entity
      */
+    // eslint-disable-next-line default-param-last
     clone(entityId: string, context = Shopware.Context.api, behavior: $TSDangerUnknownObject): Promise<unknown> {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
@@ -630,7 +632,7 @@ export default class Repository {
         const compatibility = hasOwnProperty(this.options, 'compatibility') ? this.options.compatibility : true;
         const appId = hasOwnProperty(this.options, 'sw-app-integration-id') ? this.options['sw-app-integration-id'] : false;
 
-        let headers = {
+        let headers: { [key: string]: unknown } = {
             Accept: 'application/vnd.api+json',
             // @ts-expect-error
             Authorization: `Bearer ${context.authToken.access}`,
@@ -639,41 +641,47 @@ export default class Repository {
         };
 
         if (context.languageId) {
-            headers = Object.assign(
-                { 'sw-language-id': context.languageId },
-                headers,
-            );
+            headers = {
+                'sw-language-id': context.languageId,
+                ...headers,
+            };
         }
 
         if (context.currencyId) {
-            headers = Object.assign(
-                { 'sw-currency-id': context.currencyId },
-                headers,
-            );
+            headers = {
+                'sw-currency-id': context.currencyId,
+                ...headers,
+            };
         }
 
         if (context.versionId) {
-            headers = Object.assign(
-                { 'sw-version-id': context.versionId },
-                headers,
-            );
+            headers = {
+                'sw-version-id': context.versionId,
+                ...headers,
+            };
         }
 
         if (context.inheritance) {
-            headers = Object.assign(
-                { 'sw-inheritance': context.inheritance },
-                headers,
-            );
+            headers = {
+                'sw-inheritance': context.inheritance,
+                ...headers,
+            };
         }
 
         if (appId) {
-            headers = Object.assign(
-                { 'sw-app-integration-id': appId },
-                headers,
-            );
+            headers = {
+                'sw-app-integration-id': appId,
+                ...headers,
+            };
         }
 
-        return headers;
+        return headers as {
+            Accept: string,
+            Authorization: string,
+            'Content-Type': string,
+            'sw-api-compatibility': boolean,
+            [key: string]: string | number | boolean,
+        };
     }
 
     /**

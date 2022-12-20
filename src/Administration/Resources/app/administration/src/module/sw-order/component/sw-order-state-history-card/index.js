@@ -84,7 +84,11 @@ export default {
         stateMachineHistoryCriteria() {
             const criteria = new Criteria(1, null);
 
-            const entityIds = [this.order.id, ...this.order.transactions?.getIds(), ...this.order.deliveries?.getIds()];
+            const entityIds = [
+                this.order.id,
+                ...this.order.transactions?.getIds() || [],
+                ...this.order.deliveries?.getIds() || [],
+            ];
 
             criteria.addFilter(
                 Criteria.equalsAny(

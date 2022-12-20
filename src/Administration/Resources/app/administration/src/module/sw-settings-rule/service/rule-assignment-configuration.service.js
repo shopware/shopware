@@ -30,7 +30,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 return criteria;
             },
             api: () => {
-                const api = Object.assign({}, Context.api);
+                const api = { ...Context.api };
                 api.inheritance = true;
 
                 return api;

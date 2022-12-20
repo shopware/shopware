@@ -369,14 +369,17 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('salesChannel',
+        ...mapPropertyErrors(
+            'salesChannel',
             [
                 'name',
                 'customerGroupId',
                 'navigationCategoryId',
-            ]),
+            ],
+        ),
 
-        ...mapPropertyErrors('productExport',
+        ...mapPropertyErrors(
+            'productExport',
             [
                 'productStreamId',
                 'encoding',
@@ -384,7 +387,8 @@ export default {
                 'fileFormat',
                 'salesChannelDomainId',
                 'currencyId',
-            ]),
+            ],
+        ),
 
         categoryRepository() {
             return this.repositoryFactory.create('category');

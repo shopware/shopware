@@ -163,12 +163,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             'flow.editor'
         ]);
 
-        Shopware.State.commit('swFlowState/setFlow',
+        Shopware.State.commit(
+            'swFlowState/setFlow',
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
                 sequences: getSequencesCollection(sequencesFixture)
-            });
+            }
+        );
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(4);
@@ -187,7 +189,8 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit('swFlowState/setFlow',
+        Shopware.State.commit(
+            'swFlowState/setFlow',
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
@@ -195,7 +198,8 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                     ...sequenceFixture,
                     ruleId: ''
                 }])
-            });
+            }
+        );
 
         let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
         expect(invalidSequences).toEqual([]);

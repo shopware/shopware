@@ -30,7 +30,7 @@ Component.register('sw-progress-bar', {
 
     computed: {
         styleWidth() {
-            let percentage = this.value / this.maxValue * 100;
+            let percentage = (this.value / this.maxValue) * 100;
             if (percentage > 100) {
                 percentage = 100;
             }

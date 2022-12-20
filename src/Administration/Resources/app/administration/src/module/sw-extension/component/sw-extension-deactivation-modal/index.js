@@ -25,12 +25,15 @@ export default {
 
     computed: {
         removeHint() {
-            return this.$tc('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel', 0,
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
+                0,
                 {
                     removeLabel: this.isLicensed ?
                         this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') :
                         this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
-                });
+                },
+            );
         },
     },
 

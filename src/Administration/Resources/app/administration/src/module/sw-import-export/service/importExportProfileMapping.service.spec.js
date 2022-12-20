@@ -101,7 +101,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     });
 
     it('product: should find missing required when key.id is existing', async () => {
-        const invalidFields = importExportProfileMappingService.validate('product',
+        const invalidFields = importExportProfileMappingService.validate(
+            'product',
             [
                 {
                     id: 'fc416f509b0b46fabb8cd8728cf63531',
@@ -109,7 +110,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
                     mappedKey: 'tax_id'
                 }
             ],
-            mappings.productDuplicateProfileOnlyRequired);
+            mappings.productDuplicateProfileOnlyRequired
+        );
 
         expect(invalidFields.missingRequiredFields).toEqual(['id', 'productNumber']);
     });

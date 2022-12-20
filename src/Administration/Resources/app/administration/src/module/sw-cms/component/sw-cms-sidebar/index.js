@@ -410,7 +410,7 @@ export default {
 
                 const slotDefaultData = slotConfig.default?.data;
                 if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
-                    element.config = Object.assign({}, element.config, slotDefaultData);
+                    element.config = { ...element.config, ...slotDefaultData };
                 }
 
                 newBlock.slots.add(element);

@@ -25,12 +25,14 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('profile',
+        ...mapPropertyErrors(
+            'profile',
             [
                 'name',
                 'sourceEntity',
                 'type',
-            ]),
+            ],
+        ),
 
         supportedProfileTypes() {
             return [

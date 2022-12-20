@@ -109,7 +109,7 @@ export default {
                 return Promise.reject();
             }
 
-            const context = Object.assign({}, Context.api);
+            const context = { ...Context.api };
             context.inheritance = true;
 
             this.isLoading = true;

@@ -26,7 +26,7 @@ function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) 
     if (itemPerPage === 1
         || remainder === 0
         || itemLength <= itemPerPage) {
-        return expectedIndex / totalPage * 100;
+        return (expectedIndex / totalPage) * 100;
     }
 
     const itemWidth = 100 / itemLength;

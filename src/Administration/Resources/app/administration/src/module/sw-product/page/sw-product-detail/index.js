@@ -776,7 +776,9 @@ export default {
                     message: this.$tc('sw-product.detail.errorMinMaxPurchase'),
                 });
 
-                return new Promise((res) => res());
+                return new Promise((resolve) => {
+                    resolve();
+                });
             }
 
             this.validateProductPrices();
@@ -926,7 +928,8 @@ export default {
                         if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
                             const titleSaveError = this.$tc('global.default.error');
                             const messageSaveError = this.$t(
-                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+                                {
                                     productNo: response.response.data.errors[0].meta.parameters.number,
                                 },
                             );
@@ -1049,7 +1052,6 @@ export default {
                 Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
 
                 resolve(newMedia.mediaId);
-                return true;
             });
         },
 

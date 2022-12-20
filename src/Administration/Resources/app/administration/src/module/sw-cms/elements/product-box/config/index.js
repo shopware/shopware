@@ -23,7 +23,7 @@ export default {
         },
 
         productSelectContext() {
-            const context = Object.assign({}, Shopware.Context.api);
+            const context = { ...Shopware.Context.api };
             context.inheritance = true;
 
             return context;

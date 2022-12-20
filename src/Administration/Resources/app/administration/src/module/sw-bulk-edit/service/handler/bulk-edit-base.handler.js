@@ -251,7 +251,7 @@ class BulkEditBaseHandler {
             changeItem = object.pick(changeItem, editableProperties);
 
             this.entityIds.forEach(entityId => {
-                const record = Object.assign({}, changeItem);
+                const record = { ...changeItem };
                 record[referenceKey] = entityId;
 
                 const identifyKey = mappingReferenceField ?? localKey;
@@ -267,7 +267,7 @@ class BulkEditBaseHandler {
 
                 // Only update existing association if there's only one association record
                 if (associations.length === 1) {
-                    association = Object.assign({}, associations[0]);
+                    association = { ...associations[0] };
                     existAssociations[key].shift();
                     // Remove existing OneToMany association record from delete payload
                     delete this.groupedPayload.delete[referenceEntity][key];

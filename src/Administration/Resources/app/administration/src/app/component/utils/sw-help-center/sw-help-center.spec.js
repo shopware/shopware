@@ -9,18 +9,16 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/utils/sw-popover';
 
 async function createWrapper() {
-    return shallowMount(
-        await Shopware.Component.build('sw-help-center'), {
-            localVue: createLocalVue(),
-            stubs: {
-                'sw-context-button': await Shopware.Component.build('sw-context-button'),
-                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-                'sw-icon': true,
-                'sw-popover': await Shopware.Component.build('sw-popover'),
-                'sw-external-link': true,
-            }
+    return shallowMount(await Shopware.Component.build('sw-help-center'), {
+        localVue: createLocalVue(),
+        stubs: {
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-icon': true,
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-external-link': true,
         }
-    );
+    });
 }
 
 describe('components/utils/sw-help-center', () => {

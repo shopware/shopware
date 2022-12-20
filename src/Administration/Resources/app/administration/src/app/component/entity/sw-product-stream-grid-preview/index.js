@@ -102,11 +102,13 @@ Component.register('sw-product-stream-grid-preview', {
             }
 
             if (this.searchTerm.length) {
-                return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
+                return this.$tc(
+                    'global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
                     this.searchTerm,
                     {
                         term: this.searchTerm,
-                    });
+                    },
+                );
             }
 
             return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');

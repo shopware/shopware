@@ -357,15 +357,15 @@ export default {
 
         setDateTime(date) {
             switch (this.fillEmptyValues) {
-                case 'day':
-                default:
-                    date.setHours(0, 0, 0, 0);
-                    break;
                 case 'hour':
                     date.setMinutes(0, 0, 0);
                     break;
                 case 'minute':
                     date.setSeconds(0, 0);
+                    break;
+                case 'day':
+                default:
+                    date.setHours(0, 0, 0, 0);
                     break;
             }
 
@@ -374,15 +374,15 @@ export default {
 
         incrementByTimeUnit(date) {
             switch (this.fillEmptyValues) {
-                case 'day':
-                default:
-                    date.setDate(date.getDate() + 1);
-                    break;
                 case 'hour':
                     date.setHours(date.getHours() + 1);
                     break;
                 case 'minute':
                     date.setMinutes(date.getMinutes() + 1);
+                    break;
+                case 'day':
+                default:
+                    date.setDate(date.getDate() + 1);
                     break;
             }
 

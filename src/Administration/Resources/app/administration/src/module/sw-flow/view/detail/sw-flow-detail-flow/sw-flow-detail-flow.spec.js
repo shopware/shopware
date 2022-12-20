@@ -221,12 +221,14 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should render flow correctly', async () => {
-        Shopware.State.commit('swFlowState/setFlow',
+        Shopware.State.commit(
+            'swFlowState/setFlow',
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
                 sequences: getSequencesCollection(sequencesFixture)
-            });
+            }
+        );
 
         const wrapper = await createWrapper([
             'flow.editor'
@@ -242,12 +244,14 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should able to add new sequence', async () => {
-        Shopware.State.commit('swFlowState/setFlow',
+        Shopware.State.commit(
+            'swFlowState/setFlow',
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
                 sequences: getSequencesCollection(sequencesFixture)
-            });
+            }
+        );
 
         const wrapper = await createWrapper([
             'flow.editor'
@@ -269,7 +273,8 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should be able to show warning alert when has invalid action', async () => {
-        Shopware.State.commit('swFlowState/setFlow',
+        Shopware.State.commit(
+            'swFlowState/setFlow',
             {
                 eventName: 'checkout.customer',
                 name: 'Flow 1',
@@ -282,7 +287,8 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
                     displayGroup: 1,
                     config: {}
                 }]
-            });
+            }
+        );
 
         const wrapper = await createWrapper([
             'flow.editor'

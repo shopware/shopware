@@ -81,9 +81,7 @@ export default {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(
-                            prefix, { salesChannel: 'sales_channel' },
-                        ),
+                        entityMappingService.getEntityMapping(prefix, { salesChannel: 'sales_channel' }),
                     ).forEach((val) => {
                         properties.push({
                             value: val,

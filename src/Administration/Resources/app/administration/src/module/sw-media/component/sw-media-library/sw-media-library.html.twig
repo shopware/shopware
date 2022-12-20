@@ -135,16 +135,14 @@
         </template>
 
         <template #default>
-            <template>
-                {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                <router-link
-                    class="sw-empty-state__description-link"
-                    :to="{ name: 'sw.profile.index.searchPreferences' }"
-                >
-                    {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                </router-link>
-                {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-            </template>
+            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+            <router-link
+                class="sw-empty-state__description-link"
+                :to="{ name: 'sw.profile.index.searchPreferences' }"
+            >
+                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+            </router-link>
+            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
         </template>
     </sw-empty-state>
     {% endblock %}

@@ -51,7 +51,9 @@ async function createWrapper(additionalPromotionData = {}) {
             },
             promotionCodeApiService: {
                 addIndividualCodes() {
-                    return new Promise(resolve => resolve());
+                    return new Promise((resolve) => {
+                        resolve();
+                    });
                 }
             }
         },

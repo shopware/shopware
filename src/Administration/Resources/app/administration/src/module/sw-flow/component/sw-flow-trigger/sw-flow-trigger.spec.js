@@ -521,8 +521,10 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     });
 
     it('should show confirmation modal when clicking tree item', async () => {
-        Shopware.State.commit('swFlowState/setSequences',
-            getSequencesCollection(sequencesFixture));
+        Shopware.State.commit(
+            'swFlowState/setSequences',
+            getSequencesCollection(sequencesFixture)
+        );
         const wrapper = await createWrapper();
 
         const searchField = wrapper.find('.sw-flow-trigger__input-field');
@@ -546,8 +548,10 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     });
 
     it('should show confirmation modal when pressing Enter on search item', async () => {
-        Shopware.State.commit('swFlowState/setSequences',
-            getSequencesCollection(sequencesFixture));
+        Shopware.State.commit(
+            'swFlowState/setSequences',
+            getSequencesCollection(sequencesFixture)
+        );
 
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

@@ -11,8 +11,9 @@ interface notification {
     variant?: NotificationType,
     title?: string,
     message?: string,
-    system?: string,
-    [key: string]: string | undefined,
+    system?: boolean,
+
+    [key: string]: string | boolean | undefined,
 }
 
 /**
@@ -25,81 +26,87 @@ Mixin.register('notification', {
         },
 
         createNotificationSuccess(config: notification): void {
-            const notification = Object.assign({
-                variant: 'success',
+            const notification = {
+                variant: 'success' as NotificationType,
                 title: this.$tc('global.default.success'),
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createNotificationInfo(config: notification): void {
-            const notification = Object.assign({
-                variant: 'info',
+            const notification = {
+                variant: 'info' as NotificationType,
                 title: this.$tc('global.default.info'),
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createNotificationWarning(config: notification): void {
-            const notification = Object.assign({
-                variant: 'warning',
+            const notification = {
+                variant: 'warning' as NotificationType,
                 title: this.$tc('global.default.warning'),
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createNotificationError(config: notification): void {
-            const notification = Object.assign({
-                variant: 'error',
+            const notification = {
+                variant: 'error' as NotificationType,
                 title: this.$tc('global.default.error'),
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationSuccess(config: notification): void {
-            const notification = Object.assign({
-                variant: 'success',
+            const notification = {
+                variant: 'success' as NotificationType,
                 system: true,
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationInfo(config: notification): void {
-            const notification = Object.assign({
-                variant: 'info',
+            const notification = {
+                variant: 'info' as NotificationType,
                 system: true,
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationWarning(config: notification): void {
-            const notification = Object.assign({
-                variant: 'warning',
+            const notification = {
+                variant: 'warning' as NotificationType,
                 system: true,
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationError(config: notification): void {
-            const notification = Object.assign({
-                variant: 'error',
+            const notification = {
+                variant: 'error' as NotificationType,
                 system: true,
-            }, config);
+                ...config,
+            };
 
             void this.createNotification(notification);
         },
 
         createSystemNotification(config: notification): void {
-            const notification = Object.assign({
-                system: true,
-            }, config);
+            const notification = { system: true, ...config };
 
             void this.createNotification(notification);
         },

@@ -130,9 +130,7 @@ export default {
                 return;
             }
 
-            if (parseInt(
-                this.element.config.elMinWidth.value.replace('px', ''), 10,
-            ) <= 0) {
+            if (parseInt(this.element.config.elMinWidth.value.replace('px', ''), 10) <= 0) {
                 return;
             }
 
@@ -140,9 +138,7 @@ export default {
             const fakeLookWidth = 100;
             const boxWidth = this.$refs.productHolder.offsetWidth;
             const elGap = 32;
-            let elWidth = parseInt(
-                this.element.config.elMinWidth.value.replace('px', ''), 10,
-            );
+            let elWidth = parseInt(this.element.config.elMinWidth.value.replace('px', ''), 10);
 
             if (elWidth >= 300) {
                 elWidth -= fakeLookWidth;

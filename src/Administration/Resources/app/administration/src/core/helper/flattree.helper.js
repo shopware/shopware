@@ -40,7 +40,7 @@ class FlatTree {
      * @param {Number} [level=1]
      * @returns {Array}
      */
-    _tree(elements, level = 1, parent) {
+    _tree(elements, level = 1, parent = undefined) {
         const children = [];
         elements.forEach((element) => {
             if (element.parent !== parent) {

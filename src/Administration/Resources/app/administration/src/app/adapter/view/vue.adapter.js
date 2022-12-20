@@ -209,14 +209,17 @@ export default class VueAdapter extends ViewAdapter {
      * @returns {Vue}
      */
     createComponent(componentName) {
-        return new Promise(async (resolve) => {
+        return new Promise((resolve) => {
             // load sync components directly
             if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
-                const resolvedComponent = await this.componentResolver(componentName).component;
-                const vueComponent = Vue.component(componentName, resolvedComponent);
+                this.componentResolver(componentName).component.then((component) => {
+                    const resolvedComponent = component;
+                    const vueComponent = Vue.component(componentName, resolvedComponent);
 
-                this.vueComponents[componentName] = vueComponent;
-                resolve(vueComponent);
+                    this.vueComponents[componentName] = vueComponent;
+                    resolve(vueComponent);
+                });
+
                 return;
             }
 
@@ -230,12 +233,13 @@ export default class VueAdapter extends ViewAdapter {
 
     componentResolver(componentName) {
         if (!this.resolvedComponentConfigs.has(componentName)) {
-            this.resolvedComponentConfigs.set(componentName, ({
-                component: new Promise(async (resolve) => {
-                    const componentConfig = await Component.build(componentName);
-                    this.resolveMixins(componentConfig);
+            this.resolvedComponentConfigs.set(componentName, {
+                component: new Promise((resolve) => {
+                    Component.build(componentName).then((componentConfig) => {
+                        this.resolveMixins(componentConfig);
 
-                    resolve(componentConfig);
+                        resolve(componentConfig);
+                    });
                 }),
                 loading: {
                     functional: true,
@@ -246,7 +250,7 @@ export default class VueAdapter extends ViewAdapter {
                     },
                 },
                 delay: 0,
-            }));
+            });
         }
 
         return this.resolvedComponentConfigs.get(componentName);

@@ -46,7 +46,9 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('@slow should time out without menu item after 7000ms', async () => {
-        await new Promise((r) => setTimeout(r, 7100));
+        await new Promise((r) => {
+            setTimeout(r, 7100);
+        });
         expect(wrapper.vm.timedOut).toBe(true);
     });
 
@@ -55,7 +57,9 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         expect(typeof moduleId).toBe('string');
         expect(moduleId).toBe(wrapper.vm.id);
 
-        await new Promise((r) => setTimeout(r, 7100));
+        await new Promise((r) => {
+            setTimeout(r, 7100);
+        });
         expect(wrapper.vm.timedOut).toBe(false);
     });
 });

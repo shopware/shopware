@@ -30,7 +30,7 @@ export default {
 
     computed: {
         progressInPercentage() {
-            return 100 / this.cloneMaxProgress * this.cloneProgress;
+            return 100 / (this.cloneMaxProgress * this.cloneProgress);
         },
 
         repository() {

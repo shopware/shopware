@@ -82,7 +82,8 @@ export default {
                 : format.currency(Number(value), this.currency.shortName);
 
             return this.$tc(
-                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0,
+                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,
+                0,
                 { value: discountValue, groupId },
             );
         },

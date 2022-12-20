@@ -1,7 +1,10 @@
-import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
-import type { Wrapper } from '@vue/test-utils';
 import swOrderStateSelectV2 from 'src/module/sw-order/component/sw-order-state-select-v2';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Wrapper } from '@vue/test-utils';
 
 Shopware.Component.register('sw-order-state-select-v2', swOrderStateSelectV2);
 

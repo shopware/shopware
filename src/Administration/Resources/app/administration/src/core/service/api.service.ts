@@ -68,7 +68,7 @@ class ApiService {
             'Content-Type': 'application/json',
         };
 
-        return Object.assign({}, basicHeaders, additionalHeaders);
+        return { ...basicHeaders, ...additionalHeaders };
     }
 
     /**

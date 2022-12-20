@@ -12,7 +12,7 @@ Shopware.Component.register('sw-cms-sidebar', swCmsSidebar);
 
 const { EntityCollection, Entity } = Shopware.Data;
 
-function getBlockData(id = '1a2b', position) {
+function getBlockData(position, id = '1a2b') {
     return {
         id,
         position,
@@ -227,12 +227,12 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await wrapper.vm.$nextTick();
 
         const blockDrag = {
-            block: getBlockData('1a2b', 0),
+            block: getBlockData(0, '1a2b'),
             sectionIndex: 0,
             position: 0
         };
         const blockDrop = {
-            block: getBlockData('7gh8', 3),
+            block: getBlockData(3, '7gh8'),
             sectionIndex: 0,
         };
 
@@ -252,11 +252,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = await createWrapper();
 
         const blockDrag = {
-            block: getBlockData('1a2b', 0),
+            block: getBlockData(0, '1a2b'),
             sectionIndex: 0
         };
         const blockDrop = {
-            block: getBlockData('7gh8', 2),
+            block: getBlockData(2, '7gh8'),
             sectionIndex: 1
         };
 

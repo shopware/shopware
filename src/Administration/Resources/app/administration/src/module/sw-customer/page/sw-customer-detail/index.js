@@ -191,21 +191,25 @@ export default {
                 boundSalesChannelId,
             }).then((emailIsValid) => {
                 if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch('error/addApiError',
+                    Shopware.State.dispatch(
+                        'error/addApiError',
                         {
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
-                        });
+                        },
+                    );
                 }
 
                 return emailIsValid;
             }).catch((exception) => {
                 this.emailIsValid = false;
-                Shopware.State.dispatch('error/addApiError',
+                Shopware.State.dispatch(
+                    'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
                         error: exception.response.data.errors[0],
-                    });
+                    },
+                );
             });
         },
 

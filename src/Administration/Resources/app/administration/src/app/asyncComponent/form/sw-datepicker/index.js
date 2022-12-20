@@ -321,18 +321,14 @@ export default {
                 );
             }
 
-            return Object.assign(
-                {},
-                this.defaultConfig,
-                {
-                    enableTime: this.enableTime,
-                    noCalendar: this.noCalendar,
-                },
-                newConfig,
-                {
-                    mode: 'single',
-                },
-            );
+            return {
+
+                ...this.defaultConfig,
+                enableTime: this.enableTime,
+                noCalendar: this.noCalendar,
+                ...newConfig,
+                mode: 'single',
+            };
         },
 
         /**

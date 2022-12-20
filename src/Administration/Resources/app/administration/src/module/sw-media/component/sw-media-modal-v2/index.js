@@ -222,9 +222,11 @@ export default {
             await this.mediaService.runUploads(this.uploadTag);
 
             await Promise.all(data.map(({ targetId }) => {
-                return new Promise(async (resolve) => {
-                    this.uploads.push(await this.mediaRepository.get(targetId, Context.api));
-                    resolve();
+                return new Promise((resolve) => {
+                    this.mediaRepository.get(targetId, Context.api).then((media) => {
+                        this.uploads.push(media);
+                        resolve();
+                    });
                 });
             }));
         },

@@ -203,9 +203,7 @@
                                     v-bind="{ item, index }"
                                     @item-select="addItem"
                                 >
-                                    <template>
-                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
+                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                 </li>
                             </template>
                         </sw-entity-multi-select>

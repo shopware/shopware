@@ -79,9 +79,7 @@ export default {
             const locales = Locale.getLocaleRegistry();
 
             locales.forEach((value, key) => {
-                criteria.push(Criteria.contains(
-                    `config.label.\"${key}\"`, term,
-                ));
+                criteria.push(Criteria.contains(`config.label.\"${key}\"`, term));
             });
 
             return criteria;

@@ -17,11 +17,13 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('profile',
+        ...mapPropertyErrors(
+            'profile',
             [
                 'delimiter',
                 'enclosure',
-            ]),
+            ],
+        ),
 
         supportedDelimiter() {
             return [

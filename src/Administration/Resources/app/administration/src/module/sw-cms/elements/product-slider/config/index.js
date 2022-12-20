@@ -55,7 +55,7 @@ export default {
         },
 
         productMultiSelectContext() {
-            const context = Object.assign({}, Shopware.Context.api);
+            const context = { ...Shopware.Context.api };
             context.inheritance = true;
 
             return context;
@@ -153,7 +153,7 @@ export default {
                 criteria.setIds(this.element.config.products.value);
 
                 this.productRepository
-                    .search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
+                    .search(criteria, { ...Shopware.Context.api, inheritance: true })
                     .then((result) => {
                         this.productCollection = result;
                     });

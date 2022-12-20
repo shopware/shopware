@@ -1,6 +1,9 @@
-import Vue from 'vue';
 import Vuex from 'vuex';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Wrapper } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';

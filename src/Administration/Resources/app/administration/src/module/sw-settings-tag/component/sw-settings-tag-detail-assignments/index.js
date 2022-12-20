@@ -59,7 +59,7 @@ export default {
             entities: null,
             isLoading: false,
             showSelected: this.property && this.entity,
-            counts: Object.assign({}, this.initialCounts),
+            counts: { ...this.initialCounts },
             currentPageCountBuckets: [],
             disableRouteParams: true,
             page: 1,
@@ -167,7 +167,7 @@ export default {
         },
 
         selectedAssignments() {
-            const selection = new Proxy(Object.assign({}, this.preSelected), {
+            const selection = new Proxy(({ ...this.preSelected }), {
                 get(target, key) {
                     return target[key];
                 },

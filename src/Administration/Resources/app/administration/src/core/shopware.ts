@@ -230,7 +230,7 @@ class ShopwareClass {
             RouterFactory,
             FilterFactory: ModuleFilterFactory,
         },
-    }
+    };
 
     public Helper = {
         FlatTreeHelper: FlatTreeHelper,
@@ -246,7 +246,7 @@ class ShopwareClass {
 
     private _private = {
         ApiServices: ApiServices,
-    }
+    };
 }
 
 const ShopwareInstance = new ShopwareClass();

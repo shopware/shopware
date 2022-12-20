@@ -24,58 +24,54 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         let promises = [];
         const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
 
-        try {
-            const orders = await this.orderRepository.search(this.getCriteria());
+        const orders = await this.orderRepository.search(this.getCriteria());
 
-            payload.forEach((change) => {
-                if (!change.value) {
-                    return;
+        payload.forEach((change) => {
+            if (!change.value) {
+                return;
+            }
+
+            promises = orders.map((order) => {
+                const optionsMail = {
+                    documentTypes: change.documentTypes,
+                    skipSentDocuments: change.skipSentDocuments,
+                    sendMail: change.sendMail,
+                };
+
+                switch (change.field) {
+                    case 'orderTransactions':
+                        return this.orderStateMachineService.transitionOrderTransactionState(
+                            order.transactions.first()?.id,
+                            change.value,
+                            optionsMail,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                        );
+                    case 'orderDeliveries':
+                        return this.orderStateMachineService.transitionOrderDeliveryState(
+                            order.deliveries.first()?.id,
+                            change.value,
+                            optionsMail,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                        );
+                    default:
+                        return this.orderStateMachineService.transitionOrderState(
+                            order.id,
+                            change.value,
+                            optionsMail,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                        );
                 }
-
-                promises = orders.map((order) => {
-                    const optionsMail = {
-                        documentTypes: change.documentTypes,
-                        skipSentDocuments: change.skipSentDocuments,
-                        sendMail: change.sendMail,
-                    };
-
-                    switch (change.field) {
-                        case 'orderTransactions':
-                            return this.orderStateMachineService.transitionOrderTransactionState(
-                                order.transactions.first()?.id,
-                                change.value,
-                                optionsMail,
-                                {},
-                                {
-                                    'sw-skip-trigger-flow': !shouldTriggerFlows,
-                                },
-                            );
-                        case 'orderDeliveries':
-                            return this.orderStateMachineService.transitionOrderDeliveryState(
-                                order.deliveries.first()?.id,
-                                change.value,
-                                optionsMail,
-                                {},
-                                {
-                                    'sw-skip-trigger-flow': !shouldTriggerFlows,
-                                },
-                            );
-                        default:
-                            return this.orderStateMachineService.transitionOrderState(
-                                order.id,
-                                change.value,
-                                optionsMail,
-                                {},
-                                {
-                                    'sw-skip-trigger-flow': !shouldTriggerFlows,
-                                },
-                            );
-                    }
-                });
             });
-        } catch (e) {
-            throw e;
-        }
+        });
 
         return Promise.all(promises);
     }

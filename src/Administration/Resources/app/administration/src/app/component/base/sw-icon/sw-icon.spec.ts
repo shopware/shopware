@@ -1,6 +1,9 @@
 import 'src/app/component/base/sw-icon/index';
 import { shallowMount } from '@vue/test-utils';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Wrapper } from '@vue/test-utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type Vue from 'vue';
 
 async function createWrapper(): Promise<Wrapper<Vue>> {

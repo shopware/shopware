@@ -27,6 +27,7 @@ const baseRules = {
         ],
     }],
     'sw-deprecation-rules/private-feature-declarations': 'error',
+    'no-restricted-exports': 'off',
 };
 
 module.exports = {
@@ -188,6 +189,13 @@ module.exports = {
                 'sw-deprecation-rules/private-feature-declarations': 0,
             },
         }, {
+            files: ['**/*.spec.ts'],
+            rules: {
+                // Disable the base rule as it can report incorrect errors
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'error',
+            },
+        }, {
             files: ['**/snippet/*.json'],
             rules: {
                 'inclusive-language/use-inclusive-words': 'error',
@@ -230,6 +238,9 @@ module.exports = {
                     },
                 ],
                 'no-void': 'off',
+                // Disable the base rule as it can report incorrect errors
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'error',
             },
         },
     ],

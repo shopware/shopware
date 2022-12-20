@@ -62,7 +62,7 @@ Component.register('sw-rating-stars', {
 
         partialStarCutStyle() {
             const negatedPartialValue = 1 - (this.value % 1);
-            const percentage = Math.round(negatedPartialValue * this.displayFractions) * 100 / this.displayFractions;
+            const percentage = (Math.round(negatedPartialValue * this.displayFractions) * 100) / this.displayFractions;
 
             // Adjusting styles to make the changes more visible
             let stylePercentage = percentage;

@@ -55,7 +55,7 @@ export default {
         },
 
         progressInPercentage() {
-            return this.actualProgress / this.maxProgress * 100;
+            return this.actualProgress / (this.maxProgress * 100);
         },
 
         progressMessage() {

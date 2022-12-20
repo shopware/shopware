@@ -1,12 +1,15 @@
-import Vue from 'vue';
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import type { Wrapper } from '@vue/test-utils';
 import swOrderCustomerGrid from 'src/module/sw-order/component/sw-order-customer-grid';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
 import orderState from 'src/module/sw-order/state/order.store';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Wrapper } from '@vue/test-utils';
 
 Shopware.Component.register('sw-order-customer-grid', swOrderCustomerGrid);
 

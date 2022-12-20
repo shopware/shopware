@@ -27,6 +27,8 @@ class StoreLoader {
     }
 
     /**
+     * @deprecated tag:v6.6.0.0 - Default parameters will be last
+     *
      * @param {EntityStore} entityStore
      * @param {Object} params
      * @param {Integer} page
@@ -35,6 +37,7 @@ class StoreLoader {
      * @param {function} promise
      * @return {Promise}
      */
+    // eslint-disable-next-line default-param-last
     loadQueue(entityStore, params, page, keepAssociations = false, languageId = '', promise) {
         params.page = page;
 

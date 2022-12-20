@@ -311,7 +311,7 @@ export default class EntityHydrator {
     ): {[key: string]: unknown} {
         const extension = this.getIncluded('extension', id, response);
 
-        const data = Object.assign({}, extension.attributes);
+        const data = { ...extension.attributes };
 
         Object.keys(extension.relationships).forEach((property) => {
             const value = extension.relationships[property] as data;

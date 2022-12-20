@@ -463,7 +463,7 @@ class ApplicationBootstrapper {
      */
     viewInitialized = new Promise((resolve) => {
         this._resolveViewInitialized = resolve;
-    })
+    });
 
     /**
      * Creates the application root and show the error message.

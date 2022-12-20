@@ -73,7 +73,9 @@ class MockRepositoryFactory {
     }
 
     search() {
-        return new Promise(resolve => resolve(this.data));
+        return new Promise((resolve) => {
+            resolve(this.data);
+        });
     }
 }
 

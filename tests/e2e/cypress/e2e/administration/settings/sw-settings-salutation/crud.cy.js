@@ -103,6 +103,9 @@ describe('Salutation: crud salutations', () => {
         cy.get('#sw-settings-salutation').click();
 
 
+        // wait for salutation list to load
+        cy.get(`${page.elements.salutationListContent}`).should('be.visible');
+
         // click on first element in grid
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mr');
         cy.get('body').click(0, 0);

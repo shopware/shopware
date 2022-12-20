@@ -29,7 +29,7 @@ class UserConfigService extends ApiService {
      */
     search(keys = null) {
         const headers = this.getBasicHeaders();
-        const params = Object.assign({}, { keys });
+        const params = { keys };
 
         return this.httpClient
             .get(this.getApiBasePath(), {

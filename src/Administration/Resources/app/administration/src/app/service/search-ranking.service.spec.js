@@ -460,7 +460,8 @@ describe('app/service/search-ranking.service.js', () => {
         expect(firstResult).toEqual(secondResult);
     });
 
-    it.each(userConfigSearchPreferenceCase)('Should %s when search ranking fields of the entity along with getting user config',
+    it.each(userConfigSearchPreferenceCase)(
+        'Should %s when search ranking fields of the entity along with getting user config',
         async (testName, defaultSearchFields, userConfigSearchFields, expected) => {
             const module = { ...defaultModule, defaultSearchConfiguration: { _searchable: true, ...defaultSearchFields } };
 
@@ -475,7 +476,8 @@ describe('app/service/search-ranking.service.js', () => {
             const actual = await newService.getSearchFieldsByEntity('product');
 
             expect(actual).toEqual(expected);
-        });
+        }
+    );
 
     it('Should add default search configuration of a new module to current user search preferences', async () => {
         const commonSearchConfigurations = {

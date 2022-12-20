@@ -60,8 +60,10 @@ Mixin.register('discard-detail-page-changes', (...entityNames) => {
                         return;
                     }
 
-                    debug.warn('Discard-detail-page-changes Mixin',
-                        `Could not discard changes for entity with name "${entityName}".`);
+                    debug.warn(
+                        'Discard-detail-page-changes Mixin',
+                        `Could not discard changes for entity with name "${entityName}".`,
+                    );
                 });
             },
         },

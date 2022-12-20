@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -16,27 +17,18 @@ class StoreClientFactory
 {
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
 
-    private SystemConfigService $configService;
-
-    /**
-     * @var MiddlewareInterface[]
-     */
-    private iterable $middlewares;
-
     /**
      * @internal
      *
      * @param MiddlewareInterface[] $middlewares
      */
     public function __construct(
-        SystemConfigService $configService,
-        iterable $middlewares
+        private readonly SystemConfigService $configService,
+        private readonly iterable $middlewares
     ) {
-        $this->configService = $configService;
-        $this->middlewares = $middlewares;
     }
 
-    public function create(): Client
+    public function create(): ClientInterface
     {
         $stack = HandlerStack::create();
 

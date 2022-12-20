@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 
 /**
  * @package merchant-services
@@ -11,14 +11,10 @@ use GuzzleHttp\Client;
  */
 class TrackingEventClient
 {
-    private Client $client;
-
-    private InstanceService $instanceService;
-
-    public function __construct(Client $client, InstanceService $instanceService)
-    {
-        $this->client = $client;
-        $this->instanceService = $instanceService;
+    public function __construct(
+        private readonly ClientInterface $client,
+        private readonly InstanceService $instanceService
+    ) {
     }
 
     /**
@@ -40,9 +36,9 @@ class TrackingEventClient
         ];
 
         try {
-            $response = $this->client->post('/swplatform/tracking/events', ['json' => $payload]);
+            $response = $this->client->request('POST', '/swplatform/tracking/events', ['json' => $payload]);
 
-            return json_decode($response->getBody()->getContents(), true, \JSON_THROW_ON_ERROR);
+            return json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
         } catch (\Exception $e) {
         }
 

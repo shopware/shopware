@@ -16855,11 +16855,6 @@ parameters:
 			path: src/Core/Framework/Test/Store/Api/ExtensionStoreDataControllerTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Authentication/FrwRequestOptionsProviderTest.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\EqualsFilterStruct\\|Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\MultiFilterStruct\\:\\:getQueries\\(\\)\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Store/Search/FilterStructClassTest.php
@@ -16898,11 +16893,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Service/ExtensionStoreLicensesServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\StoreClientFactoryTest\\:\\:getConfigFromClient\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/StoreClientFactoryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Struct\\\\ExtensionStructTest\\:\\:badValuesProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"

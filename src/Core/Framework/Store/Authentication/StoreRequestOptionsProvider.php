@@ -28,27 +28,15 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
-    private EntityRepository $userRepository;
-
-    private SystemConfigService $systemConfigService;
-
-    private InstanceService $instanceService;
-
-    private LocaleProvider $localeProvider;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $userRepository,
-        SystemConfigService $systemConfigService,
-        InstanceService $instanceService,
-        LocaleProvider $localeProvider
+        private readonly EntityRepository $userRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly InstanceService $instanceService,
+        private readonly LocaleProvider $localeProvider
     ) {
-        $this->userRepository = $userRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->instanceService = $instanceService;
-        $this->localeProvider = $localeProvider;
     }
 
     /**

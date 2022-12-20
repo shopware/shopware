@@ -156,6 +156,10 @@ Component.register('sw-flow-detail', {
             return criteria;
         },
 
+        isTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapGetters('swFlowState', [
             'sequences',
@@ -303,7 +307,7 @@ Component.register('sw-flow-detail', {
 
             if (this.$route.query?.type === 'template') {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageSaveError'),
+                    message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
                 });
 
                 this.isLoading = false;

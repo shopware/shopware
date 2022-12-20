@@ -24,6 +24,11 @@ Component.register('sw-flow-detail-general', {
             required: false,
             default: false,
         },
+        isTemplate: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

@@ -24,6 +24,12 @@ class Migration1659256999CreateFlowTemplateTableTest extends TestCase
         $this->connection->executeStatement('DROP TABLE IF EXISTS `flow_template`');
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        $migration = new Migration1659256999CreateFlowTemplateTable();
+        static::assertEquals('1659256999', $migration->getCreationTimestamp());
+    }
+
     public function testTablesArePresent(): void
     {
         $migration = new Migration1659256999CreateFlowTemplateTable();

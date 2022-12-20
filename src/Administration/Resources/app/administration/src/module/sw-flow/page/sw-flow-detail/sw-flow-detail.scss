@@ -2,4 +2,13 @@
     .sw-card-view .sw-card-view__content {
         overflow: auto;
     }
+
+    &__warning {
+        max-width: 960px;
+        margin: 0 auto 15px;
+    }
+
+    &__template {
+        cursor: not-allowed;
+    }
 }

@@ -38,6 +38,8 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 
         if (!\is_array($value)) {
             yield $field->getStorageName() => null;
+
+            return;
         }
 
         $value = array_merge([

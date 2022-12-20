@@ -8,6 +8,9 @@ use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigFiel
 use Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -60,6 +63,10 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
             ],
         ]);
 
+        if ($config === null) {
+            return;
+        }
+
         $data = json_decode($config, true);
 
         static::assertArrayHasKey('sequences', $data);
@@ -76,12 +83,29 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
         static::assertEquals(0, $data['sequences'][0]['trueCase']);
     }
 
+    public function testFieldArgumentNotInstanceOfFlowTemplateConfigField(): void
+    {
+        static::expectException(InvalidSerializerFieldException::class);
+
+        $this->encode([
+            'eventName' => 111,
+            'description' => 'description test',
+            'sequences' => [],
+        ], new DateField('config', 'config'));
+    }
+
+    public function testDataValueIsNotArray(): void
+    {
+        $config = $this->encode();
+        static::assertNull($config);
+    }
+
     /**
      *  @param array<string, mixed> $data
      */
-    private function encode(array $data): string
+    private function encode(?array $data = null, ?Field $field = null): ?string
     {
-        $field = new FlowTemplateConfigField('config', 'config');
+        $field = $field ?? new FlowTemplateConfigField('config', 'config');
         $existence = new EntityExistence('config', ['someId'], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
@@ -93,6 +117,6 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
 
         $data = iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
 
-        return $data['config'];
+        return $data['config'] ?? null;
     }
 }

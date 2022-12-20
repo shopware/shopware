@@ -19,4 +19,8 @@
             box-shadow: none;
         }
     }
+
+    &__template {
+        pointer-events: none;
+    }
 }

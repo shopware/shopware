@@ -287,4 +287,32 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const alertElement = wrapper.findAll('.sw-flow-detail-flow__warning-box');
         expect(alertElement.exists()).toBeTruthy();
     });
+
+    it('should not able to edit flow template', async () => {
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                eventName: 'checkout.customer',
+                name: 'Flow 1',
+                sequences: [{
+                    id: '1',
+                    actionName: 'action.something.name',
+                    ruleId: null,
+                    parentId: null,
+                    position: 1,
+                    displayGroup: 1,
+                    config: {}
+                }]
+            });
+
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ]);
+
+        await wrapper.setProps({
+            isTemplate: true,
+        });
+
+        const alertElement = wrapper.findAll('.sw-flow-detail-flow-template');
+        expect(alertElement.exists()).toBeTruthy();
+    });
 });

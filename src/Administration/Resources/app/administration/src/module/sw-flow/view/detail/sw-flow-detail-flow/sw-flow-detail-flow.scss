@@ -147,6 +147,10 @@
     }
 }
 
+.sw-flow-detail-flow-template {
+    pointer-events: none;
+}
+
 // style for transition group.
 .list-enter-active,
 .list-leave-active {

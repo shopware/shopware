@@ -250,3 +250,6 @@ shopware:
             country_state_route: []
             salutation_route: []
             sitemap_route: []
+
+    twig:
+        allowed_php_functions: []

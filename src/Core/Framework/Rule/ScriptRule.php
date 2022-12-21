@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
 use Shopware\Core\Framework\Script\Debugging\Debug;
@@ -24,8 +25,14 @@ class ScriptRule extends Rule
 {
     protected string $script = '';
 
+    /**
+     * @var array<mixed>
+     */
     protected array $constraints = [];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $values = [];
 
     protected ?\DateTimeInterface $lastModified = null;
@@ -79,6 +86,8 @@ class ScriptRule extends Rule
             $twig->addExtension(new DebugExtension());
         }
 
+        $twig->addExtension(new SecurityExtension([]));
+
         $hook = new AppScriptConditionHook($scope->getContext());
 
         try {
@@ -88,11 +97,17 @@ class ScriptRule extends Rule
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
+    /**
+     * @param array<mixed> $constraints
+     */
     public function setConstraints(array $constraints): void
     {
         $this->constraints = $constraints;
@@ -103,6 +118,9 @@ class ScriptRule extends Rule
         return 'scriptRule';
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {

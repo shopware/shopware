@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Script\Execution;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
 use Shopware\Core\Framework\Script\Debugging\Debug;
@@ -161,6 +162,7 @@ class ScriptExecutor
 
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension($this->translationExtension);
+        $twig->addExtension(new SecurityExtension([]));
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());

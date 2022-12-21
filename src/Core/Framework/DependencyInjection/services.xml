@@ -380,6 +380,11 @@ base-uri 'self';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\SecurityExtension">
+            <argument>%shopware.twig.allowed_php_functions%</argument>
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
             <argument>%kernel.cache_dir%%</argument>

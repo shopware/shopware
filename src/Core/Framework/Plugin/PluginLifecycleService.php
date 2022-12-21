@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -57,52 +56,19 @@ class PluginLifecycleService
 {
     public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
-    private EntityRepository $pluginRepo;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private KernelPluginCollection $pluginCollection;
-
-    private ContainerInterface $container;
-
-    private MigrationCollectionLoader $migrationLoader;
-
-    private AssetService $assetInstaller;
-
-    private CommandExecutor $executor;
-
-    private RequirementsValidator $requirementValidator;
-
-    private string $shopwareVersion;
-
-    private CacheItemPoolInterface $restartSignalCachePool;
-
-    private SystemConfigService $systemConfigService;
-
     public function __construct(
-        EntityRepository $pluginRepo,
-        EventDispatcherInterface $eventDispatcher,
-        KernelPluginCollection $pluginCollection,
-        ContainerInterface $container,
-        MigrationCollectionLoader $migrationLoader,
-        AssetService $assetInstaller,
-        CommandExecutor $executor,
-        RequirementsValidator $requirementValidator,
-        CacheItemPoolInterface $restartSignalCachePool,
-        string $shopwareVersion,
-        SystemConfigService $systemConfigService
+        private EntityRepository $pluginRepo,
+        private EventDispatcherInterface $eventDispatcher,
+        private KernelPluginCollection $pluginCollection,
+        private ContainerInterface $container,
+        private MigrationCollectionLoader $migrationLoader,
+        private AssetService $assetInstaller,
+        private CommandExecutor $executor,
+        private RequirementsValidator $requirementValidator,
+        private CacheItemPoolInterface $restartSignalCachePool,
+        private string $shopwareVersion,
+        private SystemConfigService $systemConfigService
     ) {
-        $this->pluginRepo = $pluginRepo;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->pluginCollection = $pluginCollection;
-        $this->container = $container;
-        $this->migrationLoader = $migrationLoader;
-        $this->assetInstaller = $assetInstaller;
-        $this->executor = $executor;
-        $this->requirementValidator = $requirementValidator;
-        $this->systemConfigService = $systemConfigService;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     /**
@@ -125,7 +91,7 @@ class PluginLifecycleService
             return $installContext;
         }
 
-        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands()) {
             $pluginComposerName = $plugin->getComposerName();
             if ($pluginComposerName === null) {
                 throw new PluginComposerJsonInvalidException(
@@ -193,7 +159,7 @@ class PluginLifecycleService
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
-        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands()) {
             $pluginComposerName = $plugin->getComposerName();
             if ($pluginComposerName === null) {
                 throw new PluginComposerJsonInvalidException(
@@ -267,7 +233,7 @@ class PluginLifecycleService
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
 
-        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands()) {
             $pluginComposerName = $plugin->getComposerName();
             if ($pluginComposerName === null) {
                 throw new PluginComposerJsonInvalidException(

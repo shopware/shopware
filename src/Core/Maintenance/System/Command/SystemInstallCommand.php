@@ -135,6 +135,7 @@ class SystemInstallCommand extends Command
                     'command' => 'sales-channel:create:storefront',
                     '--name' => $input->getOption('shop-name') ?? 'Storefront',
                     '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
+                    '--isoCode' => $input->getOption('shop-locale') ?? 'en-GB',
                 ];
             }
 

@@ -17,7 +17,11 @@ export default function initializeTabs(): void {
         const router = Shopware.Application.view?.router;
 
         /* istanbul ignore next */
-        if (router && router.currentRoute.matched.length <= 0) {
+        if (
+            router &&
+            router.currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
+            router.currentRoute.matched.length <= 0
+        ) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
 
             void router.replace(router.resolve(router.currentRoute.fullPath).route as RawLocation);

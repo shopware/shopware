@@ -57,7 +57,7 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Returns all containers. Use this method if you're want to get initializers in your services.
+     * Returns all containers. Use this method if you want to get initializers in your services.
      */
     getContainer<T extends Bottle.IContainerChildren>(containerName: T): Bottle.IContainer[T] {
         if (typeof containerName === 'string' && this.$container.container[containerName]) {

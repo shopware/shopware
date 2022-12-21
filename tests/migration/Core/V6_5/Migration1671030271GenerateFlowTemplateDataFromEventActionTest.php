@@ -37,6 +37,9 @@ class Migration1671030271GenerateFlowTemplateDataFromEventActionTest extends Tes
         $this->connection->executeStatement('DELETE FROM `flow_template`');
 
         $migration = new Migration1671030271GenerateFlowTemplateDataFromEventAction();
+
+        // should work as expected if executed multiple times
+        $migration->update($this->connection);
         $migration->update($this->connection);
 
         $countFlowSequences = $this->connection->fetchOne('SELECT COUNT(*) FROM `flow_template`');

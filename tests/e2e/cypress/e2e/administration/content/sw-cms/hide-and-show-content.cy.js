@@ -1,3 +1,7 @@
+/**
+ * @package content
+ */
+
 describe('CMS: Show and hide content', () => {
     beforeEach(() => {
         cy.loginViaApi()

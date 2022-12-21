@@ -38,10 +38,14 @@
         "platform": {
             "php": "7.4.3"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": false,
+            "phpstan/extension-installer": false
+        }
     },
     "require-dev": {
         "phpunit/phpunit": "~9.5.17"
     },
-    "version": "6.4.18.0"
+    "version": "6.4.18.1"
 }

@@ -1,0 +1,19 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>Finish</h2>
+    </div>
+
+    <div class="card__body">
+        <p>
+            The recovery process has been completed.
+
+            The next step will remove the recovery files from the server and redirect to the Shopware Administration.
+        </p>
+    </div>
+
+    <form method="post" class="card__footer flex-container">
+        <button type="submit" class="btn btn-primary flex-item flex-right">Open Administration</button>
+    </form>
+{% endblock %}

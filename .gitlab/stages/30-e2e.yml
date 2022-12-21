@@ -192,11 +192,8 @@ E2E install NL:
             --headless
     after_script:
         - !reference [ .scripts, handle-failed-merge-train, after_script ]
-        - mkdir -p $CI_PROJECT_DIR/var/log/e2e $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/mochareports || true
         - composer run npm:e2e -- run combine-reports
         - composer run npm:e2e -- run generate-report
-        - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
-        - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/mochareports/ var/log/e2e/ || true
         - !reference [ .upload-junit-xml, after_script ]
     artifacts:
         when: always

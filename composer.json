@@ -343,6 +343,25 @@
             "@init:e2e",
             "@e2e:prepare"
         ],
+        "e2e:recovery:open": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
+            "@putenv CYPRESS_SKIP_INIT=1",
+            "@putenv CYPRESS_baseUrl=http://localhost:8050",
+            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.9.9",
+            "symfony local:server:start --dir=shop --port=8050 -d",
+            "@e2e:recovery:cypress open"
+        ],
+        "e2e:recovery:setup": [
+            "rm -rf shop",
+            "unzip -q -o -d shop install.zip",
+            "cd shop; bin/console system:setup --database-url $DATABASE_URL --app-url http://localhost:8050 -f -n",
+            "cd shop; APP_URL=http://localhost:8050 bin/console system:install --basic-setup --create-database --drop-database --force -n",
+            "cd shop; bin/console system:config:set core.frw.completedAt '2019-10-07T10:46:23+00:00'",
+            "cd shop; composer config repositories.0 '{\"type\": \"path\", \"url\": \"../src/*\"}'",
+            "composer -d src/WebRecovery/ build-phar",
+            "mv src/WebRecovery/shopware-recovery.phar shop/public/shopware-recovery.phar.php"
+        ],
         "ecs": "ecs check src tests",
         "ecs-fix": "ecs check --fix src tests",
         "eslint": [
@@ -427,7 +446,6 @@
         ],
         "setup": [
             "@composer install -o",
-            "@composer install -d src/Recovery",
             "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
@@ -487,7 +505,6 @@
         "psr-4": {
             "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
             "Shopware\\Administration\\Test\\": "src/Administration/Test",
-            "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
             "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
             "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
             "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",

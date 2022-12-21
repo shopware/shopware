@@ -48,9 +48,6 @@ class AssetInstallCommand extends Command
         $io->writeln('Copying files for bundle: Installer');
         $this->assetService->copyAssets(new Installer());
 
-        $io->writeln('Copying files for bundle: Recovery');
-        $this->assetService->copyRecoveryAssets();
-
         $publicDir = $this->kernel->getProjectDir() . '/public/';
 
         if (!file_exists($publicDir . '/.htaccess') && file_exists($publicDir . '/.htaccess.dist')) {

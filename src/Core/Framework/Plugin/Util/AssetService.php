@@ -100,27 +100,6 @@ class AssetService
         }
     }
 
-    public function copyRecoveryAssets(): void
-    {
-        $targetDirectory = 'recovery';
-
-        // @codeCoverageIgnoreStart
-        if (is_dir($this->coreDir . '/../Recovery/Resources/public')) {
-            // platform installation
-            $originDir = $this->coreDir . '/../Recovery/Resources/public';
-        } elseif (is_dir($this->coreDir . '/../recovery/Resources/public')) {
-            // composer installation over many repos
-            $originDir = $this->coreDir . '/../recovery/Resources/public';
-        } else {
-            return;
-        }
-        // @codeCoverageIgnoreEnd
-
-        $this->filesystem->deleteDirectory($targetDirectory);
-
-        $this->copy($originDir, $targetDirectory);
-    }
-
     public function removeAssets(string $name): void
     {
         $targetDirectory = $this->getTargetDirectory($name);

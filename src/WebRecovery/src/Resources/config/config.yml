@@ -1,0 +1,14 @@
+imports:
+  - { resource: services.yml }
+
+framework:
+  secret: ''
+  default_locale: en
+  session:
+    name: 'shopware-recovery'
+    cookie_secure: auto
+    cookie_samesite: strict
+
+twig:
+  cache: false
+  default_path: '%kernel.project_dir%/Resources/views'

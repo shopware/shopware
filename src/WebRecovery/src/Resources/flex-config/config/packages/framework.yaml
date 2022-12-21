@@ -1,0 +1,5 @@
+framework:
+    messenger:
+        transports:
+            default:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"

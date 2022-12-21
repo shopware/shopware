@@ -1,0 +1,30 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>Updating Shopware to {{ latestShopwareVersion }}</h2>
+    </div>
+
+    <div class="card__body">
+        <p>
+            Found a Shopware Installation at: {{ shopwarePath }}<br>
+            Current Version: {{ currentShopwareVersion }}<br>
+            Latest Version: {{ latestShopwareVersion }}
+        </p>
+
+        <div class="alert alert-info">Make sure you have created a Backup before updating</div>
+
+        <div class="card mt-4" id="update-log-card" style="display: none">
+            <div class="card-body">
+                <h5 class="card-title">Log</h5>
+
+                <pre class="form-control" id="update-log-output" style="height: 60vh"></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a class="btn flex-item flex-left" href="{{ url('configure') }}">Back</a>
+        <button type="submit" class="btn btn-primary flex-item flex-right" id="update-start">Update Shopware</button>
+    </div>
+{% endblock %}

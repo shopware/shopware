@@ -13,5 +13,3 @@ Symfony security check:
         - sha256sum --check local-php-security-checker.sha256
         - chmod +x local-php-security-checker
         - ./local-php-security-checker
-        - composer install --no-interaction --no-scripts -d src/Recovery
-        - ./local-php-security-checker --path=src/Recovery

@@ -50,21 +50,11 @@ shopware:
         major: true
         description: "Move storefront script tags to head with defer"
         # issue: NEXT-15917
-      - name: FEATURE_NEXT_16992
-        default: false
-        major: true
-        description: "Remove page_product_detail_not_available and buy_widget_not_available block"
-        # issue: NEXT-16992
       - name: FEATURE_NEXT_17275
         default: false
         major: true
         description: "StorefrontRenderEvent only gets original view"
         # issue: NEXT-17275
-      - name: FEATURE_NEXT_16236
-        default: false
-        major: true
-        description: "Change customer creation behaviour on checkout/register page to opt in customer account."
-        # issue: NEXT-16236
       - name: FEATURE_NEXT_19048
         default: false
         major: true
@@ -75,8 +65,3 @@ shopware:
         major: true
         description: "Move admin dashboard statistics into separate component"
         # issue: NEXT-18187
-      - name: FEATURE_NEXT_22900
-        default: false
-        major: true
-        description: "Admin search configuration is used in Elasticsearch"
-        # issue: NEXT-22900

@@ -18,19 +18,6 @@ interface ShopwareExtensionsState {
         data: Extension[]
     }
     userInfo: UserInfo|null,
-    // @deprecated tag:v6.5.0 - will be removed. Check existence of userInfo instead
-    shopwareId: string|null,
-    // @deprecated tag:v6.5.0 - will be removed. Check existence of userInfo instead
-    loginStatus: boolean
-    // @deprecated tag:v6.5.0 - will be removed
-    licensedExtensions: {
-        loading: boolean,
-        data: $TSFixMe
-    }
-    // @deprecated tag:v6.5.0 - will be removed
-    plugins: $TSFixMe,
-    // @deprecated tag:v6.5.0 - will be removed
-    totalPlugins: number,
 }
 
 type SearchValue<T, K extends keyof T> = {
@@ -96,22 +83,6 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
             state.myExtensions.loading = false;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        loadLicensedExtensions(state) {
-            state.licensedExtensions.loading = true;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        licensedExtensions(state, licensedExtensions) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            state.licensedExtensions.data = licensedExtensions;
-            state.licensedExtensions.loading = false;
-        },
-
         categoriesLanguageId(state, languageId: string) {
             state.categoriesLanguageId = languageId;
         },
@@ -120,40 +91,17 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
             state.userInfo = userInfo;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        storeShopwareId(state, shopwareId: string|null) {
-            state.shopwareId = shopwareId;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        setLoginStatus(state, loginStatus: boolean) {
-            state.loginStatus = loginStatus;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed
-         */
-        commitPlugins(state, searchResult) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            state.plugins = searchResult;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-            state.totalPlugins = searchResult.total;
-        },
-
         pluginErrorsMapped() { /* nth */ },
     },
 };
 
 /**
  * @package merchant-services
- * @deprecated tag:v6.5.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default shopwareExtensionsStore;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ */
 export type { ShopwareExtensionsState };

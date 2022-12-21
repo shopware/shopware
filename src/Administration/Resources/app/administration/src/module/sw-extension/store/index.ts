@@ -3,9 +3,8 @@ import extensionStore from './extensions.store';
 
 /**
  * @package merchant-services
- * @deprecated tag:v6.5.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState(Shopware: ShopwareClass): void {
     Shopware.State.registerModule('shopwareExtensions', extensionStore);
 

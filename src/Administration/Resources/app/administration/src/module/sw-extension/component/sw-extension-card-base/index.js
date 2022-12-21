@@ -33,8 +33,6 @@ export default {
             showPrivacyModal: false,
             permissionModalActionLabel: null,
             openLink: null,
-            // @deprecated tag:v6.5.0 - will be removed use openLinkExists instead
-            extensionCanBeOpened: false,
             showConsentAffirmationModal: false,
             consentAffirmationDeltas: null,
         };
@@ -107,16 +105,6 @@ export default {
 
         isInstalled() {
             return this.extension.installedAt !== null;
-        },
-
-        /* @deprecated tag:v6.5.0 - use data "extensionCanBeOpened" */
-        canBeOpened() {
-            return this.extensionCanBeOpened;
-        },
-
-        /* @deprecated tag:v6.5.0 - use data "openLink" */
-        openLinkInformation() {
-            return this.link;
         },
 
         privacyPolicyLink() {

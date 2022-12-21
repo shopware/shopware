@@ -47,7 +47,7 @@ describe('shopware-extension.service', () => {
         });
     });
 
-    describe('it delegates lifecycle mehthods', () => {
+    describe('it delegates lifecycle methods', () => {
         const mockedExtensionStoreActionService = new ExtensionStoreActionService(httpClient, Shopware.Service('loginService'));
         mockedExtensionStoreActionService.getMyExtensions.mockImplementation(() => {
             return ['new extensions'];
@@ -127,18 +127,16 @@ describe('shopware-extension.service', () => {
 
         beforeEach(() => {
             Shopware.State.commit('shopwareExtensions/setUserInfo', true);
-            Shopware.State.commit('shopwareExtensions/setLoginStatus', { email: 'old-user@shopware.com' });
         });
 
         it.each([
-            [true, { userInfo: { email: 'user@shopware.com' } }],
-            [false, { userInfo: null }],
-        ])('sets login status depending on checkLogin response', async (loginStatus, loginResponse) => {
+            [{ userInfo: { email: 'user@shopware.com' } }],
+            [{ userInfo: null }],
+        ])('sets login status depending on checkLogin response', async (loginResponse) => {
             checkLoginSpy.mockImplementationOnce(() => loginResponse);
 
             await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.State.get('shopwareExtensions').loginStatus).toBe(loginStatus);
             expect(Shopware.State.get('shopwareExtensions').userInfo).toBe(loginResponse.userInfo);
         });
 
@@ -273,75 +271,6 @@ describe('shopware-extension.service', () => {
             ['test', 3],
         ])('maps variant %s to position %d', (type, expectedRecommendation) => {
             expect(shopwareExtensionService.mapVariantToRecommendation({ type })).toBe(expectedRecommendation);
-        });
-    });
-
-    describe('canBeOpened', () => {
-        it('cant always open themes', async () => {
-            const responses = global.repositoryFactoryMock.responses;
-            responses.addResponse({
-                method: 'Post',
-                url: '/search-ids/theme',
-                status: 200,
-                response: {
-                    data: ['random-id']
-                }
-            });
-
-            expect(await shopwareExtensionService.canBeOpened({
-                isTheme: true
-            })).toBe(true);
-        });
-
-        it('cant open theme when it has not been activated once', async () => {
-            const responses = global.repositoryFactoryMock.responses;
-            responses.addResponse({
-                method: 'Post',
-                url: '/search-ids/theme',
-                status: 200,
-                response: {
-                    data: []
-                }
-            });
-
-            const canBeOpened = await shopwareExtensionService.canBeOpened({
-                isTheme: true
-            });
-
-            expect(canBeOpened).toBe(false);
-        });
-
-        it('can not open plugins right now', async () => {
-            expect(await shopwareExtensionService.canBeOpened({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN
-            })).toBe(false);
-        });
-
-        it('can open apps with main module', async () => {
-            Shopware.State.commit(
-                'shopwareApps/setApps',
-                appModulesFixtures
-            );
-
-            expect(await shopwareExtensionService.canBeOpened({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'testAppA'
-            })).toBe(true);
-        });
-
-        it('cant not open apps without main modules', async () => {
-            Shopware.State.commit(
-                'shopwareApps/setApps',
-                appModulesFixtures
-            );
-
-            expect(await shopwareExtensionService.canBeOpened({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'testAppB'
-            })).toBe(false);
         });
     });
 

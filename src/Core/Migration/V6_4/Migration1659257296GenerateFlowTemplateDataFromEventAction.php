@@ -23,6 +23,8 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
 
     public function update(Connection $connection): void
     {
+        $existingFlowTemplates = $this->getExistingFlowTemplates($connection);
+
         $mailTemplates = $this->getDefaultMailTemplates($connection);
         $eventActions = $this->getDefaultEventActions();
 
@@ -30,9 +32,15 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         foreach ($eventActions as $eventAction) {
+            $templateName = $this->getEventFullNameByEventName($eventAction['event_name']);
+
+            if (\in_array($templateName, $existingFlowTemplates, true)) {
+                continue;
+            }
+
             $flowTemplate = [
                 'id' => Uuid::randomBytes(),
-                'name' => $this->getEventFullNameByEventName($eventAction['event_name']),
+                'name' => $templateName,
                 'created_at' => $createdAt,
             ];
 
@@ -305,5 +313,16 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
         }
 
         return $eventName;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getExistingFlowTemplates(Connection $connection): array
+    {
+        /** @var string[] $flowTemplates */
+        $flowTemplates = $connection->fetchFirstColumn('SELECT DISTINCT name FROM flow_template');
+
+        return array_unique(array_filter($flowTemplates));
     }
 }

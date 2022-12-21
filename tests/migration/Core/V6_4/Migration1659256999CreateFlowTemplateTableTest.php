@@ -33,6 +33,9 @@ class Migration1659256999CreateFlowTemplateTableTest extends TestCase
     public function testTablesArePresent(): void
     {
         $migration = new Migration1659256999CreateFlowTemplateTable();
+
+        // should work as expected if executed multiple times
+        $migration->update($this->connection);
         $migration->update($this->connection);
 
         $flowTemplateColumns = array_column($this->connection->fetchAllAssociative('SHOW COLUMNS FROM flow_template'), 'Field');

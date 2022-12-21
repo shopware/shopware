@@ -32,6 +32,9 @@ class Migration1659257296GenerateFlowTemplateDataFromEventActionTest extends Tes
     public function testGenerateDefaultFlowTemplates(): void
     {
         $migration = new Migration1659256999CreateFlowTemplateTable();
+
+        // should work as expected if executed multiple times
+        $migration->update($this->connection);
         $migration->update($this->connection);
 
         $this->connection->executeStatement('DELETE FROM `flow_template`');

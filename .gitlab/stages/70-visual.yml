@@ -8,6 +8,7 @@ Percy:
             alias: database
     variables:
         PERCY_ENABLE: $CYPRESS_PERCY_USAGE
+        PERCY_TARGET_BRANCH: '6.4'
         CYPRESS_localUsage: 'true'
         CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
         CYPRESS_baseUrl: "http://localhost:8000"
@@ -23,11 +24,12 @@ Percy:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:
+        - if [ ! -z $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ]; then export PERCY_TARGET_BRANCH="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; fi
         - composer run init:e2e:admin
         - composer run e2e:prepare
         - composer run e2e:admin:percy -- exec -- cypress run
             --browser chrome
-            --spec "cypress/**/visual.spec.js,cypress/**/percy-storefront-validation/*"
+            --spec "cypress/**/visual.*,cypress/**/percy-storefront-validation/*"
             --headless
     after_script:
         - mkdir $CI_PROJECT_DIR/var/log/e2e

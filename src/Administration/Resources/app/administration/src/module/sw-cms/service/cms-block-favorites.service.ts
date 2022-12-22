@@ -35,6 +35,7 @@ class CmsBlockFavoritesService extends UserConfigClass {
     protected async readUserConfig(): Promise<void> {
         this.userConfig = await this.getUserConfig();
         if (Array.isArray(this.userConfig.value)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             this.state.favorites = this.userConfig.value;
         }
     }

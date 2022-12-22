@@ -1,11 +1,10 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import template from './sw-order-create-general.html.twig';
 import type {
     CalculatedTax,
     CartDelivery,
     LineItem,
     Cart,
-    Currency,
-    Customer,
     PromotionCodeTag,
     SalesChannelContext,
 } from '../../order.types';
@@ -35,7 +34,7 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        customer(): Customer | null {
+        customer(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
@@ -43,7 +42,7 @@ export default Component.wrapComponentConfig({
             return State.get('swOrder').cart;
         },
 
-        currency(): Currency {
+        currency(): Entity<'currency'> {
             return State.get('swOrder').context.currency;
         },
 
@@ -77,7 +76,13 @@ export default Component.wrapComponentConfig({
             const decorateCalcTaxes = calcTaxes.map((item: CalculatedTax) => {
                 return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
                     taxRate: item.taxRate,
-                    tax: format.currency(item.tax, this.currency.shortName, this.currency.totalRounding.decimals),
+                    tax: format.currency(
+                        item.tax,
+                        this.currency.shortName,
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
+                        (this.currency.totalRounding as any)?.decimals,
+                    ),
                 });
             });
 

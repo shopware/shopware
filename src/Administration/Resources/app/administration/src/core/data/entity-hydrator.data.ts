@@ -42,7 +42,7 @@ type data = {
 }
 
 type field = {
-    entity: string,
+    entity: keyof EntitySchema.Entities,
 }
 
 type schema = {
@@ -60,24 +60,26 @@ type toOneData = {
     }
 }
 
+type entityNames = keyof EntitySchema.Entities;
+
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default class EntityHydrator {
-    cache: { [key: string]: Entity } = {};
+    cache: { [key: string]: Entity<entityNames> } = {};
 
     /**
      * Hydrates the repository response to a SearchResult class with all entities and aggregations
      */
-    hydrateSearchResult(
+    hydrateSearchResult<EntityName extends keyof EntitySchema.Entities>(
         route: string,
-        entityName: string,
+        entityName: EntityName,
         response: AxiosResponse<data>,
         context: apiContext,
         criteria: Criteria,
-    ): EntityCollection {
+    ): EntityCollection<EntityName> {
         this.cache = {};
-        const entities = [] as Entity[];
+        const entities = [] as Entity<EntityName>[];
 
         response.data.data.forEach((item) => {
             const entity = this.hydrateEntity(entityName, item, response.data, context, criteria);
@@ -87,7 +89,7 @@ export default class EntityHydrator {
             }
         });
 
-        return new EntityCollection(
+        return new EntityCollection<EntityName>(
             route,
             entityName,
             context,
@@ -103,14 +105,14 @@ export default class EntityHydrator {
      */
     hydrate(
         route: string,
-        entityName: string,
+        entityName: entityNames,
         data: data,
         context: apiContext,
         criteria: Criteria,
-    ): EntityCollection {
+    ): EntityCollection<entityNames> {
         this.cache = {};
 
-        const collection = new EntityCollection(route, entityName, context, criteria);
+        const collection = new EntityCollection<entityNames>(route, entityName, context, criteria);
 
         data.data.forEach((row) => {
             const entity = this.hydrateEntity(entityName, row, data, context, criteria);
@@ -126,13 +128,13 @@ export default class EntityHydrator {
     /**
      * @private
      */
-    hydrateEntity(
-        entityName: string,
+    hydrateEntity<EntityName extends keyof EntitySchema.Entities>(
+        entityName: EntityName,
         row: row,
         response: data,
         context: apiContext,
         criteria: Criteria,
-    ): Entity|null {
+    ): Entity<EntityName>|null {
         if (!row) {
             return null;
         }
@@ -141,7 +143,7 @@ export default class EntityHydrator {
         const cacheKey = `${entityName}-${id}`;
 
         if (this.cache[cacheKey]) {
-            return this.cache[cacheKey];
+            return this.cache[cacheKey] as unknown as Entity<EntityName>;
         }
 
         const schema = Shopware.EntityDefinition.get(entityName);
@@ -187,7 +189,7 @@ export default class EntityHydrator {
                 data[property] = this.hydrateExtensions(id, value, schema, response, context, criteria);
             }
 
-            const field = (schema.properties as {[key: string]: unknown})[property] as { entity: string};
+            const field = (schema.properties as {[key: string]: unknown})[property] as field;
 
             if (!field) {
                 return true;
@@ -211,9 +213,9 @@ export default class EntityHydrator {
             return true;
         });
 
-        const e = new EntityClass(id, entityName, data);
+        const e = new EntityClass<EntityName>(id, entityName, data as unknown as EntitySchema.Entities[EntityName]);
 
-        this.cache[cacheKey] = e;
+        this.cache[cacheKey] = e as unknown as Entity<entityNames>;
 
         return e;
     }
@@ -227,12 +229,18 @@ export default class EntityHydrator {
         value: unknown,
         response: data,
         context: apiContext,
-    ): Entity|null {
+    ): Entity<entityNames>|null {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
 
         const nestedRaw = this.getIncluded((value as toOneData).data.type, (value as toOneData).data.id, response);
 
-        return this.hydrateEntity((value as toOneData).data.type, nestedRaw, response, context, associationCriteria);
+        return this.hydrateEntity(
+            (value as toOneData).data.type as entityNames,
+            nestedRaw,
+            response,
+            context,
+            associationCriteria,
+        );
     }
 
     getAssociationCriteria(criteria: Criteria, property: string): Criteria {
@@ -251,10 +259,10 @@ export default class EntityHydrator {
         criteria: Criteria,
         property: string,
         value: data,
-        entityName: string,
+        entityName: keyof EntitySchema.Entities,
         context: apiContext,
         response: data,
-    ): EntityCollection {
+    ): EntityCollection<entityNames> {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
         const apiResourcePath = context?.apiResourcePath as string ?? '';
 
@@ -264,7 +272,7 @@ export default class EntityHydrator {
             apiResourcePath.length,
         );
 
-        const collection = new EntityCollection(url, entityName, context, associationCriteria);
+        const collection = new EntityCollection<entityNames>(url, entityName, context, associationCriteria);
 
         if (value.data === null) {
             return collection;
@@ -273,7 +281,7 @@ export default class EntityHydrator {
         value.data.forEach((link) => {
             const nestedRaw = this.getIncluded(link.type, link.id, response);
             const nestedEntity = this.hydrateEntity(
-                link.type,
+                link.type as entityNames,
                 nestedRaw,
                 response,
                 context,

@@ -39,14 +39,18 @@ export default class RepositoryFactory {
      * Creates a repository for the provided entity.
      * The route parameter allows to configure a custom route for the entity - used for association loading.
      */
-    create(entityName: string, route = '', options = {}): Repository {
+    create<EntityName extends keyof EntitySchema.Entities>(
+        entityName: EntityName,
+        route = '',
+        options = {},
+    ): Repository<EntityName> {
         if (!route) {
             route = `/${entityName.replace(/_/g, '-')}`;
         }
 
         const definition = Shopware.EntityDefinition.get(entityName);
 
-        return new Repository(
+        return new Repository<EntityName>(
             route,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             definition.entity,

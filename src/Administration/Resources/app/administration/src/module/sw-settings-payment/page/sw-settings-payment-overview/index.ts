@@ -1,7 +1,7 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import type EntityCollection from 'src/core/data/entity-collection.data';
+import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 import type { MetaInfo } from 'vue-meta';
 import type { PaymentOverviewCard } from '../../state/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
@@ -11,23 +11,14 @@ import './sw-settings-payment-overview.scss';
  * @package checkout
  */
 
-interface PaymentMethodEntity extends Entity {
-    active: boolean;
-    position: number;
-    formattedHandlerIdentifier: string;
-    translated: {
-        name: string;
-    }
-}
-
 interface PaymentMethodCard {
     id: string;
     hasCustomCard: boolean;
     component?: string;
     positionId: string;
     position: number;
-    paymentMethod?: PaymentMethodEntity;
-    paymentMethods?: Array<PaymentMethodEntity>;
+    paymentMethod?: Entity<'payment_method'>;
+    paymentMethods?: EntityCollection<'payment_method'>;
 }
 
 const { Mixin } = Shopware;
@@ -47,7 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
     data(): {
         isLoading: boolean,
         showSortingModal: boolean,
-        paymentMethods: Array<PaymentMethodEntity>,
+        paymentMethods: EntityCollection<'payment_method'>|[],
         } {
         return {
             paymentMethods: [],
@@ -68,7 +59,7 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.State.get('paymentOverviewCardState').cards ?? [];
         },
 
-        paymentMethodRepository(): Repository {
+        paymentMethodRepository(): Repository<'payment_method'> {
             return this.repositoryFactory.create('payment_method');
         },
 
@@ -95,6 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.customCards.forEach((customCard: PaymentOverviewCard) => {
                 const customPaymentMethods = paymentMethods
+                    // @ts-expect-error - can be undefined
                     .filter(pm => customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
 
                 if (customPaymentMethods.length === 0) {
@@ -105,12 +97,15 @@ export default Shopware.Component.wrapComponentConfig({
                     id: customPaymentMethods[0].id,
                     hasCustomCard: true,
                     component: customCard.component,
+                    // @ts-expect-error - can be undefined
                     position: Math.min(...customPaymentMethods.map(pm => pm.position)),
                     positionId: customCard.positionId,
                     paymentMethods: customPaymentMethods,
                 });
 
+                // @ts-expect-error - can be undefined
                 paymentMethods = paymentMethods
+                    // @ts-expect-error - can be undefined
                     .filter(pm => !customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
             });
 
@@ -140,8 +135,8 @@ export default Shopware.Component.wrapComponentConfig({
         loadPaymentMethods(): void {
             this.isLoading = true;
 
-            this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items: EntityCollection) => {
-                this.paymentMethods = items as unknown as Array<PaymentMethodEntity>;
+            this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
+                this.paymentMethods = items;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -152,16 +147,26 @@ export default Shopware.Component.wrapComponentConfig({
             this.loadPaymentMethods();
         },
 
-        togglePaymentMethodActive(paymentMethod: PaymentMethodEntity): void {
+        togglePaymentMethodActive(paymentMethod: Entity<'payment_method'>): void {
             const paymentMethodEntity = this.paymentMethods
-                .find((pm: PaymentMethodEntity) => pm.id === paymentMethod.id) as PaymentMethodEntity;
+                .find((pm) => pm.id === paymentMethod.id);
+
+            if (!paymentMethodEntity) {
+                return;
+            }
+
             paymentMethodEntity.active = paymentMethod.active;
 
             this.paymentMethodRepository.save(paymentMethodEntity).then(() => {
                 this.loadPaymentMethods();
-                this.showActivationSuccessNotification(paymentMethodEntity.translated.name, paymentMethodEntity.active);
+                this.showActivationSuccessNotification(
+                    paymentMethodEntity.translated?.name ?? '',
+                    // @ts-expect-error - can be undefined
+                    paymentMethodEntity.active,
+                );
             }).catch(() => {
-                this.showActivationErrorNotification(paymentMethodEntity.translated.name, paymentMethodEntity.active);
+                // @ts-expect-error - can be undefined
+                this.showActivationErrorNotification(paymentMethodEntity.translated?.name ?? '', paymentMethodEntity.active);
                 this.$nextTick(() => {
                     paymentMethodEntity.active = !paymentMethodEntity.active;
                 });

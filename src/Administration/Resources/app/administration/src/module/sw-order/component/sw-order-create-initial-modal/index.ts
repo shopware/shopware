@@ -1,10 +1,9 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
 import type {
-    Customer,
     Cart,
-    Currency,
     LineItem,
     SalesChannelContext,
     ContextSwitchParameters,
@@ -65,7 +64,7 @@ export default Component.wrapComponentConfig({
             return State.get('swOrder').context;
         },
 
-        currency(): Currency {
+        currency(): Entity<'currency'> {
             return this.salesChannelContext.currency;
         },
 
@@ -74,7 +73,7 @@ export default Component.wrapComponentConfig({
         },
 
 
-        customer(): Customer|null {
+        customer(): Entity<'customer'>|null {
             return State.get('swOrder').customer;
         },
 
@@ -106,7 +105,13 @@ export default Component.wrapComponentConfig({
                 languageId: value.context.languageIdChain[0],
                 shippingMethodId: value.shippingMethod.id,
                 paymentMethodId: value.paymentMethod.id,
+                // @ts-expect-error - this needs to be fixed, activeBillingAddress is not defined in the EntityDefinition
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 billingAddressId: value.customer?.activeBillingAddress?.id ?? '',
+                // @ts-expect-error - this needs to be fixed, activeShippingAddress is not defined in the EntityDefinition
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 shippingAddressId: value.customer?.activeShippingAddress?.id ?? '',
             };
         },

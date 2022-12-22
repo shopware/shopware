@@ -1,3 +1,4 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type { Module } from 'vuex';
 import type { AxiosResponse } from 'axios';
 import type {
@@ -5,14 +6,9 @@ import type {
     Cart,
     CartError,
     ContextSwitchParameters,
-    Currency,
-    Customer,
     LineItem,
-    PaymentMethod,
     PromotionCodeTag,
-    SalesChannel,
     SalesChannelContext,
-    ShippingMethod,
 } from '../order.types';
 
 /**
@@ -40,9 +36,9 @@ interface SwOrderState {
     cart: Cart;
     disabledAutoPromotion: boolean,
     promotionCodes: PromotionCodeTag[],
-    defaultSalesChannel: SalesChannel | null,
+    defaultSalesChannel: Entity<'sales_channel'> | null,
     context: SalesChannelContext,
-    customer: Customer | null,
+    customer: Entity<'customer'> | null,
 }
 
 const SwOrderStore: Module<SwOrderState, VuexRootState> = {
@@ -66,22 +62,22 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
                 translated: {
                     distinguishableName: '',
                 },
-            } as PaymentMethod,
+            } as Entity<'payment_method'>,
             shippingMethod: {
                 translated: {
                     name: '',
                 },
-            } as ShippingMethod,
+            } as Entity<'shipping_method'>,
             currency: {
                 shortName: 'EUR',
                 symbol: '€',
                 totalRounding: {
                     decimals: 2,
                 },
-            } as Currency,
+            } as Entity<'currency'>,
             salesChannel: {
                 id: '',
-            } as SalesChannel,
+            } as Entity<'sales_channel'>,
             context: {
                 currencyId: '',
                 languageIdChain: [],
@@ -92,12 +88,12 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
     }),
 
     mutations: {
-        setCustomer(state: SwOrderState, customer: Customer) {
+        setCustomer(state: SwOrderState, customer: Entity<'customer'>) {
             state.context.customer = customer;
             state.customer = customer;
         },
 
-        setDefaultSalesChannel(state: SwOrderState, salesChannel: SalesChannel) {
+        setDefaultSalesChannel(state: SwOrderState, salesChannel: Entity<'sales_channel'>) {
             state.defaultSalesChannel = salesChannel;
         },
 
@@ -115,7 +111,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
             state.cart.lineItems = lineItems;
         },
 
-        setCurrency(state: SwOrderState, currency: Currency) {
+        setCurrency(state: SwOrderState, currency: Entity<'currency'>) {
             state.context.currency = currency;
         },
 
@@ -163,7 +159,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
     },
 
     actions: {
-        selectExistingCustomer({ commit }, { customer }: { customer: Customer }) {
+        selectExistingCustomer({ commit }, { customer }: { customer: Entity<'customer'> }) {
             commit('setCustomer', customer);
             commit('setDefaultSalesChannel', { ...(customer?.salesChannel ?? null) });
         },

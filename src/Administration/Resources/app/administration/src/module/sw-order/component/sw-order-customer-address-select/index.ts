@@ -1,9 +1,9 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type { PropType } from 'vue';
 import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 import template from './sw-order-customer-address-select.html.twig';
 import './sw-order-customer-address-select.scss';
 import type CriteriaType from '../../../../core/data/criteria.data';
-import type { Customer, CustomerAddress } from '../../order.types';
 import type Repository from '../../../../core/data/repository.data';
 
 /**
@@ -27,7 +27,7 @@ export default Component.wrapComponentConfig({
 
     props: {
         customer: {
-            type: Object as PropType<Customer>,
+            type: Object as PropType<Entity<'customer'>>,
             required: true,
         },
 
@@ -55,7 +55,7 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        customerAddresses: Array<CustomerAddress>,
+        customerAddresses: EntityCollection<'customer_address'>|[],
         isLoading: boolean,
         addressSearchTerm: string,
         } {
@@ -84,10 +84,10 @@ export default Component.wrapComponentConfig({
             return this.value === this.sameAddressValue;
         },
 
-        addressRepository(): Repository {
+        addressRepository(): Repository<'customer_address'> {
             return this.repositoryFactory.create(
-                this.customer.addresses.entity,
-                this.customer.addresses.source,
+                (this.customer.addresses?.entity) ?? 'customer_address',
+                this.customer.addresses?.source,
             );
         },
 
@@ -114,7 +114,7 @@ export default Component.wrapComponentConfig({
             void this.getCustomerAddresses();
         },
 
-        getSelectionLabel(item: CustomerAddress): string {
+        getSelectionLabel(item: Entity<'customer_address'>): string {
             if (this.isSameAddress && this.sameAddressLabel) {
                 return this.sameAddressLabel;
             }
@@ -122,18 +122,28 @@ export default Component.wrapComponentConfig({
             return this.getCustomerAddress(item);
         },
 
-        getCustomerAddress(address: CustomerAddress): string {
+        getCustomerAddress(address: Entity<'customer_address'>): string {
             if (!address) return '';
 
             const result: Array<string> = [];
 
-            const properties = ['street', 'zipcode', 'city', 'countryState', 'country'] as Array<keyof CustomerAddress>;
+            const properties = [
+                'street',
+                'zipcode',
+                'city',
+                'countryState',
+                'country',
+            ] as const;
 
-            properties.forEach((property: keyof CustomerAddress) => {
-                if (!address[property]) return;
+            properties.forEach((property) => {
+                const adressProperty = address[property];
+
+                if (!adressProperty) {
+                    return;
+                }
 
                 if (property === 'countryState' || property === 'country') {
-                    const name = address[property]?.translated.name;
+                    const name = address[property]?.translated?.name;
 
                     if (name) {
                         result.push(name);
@@ -153,8 +163,8 @@ export default Component.wrapComponentConfig({
 
             // Get the latest addresses from customer's db
             return this.addressRepository.search(this.addressCriteria)
-                .then((addresses: EntityCollection): void => {
-                    this.customerAddresses = addresses as unknown as Array<CustomerAddress>;
+                .then((addresses: EntityCollection<'customer_address'>): void => {
+                    this.customerAddresses = addresses;
                 }).finally(() => {
                     this.isLoading = false;
                 });
@@ -168,6 +178,7 @@ export default Component.wrapComponentConfig({
             return this.addressRepository.search(this.addressCriteria)
                 .then((addresses) => {
                     this.customerAddresses.forEach((address) => {
+                        // @ts-expect-error - hidden does not exist on address entity
                         address.hidden = !addresses.has(address.id);
                     });
                 }).finally(() => {

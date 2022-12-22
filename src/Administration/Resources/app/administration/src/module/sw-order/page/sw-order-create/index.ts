@@ -1,5 +1,6 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type Repository from 'src/core/data/repository.data';
-import type { Cart, Customer, PaymentMethod, PromotionCodeTag } from '../../order.types';
+import type { Cart, PromotionCodeTag } from '../../order.types';
 import swOrderState from '../../state/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
@@ -44,7 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        customer(): Customer | null {
+        customer(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
@@ -64,7 +65,7 @@ export default Shopware.Component.wrapComponentConfig({
                 !this.invalidPromotionCodes.length) as boolean;
         },
 
-        paymentMethodRepository(): Repository {
+        paymentMethodRepository(): Repository<'payment_method'> {
             return this.repositoryFactory.create('payment_method');
         },
 
@@ -137,9 +138,8 @@ export default Shopware.Component.wrapComponentConfig({
                             this.orderTransaction.paymentMethodId,
                             Context.api,
                             new Criteria(1, 1),
-                            // @ts-expect-error
-                        ).then((paymentMethod: PaymentMethod | null) => {
-                            this.paymentMethodName = paymentMethod?.translated.distinguishableName ?? '';
+                        ).then((paymentMethod) => {
+                            this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
                         });
 
                         this.showRemindPaymentModal = true;

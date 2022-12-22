@@ -48,11 +48,11 @@ export default Component.wrapComponentConfig({
         },
 
         paymentMethodName(): string {
-            return this.context.paymentMethod.translated.distinguishableName;
+            return this.context.paymentMethod?.translated?.distinguishableName ?? '';
         },
 
         shippingMethodName(): string {
-            return this.context.shippingMethod.translated.name;
+            return this.context.shippingMethod.translated?.name ?? '';
         },
     },
 });

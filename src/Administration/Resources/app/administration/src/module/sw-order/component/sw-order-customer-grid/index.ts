@@ -1,14 +1,12 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import type RepositoryType from '../../../../core/data/repository.data';
 
 import template from './sw-order-customer-grid.html.twig';
 import './sw-order-customer-grid.scss';
 
-import type {
-    Customer,
-    Cart,
-} from '../../order.types';
+import type { Cart } from '../../order.types';
 
 /**
  * @package customer-order
@@ -36,11 +34,11 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        customers: Customer[]|null,
+        customers: EntityCollection<'customer'>|null,
         isLoading: boolean,
         isSwitchingCustomer: boolean,
         showNewCustomerModal: boolean,
-        customer: Customer|null,
+        customer: Entity<'customer'>|null,
         disableRouteParams: boolean,
         } {
         return {
@@ -54,11 +52,11 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        customerData(): Customer| null {
+        customerData(): Entity<'customer'>| null {
             return State.get('swOrder').customer;
         },
 
-        customerRepository(): RepositoryType {
+        customerRepository(): RepositoryType<'customer'> {
             return this.repositoryFactory.create('customer');
         },
 
@@ -154,8 +152,8 @@ export default Component.wrapComponentConfig({
         getList() {
             this.isLoading = true;
             return this.customerRepository.search(this.customerCriteria)
-                .then((customers: EntityCollectionType) => {
-                    this.customers = customers as unknown as Customer[];
+                .then((customers) => {
+                    this.customers = customers;
                     // @ts-expect-error
                     this.total = customers.total;
                 }).finally(() => {
@@ -167,11 +165,11 @@ export default Component.wrapComponentConfig({
             this.showNewCustomerModal = true;
         },
 
-        isChecked(item: Customer): boolean {
+        isChecked(item: Entity<'customer'>): boolean {
             return item.id === this.customer?.id;
         },
 
-        onCheckCustomer(item: Customer): void {
+        onCheckCustomer(item: Entity<'customer'>): void {
             this.customer = item;
             void this.handleSelectCustomer(item.id);
         },
@@ -181,7 +179,7 @@ export default Component.wrapComponentConfig({
             return State.dispatch('swOrder/createCart', { salesChannelId });
         },
 
-        setCustomer(customer: Customer): void {
+        setCustomer(customer: Entity<'customer'>|null): void {
             void State.dispatch('swOrder/selectExistingCustomer', { customer });
         },
 
@@ -190,11 +188,11 @@ export default Component.wrapComponentConfig({
 
             try {
                 const customer = await this.customerRepository
-                    .get(customerId, Context.api, this.customerCriterion) as Customer;
+                    .get(customerId, Context.api, this.customerCriterion);
 
                 if (!this.cart.token) {
                     // It is compulsory to create cart and get cart token first
-                    await this.createCart(customer.salesChannelId);
+                    await this.createCart(customer?.salesChannelId ?? '');
                 }
 
                 this.customer = customer;

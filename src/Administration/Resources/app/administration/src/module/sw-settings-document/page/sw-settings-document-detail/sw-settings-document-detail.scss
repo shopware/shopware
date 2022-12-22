@@ -35,4 +35,8 @@
             width: 100%;
         }
     }
+
+    .sw-field--checkbox .sw-field--checkbox__content {
+        align-items: start;
+    }
 }

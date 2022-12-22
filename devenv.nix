@@ -11,7 +11,7 @@
 
   languages.php.enable = true;
   languages.php.package = pkgs.php.buildEnv {
-    extensions = { all, enabled }: with all; enabled ++ [ redis blackfire ];
+    extensions = { all, enabled }: with all; enabled ++ [ amqp redis blackfire grpc ];
     extraConfig = ''
       memory_limit = 2G
       pdo_mysql.default_socket=''${MYSQL_UNIX_PORT}
@@ -65,10 +65,11 @@
 
   services.redis.enable = true;
   services.adminer.enable = true;
+  services.mailhog.enable = true;
 
-  #elasticsearch.enable = true;
-  #services.rabbitmq.enable = true;
-  #services.rabbitmq.managementPlugin.enable = true;
+  # services.elasticsearch.enable = true;
+  # services.rabbitmq.enable = true;
+  # services.rabbitmq.managementPlugin.enable = true;
 
   # Environment variables
 
@@ -76,4 +77,5 @@
   env.APP_SECRET = "devsecret";
   env.CYPRESS_baseUrl = "http://localhost:8000";
   env.DATABASE_URL = "mysql://root@localhost:3306/shopware";
+  env.MAILER_URL = "smtp://localhost:1025";
 }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
@@ -112,18 +111,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
     private function contextTokenRequired(Request $request): bool
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
-        }
-
-        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED)) {
-            return false;
-        }
-
-        /** @var bool $contextTokenRequiredAnnotation */
-        $contextTokenRequiredAnnotation = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED);
-
-        return $contextTokenRequiredAnnotation;
+        return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
     }
 
     private function validateLogin(Request $request, SalesChannelContext $context): void

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class SwagTestSkipRebuildSubscriber implements EventSubscriberInterface
 {

@@ -15573,41 +15573,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/TreeUpdaterTest.php
 
 		-
-			message: "#^Cannot call method getAddresses\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:casesToManyPaginated\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:casesToManyReadPaginatedInherited\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:testLoadToManyPaginated\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:testLoadToManyPaginated\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:testOneToManyReadingInherited\\(\\) has parameter \\$criteriaConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:testOneToManyReadingInherited\\(\\) has parameter \\$expectedMedia with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\TestData\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/GroupByTest.php
@@ -16123,13 +16088,6 @@ parameters:
 			path: src/Core/Framework/Test/Logging/Event/LogAwareTestFlowEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Logging\\\\ScheduledTask\\\\LogCleanupTaskHandlerTest\\:\\:runWithOptions\\(\\) has parameter \\$expectedMessages with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Logging/ScheduledTask/LogCleanupTaskHandlerTest.php
-
-
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/Api/MessageQueueEndpointTest.php
@@ -16158,16 +16116,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\MigrationSourceTest\\:\\:provideUnitTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Migration/MigrationSourceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCarts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
 
 		-
 			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$categoryRepository\\.$#"

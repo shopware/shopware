@@ -181,7 +181,7 @@ class FlowPayloadUpdaterTest extends TestCase
         $this->createTestData();
 
         /** @var FlowEntity $flowEntity */
-        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
+        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
 
         /** @var string $payload */
         $payload = $flowEntity->getPayload();

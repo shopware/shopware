@@ -2,6 +2,7 @@ import type { DiscountCampaign } from 'src/module/sw-extension/service/extension
 
 /**
  * @package merchant-services
+ * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareDiscountCampaignService {
@@ -44,6 +45,7 @@ export default class ShopwareDiscountCampaignService {
 
 /**
  * @package merchant-services
+ * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ShopwareDiscountCampaignService };

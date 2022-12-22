@@ -33,19 +33,6 @@ class MySQLFactory
             ],
         ];
 
-        if ($replicaUrl) {
-            $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
-            $parameters['primary'] = ['url' => $url];
-            $parameters['replica'] = [
-                ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']],
-            ];
-
-            $i = 0;
-            while ($replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_' . (++$i) . '_URL')) {
-                $parameters['replica'][] = ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']];
-            }
-        }
-
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
         }
@@ -60,6 +47,16 @@ class MySQLFactory
 
         if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
+
+        if ($replicaUrl) {
+            $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
+            $parameters['primary'] = ['url' => $url, 'driverOptions' => $parameters['driverOptions']];
+            $parameters['replica'] = [];
+
+            for ($i = 0; $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
+                $parameters['replica'][] = ['url' => $replicaUrl, 'charset' => $parameters['charset'], 'driverOptions' => $parameters['driverOptions']];
+            }
         }
 
         return DriverManager::getConnection($parameters, new Configuration());

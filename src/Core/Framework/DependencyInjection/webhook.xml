@@ -65,5 +65,20 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup"/>
+            <tag name="messenger.message_handler"/>
+        </service>
     </services>
 </container>

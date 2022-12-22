@@ -5,6 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @package content
  */
 Component.register('sw-cms-visibility-config', {
     template,

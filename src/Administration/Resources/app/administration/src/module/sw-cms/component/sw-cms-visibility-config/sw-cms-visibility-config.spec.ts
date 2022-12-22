@@ -2,6 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/component/sw-cms-visibility-config/index';
 import 'src/app/component/base/sw-icon';
 
+/**
+ * @package content
+ */
+
 function createWrapper() {
     const localVue = createLocalVue();
 

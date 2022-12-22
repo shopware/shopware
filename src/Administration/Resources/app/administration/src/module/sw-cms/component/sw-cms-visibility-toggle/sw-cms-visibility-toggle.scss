@@ -51,3 +51,11 @@
         }
     }
 }
+
+.sw-cms-section__wrapper {
+    > .sw-cms-visibility-toggle-wrapper.is--expanded {
+        .sw-cms-visibility-toggle {
+            padding-bottom: 16px;
+        }
+    }
+}

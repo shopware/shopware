@@ -126,9 +126,6 @@ parameters:
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
 
-        # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
-        - '#Trait .* is used zero times and is not analysed.#'
-
         - # MockRepo extends final EntityRepository class, with is ok for tests
             message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
             count: 1

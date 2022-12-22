@@ -2296,16 +2296,6 @@ parameters:
 			path: src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
 
 		-
-			message: "#^Class Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Content/Cms/DataResolver/CriteriaCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/DataResolver/CriteriaCollection.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\Element\\\\ElementDataCollection\\:\\:\\$searchResults type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
@@ -3351,21 +3341,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Message/DeleteFileMessage.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\:\\:__construct\\(\\) has parameter \\$default with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\:\\:__construct\\(\\) has parameter \\$mappedDefault with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\MappingCollection\\:\\:fromIterable\\(\\) has parameter \\$data with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Mapping/MappingCollection.php
@@ -3971,21 +3946,6 @@ parameters:
 			path: src/Core/Content/Media/File/FileLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:getMetaData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:setMetaData\\(\\) has parameter \\$metaData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\:\\:\\$metaData type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
 			count: 2
 			path: src/Core/Content/Media/MediaFolderService.php
@@ -4089,36 +4049,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:toPathString\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Pathname/UrlGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:calculateThumbnailSize\\(\\) has parameter \\$imageSize with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:calculateThumbnailSize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createNewImage\\(\\) has parameter \\$originalImageSize with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createNewImage\\(\\) has parameter \\$thumbnailSize with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createThumbnailsForSizes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:getOriginalImageSize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetector\\:\\:__construct\\(\\) has parameter \\$typeDetector with no value type specified in iterable type iterable\\.$#"
@@ -5196,16 +5126,6 @@ parameters:
 			path: src/Core/Content/Sitemap/ConfigHandler/File.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Provider\\\\AbstractUrlProvider\\:\\:getSeoUrls\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Provider/AbstractUrlProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Provider\\\\AbstractUrlProvider\\:\\:getSeoUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Provider/AbstractUrlProvider.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Provider\\\\CategoryUrlProvider\\:\\:getCategories\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Provider/CategoryUrlProvider.php
@@ -5884,26 +5804,6 @@ parameters:
 			message: "#^Offset 'b7d2554b0ce847cd82f…' does not exist on array\\|null\\.$#"
 			count: 3
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Field/PriceSerializerTest.php
-
-		-
-			message: "#^Cannot call method getDefaultValue\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Mapping/MappingCollectionTest.php
-
-		-
-			message: "#^Cannot call method getKey\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ImportExport/Processing/Mapping/MappingCollectionTest.php
-
-		-
-			message: "#^Cannot call method getMappedKey\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Mapping/MappingCollectionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$elements of class Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\MappingCollection constructor expects iterable\\<Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\>, array\\<int, Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\> given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Mapping/MappingCollectionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false and 'outer must be…' will always evaluate to false\\.$#"

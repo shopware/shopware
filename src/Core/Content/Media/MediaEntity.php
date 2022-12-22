@@ -72,7 +72,7 @@ class MediaEntity extends Entity
     protected $mediaTypeRaw;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $metaData;
 
@@ -287,11 +287,17 @@ class MediaEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getMetaData(): ?array
     {
         return $this->metaData;
     }
 
+    /**
+     * @param array<string, mixed> $metaData
+     */
     public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;

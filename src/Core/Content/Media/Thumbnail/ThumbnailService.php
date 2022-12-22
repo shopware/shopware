@@ -110,8 +110,6 @@ class ThumbnailService
             }
         }
 
-        $updates = array_values(array_filter($updates));
-
         if (empty($updates)) {
             return 0;
         }
@@ -202,6 +200,8 @@ class ThumbnailService
     /**
      * @throws ThumbnailNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
+     *
+     * @return list<array{mediaId: string, width: int, height: int}>
      */
     private function createThumbnailsForSizes(
         MediaEntity $media,
@@ -318,6 +318,9 @@ class ThumbnailService
         return $image;
     }
 
+    /**
+     * @return array{width: int, height: int}
+     */
     private function getOriginalImageSize(\GdImage $image): array
     {
         return [
@@ -326,6 +329,11 @@ class ThumbnailService
         ];
     }
 
+    /**
+     * @param array{width: int, height: int} $imageSize
+     *
+     * @return array{width: int, height: int}
+     */
     private function calculateThumbnailSize(
         array $imageSize,
         MediaThumbnailSizeEntity $preferredThumbnailSize,
@@ -379,6 +387,10 @@ class ThumbnailService
         ];
     }
 
+    /**
+     * @param array{width: int, height: int} $originalImageSize
+     * @param array{width: int, height: int} $thumbnailSize
+     */
     private function createNewImage(\GdImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): \GdImage
     {
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);

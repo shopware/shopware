@@ -34,6 +34,11 @@ const getAsyncExpressionName = (node) => {
 };
 
 module.exports = {
+    meta: {
+        type: 'problem',
+        fixable: 'code',
+    },
+
     create(context) {
         return {
             CallExpression(node) {

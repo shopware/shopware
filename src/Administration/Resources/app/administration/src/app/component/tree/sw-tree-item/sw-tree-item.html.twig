@@ -356,18 +356,7 @@
                         v-if="$scopedSlots.actions"
                         :node="$scopedSlots.actions({ item, openTreeItem })"
                     />
-                    <template
-                        v-else
-                        :item="item"
-                        :openTreeItem="openTreeItem"
-                        :addElement="addElement"
-                        :addSubElement="addSubElement"
-                        :onDuplicate="onDuplicate"
-                        :onChangeRoute="onChangeRoute"
-                        :deleteElement="deleteElement"
-                        :toolTip="toolTip"
-                        :isDisabled="isDisabled"
-                    >
+                    <template v-else>
                         <sw-context-button
                             v-tooltip="toolTip"
                             :disabled="isDisabled"

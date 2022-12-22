@@ -864,7 +864,7 @@ Component.register('sw-search-bar', {
         },
 
         getRecentlySearch() {
-            return new Promise(async resolve => {
+            return new Promise(resolve => {
                 const items = this.recentlySearchService.get(this.currentUser.id);
 
                 const queries = {};
@@ -889,32 +889,32 @@ Component.register('sw-search-bar', {
                     return;
                 }
 
-                const searchResult = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
-
-                if (!searchResult.data) {
-                    resolve();
-                    return;
-                }
-
-                const mapResult = [];
-
-                items.forEach(item => {
-                    const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : {};
-
-                    const foundEntity = entities[item.id];
-
-                    if (foundEntity) {
-                        mapResult.push({
-                            item: foundEntity,
-                            entity: item.entity,
-                        });
+                this.searchService.searchQuery(queries, { 'sw-inheritance': true }).then((searchResult) => {
+                    if (!searchResult.data) {
+                        resolve();
+                        return;
                     }
-                });
 
-                resolve({
-                    entity: 'recently_searched',
-                    total: mapResult.length,
-                    entities: mapResult,
+                    const mapResult = [];
+
+                    items.forEach(item => {
+                        const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : {};
+
+                        const foundEntity = entities[item.id];
+
+                        if (foundEntity) {
+                            mapResult.push({
+                                item: foundEntity,
+                                entity: item.entity,
+                            });
+                        }
+                    });
+
+                    resolve({
+                        entity: 'recently_searched',
+                        total: mapResult.length,
+                        entities: mapResult,
+                    });
                 });
             });
         },

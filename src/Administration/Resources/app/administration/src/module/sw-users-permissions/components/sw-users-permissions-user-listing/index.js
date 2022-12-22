@@ -124,12 +124,16 @@ export default {
         async onConfirmDelete(user) {
             const username = `${user.firstName} ${user.lastName} `;
             const titleDeleteSuccess = this.$tc('global.default.success');
-            const messageDeleteSuccess = this.$tc('sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
+            const messageDeleteSuccess = this.$tc(
+                'sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
                 0,
-                { name: username });
+                { name: username },
+            );
             const titleDeleteError = this.$tc('global.default.error');
             const messageDeleteError = this.$tc(
-                'sw-users-permissions.users.user-grid.notification.deleteError.message', 0, { name: username },
+                'sw-users-permissions.users.user-grid.notification.deleteError.message',
+                0,
+                { name: username },
             );
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({

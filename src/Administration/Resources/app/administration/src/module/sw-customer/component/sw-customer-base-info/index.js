@@ -68,11 +68,9 @@ export default {
         orderCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.addAggregation(Criteria.filter('exceptCancelledOrder', [
-                Criteria.not(
-                    'AND', [
-                        Criteria.equals('stateMachineState.technicalName', 'cancelled'),
-                    ],
-                ),
+                Criteria.not('AND', [
+                    Criteria.equals('stateMachineState.technicalName', 'cancelled'),
+                ]),
             ], Criteria.sum('orderAmount', 'amountTotal')));
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
 

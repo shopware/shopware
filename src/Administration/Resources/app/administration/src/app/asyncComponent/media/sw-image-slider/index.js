@@ -223,7 +223,7 @@ export default {
                 return {
                     width: `${this.totalPage * 100}%`,
                     gap: `${this.gap}px`,
-                    transform: `translateX(-${this.currentPageNumber / this.totalPage * 100}%)`,
+                    transform: `translateX(-${(this.currentPageNumber / this.totalPage) * 100}%)`,
                 };
             }
 

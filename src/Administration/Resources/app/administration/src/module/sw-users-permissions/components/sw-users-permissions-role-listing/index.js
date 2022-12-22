@@ -130,17 +130,21 @@ export default {
 
             this.roleRepository.delete(role.id, context).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
+                    message: this.$tc(
+                        'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
                         0,
-                        { name: role.name }),
+                        { name: role.name },
+                    ),
                 });
 
                 this.$emit('get-list');
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message',
+                    message: this.$tc(
+                        'sw-users-permissions.roles.role-grid.notification.deleteError.message',
                         0,
-                        { name: role.name }),
+                        { name: role.name },
+                    ),
                 });
             });
         },

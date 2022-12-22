@@ -86,7 +86,7 @@ class UpdateService extends ApiService {
             language: localStorage.getItem('sw-admin-locale'),
         };
 
-        return Object.assign({}, basicParams, additionalParams);
+        return { ...basicParams, ...additionalParams };
     }
 }
 

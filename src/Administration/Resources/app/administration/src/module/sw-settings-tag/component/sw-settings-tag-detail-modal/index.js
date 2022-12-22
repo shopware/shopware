@@ -104,7 +104,7 @@ export default {
         },
 
         computedCounts() {
-            const counts = Object.assign({}, this.counts);
+            const counts = { ...this.counts };
 
             Object.keys(this.assignmentsToBeDeleted).forEach((propertyName) => {
                 if (!counts.hasOwnProperty(propertyName)) {

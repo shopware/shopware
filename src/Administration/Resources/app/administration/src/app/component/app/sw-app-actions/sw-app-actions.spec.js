@@ -5,7 +5,7 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
+import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
@@ -95,6 +95,7 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
+        Shopware.Application.view.deleteReactive = () => {};
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
         document.location.href = 'http://localhost/';
     });

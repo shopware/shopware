@@ -363,7 +363,7 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
             config.isLoading = false;
 
             if (messages.foregroundSuccessMessage && !didSendForegroundMessage) {
-                const foreground = Object.assign({}, config);
+                const foreground = { ...config };
                 foreground.message = $root.$t(messages.foregroundSuccessMessage);
                 delete foreground.uuid;
                 delete foreground.isLoading;

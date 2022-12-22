@@ -27,6 +27,7 @@ const baseRules = {
         ],
     }],
     'sw-deprecation-rules/private-feature-declarations': 'error',
+    'no-restricted-exports': 'off',
 };
 
 module.exports = {
@@ -161,7 +162,6 @@ module.exports = {
                 'vue/no-multiple-template-root': 'off',
                 'vue/no-unused-vars': 'off',
                 'vue/no-template-shadow': 'off',
-                'vue/no-lone-template': 'off',
                 'vue/no-v-html': 'off',
                 'vue/valid-template-root': 'off',
                 'vue/no-parsing-error': ['error', {
@@ -175,6 +175,8 @@ module.exports = {
                 'vue/no-deprecated-slot-attribute': ['error'],
                 'vue/no-deprecated-slot-scope-attribute': ['error'],
                 'sw-deprecation-rules/no-twigjs-blocks': 'error',
+                'vue/no-useless-template-attributes': 'error',
+                'vue/no-lone-template': 'error',
             },
         }, {
             files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
@@ -185,6 +187,13 @@ module.exports = {
                 'max-len': 0,
                 'inclusive-language/use-inclusive-words': 0,
                 'sw-deprecation-rules/private-feature-declarations': 0,
+            },
+        }, {
+            files: ['**/*.spec.ts'],
+            rules: {
+                // Disable the base rule as it can report incorrect errors
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'error',
             },
         }, {
             files: ['**/snippet/*.json'],
@@ -229,6 +238,9 @@ module.exports = {
                     },
                 ],
                 'no-void': 'off',
+                // Disable the base rule as it can report incorrect errors
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'error',
             },
         },
     ],

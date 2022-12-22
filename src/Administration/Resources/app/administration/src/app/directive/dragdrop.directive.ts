@@ -379,14 +379,16 @@ function validateDrop(): boolean {
     // Check the custom drag validate function.
     if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.validateDrop)) {
         customDragValidation = currentDrag.dragConfig.validateDrop(
-            currentDrag.dragConfig.data, currentDrop && currentDrop.dropConfig.data,
+            currentDrag.dragConfig.data,
+            currentDrop && currentDrop.dropConfig.data,
         );
     }
 
     // Check the custom drop validate function.
     if (currentDrop !== null && types.isFunction(currentDrop.dropConfig.validateDrop)) {
         customDropValidation = currentDrop.dropConfig.validateDrop(
-            currentDrag && currentDrag.dragConfig.data, currentDrop.dropConfig.data,
+            currentDrag && currentDrag.dragConfig.data,
+            currentDrop.dropConfig.data,
         );
     }
 
@@ -408,7 +410,8 @@ function validateDrag(): boolean {
     // Check the custom drag validate function.
     if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.validateDrag)) {
         customDragValidation = currentDrag.dragConfig.validateDrag(
-            currentDrag.dragConfig.data, currentDrop && currentDrop.dropConfig.data,
+            currentDrag.dragConfig.data,
+            currentDrop && currentDrop.dropConfig.data,
         );
     }
 
@@ -416,7 +419,7 @@ function validateDrag(): boolean {
 }
 
 function mergeConfigs(defaultConfig: DragConfig|DropConfig, binding: { value: unknown }) {
-    const mergedConfig = Object.assign({}, defaultConfig);
+    const mergedConfig = { ...defaultConfig };
 
     if (types.isObject(binding.value)) {
         Object.assign(mergedConfig, binding.value);

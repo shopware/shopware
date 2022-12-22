@@ -201,7 +201,7 @@ Component.register('sw-data-grid', {
             currentSetting: {},
             currentColumns: [],
             columnIndex: null,
-            selection: Object.assign({}, this.preSelection || {}),
+            selection: { ...this.preSelection || {} },
             originalTarget: null,
             compact: this.compactMode,
             previews: this.showPreviews,
@@ -464,14 +464,18 @@ Component.register('sw-data-grid', {
                     return column;
                 }
 
-                return utils.object.mergeWith({}, column, userColumnSettings[column.dataIndex],
+                return utils.object.mergeWith(
+                    {},
+                    column,
+                    userColumnSettings[column.dataIndex],
                     (localValue, serverValue) => {
                         if (serverValue !== undefined && serverValue !== null) {
                             return serverValue;
                         }
 
                         return localValue;
-                    });
+                    },
+                );
             }).sort((column1, column2) => column1.position - column2.position);
         },
 
@@ -507,7 +511,7 @@ Component.register('sw-data-grid', {
                     column.dataIndex = column.property;
                 }
 
-                return Object.assign({}, defaults, column);
+                return { ...defaults, ...column };
             });
         },
 

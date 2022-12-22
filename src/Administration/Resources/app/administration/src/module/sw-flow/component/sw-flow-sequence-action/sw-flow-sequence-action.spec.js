@@ -358,8 +358,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should remove error for after select an action name', async () => {
-        Shopware.State.commit('swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }]));
+        Shopware.State.commit(
+            'swFlowState/setSequences',
+            getSequencesCollection([{ ...sequenceFixture }])
+        );
         Shopware.State.commit('swFlowState/setInvalidSequences', ['2']);
 
         let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
@@ -585,7 +587,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const actionItems = wrapper.findAll('.sw-select-result');
 
         expect(actionItems.length).toEqual(5);
-        expect(actionItems.at(0).get('.sw-highlight-text').text()).toBe('Telegram send message');
+        expect(actionItems.at(3).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
     it('should disable the actions when inactive the app flow actions', async () => {

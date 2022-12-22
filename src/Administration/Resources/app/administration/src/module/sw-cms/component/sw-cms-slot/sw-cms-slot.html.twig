@@ -134,11 +134,11 @@
                         {% block sw_cms_slot_content_element_modal_selection_element %}
                         <template
                             v-for="element in cmsElementGroup.items"
-                            class="element-selection__element-wrapper"
                         >
                             <div
                                 v-if="!element.hidden && element.previewComponent"
                                 :key="element.name"
+                                class="element-selection__element-wrapper"
                             >
                                 <div class="element-selection__element">
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

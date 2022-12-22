@@ -176,14 +176,16 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('profile',
+        ...mapPropertyErrors(
+            'profile',
             [
                 'name',
                 'sourceEntity',
                 'delimiter',
                 'enclosure',
                 'type',
-            ]),
+            ],
+        ),
 
         isNew() {
             if (!this.profile || !this.profile.isNew) {

@@ -39,7 +39,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
             provide: {
                 promotionCodeApiService: {
                     generatePreview() {
-                        return new Promise(resolve => resolve(mockCode));
+                        return new Promise((resolve) => {
+                            resolve(mockCode);
+                        });
                     }
                 }
             },

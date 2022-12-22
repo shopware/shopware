@@ -51,9 +51,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const mergedRoutes = registerModuleRoutesAsChildren(viewAllRoutes, viewModuleRoutes);
 
         // assign to view router options
-        const options = Object.assign({}, opts, {
-            routes: mergedRoutes,
-        });
+        const options = { ...opts, routes: mergedRoutes };
 
         // create router
         const router = new Router(options);

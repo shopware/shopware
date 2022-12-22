@@ -61,6 +61,7 @@
             {% block sw_cms_element_buy_box_form_select_quantity %}
             <sw-block-field class="sw-cms-el-buy-box__quantity">
                 <template #sw-field-input>
+                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                     <select>
                         <option
                             :value="product.minPurchase"
@@ -133,6 +134,7 @@
             {% block sw_cms_element_buybox_skeleton_quantity %}
             <sw-block-field class="sw-cms-el-buy-box__quantity">
                 <template #sw-field-input>
+                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                     <select>
                         <option
                             value="1"

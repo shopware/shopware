@@ -4,6 +4,8 @@
 
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-inherit-wrapper';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ThisTypedShallowMountOptions } from '@vue/test-utils';
 
 async function createWrapper(options: ThisTypedShallowMountOptions<any> = {}) {

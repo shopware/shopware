@@ -144,18 +144,20 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not show config menu item: not active and not activated once', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: null,
-                active: false
+        wrapper = await createWrapper(
+            {
+                extension: {
+                    installedAt: null,
+                    active: false
+                }
+            },
+            {
+                shopwareExtensionService: {
+                    canBeOpened: () => false,
+                    getOpenLink: () => null
+                }
             }
-        },
-        {
-            shopwareExtensionService: {
-                canBeOpened: () => false,
-                getOpenLink: () => null
-            }
-        });
+        );
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
@@ -163,24 +165,26 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should show config menu item: active and activated once', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: null,
-                active: true
-            }
-        },
-        {
-            shopwareExtensionService: {
-                getOpenLink: () => {
-                    return Promise.resolve({
-                        name: 'jest',
-                        params: {
-                            appName: 'JestApp',
-                        },
-                    });
+        wrapper = await createWrapper(
+            {
+                extension: {
+                    installedAt: null,
+                    active: true
+                }
+            },
+            {
+                shopwareExtensionService: {
+                    getOpenLink: () => {
+                        return Promise.resolve({
+                            name: 'jest',
+                            params: {
+                                appName: 'JestApp',
+                            },
+                        });
+                    }
                 }
             }
-        });
+        );
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
@@ -188,18 +192,20 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not show config menu item: not active and activated once', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: null,
-                active: false
+        wrapper = await createWrapper(
+            {
+                extension: {
+                    installedAt: null,
+                    active: false
+                }
+            },
+            {
+                shopwareExtensionService: {
+                    canBeOpened: () => true,
+                    getOpenLink: () => null
+                }
             }
-        },
-        {
-            shopwareExtensionService: {
-                canBeOpened: () => true,
-                getOpenLink: () => null
-            }
-        });
+        );
         await wrapper.vm.$nextTick();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
@@ -207,34 +213,36 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should show a consent affirmation modal if an app requires new permissions on update', async () => {
-        wrapper = await createWrapper({
-            extension: {
-                installedAt: '845618651',
-                permissions: []
-            }
-        },
-        {
-            shopwareExtensionService: {
-                getOpenLink: () => null,
-                updateExtension: async () => {
-                    const error = new Error();
-                    error.response = {
-                        data: {
-                            errors: [{
-                                code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
-                                meta: {
-                                    parameters: {
-                                        deltas: ['permissions']
+        wrapper = await createWrapper(
+            {
+                extension: {
+                    installedAt: '845618651',
+                    permissions: []
+                }
+            },
+            {
+                shopwareExtensionService: {
+                    getOpenLink: () => null,
+                    updateExtension: async () => {
+                        const error = new Error();
+                        error.response = {
+                            data: {
+                                errors: [{
+                                    code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
+                                    meta: {
+                                        parameters: {
+                                            deltas: ['permissions']
+                                        }
                                     }
-                                }
-                            }]
-                        }
-                    };
+                                }]
+                            }
+                        };
 
-                    throw error;
+                        throw error;
+                    }
                 }
             }
-        });
+        );
 
         await wrapper.vm.$nextTick();
 

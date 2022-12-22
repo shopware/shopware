@@ -66,7 +66,8 @@ Component.register('sw-login-recovery-recovery', {
         updatePassword() {
             if (this.validatePasswords()) {
                 this.userRecoveryService.updateUserPassword(
-                    this.hash, this.newPassword,
+                    this.hash,
+                    this.newPassword,
                     this.newPasswordConfirm,
                 ).then(() => {
                     this.$router.push({ name: 'sw.login.index' });

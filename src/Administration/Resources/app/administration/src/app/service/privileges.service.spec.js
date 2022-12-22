@@ -465,9 +465,7 @@ describe('src/app/service/privileges.service.js', () => {
         expect(typeof returnFunction).toBe('function');
         returnFunction();
 
-        expect(privilegesService._getPrivilegesWithDependencies).toHaveBeenCalledWith(
-            'product.editor', false
-        );
+        expect(privilegesService._getPrivilegesWithDependencies).toHaveBeenCalledWith('product.editor', false);
     });
 
     it('should return all privileges with dependencies and defaults', async () => {

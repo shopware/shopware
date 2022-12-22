@@ -99,7 +99,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                         return {
                             get() {
                                 return new Promise((resolve) => {
-                                    return resolve(featureSetMock);
+                                    resolve(featureSetMock);
                                 });
                             }
                         };

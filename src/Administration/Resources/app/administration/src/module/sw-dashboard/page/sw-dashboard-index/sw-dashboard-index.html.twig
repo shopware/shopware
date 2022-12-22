@@ -159,13 +159,13 @@
                 <sw-dashboard-statistics />
             </template>
             <template v-else-if="acl.can('order.viewer')">
-                <template
+                <div
                     v-if="isLoading"
                     class="sw-dashboard-index__skeleton"
                 >
                     <sw-skeleton variant="detail" />
                     <sw-skeleton variant="detail" />
-                </template>
+                </div>
 
                 <template v-else>
                     <template v-if="hasOrderToday">

@@ -153,7 +153,8 @@ Component.register('sw-settings-country-address-handling', {
                 }
 
                 this.$set(
-                    this.country, 'advancedPostalCodePattern',
+                    this.country,
+                    'advancedPostalCodePattern',
                     this.advancedPostalCodePattern || this.country.defaultPostalCodePattern,
                 );
                 return;

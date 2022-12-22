@@ -96,7 +96,9 @@ describe('app/service/recently-search.service.js', () => {
         }
 
         // Sleep 1 milisecond
-        await new Promise(r => setTimeout(r, 1));
+        await new Promise((resolve) => {
+            setTimeout(resolve, 1);
+        });
 
         recentlySearchService.add('userId', uniqueProduct.entity, uniqueProduct.id);
 

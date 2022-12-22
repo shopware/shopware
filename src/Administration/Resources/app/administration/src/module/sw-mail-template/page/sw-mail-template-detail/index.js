@@ -93,9 +93,7 @@ export default {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(
-                            prefix, innerMailTemplateType.availableEntities,
-                        ),
+                        entityMappingService.getEntityMapping(prefix, innerMailTemplateType.availableEntities),
                     ).forEach((val) => {
                         properties.push({
                             value: val,

@@ -283,12 +283,14 @@ Component.register('sw-entity-single-select', {
                         this.resultCollection = result;
 
                         const newEntity = this.repository.create(this.context, -1);
-                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                        newEntity.name = this.$tc(
+                            'global.sw-single-select.labelEntityAdd',
                             0,
                             {
                                 term: this.searchTerm,
                                 entity: this.entityCreationLabel,
-                            });
+                            },
+                        );
 
                         this.resultCollection.unshift(newEntity);
 

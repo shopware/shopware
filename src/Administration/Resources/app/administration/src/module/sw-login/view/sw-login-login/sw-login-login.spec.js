@@ -36,7 +36,7 @@ async function createWrapper() {
                             }
                         };
 
-                        return reject(response);
+                        reject(response);
                     });
                 }
             },

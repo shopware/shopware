@@ -4,7 +4,10 @@
 
 import 'src/app/component/base/sw-modal';
 import { shallowMount } from '@vue/test-utils';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Wrapper } from '@vue/test-utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type Vue from 'vue';
 
 async function createWrapper(): Promise<Wrapper<Vue>> {

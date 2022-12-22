@@ -139,7 +139,7 @@ export default {
 
             return new Promise((resolve) => {
                 if (!value || typeof value !== 'number' || !this.price[outputType] || !this.taxRate || !outputType) {
-                    return null;
+                    return;
                 }
 
                 this.calculatePriceApiService.calculatePrice({
@@ -151,7 +151,6 @@ export default {
                     resolve(data.calculatedTaxes[0].tax);
                     this.$emit('price-calculate', false);
                 });
-                return true;
             });
         },
     },

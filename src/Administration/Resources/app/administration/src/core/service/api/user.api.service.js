@@ -45,10 +45,13 @@ class UserApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .patch('/_info/me', data,
+            .patch(
+                '/_info/me',
+                data,
                 {
                     headers,
-                })
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

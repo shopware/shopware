@@ -359,13 +359,13 @@ Component.register('sw-price-field', {
                     !this.priceForCurrency[outputType] ||
                     !outputType
                 ) {
-                    return null;
+                    return;
                 }
 
                 if (!this.taxRate.id) {
                     resolve(0);
                     this.$emit('price-calculate', false);
-                    return true;
+                    return;
                 }
 
                 this.calculatePriceApiService.calculatePrice({
@@ -383,7 +383,6 @@ Component.register('sw-price-field', {
                     resolve(tax);
                     this.$emit('price-calculate', false);
                 });
-                return true;
             });
         },
 

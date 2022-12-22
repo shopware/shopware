@@ -15,9 +15,11 @@ export default class ErrorResolver {
     }
 
     /**
+     * @deprecated tag:v6.6.0.0 - Default param errors will be last
      * @param errors
      * @param changeset
      */
+    // eslint-disable-next-line default-param-last
     handleWriteErrors({ errors } = {}, changeset) {
         if (!errors) {
             throw new Error('[error-resolver] handleWriteError was called without errors');

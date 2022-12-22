@@ -32,7 +32,9 @@ class MockRepositoryFactory {
     }
 
     search() {
-        return new Promise(resolve => resolve({ first: () => this.data[0] }));
+        return new Promise((resolve) => {
+            resolve({ first: () => this.data[0] });
+        });
     }
 }
 

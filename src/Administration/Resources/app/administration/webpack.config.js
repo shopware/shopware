@@ -736,9 +736,10 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                                 context: path.resolve(plugin.path),
                                 useEslintrc: false,
                                 baseConfig: {
-                                    parser: 'babel-eslint',
+                                    parser: '@babel/eslint-parser',
                                     parserOptions: {
-                                        sourceType: 'module'
+                                        sourceType: 'module',
+                                        requireConfigFile: false,
                                     },
                                     plugins: [ 'plugin-rules' ],
                                     rules: {

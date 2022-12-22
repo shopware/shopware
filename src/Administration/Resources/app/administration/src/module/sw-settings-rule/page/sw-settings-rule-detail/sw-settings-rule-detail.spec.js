@@ -184,9 +184,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
 
         const next = jest.fn();
-        wrapper.vm.unsavedDataLeaveHandler(
-            { name: 'sw.settings.rule.detail.assignments' }, { name: 'sw.settings.rule.detail.base' }, next
-        );
+        wrapper.vm.unsavedDataLeaveHandler({ name: 'sw.settings.rule.detail.assignments' }, { name: 'sw.settings.rule.detail.base' }, next);
 
 
         expect(next).toHaveBeenCalled();
@@ -204,9 +202,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
 
         const next = jest.fn();
-        wrapper.vm.unsavedDataLeaveHandler(
-            { name: 'sw.settings.rule.detail.base' }, {}, next
-        );
+        wrapper.vm.unsavedDataLeaveHandler({ name: 'sw.settings.rule.detail.base' }, {}, next);
 
         expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeFalsy();
         expect(wrapper.vm.conditionTreeFinishedLoading).toBeFalsy();
@@ -225,9 +221,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
 
         const next = jest.fn();
-        wrapper.vm.unsavedDataLeaveHandler(
-            {}, {}, next
-        );
+        wrapper.vm.unsavedDataLeaveHandler({}, {}, next);
 
         expect(wrapper.vm.isDisplayingSaveChangesWarning).toBeFalsy();
         expect(next).toHaveBeenCalled();

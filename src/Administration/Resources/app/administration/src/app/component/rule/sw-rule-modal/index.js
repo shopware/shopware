@@ -117,9 +117,7 @@ Component.register('sw-rule-modal', {
             );
 
             const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc(
-                'sw-rule-modal.messageSaveError', 0, { name: this.rule.name },
-            );
+            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', 0, { name: this.rule.name });
 
             this.isLoading = true;
             return this.ruleRepository.save(this.rule, Context.api).then(() => {

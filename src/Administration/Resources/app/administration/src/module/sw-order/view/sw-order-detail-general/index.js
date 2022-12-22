@@ -114,8 +114,10 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle('order_transaction.state',
-                this.transaction.stateMachineState.technicalName).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(
+                'order_transaction.state',
+                this.transaction.stateMachineState.technicalName,
+            ).selectBackgroundStyle;
         },
 
         orderOptionPlaceholder() {
@@ -132,8 +134,10 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle('order.state',
-                this.order.stateMachineState.technicalName).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(
+                'order.state',
+                this.order.stateMachineState.technicalName,
+            ).selectBackgroundStyle;
         },
 
         deliveryOptionPlaceholder() {
@@ -150,8 +154,10 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle('order_delivery.state',
-                this.delivery.stateMachineState.technicalName).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle(
+                'order_delivery.state',
+                this.delivery.stateMachineState.technicalName,
+            ).selectBackgroundStyle;
         },
 
         customFieldSetRepository() {

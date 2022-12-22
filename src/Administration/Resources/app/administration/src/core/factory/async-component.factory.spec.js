@@ -35,10 +35,12 @@ function createComponentMatrix(components) {
     // create cartesian product of all component possibilities
     const flatten = (arr) => [].concat(...arr);
     const cartesianProduct = (sets) => {
-        return sets.reduce((acc, set) => {
-            return flatten(acc.map(x => set.map(y => [...x, y])));
-        },
-        [[]]);
+        return sets.reduce(
+            (acc, set) => {
+                return flatten(acc.map(x => set.map(y => [...x, y])));
+            },
+            [[]]
+        );
     };
 
     const result = cartesianProduct(possibilitiesForComponents).map((product) => {

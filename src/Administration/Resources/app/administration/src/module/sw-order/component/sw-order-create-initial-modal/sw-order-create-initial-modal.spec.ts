@@ -1,12 +1,14 @@
-import Vue from 'vue';
 import Vuex from 'vuex';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import type { Wrapper } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 import swOrderCreateInitialModal from 'src/module/sw-order/component/sw-order-create-initial-modal';
 import 'src/app/component/base/sw-button';
-
 import orderStore from 'src/module/sw-order/state/order.store';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Wrapper } from '@vue/test-utils';
 
 const lineItem = {
     label: 'Product',

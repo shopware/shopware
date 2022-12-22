@@ -1,10 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
-import type { Wrapper } from '@vue/test-utils';
 import swOrderStateHistoryModalComponent from 'src/module/sw-order/component/sw-order-state-history-modal';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/grid/sw-pagination';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Wrapper } from '@vue/test-utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Vue from 'vue';
 
 /**

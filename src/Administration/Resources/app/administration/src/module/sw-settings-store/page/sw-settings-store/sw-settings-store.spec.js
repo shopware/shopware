@@ -51,9 +51,11 @@ describe('src/module/sw-settings-store/page/sw-settings-store', () => {
 
         setTrimAndCompare(' String with spaces ', 'String with spaces');
 
-        setTrimAndCompare('                               ' +
+        setTrimAndCompare(
+            '                               ' +
             '                                     String with many spaces at the beginning',
-        'String with many spaces at the beginning');
+            'String with many spaces at the beginning'
+        );
 
         setTrimAndCompare(' https://www.shopware.com/de/ ', 'https://www.shopware.com/de/');
 

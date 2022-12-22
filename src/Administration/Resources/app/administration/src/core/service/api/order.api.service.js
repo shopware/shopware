@@ -43,7 +43,8 @@ class OrderApiService extends ApiService {
         dummyPrice.isCalculated = true;
 
         return this.httpClient
-            .post(route,
+            .post(
+                route,
                 JSON.stringify(
                     { label: item.label,
                         quantity: item.quantity,
@@ -51,10 +52,12 @@ class OrderApiService extends ApiService {
                         identifier: utils.createId(),
                         description: item.description,
                         priceDefinition: dummyPrice },
-                ), {
+                ),
+                {
                     additionalParams,
                     headers,
-                });
+                },
+            );
     }
 
     addCreditItemToOrder(orderId, versionId, item, additionalParams = {}, additionalHeaders = {}) {
@@ -63,7 +66,8 @@ class OrderApiService extends ApiService {
 
         const dummyPrice = deepCopyObject(item.priceDefinition);
         return this.httpClient
-            .post(route,
+            .post(
+                route,
                 JSON.stringify(
                     { label: item.label,
                         quantity: item.quantity,
@@ -71,10 +75,12 @@ class OrderApiService extends ApiService {
                         identifier: utils.createId(),
                         description: item.description,
                         priceDefinition: dummyPrice },
-                ), {
+                ),
+                {
                     additionalParams,
                     headers,
-                });
+                },
+            );
     }
 
     addPromotionToOrder(orderId, versionId, code, additionalParams = {}, additionalHeaders = {}) {
@@ -82,13 +88,16 @@ class OrderApiService extends ApiService {
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
-            .post(route,
+            .post(
+                route,
                 JSON.stringify(
                     { code },
-                ), {
+                ),
+                {
                     additionalParams,
                     headers,
-                });
+                },
+            );
     }
 
     toggleAutomaticPromotions(orderId, versionId, skipAutomaticPromotions, additionalParams = {}, additionalHeaders = {}) {
@@ -96,18 +105,21 @@ class OrderApiService extends ApiService {
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
-            .post(route,
+            .post(
+                route,
                 JSON.stringify(
                     { skipAutomaticPromotions },
-                ), {
+                ),
+                {
                     additionalParams,
                     headers,
-                });
+                },
+            );
     }
 
     changeOrderAddress(orderAddressId, customerAddressId, additionalParams, additionalHeaders) {
         const route = `_action/order-address/${orderAddressId}/customer-address/${customerAddressId}`;
-        const params = Object.assign({ }, additionalParams);
+        const params = { ...additionalParams };
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient

@@ -73,7 +73,7 @@ Component.register('sw-text-field', {
         },
 
         additionalListeners() {
-            const additionalListeners = Object.assign({}, this.$listeners);
+            const additionalListeners = { ...this.$listeners };
 
             delete additionalListeners.input;
             delete additionalListeners.change;

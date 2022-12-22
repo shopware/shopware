@@ -3,10 +3,14 @@
  */
 
 import { shallowMount } from '@vue/test-utils';
-import type { Wrapper } from '@vue/test-utils';
-import type { Route } from 'vue-router';
 import 'src/app/component/meteor/sw-meteor-navigation';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Wrapper } from '@vue/test-utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Route } from 'vue-router';
 
 async function createWrapper(customRoute: Route, fromLink: Route|null = null) {
     return shallowMount(await Shopware.Component.build('sw-meteor-navigation'), {
@@ -57,7 +61,7 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
     });
 
     it('should not display the back link when no parent exists', async () => {
-        const testRouteWithoutMeta = Object.assign({}, testRoute);
+        const testRouteWithoutMeta = { ...testRoute };
         testRouteWithoutMeta.meta = {};
 
         wrapper = await createWrapper(testRouteWithoutMeta);

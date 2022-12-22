@@ -81,7 +81,7 @@ export default {
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
-                        id: action?.app?.name[0].toLowerCase() + action?.app?.name.slice(1),
+                        id: `${action?.app?.name[0].toLowerCase()}${action?.app?.name.slice(1)}`,
                         label: action?.app?.label,
                     });
                 }
@@ -158,7 +158,8 @@ export default {
             };
         },
 
-        ...mapState('swFlowState',
+        ...mapState(
+            'swFlowState',
             [
                 'invalidSequences',
                 'stateMachineState',
@@ -169,7 +170,8 @@ export default {
                 'customFields',
                 'triggerEvent',
                 'triggerActions',
-            ]),
+            ],
+        ),
         ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
     },
 
@@ -386,7 +388,7 @@ export default {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
-                    group: appAction.app?.name[0].toLowerCase() + appAction.app?.name.slice(1),
+                    group: `${appAction.app?.name[0].toLowerCase()}${appAction.app?.name.slice(1)}`,
                 };
             }
 

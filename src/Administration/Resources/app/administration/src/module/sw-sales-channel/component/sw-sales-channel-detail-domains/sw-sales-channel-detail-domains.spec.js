@@ -198,11 +198,16 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should only display available languages', async () => {
-        const languages = new EntityCollection('/languages', 'languages', Context.api, null,
+        const languages = new EntityCollection(
+            '/languages',
+            'languages',
+            Context.api,
+            null,
             [{
                 id: 'test1',
                 name: 'language1'
-            }]);
+            }]
+        );
 
         const wrapper = await createWrapper({
             salesChannel: {
@@ -220,11 +225,16 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     });
 
     it('should only display available currencies', async () => {
-        const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null,
+        const currencies = new EntityCollection(
+            '/currencies',
+            'currencies',
+            Context.api,
+            null,
             [{
                 id: 'test1',
                 name: 'currency1'
-            }]);
+            }]
+        );
 
         const wrapper = await createWrapper({
             salesChannel: {

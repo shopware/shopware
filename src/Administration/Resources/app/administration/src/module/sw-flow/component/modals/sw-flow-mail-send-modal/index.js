@@ -127,7 +127,7 @@ export default {
             if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
                 .includes(this.triggerEvent.name)) {
                 return [
-                    ...this.recipientDefault,
+                    ...this.recipientCustomer,
                     ...this.recipientAdmin,
                     ...this.recipientCustom,
                 ];

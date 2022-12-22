@@ -219,7 +219,7 @@
         "labelCustomer": "Kunde",
         "labelAdmin": "Administrator",
         "labelCustom": "Anderer Empfänger",
-        "labelContactFormMail": "Kontaktformular-Bestätigung",
+        "labelContactFormMail": "Anfragesteller",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
         "useDifferentReplyToLabel": "Andere Absender-Adresse verwenden",

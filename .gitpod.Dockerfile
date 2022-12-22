@@ -5,7 +5,7 @@ FROM gitpod/workspace-base:latest
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN sudo add-apt-repository ppa:ondrej/php -y && \
-    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash - && \
     curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash && \
     curl -1sLf 'https://dl.cloudsmith.io/public/friendsofshopware/stable/setup.deb.sh'  | sudo -E bash && \
     sudo apt-get install -y \

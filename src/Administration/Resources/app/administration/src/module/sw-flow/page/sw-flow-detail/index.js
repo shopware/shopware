@@ -520,7 +520,9 @@ export default {
                 }
 
                 if (key === 'config') {
-                    entity[key] = Object.assign({}, flowSequence[key]);
+                    entity[key] = { ...flowSequence[key] };
+
+                    return;
                 }
 
                 entity[key] = flowSequence[key];

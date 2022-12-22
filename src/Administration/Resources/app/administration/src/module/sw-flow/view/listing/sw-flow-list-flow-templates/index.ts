@@ -1,16 +1,10 @@
-import type CriteriaType from 'src/core/data/criteria.data';
-import type Repository from 'src/core/data/repository.data';
-import type EntityCollection from 'src/core/data/entity-collection.data';
+import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type { MetaInfo } from 'vue-meta';
+import type Repository from '../../../../../core/data/repository.data';
+import type CriteriaType from '../../../../../core/data/criteria.data';
 import template from './sw-flow-list-flow-templates.html.twig';
 import './sw-flow-list-flow-templates.scss';
-
-interface FlowTemplateEntity extends Entity {
-    name: string,
-    description: string,
-    eventName: string,
-}
 
 interface GridColumn {
     property: string,
@@ -49,14 +43,14 @@ export default Shopware.Component.wrapComponentConfig({
         sortDirection: string,
         total: number,
         isLoading: boolean,
-        flowTemplates: Array<FlowTemplateEntity>|null,
+        flowTemplates: EntityCollection<'flow_template'>|[],
         } {
         return {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             total: 0,
             isLoading: false,
-            flowTemplates: null,
+            flowTemplates: [],
         };
     },
 
@@ -69,7 +63,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        flowTemplateRepository(): Repository {
+        flowTemplateRepository(): Repository<'flow_template'> {
             return this.repositoryFactory.create('flow_template');
         },
 
@@ -138,21 +132,23 @@ export default Shopware.Component.wrapComponentConfig({
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             this.flowTemplateRepository.search(this.flowTemplateCriteria)
-                .then((data: EntityCollection) => {
+                .then((data: EntityCollection<'flow_template'>) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     this.total = data.total as number;
-                    this.flowTemplates = data as unknown as Array<FlowTemplateEntity>;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    this.flowTemplates = data;
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
         },
 
-        createFlowFromTemplate(item: FlowTemplateEntity): void {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        createFlowFromTemplate(item: Entity<'flow_template'>): void {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises,@typescript-eslint/no-unsafe-assignment
             this.$router.push({ name: 'sw.flow.create', params: { flowTemplateId: item.id } });
         },
 
-        onEditFlow(item: FlowTemplateEntity): void {
+        onEditFlow(item: Entity<'flow_template'>): void {
             if (!item?.id) {
                 return;
             }
@@ -160,12 +156,9 @@ export default Shopware.Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.$router.push({
                 name: 'sw.flow.detail',
-                params: {
-                    id: item.id,
-                },
-                query: {
-                    type: 'template',
-                },
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                params: { id: item.id },
+                query: { type: 'template' },
             });
         },
     },

@@ -1,6 +1,6 @@
-import type CriteriaType from 'src/core/data/criteria.data';
-import type Repository from 'src/core/data/repository.data';
 import type { MetaInfo } from 'vue-meta';
+import type Repository from '../../../../core/data/repository.data';
+import type CriteriaType from '../../../../core/data/criteria.data';
 import template from './sw-flow-index.html.twig';
 import './sw-flow-index.scss';
 
@@ -38,7 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        flowRepository(): Repository {
+        flowRepository(): Repository<'flow'> {
             return this.repositoryFactory.create('flow');
         },
 
@@ -57,7 +57,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async getTotal(): Promise<void> {
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
             const { total } = await this.flowRepository.searchIds(this.flowCriteria);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             this.total = total;
         },
 

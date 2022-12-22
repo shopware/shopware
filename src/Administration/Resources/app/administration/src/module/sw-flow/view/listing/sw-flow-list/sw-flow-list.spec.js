@@ -24,7 +24,10 @@ async function createWrapper(privileges = []) {
                                 eventName: 'checkout.order.placed'
                             }
                         ]);
-                    }
+                    },
+                    clone: jest.fn(() => Promise.resolve({
+                        id: '0e6b005ca7a1440b8e87ac3d45ed5c9f'
+                    })),
                 })
             },
 
@@ -72,80 +75,82 @@ async function createWrapper(privileges = []) {
             },
             'sw-context-menu-item': true,
             'sw-empty-state': true,
-            'sw-search-bar': true
+            'sw-search-bar': true,
+            'sw-alert': true
         }
     });
 }
 
 describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
-    it('should be able to duplicate a flow ', async () => {
+    it('should be able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
             'flow.creator'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const duplicateMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
 
-        expect(duplicateMenuItem.exists()).toBeTruthy();
-        expect(duplicateMenuItem.attributes().disabled).toBeFalsy();
+        expect(duplicateMenuItem.exists()).toBe(true);
+        expect(duplicateMenuItem.attributes().disabled).toBe(undefined);
     });
 
-    it('should be not able to duplicate a flow ', async () => {
+    it('should be not able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
 
-        expect(editMenuItem.exists()).toBeTruthy();
+        expect(editMenuItem.exists()).toBe(true);
         expect(editMenuItem.text()).toContain('global.default.duplicate');
     });
 
-    it('should be able to edit a flow ', async () => {
+    it('should be able to edit a flow', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-edit');
-        expect(editMenuItem.exists()).toBeTruthy();
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
+        expect(editMenuItem.exists()).toBe(true);
+        expect(editMenuItem.attributes().disabled).toBe(undefined);
     });
 
-    it('should be not able to edit a flow ', async () => {
+    it('should be not able to edit a flow', async () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-edit');
 
-        expect(editMenuItem.exists()).toBeTruthy();
+        expect(editMenuItem.exists()).toBe(true);
         expect(editMenuItem.text()).toContain('global.default.view');
     });
 
-    it('should be able to delete a flow ', async () => {
+    it('should be able to delete a flow', async () => {
         const wrapper = await createWrapper([
             'flow.deleter'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-flow-list__item-delete');
-        expect(deleteMenuItem.exists()).toBeTruthy();
-        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
+        expect(deleteMenuItem.exists()).toBe(true);
+        expect(deleteMenuItem.attributes().disabled).toBe(undefined);
     });
 
-    it('should be not able to delete a flow ', async () => {
+    it('should be not able to delete a flow', async () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-flow-list__item-delete');
-        expect(deleteMenuItem.exists()).toBeTruthy();
-        expect(deleteMenuItem.attributes().disabled).toBeTruthy();
+
+        expect(deleteMenuItem.exists()).toBe(true);
+        expect(deleteMenuItem.attributes().disabled).toBe('true');
     });
 
     it('should show trigger column correctly', async () => {
@@ -153,10 +158,33 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
             'flow.viewer'
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('global.businessEvents.checkout_order_placed');
         expect(item.text()).toContain('checkout.order.placed');
+    });
+
+    it('should be show the success message after duplicate flow', async () => {
+        const wrapper = await createWrapper([
+            'flow.creator'
+        ]);
+        await flushPromises();
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        const routerPush = wrapper.vm.$router.push;
+
+        await wrapper.vm.onDuplicateFlow({
+            id: '44de136acf314e7184401d36406c1e90',
+            name: 'test flow'
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationSuccess).toBeCalled();
+        wrapper.vm.createNotificationSuccess.mockRestore();
+
+        expect(routerPush).toHaveBeenLastCalledWith({
+            name: 'sw.flow.detail',
+            params: { id: '0e6b005ca7a1440b8e87ac3d45ed5c9f' }
+        });
     });
 });

@@ -15,6 +15,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WebpackDynamicPublicPathPlugin = require("webpack-dynamic-public-path");
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
@@ -612,6 +613,10 @@ const coreConfig = {
                             },
                         ],
                     }),
+                    // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
+                    new WebpackDynamicPublicPathPlugin({
+                        externalPublicPath: `(window.__sw__.assetPath + '/bundles/administration/')`,
+                    }),
                 ];
             }
 
@@ -720,8 +725,13 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 }),
 
                 ...(() => {
-                    if (isProd) {
+                    if (isProd && !hasHtmlFile) {
                         return [
+                            // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
+                            new WebpackDynamicPublicPathPlugin({
+                                externalPublicPath: `(window.__sw__.assetPath + '/bundles/${plugin.technicalFolderName}/')`,
+                            }),
+
                             new ESLintPlugin({
                                 context: path.resolve(plugin.path),
                                 useEslintrc: false,

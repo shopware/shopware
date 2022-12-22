@@ -97,7 +97,7 @@ describe('Snippets: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('not.contain', 'a.Woodech');
     });
 
-    it('@settings: update and read snippets', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: update and read snippets', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         const page = new SnippetPageObject();
 
         cy.intercept({

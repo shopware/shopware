@@ -153,7 +153,7 @@ describe('Snippets: Test crud operations', () => {
             .contains('Mine yours theirs');
     });
 
-    it('@settings: update, read, reset snippets', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: update, read, reset snippets', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         const page = new SnippetPageObject();
 
         cy.intercept({

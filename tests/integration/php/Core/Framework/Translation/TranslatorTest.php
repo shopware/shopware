@@ -275,6 +275,11 @@ class TranslatorTest extends TestCase
         static::assertEquals([$snippet['id']], $deleted->getIds());
     }
 
+    public function testItReplacesReservedCharacter(): void
+    {
+        static::assertEquals('translator.<_r_strong>', Translator::buildName('</strong>'));
+    }
+
     private function switchDefaultLanguage(): void
     {
         $currentDeId = $this->connection->fetchOne(
@@ -301,10 +306,5 @@ class TranslatorTest extends TestCase
             'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'oldId' => $currentDeId,
         ]);
-    }
-
-    public function testItReplacesReservedCharacter()
-    {
-        static::assertEquals('translator.<_r_strong>', Translator::buildName('</strong>'));
     }
 }

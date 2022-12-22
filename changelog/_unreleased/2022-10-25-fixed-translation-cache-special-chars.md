@@ -1,6 +1,6 @@
 ---
 title: Fixed Translation Cache tag for special characters
-issue: NEXT-18937
+issue: NEXT-24716
 author: Florian Liebig
 author_email: mail@florian-liebig.de
 author_github: @florianliebig

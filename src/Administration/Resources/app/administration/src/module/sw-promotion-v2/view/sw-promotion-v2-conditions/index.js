@@ -27,11 +27,8 @@ export default {
     data() {
         return {
             excludedPromotions: this.createPromotionCollection(),
-            /* @internal (flag:FEATURE_NEXT_18215) */
             personaRestrictedRules: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
             orderRestrictedRules: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
             cartRestrictedRules: [],
         };
     },
@@ -46,23 +43,8 @@ export default {
         personaRuleFilter() {
             const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(Criteria.multi('AND', [
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                    Criteria.equalsAny('conditions.type', [
-                        'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
-                        'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
-                        'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
-                        'customerShippingStreet', 'customerShippingZipCode',
-                    ]),
-                ]));
-            }
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -70,17 +52,8 @@ export default {
         cartConditionsRuleFilter() {
             const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                );
-            }
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -88,24 +61,8 @@ export default {
         orderConditionsFilter() {
             const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(Criteria.multi('AND', [
-                    Criteria.equalsAny('conditions.type', [
-                        'customerOrderCount', 'customerDaysSinceLastOrder', 'customerBillingCountry',
-                        'customerBillingStreet', 'customerBillingZipCode', 'customerCustomerGroup',
-                        'customerCustomerNumber', 'customerDifferentAddresses', 'customerIsNewCustomer',
-                        'customerLastName', 'customerShippingCountry', 'customerShippingStreet',
-                        'customerShippingZipCode',
-                    ]),
-                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-                ]));
-            }
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },

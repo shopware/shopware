@@ -181,11 +181,8 @@ export default {
                 ],
             ));
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -200,9 +197,7 @@ export default {
                 ],
             ));
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
+            criteria.addAssociation('conditions');
 
             return criteria;
         },

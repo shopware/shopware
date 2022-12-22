@@ -45,16 +45,13 @@ Component.register('sw-select-rule-create', {
             required: false,
             default() {
                 const criteria = new Criteria(1, 25);
-                criteria.addSorting(Criteria.sort('name', 'ASC', false));
-                if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                    criteria.addAssociation('conditions');
-                }
+                criteria.addSorting(Criteria.sort('name', 'ASC', false))
+                    .addAssociation('conditions');
 
                 return criteria;
             },
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         ruleAwareGroupKey: {
             type: String,
             required: false,
@@ -62,7 +59,6 @@ Component.register('sw-select-rule-create', {
         },
 
         /**
-         * @internal (flag:FEATURE_NEXT_18215)
          * Contains an array of rule ids which should not be selectable,
          * for example because they are already used in a different place
          */
@@ -75,7 +71,6 @@ Component.register('sw-select-rule-create', {
         },
 
         /**
-         * @internal (flag:FEATURE_NEXT_18215)
          * Tooltip label to show for any rule in the restrictedRuleIds array
          */
         restrictedRuleIdsTooltipLabel: {
@@ -153,10 +148,6 @@ Component.register('sw-select-rule-create', {
 
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return insideRestrictedRuleIds;
-            }
-
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
                 rule.conditions,
                 this.ruleAwareGroupKey,
@@ -179,10 +170,6 @@ Component.register('sw-select-rule-create', {
                     message: this.restrictedRuleIdsTooltipLabel,
                     disabled: false,
                 };
-            }
-
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return { message: '', disabled: true };
             }
 
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(

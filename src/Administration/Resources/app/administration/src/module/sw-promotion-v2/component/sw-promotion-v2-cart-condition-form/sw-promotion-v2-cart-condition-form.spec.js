@@ -128,9 +128,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
 
-        const promotionSelectionElements = wrapper.findAll('.sw-promotion-rule-select');
+        const promotionSelectionElements = wrapper.findAll('.sw-promotion-v2-cart-condition-form__rule-select-cart');
         expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
-        promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
     });
 
     it('should not have disabled form fields', async () => {
@@ -142,13 +142,12 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
 
-        const promotionSelectionElements = wrapper.findAll('.sw-promotion-rule-select');
+        const promotionSelectionElements = wrapper.findAll('.sw-promotion-v2-cart-condition-form__rule-select-cart');
         expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
         promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
     });
 
     it('should add conditions association', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
         wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 

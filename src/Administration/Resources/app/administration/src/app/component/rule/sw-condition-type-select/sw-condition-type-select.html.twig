@@ -18,7 +18,6 @@
     @search-term-change="typeSearchTerm = $event"
 >
     <template
-        v-if="feature.isActive('FEATURE_NEXT_18215')"
         #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
     >
         <li

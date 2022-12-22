@@ -90,10 +90,6 @@ describe('components/sw-select-rule-create', () => {
         });
     }
 
-    beforeAll(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-    });
-
     afterEach(() => {
         if (wrapper) {
             wrapper.destroy();
@@ -144,18 +140,5 @@ describe('components/sw-select-rule-create', () => {
 
         expect(tooltipConfig.disabled).toBeFalsy();
         expect(tooltipConfig.message).toEqual('ruleAwarenessRestrictionLabelText');
-    });
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_18215) Remove test when feature flag is removed
-     */
-    it('should always return false when feature flag is deactivated', async () => {
-        wrapper = await createWrapper();
-
-        global.activeFeatureFlags = [];
-
-        const isRestricted = wrapper.vm.isRuleRestricted({});
-
-        expect(isRestricted).toBeFalsy();
     });
 });

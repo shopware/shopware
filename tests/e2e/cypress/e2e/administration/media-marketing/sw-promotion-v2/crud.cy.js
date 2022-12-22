@@ -17,8 +17,6 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     it('@base @marketing: create, update and read promotion', { tags: ['pa-checkout'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_18215');
-
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST',

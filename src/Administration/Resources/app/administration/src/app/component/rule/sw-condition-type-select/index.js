@@ -14,7 +14,6 @@ Component.register('sw-condition-type-select', {
         'removeNodeFromTree',
         'conditionDataProviderService',
         'restrictedConditions',
-        'feature',
     ],
 
     props: {

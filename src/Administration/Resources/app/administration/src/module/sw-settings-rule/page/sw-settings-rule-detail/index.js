@@ -72,10 +72,6 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('tags');
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return criteria;
-            }
-
             criteria.addAssociation('personaPromotions');
             criteria.addAssociation('orderPromotions');
             criteria.addAssociation('cartPromotions');

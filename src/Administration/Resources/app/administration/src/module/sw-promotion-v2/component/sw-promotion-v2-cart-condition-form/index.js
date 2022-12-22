@@ -21,7 +21,6 @@ export default {
             default: null,
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         restrictedRules: {
             type: Array,
             required: false,
@@ -44,19 +43,8 @@ export default {
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addFilter(
-                    Criteria.not('AND', [
-                        Criteria.equalsAny('conditions.type', ['cartCartAmount']),
-                    ]),
-                );
-            }
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },

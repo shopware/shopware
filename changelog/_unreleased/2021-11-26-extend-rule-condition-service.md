@@ -1,7 +1,6 @@
 ---
 title: Extend rule condition service
 issue: NEXT-18625
-flag: FEATURE_NEXT_18215
 ---
 # Administration
 * Added function `addAwarenessConfiguration` to `src/app/service/rule-condition.service.js`

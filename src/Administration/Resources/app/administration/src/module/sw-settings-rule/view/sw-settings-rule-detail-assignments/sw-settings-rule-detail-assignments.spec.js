@@ -278,7 +278,6 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should disable adding then rule is restricted', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
         const wrapper = await createWrapper();
         const disabled = wrapper.vm.disableAdd({});
 
@@ -286,22 +285,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should call rule condition service', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
         const wrapper = await createWrapper();
         const config = wrapper.vm.getTooltipConfig({});
 
         expect(config.message).toEqual('tooltipConfig');
-    });
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_18215) test can be removed
-     */
-    it('should return disabled tooltip when feature is off', async () => {
-        global.activeFeatureFlags = [];
-        const wrapper = await createWrapper();
-        const config = wrapper.vm.getTooltipConfig({});
-
-        expect(config.message).toEqual('');
-        expect(config.disabled).toBeTruthy();
     });
 });

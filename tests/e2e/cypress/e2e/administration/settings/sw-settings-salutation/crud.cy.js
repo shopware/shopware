@@ -90,7 +90,7 @@ describe('Salutation: crud salutations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Dear Boss').should('be.visible');
     });
 
-    it('@settings: can delete a salutation', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete a salutation', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
         // Prepare api to delete salutation
         cy.intercept({

@@ -20,7 +20,6 @@ use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package content
@@ -125,71 +124,11 @@ class ThumbnailService
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed, use `generate` instead
-     *
      * @throws ThumbnailNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
-    public function generateThumbnails(MediaEntity $media, Context $context): int
+    public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'generate()')
-        );
-
-        if (!$this->mediaCanHaveThumbnails($media, $context)) {
-            $this->deleteAssociatedThumbnails($media, $context);
-
-            return 0;
-        }
-
-        $mediaFolder = $media->getMediaFolder();
-        if ($mediaFolder === null) {
-            return 0;
-        }
-
-        $config = $mediaFolder->getConfiguration();
-        if ($config === null) {
-            return 0;
-        }
-
-        /** @var MediaThumbnailCollection $toBeDeletedThumbnails */
-        $toBeDeletedThumbnails = $media->getThumbnails();
-        /** @var list<string> $ids */
-        $ids = $toBeDeletedThumbnails->getIds();
-        $ids = array_map(function (string $id) {
-            return ['id' => $id];
-        }, $ids);
-        $this->thumbnailRepository->delete($ids, $context);
-
-        $update = $this->createThumbnailsForSizes($media, $config, $config->getMediaThumbnailSizes());
-
-        if (empty($update)) {
-            return 0;
-        }
-
-        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($update): void {
-            $this->thumbnailRepository->create($update, $context);
-        });
-
-        return \count($update);
-    }
-
-    /**
-     * @throws ThumbnailNotSupportedException
-     * @throws ThumbnailCouldNotBeSavedException
-     *
-     * @deprecated tag:v6.5.0 - Parameter $strict will be mandatory in future implementation
-     */
-    public function updateThumbnails(MediaEntity $media, Context $context /* , bool $strict = false */): int
-    {
-        if (\func_num_args() < 3) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Third parameter $strict of method `updateThumbnails()` in `ThumbnailService` will be required in v6.5.0.0'
-            );
-        }
-
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
 

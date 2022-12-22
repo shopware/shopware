@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @package sales-channel
  */
-abstract class AbstractUrlProvider implements UrlProviderInterface
+abstract class AbstractUrlProvider
 {
     /**
      * This function should return the decorated core service.

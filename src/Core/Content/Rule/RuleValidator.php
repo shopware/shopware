@@ -31,31 +31,19 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @package business-ops
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class RuleValidator implements EventSubscriberInterface
 {
-    private ValidatorInterface $validator;
-
-    private RuleConditionRegistry $ruleConditionRegistry;
-
-    private EntityRepository $ruleConditionRepository;
-
-    private EntityRepository $appScriptConditionRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        ValidatorInterface $validator,
-        RuleConditionRegistry $ruleConditionRegistry,
-        EntityRepository $ruleConditionRepository,
-        EntityRepository $appScriptConditionRepository
+        private ValidatorInterface $validator,
+        private RuleConditionRegistry $ruleConditionRegistry,
+        private EntityRepository $ruleConditionRepository,
+        private EntityRepository $appScriptConditionRepository
     ) {
-        $this->validator = $validator;
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
-        $this->ruleConditionRepository = $ruleConditionRepository;
-        $this->appScriptConditionRepository = $appScriptConditionRepository;
     }
 
     public static function getSubscribedEvents(): array

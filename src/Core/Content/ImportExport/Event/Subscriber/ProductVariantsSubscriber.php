@@ -20,20 +20,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  *
  * @package system-settings
  */
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
 {
-    private SyncServiceInterface $syncService;
-
-    private Connection $connection;
-
-    private EntityRepository $groupRepository;
-
-    private EntityRepository $optionRepository;
-
     /**
      * @var array<string, string>
      */
@@ -48,15 +40,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
      * @internal
      */
     public function __construct(
-        SyncServiceInterface $syncService,
-        Connection $connection,
-        EntityRepository $groupRepository,
-        EntityRepository $optionRepository
+        private SyncServiceInterface $syncService,
+        private Connection $connection,
+        private EntityRepository $groupRepository,
+        private EntityRepository $optionRepository
     ) {
-        $this->syncService = $syncService;
-        $this->connection = $connection;
-        $this->groupRepository = $groupRepository;
-        $this->optionRepository = $optionRepository;
     }
 
     /**

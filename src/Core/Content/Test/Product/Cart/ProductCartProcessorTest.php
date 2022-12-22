@@ -21,7 +21,6 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -81,7 +80,6 @@ class ProductCartProcessorTest extends TestCase
 
     public function testDeliveryInformationWithEmptyWeight(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
         $this->createProduct(['weight' => null]);
 
         $cart = $this->getProductCart();

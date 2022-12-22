@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\ImportExport\Processing\Mapping;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
@@ -87,11 +86,6 @@ class MappingCollectionTest extends TestCase
         static::assertSame('id', $mappingCollection->getMapped('id')->getMappedKey());
 
         static::assertNull($mappingCollection->get('id')->getDefaultValue());
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            static::assertNull($mappingCollection->get('id')->getDefault());
-            static::assertNull($mappingCollection->get('id')->getMappedDefault());
-        }
     }
 
     public function testInvalidMappingThrows(): void

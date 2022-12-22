@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -78,32 +77,6 @@ class Mapping extends Struct
     public function getMappedKey(): string
     {
         return $this->mappedKey;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
-     */
-    public function getDefault()
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
-        );
-
-        return $this->default;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
-     */
-    public function getMappedDefault()
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
-        );
-
-        return $this->mappedDefault;
     }
 
     public function isRequiredByUser(): bool

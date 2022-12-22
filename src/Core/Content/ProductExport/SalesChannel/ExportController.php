@@ -16,15 +16,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Storefront\Event\ProductExportContentTypeEvent as StorefrontProductExportContentTypeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use function class_exists;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
@@ -142,11 +139,6 @@ class ExportController
                 $contentType = 'text/xml';
 
                 break;
-        }
-
-        if (!Feature::isActive('v6.5.0.0') && class_exists(StorefrontProductExportContentTypeEvent::class)) {
-            $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
-            $this->eventDispatcher->dispatch($event);
         }
 
         $event = new ProductExportContentTypeEvent($fileFormat, $contentType);

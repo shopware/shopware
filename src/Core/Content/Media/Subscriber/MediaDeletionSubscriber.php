@@ -29,45 +29,24 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package content
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class MediaDeletionSubscriber implements EventSubscriberInterface
 {
     public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
 
-    private Connection $connection;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private EntityRepository $thumbnailRepository;
-
-    private MessageBusInterface $messageBus;
-
-    private DeleteFileHandler $deleteFileHandler;
-
-    private EntityRepository $mediaRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        UrlGeneratorInterface $urlGenerator,
-        EventDispatcherInterface $dispatcher,
-        EntityRepository $thumbnailRepository,
-        MessageBusInterface $messageBus,
-        DeleteFileHandler $deleteFileHandler,
-        Connection $connection,
-        EntityRepository $mediaRepository
+        private UrlGeneratorInterface $urlGenerator,
+        private EventDispatcherInterface $dispatcher,
+        private EntityRepository $thumbnailRepository,
+        private MessageBusInterface $messageBus,
+        private DeleteFileHandler $deleteFileHandler,
+        private Connection $connection,
+        private EntityRepository $mediaRepository
     ) {
-        $this->urlGenerator = $urlGenerator;
-        $this->dispatcher = $dispatcher;
-        $this->thumbnailRepository = $thumbnailRepository;
-        $this->messageBus = $messageBus;
-        $this->deleteFileHandler = $deleteFileHandler;
-        $this->connection = $connection;
-        $this->mediaRepository = $mediaRepository;
     }
 
     public static function getSubscribedEvents(): array

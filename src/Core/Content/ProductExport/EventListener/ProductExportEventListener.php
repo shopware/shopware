@@ -11,29 +11,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
  * @package inventory
+ *
+ * @internal
  */
 class ProductExportEventListener implements EventSubscriberInterface
 {
-    private EntityRepository $productExportRepository;
-
-    private ProductExportFileHandlerInterface $productExportFileHandler;
-
-    private FilesystemOperator $fileSystem;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $productExportRepository,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemOperator $fileSystem
+        private EntityRepository $productExportRepository,
+        private ProductExportFileHandlerInterface $productExportFileHandler,
+        private FilesystemOperator $fileSystem
     ) {
-        $this->productExportRepository = $productExportRepository;
-        $this->productExportFileHandler = $productExportFileHandler;
-        $this->fileSystem = $fileSystem;
     }
 
     public static function getSubscribedEvents(): array

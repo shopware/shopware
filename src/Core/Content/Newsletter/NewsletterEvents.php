@@ -52,13 +52,6 @@ class NewsletterEvents
     public const NEWSLETTER_REGISTER_EVENT = NewsletterRegisterEvent::class;
 
     /**
-     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent")
-     *
-     * @deprecated tag:v6.5.0 will be removed as it was not thrown
-     */
-    public const NEWSLETTER_UPDATE_EVENT = 'newsletter.update';
-
-    /**
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent")
      */
     public const NEWSLETTER_UNSUBSCRIBE_EVENT = NewsletterUnsubscribeEvent::class;

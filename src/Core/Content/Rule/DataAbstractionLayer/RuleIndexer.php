@@ -26,7 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @package business-ops
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
@@ -34,39 +34,18 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
     public const AREA_UPDATER = 'rule.area';
 
-    private IteratorFactory $iteratorFactory;
-
-    private Connection $connection;
-
-    private EntityRepository $repository;
-
-    private RulePayloadUpdater $payloadUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private RuleAreaUpdater $areaUpdater;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        RulePayloadUpdater $payloadUpdater,
-        RuleAreaUpdater $areaUpdater,
-        CartRuleLoader $cartRuleLoader,
-        EventDispatcherInterface $eventDispatcher
+        private Connection $connection,
+        private IteratorFactory $iteratorFactory,
+        private EntityRepository $repository,
+        private RulePayloadUpdater $payloadUpdater,
+        private RuleAreaUpdater $areaUpdater,
+        private CartRuleLoader $cartRuleLoader,
+        private EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->payloadUpdater = $payloadUpdater;
-        $this->areaUpdater = $areaUpdater;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function getName(): string

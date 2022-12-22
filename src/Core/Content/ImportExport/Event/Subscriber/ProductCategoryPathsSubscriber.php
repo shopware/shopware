@@ -17,16 +17,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  *
  * @package system-settings
  */
 class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
 {
-    private EntityRepository $categoryRepository;
-
-    private SyncServiceInterface $syncService;
-
     /**
      * @var array<string, string>
      */
@@ -35,10 +31,8 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @internal
      */
-    public function __construct(EntityRepository $categoryRepository, SyncServiceInterface $syncService)
+    public function __construct(private EntityRepository $categoryRepository, private SyncServiceInterface $syncService)
     {
-        $this->categoryRepository = $categoryRepository;
-        $this->syncService = $syncService;
     }
 
     /**

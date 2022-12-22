@@ -41,7 +41,7 @@ class RuleEntity extends Entity
     protected $priority;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|Rule|null
      */
@@ -148,7 +148,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @param Rule|string|null $payload
      */

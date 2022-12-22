@@ -95,9 +95,6 @@ parameters:
 
         # can be removed with feature flag FEATURE_NEXT_12455
         -
-            message: '#Constructor of class Shopware\\Core\\Content\\Newsletter\\Exception\\LanguageOfNewsletterDeleteException has an unused parameter \$language\.#'
-            path: src/Core/Content/Newsletter/Exception/LanguageOfNewsletterDeleteException.php
-        -
             message: '#Constructor of class Shopware\\Core\\System\\Language\\Exception\\LanguageForeignKeyDeleteException has an unused parameter \$language\.#'
             path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
         -

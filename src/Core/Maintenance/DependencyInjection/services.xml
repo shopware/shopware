@@ -9,10 +9,12 @@
     <services>
         <defaults autowire="true"/>
 
+        <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemInstallCommand">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
-
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
             <tag name="console.command"/>
         </service>
 

@@ -2,14 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
+use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -21,6 +25,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SystemInstallCommandTest extends TestCase
 {
+    private Application&MockObject $application;
+
     protected function tearDown(): void
     {
         @unlink(__DIR__ . '/install.lock');
@@ -64,13 +70,106 @@ class SystemInstallCommandTest extends TestCase
         ];
     }
 
-    private function prepareCommandInstance(): SystemInstallCommand
+    public function testDefaultInstallFlow(): void
     {
-        $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
-        $systemInstallCmd = new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock);
+        $command = $this->prepareCommandInstance([
+            'system:generate-jwt',
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'assets:install',
+            'cache:clear',
+        ]);
 
-        $appMock = $this->createMock(Application::class);
-        $appMock->method('has')
+        $result = $command->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertEquals(0, $result);
+    }
+
+    public function testBasicSetupFlow(): void
+    {
+        $command = $this->prepareCommandInstance([
+            'system:generate-jwt',
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'user:create',
+            'sales-channel:create:storefront',
+            'theme:change',
+            'assets:install',
+            'cache:clear',
+        ]);
+
+        $result = $command->run(new ArrayInput(['--basic-setup' => true]), new BufferedOutput());
+
+        static::assertEquals(0, $result);
+    }
+
+    public function testJwtGenerationCanBeSkipped(): void
+    {
+        $command = $this->prepareCommandInstance([
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'assets:install',
+            'cache:clear',
+        ]);
+
+        $result = $command->run(new ArrayInput(['--skip-jwt-keys-generation' => true]), new BufferedOutput());
+
+        static::assertEquals(0, $result);
+    }
+
+    public function testAssetsInstallCanBeSkipped(): void
+    {
+        $command = $this->prepareCommandInstance([
+            'system:generate-jwt',
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'cache:clear',
+        ]);
+
+        $result = $command->run(new ArrayInput(['--skip-assets-install' => true]), new BufferedOutput());
+
+        static::assertEquals(0, $result);
+    }
+
+    /**
+     * @param array<string> $expectedCommands
+     */
+    private function prepareCommandInstance(array $expectedCommands = []): SystemInstallCommand
+    {
+        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
+
+        $connectionFactory->method('getConnection')->willReturn($connection);
+
+        $setupDatabaseAdapterMock = $this->createMock(SetupDatabaseAdapter::class);
+        $systemInstallCmd = new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory);
+
+        $this->application = $this->createMock(Application::class);
+        $this->application->method('has')
             ->willReturn(true);
 
         $mockCommand = $this->getMockBuilder(Command::class)
@@ -89,10 +188,13 @@ class SystemInstallCommandTest extends TestCase
         $mockCommand->method('getDefinition')
             ->willReturn($inputDefinitionMock);
 
-        $appMock->method('find')
+        $this->application
+            ->expects(static::exactly(\count($expectedCommands)))
+            ->method('find')
+            ->withConsecutive(...array_map(fn (string $cmd) => [$cmd], $expectedCommands))
             ->willReturn($mockCommand);
 
-        $systemInstallCmd->setApplication($appMock);
+        $systemInstallCmd->setApplication($this->application);
 
         return $systemInstallCmd;
     }

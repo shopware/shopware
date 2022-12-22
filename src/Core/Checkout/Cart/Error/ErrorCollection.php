@@ -43,7 +43,7 @@ class ErrorCollection extends Collection
         foreach ($this->getIterator() as $error) {
             if (method_exists($error, 'blockResubmit')) {
                 $blockResubmitGiven = true;
-                $blockResubmitResult = $blockResubmitResult === false and $error->blockResubmit() === false;
+                $blockResubmitResult = !($blockResubmitResult === false and $error->blockResubmit() === false);
             }
         }
         if($blockResubmitGiven) {

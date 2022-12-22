@@ -18611,12 +18611,6 @@ parameters:
 			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
 
 		-
-<<<<<<< HEAD
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\Exception\\\\LanguageForeignKeyDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection\\:\\:getLocaleIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageCollection.php
@@ -18637,8 +18631,6 @@ parameters:
 			path: src/Core/System/Language/TranslationValidator.php
 
 		-
-=======
->>>>>>> 455a151666 (NEXT-24548 - Remove deprecations in Core/System)
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\Aggregate\\\\LocaleTranslation\\\\LocaleTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Locale/Aggregate/LocaleTranslation/LocaleTranslationCollection.php
@@ -18674,7 +18666,6 @@ parameters:
 			path: src/Core/System/Locale/LanguageLocaleCodeProvider.php
 
 		-
-<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\Aggregate\\\\NumberRangeTranslation\\\\NumberRangeTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/Aggregate/NumberRangeTranslation/NumberRangeTranslationCollection.php
@@ -18695,33 +18686,6 @@ parameters:
 			path: src/Core/System/NumberRange/Aggregate/NumberRangeTypeTranslation/NumberRangeTypeTranslationCollection.php
 
 		-
-			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\\:\\:generate\\(\\) has parameter \\$parsedPattern with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\\:\\:parsePattern\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\\:\\:parsePattern\\(\\) should return array\\|null but returns array\\<int, string\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Parameter \\#2 \\$subject of function preg_split expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-=======
->>>>>>> 455a151666 (NEXT-24548 - Remove deprecations in Core/System)
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\AbstractValueGenerator\\:\\:generate\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/Pattern/AbstractValueGenerator.php
@@ -18730,57 +18694,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementRedisStorage\\:\\:getNumberRangeIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementRedisStorage.php
-
-		-
-<<<<<<< HEAD
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementStorageRegistry\\:\\:__construct\\(\\) has parameter \\$storages with no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementStorageRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\\:\\:generate\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\\:\\:resolve\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\\:\\:generate\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\\:\\:getEntityFromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\\:\\:resolve\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternInterface\\:\\:resolve\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:__construct\\(\\) has parameter \\$patterns with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:generatePattern\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:getEntityFromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelTranslation\\\\SalesChannelTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
@@ -18793,8 +18706,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelTranslation/SalesChannelTranslationCollection.php
 
 		-
-=======
->>>>>>> 455a151666 (NEXT-24548 - Remove deprecations in Core/System)
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelTranslation\\\\SalesChannelTranslationEntity\\:\\:getHomeSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelTranslation/SalesChannelTranslationEntity.php
@@ -19343,21 +19254,6 @@ parameters:
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/StateMachineEntity.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineTransition\\\\StateMachineTransitionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 2
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:getAvailableTransitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\\:\\:getAvailableTransitionsById\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"

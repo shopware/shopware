@@ -56,13 +56,6 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        hasSelectedChanges() {
-            return Object.values(this.bulkEditData).some(field => field.isChanged) || this.bulkEditData.length > 0;
-        },
-
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 

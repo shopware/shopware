@@ -40,7 +40,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
         $parsedPattern = $this->parsePattern($config['pattern']);
 
-        $generatedValue = $this->generate($parsedPattern, $config, $preview);
+        $generatedValue = \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, $preview) : '';
 
         return $this->endEvent($generatedValue, $type, $context, $salesChannelId, $preview);
     }
@@ -56,7 +56,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
         $parsedPattern = $this->parsePattern($pattern);
 
-        return $this->generate($parsedPattern, $config, true);
+        return \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, true) : '';
     }
 
     /**
@@ -130,14 +130,10 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      * @param array{id: string, pattern: string, start: ?int} $config
      * @param array<string> $parsedPattern
      */
-    private function generate(?array $parsedPattern, array $config, ?bool $preview = false): string
+    private function generate(array $parsedPattern, array $config, ?bool $preview = false): string
     {
         $generated = '';
         $startPattern = false;
-
-        if (!\is_array($parsedPattern)) {
-            return $generated;
-        }
 
         foreach ($parsedPattern as $patternPart) {
             if ($patternPart === '}') {

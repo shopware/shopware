@@ -30,7 +30,6 @@ Shopware.Component.register('sw-import-export', () => import('./page/sw-import-e
 Shopware.Component.register('sw-import-export-exporter', () => import('./component/sw-import-export-exporter'));
 Shopware.Component.register('sw-import-export-importer', () => import('./component/sw-import-export-importer'));
 Shopware.Component.register('sw-import-export-activity', () => import('./component/sw-import-export-activity'));
-Shopware.Component.register('sw-import-export-activity-detail-modal', () => import('./component/sw-import-export-activity-detail-modal'));
 Shopware.Component.register('sw-import-export-activity-log-info-modal', () => import('./component/sw-import-export-activity-log-info-modal'));
 Shopware.Component.register('sw-import-export-activity-result-modal', () => import('./component/sw-import-export-activity-result-modal'));
 Shopware.Component.register('sw-import-export-edit-profile-modal', () => import('./component/sw-import-export-edit-profile-modal'));

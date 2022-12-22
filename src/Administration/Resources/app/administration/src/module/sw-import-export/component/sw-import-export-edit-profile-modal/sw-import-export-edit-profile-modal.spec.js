@@ -173,21 +173,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.vm.missingRequiredFields).toEqual([]);
     });
 
-    it('should be have mapping length data when run mappingLength', async () => {
-        await wrapper.setProps({
-            profile: { mapping: { length: 4 } }
-        });
-
-        expect(wrapper.vm.mappingLength).toEqual(4);
-    });
-
-    it('should be mapping length data is 0 when run mappingLength', async () => {
-        await wrapper.setProps({ profile: {} });
-
-        expect(wrapper.vm.mappingLength).toEqual(0);
-    });
-
-
     it('should be isNew for profile when profile data is empty', async () => {
         await wrapper.setProps({ profile: { isNew: () => {} } });
 
@@ -199,89 +184,5 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         // create and update should be true from the mockProfile inside the component
         expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
         expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
-
-        // switch create to false (simulate v-model)
-        wrapper.vm.profile.config.createEntities = false;
-        // simulate @change event
-        wrapper.vm.onCreateEntitiesChanged(wrapper.vm.profile.config.createEntities);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm.profile.config.createEntities).toBeFalsy();
-
-        // also switch update to false (one must stay true -> this should switch create back to true)
-        wrapper.vm.profile.config.updateEntities = false;
-        wrapper.vm.onUpdateEntitiesChanged(wrapper.vm.profile.config.updateEntities);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm.profile.config.updateEntities).toBeFalsy();
-        expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
-
-        // now switch create back to false (which should also switch update back to true)
-        wrapper.vm.profile.config.createEntities = false;
-        wrapper.vm.onCreateEntitiesChanged(wrapper.vm.profile.config.createEntities);
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
-    });
-
-    it.each(
-        [
-            {
-                sourceEntity: 'product',
-                profileType: null,
-                availableEntities: ['product', 'customer', 'order'],
-                disabledEntities: [],
-                availableProfileTypes: ['import', 'import-export', 'export'],
-                disabledProfileTypes: []
-            },
-            {
-                sourceEntity: 'order',
-                profileType: null,
-                availableEntities: ['product', 'customer', 'order'],
-                disabledEntities: [],
-                availableProfileTypes: ['export'],
-                disabledProfileTypes: ['import', 'import-export']
-            },
-            {
-                sourceEntity: null,
-                profileType: 'export',
-                availableEntities: ['product', 'customer', 'order'],
-                disabledEntities: [],
-                availableProfileTypes: ['import', 'import-export', 'export'],
-                disabledProfileTypes: []
-            },
-            {
-                sourceEntity: null,
-                profileType: 'import',
-                availableEntities: ['product', 'customer'],
-                disabledEntities: ['order'],
-                availableProfileTypes: ['import', 'import-export', 'export'],
-                disabledProfileTypes: []
-            },
-            {
-                sourceEntity: 'order',
-                profileType: 'export',
-                availableEntities: ['product', 'customer', 'order'],
-                disabledEntities: [],
-                availableProfileTypes: ['export'],
-                disabledProfileTypes: ['import', 'import-export']
-            }
-        ]
-    )('should enable disable correct types and entities ', async (data) => {
-        await wrapper.setProps({ profile: mockProfile });
-        wrapper.vm.profile.sourceEntity = data.sourceEntity;
-        wrapper.vm.profile.type = data.profileType;
-
-        data.availableEntities.forEach(entity => {
-            const currentEntity = wrapper.vm.supportedEntities.find(item => item.value === entity);
-            expect(wrapper.vm.shouldDisableObjectType(currentEntity)).toBeFalsy();
-        });
-        data.disabledEntities.forEach(entity => {
-            const currentEntity = wrapper.vm.supportedEntities.find(item => item.value === entity);
-            expect(wrapper.vm.shouldDisableObjectType(currentEntity)).toBeTruthy();
-        });
-        data.availableProfileTypes.forEach(profileType => {
-            expect(wrapper.vm.shouldDisableProfileType({ value: profileType })).toBeFalsy();
-        });
-        data.disabledProfileTypes.forEach(profileType => {
-            expect(wrapper.vm.shouldDisableProfileType({ value: profileType })).toBeTruthy();
-        });
     });
 });

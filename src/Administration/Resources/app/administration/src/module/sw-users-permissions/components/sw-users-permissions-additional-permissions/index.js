@@ -44,19 +44,7 @@ export default {
         },
     },
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed
-     */
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        createdComponent() {},
-
         isPrivilegeSelected(privilegeKey) {
             if (!this.role.privileges) {
                 return false;

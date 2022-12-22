@@ -161,6 +161,7 @@
                             v-model="element.config.minHeight.value"
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
+                            :help-text="$tc('sw-cms.elements.image.config.label.minHeightHelpText')"
                             :disabled="!['cover', 'contain'].includes(element.config.displayMode.value)"
                             @input="onChangeMinHeight"
                         />

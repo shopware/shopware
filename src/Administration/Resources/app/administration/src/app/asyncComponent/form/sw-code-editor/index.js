@@ -203,10 +203,7 @@ export default {
         },
 
         async sanitizeEditorInput(value) {
-            if (
-                this.feature.isActive('FEATURE_NEXT_15172') &&
-                this.sanitizeInput
-            ) {
+            if (this.sanitizeInput) {
                 this.contentWasSanitized = false;
 
                 if (this.value !== value) {

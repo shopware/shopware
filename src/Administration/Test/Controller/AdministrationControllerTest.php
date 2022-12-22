@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -147,10 +146,6 @@ class AdministrationControllerTest extends TestCase
 
     public function testPreviewSanitizedHtml(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_15172')) {
-            static::markTestSkipped('NEXT-15172');
-        }
-
         $html = '<img alt="" src="#" /><script type="text/javascript"></script><div>test</div>';
         $browser = $this->createClient();
 

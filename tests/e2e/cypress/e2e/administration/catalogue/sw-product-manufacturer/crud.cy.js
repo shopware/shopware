@@ -59,9 +59,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.successIcon).should('be.visible');
     });
 
-    it('@catalogue: edit and read manufacturer with input purification [FEATURE_NEXT_15172]', { tags: ['pa-inventory'] }, () => {
-        cy.onlyOnFeature('FEATURE_NEXT_15172');
-
+    it('@catalogue: edit and read manufacturer with input purification', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later

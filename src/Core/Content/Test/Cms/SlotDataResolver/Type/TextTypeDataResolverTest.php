@@ -13,7 +13,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -99,10 +98,6 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithUnsanitizedStaticContent(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_15172')) {
-            static::markTestSkipped('NEXT-15172');
-        }
-
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 

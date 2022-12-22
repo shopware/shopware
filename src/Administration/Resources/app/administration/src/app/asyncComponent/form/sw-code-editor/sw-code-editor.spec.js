@@ -58,25 +58,7 @@ describe('asyncComponents/form/sw-code-editor', () => {
         expect(wrapper.vm.aceConfig.readOnly).toBe(true);
     });
 
-    it('should not sanitize content without `sanitize-input` attribute and without FEATURE_NEXT_15172', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.vm.editor.setValue(vulnerableInput, 1);
-        expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
-
-        // set sanitizeInput attribute to true, but without Feature Flag still no purification
-        await wrapper.setProps({
-            sanitizeInput: true
-        });
-
-        await wrapper.vm.editor.setValue(vulnerableInput, 1);
-        await wrapper.vm.sanitizeEditorInput(vulnerableInput);
-        expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
-    });
-
-    it('should sanitize content when `sanitize-input` attibute is true and FEATURE_NEXT_15172 is set', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_15172'];
-
+    it('should sanitize content when `sanitize-input` attibute is true', async () => {
         const wrapper = await createWrapper({
             propsData: {
                 sanitizeInput: true

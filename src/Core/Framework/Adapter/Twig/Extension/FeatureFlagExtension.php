@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Feature;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @package core
+ */
 class FeatureFlagExtension extends AbstractExtension
 {
     /**

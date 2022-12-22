@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { config, mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-recovery';
@@ -5,12 +9,12 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-alert';
 
-function createWrapper() {
+async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
 
-    return mount(Shopware.Component.build('sw-login-recovery'), {
+    return mount(await Shopware.Component.build('sw-login-recovery'), {
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),
             $router: { push: jest.fn() }
@@ -58,8 +62,8 @@ function createWrapper() {
             },
             'sw-contextual-field': true,
             'router-link': true,
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-alert': Shopware.Component.build('sw-alert'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-alert': await Shopware.Component.build('sw-alert'),
             'sw-icon': true
         }
     });
@@ -68,20 +72,20 @@ function createWrapper() {
 describe('module/sw-login/recovery.spec.js', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should redirect on submit', async () => {
-        wrapper.get('#email').setValue('test@example.com');
+        await wrapper.get('#email').setValue('test@example.com');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 

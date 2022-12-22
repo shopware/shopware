@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import jsonApiParserService from 'src/core/service/jsonapi-parser.service';
 
 const Application = Shopware.Application;

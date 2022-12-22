@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package sales-channel
+ */
 class SitemapFilterOpenTagEvent extends Event implements ShopwareEvent
 {
     private SalesChannelContext $salesChannelContext;

@@ -13,6 +13,8 @@ use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class SalesChannelCreatorTest extends TestCase

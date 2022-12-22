@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-users-permissions';
 import './components/sw-users-permissions-user-listing';
 import './components/sw-users-permissions-role-listing';

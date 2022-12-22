@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 
 /**
+ * @package business-ops
+ *
  * @covers \Shopware\Core\Framework\Rule\Container\AndRule
  * @covers \Shopware\Core\Framework\Rule\Container\Container
  *

@@ -20,6 +20,7 @@
                           class="product-wishlist-form"
                           data-form-csrf-handler="true">
 
+                        {# @deprecated tag:v6.5.0 - Block component_product_box_wishlist_remove_csrf will be removed. #}
                         {% block component_product_box_wishlist_remove_csrf %}
                             {{ sw_csrf('frontend.wishlist.product.delete') }}
                         {% endblock %}

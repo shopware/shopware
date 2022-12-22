@@ -7,6 +7,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * The 'AbstractCartItemUpdateRoute' is responsible for updating the data of a line item.
  * Internally the LineItemFactory is addressed for this purpose, where each line item type is handled individually.
  * After the line item has been updated, the cart is recalculated, then saved under the current token and returned calculated.

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 abstract class AbstractStoreRequestOptionsProvider

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * @package core
+ *
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  * @phpstan-type App array{name: string, path: string, author: string|null}
  */

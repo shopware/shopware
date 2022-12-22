@@ -4,6 +4,8 @@ import './sw-switch-field.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Boolean input field based on checkbox.
  * @status ready

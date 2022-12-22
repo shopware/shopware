@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/view/sw-product-detail-cross-selling';
 import Vuex from 'vuex';
@@ -26,13 +30,13 @@ const store = new Vuex.Store({
     }
 });
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.filter('asset', () => {});
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-product-detail-cross-selling'), {
+    return shallowMount(await Shopware.Component.build('sw-product-detail-cross-selling'), {
         localVue,
         propsData: {
             crossSelling: null
@@ -70,8 +74,8 @@ function buildProduct() {
 describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
+/**
+ * @package core
+ */
 class IterateEntityIndexerMessage
 {
     /**

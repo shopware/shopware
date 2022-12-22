@@ -50,6 +50,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package checkout
+ */
 class OrderConverter
 {
     public const CART_CONVERTED_TO_ORDER_EVENT = 'cart.convertedToOrder.event';

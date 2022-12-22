@@ -1,3 +1,7 @@
+/**
+ * @package customer-order
+ */
+
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'additional_permissions',
@@ -47,6 +51,8 @@ Shopware.Service('privileges')
                     'user_config:read',
                     'user_config:create',
                     'user_config:update',
+                    'customer:read',
+                    'customer_address:read',
                 ],
                 dependencies: [],
             },
@@ -71,8 +77,6 @@ Shopware.Service('privileges')
                     'product_visibility:read',
                     'order_line_item:update',
                     'order_line_item:create',
-                    'customer:read',
-                    'customer_address:read',
                     'salutation:read',
                     'order_address:create',
                     'order:delete',

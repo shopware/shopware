@@ -1,15 +1,15 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-visibility-config/index';
+import 'src/module/sw-cms/component/sw-cms-visibility-config';
 import 'src/app/component/base/sw-icon';
 
 /**
  * @package content
  */
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-cms-visibility-config'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-visibility-config'), {
         localVue,
         propsData: {
             visibility: {
@@ -22,7 +22,7 @@ function createWrapper() {
             cmsService: {}
         },
         stubs: {
-            'sw-icon': Shopware.Component.build('sw-icon'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-regular-tablet': true,
             'icons-regular-mobile': true,
             'icons-regular-desktop': true,
@@ -35,13 +35,13 @@ function createWrapper() {
 
 describe('module/sw-cms/component/sw-cms-visibility-config', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be visible in all devices', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const mobileIcon = wrapper.findAll('.sw-icon').at(0);
         expect(mobileIcon.classes()).toContain('icon--regular-mobile');
 
@@ -53,7 +53,7 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
     });
 
     it('should be invisible in all devices', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             visibility: {
                 mobile: false,

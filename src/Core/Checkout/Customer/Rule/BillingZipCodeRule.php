@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Rule\Container\ZipCodeRule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class BillingZipCodeRule extends ZipCodeRule
 {
     public function match(RuleScope $scope): bool

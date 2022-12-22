@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class LineItemFlatCollectionTest extends TestCase

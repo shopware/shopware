@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import 'src/module/sw-settings-snippet/page/sw-settings-snippet-detail';
@@ -81,8 +84,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    function createWrapper(privileges = []) {
-        return shallowMount(Shopware.Component.build('sw-settings-snippet-detail'), {
+    async function createWrapper(privileges = []) {
+        return shallowMount(await Shopware.Component.build('sw-settings-snippet-detail'), {
             localVue,
             mocks: {
                 $route: {
@@ -144,12 +147,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                 'sw-card-view': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-field': Shopware.Component.build('sw-field'),
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
                 'sw-button-process': true,
                 'sw-button': true,
                 'sw-skeleton': true,
@@ -161,8 +164,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         Shopware.State.commit('setCurrentUser', { username: 'admin' });
     });
 
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -177,7 +180,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             username: 'testUser'
         };
         const roles = role.split(', ');
-        const wrapper = createWrapper(roles);
+        const wrapper = await createWrapper(roles);
 
         await wrapper.setData({ isLoading: false });
 
@@ -187,8 +190,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         expect(secondInput.attributes('disabled')).toBe(state);
     });
 
-    it('should have a disabled save button', () => {
-        const wrapper = createWrapper('snippet.viewer');
+    it('should have a disabled save button', async () => {
+        const wrapper = await createWrapper('snippet.viewer');
         const saveButton = wrapper.find('.sw-snippet-detail__save-action');
 
         expect(saveButton.attributes('disabled')).toContain('true');

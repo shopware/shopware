@@ -12,6 +12,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package content
+ */
 class CreatePageCommand extends Command
 {
     protected static $defaultName = 'cms:page:create';

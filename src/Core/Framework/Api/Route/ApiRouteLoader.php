@@ -10,6 +10,9 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * @package core
+ */
 class ApiRouteLoader extends Loader
 {
     private DefinitionInstanceRegistry $definitionRegistry;

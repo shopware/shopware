@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Snippet\Files;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * @package system-settings
+ */
 class AppSnippetFileLoader
 {
     /**

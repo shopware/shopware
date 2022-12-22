@@ -7,6 +7,9 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
+/**
+ * @package core
+ */
 class MigrationCollection
 {
     /**

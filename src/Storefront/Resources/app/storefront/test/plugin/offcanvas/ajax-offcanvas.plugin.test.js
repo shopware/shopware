@@ -3,7 +3,7 @@ import AjaxOffcanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 
 // Fake requests from HttpClient
 jest.mock('src/service/http-client.service', () => {
-    return (() => {
+    return function () {
         return {
             post: (url, data, callback) => {
                 callback('<div>Interesting content from POST request</div>');
@@ -12,9 +12,12 @@ jest.mock('src/service/http-client.service', () => {
                 callback('<div>Interesting content from GET request</div>');
             },
         };
-    });
+    };
 });
 
+/**
+ * @package storefront
+ */
 describe('AjaxOffcanvas tests', () => {
 
     beforeEach(() => {

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
+ * @package checkout
+ *
  * @deprecated tag:v6.5.0 - Use \Shopware\Core\Checkout\Cart\CartException::deserializeFailed instead. Class will be removed and CartException will be thrown instead
  */
 class CartDeserializeFailedException extends ShopwareHttpException

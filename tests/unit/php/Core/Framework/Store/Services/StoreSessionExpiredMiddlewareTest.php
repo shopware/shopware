@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware
  */

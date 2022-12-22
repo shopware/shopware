@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -46,12 +50,12 @@ const variantProductsMock = [
     }
 ];
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-product-cross-selling-assignment'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-product-cross-selling-assignment'), {
         stubs: {
             'sw-entity-single-select': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
             'sw-context-button': true,
             'sw-data-grid-settings': true,
             'sw-context-menu-item': true,
@@ -97,15 +101,15 @@ describe('module/sw-product/component/sw-product-cross-selling-assignment', () =
         });
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should fetch variants with inherited names if assignedProducts includes variants without name', () => {
+    it('should fetch variants with inherited names if assignedProducts includes variants without name', async () => {
         const variantNames = wrapper.vm.variantNames;
         const variantProductIds = wrapper.vm.variantProductIds;
 

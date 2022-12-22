@@ -22,6 +22,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package customer-order
+ */
 class OrderEntity extends Entity
 {
     use EntityIdTrait;

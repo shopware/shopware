@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 interface PreparedPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**

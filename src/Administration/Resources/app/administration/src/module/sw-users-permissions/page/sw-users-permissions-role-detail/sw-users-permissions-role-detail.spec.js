@@ -1,9 +1,11 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import PrivilegesService from 'src/app/service/privileges.service';
-import flushPromises from 'flush-promises';
 import AppAclService from 'src/app/service/app-acl.service';
 
 let privilegesService = new PrivilegesService();
@@ -26,7 +28,7 @@ function isNew() {
     return false;
 }
 
-function createWrapper({
+async function createWrapper({
     privileges = [],
     privilegeMappingEntries = [],
     aclPrivileges = []
@@ -37,7 +39,7 @@ function createWrapper({
 
     const $route = options.isNew ? { params: {} } : { params: { id: '12345789' } };
 
-    return shallowMount(Shopware.Component.build('sw-users-permissions-role-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-detail'), {
         sync: false,
         stubs: {
             'sw-page': { template: `
@@ -47,8 +49,8 @@ function createWrapper({
     <slot name="content"></slot>
 </div>
     ` },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-icon': true,
             'sw-card-view': true,
             'sw-card': true,
@@ -95,17 +97,23 @@ function createWrapper({
 }
 
 describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', () => {
+    let wrapper;
+
     beforeEach(() => {
         privilegesService = new PrivilegesService();
     });
 
+    afterEach(() => {
+        wrapper.destroy();
+    });
+
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not contain any privileges', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['system:clear:cache', 'system.clear_cache']
         });
 
@@ -115,7 +123,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should contain only role privileges', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['system:clear:cache', 'system.clear_cache'],
             privilegeMappingEntries: [
                 {
@@ -139,7 +147,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should contain only roles privileges', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['orders.create_discounts', 'system.clear_cache'],
             privilegeMappingEntries: [
                 {
@@ -176,7 +184,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should filter custom privileges', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['orders.create_discounts', 'system.clear_cache', 'product:update', 'order:read'],
             privilegeMappingEntries: [
                 {
@@ -220,7 +228,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should save privilege with all privileges and admin privilege key combination', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['system.clear_cache'],
             privilegeMappingEntries: [
                 {
@@ -259,7 +267,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should save privileges with all privileges and admin privilege key combinations', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['system.clear_cache', 'orders.create_discounts'],
             privilegeMappingEntries: [
                 {
@@ -311,7 +319,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
             privilegeMappingEntries: [
                 {
@@ -364,7 +372,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should merge privileges and detailed privileges', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
             privilegeMappingEntries: [
                 {
@@ -420,7 +428,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should save privileges with all privileges from getPrivileges() method', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             privileges: ['promotion.viewer', 'promotion.editor', 'promotion.creator'],
             privilegeMappingEntries: [
                 {
@@ -508,7 +516,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should open the confirm password modal on save', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             aclPrivileges: ['users_and_permissions.editor']
         });
         await wrapper.setData({
@@ -526,7 +534,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should show the name of the role as the title', async () => {
-        const wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         const title = wrapper.find('h2');
@@ -534,7 +542,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should not show the create new snippet when user deletes name', async () => {
-        const wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
 
         const title = wrapper.find('h2');
@@ -547,7 +555,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should show the create new role snippet as the title', async () => {
-        const wrapper = createWrapper({}, {
+        wrapper = await createWrapper({}, {
             isNew: true
         });
         await wrapper.setData({
@@ -559,7 +567,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should replace the create new role snippet as the title when user types name', async () => {
-        const wrapper = createWrapper({}, {
+        wrapper = await createWrapper({}, {
             isNew: true
         });
         await wrapper.setData({
@@ -576,7 +584,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should disable the button and fields when no aclPrivileges exists', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             aclPrivileges: []
         });
         await wrapper.setData({
@@ -588,7 +596,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
-        const wrapper = createWrapper({
+        wrapper = await createWrapper({
             aclPrivileges: ['users_and_permissions.editor']
         });
         await wrapper.setData({

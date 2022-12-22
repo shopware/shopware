@@ -25,6 +25,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package sales-channel
+ *
  * @final tag:v6.5.0
  */
 class SalesChannelRepository implements SalesChannelRepositoryInterface

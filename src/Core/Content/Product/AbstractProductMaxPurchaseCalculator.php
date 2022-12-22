@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 if (Feature::isActive('v6.5.0.0')) {
+    /**
+     * @package inventory
+     */
     abstract class AbstractProductMaxPurchaseCalculator
     {
         abstract public function getDecorated(): AbstractProductMaxPurchaseCalculator;
@@ -15,6 +18,9 @@ if (Feature::isActive('v6.5.0.0')) {
         abstract public function calculate(Entity $product, SalesChannelContext $context): int;
     }
 } else {
+    /**
+     * @package inventory
+     */
     abstract class AbstractProductMaxPurchaseCalculator
     {
         abstract public function getDecorated(): AbstractProductMaxPurchaseCalculator;

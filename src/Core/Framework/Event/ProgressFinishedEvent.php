@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class ProgressFinishedEvent extends Event
 {
     public const NAME = self::class;

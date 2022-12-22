@@ -1,10 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-add-properties-modal';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-product-add-properties-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-product-add-properties-modal'), {
         localVue,
         stubs: {
             'sw-modal': true,
@@ -36,19 +40,19 @@ function createWrapper() {
 describe('src/module/sw-product/component/sw-product-add-properties-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should emit an event when pressing on cancel button', () => {
+    it('should emit an event when pressing on cancel button', async () => {
         wrapper.vm.onCancel();
 
         const emitted = wrapper.emitted()['modal-cancel'];

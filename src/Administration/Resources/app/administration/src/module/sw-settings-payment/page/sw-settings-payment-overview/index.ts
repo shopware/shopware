@@ -7,6 +7,10 @@ import type { PaymentOverviewCard } from '../../state/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
+/**
+ * @package checkout
+ */
+
 interface PaymentMethodEntity extends Entity {
     active: boolean;
     position: number;

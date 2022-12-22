@@ -22,6 +22,8 @@ use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - This class will be marked as "internal - only for use by the app-system"
  */
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService

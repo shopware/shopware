@@ -1,9 +1,13 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
-function createWrapper({ propsData = {}, privileges = [] } = {}) {
+async function createWrapper({ propsData = {}, privileges = [] } = {}) {
     const $router = {
         match: (route) => {
             let match = propsData.entry;
@@ -38,11 +42,11 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
 
     const aclService = new AclService(Shopware.State);
 
-    return shallowMount(Shopware.Component.build('sw-admin-menu-item'), {
+    return shallowMount(await Shopware.Component.build('sw-admin-menu-item'), {
         propsData: propsData,
         stubs: {
             'sw-icon': true,
-            'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
+            'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
             'router-link': {
                 template: '<a class="router-link"></a>',
                 props: ['to']
@@ -94,7 +98,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 entry: catalogues
             }
@@ -104,7 +108,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should contain all menu entries', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 entry: catalogues
             }
@@ -125,7 +129,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should show only one entry without children', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 entry: {
                     id: 'sw-product',
@@ -147,7 +151,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should show a link when a path is provided', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 entry: {
                     id: 'sw-product',
@@ -172,7 +176,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should not show a link when no path is provided', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 entry: catalogues
             }
@@ -183,7 +187,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should not show the menu entry when user has no privilege', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 entry: {
                     id: 'sw-product',
@@ -205,7 +209,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should show the menu entry when user has the privilege', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: ['product.viewer'],
             propsData: {
                 entry: {
@@ -228,7 +232,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should not show a link when the path goes to a route which needs a privilege which is not set', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {
@@ -274,7 +278,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: ['product.viewer'],
             propsData: {
                 entry: {
@@ -328,7 +332,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
     // eslint-disable-next-line max-len
     it('should not show the menu entry when all children have privileges the user do not have and the main path is also restricted', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {
@@ -374,7 +378,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should not show the menu entry when all children have privileges the user do not have', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {
@@ -419,8 +423,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     // eslint-disable-next-line max-len
-    test('should show the menu entry when all children have privileges the user do not have but the main path is allowed', () => {
-        const wrapper = createWrapper({
+    test('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {
@@ -469,12 +473,12 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
     });
 
-    test('should hide settings menu if no item is visible', () => {
+    test('should hide settings menu if no item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'no-set', path: 'test' }
         ];
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {
@@ -494,13 +498,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
 
-    test('settings should be shown if all item is visible', () => {
+    test('settings should be shown if all item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
             { privilege: 'priv-2' }
         ];
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: ['priv-1', 'priv2'],
             propsData: {
                 entry: {
@@ -520,13 +524,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).not.toBe('');
     });
 
-    test('settings should be shown if one item is visible', () => {
+    test('settings should be shown if one item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
             { privilege: 'priv-2' }
         ];
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: ['priv-1'],
             propsData: {
                 entry: {
@@ -547,7 +551,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     test('get the first plugin menu entry', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {
@@ -581,7 +585,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
     });
 
-    test('should match route', () => {
+    test('should match route', async () => {
         const entries = [...catalogues.children];
         entries.unshift({
             id: 'sw-catalogue',
@@ -595,7 +599,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         Shopware.State.commit('adminMenu/setAdminModuleNavigation', entries);
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             privileges: [],
             propsData: {
                 entry: {

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
 

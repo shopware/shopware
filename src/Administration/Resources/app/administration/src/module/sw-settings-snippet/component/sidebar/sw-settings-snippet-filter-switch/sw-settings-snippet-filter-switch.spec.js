@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';
 import 'src/app/component/form/sw-field';
@@ -6,17 +9,17 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-snippet-filter-switch'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-snippet-filter-switch'), {
         localVue,
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
         },
         propsData: {
             name: 'Shopware',
@@ -27,15 +30,15 @@ function createWrapper() {
 describe('sw-settings-snippet-filter-switch', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

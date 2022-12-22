@@ -9,6 +9,9 @@ const SELECTOR_CLASS = 'loader';
  */
 const VISUALLY_HIDDEN_CLASS = Feature.isActive('v6.5.0.0') ? 'visually-hidden' : 'sr-only';
 
+/**
+ * @package storefront
+ */
 export default class LoadingIndicatorUtil {
 
     /**

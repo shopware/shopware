@@ -1,10 +1,13 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/text/config';
 import 'src/module/sw-cms/elements/product-name/config';
 
-function createWrapper(propsOverride) {
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-product-name'), {
+async function createWrapper(propsOverride) {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-name'), {
         propsData: {
             element: {
                 config: {
@@ -59,21 +62,21 @@ function createWrapper(propsOverride) {
 describe('module/sw-cms/elements/product-name/config', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should map to a product name if the component is in a product page', () => {
+    it('should map to a product name if the component is in a product page', async () => {
         expect(wrapper.vm.element.config.content.source).toBe('mapped');
         expect(wrapper.vm.element.config.content.value).toBe('product.name');
     });
 
-    it('should not initially map to a product name if element translated config exists', () => {
-        wrapper = createWrapper({
+    it('should not initially map to a product name if element translated config exists', async () => {
+        wrapper = await createWrapper({
             element: {
                 config: {
                     content: {
@@ -100,8 +103,8 @@ describe('module/sw-cms/elements/product-name/config', () => {
         expect(wrapper.vm.element.config.content.value).toBe('Sample Product');
     });
 
-    it('should not initially map to a product name if element config exists', () => {
-        wrapper = createWrapper({
+    it('should not initially map to a product name if element config exists', async () => {
+        wrapper = await createWrapper({
             element: {
                 config: {
                     content: {

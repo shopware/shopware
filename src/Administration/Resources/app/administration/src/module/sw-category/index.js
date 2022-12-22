@@ -1,3 +1,4 @@
+
 import './component/sw-category-tree';
 import './component/sw-landing-page-tree';
 import './component/sw-landing-page-view';
@@ -27,6 +28,9 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-category', {
     type: 'core',

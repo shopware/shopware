@@ -1,9 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-properties';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-card';
-import flushPromises from 'flush-promises';
 
 const { Component, State } = Shopware;
 
@@ -79,7 +82,7 @@ const $refsMock = {
     }
 };
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -108,7 +111,7 @@ function createWrapper(privileges = []) {
                     }
                 }
             },
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-card': {
                 template: `
                     <div class="sw-card">
@@ -200,14 +203,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get group ids successful', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         await State.commit('swProductDetail/setProduct', productMock);
@@ -219,7 +222,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get group ids failed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         await State.commit('swProductDetail/setProduct', {});
@@ -231,7 +234,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties successful', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -248,7 +251,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties failed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.reject();
@@ -265,7 +268,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties failed if having no inputs', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.getProperties = jest.fn(() => {
             return Promise.reject(new Error('Whoops!'));
@@ -283,7 +286,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete property value successful', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -306,7 +309,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete property successful', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.setData({ $refs: $refsMock });
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
@@ -329,7 +332,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete properties successful', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.setData({ $refs: $refsMock });
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
@@ -352,7 +355,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties when changing search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         const error = new Error('Whoops!');
         wrapper.vm.getProperties = jest.fn(() => {
@@ -366,7 +369,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should turn on add properties modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            propertiesAvailable: true,
+        });
         wrapper.vm.updateNewProperties = jest.fn();
 
         wrapper.vm.turnOnAddPropertiesModal();
@@ -377,7 +383,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should turn off add properties modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.updateNewProperties = jest.fn();
 
@@ -389,7 +395,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should update new properties correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -429,7 +435,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should update new properties item correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -450,7 +456,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should add new properties item successful', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -486,7 +492,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should call a turning off modal function when canceling properties modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.turnOffAddPropertiesModal = jest.fn();
 
@@ -497,7 +503,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should save add properties modal failed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.turnOffAddPropertiesModal = jest.fn();
 
@@ -511,7 +517,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to add properties in empty state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -524,7 +530,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to add properties in empty state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({ properties: [], searchTerm: null });
@@ -534,7 +540,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to add properties in filled state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
 
@@ -548,7 +554,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to add properties in filled state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
@@ -558,7 +564,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to edit property', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'property.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -577,7 +583,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to edit property', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -594,7 +600,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to delete property', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -613,7 +619,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to delete property', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -630,7 +636,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should hide sw-inheritance-switch component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();

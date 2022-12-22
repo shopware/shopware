@@ -6,6 +6,7 @@
         class="buy-widget"
         data-add-to-cart="true">
 
+        {# @deprecated tag:v6.5.0 - Block buy_widget_buy_form_inner_csrf will be removed. #}
         {% block buy_widget_buy_form_inner_csrf %}
             {{ sw_csrf('frontend.checkout.line-item.add') }}
         {% endblock %}
@@ -119,11 +120,22 @@
                     {% block buy_widget_buy_button_container %}
                         <div class="col-8">
                             {% block buy_widget_buy_button %}
-                                <button class="btn btn-primary btn-block btn-buy"
-                                        title="{{ "detail.addProduct"|trans|striptags }}"
-                                        aria-label="{{ "detail.addProduct"|trans|striptags }}">
-                                    {{ "detail.addProduct"|trans|sw_sanitize }}
-                                </button>
+                                {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+                                {% if feature('v6.5.0.0') %}
+                                    <div class="d-grid">
+                                        <button class="btn btn-primary btn-buy"
+                                                title="{{ "detail.addProduct"|trans|striptags }}"
+                                                aria-label="{{ "detail.addProduct"|trans|striptags }}">
+                                            {{ "detail.addProduct"|trans|sw_sanitize }}
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <button class="btn btn-primary btn-block btn-buy"
+                                            title="{{ "detail.addProduct"|trans|striptags }}"
+                                            aria-label="{{ "detail.addProduct"|trans|striptags }}">
+                                        {{ "detail.addProduct"|trans|sw_sanitize }}
+                                    </button>
+                                {% endif %}
                             {% endblock %}
                         </div>
                     {% endblock %}

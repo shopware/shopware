@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
@@ -13,6 +17,7 @@ import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type { default as VueType } from 'vue';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
+import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/component.factory';
@@ -33,6 +38,8 @@ import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
+import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
+import type cmsBlockFavoritesService from './module/sw-cms/service/cms-block-favorites.service';
 import type CheckoutStoreService from './core/service/api/checkout-store.api.service';
 
 // trick to make it an "external module" to support global type extension
@@ -125,6 +132,8 @@ declare global {
         appCmsService: $TSFixMe,
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
         cmsService: CmsService,
+        cmsElementFavorites: cmsElementFavoritesService,
+        cmsBlockFavorites: cmsBlockFavoritesService,
         searchRankingService: $TSFixMe,
         searchPreferencesService: $TSFixMe,
         storeService: StoreApiService,
@@ -137,6 +146,7 @@ declare global {
         extensionSdkService: ExtensionSdkService,
         appModulesService: AppModulesService,
         cartStoreService: CartStoreService,
+        customSnippetApiService: CustomSnippetApiService,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{
@@ -239,6 +249,8 @@ declare global {
             documentationLink?: string,
         }
     }
+
+    const flushPromises: () => Promise<void>;
 }
 
 /**

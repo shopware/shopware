@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { CookieStorage } from 'cookie-storage';
 
 interface AuthObject {

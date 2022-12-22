@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-domains-modal';
 
-function createWrapper(propsData) {
-    return shallowMount(Shopware.Component.build('sw-extension-domains-modal'), {
+async function createWrapper(propsData) {
+    return shallowMount(await Shopware.Component.build('sw-extension-domains-modal'), {
         propsData: {
             extensionLabel: 'SEO Professional App',
             ...propsData
@@ -19,6 +19,9 @@ function createWrapper(propsData) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     /** @type Wrapper */
     let wrapper;
@@ -28,7 +31,7 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             domains: []
         });
 
@@ -43,7 +46,7 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
         it(`should not show any domains: ${domains}`, async () => {
             const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-            wrapper = createWrapper({
+            wrapper = await createWrapper({
                 domains
             });
             if (Array.isArray(domains)) {
@@ -61,7 +64,7 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
         ['https://www.google.com', 'https://bing.com']
     ].forEach(domains => {
         it(`should show the domains which are given via the property, domain count: ${domains.length}`, async () => {
-            wrapper = createWrapper({
+            wrapper = await createWrapper({
                 domains
             });
 

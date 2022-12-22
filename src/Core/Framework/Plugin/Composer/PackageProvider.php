@@ -8,6 +8,9 @@ use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Util\ConfigValidator;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
+/**
+ * @package core
+ */
 class PackageProvider
 {
     /**

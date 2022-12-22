@@ -23,6 +23,9 @@ const additionalData = {
     referenceUnit: 0.33
 };
 
+/**
+ * @package checkout
+ */
 describe('Test if essential characteristics are displayed in checkout', () => {
     beforeEach(() => {
         cy.createProductFixture(additionalData).then(() => {

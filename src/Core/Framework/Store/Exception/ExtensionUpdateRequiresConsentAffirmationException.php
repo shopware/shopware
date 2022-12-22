@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Store\Exception;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only extend from Shopware\Core\Framework\ShopwareHttpException
  *
  * @internal

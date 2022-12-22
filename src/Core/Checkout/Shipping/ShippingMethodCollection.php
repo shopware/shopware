@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ *
  * @extends EntityCollection<ShippingMethodEntity>
  */
 class ShippingMethodCollection extends EntityCollection

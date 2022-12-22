@@ -4,6 +4,8 @@ import template from './sw-inherit-wrapper.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Wrapper for inherited data with toggle
  * @status ready

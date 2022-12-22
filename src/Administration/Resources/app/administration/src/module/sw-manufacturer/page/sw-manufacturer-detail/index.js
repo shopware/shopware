@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
@@ -120,6 +124,11 @@ Component.register('sw-manufacturer-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-manufacturer-detail__manufacturer',
+                path: 'manufacturer',
+                scope: this,
+            });
             if (this.manufacturerId) {
                 this.loadEntityData();
                 return;
@@ -129,19 +138,31 @@ Component.register('sw-manufacturer-detail', {
             this.manufacturer = this.manufacturerRepository.create();
         },
 
-        loadEntityData() {
+        async loadEntityData() {
             this.isLoading = true;
 
-            this.manufacturerRepository.get(this.manufacturerId).then((manufacturer) => {
-                this.isLoading = false;
-                this.manufacturer = manufacturer;
-            });
+            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
+                this.manufacturerRepository.get(this.manufacturerId),
+                this.customFieldSetRepository.search(this.customFieldSetCriteria),
+            ]);
 
-            this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
-                .then((result) => {
-                    this.customFieldSets = result;
+            if (manufacturerResponse.status === 'fulfilled') {
+                this.manufacturer = manufacturerResponse.value;
+            }
+
+            if (customFieldResponse.status === 'fulfilled') {
+                this.customFieldSets = customFieldResponse.value;
+            }
+
+            if (manufacturerResponse.status === 'rejected' || customFieldResponse.status === 'rejected') {
+                this.createNotificationError({
+                    message: this.$tc(
+                        'global.notification.notificationLoadingDataErrorMessage',
+                    ),
                 });
+            }
+
+            this.isLoading = false;
         },
 
         abortOnLanguageChange() {

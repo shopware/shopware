@@ -1,15 +1,18 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-review/page/sw-review-detail';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.filter('date', v => v);
 
 
-    return shallowMount(Shopware.Component.build('sw-review-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-review-detail'), {
         localVue,
         mocks: {
             $route: {
@@ -99,22 +102,24 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-review/page/sw-review-detail', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
+        wrapper.destroy();
     });
 
     it('should not be able to save the review', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
+        wrapper.destroy();
     });
 
     it('should be able to save the review', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'review.editor'
         ]);
         await wrapper.setData({
@@ -125,10 +130,11 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+        wrapper.destroy();
     });
 
     it('should not be able to edit review fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({ isLoading: false });
 
@@ -139,10 +145,11 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeTruthy();
         expect(activeField.attributes().disabled).toBeTruthy();
         expect(commentField.attributes().disabled).toBeTruthy();
+        wrapper.destroy();
     });
 
     it('should be able to edit review fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'review.editor'
         ]);
 
@@ -155,5 +162,6 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeFalsy();
         expect(activeField.attributes().disabled).toBeFalsy();
         expect(commentField.attributes().disabled).toBeFalsy();
+        wrapper.destroy();
     });
 });

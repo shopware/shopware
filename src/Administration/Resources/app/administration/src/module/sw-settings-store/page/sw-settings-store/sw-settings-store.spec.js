@@ -1,8 +1,8 @@
 import 'src/module/sw-settings-store/page/sw-settings-store';
 import { shallowMount } from '@vue/test-utils';
 
-function createWrapper(customString = '') {
-    return shallowMount(Shopware.Component.build('sw-settings-store'), {
+async function createWrapper(customString = '') {
+    return shallowMount(await Shopware.Component.build('sw-settings-store'), {
         stubs: {
             'sw-page': {
                 template: '<div><slot name="content"></slot></div>'
@@ -25,14 +25,17 @@ function createWrapper(customString = '') {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-settings-store/page/sw-settings-store', () => {
     it('should be a vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should trim empty spaces from license host', async () => {
-        const wrapper = createWrapper('  foobar  ');
+        const wrapper = await createWrapper('  foobar  ');
 
         expect(wrapper.vm.$refs.systemConfig.actualConfigData).toStrictEqual({
             null: {

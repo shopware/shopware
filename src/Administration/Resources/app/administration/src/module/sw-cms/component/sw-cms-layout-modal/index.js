@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-layout-modal', {
     template,

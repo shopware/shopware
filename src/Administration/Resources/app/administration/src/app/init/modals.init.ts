@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeModal(): void {
     Shopware.ExtensionAPI.handle('uiModalOpen', (modalConfig, { _event_ }) => {

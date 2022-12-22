@@ -174,6 +174,41 @@ Component.register('sw-mail-template-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplate',
+                path: 'mailTemplate',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplateMedia',
+                path: 'mailTemplateMedia',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplateMediaSelected',
+                path: 'mailTemplateMediaSelected',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__mailTemplateType',
+                path: 'mailTemplateType',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__availableVariables',
+                path: 'availableVariables',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__testMailSalesChannelId',
+                path: 'testMailSalesChannelId',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__testerMail',
+                path: 'testerMail',
+                scope: this,
+            });
             if (this.$route.params.id) {
                 this.mailTemplateId = this.$route.params.id;
                 this.loadEntityData();

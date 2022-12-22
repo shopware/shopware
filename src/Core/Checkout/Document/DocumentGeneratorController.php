@@ -22,6 +22,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class DocumentGeneratorController extends AbstractController

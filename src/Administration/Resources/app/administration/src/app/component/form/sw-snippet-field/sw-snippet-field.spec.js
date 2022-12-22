@@ -1,8 +1,11 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/sw-snippet-field';
-import flushPromises from 'flush-promises';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -10,22 +13,22 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
-function createWrapper(systemLanguageIso = '', translations = [], customOptions = {}) {
+async function createWrapper(systemLanguageIso = '', translations = [], customOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-snippet-field'), {
+    return shallowMount(await Shopware.Component.build('sw-snippet-field'), {
         localVue,
         propsData: {
             snippet: 'test.snippet'
         },
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-modal': true,
             'sw-loader': true,
             'sw-icon': true,
@@ -88,14 +91,14 @@ function createEntityCollection(entities = []) {
 
 describe('src/app/component/form/sw-snippet-field', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show admin language translation of snippet field', async () => {
         Shopware.State.get('session').currentLocale = 'de-DE';
 
-        const wrapper = createWrapper('en-GB', [{
+        const wrapper = await createWrapper('en-GB', [{
             author: 'testUser',
             id: null,
             value: 'english',
@@ -122,7 +125,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     it('should show system default language translation of snippet field', async () => {
         Shopware.State.get('session').currentLocale = 'nl-NL';
 
-        const wrapper = createWrapper('de-DE', [{
+        const wrapper = await createWrapper('de-DE', [{
             author: 'testUser',
             id: null,
             value: 'english',
@@ -149,7 +152,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     it('should show en-GB language translation of snippet field', async () => {
         Shopware.State.get('session').currentLocale = 'nl-NL';
 
-        const wrapper = createWrapper('nl-NL', [{
+        const wrapper = await createWrapper('nl-NL', [{
             author: 'testUser',
             id: null,
             value: 'english',
@@ -176,7 +179,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     it('should show snippet key as fallback', async () => {
         Shopware.State.get('session').currentLocale = 'nl-NL';
 
-        const wrapper = createWrapper('nl-NL', []);
+        const wrapper = await createWrapper('nl-NL', []);
 
         await flushPromises();
 
@@ -190,7 +193,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             username: 'testUser'
         };
 
-        const wrapper = createWrapper('en-GB', []);
+        const wrapper = await createWrapper('en-GB', []);
 
         await flushPromises();
 

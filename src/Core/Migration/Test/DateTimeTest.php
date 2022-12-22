@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class DateTimeTest extends TestCase

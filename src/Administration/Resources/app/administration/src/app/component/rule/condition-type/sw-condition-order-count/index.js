@@ -4,6 +4,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
+ * @package business-ops
  * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic instead.
  */
 Component.extend('sw-condition-order-count', 'sw-condition-base', {

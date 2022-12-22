@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-status';
 
-function createWrapper(customOptions = {}) {
-    return shallowMount(Shopware.Component.build('sw-status'), {
+async function createWrapper(customOptions = {}) {
+    return shallowMount(await Shopware.Component.build('sw-status'), {
         stubs: {
             'sw-color-badge': true
         },
@@ -55,6 +55,7 @@ describe('src/app/component/utils/sw-status', () => {
             propsData: { color: 'red' }
         });
 
-        expect(wrapper.find('sw-color-badge-stub').isVisible()).toBe(true);
+        const colorBadge = await wrapper.find('sw-color-badge-stub');
+        expect(colorBadge.isVisible()).toBe(true);
     });
 });

@@ -7,6 +7,7 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package content
  * @Decoratable()
  */
 interface NavigationLoaderInterface

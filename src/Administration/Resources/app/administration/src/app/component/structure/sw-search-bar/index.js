@@ -7,6 +7,8 @@ const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders the search bar. This component uses the search service to find entities in the administration.

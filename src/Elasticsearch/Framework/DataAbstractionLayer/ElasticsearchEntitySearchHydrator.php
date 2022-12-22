@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package core
+ */
 class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydrator
 {
     public function getDecorated(): AbstractElasticsearchSearchHydrator

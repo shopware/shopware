@@ -1,11 +1,14 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/component/sw-cms-layout-modal';
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-cms-layout-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-layout-modal'), {
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -80,7 +83,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
     it('should search cms pages with criteria filters', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             cmsPageTypes: ['page', 'landingpage', 'product_list']
@@ -104,7 +107,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
     it('should search cms pages without criteria filters', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             cmsPageTypes: []
@@ -123,7 +126,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
     it('should display default status', async () => {
         global.activeAclRoles = ['system_config.read'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

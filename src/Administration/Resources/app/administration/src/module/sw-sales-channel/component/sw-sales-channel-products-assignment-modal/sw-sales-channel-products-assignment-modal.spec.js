@@ -1,9 +1,12 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
 
-function createWrapper(activeTab = 'singleProducts') {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
+async function createWrapper(activeTab = 'singleProducts') {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
         directives: {
             hide: {}
         },
@@ -12,7 +15,7 @@ function createWrapper(activeTab = 'singleProducts') {
             'sw-sales-channel-product-assignment-categories': true,
             'sw-sales-channel-products-assignment-dynamic-product-groups': true,
             'sw-container': true,
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-modal': true,
             'sw-tabs': {
                 data() {
@@ -35,15 +38,15 @@ function createWrapper(activeTab = 'singleProducts') {
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal', () => {
     it('should emit modal close event', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        wrapper.findAll('.sw-button').at(0).trigger('click');
+        await wrapper.findAll('.sw-button').at(0).trigger('click');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
     });
 
     it('should emit products data when clicking Add Products button to assign product individually', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             singleProducts: [
                 {
@@ -53,7 +56,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             ]
         });
 
-        wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.find('.sw-button--primary').trigger('click');
 
         expect(wrapper.emitted('products-add')).toBeTruthy();
         expect(wrapper.emitted('products-add')[0]).toEqual([wrapper.vm.products]);
@@ -71,7 +74,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             }
         ];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             categoryProducts: products
         });
@@ -84,7 +87,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should remove duplicated products before emitting', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             singleProducts: [
                 {
@@ -125,8 +128,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.vm.productCount).toBe(3);
     });
 
-    it('should update the corresponding product successfully', () => {
-        const wrapper = createWrapper();
+    it('should update the corresponding product successfully', async () => {
+        const wrapper = await createWrapper();
         const groupProductsMock = [
             {
                 id: 1,
@@ -153,8 +156,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         );
     });
 
-    it('should update the product loading state correctly', () => {
-        const wrapper = createWrapper();
+    it('should update the product loading state correctly', async () => {
+        const wrapper = await createWrapper();
 
         wrapper.vm.setProductLoading(true);
 

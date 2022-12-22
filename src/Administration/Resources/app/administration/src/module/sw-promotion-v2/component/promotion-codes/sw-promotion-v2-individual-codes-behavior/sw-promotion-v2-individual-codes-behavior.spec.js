@@ -3,11 +3,11 @@ import 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-ind
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
-function createWrapper(additionalPromotionData = {}) {
+async function createWrapper(additionalPromotionData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-individual-codes-behavior'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-individual-codes-behavior'), {
         localVue,
         stubs: {
             'sw-card': {
@@ -31,8 +31,8 @@ function createWrapper(additionalPromotionData = {}) {
                 template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>'
             },
             'sw-context-menu-item': true,
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-number-field': {
                 template: '<div class="sw-number-field"><slot></slot></div>'
             },
@@ -103,8 +103,8 @@ function createWrapper(additionalPromotionData = {}) {
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

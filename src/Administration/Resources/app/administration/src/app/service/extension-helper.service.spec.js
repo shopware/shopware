@@ -1,5 +1,8 @@
 import ExtensionHelperService from 'src/app/service/extension-helper.service';
 
+/**
+ * @package merchant-services
+ */
 describe('src/app/service/extension-helper.service.js', () => {
     /**
      * @type ExtensionHelperService

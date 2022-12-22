@@ -18,6 +18,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
 /**
+ * @package checkout
+ *
  * @internal
  * @group store-api
  * @group cart

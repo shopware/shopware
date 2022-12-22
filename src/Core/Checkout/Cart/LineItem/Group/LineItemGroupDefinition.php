@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Content\Rule\RuleCollection;
 
+/**
+ * @package checkout
+ */
 class LineItemGroupDefinition
 {
     /**

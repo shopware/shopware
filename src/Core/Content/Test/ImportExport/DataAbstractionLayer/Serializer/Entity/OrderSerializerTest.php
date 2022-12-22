@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class OrderSerializerTest extends TestCase
 {

@@ -5,7 +5,10 @@ const { Component, State } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { mapGetters } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-flow-event-change-confirm-modal', {
     template,
 

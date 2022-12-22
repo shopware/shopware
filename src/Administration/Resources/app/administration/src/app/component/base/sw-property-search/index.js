@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 

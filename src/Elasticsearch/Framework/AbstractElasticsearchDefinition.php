@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
+/**
+ * @package core
+ */
 abstract class AbstractElasticsearchDefinition
 {
     /**

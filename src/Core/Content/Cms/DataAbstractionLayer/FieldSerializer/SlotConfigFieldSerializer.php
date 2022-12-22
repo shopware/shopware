@@ -10,6 +10,9 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @package content
+ */
 class SlotConfigFieldSerializer extends JsonFieldSerializer
 {
     protected function getConstraints(Field $field): array

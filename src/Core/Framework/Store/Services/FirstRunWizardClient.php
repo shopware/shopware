@@ -33,6 +33,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 final class FirstRunWizardClient
@@ -63,6 +65,8 @@ final class FirstRunWizardClient
 
     private EntityRepositoryInterface $userConfigRepository;
 
+    private TrackingEventClient $trackingEventClient;
+
     public function __construct(
         StoreService $storeService,
         SystemConfigService $configService,
@@ -72,7 +76,8 @@ final class FirstRunWizardClient
         Client $client,
         AbstractStoreRequestOptionsProvider $optionsProvider,
         InstanceService $instanceService,
-        EntityRepositoryInterface $userConfigRepository
+        EntityRepositoryInterface $userConfigRepository,
+        TrackingEventClient $trackingEventClient
     ) {
         $this->storeService = $storeService;
         $this->client = $client;
@@ -83,11 +88,12 @@ final class FirstRunWizardClient
         $this->frwAutoRun = $frwAutoRun;
         $this->eventDispatcher = $eventDispatcher;
         $this->userConfigRepository = $userConfigRepository;
+        $this->trackingEventClient = $trackingEventClient;
     }
 
     public function startFrw(Context $context): void
     {
-        $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_STARTED);
+        $this->trackingEventClient->fireTrackingEvent(self::TRACKING_EVENT_FRW_STARTED);
 
         $this->eventDispatcher->dispatch(new FirstRunWizardStartedEvent($this->getFrwState(), $context));
     }
@@ -157,7 +163,7 @@ final class FirstRunWizardClient
         if ($failed) {
             $newState = FrwState::failedState(null, $currentState->getFailureCount() + 1);
         } else {
-            $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_FINISHED);
+            $this->trackingEventClient->fireTrackingEvent(self::TRACKING_EVENT_FRW_FINISHED);
             $newState = FrwState::completedState();
         }
 
@@ -187,6 +193,8 @@ final class FirstRunWizardClient
     /**
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
+     *
+     * @return StorePluginStruct[]
      */
     public function getLanguagePlugins(PluginCollection $pluginCollection, Context $context): array
     {
@@ -199,6 +207,8 @@ final class FirstRunWizardClient
     /**
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
+     *
+     * @return StorePluginStruct[]
      */
     public function getDemoDataPlugins(PluginCollection $pluginCollection, Context $context): array
     {
@@ -312,6 +322,10 @@ final class FirstRunWizardClient
         return $existing;
     }
 
+    /**
+     * @param array<mixed> $accessTokenData
+     * @param array<mixed> $userTokenData
+     */
     private function createAccessTokenStruct(array $accessTokenData, array $userTokenData): AccessTokenStruct
     {
         $userToken = new ShopUserTokenStruct();
@@ -324,6 +338,9 @@ final class FirstRunWizardClient
         return $accessTokenStruct;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getPluginsFromStore(string $endpoint, Context $context): array
     {
         $response = $this->client->get(
@@ -383,6 +400,11 @@ final class FirstRunWizardClient
         return new DomainVerificationRequestStruct($data['content'], $data['fileName']);
     }
 
+    /**
+     * @param array<string, mixed> $plugins
+     *
+     * @return StorePluginStruct[]
+     */
     private function mapPluginData(array $plugins, PluginCollection $pluginCollection): array
     {
         /** @var StorePluginStruct[] $mappedPlugins */

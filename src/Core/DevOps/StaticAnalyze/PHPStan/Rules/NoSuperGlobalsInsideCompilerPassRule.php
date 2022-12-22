@@ -10,6 +10,8 @@ use PHPStan\Rules\RuleError;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * @implements Rule<ArrayDimFetch>

@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class ProductSliderStruct extends Struct
 {
     /**

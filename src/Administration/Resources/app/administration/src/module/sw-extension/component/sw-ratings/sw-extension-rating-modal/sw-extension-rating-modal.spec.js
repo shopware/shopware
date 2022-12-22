@@ -4,12 +4,15 @@ import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creatio
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
 import 'src/app/component/form/sw-gtc-checkbox';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-extension-rating-modal'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-extension-rating-modal'), {
             propsData: {
                 extension: {}
             },
@@ -23,9 +26,9 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal
     <slot name="footer"></slot>
 </div>`
                 },
-                'sw-extension-review-creation': Shopware.Component.build('sw-extension-review-creation'),
-                'sw-extension-review-creation-inputs': Shopware.Component.build('sw-extension-review-creation-inputs'),
-                'sw-gtc-checkbox': Shopware.Component.build('sw-gtc-checkbox'),
+                'sw-extension-review-creation': await Shopware.Component.build('sw-extension-review-creation'),
+                'sw-extension-review-creation-inputs': await Shopware.Component.build('sw-extension-review-creation-inputs'),
+                'sw-gtc-checkbox': await Shopware.Component.build('sw-gtc-checkbox'),
                 'sw-button': true,
                 'sw-field': true,
                 'sw-textarea-field': true,
@@ -41,8 +44,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 });

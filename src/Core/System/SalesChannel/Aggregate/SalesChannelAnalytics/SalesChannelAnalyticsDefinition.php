@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelAnalyticsDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel_analytics';

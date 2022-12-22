@@ -1,14 +1,16 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
-import flushPromises from 'flush-promises';
+import Vue from 'vue';
 
-const MeteorPage = Shopware.Component.build('sw-meteor-page');
-
-function createWrapper(slotsData = {}) {
-    return shallowMount(MeteorPage, {
+async function createWrapper(slotsData = {}) {
+    return shallowMount(await Shopware.Component.build('sw-meteor-page'), {
         stubs: {
             'sw-icon': true,
             'sw-search-bar': true,
@@ -19,8 +21,8 @@ function createWrapper(slotsData = {}) {
                 props: ['fromLink'],
                 template: '<div class="sw-meteor-navigation"></div>',
             },
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'router-link': true
         },
 
@@ -54,10 +56,10 @@ function createWrapper(slotsData = {}) {
 }
 
 describe('src/app/component/meteor/sw-meteor-page', () => {
-    let wrapper: Wrapper<typeof MeteorPage>;
+    let wrapper: Wrapper<Vue>;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await flushPromises();
     });
@@ -106,8 +108,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         'smart-bar-actions',
         'smart-bar-context-buttons'
     ].forEach(slotName => {
-        it(`should render the content of the slot "${slotName}"`, () => {
-            wrapper = createWrapper({
+        it(`should render the content of the slot "${slotName}"`, async () => {
+            wrapper = await createWrapper({
                 [slotName]: '<div id="test-slot">This slot works</div>'
             });
 
@@ -128,8 +130,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         });
     });
 
-    it('should not render the meteor navigation component when the slot "smart-bar-back" is not used', () => {
-        wrapper = createWrapper({
+    it('should not render the meteor navigation component when the slot "smart-bar-back" is not used', async () => {
+        wrapper = await createWrapper({
             'smart-bar-back': '<div id="test-slot">This slot works</div>'
         });
 
@@ -144,8 +146,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(title.text()).toEqual('sw.example.title');
     });
 
-    it('should render the tabs when slot is filled', () => {
-        wrapper = createWrapper({
+    it('should render the tabs when slot is filled', async () => {
+        wrapper = await createWrapper({
             'page-tabs': `
 <sw-tabs-item :route="{ name: 'tab.one' }">
     Tab 1
@@ -177,8 +179,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(tabsContent.exists()).toBe(false);
     });
 
-    it('should render the content', () => {
-        wrapper = createWrapper({
+    it('should render the content', async () => {
+        wrapper = await createWrapper({
             default: '<p>Lorem Ipsum</p>'
         });
 

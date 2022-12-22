@@ -22,6 +22,9 @@ use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDe
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package core
+ */
 class AclRoleDefinition extends EntityDefinition
 {
     public const PRIVILEGE_READ = 'read';

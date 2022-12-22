@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Services;
 use Psr\Http\Message\ResponseInterface;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 interface MiddlewareInterface

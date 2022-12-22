@@ -6,20 +6,20 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-number-filter'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-number-filter'), {
         stubs: {
-            'sw-base-filter': Shopware.Component.build('sw-base-filter'),
-            'sw-range-filter': Shopware.Component.build('sw-range-filter'),
-            'sw-number-field': Shopware.Component.build('sw-number-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
+            'sw-range-filter': await Shopware.Component.build('sw-range-filter'),
+            'sw-number-field': await Shopware.Component.build('sw-number-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
@@ -45,11 +45,9 @@ function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('components/sw-number-filter', () => {
     it('should emit `filter-update` event when user input `From` field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('.sw-number-filter__from').find('input');
 
         // type "2"
@@ -64,7 +62,7 @@ describe('components/sw-number-filter', () => {
     });
 
     it('should emit `filter-update` event when user input `To` field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('.sw-number-filter__to').find('input');
 
         // type "5"
@@ -80,7 +78,7 @@ describe('components/sw-number-filter', () => {
 
 
     it('should emit `filter-update` event when user input `From` field and `To` field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const fromInput = wrapper.find('.sw-number-filter__from').find('input');
         const toInput = wrapper.find('.sw-number-filter__to').find('input');
 
@@ -104,7 +102,7 @@ describe('components/sw-number-filter', () => {
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when from value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('.sw-number-filter__from').find('input');
 
         // type "2"
@@ -112,13 +110,13 @@ describe('components/sw-number-filter', () => {
         await input.trigger('change');
 
         // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when to value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('.sw-number-filter__to').find('input');
 
         // type "5"
@@ -126,7 +124,7 @@ describe('components/sw-number-filter', () => {
         await input.trigger('change');
 
         // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });

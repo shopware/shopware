@@ -1,4 +1,8 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+/**
+ * @package admin
+ */
+
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/modal/sw-image-preview-modal';
 import 'src/app/component/media/sw-image-slider';
 
@@ -82,11 +86,11 @@ function createImage(element = null, dimension = {}) {
     return image;
 }
 
-function createWrapper(propsData = {}, listeners = {}) {
-    return shallowMount(Shopware.Component.build('sw-image-preview-modal'), {
+async function createWrapper(propsData = {}, listeners = {}) {
+    return shallowMount(await Shopware.Component.build('sw-image-preview-modal'), {
         stubs: {
             'sw-icon': true,
-            'sw-image-slider': Shopware.Component.build('sw-image-slider')
+            'sw-image-slider': await Shopware.Component.build('sw-image-slider')
         },
         listeners,
         propsData: {
@@ -97,11 +101,9 @@ function createWrapper(propsData = {}, listeners = {}) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('src/app/component/modal/sw-image-preview-modal', () => {
     it('should navigate image slider correctly when clicking on thumbnail item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
@@ -185,7 +187,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should set active thumbnail item correctly when navigating image slider', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
@@ -230,8 +232,8 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         });
 
         // Move to 5th item
-        arrowRight.trigger('click');
-        arrowRight.trigger('click');
+        await arrowRight.trigger('click');
+        await arrowRight.trigger('click');
         await arrowRight.trigger('click');
 
         expectedIndex = 4;
@@ -252,7 +254,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         });
 
         // Move to 3rd item
-        arrowLeft.trigger('click');
+        await arrowLeft.trigger('click');
         await arrowLeft.trigger('click');
 
         expectedIndex = 2;
@@ -274,7 +276,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should set active item base on initial activeItemId', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             activeItemId: '2'
         });
 
@@ -300,7 +302,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should able to click Zoom In button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
         const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
         const btnReset = wrapper.findComponent({ ref: 'btnReset' });
@@ -350,7 +352,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should able to click Zoom Out button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
         const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
         const btnReset = wrapper.findComponent({ ref: 'btnReset' });
@@ -375,7 +377,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnReset.attributes('disabled')).toBe('disabled');
 
         // Click on zoom in button to max value
-        btnZoomIn.trigger('click');
+        await btnZoomIn.trigger('click');
         await btnZoomIn.trigger('click');
 
         // The image is zoomed in to max value
@@ -411,7 +413,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should able to click Reset button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
         const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
         const btnReset = wrapper.findComponent({ ref: 'btnReset' });
@@ -436,7 +438,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(btnReset.attributes('disabled')).toBe('disabled');
 
         // Click on zoom in button to max value
-        btnZoomIn.trigger('click');
+        await btnZoomIn.trigger('click');
         await btnZoomIn.trigger('click');
 
         // The image is zoomed in to max value
@@ -461,7 +463,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should able to zoom image with mouse wheel', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
         const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
         const btnReset = wrapper.findComponent({ ref: 'btnReset' });
@@ -543,7 +545,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
     });
 
     it('should update button states correctly when image is updated', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
         const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
         const btnReset = wrapper.findComponent({ ref: 'btnReset' });

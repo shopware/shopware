@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Twig\Extension\AbstractExtension;
 
+/**
+ * @package core
+ */
 class NodeExtension extends AbstractExtension
 {
     /**

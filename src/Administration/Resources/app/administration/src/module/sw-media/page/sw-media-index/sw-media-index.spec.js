@@ -1,9 +1,12 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/page/sw-media-index';
 
 describe('src/module/sw-media/page/sw-media-index', () => {
-    function createWrapper(privileges = []) {
-        return shallowMount(Shopware.Component.build('sw-media-index'), {
+    async function createWrapper(privileges = []) {
+        return shallowMount(await Shopware.Component.build('sw-media-index'), {
             stubs: {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
@@ -41,7 +44,9 @@ describe('src/module/sw-media/page/sw-media-index', () => {
                 mediaService: {},
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     }
@@ -51,18 +56,18 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     }
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the default accept value', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
         expect(fileInput.attributes()['file-accept']).toBe('*/*');
     });
 
     it('should contain "application/pdf" value', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             fileAccept: 'application/pdf'
         });
@@ -71,7 +76,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     });
 
     it('should not be able to upload a new medium', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'media.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -81,7 +86,7 @@ describe('src/module/sw-media/page/sw-media-index', () => {
     });
 
     it('should be able to upload a new medium', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'media.creator'
         ]);
         await wrapper.vm.$nextTick();

@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ImportExportHandlerTest extends AbstractImportExportTest
 {

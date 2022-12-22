@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms';
 import 'src/app/component/base/sw-empty-state';
@@ -12,14 +15,13 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
-import flushPromises from 'flush-promises';
 
-function createWrapper(privileges = [], resetError = false) {
+async function createWrapper(privileges = [], resetError = false) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('popover', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-excluded-search-terms'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-excluded-search-terms'), {
         localVue,
         propsData: {
             searchConfigs: {
@@ -58,21 +60,21 @@ function createWrapper(privileges = [], resetError = false) {
         stubs: {
             'sw-card': true,
             'sw-empty-state': true,
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-container': true,
             'sw-card-filter': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-column-position': true,
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-icon': true,
             'sw-field': true,
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-data-grid-skeleton': true
         }
     });
@@ -80,14 +82,14 @@ function createWrapper(privileges = [], resetError = false) {
 
 describe('module/sw-settings-search/component/sw-settings-search-excluded-search-terms', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be show element no excluded search ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -103,7 +105,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should have pagination on list excluded terms', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -115,7 +117,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should have listing excluded terms', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -127,7 +129,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to delete excluded terms', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -142,7 +144,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should be able to delete excluded terms', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.deleter'
         ]);
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -160,7 +162,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         expect(firstRowAfterDelete.text()).not.toEqual(firstRowContext.text());
 
         const checkBox = firstRowAfterDelete.find('.sw-field__checkbox input');
-        checkBox.setChecked();
+        await checkBox.setChecked();
         await wrapper.vm.$nextTick();
         expect(wrapper.find('.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').text()).toEqual('1');
         const bulkButton = wrapper.find('.sw-data-grid__bulk button');
@@ -172,7 +174,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to add a new excluded terms', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -183,7 +185,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
 
     it('should allow add excluded terms', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -197,7 +199,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should be render component', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -206,7 +208,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         expect(dataGridsFirstLoading.wrappers.length).toEqual(10);
 
         const paginationGrids = wrapper.findAll('.sw-pagination li');
-        paginationGrids.at(1).find('button').trigger('click');
+        await paginationGrids.at(1).find('button').trigger('click');
         await wrapper.vm.$nextTick();
 
         const dataGridsSecondPage = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -214,7 +216,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to reset excluded search term to default', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -224,7 +226,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should able to reset excluded search term to default with success message', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.creator'
         ]);
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -241,7 +243,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should not able to reset excluded search term to default with error message', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.creator'
         ], true);
 

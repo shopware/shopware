@@ -1,9 +1,11 @@
+/*
+ * @package content
+ */
 import { mount } from '@vue/test-utils';
-import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal';
 
-function createWrapper() {
+async function createWrapper() {
     return mount({
         template: `
             <div>
@@ -18,27 +20,27 @@ function createWrapper() {
         },
         components: {
             // eslint-disable-next-line max-len
-            'sw-cms-el-config-product-listing-config-delete-modal': Shopware.Component.build('sw-cms-el-config-product-listing-config-delete-modal')
+            'sw-cms-el-config-product-listing-config-delete-modal': await Shopware.Component.build('sw-cms-el-config-product-listing-config-delete-modal')
         }
     }, {
         stubs: {
             'sw-modal': {
                 template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button')
+            'sw-button': await Shopware.Component.build('sw-button')
         }
     });
 }
 
 // eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('cancels the dialog', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modal = wrapper.find('.sw-modal');
 
         expect(modal.emitted().cancel).not.toBeDefined();
@@ -49,7 +51,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
     });
 
     it('confirms the dialog', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modal = wrapper.find('.sw-modal');
 
         expect(modal.emitted().confirm).not.toBeDefined();

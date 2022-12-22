@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @package system-settings
+ */
 class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
@@ -24,6 +27,11 @@ class CountryTranslationEntity extends TranslationEntity
      * @var CountryEntity|null
      */
     protected $country;
+
+    /**
+     * @var array<array<string, array<string, string>>>|null
+     */
+    protected ?array $addressFormat = [];
 
     public function getCountryId(): string
     {
@@ -53,5 +61,21 @@ class CountryTranslationEntity extends TranslationEntity
     public function setCountry(CountryEntity $country): void
     {
         $this->country = $country;
+    }
+
+    /**
+     * @return array<array<string, array<string, string>>>|null
+     */
+    public function getAddressFormat(): ?array
+    {
+        return $this->addressFormat;
+    }
+
+    /**
+     * @param array<array<string, array<string, string>>> $addressFormat
+     */
+    public function setAddressFormat(array $addressFormat): void
+    {
+        $this->addressFormat = $addressFormat;
     }
 }

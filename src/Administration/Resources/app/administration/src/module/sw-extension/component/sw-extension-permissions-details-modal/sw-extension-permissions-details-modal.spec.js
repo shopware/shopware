@@ -3,11 +3,11 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-permissions-details-modal';
 import 'src/app/component/base/sw-button';
 
-function createWrapper({ permissions, modalTitle, selectedEntity }) {
+async function createWrapper({ permissions, modalTitle, selectedEntity }) {
     const localVue = createLocalVue();
     localVue.filter('asset', v => v);
 
-    return shallowMount(Shopware.Component.build('sw-extension-permissions-details-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-extension-permissions-details-modal'), {
         localVue,
         propsData: {
             permissions,
@@ -19,7 +19,7 @@ function createWrapper({ permissions, modalTitle, selectedEntity }) {
             $te: () => true
         },
         stubs: {
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-modal': {
                 props: ['title'],
                 // eslint-disable-next-line max-len
@@ -34,12 +34,15 @@ function createWrapper({ permissions, modalTitle, selectedEntity }) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('sw-extension-permissions-details-modal', () => {
     /** @type Wrapper */
     let wrapper;
 
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
@@ -56,8 +59,8 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the permissions', () => {
-        wrapper = createWrapper({
+    it('should display the permissions', async () => {
+        wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
@@ -116,8 +119,8 @@ describe('sw-extension-permissions-details-modal', () => {
     });
 
 
-    it('should display the permissions', () => {
-        wrapper = createWrapper({
+    it('should display the permissions', async () => {
+        wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {

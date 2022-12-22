@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 if (Feature::isActive('v6.5.0.0')) {
+    /**
+     * @package inventory
+     */
     abstract class AbstractIsNewDetector
     {
         abstract public function getDecorated(): AbstractIsNewDetector;
@@ -15,6 +18,9 @@ if (Feature::isActive('v6.5.0.0')) {
         abstract public function isNew(Entity $product, SalesChannelContext $context): bool;
     }
 } else {
+    /**
+     * @package inventory
+     */
     abstract class AbstractIsNewDetector
     {
         abstract public function getDecorated(): AbstractIsNewDetector;

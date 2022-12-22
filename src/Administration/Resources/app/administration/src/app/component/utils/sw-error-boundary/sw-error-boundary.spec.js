@@ -1,12 +1,18 @@
-import { shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
-import 'src/app/component/utils/sw-error-boundary';
+/**
+ * @package admin
+ */
 
-const swErrorBoundary = Shopware.Component.build('sw-error-boundary');
+import { shallowMount } from '@vue/test-utils';
+import 'src/app/component/utils/sw-error-boundary';
 
 describe('src/app/component/utils/sw-error-boundary', () => {
     /** @type Wrapper */
     let wrapper;
+    let swErrorBoundary;
+
+    beforeAll(async () => {
+        swErrorBoundary = await Shopware.Component.build('sw-error-boundary');
+    });
 
     beforeEach(() => {
         jest.spyOn(console, 'error').mockImplementation();

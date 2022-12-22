@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 class ProductManufacturerExtension extends EntityExtension
 {

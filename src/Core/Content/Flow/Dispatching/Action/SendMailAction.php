@@ -4,26 +4,19 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,6 +31,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package business-ops
+ *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
@@ -50,12 +45,6 @@ class SendMailAction extends FlowAction implements DelayableAction
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
 
     private EntityRepositoryInterface $mailTemplateRepository;
-
-    private MediaService $mediaService;
-
-    private EntityRepositoryInterface $mediaRepository;
-
-    private EntityRepositoryInterface $documentRepository;
 
     private LoggerInterface $logger;
 
@@ -73,21 +62,12 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     private bool $updateMailTemplate;
 
-    private DocumentGenerator $documentGenerator;
-
-    private DocumentService $documentService;
-
     /**
      * @internal
      */
     public function __construct(
         AbstractMailService $emailService,
         EntityRepositoryInterface $mailTemplateRepository,
-        MediaService $mediaService,
-        EntityRepositoryInterface $mediaRepository,
-        EntityRepositoryInterface $documentRepository,
-        DocumentService $documentService,
-        DocumentGenerator $documentGenerator,
         LoggerInterface $logger,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $mailTemplateTypeRepository,
@@ -97,9 +77,6 @@ class SendMailAction extends FlowAction implements DelayableAction
         bool $updateMailTemplate
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
-        $this->mediaService = $mediaService;
-        $this->mediaRepository = $mediaRepository;
-        $this->documentRepository = $documentRepository;
         $this->logger = $logger;
         $this->emailService = $emailService;
         $this->eventDispatcher = $eventDispatcher;
@@ -108,8 +85,6 @@ class SendMailAction extends FlowAction implements DelayableAction
         $this->connection = $connection;
         $this->languageLocaleProvider = $languageLocaleProvider;
         $this->updateMailTemplate = $updateMailTemplate;
-        $this->documentGenerator = $documentGenerator;
-        $this->documentService = $documentService;
     }
 
     public static function getName(): string
@@ -214,17 +189,15 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
-        $attachments = array_unique($this->buildAttachments(
+        $data->set('attachmentsConfig', new MailAttachmentsConfig(
             $event->getContext(),
             $mailTemplate,
             $extension,
             $eventConfig,
-            $event instanceof OrderAware ? $event->getOrderId() : null
-        ), \SORT_REGULAR);
+            $mailEvent instanceof OrderAware ? $mailEvent->getOrderId() : null,
+        ));
 
-        if (!empty($attachments)) {
-            $data->set('binAttachments', $attachments);
-        }
+        $this->setReplyTo($data, $eventConfig, $contactFormData);
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $event));
 
@@ -237,7 +210,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $event->getContext(), $this->getTemplateData($mailEvent), $attachments, $extension, $injectedTranslator);
+        $this->send($data, $event->getContext(), $this->getTemplateData($mailEvent), $extension, $injectedTranslator);
     }
 
     /**
@@ -300,17 +273,15 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
-        $attachments = array_unique($this->buildAttachments(
+        $data->set('attachmentsConfig', new MailAttachmentsConfig(
             $flow->getContext(),
             $mailTemplate,
             $extension,
             $eventConfig,
             $flow->getStore(OrderAware::ORDER_ID),
-        ), \SORT_REGULAR);
+        ));
 
-        if (!empty($attachments)) {
-            $data->set('binAttachments', $attachments);
-        }
+        $this->setReplyTo($data, $eventConfig, $flow->getStore('contactFormData', []));
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
 
@@ -323,14 +294,13 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $flow->getContext(), $flow->data(), $attachments, $extension, $injectedTranslator);
+        $this->send($data, $flow->getContext(), $flow->data(), $extension, $injectedTranslator);
     }
 
     /**
      * @param array<string, mixed> $templateData
-     * @param array<mixed, mixed> $attachments
      */
-    private function send(DataBag $data, Context $context, array $templateData, array $attachments, MailSendSubscriberConfig $extension, bool $injectedTranslator): void
+    private function send(DataBag $data, Context $context, array $templateData, MailSendSubscriberConfig $extension, bool $injectedTranslator): void
     {
         try {
             $this->emailService->send(
@@ -338,20 +308,6 @@ class SendMailAction extends FlowAction implements DelayableAction
                 $context,
                 $templateData
             );
-
-            $documentAttachments = array_filter($attachments, function (array $attachment) use ($extension) {
-                return \array_key_exists('id', $attachment) && \in_array($attachment['id'], $extension->getDocumentIds(), true);
-            });
-
-            $documentAttachments = array_column($documentAttachments, 'id');
-
-            if (!empty($documentAttachments)) {
-                $this->connection->executeStatement(
-                    'UPDATE `document` SET `updated_at` = :now, `sent` = 1 WHERE `id` IN (:ids)',
-                    ['ids' => Uuid::fromHexToBytesList($documentAttachments), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-                    ['ids' => Connection::PARAM_STR_ARRAY]
-                );
-            }
         } catch (\Exception $e) {
             $this->logger->error(
                 "Could not send mail:\n"
@@ -442,68 +398,6 @@ class SendMailAction extends FlowAction implements DelayableAction
         return $data;
     }
 
-    /**
-     * @param array<string, mixed> $eventConfig
-     *
-     * @return array<mixed, mixed>
-     */
-    private function buildAttachments(
-        Context $context,
-        MailTemplateEntity $mailTemplate,
-        MailSendSubscriberConfig $extensions,
-        array $eventConfig,
-        ?string $orderId
-    ): array {
-        $attachments = [];
-
-        if ($mailTemplate->getMedia() !== null) {
-            foreach ($mailTemplate->getMedia() as $mailTemplateMedia) {
-                if ($mailTemplateMedia->getMedia() === null) {
-                    continue;
-                }
-                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $context->getLanguageId()) {
-                    continue;
-                }
-
-                $attachments[] = $this->mediaService->getAttachment(
-                    $mailTemplateMedia->getMedia(),
-                    $context
-                );
-            }
-        }
-
-        if (!empty($extensions->getMediaIds())) {
-            $criteria = new Criteria($extensions->getMediaIds());
-            $criteria->setTitle('send-mail::load-media');
-
-            /** @var MediaCollection<MediaEntity> $entities */
-            $entities = $this->mediaRepository->search($criteria, $context);
-
-            foreach ($entities as $media) {
-                $attachments[] = $this->mediaService->getAttachment($media, $context);
-            }
-        }
-
-        $documentIds = $extensions->getDocumentIds();
-
-        if (!empty($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $orderId) {
-            $latestDocuments = $this->getLatestDocumentsOfTypes($orderId, $eventConfig['documentTypeIds']);
-
-            $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
-        }
-
-        if (!empty($documentIds)) {
-            $extensions->setDocumentIds($documentIds);
-            if (Feature::isActive('v6.5.0.0')) {
-                $attachments = $this->mappingAttachments($documentIds, $attachments, $context);
-            } else {
-                $attachments = $this->buildOrderAttachments($documentIds, $attachments, $context);
-            }
-        }
-
-        return $attachments;
-    }
-
     private function injectTranslator(Context $context, ?string $salesChannelId): bool
     {
         if ($salesChannelId === null) {
@@ -562,107 +456,30 @@ class SendMailAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @param array<string> $documentIds
-     * @param array<mixed, mixed> $attachments
-     *
-     * @return array<mixed, mixed>
+     * @param array<string, mixed> $eventConfig
+     * @param array<int|string, mixed> $contactFormData
      */
-    private function buildOrderAttachments(array $documentIds, array $attachments, Context $context): array
+    private function setReplyTo(DataBag $data, array $eventConfig, array $contactFormData): void
     {
-        $criteria = new Criteria($documentIds);
-        $criteria->setTitle('send-mail::load-attachments');
-        $criteria->addAssociation('documentMediaFile');
-        $criteria->addAssociation('documentType');
+        if (empty($eventConfig['replyTo']) || !\is_string($eventConfig['replyTo'])) {
+            return;
+        }
 
-        /** @var DocumentCollection $documents */
-        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
+        if ($eventConfig['replyTo'] !== self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL) {
+            $data->set('senderMail', $eventConfig['replyTo']);
 
-        return $this->mappingAttachmentsInfo($documents, $attachments, $context);
-    }
+            return;
+        }
 
-    /**
-     * @param array<string> $documentTypeIds
-     *
-     * @return array<string>
-     */
-    private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
-    {
-        $documents = $this->connection->fetchAllAssociative(
-            'SELECT
-                LOWER(hex(`document`.`document_type_id`)) as doc_type,
-                LOWER(hex(`document`.`id`)) as doc_id,
-                `document`.`created_at` as newest_date
-            FROM
-                `document`
-            WHERE
-                HEX(`document`.`order_id`) = :orderId
-                AND HEX(`document`.`document_type_id`) IN (:documentTypeIds)
-            ORDER BY `document`.`created_at` DESC',
-            [
-                'orderId' => $orderId,
-                'documentTypeIds' => $documentTypeIds,
-            ],
-            [
-                'documentTypeIds' => Connection::PARAM_STR_ARRAY,
-            ]
+        if (empty($contactFormData['email']) || !\is_string($contactFormData['email'])) {
+            return;
+        }
+
+        $data->set(
+            'senderName',
+            '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} '
+            . '{% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}'
         );
-
-        $documentsGroupByType = FetchModeHelper::group($documents);
-
-        $documentIds = [];
-
-        foreach ($documentsGroupByType as $document) {
-            $documentIds[] = array_shift($document)['doc_id'];
-        }
-
-        return $documentIds;
-    }
-
-    /**
-     * @param array<mixed, mixed> $attachments
-     *
-     * @return array<mixed, mixed>
-     */
-    private function mappingAttachmentsInfo(DocumentCollection $documents, array $attachments, Context $context): array
-    {
-        foreach ($documents as $document) {
-            $documentId = $document->getId();
-            $document = $this->documentService->getDocument($document, $context);
-
-            $attachments[] = [
-                'id' => $documentId,
-                'content' => $document->getFileBlob(),
-                'fileName' => $document->getFilename(),
-                'mimeType' => $document->getContentType(),
-            ];
-        }
-
-        return $attachments;
-    }
-
-    /**
-     * @param array<string> $documentIds
-     * @param array<mixed, mixed> $attachments
-     *
-     * @return array<mixed, mixed>
-     */
-    private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
-    {
-        foreach ($documentIds as $documentId) {
-            $document = $this->documentGenerator->readDocument($documentId, $context);
-
-            if ($document === null) {
-                continue;
-            }
-
-            $attachments[] = [
-                'id' => $documentId,
-                'content' => $document->getContent(),
-                'fileName' => $document->getName(),
-                'mimeType' => $document->getContentType(),
-            ];
-        }
-
-        return $attachments;
+        $data->set('senderMail', $contactFormData['email']);
     }
 }

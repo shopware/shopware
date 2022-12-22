@@ -83,6 +83,7 @@ interface Extension {
 }
 
 /**
+ * @package merchant-services
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -237,6 +238,9 @@ export default class ExtensionStoreActionService extends ApiService {
     }
 }
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {
     ExtensionStoreActionService,

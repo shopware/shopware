@@ -4,6 +4,9 @@ namespace Shopware\Recovery\Update;
 
 use Symfony\Component\Dotenv\Dotenv;
 
+/**
+ * @package system-settings
+ */
 class Utils
 {
     /**

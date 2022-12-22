@@ -9,6 +9,7 @@
               data-form-csrf-handler="true"
               class="{% if displayMode === 'offcanvas' %}js-offcanvas-cart-remove-product{% endif %}">
 
+            {# @deprecated tag:v6.5.0 - Block component_line_item_remove_csrf will be removed. #}
             {% block component_line_item_remove_csrf %}
                 {{ sw_csrf('frontend.checkout.line-item.delete') }}
             {% endblock %}

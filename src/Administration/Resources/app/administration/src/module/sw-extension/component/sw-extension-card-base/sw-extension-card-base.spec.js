@@ -1,9 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-card-base';
-import flushPromises from 'flush-promises';
 
-function createWrapper(propsData = {}, provide = {}) {
-    return shallowMount(Shopware.Component.build('sw-extension-card-base'), {
+async function createWrapper(propsData = {}, provide = {}) {
+    return shallowMount(await Shopware.Component.build('sw-extension-card-base'), {
         propsData: {
             extension: { installedAt: null },
             ...propsData
@@ -28,6 +27,9 @@ function createWrapper(propsData = {}, provide = {}) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     /** @type Wrapper */
     let wrapper;
@@ -38,12 +40,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
     });
 
     it('should be a Vue.JS component', async () => {

@@ -1,5 +1,8 @@
 const { Application } = Shopware;
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLicenseViolationsService(storeService) {
     /** {VueInstance|null} applicationRoot  */

@@ -7,6 +7,9 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class GoogleReCaptchaV3 extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'googleReCaptchaV3';

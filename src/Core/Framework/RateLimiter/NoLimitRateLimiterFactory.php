@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
 
+/**
+ * @package core
+ */
 class NoLimitRateLimiterFactory extends RateLimiterFactory
 {
     private RateLimiterFactory $rateLimiterFactory;

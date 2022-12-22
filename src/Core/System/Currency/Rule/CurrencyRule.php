@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @package business-ops
+ */
 class CurrencyRule extends Rule
 {
     private const NAME = 'currency';

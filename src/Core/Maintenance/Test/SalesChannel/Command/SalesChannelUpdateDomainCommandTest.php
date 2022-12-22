@@ -14,6 +14,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class SalesChannelUpdateDomainCommandTest extends TestCase

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package content
+ *
  * @deprecated tag:v6.5.0 - SalesChannelCmsPageRepository will be removed.
  */
 class SalesChannelCmsPageRepository

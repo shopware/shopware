@@ -72,6 +72,11 @@
             <tag name="validator.constraint_validator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator">
+            <argument type="service" id="country.repository"/>
+            <tag name="validator.constraint_validator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Md5">
             <tag name="shopware.legacy_encoder"/>
         </service>
@@ -277,6 +282,7 @@
 
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_group.repository" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
         </service>

@@ -29,6 +29,8 @@ use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class PaymentHandlerRegistryTest extends TestCase

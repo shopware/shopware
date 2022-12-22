@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package customer-order
+ */
 class CustomerNewsletterSalesChannelsUpdater
 {
     private Connection $connection;

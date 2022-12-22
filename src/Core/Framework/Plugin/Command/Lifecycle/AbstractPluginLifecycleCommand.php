@@ -24,6 +24,9 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package core
+ */
 abstract class AbstractPluginLifecycleCommand extends Command
 {
     protected PluginLifecycleService $pluginLifecycleService;

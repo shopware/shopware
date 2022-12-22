@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-colorpicker';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -6,18 +10,18 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/utils/sw-popover';
 
-function createWrapper(additionalProps = {}) {
+async function createWrapper(additionalProps = {}) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
-    return shallowMount(Shopware.Component.build('sw-colorpicker'), {
+    return shallowMount(await Shopware.Component.build('sw-colorpicker'), {
         localVue,
         stubs: {
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-popover': Shopware.Component.build('sw-popover')
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-popover': await Shopware.Component.build('sw-popover')
         },
         props: {
             value: null
@@ -40,8 +44,8 @@ describe('components/form/sw-colorpicker', () => {
         });
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -528,7 +532,7 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should call debounceEmitColorValue when props value changed', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 value: '#94c11f'
             }
@@ -560,8 +564,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(result4).toEqual(1.3);
     });
 
-    it('should show the label from the property', () => {
-        wrapper = createWrapper({
+    it('should show the label from the property', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop'
             }
@@ -570,8 +574,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.find('label').text()).toEqual('Label from prop');
     });
 
-    it('should show the value from the label slot', () => {
-        wrapper = createWrapper({
+    it('should show the value from the label slot', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop'
             },
@@ -584,7 +588,7 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should call moveSelector on dragging colorPicker', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const moveSelectorSpy = jest.spyOn(wrapper.vm, 'moveSelector');
 
         await wrapper.setData({
@@ -599,7 +603,7 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should call removeDragging on mouseup', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const removeDragging = jest.spyOn(wrapper.vm, 'removeDragging');
 
         await wrapper.setData({
@@ -617,7 +621,7 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should toggleColorPicker on clicking input', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const toggleColorPicker = jest.spyOn(wrapper.vm, 'toggleColorPicker');
 
         await wrapper.setProps({
@@ -661,7 +665,7 @@ describe('components/form/sw-colorpicker', () => {
         expectedSaturationValue,
         expectedLuminanceValue
     ) => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             visible: true,

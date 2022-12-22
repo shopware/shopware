@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers';
@@ -56,12 +59,12 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         };
     }
 
-    function createWrapper(profile) {
+    async function createWrapper(profile) {
         Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
             Shopware.EntityDefinition.add(entityName, entityDefinition);
         });
 
-        return shallowMount(Shopware.Component.build('sw-import-export-edit-profile-modal-identifiers'), {
+        return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal-identifiers'), {
             propsData: {
                 profile
             },
@@ -69,18 +72,18 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 importExportUpdateByMapping: new ImportExportUpdateByMappingService(Shopware.EntityDefinition)
             },
             stubs: {
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-import-export-entity-path-select': true,
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-single-select': Shopware.Component.build('sw-single-select'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-single-select': await Shopware.Component.build('sw-single-select'),
                 'sw-empty-state': true,
                 'sw-icon': true,
                 'sw-field-error': true,
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-popover': Shopware.Component.build('sw-popover'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-popover': await Shopware.Component.build('sw-popover'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-highlight-text': {
                     props: ['text'],
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>'

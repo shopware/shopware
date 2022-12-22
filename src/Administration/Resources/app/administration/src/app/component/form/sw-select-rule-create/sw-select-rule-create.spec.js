@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-select-rule-create';
 import 'src/app/component/form/select/base/sw-single-select';
@@ -7,7 +11,6 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
-import flushPromises from 'flush-promises';
 
 describe('components/sw-select-rule-create', () => {
     let wrapper;
@@ -42,8 +45,8 @@ describe('components/sw-select-rule-create', () => {
         }
     });
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-select-rule-create'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-select-rule-create'), {
             provide: {
                 ruleConditionDataProviderService: {
                     getRestrictedRules() {
@@ -56,15 +59,17 @@ describe('components/sw-select-rule-create', () => {
 
                         return { disabled: false, message: 'ruleAwarenessRestrictionLabelText' };
                     },
-                    isRuleRestricted: (conditions) => { return conditions[0]; },
+                    isRuleRestricted: (conditions) => {
+                        return conditions[0];
+                    },
                 },
             },
             stubs: {
-                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-field-error': true,
                 'sw-icon': true,
                 'sw-loader': true,
@@ -72,7 +77,7 @@ describe('components/sw-select-rule-create', () => {
                     props: ['text'],
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>'
                 },
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': {
                     template: '<div class="sw-popover"><slot></slot></div>'
                 },
@@ -96,8 +101,8 @@ describe('components/sw-select-rule-create', () => {
         }
     });
 
-    it('should be a vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 

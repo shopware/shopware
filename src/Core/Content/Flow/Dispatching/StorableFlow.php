@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class StorableFlow

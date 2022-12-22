@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import './acl';
 import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';
@@ -9,7 +13,10 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Module.register('sw-product-stream', {
     type: 'core',
     name: 'product-stream',

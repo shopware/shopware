@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
 import 'src/app/component/form/select/base/sw-single-select';
@@ -10,23 +13,23 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-popover';
 
-function createWrapper(propsData = {}) {
+async function createWrapper(propsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-change-type'), {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-change-type'), {
         localVue,
         stubs: {
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-icon': true,
-            'sw-field-error': Shopware.Component.build('sw-field-error')
+            'sw-field-error': await Shopware.Component.build('sw-field-error')
         },
         propsData: {
             value: 'overwrite',
@@ -40,8 +43,8 @@ function createWrapper(propsData = {}) {
 describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -69,7 +72,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
     });
 
     it('should be change from clear to add and show the input field', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             value: 'overwrite',
             allowOverwrite: true,
             allowClear: true,
@@ -103,7 +106,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
     });
 
     it('should be display the allow options', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             value: 'overwrite',
             allowOverwrite: false,
             allowClear: false,

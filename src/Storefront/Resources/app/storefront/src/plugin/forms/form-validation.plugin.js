@@ -23,6 +23,7 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
+ * @package content
  */
 export default class FormValidation extends Plugin {
 

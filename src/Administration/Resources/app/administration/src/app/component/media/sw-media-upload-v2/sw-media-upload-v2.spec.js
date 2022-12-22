@@ -1,21 +1,23 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
-import flushPromises from 'flush-promises';
 
-function createWrapper(customOptions = {}) {
+async function createWrapper(customOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('droppable', {});
 
-    return shallowMount(Shopware.Component.build('sw-media-upload-v2'), {
+    return shallowMount(await Shopware.Component.build('sw-media-upload-v2'), {
         localVue,
         stubs: {
             'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-button': true,
             'sw-button-group': true,
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-media-url-form': true
         },
         provide: {
@@ -27,6 +29,8 @@ function createWrapper(customOptions = {}) {
             mediaService: {
                 addListener: () => {},
                 addUploads: () => null,
+                removeByTag: () => null,
+                removeListener: () => null,
             },
             configService: {
                 getConfig: () => Promise.resolve({
@@ -52,8 +56,8 @@ let fileInputValueSet;
 describe('src/app/component/media/sw-media-upload-v2', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
@@ -193,7 +197,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be enabled', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -204,7 +208,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be disabled', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -261,7 +265,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media button should have normal style shade when variant is regular', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -274,7 +278,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media button should have square shade when variant is compact', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             listeners: {
                 'media-upload-sidebar-open': jest.fn()
             }
@@ -371,6 +375,45 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await removeFileButton.trigger('click');
 
         expect(wrapper.emitted('media-upload-remove-image')).toBeTruthy();
+    });
+
+    it('should check file type correct no matter in which sequence the accept types were set', async () => {
+        const file = {
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        };
+
+        await wrapper.setProps({
+            fileAccept: 'application/pdf, image/*'
+        });
+
+        let isTypeAccepted = wrapper.vm.checkFileType(file);
+        expect(isTypeAccepted).toBeTruthy();
+
+        await wrapper.setProps({
+            fileAccept: 'image/*, application/pdf'
+        });
+
+        isTypeAccepted = wrapper.vm.checkFileType(file);
+        expect(isTypeAccepted).toBeTruthy();
+    });
+
+    it('should allow wildcard in the chunck of the file type', async () => {
+        await wrapper.setProps({
+            fileAccept: '*/svg'
+        });
+
+        let isTypeAccepted = wrapper.vm.checkFileType({
+            name: 'dummy.png',
+            type: 'image/png'
+        });
+        expect(isTypeAccepted).toBeFalsy();
+
+        isTypeAccepted = wrapper.vm.checkFileType({
+            name: 'dummy.svg',
+            type: 'image/svg'
+        });
+        expect(isTypeAccepted).toBeTruthy();
     });
 });
 

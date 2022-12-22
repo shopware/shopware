@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
@@ -22,11 +25,11 @@ const itemMock = (options = {}) => {
     };
 };
 
-function createWrapper(privileges = [], mediaServiceFunctions = {}) {
+async function createWrapper(privileges = [], mediaServiceFunctions = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-media-quickinfo'), {
+    return shallowMount(await Shopware.Component.build('sw-media-quickinfo'), {
         localVue,
         mocks: {
             $route: {
@@ -95,14 +98,14 @@ function createWrapper(privileges = [], mediaServiceFunctions = {}) {
 
 describe('module/sw-media/components/sw-media-quickinfo', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.quickaction--delete');
@@ -110,7 +113,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'media.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -120,7 +123,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.quickaction--move');
@@ -128,7 +131,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'media.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -147,7 +150,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             code: 'CONTENT__MEDIA_EMPTY_FILE',
         },
     ])('should map error %p', async (error) => {
-        const wrapper = createWrapper(
+        const wrapper = await createWrapper(
             [
                 'media.editor'
             ],

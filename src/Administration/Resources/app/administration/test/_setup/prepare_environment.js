@@ -1,4 +1,8 @@
-import { config } from '@vue/test-utils';
+/**
+ * @package admin
+ */
+
+import { config, enableAutoDestroy } from '@vue/test-utils';
 import Vue from 'vue';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -9,9 +13,14 @@ import failOnConsole from 'jest-fail-on-console';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
+import { sendTimeoutExpired } from '../_helper_/allowedErrors';
+import flushPromises from '../_helper_/flushPromises';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
+
+// enable autoDestroy for wrapper after each test
+enableAutoDestroy(afterEach);
 
 // Make common utils available globally as well
 global.Vue = Vue;
@@ -100,7 +109,11 @@ config.mocks = {
     $store: Shopware.State._store,
 };
 
-global.allowedErrors = [];
+global.allowedErrors = [
+    sendTimeoutExpired
+];
+
+global.flushPromises = flushPromises;
 
 process.on('unhandledRejection', (err) => {
     // eslint-disable-next-line no-undef

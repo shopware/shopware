@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-profile-index-general.html.twig';
 
 const { Component } = Shopware;

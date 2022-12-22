@@ -6,8 +6,8 @@ import 'src/app/component/base/sw-tabs-item';
 import 'src/app/component/meteor/sw-meteor-card';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-self-maintained-extension-card'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-self-maintained-extension-card'), {
         propsData: {
             extension: {
                 name: 'Test',
@@ -23,7 +23,7 @@ function createWrapper() {
             'router-link': true,
             'sw-context-menu-item': true,
             'sw-loader': true,
-            'sw-meteor-card': Shopware.Component.build('sw-meteor-card')
+            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card')
         },
         provide: {
             repositoryFactory: {
@@ -44,7 +44,9 @@ function createWrapper() {
     });
 }
 
-
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-extension-card-base', () => {
     /** @type Wrapper */
     let wrapper;
@@ -63,7 +65,7 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('isInstalled should return false when not installedAt set', () => {
+    it('isInstalled should return false when not installedAt set', async () => {
         expect(wrapper.vm.isInstalled).toBe(false);
     });
 
@@ -81,7 +83,7 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
     });
 
     it('activateExtension should install and reload the page', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             extension: {
                 icon: null,
                 installedAt: 'a',

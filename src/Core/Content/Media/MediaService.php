@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 class MediaService
 {
     /**
@@ -138,6 +141,9 @@ class MediaService
         return $this->fileFetcher->fetchRequestData($request, $tempFile ?: '');
     }
 
+    /**
+     * @return array{content: string, fileName: non-falsy-string, mimeType: string|null}
+     */
     public function getAttachment(MediaEntity $media, Context $context): array
     {
         $fileBlob = '';

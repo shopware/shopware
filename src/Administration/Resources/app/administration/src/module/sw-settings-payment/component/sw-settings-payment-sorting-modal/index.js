@@ -3,6 +3,9 @@ import './sw-settings-payment-sorting-modal.scss';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-payment-sorting-modal', {
     template,

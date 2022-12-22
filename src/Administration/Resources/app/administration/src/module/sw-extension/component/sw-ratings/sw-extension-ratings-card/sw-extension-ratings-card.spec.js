@@ -1,11 +1,14 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper(noReviews = false) {
+    async function createWrapper(noReviews = false) {
         const reviewsAndSummary = noReviews ? { reviews: [], summary: {} } : {
             reviews: [
                 {
@@ -35,7 +38,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
             }
         };
 
-        return shallowMount(Shopware.Component.build('sw-extension-ratings-card'), {
+        return shallowMount(await Shopware.Component.build('sw-extension-ratings-card'), {
             propsData: {
                 isInstalledAndLicensed: false,
                 producerName: 'Sir Robert Bryson Hall II',
@@ -72,13 +75,13 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display empty state when there are no ratings', () => {
-        wrapper = createWrapper(true);
+    it('should display empty state when there are no ratings', async () => {
+        wrapper = await createWrapper(true);
 
         expect(wrapper.text())
             .toBe(

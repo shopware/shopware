@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
 import 'src/app/component/base/sw-modal';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-example-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-example-modal'), {
         localVue,
 
         provide: {
@@ -19,7 +22,7 @@ function createWrapper() {
         },
 
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-button': true,
             'sw-icon': true
         }
@@ -28,14 +31,14 @@ function createWrapper() {
 
 describe('module/sw-settings-search/component/sw-settings-search-example-modal', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should emit modal close event', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.closeModal();
 
@@ -43,7 +46,7 @@ describe('module/sw-settings-search/component/sw-settings-search-example-modal',
     });
 
     it('should show correct title', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const title = await wrapper.find('.sw-settings-search-example-modal .sw-modal__title');
 
         expect(title.text()).toEqual(

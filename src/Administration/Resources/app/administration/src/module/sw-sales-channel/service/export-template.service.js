@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 const { Application } = Shopware;
 
 Application.addServiceProvider('exportTemplateService', () => {

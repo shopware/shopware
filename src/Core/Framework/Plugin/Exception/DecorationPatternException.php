@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class DecorationPatternException extends ShopwareHttpException
 {
     /**

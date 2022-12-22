@@ -1,10 +1,14 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 import 'src/app/component/list/sw-sortable-list';
 
 const listItems = [{ id: 0 }, { id: 1 }, { id: 2 }];
 
-function createWrapper(userConfig = {}) {
+async function createWrapper(userConfig = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('droppable', {});
@@ -31,7 +35,7 @@ function createWrapper(userConfig = {}) {
         sync: true,
     };
 
-    return shallowMount(Shopware.Component.build('sw-sortable-list'), deepMergeObject(defaultConfig, userConfig));
+    return shallowMount(await Shopware.Component.build('sw-sortable-list'), deepMergeObject(defaultConfig, userConfig));
 }
 
 describe('src/component/list/sw-sortable-list', () => {
@@ -43,12 +47,12 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a list of items', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const list = wrapper.find('.sw-sortable-list');
 
         expect(list.exists()).toBeTruthy();
@@ -62,7 +66,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should sort the list on dragging', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         wrapper.vm.onDragEnter(listItems[0], listItems[2]);
 
         await wrapper.vm.$nextTick();
@@ -76,7 +80,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should return the sorted list after drop', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const expectedListItems = [
             listItems[1],
             listItems[2],
@@ -93,7 +97,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not sort if disabled', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 sortable: false,
             },
@@ -113,7 +117,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not emit drop event if disabled', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 sortable: false,
             },
@@ -125,7 +129,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not sort if no items are provided', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         wrapper.vm.onDragEnter(listItems[0]);
         await wrapper.vm.$nextTick();
@@ -149,7 +153,7 @@ describe('src/component/list/sw-sortable-list', () => {
     it('should not sort items with same id', async () => {
         const brokenItems = [{ id: 1 }, { id: 1 }, { id: 1 }];
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             items: brokenItems,
         });
 
@@ -169,7 +173,7 @@ describe('src/component/list/sw-sortable-list', () => {
     it('should not sort items without id', async () => {
         const brokenItems = [{ id: null }, { id: undefined }, { id: '' }];
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             items: brokenItems,
         });
 
@@ -187,7 +191,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should emit whether order has changed or not', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         wrapper.vm.onDragEnter(listItems[0], listItems[1]);
         wrapper.vm.onDrop();
@@ -207,7 +211,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should set dragElement', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const dragElement = {
             id: 'drag-element-id',
@@ -221,7 +225,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should add event to scrollable parent', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 scrollOnDrag: true,
             }
@@ -241,7 +245,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should find scrollable parent', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const scrollableParent = {
             scrollHeight: 10,
@@ -265,7 +269,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should scroll when in scroll margin', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 scrollOnDrag: true,
                 scrollOnDragConf: {
@@ -312,7 +316,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should scroll accelerated when in acceleration margin', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 scrollOnDrag: true,
                 scrollOnDragConf: {
@@ -359,7 +363,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not scroll when not in scroll margin', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 scrollOnDrag: true,
                 scrollOnDragConf: {

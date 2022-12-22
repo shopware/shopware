@@ -23,6 +23,8 @@ class Migration1641476963ThemeDependentIdsTest extends TestCase
 
     public function testUpdate(): void
     {
+        static::markTestSkipped('Flaky coverage');
+
         $migration = new Migration1641476963ThemeDependentIds();
         $migration->update($this->connection);
 

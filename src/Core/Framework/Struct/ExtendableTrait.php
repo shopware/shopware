@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 trait ExtendableTrait
 {
     /**

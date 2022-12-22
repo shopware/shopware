@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import createMenuService from 'src/app/service/menu.service';
 
 /** fixtures */
@@ -16,7 +20,7 @@ describe('src/app/service/menu.service', () => {
     });
 
     describe('adminModuleNavigation', () => {
-        it('returns an unordered list of all navigation entries', () => {
+        it('returns an unordered list of all navigation entries', async () => {
             adminModules.forEach((module) => {
                 Shopware.Module.register(module.name, module);
             });
@@ -37,7 +41,7 @@ describe('src/app/service/menu.service', () => {
             ]));
         });
 
-        it('ignores modules with empty navigation', () => {
+        it('ignores modules with empty navigation', async () => {
             Shopware.Module.register('empty-navigation', {
                 name: 'empty-navigation',
                 routes: { index: { path: '/', component: 'sw-index' } },
@@ -47,7 +51,7 @@ describe('src/app/service/menu.service', () => {
             expect(menuService.getNavigationFromAdminModules()).toHaveLength(0);
         });
 
-        it('ignores modules if navigation is null', () => {
+        it('ignores modules if navigation is null', async () => {
             Shopware.Module.register('null-navigation', {
                 name: 'null-navigation',
                 routes: { index: { path: '/', component: 'sw-index' } },
@@ -59,7 +63,7 @@ describe('src/app/service/menu.service', () => {
     });
 
     describe('appModuleNavigation', () => {
-        it('returns modules from apps', () => {
+        it('returns modules from apps', async () => {
             const navigation = menuService.getNavigationFromApps(testApps);
 
             expect(navigation).toHaveLength(5);
@@ -107,7 +111,7 @@ describe('src/app/service/menu.service', () => {
             ]);
         });
 
-        it('respects the current locale for apps', () => {
+        it('respects the current locale for apps', async () => {
             Shopware.Context.app.fallbackLocale = 'en-GB';
             Shopware.State.get('session').currentLocale = 'de-DE';
 
@@ -147,7 +151,7 @@ describe('src/app/service/menu.service', () => {
             ]);
         });
 
-        it('uses fallback locale for apps if current locale is not translated', () => {
+        it('uses fallback locale for apps if current locale is not translated', async () => {
             Shopware.Context.app.fallbackLocale = 'en-GB';
             Shopware.State.get('session').currentLocale = 'ru-RU';
 
@@ -189,7 +193,7 @@ describe('src/app/service/menu.service', () => {
     });
 
     describe('deprecated functionality', () => {
-        it('returns sorted tree when getMainMenu is called', () => {
+        it('returns sorted tree when getMainMenu is called', async () => {
             adminModules.forEach((module) => {
                 Shopware.Module.register(module.name, module);
             });

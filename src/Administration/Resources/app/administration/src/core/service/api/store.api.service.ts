@@ -18,6 +18,8 @@ interface UserInfoResponse {
 }
 
 /**
+ * @package merchant-services
+ *
  * Gateway for the API end point "store"
  * @deprecated tag:v6.5.0 - Will be private
  */
@@ -155,6 +157,7 @@ export default class StoreApiService extends ApiService {
 }
 
 /**
+ * @package merchant-services
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

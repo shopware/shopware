@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 abstract class NestedEvent extends Event implements ShopwareEvent
 {
     use JsonSerializableTrait;

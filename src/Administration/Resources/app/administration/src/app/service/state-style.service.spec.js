@@ -1,29 +1,33 @@
+/**
+ * @package admin
+ */
+
 import StateStyleService from 'src/app/service/state-style.service';
 
 describe('src/app/service/state-style.service.js', () => {
-    it('should be a function', () => {
+    it('should be a function', async () => {
         expect(typeof StateStyleService).toEqual('function');
     });
 
-    it('should return a getPlaceholder function', () => {
+    it('should return a getPlaceholder function', async () => {
         const stateStyleService = StateStyleService();
         expect(stateStyleService.hasOwnProperty('getPlaceholder')).toBe(true);
         expect(typeof stateStyleService.getPlaceholder).toEqual('function');
     });
 
-    it('should return a addStyle function', () => {
+    it('should return a addStyle function', async () => {
         const stateStyleService = StateStyleService();
         expect(stateStyleService.hasOwnProperty('addStyle')).toBe(true);
         expect(typeof stateStyleService.addStyle).toEqual('function');
     });
 
-    it('should return a getStyle function', () => {
+    it('should return a getStyle function', async () => {
         const stateStyleService = StateStyleService();
         expect(stateStyleService.hasOwnProperty('getStyle')).toBe(true);
         expect(typeof stateStyleService.getStyle).toEqual('function');
     });
 
-    it('should return placeholder', () => {
+    it('should return placeholder', async () => {
         const stateStyleService = StateStyleService();
         const placeholder = stateStyleService.getPlaceholder();
 
@@ -42,7 +46,7 @@ describe('src/app/service/state-style.service.js', () => {
         expect(placeholder.colorCode).toEqual('#94a6b8');
     });
 
-    it('should return placeholder for non existing state', () => {
+    it('should return placeholder for non existing state', async () => {
         const stateStyleService = StateStyleService();
         const stateMachineForTesting = 'test-state-machine';
 
@@ -66,7 +70,7 @@ describe('src/app/service/state-style.service.js', () => {
         expect(style.variant).toEqual('neutral');
     });
 
-    it('should return placeholder for non existing statemachine', () => {
+    it('should return placeholder for non existing statemachine', async () => {
         const stateStyleService = StateStyleService();
         const style = stateStyleService.getStyle(
             'none-existing-statemachine',
@@ -78,7 +82,7 @@ describe('src/app/service/state-style.service.js', () => {
         expect(style.variant).toEqual('neutral');
     });
 
-    it('should return desired style', () => {
+    it('should return desired style', async () => {
         const stateStyleService = StateStyleService();
         const stateMachineForTesting = 'test-state-machine';
         const colorCodeMapping = {

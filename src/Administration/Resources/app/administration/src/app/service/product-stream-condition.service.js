@@ -5,12 +5,13 @@ const utils = Shopware.Utils;
  */
 
 /**
+ * @private
+ * @package business-ops
  * @memberOf module:app/service/product-stream-condition
  * @constructor
  * @method conditionService
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function conditionService() {
     const allowedProperties = [
         'id',

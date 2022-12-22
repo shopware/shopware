@@ -1,10 +1,12 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-mailer/page/sw-settings-mailer';
-import flushPromises from 'flush-promises';
 
 describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
-    const CreateSettingsMailer = function CreateSettingsMailer(emailAgent = null) {
-        return shallowMount(Shopware.Component.build('sw-settings-mailer'), {
+    const CreateSettingsMailer = async function CreateSettingsMailer(emailAgent = null) {
+        return shallowMount(await Shopware.Component.build('sw-settings-mailer'), {
             stubs: {
                 'sw-page': {
                     template: '<div />'
@@ -31,13 +33,13 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     };
 
     it('should be a vue js component', async () => {
-        const settingsMailer = new CreateSettingsMailer();
+        const settingsMailer = await new CreateSettingsMailer();
 
         expect(settingsMailer.vm).toBeTruthy();
     });
 
     it('should load the mailerSettings on creation', async () => {
-        const settingsMailer = new CreateSettingsMailer();
+        const settingsMailer = await new CreateSettingsMailer();
         const spyLoadMailer = jest.spyOn(settingsMailer.vm, 'loadMailerSettings');
 
         await settingsMailer.vm.createdComponent();
@@ -46,7 +48,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should assign the loaded mailerSettings', async () => {
-        const settingsMailer = new CreateSettingsMailer();
+        const settingsMailer = await new CreateSettingsMailer();
 
         const expectedMailerSettings = {
             'core.mailerSettings.emailAgent': 'local',
@@ -68,7 +70,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should call the saveValues function', async () => {
-        const settingsMailer = new CreateSettingsMailer();
+        const settingsMailer = await new CreateSettingsMailer();
         const spySaveValues = jest.spyOn(settingsMailer.vm.systemConfigApiService, 'saveValues');
 
         const expectedMailerSettings = {
@@ -93,7 +95,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should throw smtp configuration errors', async () => {
-        const wrapper = new CreateSettingsMailer('smtp');
+        const wrapper = await new CreateSettingsMailer('smtp');
         await flushPromises();
 
         expect(wrapper.vm.smtpHostError).toBe(null);
@@ -109,8 +111,8 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
     });
 
-    it('should reset smtp host error', () => {
-        const wrapper = new CreateSettingsMailer();
+    it('should reset smtp host error', async () => {
+        const wrapper = await new CreateSettingsMailer();
         wrapper.vm.smtpHostError = { detail: 'FooBar' };
         expect(wrapper.vm.smtpHostError).toStrictEqual({ detail: 'FooBar' });
 
@@ -119,8 +121,8 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(wrapper.vm.smtpHostError).toBe(null);
     });
 
-    it('should reset smtp port error', () => {
-        const wrapper = new CreateSettingsMailer();
+    it('should reset smtp port error', async () => {
+        const wrapper = await new CreateSettingsMailer();
         wrapper.vm.smtpPortError = { detail: 'FooBar' };
         expect(wrapper.vm.smtpPortError).toStrictEqual({ detail: 'FooBar' });
 

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class InvalidParentAssociationException extends ShopwareHttpException
 {
     public function __construct(EntityDefinition $definition, Field $parentField)

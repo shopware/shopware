@@ -2,8 +2,12 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-save-modal-process'), {
+/**
+ * @package system-settings
+ * @returns {Promise<Wrapper<Vue>>}
+ */
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal-process'), {
         stubs: {
             'sw-alert': true,
             'sw-icon': true,
@@ -23,19 +27,23 @@ function createWrapper() {
 describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
-    beforeAll(() => {
+    beforeEach(() => {
+        if (Shopware.State.get('swBulkEdit')) {
+            Shopware.State.unregisterModule('swBulkEdit');
+        }
+
         Shopware.State.registerModule('swBulkEdit', swBulkEditState);
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -205,7 +213,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
         wrapper.vm.orderDocumentApiService.generate.mockRestore();
     });
 
-    it('should compute selectedDocumentTypes correctly', () => {
+    it('should compute selectedDocumentTypes correctly', async () => {
         expect(wrapper.vm.selectedDocumentTypes).toEqual([]);
 
         Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {

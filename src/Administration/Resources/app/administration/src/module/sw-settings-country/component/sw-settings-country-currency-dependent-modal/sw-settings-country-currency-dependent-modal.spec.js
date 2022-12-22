@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal';
 
-function createWrapper(privileges = [], isBasedItem = true) {
+async function createWrapper(privileges = [], isBasedItem = true) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-currency-dependent-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-currency-dependent-modal'), {
         localVue,
 
         propsData: {
@@ -69,13 +72,13 @@ function createWrapper(privileges = [], isBasedItem = true) {
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-dependent-modal', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should able to show right column on grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         const modalGrid = wrapper.find('.sw-data-grid-stub');
         expect(modalGrid.props().columns).toStrictEqual([{
@@ -96,7 +99,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
     });
 
     it('should able to show right data on grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         const modalGrid = wrapper.find('.sw-data-grid-stub');
 
@@ -109,7 +112,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
     });
 
     it('should be disabled the context menu delete button', async () => {
-        const wrapper = createWrapper(['country.editor']);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
         const contextMenuDelete = wrapper.find('sw-context-menu-item-stub');
 
@@ -117,7 +120,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
     });
 
     it('should be enabled the context menu delete button', async () => {
-        const wrapper = createWrapper(['country.editor'], false);
+        const wrapper = await createWrapper(['country.editor'], false);
         await wrapper.vm.$nextTick();
         const contextMenuDelete = wrapper.find('sw-context-menu-item-stub');
 
@@ -125,28 +128,28 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
     });
 
     it('should be enabled the base currency radio button', async () => {
-        const wrapper = createWrapper(['country.editor'], false);
+        const wrapper = await createWrapper(['country.editor'], false);
         await wrapper.vm.$nextTick();
         const radioButton = wrapper.find('sw-radio-field-stub');
         expect(radioButton.attributes().value).toBeTruthy();
     });
 
     it('should be change amount for based currency', async () => {
-        const wrapper = createWrapper(['country.editor']);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
         const radioButton = wrapper.find('sw-radio-field-stub');
         expect(radioButton.attributes().disabled).toBeFalsy();
     });
 
     it('should not be change amount for dependent currency', async () => {
-        const wrapper = createWrapper(['country.editor'].false);
+        const wrapper = await createWrapper(['country.editor'].false);
         await wrapper.vm.$nextTick();
         const radioButton = wrapper.find('sw-radio-field-stub');
         expect(radioButton.attributes().disabled).toBeTruthy();
     });
 
     it('should be show buttons at the modal footer', async () => {
-        const wrapper = createWrapper(['country.editor']);
+        const wrapper = await createWrapper(['country.editor']);
         await wrapper.vm.$nextTick();
         const cancelButton = wrapper.find('.sw-settings-country-currency-dependent-modal__cancel-button');
         const saveButton = wrapper.find('.sw-settings-country-currency-dependent-modal__save-button');

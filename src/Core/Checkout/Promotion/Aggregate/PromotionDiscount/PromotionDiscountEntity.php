@@ -9,6 +9,9 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package checkout
+ */
 class PromotionDiscountEntity extends Entity
 {
     use EntityIdTrait;

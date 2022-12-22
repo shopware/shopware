@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class NewsletterConfirmEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
 {
     use JsonSerializableTrait;

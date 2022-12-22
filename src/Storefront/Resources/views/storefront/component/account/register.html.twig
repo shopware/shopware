@@ -16,6 +16,7 @@
                       data-form-csrf-handler="true"
                       data-form-validation="true">
 
+                    {# @deprecated tag:v6.5.0 - Block component_account_register_form_csrf will be removed. #}
                     {% block component_account_register_form_csrf %}
                         {{ sw_csrf('frontend.account.register.save') }}
                     {% endblock %}

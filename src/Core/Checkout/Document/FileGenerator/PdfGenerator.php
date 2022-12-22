@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - Will be removed, use PdfRenderer instead
  */
 class PdfGenerator implements FileGeneratorInterface

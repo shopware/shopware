@@ -5,6 +5,8 @@ const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Provides a container element which is divided in multiple sections with the use of CSS grid.
  * @status ready

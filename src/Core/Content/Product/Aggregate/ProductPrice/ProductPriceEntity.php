@@ -7,6 +7,9 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
 
+/**
+ * @package inventory
+ */
 class ProductPriceEntity extends PriceRuleEntity
 {
     use EntityCustomFieldsTrait;

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
 
@@ -29,11 +33,11 @@ const repositoryMockFactory = () => {
     };
 };
 
-const createWrapper = (privileges = []) => {
+const createWrapper = async (privileges = []) => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-mail-header-footer-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-mail-header-footer-detail'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -82,8 +86,8 @@ const createWrapper = (privileges = []) => {
 
 describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     let wrapper;
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -91,10 +95,10 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     });
 
     it('all fields should be disabled without edit permission', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         [
@@ -120,7 +124,7 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     });
 
     it('all fields should be enabled with edit permission', async () => {
-        wrapper = createWrapper(['mail_templates.editor']);
+        wrapper = await createWrapper(['mail_templates.editor']);
         await wrapper.vm.$nextTick();
 
         [

@@ -1,7 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-general-info';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+/**
+ * @package customer-order
+ */
 
 const orderMock = {
     orderNumber: 10000,
@@ -79,8 +82,8 @@ orderMock.deliveries.last = () => ({
     }
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-general-info'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-general-info'), {
         propsData: {
             order: orderMock,
             isLoading: false
@@ -147,7 +150,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         global.repositoryFactoryMock.showError = false;
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
 
@@ -155,11 +158,11 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show correct summary header', () => {
+    it('should show correct summary header', async () => {
         const summary = wrapper.find('.sw-order-general-info__summary-main-header');
 
         expect(summary.exists()).toBeTruthy();

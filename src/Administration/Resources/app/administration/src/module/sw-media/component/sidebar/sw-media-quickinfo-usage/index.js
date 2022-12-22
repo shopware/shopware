@@ -4,6 +4,9 @@ import './sw-media-quickinfo-usage.scss';
 const { Application, Component } = Shopware;
 const types = Shopware.Utils.types;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-quickinfo-usage', {
     template,

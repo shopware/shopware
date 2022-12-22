@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class AnyRuleLineItemMatcher extends AbstractAnyRuleLineItemMatcher
 {
     public function getDecorated(): AbstractAnyRuleLineItemMatcher

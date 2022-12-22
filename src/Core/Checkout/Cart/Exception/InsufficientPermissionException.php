@@ -7,6 +7,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package checkout
+ *
  * @deprecated tag:v6.5.0 - Will be removed. Exception is not used anymore. Use \Shopware\Core\Checkout\Cart\CartException::insufficientPermission instead
  */
 class InsufficientPermissionException extends ShopwareHttpException

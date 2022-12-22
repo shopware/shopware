@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 
+/**
+ * @package business-ops
+ */
 class MailStorer extends FlowStorer
 {
     /**

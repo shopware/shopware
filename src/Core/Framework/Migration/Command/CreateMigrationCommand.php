@@ -10,6 +10,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class CreateMigrationCommand extends Command
 {
     protected static $defaultName = 'database:create-migration';

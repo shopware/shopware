@@ -18,6 +18,9 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeConfigField;
 use Shopware\Storefront\Theme\ThemeEntity;
 
+/**
+ * @package storefront
+ */
 class DatabaseConfigLoader extends AbstractConfigLoader
 {
     private EntityRepositoryInterface $themeRepository;

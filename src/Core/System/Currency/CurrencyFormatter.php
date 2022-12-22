@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
+/**
+ * @package inventory
+ */
 class CurrencyFormatter
 {
     /**

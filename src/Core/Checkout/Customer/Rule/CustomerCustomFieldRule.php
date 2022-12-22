@@ -12,6 +12,9 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @package business-ops
+ */
 class CustomerCustomFieldRule extends Rule
 {
     protected string $operator;

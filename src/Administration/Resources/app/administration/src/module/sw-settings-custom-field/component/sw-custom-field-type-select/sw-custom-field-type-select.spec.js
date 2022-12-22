@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
@@ -9,8 +12,8 @@ import 'src/app/component/form/sw-switch-field';
 
 let currentCustomField = {};
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-custom-field-type-select'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-type-select'), {
         mocks: {
             $i18n: {
                 fallbackLocale: 'en-GB'
@@ -43,7 +46,7 @@ function createWrapper() {
         },
         stubs: {
             'sw-custom-field-translated-labels': true,
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-text-field': {
                 props: {
                     value: {
@@ -97,13 +100,13 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should allow saving of labels for options', () => {
-        const wrapper = createWrapper();
+    it('should allow saving of labels for options', async () => {
+        const wrapper = await createWrapper();
 
         const labelInputs = wrapper.findAll('.sw-custom-field-type-select__option-label');
 
@@ -111,6 +114,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
         expect(labelInputs.at(1).props('value')).toBe('');
         expect(labelInputs.at(2).props('value')).toBe('');
 
+        // eslint-disable-next-line sw-test-rules/await-async-functions
         labelInputs.wrappers.forEach((labelInput, index) => labelInput.setValue(`label-${index}`));
 
         expect(wrapper.vm.currentCustomField.config).toEqual({

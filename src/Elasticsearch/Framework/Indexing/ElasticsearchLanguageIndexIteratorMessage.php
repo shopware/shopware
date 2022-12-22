@@ -3,6 +3,8 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ElasticsearchLanguageIndexIteratorMessage

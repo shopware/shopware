@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package content
+ */
 class GenerateThumbnailsMessage
 {
     /**

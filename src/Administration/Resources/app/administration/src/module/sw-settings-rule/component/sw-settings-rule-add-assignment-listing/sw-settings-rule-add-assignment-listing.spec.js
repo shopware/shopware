@@ -8,17 +8,17 @@ function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
 }
 
-function createWrapper(entityContext) {
+async function createWrapper(entityContext) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-rule-add-assignment-listing'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-rule-add-assignment-listing'), {
         localVue,
         stubs: {
             'sw-card': {
                 template: '<div class="sw-card"><slot></slot></div>'
             },
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
             'sw-data-grid-skeleton': true,
             'sw-checkbox-field': true,
@@ -36,7 +36,7 @@ function createWrapper(entityContext) {
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-listing', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             id: 'event_action',
             notAssignedDataTotal: 0,
             allowAdd: true,

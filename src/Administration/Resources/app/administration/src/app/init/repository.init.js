@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const RepositoryFactory = Shopware.Classes._private.RepositoryFactory;
 const { EntityHydrator, ChangesetGenerator, EntityFactory } = Shopware.Data;
 const ErrorResolverError = Shopware.Data.ErrorResolver;

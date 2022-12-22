@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import createCustomFieldService from 'src/app/service/custom-field.service';
 
 describe('src/app/service/custom-field.service.js', () => {

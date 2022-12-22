@@ -7,7 +7,7 @@ Date.now = jest.fn(
 );
 
 
-function createWrapper(propsData = {}) {
+async function createWrapper(propsData = {}) {
     const localVue = createLocalVue();
 
     localVue.directive('tooltip', {
@@ -25,7 +25,7 @@ function createWrapper(propsData = {}) {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-time-ago'), {
+    return shallowMount(await Shopware.Component.build('sw-time-ago'), {
         localVue,
         propsData: {
             ...propsData

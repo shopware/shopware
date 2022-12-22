@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vue from 'vue';
@@ -41,59 +45,59 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-function createWrapper(props) {
+async function createWrapper(props) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('popover', {});
     localVue.filter('mediaName', Shopware.Filter.getByName('mediaName'));
 
-    return shallowMount(Shopware.Component.build('sw-custom-field-set-renderer'), {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-set-renderer'), {
         localVue,
         propsData: props,
         stubs: {
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-label': Shopware.Component.build('sw-label'),
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-number-field': Shopware.Component.build('sw-number-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-number-field': await Shopware.Component.build('sw-number-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-entity-multi-select': true,
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': {
                 template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
             },
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-media-field': Shopware.Component.build('sw-media-field'),
-            'sw-media-media-item': Shopware.Component.build('sw-media-media-item'),
-            'sw-media-base-item': Shopware.Component.build('sw-media-base-item'),
-            'sw-media-preview-v2': Shopware.Component.build('sw-media-preview-v2'),
-            'sw-colorpicker': Shopware.Component.build('sw-text-field'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-media-field': await Shopware.Component.build('sw-media-field'),
+            'sw-media-media-item': await Shopware.Component.build('sw-media-media-item'),
+            'sw-media-base-item': await Shopware.Component.build('sw-media-base-item'),
+            'sw-media-preview-v2': await Shopware.Component.build('sw-media-preview-v2'),
+            'sw-colorpicker': await Shopware.Component.build('sw-text-field'),
             'sw-upload-listener': true,
             'sw-simple-search-field': true,
             'sw-loader': true,
-            'sw-datepicker': Shopware.Component.build('sw-text-field'),
+            'sw-datepicker': await Shopware.Component.build('sw-text-field'),
             'sw-text-editor': {
                 props: ['value'],
                 template: '<input type="text" :value="value" @change="$emit(\'change\', $event.target.value)"></input>'
             },
-            'sw-skeleton': Shopware.Component.build('sw-skeleton'),
-            'sw-skeleton-bar': Shopware.Component.build('sw-skeleton-bar'),
+            'sw-skeleton': await Shopware.Component.build('sw-skeleton'),
+            'sw-skeleton-bar': await Shopware.Component.build('sw-skeleton-bar'),
         },
         provide: {
             repositoryFactory: {
@@ -524,12 +528,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         Shopware.Utils.debounce = () => {};
     });
 
-    afterEach(async () => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             entity: {},
             sets: []
         });
@@ -568,7 +568,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 customFieldSets: []
             }
         };
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         const customFieldEl = wrapper.find('.sw-inherit-wrapper input[name=customFieldName]');
         expect(customFieldEl.exists()).toBe(true);
@@ -614,7 +614,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: false
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
@@ -657,7 +657,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
@@ -700,7 +700,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
@@ -745,7 +745,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
@@ -793,7 +793,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(false);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
@@ -840,7 +840,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(true);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
@@ -894,7 +894,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.filterCustomFields).toBe(true);
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
@@ -922,7 +922,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         const spyInitializeCustomFields = jest.spyOn(wrapper.vm, 'initializeCustomFields');
 
@@ -950,7 +950,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             showCustomFieldSetSelection: true
         };
 
-        wrapper = createWrapper(props);
+        wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         expect(wrapper.vm.visibleCustomFieldSets.first().name).toBe('set2');

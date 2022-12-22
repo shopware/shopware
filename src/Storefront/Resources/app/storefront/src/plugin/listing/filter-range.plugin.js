@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';

@@ -4,6 +4,7 @@ import './sw-extension-adding-success.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

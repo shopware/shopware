@@ -4,6 +4,8 @@ import template from './sw-button-group.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @status ready
  * @description The <u>sw-button-group</u> is a container element for sw-button and sw-context-button elements.
  * @example-type static

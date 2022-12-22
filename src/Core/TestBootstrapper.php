@@ -18,6 +18,9 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use function is_dir;
 use function is_file;
 
+/**
+ * @package core
+ */
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;

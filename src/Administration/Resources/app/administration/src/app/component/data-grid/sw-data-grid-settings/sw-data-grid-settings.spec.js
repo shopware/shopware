@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/context-menu/sw-context-button';
@@ -13,8 +17,8 @@ describe('components/data-grid/sw-data-grid-settings', () => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-data-grid-settings'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-data-grid-settings'), {
             localVue,
             stubs: {
                 'sw-context-button': true,

@@ -23,6 +23,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -32,6 +33,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class InvoiceRendererTest extends TestCase
@@ -262,7 +265,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
                 static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
-                static::assertStringContainsString('VAT-123123', $rendered);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    static::assertStringContainsString('VAT-123123', $rendered);
+                }
                 static::assertStringContainsString('123123123', $rendered);
             },
         ];
@@ -310,29 +315,10 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
                 static::assertStringContainsString($orderAddress->getCity(), $rendered);
                 static::assertStringContainsString($orderAddress->getCountry()->getName(), $rendered);
-                static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
-                static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
-            },
-        ];
-
-        yield 'render with a display company address' => [
-            [7],
-            function (DocumentGenerateOperation $operation): void {
-                $operation->assign([
-                    'config' => [
-                        'displayLineItems' => true,
-                        'displayFooter' => true,
-                        'displayHeader' => true,
-                        'displayCompanyAddress' => true,
-                        'companyAddress' => 'Ebbinghoff 10 - 48624 Schöppingen',
-                    ],
-                ]);
-            },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
-                $rendered = $rendered->getHtml();
-                static::assertStringContainsString('Ebbinghoff 10</br>48624 Schöppingen', $rendered);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
+                    static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
+                }
             },
         ];
 

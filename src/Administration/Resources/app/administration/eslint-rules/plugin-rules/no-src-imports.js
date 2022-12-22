@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable max-len */
 let refactorAlias = false;
 if (global.featureFlags && global.featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {

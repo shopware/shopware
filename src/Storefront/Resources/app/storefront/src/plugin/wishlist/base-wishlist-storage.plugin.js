@@ -1,5 +1,8 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
+/**
+ * @package checkout
+ */
 export default class BaseWishlistStoragePlugin extends Plugin {
     init() {
         this.products = {};

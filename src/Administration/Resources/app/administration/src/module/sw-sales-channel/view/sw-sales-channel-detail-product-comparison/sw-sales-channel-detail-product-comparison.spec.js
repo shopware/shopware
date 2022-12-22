@@ -1,8 +1,11 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-detail-product-comparison'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-product-comparison'), {
         stubs: {
             'sw-card': true,
             'sw-code-editor': true,
@@ -32,13 +35,13 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have codeEditors disabled when the user has no privileges', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const codeEditors = wrapper.findAll('sw-code-editor-stub');
 
@@ -48,7 +51,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
     });
 
     it('should have codeEditors enabled when the user has privileges', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.editor'
         ]);
 

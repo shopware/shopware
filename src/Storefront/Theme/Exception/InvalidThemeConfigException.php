@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Theme\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package storefront
+ */
 class InvalidThemeConfigException extends ShopwareHttpException
 {
     public function __construct(string $fieldName)

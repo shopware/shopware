@@ -17,11 +17,11 @@ const shopwareService = new ShopwareService({}, {}, {}, {});
 shopwareService.updateExtensionData = jest.fn();
 const routerReplaceMock = jest.fn();
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('asset', key => key);
 
-    return shallowMount(Shopware.Component.build('sw-extension-my-extensions-listing'), {
+    return shallowMount(await Shopware.Component.build('sw-extension-my-extensions-listing'), {
         localVue,
         mocks: {
             $route: {
@@ -38,19 +38,19 @@ function createWrapper() {
                 template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
                 props: ['extension']
             },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-meteor-card': true,
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
             'sw-icon': true,
             'sw-field': true,
             // eslint-disable-next-line max-len
-            'sw-extension-my-extensions-listing-controls': Shopware.Component.build('sw-extension-my-extensions-listing-controls'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-field': Shopware.Component.build('sw-select-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-alert': Shopware.Component.build('sw-alert')
+            'sw-extension-my-extensions-listing-controls': await Shopware.Component.build('sw-extension-my-extensions-listing-controls'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-alert': await Shopware.Component.build('sw-alert')
         },
         provide: {
             repositoryFactory: {
@@ -65,6 +65,9 @@ function createWrapper() {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
     /** @type Wrapper */
     let wrapper;
@@ -123,7 +126,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('openStore should call router', () => {
+    it('openStore should call router', async () => {
         wrapper.vm.$router = {
             push: jest.fn()
         };
@@ -133,13 +136,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(wrapper.vm.$router.push).toBeCalled();
     });
 
-    it('updateList should call update extensions', () => {
+    it('updateList should call update extensions', async () => {
         wrapper.vm.updateList();
 
         expect(shopwareService.updateExtensionData).toBeCalled();
     });
 
-    it('extensionList default has a app', () => {
+    it('extensionList default has a app', async () => {
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
         expect(extensionCards.length).toBe(1);

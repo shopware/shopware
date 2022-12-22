@@ -11,6 +11,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
+ *
+ * @package system-settings
  */
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {

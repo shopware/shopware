@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
@@ -5,7 +9,10 @@ const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-product-stream-detail', {
     template,
 
@@ -155,6 +162,11 @@ Component.register('sw-product-stream-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-stream-detail__productStream',
+                path: 'productStream',
+                scope: this,
+            });
             this.languageId = Context.api.languageId;
             if (this.productStreamId) {
                 this.getProductCustomFields();

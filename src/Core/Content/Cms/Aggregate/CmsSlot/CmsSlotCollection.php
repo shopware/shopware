@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<CmsSlotEntity>
  */
 class CmsSlotCollection extends EntityCollection

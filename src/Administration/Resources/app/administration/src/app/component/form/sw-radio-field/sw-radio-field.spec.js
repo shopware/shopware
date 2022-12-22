@@ -1,8 +1,12 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-radio-field';
 
-const createWrapper = () => {
+const createWrapper = async () => {
     const baseComponent = {
         template: `
             <sw-radio-field :options="options" v-model="currentValue" :block="block" :description="description">
@@ -29,8 +33,8 @@ const createWrapper = () => {
 
     return shallowMount(baseComponent, {
         stubs: {
-            'sw-radio-field': Shopware.Component.build('sw-radio-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
                 template: '<div></div>'
             }
@@ -40,24 +44,24 @@ const createWrapper = () => {
 
 describe('components/form/sw-radio-field', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should renders correctly with children slot', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should render number of children equal to option props', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const radioInputs = wrapper.findAll('.sw-field__radio-option');
         expect(radioInputs.length).toEqual(wrapper.vm.options.length);
     });
 
     it('should pass slot scoped to children slot correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const customSlot = wrapper.find('#custom-slot');
 
         await wrapper.setData({ currentValue: 1 });
@@ -72,7 +76,7 @@ describe('components/form/sw-radio-field', () => {
     });
 
     it('should render description block', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         let description = wrapper.find('.sw-field__radio-description');
         expect(description.exists()).toBe(false);
@@ -84,7 +88,7 @@ describe('components/form/sw-radio-field', () => {
     });
 
     it('should render description of options', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         let optionDescription = wrapper.find('.sw-field__radio-option-description');
         expect(optionDescription.exists()).toBe(false);
@@ -101,13 +105,13 @@ describe('components/form/sw-radio-field', () => {
         expect(optionDescription.exists()).toBe(true);
     });
 
-    it('should show the label from the property', () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-radio-field'), {
+    it('should show the label from the property', async () => {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-radio-field'), {
             propsData: {
                 label: 'Label from prop'
             },
             stubs: {
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
                     template: '<div></div>'
                 }
@@ -117,13 +121,13 @@ describe('components/form/sw-radio-field', () => {
         expect(wrapper.find('label').text()).toEqual('Label from prop');
     });
 
-    it('should show the value from the label slot', () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-radio-field'), {
+    it('should show the value from the label slot', async () => {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-radio-field'), {
             propsData: {
                 label: 'Label from prop'
             },
             stubs: {
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
                     template: '<div></div>'
                 }

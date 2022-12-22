@@ -12,6 +12,9 @@ use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @package storefront
+ */
 class ThemeLifecycleHandler
 {
     private ThemeLifecycleService $themeLifecycleService;

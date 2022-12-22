@@ -1,6 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 import utils from 'src/core/service/util.service';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -13,8 +12,6 @@ import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-product-variant-info';
-
-const swOriginEntitySingleSelect = Shopware.Component.build('sw-entity-single-select');
 
 const fixture = [
     {
@@ -83,7 +80,7 @@ function getPropertyCollection() {
     );
 }
 
-function createEntitySingleSelect(customOptions) {
+async function createEntitySingleSelect(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {
@@ -104,20 +101,20 @@ function createEntitySingleSelect(customOptions) {
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div @click="$emit(\'click\', $event)"></div>',
                 props: ['size', 'color', 'name']
             },
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-loader': Shopware.Component.build('sw-loader'),
-            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info')
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info')
         },
         propsData: {
             value: null,
@@ -134,7 +131,7 @@ function createEntitySingleSelect(customOptions) {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-single-select'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-single-select'), {
         ...options,
         ...customOptions
     });
@@ -142,14 +139,14 @@ function createEntitySingleSelect(customOptions) {
 
 describe('components/sw-entity-single-select', () => {
     it('should be a Vue.js component', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect();
+        const swEntitySingleSelect = await createEntitySingleSelect();
         await flushPromises();
 
         expect(swEntitySingleSelect.vm).toBeTruthy();
     });
 
     it('should have no reset option when it is not defined', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: null,
                 entity: 'test'
@@ -163,7 +160,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should have disabled state results according to function', async () => {
-        const wrapper = createEntitySingleSelect({
+        const wrapper = await createEntitySingleSelect({
             propsData: {
                 value: null,
                 entity: 'test',
@@ -190,7 +187,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should have no tooltip and enabled results with no disabling function', async () => {
-        const wrapper = createEntitySingleSelect({
+        const wrapper = await createEntitySingleSelect({
             propsData: {
                 value: null,
                 entity: 'test'
@@ -217,7 +214,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should show disabled selection tooltip when appropriate', async () => {
-        const wrapper = createEntitySingleSelect({
+        const wrapper = await createEntitySingleSelect({
             propsData: {
                 value: null,
                 entity: 'test',
@@ -248,7 +245,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should show active state of options if enabled', async () => {
-        const wrapper = createEntitySingleSelect({
+        const wrapper = await createEntitySingleSelect({
             propsData: {
                 value: null,
                 entity: 'test',
@@ -308,7 +305,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should have a reset option when it is defined an the value is null', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: null,
                 entity: 'test',
@@ -509,7 +506,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should not display variations', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect();
+        const swEntitySingleSelect = await createEntitySingleSelect();
         await flushPromises();
         const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
 
@@ -517,7 +514,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should display variations', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: fixture[0].id,
                 entity: 'test',
@@ -538,7 +535,7 @@ describe('components/sw-entity-single-select', () => {
 
         await swEntitySingleSelect.vm.loadSelected();
 
-        swEntitySingleSelect.vm.$nextTick(() => {
+        await swEntitySingleSelect.vm.$nextTick(() => {
             const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
 
             expect(productVariantInfo.exists()).toBeTruthy();
@@ -555,7 +552,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should display label provided by callback', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: fixture[0].id,
                 entity: 'test',
@@ -711,14 +708,15 @@ describe('components/sw-entity-single-select', () => {
             1
         );
 
+        const swOriginEntitySingleSelect = await Shopware.Component.build('sw-entity-single-select');
         const createableWrapper = shallowMount(swOriginEntitySingleSelect, {
             stubs: {
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-select-result': true,
-                'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
                 'sw-popover': true,
                 'sw-field-error': true,
                 'sw-loader': true,

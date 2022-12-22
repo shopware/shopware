@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware
  */

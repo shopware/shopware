@@ -7,7 +7,10 @@ const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-flow-sequence-condition', {
     template,
 
@@ -22,6 +25,7 @@ Component.register('sw-flow-sequence-condition', {
             type: Object,
             required: true,
         },
+
         disabled: {
             type: Boolean,
             required: false,
@@ -40,6 +44,8 @@ Component.register('sw-flow-sequence-condition', {
     },
 
     computed: {
+        ...mapState('swFlowState', ['restrictedRules']),
+
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
         },
@@ -309,6 +315,10 @@ Component.register('sw-flow-sequence-condition', {
         onEditRule() {
             this.selectedRuleId = this.sequence?.rule?.id;
             this.showCreateRuleModal = true;
+        },
+
+        isRuleDisabled(rule) {
+            return this.restrictedRules.includes(rule.id);
         },
     },
 });

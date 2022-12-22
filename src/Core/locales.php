@@ -2226,7 +2226,7 @@ return [
     [
         'locale' => 'sk-SK',
         'name' => [
-            'en-GB' => 'Slovakian',
+            'en-GB' => 'Slovak',
             'de-DE' => 'Slowakisch',
         ],
         'territory' => [

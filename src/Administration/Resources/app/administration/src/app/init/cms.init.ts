@@ -1,5 +1,6 @@
 /**
  * @private
+ * @package content
  */
 export default function initializeCms(): void {
     Shopware.ExtensionAPI.handle('cmsRegisterElement', (element, additionalInformation) => {

@@ -7,6 +7,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use const PHP_EOL;
 
+/**
+ * @package core
+ */
 class SyncComposerVersionCommand extends Command
 {
     public static $defaultName = 'dev:sync:composer:versions';

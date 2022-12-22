@@ -20,6 +20,9 @@ use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoade
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package customer-order
+ */
 class AccountOverviewPageLoader
 {
     /**
@@ -133,6 +136,8 @@ class AccountOverviewPageLoader
     {
         $criteria = new Criteria();
         $criteria->addAssociation('requestedGroup');
+        $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.country');
 
         return $this->customerRoute->load(new Request(), $context, $criteria, $customer)->getCustomer();
     }

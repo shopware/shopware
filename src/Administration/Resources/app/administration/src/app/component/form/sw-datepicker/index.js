@@ -8,6 +8,8 @@ import './sw-datepicker.scss';
 const { Component, Mixin } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description Datepicker wrapper for date inputs. For all configuration options visit:
  * <a href="https://flatpickr.js.org/options/">https://flatpickr.js.org/options/</a>.

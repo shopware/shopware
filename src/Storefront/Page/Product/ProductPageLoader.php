@@ -21,6 +21,9 @@ use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package storefront
+ */
 class ProductPageLoader
 {
     private GenericPageLoaderInterface $genericLoader;

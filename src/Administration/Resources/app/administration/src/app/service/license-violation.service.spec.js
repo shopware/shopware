@@ -11,6 +11,9 @@ const cacheApiServiceMock = {
     clear: jest.fn(() => Promise.resolve())
 };
 
+/**
+ * @package merchant-services
+ */
 describe('app/service/license-violation.service.js', () => {
     Shopware.Service().register('shopwareExtensionService', () => extensionApiServiceMock);
     Shopware.Service().register('cacheApiService', () => cacheApiServiceMock);

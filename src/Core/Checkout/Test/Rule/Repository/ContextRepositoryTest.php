@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class ContextRepositoryTest extends TestCase

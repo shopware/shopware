@@ -13,7 +13,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 /**
  * @internal
  */
-class DummyScheduledTaskHandler extends ScheduledTaskHandler
+final class DummyScheduledTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @var string

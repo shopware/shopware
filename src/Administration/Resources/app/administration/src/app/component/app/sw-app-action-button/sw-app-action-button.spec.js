@@ -1,19 +1,23 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/base/sw-icon';
 
-function createWrapper(action, listeners = {}) {
+async function createWrapper(action, listeners = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return mount(Shopware.Component.build('sw-app-action-button'), {
+    return mount(await Shopware.Component.build('sw-app-action-button'), {
         localVue,
         listeners,
         propsData: {
             action
         },
         stubs: {
-            'sw-icon': Shopware.Component.build('sw-icon'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-regular-external-link': {
                 template: '<span class="sw-icon sw-icon--regular-external-link"></span>'
             }
@@ -54,8 +58,8 @@ describe('sw-app-action-button', () => {
         }
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper(baseAction);
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper(baseAction);
 
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.classes()).toEqual(expect.arrayContaining([
@@ -64,8 +68,8 @@ describe('sw-app-action-button', () => {
         ]));
     });
 
-    it('is a div if action is a webaction', () => {
-        wrapper = createWrapper(baseAction);
+    it('is a div if action is a webaction', async () => {
+        wrapper = await createWrapper(baseAction);
 
         expect(wrapper.vm.$el).toBeInstanceOf(HTMLDivElement);
     });
@@ -75,8 +79,8 @@ describe('sw-app-action-button', () => {
      * It will no longer be used in the manifest.xml file
      * and will be processed in the Executor with an OpenNewTabResponse response instead.
      */
-    it('is an anchor if action is a link', () => {
-        wrapper = createWrapper({
+    it('is an anchor if action is a link', async () => {
+        wrapper = await createWrapper({
             ...baseAction,
             openNewTab: true
         });
@@ -86,8 +90,8 @@ describe('sw-app-action-button', () => {
         expect(wrapper.attributes('target')).toBe('_blank');
     });
 
-    it('should render a icon if set', () => {
-        wrapper = createWrapper(baseAction);
+    it('should render a icon if set', async () => {
+        wrapper = await createWrapper(baseAction);
 
         expect(wrapper.classes()).toEqual(expect.arrayContaining([
             'sw-context-menu-item--icon'
@@ -98,8 +102,8 @@ describe('sw-app-action-button', () => {
         expect(icon.attributes('src')).toBe(`data:image/png;base64, ${baseAction.icon}`);
     });
 
-    it('does not render an icon if not present', () => {
-        wrapper = createWrapper({
+    it('does not render an icon if not present', async () => {
+        wrapper = await createWrapper({
             ...baseAction,
             icon: null
         });
@@ -119,7 +123,7 @@ describe('sw-app-action-button', () => {
     it('emits call to action if it is not a link', async () => {
         const actionListener = jest.fn();
 
-        wrapper = createWrapper(baseAction, {
+        wrapper = await createWrapper(baseAction, {
             'run-app-action': actionListener
         });
 
@@ -137,7 +141,7 @@ describe('sw-app-action-button', () => {
     it('follows the link if clicked', async () => {
         const actionListener = jest.fn();
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             ...baseAction,
             openNewTab: true
         }, {

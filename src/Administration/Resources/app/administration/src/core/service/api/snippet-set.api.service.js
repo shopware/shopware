@@ -4,6 +4,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "snippet-set"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class SnippetSetApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'snippet-set') {

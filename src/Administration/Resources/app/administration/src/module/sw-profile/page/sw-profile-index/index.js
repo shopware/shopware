@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-profile-index.html.twig';
@@ -252,7 +255,6 @@ Component.register('sw-profile-index', {
         },
 
         resetGeneralData() {
-            this.avatarMediaItem = null;
             this.newPassword = null;
             this.newPasswordConfirm = null;
 

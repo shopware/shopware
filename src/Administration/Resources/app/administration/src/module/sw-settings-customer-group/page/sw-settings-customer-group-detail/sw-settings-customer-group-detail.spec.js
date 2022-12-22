@@ -1,5 +1,4 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -8,14 +7,18 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/utils/sw-popover';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-customer-group-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-customer-group-detail'), {
         localVue,
         mocks: {
             $route: { query: '' }
@@ -51,17 +54,17 @@ function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-button-process': true,
             'sw-switch-field': true,
-            'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-block-field': true,
             'sw-label': true,
             'sw-icon': true,
             'sw-loader': true,
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-highlight-text': true,
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-custom-field-set-renderer': true,
             'sw-skeleton': true,
         },
@@ -133,9 +136,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     describe('should not able to save without edit permission', () => {
         let wrapper;
 
-        beforeEach(() => {
-            wrapper = createWrapper();
-            wrapper.vm.$nextTick();
+        beforeEach(async () => {
+            wrapper = await createWrapper();
+            await wrapper.vm.$nextTick();
         });
 
         [
@@ -179,9 +182,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     describe('should able to save with edit permission', () => {
         let wrapper;
 
-        beforeEach(() => {
-            wrapper = createWrapper(['customer_groups.editor']);
-            wrapper.vm.$nextTick();
+        beforeEach(async () => {
+            wrapper = await createWrapper(['customer_groups.editor']);
+            await wrapper.vm.$nextTick();
         });
 
         [
@@ -222,7 +225,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should be removed SEO URL if available sales channel is removed', async () => {
-        const wrapper = createWrapper(['customer_groups.editor']);
+        const wrapper = await createWrapper(['customer_groups.editor']);
 
         await flushPromises();
 

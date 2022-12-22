@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 
 /**
+ * @package sales-channel
+ *
  * @internal
  *
  * @covers \Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper

@@ -1,10 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-product-variants-delivery-order'), {
+    return shallowMount(await Shopware.Component.build('sw-product-variants-delivery-order'), {
         localVue,
         propsData: {
             product: {
@@ -55,13 +59,13 @@ function createWrapper() {
 // eslint-disable-next-line max-len
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the translated name of a property group', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const textileGroup = wrapper.vm.orderObjects.find(group => {

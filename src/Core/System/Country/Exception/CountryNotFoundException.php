@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Country\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package system-settings
+ */
 class CountryNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $id)

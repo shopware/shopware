@@ -13,6 +13,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - This subscriber will be superfluous once salutations
  * are fully optional and should be removed together with the flag FEATURE_NEXT_7739.
  */

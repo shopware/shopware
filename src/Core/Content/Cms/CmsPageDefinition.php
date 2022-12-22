@@ -27,6 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package content
+ */
 class CmsPageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'cms_page';

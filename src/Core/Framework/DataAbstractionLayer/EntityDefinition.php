@@ -27,6 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
+/**
+ * @package core
+ */
 abstract class EntityDefinition
 {
     protected ?CompiledFieldCollection $fields = null;

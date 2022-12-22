@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
+/**
+ * @package core
+ */
 class EntityWrittenEvent extends NestedEvent implements GenericEvent
 {
     /**

@@ -71,11 +71,11 @@ function mockMailTemplateData() {
     ];
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-event-action-list'), {
+    return shallowMount(await Shopware.Component.build('sw-event-action-list'), {
         localVue,
         mocks: {
             $route: {
@@ -101,8 +101,8 @@ function createWrapper(privileges = []) {
             'router-link': true,
             'sw-context-button': true,
             'sw-icon': true,
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-settings': true,
             'sw-data-grid-skeleton': true,
             'sw-pagination': true,
@@ -140,14 +140,14 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-event-action/page/sw-event-action-list', () => {
-    it('should be instantiated', () => {
-        const wrapper = createWrapper();
+    it('should be instantiated', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render entity listing', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -155,7 +155,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should load event action data with correct criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -166,7 +166,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should fetch mail templates after entity listing event', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const spyFetchMailTemplates = jest.spyOn(wrapper.vm, 'fetchMailTemplates');
 
         await wrapper.vm.$nextTick();
@@ -187,7 +187,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should use custom column slots to display correct event name', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$forceUpdate();
@@ -203,7 +203,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should disable all edit, create and delete actions with viewer privileges', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'event_action.viewer'
         ]);
 
@@ -219,7 +219,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should enable edit actions with viewer privileges', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'event_action.viewer',
             'event_action.editor'
         ]);
@@ -236,7 +236,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should enable create action with creator privileges', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'event_action.viewer',
             'event_action.editor',
             'event_action.creator'
@@ -254,7 +254,7 @@ describe('src/module/sw-event-action/page/sw-event-action-list', () => {
     });
 
     it('should enable delete actions with deleter privileges', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'event_action.viewer',
             'event_action.editor',
             'event_action.creator',

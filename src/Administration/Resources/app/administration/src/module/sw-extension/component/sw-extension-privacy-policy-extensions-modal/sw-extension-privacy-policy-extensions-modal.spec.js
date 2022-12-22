@@ -4,8 +4,8 @@ import 'src/app/component/base/sw-button';
 import 'src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal';
 
 
-function createWrapper(props) {
-    return shallowMount(Shopware.Component.build('sw-extension-privacy-policy-extensions-modal'), {
+async function createWrapper(props) {
+    return shallowMount(await Shopware.Component.build('sw-extension-privacy-policy-extensions-modal'), {
         propsData: {
             ...props
         },
@@ -19,7 +19,7 @@ function createWrapper(props) {
             }
         },
         stubs: {
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-modal': {
                 // eslint-disable-next-line max-len
                 template: '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
@@ -29,6 +29,9 @@ function createWrapper(props) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     /** @type Wrapper */
     let wrapper;
@@ -37,8 +40,8 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
         if (wrapper) await wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
-        wrapper = createWrapper({
+    it('should be a Vue.JS component', async () => {
+        wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
             extensionName: 'Tes11Test'
         });
@@ -47,8 +50,8 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the values', () => {
-        wrapper = createWrapper({
+    it('should display the values', async () => {
+        wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
             extensionName: 'Tes11Test'
 
@@ -68,14 +71,14 @@ describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensio
     });
 
     it('should close the modal', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             privacyPolicyExtension: 'a privacy notice',
             extensionName: 'Tes11Test'
 
         });
         expect(wrapper.emitted()).toEqual({});
 
-        wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button').trigger('click');
+        await wrapper.find('.sw-extension-privacy-policy-extensions-modal__close-button').trigger('click');
 
         await wrapper.vm.$nextTick();
 

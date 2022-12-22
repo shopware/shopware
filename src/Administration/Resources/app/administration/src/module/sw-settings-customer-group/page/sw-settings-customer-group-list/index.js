@@ -1,5 +1,9 @@
 import template from './sw-settings-customer-group-list.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 

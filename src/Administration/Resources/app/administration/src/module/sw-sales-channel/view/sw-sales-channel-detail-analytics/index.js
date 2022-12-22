@@ -1,9 +1,15 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-detail-analytics.html.twig';
 
 import './sw-sales-channel-detail-analytics.scss';
 
 const { Component, Context } = Shopware;
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-detail-analytics', {
     template,

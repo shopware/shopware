@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<CustomEntityEntity>
  */
 class CustomEntityCollection extends EntityCollection

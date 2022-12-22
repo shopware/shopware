@@ -24,6 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class DeliveryCalculator
 {
     public const CALCULATION_BY_LINE_ITEM_COUNT = 1;

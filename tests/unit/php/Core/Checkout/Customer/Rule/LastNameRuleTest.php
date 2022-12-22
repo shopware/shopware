@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @group rules
  * @covers \Shopware\Core\Checkout\Customer\Rule\LastNameRule

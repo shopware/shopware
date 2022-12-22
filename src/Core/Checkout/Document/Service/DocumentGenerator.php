@@ -30,7 +30,12 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-final class DocumentGenerator
+/**
+ * @package customer-order
+ *
+ * @final
+ */
+class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;
 
@@ -74,7 +79,7 @@ final class DocumentGenerator
 
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
-        if ($document === null) {
+        if (!$document instanceof DocumentEntity) {
             throw new InvalidDocumentException($documentId);
         }
 
@@ -225,6 +230,9 @@ final class DocumentGenerator
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }
 
+    /**
+     * @param mixed[][] $records
+     */
     private function writeRecords(array $records, Context $context): void
     {
         if (empty($records)) {

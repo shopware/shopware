@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Flow\Exception;
 
+/**
+ * @package business-ops
+ */
 class ExecuteSequenceException extends \Exception
 {
     private string $flowId;

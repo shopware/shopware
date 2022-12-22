@@ -384,9 +384,9 @@ describe('Product: Test Storefront presentation of variants', () => {
             .click();
 
         cy.contains('h1', 'Test product').should('be.visible');
-        cy.get(':nth-child(2) > .product-detail-configurator-group-title') // First Heading
+        cy.get('.product-detail-configurator-group-title').eq(0) // First Heading
             .should('contain', 'size');
-        cy.get(':nth-child(3) > .product-detail-configurator-group-title') // Second Heading
+        cy.get('.product-detail-configurator-group-title').eq(1) // Second Heading
             .should('contain', 'Color');
     });
 });

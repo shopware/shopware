@@ -1,11 +1,11 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/view/sw-settings-rule-detail-base';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-rule-detail-base'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-rule-detail-base'), {
         localVue,
         stubs: {
             'sw-card': true,
@@ -47,13 +47,13 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const ruleNameField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelName"]');
         const rulePriorityField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelPriority"]');
@@ -69,7 +69,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ]);
 

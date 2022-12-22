@@ -56,14 +56,14 @@ import '../sw-customer/component/sw-customer-address-form-options';
 
 import './component/sw-order-create-initial-modal';
 import './component/sw-order-customer-grid';
-import './component/sw-order-product-grid';
-import './component/sw-order-custom-item';
-import './component/sw-order-credit-item';
 import './component/sw-order-create-options';
-import './component/sw-order-add-items-modal';
 import './component/sw-order-customer-address-select';
 
 import defaultSearchConfiguration from './default-search-configuration';
+
+/**
+ * @package customer-order
+ */
 
 const { Module } = Shopware;
 

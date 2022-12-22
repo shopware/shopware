@@ -18,6 +18,9 @@ use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 
+/**
+ * @package checkout
+ */
 class StorefrontCartFacade
 {
     private CartService $cartService;

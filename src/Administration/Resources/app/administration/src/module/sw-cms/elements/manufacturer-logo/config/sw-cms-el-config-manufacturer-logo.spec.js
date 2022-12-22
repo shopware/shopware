@@ -1,10 +1,13 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image/config';
 import 'src/module/sw-cms/elements/manufacturer-logo/config';
 
-function createWrapper(propsOverride) {
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-manufacturer-logo'), {
+async function createWrapper(propsOverride) {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-manufacturer-logo'), {
         propsData: {
             element: {
                 config: {
@@ -82,21 +85,21 @@ function createWrapper(propsOverride) {
 describe('module/sw-cms/elements/manufacturer-logo/config', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should map to a product manufacturer media if the component is in a product page', () => {
+    it('should map to a product manufacturer media if the component is in a product page', async () => {
         expect(wrapper.vm.element.config.media.source).toBe('mapped');
         expect(wrapper.vm.element.config.media.value).toBe('product.manufacturer.media');
     });
 
-    it('should not initially map to a product manufacturer media if element translated config', () => {
-        wrapper = createWrapper({
+    it('should not initially map to a product manufacturer media if element translated config', async () => {
+        wrapper = await createWrapper({
             element: {
                 config: {
                     ...wrapper.props().element.config,

@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport;
 
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package system-settings
+ */
 class ImportExportProfileTranslationEntity extends TranslationEntity
 {
     /**

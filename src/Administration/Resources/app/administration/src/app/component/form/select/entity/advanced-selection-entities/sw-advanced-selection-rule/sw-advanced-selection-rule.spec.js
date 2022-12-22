@@ -32,11 +32,11 @@ responses.addResponse({
     }
 });
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
     return {
-        wrapper: shallowMount(Shopware.Component.build('sw-advanced-selection-rule'), {
+        wrapper: shallowMount(await Shopware.Component.build('sw-advanced-selection-rule'), {
             localVue,
             provide: {
                 ruleConditionDataProviderService: {
@@ -81,10 +81,10 @@ function createWrapper() {
                 restrictedRuleIdsTooltipLabel: 'restricted',
             },
             stubs: {
-                'sw-entity-advanced-selection-modal': Shopware.Component.build('sw-entity-advanced-selection-modal'),
-                'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-                'sw-modal': Shopware.Component.build('sw-modal'),
-                'sw-card': Shopware.Component.build('sw-card'),
+                'sw-entity-advanced-selection-modal': await Shopware.Component.build('sw-entity-advanced-selection-modal'),
+                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+                'sw-modal': await Shopware.Component.build('sw-modal'),
+                'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-context-button': {
                     template: '<div></div>'
                 },
@@ -110,10 +110,11 @@ describe('components/sw-advanced-selection-product', () => {
     let wrapper;
     let selectionModal;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
 
-        wrapper = createWrapper().wrapper;
+        const data = await createWrapper();
+        wrapper = data.wrapper;
         selectionModal = wrapper.findComponent({ name: 'sw-entity-advanced-selection-modal' });
     });
 

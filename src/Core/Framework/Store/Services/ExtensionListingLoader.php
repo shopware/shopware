@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class ExtensionListingLoader

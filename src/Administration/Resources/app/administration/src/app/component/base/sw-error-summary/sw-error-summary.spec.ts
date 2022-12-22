@@ -1,9 +1,12 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-error-summary/index';
 import 'src/app/component/base/sw-alert/index';
-import flushPromises from 'flush-promises';
 
-function createWrapper(errors = {}, options = {}) {
+async function createWrapper(errors = {}, options = {}) {
     Shopware.State.registerModule('error', {
         namespaced: true,
 
@@ -12,9 +15,9 @@ function createWrapper(errors = {}, options = {}) {
         },
     });
 
-    return shallowMount(Shopware.Component.build('sw-error-summary'), {
+    return shallowMount(await Shopware.Component.build('sw-error-summary'), {
         stubs: {
-            'sw-alert': Shopware.Component.build('sw-alert'),
+            'sw-alert': await Shopware.Component.build('sw-alert'),
             'sw-icon': true,
         },
         attachTo: document.body,
@@ -26,7 +29,7 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
 
@@ -45,7 +48,7 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
     });
 
     it('should show alert box with errors', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             entity: {
                 someId: {
                     someProperty: {

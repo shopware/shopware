@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 class LineItemTransformer
 {
     public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array

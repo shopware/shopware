@@ -1,5 +1,8 @@
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
+/**
+ * @package merchant-services
+ */
 describe('src/app/service/discount-campaign.service.ts', () => {
     beforeAll(() => {
         jest.useFakeTimers('modern');
@@ -13,7 +16,7 @@ describe('src/app/service/discount-campaign.service.ts', () => {
     const shopwareDiscountCampaignService = new ShopwareDiscountCampaignService();
 
     describe('isDiscountCampaignActive', () => {
-        it('returns true if today is between startDate and endDate and no duration is set', () => {
+        it('returns true if today is between startDate and endDate and no duration is set', async () => {
             const campaign = {
                 startDate: '04-21-2022 00:00:00',
                 endDate: '04-23-2022 00:00:00',
@@ -22,7 +25,7 @@ describe('src/app/service/discount-campaign.service.ts', () => {
             expect(shopwareDiscountCampaignService.isDiscountCampaignActive(campaign)).toBe(true);
         });
 
-        it('returns true if today is between startDate and endDate and duration > 0 is set', () => {
+        it('returns true if today is between startDate and endDate and duration > 0 is set', async () => {
             const campaign = {
                 startDate: '04-21-2022 00:00:00',
                 endDate: '04-23-2022 00:00:00',
@@ -32,16 +35,16 @@ describe('src/app/service/discount-campaign.service.ts', () => {
             expect(shopwareDiscountCampaignService.isDiscountCampaignActive(campaign)).toBe(true);
         });
 
-        it('returns false if discountCampaign is null', () => {
+        it('returns false if discountCampaign is null', async () => {
             expect(shopwareDiscountCampaignService.isDiscountCampaignActive(null)).toBe(false);
         });
 
-        it('returns false if discountCampaign has no startDate', () => {
+        it('returns false if discountCampaign has no startDate', async () => {
             expect(shopwareDiscountCampaignService.isDiscountCampaignActive({ startDate: null }))
                 .toBe(false);
         });
 
-        it('returns false if startDate is in the future', () => {
+        it('returns false if startDate is in the future', async () => {
             const campaign = {
                 startDate: '04-23-2022 00:00:00',
                 endDate: '04-26-2022 00:00:00',
@@ -51,7 +54,7 @@ describe('src/app/service/discount-campaign.service.ts', () => {
             expect(shopwareDiscountCampaignService.isDiscountCampaignActive(campaign)).toBe(false);
         });
 
-        it('returns false if endDate is in the past', () => {
+        it('returns false if endDate is in the past', async () => {
             const campaign = {
                 startDate: '04-20-2022 00:00:00',
                 endDate: '04-22-2022 00:00:00',
@@ -61,7 +64,7 @@ describe('src/app/service/discount-campaign.service.ts', () => {
             expect(shopwareDiscountCampaignService.isDiscountCampaignActive(campaign)).toBe(false);
         });
 
-        it('returns false if discountDuration is 0', () => {
+        it('returns false if discountDuration is 0', async () => {
             const campaign = {
                 startDate: '04-21-2022 00:00:00',
                 endDate: '04-23-2022 00:00:00',
@@ -101,7 +104,7 @@ describe('src/app/service/discount-campaign.service.ts', () => {
             ],
         ];
 
-        it('returns true if startDate, endDate and discountAppliesForMonths are the same', () => {
+        it('returns true if startDate, endDate and discountAppliesForMonths are the same', async () => {
             expect(shopwareDiscountCampaignService.isSamePeriod(originalCampaign, originalCampaign)).toBe(true);
         });
 

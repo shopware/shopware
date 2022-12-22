@@ -7,7 +7,10 @@ const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { capitalizeString } = Shopware.Utils.string;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-flow-set-entity-custom-field-modal', {
     template,
 

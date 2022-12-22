@@ -120,6 +120,7 @@
 
         {% block cms_form_contact_hidden_fields %}
             <div class="form-hidden-fields">
+                {# @deprecated tag:v6.5.0 - Block cms_form_contact_csrf will be removed. #}
                 {% block cms_form_contact_csrf %}
                     {{ sw_csrf(action) }}
                 {% endblock %}

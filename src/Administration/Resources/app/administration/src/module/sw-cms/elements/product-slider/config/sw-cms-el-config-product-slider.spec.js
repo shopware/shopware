@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-slider/config';
@@ -27,8 +30,8 @@ const productStreamMock = {
 };
 
 
-function createWrapper(customCmsElementConfig) {
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-product-slider'), {
+async function createWrapper(customCmsElementConfig) {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-slider'), {
         propsData: {
             element: {
                 config: {
@@ -58,10 +61,10 @@ function createWrapper(customCmsElementConfig) {
             'sw-container': true,
             'sw-field': true,
             'sw-single-select': true,
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-select-result': true,
             'sw-product-variant-info': true,
             'sw-label': true,
@@ -104,26 +107,26 @@ function createWrapper(customCmsElementConfig) {
 
 describe('module/sw-cms/elements/product-slider/config', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render product assignment type select', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__product-assignment-type-select')
             .exists()).toBeTruthy();
     });
 
     it('should render manual product assignment by default', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
     });
 
     it('should display check marks for manually selected products', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
@@ -143,7 +146,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should fetch product stream when assignment type is "product_stream"', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
                 source: 'product_stream'
@@ -156,7 +159,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should fetch product stream when changing product stream via select', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.onChangeProductStream('de8de156da134dabac24257f81ff282f');
 
@@ -167,7 +170,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should set product stream to null when changing product stream via select and no stream is given', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.onChangeProductStream(null);
 
@@ -177,7 +180,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should render product stream selection when element product type is "product_stream"', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
                 source: 'product_stream'
@@ -199,7 +202,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should store the productIds after changing the assignment type to "product_stream"', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.onChangeAssignmentType('product_stream');
 
@@ -212,7 +215,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should store the streamIds after changing the assignment type to "static"', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
                 source: 'product_stream'
@@ -230,7 +233,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should build correct sorting criteria for stream preview including selected sorting option', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
                 source: 'product_stream'
@@ -243,7 +246,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
     });
 
     it('should render product stream preview modal', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
                 source: 'product_stream'

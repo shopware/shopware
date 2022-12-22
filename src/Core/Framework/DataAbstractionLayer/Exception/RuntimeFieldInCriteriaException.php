@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class RuntimeFieldInCriteriaException extends ShopwareHttpException
 {
     public function __construct(string $field)

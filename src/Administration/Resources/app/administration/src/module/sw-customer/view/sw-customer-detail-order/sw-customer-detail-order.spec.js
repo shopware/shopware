@@ -1,6 +1,10 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/view/sw-customer-detail-order';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+/**
+ * @package customer-order
+ */
 
 const orderFixture = [{
     orderNumber: '10062',
@@ -23,8 +27,8 @@ function getOrderCollection(collection = []) {
     );
 }
 
-function createWrapper(orderData = []) {
-    return shallowMount(Shopware.Component.build('sw-customer-detail-order'), {
+async function createWrapper(orderData = []) {
+    return shallowMount(await Shopware.Component.build('sw-customer-detail-order'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -66,20 +70,18 @@ function createWrapper(orderData = []) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('module/sw-customer/view/sw-customer-detail-order.spec.js', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show empty state', () => {
+    it('should show empty state', async () => {
         const emptyState = wrapper.find('sw-empty-state-stub');
         const cardFilter = wrapper.find('.sw-card-filter');
 

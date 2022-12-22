@@ -16,7 +16,6 @@ import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-selection-list';
-import flushPromises from 'flush-promises';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -58,25 +57,25 @@ responses.addResponse({
     }
 });
 
-function createWrapper(condition = {}) {
+async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
-    return shallowMount(Shopware.Component.build('sw-condition-script'), {
+    return shallowMount(await Shopware.Component.build('sw-condition-script'), {
         stubs: {
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
-            'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
-            'sw-entity-multi-id-select': Shopware.Component.build('sw-entity-multi-id-select'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
+            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
+            'sw-entity-multi-id-select': await Shopware.Component.build('sw-entity-multi-id-select'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
             'sw-context-button': true,
             'sw-context-menu-item': true,
             'sw-field-error': true,
@@ -116,13 +115,13 @@ function createWrapper(condition = {}) {
 
 describe('components/rule/condition-type/sw-condition-script', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render fields and set condition values on change', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             type: 'scriptRule',
             scriptId: 'foo',
             appScriptCondition: {

@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
 class SystemUpdatePrepareCommand extends Command

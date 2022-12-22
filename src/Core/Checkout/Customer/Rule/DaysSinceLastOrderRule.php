@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @package business-ops
+ */
 class DaysSinceLastOrderRule extends Rule
 {
     /**
@@ -22,23 +25,6 @@ class DaysSinceLastOrderRule extends Rule
      */
     protected $daysPassed;
 
-    /**
-     * @var \DateTime|null
-     */
-    private $dateTime;
-
-    /**
-     * @internal
-     */
-    public function __construct(?\DateTimeInterface $dateTime = null)
-    {
-        parent::__construct();
-
-        if ($dateTime) {
-            $this->dateTime = (new \DateTime())->setTimestamp($dateTime->getTimestamp());
-        }
-    }
-
     public function getName(): string
     {
         return 'customerDaysSinceLastOrder';
@@ -50,7 +36,7 @@ class DaysSinceLastOrderRule extends Rule
             return false;
         }
 
-        $currentDate = $this->dateTime ?? new \DateTime();
+        $currentDate = $scope->getCurrentTime()->setTime(0, 0, 0, 0);
         $customer = $scope->getSalesChannelContext()->getCustomer();
 
         if (!$customer) {
@@ -71,29 +57,10 @@ class DaysSinceLastOrderRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $interval = $lastOrderDate->diff($currentDate);
-
-        /*
-         * checking if the interval should be increased since it's a higher day than he might expects
-         *
-         * example:
-         * you ordered at 10pm and want to order something the next day at 8am. So this should count as 1 passed day
-         * but PHP would not handle this as a day
-         */
-        if (
-                // checking if lastOrderDate is in the past
-                $currentDate > $lastOrderDate
-                && (
-                    // checking if the current time is smaller than the one of the last order
-                    (int) $currentDate->format('H') < (int) $lastOrderDate->format('H')
-                    || (
-                        (int) $currentDate->format('H') === (int) $lastOrderDate->format('H')
-                        && (int) $currentDate->format('i') < (int) $lastOrderDate->format('i')
-                    )
-                )
-        ) {
-            $interval = $lastOrderDate->diff($currentDate->modify('+1 day'));
+        if (method_exists($lastOrderDate, 'setTime')) {
+            $lastOrderDate = $lastOrderDate->setTime(0, 0, 0, 0);
         }
+        $interval = $lastOrderDate->diff($currentDate);
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return false;

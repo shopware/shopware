@@ -5,6 +5,9 @@ import 'src/module/sw-my-apps/component/sw-my-apps-error-page';
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
     let wrapper = null;
 
@@ -17,16 +20,16 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
         if (wrapper) wrapper.destroy();
     });
 
-    function createWrapper(propsData) {
+    async function createWrapper(propsData) {
         const localVue = createLocalVue();
         localVue.filter('asset', (value) => value);
 
-        return shallowMount(Shopware.Component.build('sw-my-apps-page'), {
+        return shallowMount(await Shopware.Component.build('sw-my-apps-page'), {
             localVue,
             propsData,
             stubs: {
-                'sw-my-apps-error-page': Shopware.Component.build('sw-my-apps-error-page'),
-                'sw-page': Shopware.Component.build('sw-page'),
+                'sw-my-apps-error-page': await Shopware.Component.build('sw-my-apps-error-page'),
+                'sw-page': await Shopware.Component.build('sw-page'),
                 'sw-notification-center': true,
                 'sw-help-center': true,
                 'sw-search-bar': true,
@@ -36,9 +39,11 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
             },
             mocks: {
                 $route: {
-                    meta: { $module: {
-                        title: 'sw-my-apps.general.mainMenuItemGeneral'
-                    } }
+                    meta: {
+                        $module: {
+                            title: 'sw-my-apps.general.mainMenuItemGeneral'
+                        }
+                    }
                 }
             }
         });

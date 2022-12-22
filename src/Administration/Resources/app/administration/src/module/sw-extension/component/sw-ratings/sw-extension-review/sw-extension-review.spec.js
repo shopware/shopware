@@ -2,12 +2,15 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-review';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-extension-review'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-extension-review'), {
             propsData: {
                 producerName: 'Bob Ross',
                 review: {
@@ -33,7 +36,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
                 }
             },
             stubs: {
-                'sw-extension-rating-stars': Shopware.Component.build('sw-extension-rating-stars'),
+                'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
                 'sw-icon': true,
                 'sw-extension-review-reply': true
             }
@@ -44,27 +47,27 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the review title', () => {
-        wrapper = createWrapper();
+    it('should display the review title', async () => {
+        wrapper = await createWrapper();
         const reviewTitle = wrapper.find('.sw-extension-review__headline').text();
 
         expect(reviewTitle).toBe('Can only recommend this plugin!');
     });
 
-    it('should display the review text', () => {
-        wrapper = createWrapper();
+    it('should display the review text', async () => {
+        wrapper = await createWrapper();
         const reviewText = wrapper.find('.sw-extension-review p').text();
 
         expect(reviewText).toBe('Bla bla blib blub bla');
     });
 
-    it('should have the right amount of replies', () => {
-        wrapper = createWrapper();
+    it('should have the right amount of replies', async () => {
+        wrapper = await createWrapper();
         const amountOfReplies = wrapper.findAll('sw-extension-review-reply-stub').length;
 
         expect(amountOfReplies).toBe(1);

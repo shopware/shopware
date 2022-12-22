@@ -6,6 +6,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package content
  * This route can be used to load a single resolved cms page of the authenticated sales channel.
  */
 abstract class AbstractCmsRoute

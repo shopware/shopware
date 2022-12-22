@@ -3,6 +3,8 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 /**
+ * @package core
+ *
  * @internal should be used over the CLI only
  */
 class SalesChannelMaintenanceDisableCommand extends SalesChannelMaintenanceEnableCommand

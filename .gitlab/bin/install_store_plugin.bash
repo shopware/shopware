@@ -7,40 +7,11 @@ console() {
   ${PROJECT_DIR}/bin/console "$@"
 }
 
-login() {
-    if [[ -n ${STORE_LOGGED_IN:-} ]]; then
-        return
-    fi
-
-    >&2 echo "Log into store"
-
-    STORE_LOGGED_IN=
-
-    local login_url="https://api.shopware.com/swplatform/login?domain=${STORE_DOMAIN}&language=en-GB&shopwareVersion=${PLATFORM_VERSION}"
-    local response=$(curl -XPOST --location --silent --data $(printf '{"shopwareId":"%s","password":"%s","shopwareUserId":"admin"}' ${STORE_USERNAME} ${STORE_PASSWORD}) ${login_url})
-
-    STORE_SECRET=$(echo "$response" | jq -r .shopSecret)
-    STORE_TOKEN=$(echo "$response" | jq -r .shopUserToken.token)
-
-    if [[ -z "$STORE_SECRET" || -z "$STORE_TOKEN" || "$STORE_TOKEN" = "null" ]]; then
-      >&2 echo "Login failed"
-      >&2 echo "Url: $login_url"
-      >&2 echo "Response: $response"
-      exit 1
-    fi
-
-    STORE_LOGGED_IN=1
-}
-
 download_store_plugin() {
-    login
-
     local technical_name=$1
     local download_info_url="https://api.shopware.com/swplatform/pluginfiles/${technical_name}?domain=sw6.fk6.test.shopware.in&language=en-GB&shopwareVersion=${PLATFORM_VERSION}"
     local info=$(curl \
         --location --silent \
-        --header "X-Shopware-Platform-Token: ${STORE_TOKEN}" \
-        --header "X-Shopware-Shop-Secret: ${STORE_SECRET}" \
         --header 'Content-Type: application/json' \
         --header 'Accept: application/vnd.api+json,application/json' \
         ${download_info_url})

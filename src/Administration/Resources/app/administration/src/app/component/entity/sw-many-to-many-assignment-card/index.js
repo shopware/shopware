@@ -6,6 +6,8 @@ const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @example-type code-only

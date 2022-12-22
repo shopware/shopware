@@ -5,6 +5,7 @@ const { ShopwareError } = Shopware.Classes;
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-review-creation', {

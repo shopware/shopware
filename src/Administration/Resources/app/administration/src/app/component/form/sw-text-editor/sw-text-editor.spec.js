@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
@@ -15,35 +19,35 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
-function createWrapper(allowInlineDataMapping = true) {
+async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
     document.body.innerHTML = '<div id="app"></div>';
 
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-text-editor'), {
+    return shallowMount(await Shopware.Component.build('sw-text-editor'), {
         attachTo: document.getElementById('app'),
         propsData: {
             allowInlineDataMapping
         },
         localVue,
         stubs: {
-            'sw-text-editor-toolbar-button': Shopware.Component.build('sw-text-editor-toolbar-button'),
-            'sw-text-editor-link-menu': Shopware.Component.build('sw-text-editor-link-menu'),
-            'sw-compact-colorpicker': Shopware.Component.build('sw-compact-colorpicker'),
-            'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
+            'sw-text-editor-link-menu': await Shopware.Component.build('sw-text-editor-link-menu'),
+            'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
+            'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-field': Shopware.Component.build('sw-field'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-field': await Shopware.Component.build('sw-field'),
             'sw-icon': { template: '<div class="sw-icon"></div>' },
             'sw-select-field': true,
             'sw-field-error': true,
@@ -156,12 +160,12 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should toggle placeholder', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const placeholder = 'Enter description...';
         await wrapper.setProps({ placeholder: placeholder });
 
@@ -184,7 +188,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should update the placeholderVisible prop in the code editor mode', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const placeholder = 'Enter description...';
         await wrapper.setProps({ placeholder: placeholder });
@@ -194,7 +198,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.isCodeEdit).toBe(false);
 
         // switch to code editor mode
-        wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(true);
@@ -210,7 +214,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
-        wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(false);
@@ -218,7 +222,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should insert the link correctly', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
         const buttonLink = wrapper.find('.sw-text-editor-toolbar-button__type-link');
 
@@ -272,7 +276,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     buttonVariantsDataProvider.forEach(({ buttonVariant, resultClasses }) => {
         it(`should always render correct links as correct button types (buttonVariant: ${buttonVariant})`, async () => {
-            wrapper = createWrapper();
+            wrapper = await createWrapper();
 
             // set initial content
             const contentEditor = wrapper.find('.sw-text-editor__content-editor');
@@ -306,7 +310,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should handle inserting inline mapping', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
 
@@ -322,7 +326,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         await wrapper.vm.$nextTick();
 
         // insert inline data mapping
-        wrapper.find('.sw-text-editor-toolbar-button__children :first-child > div').trigger('click');
+        await wrapper.find('.sw-text-editor-toolbar-button__children :first-child > div').trigger('click');
         await wrapper.vm.$nextTick();
 
         // check if newly edited content is correct
@@ -334,8 +338,8 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(event[0]).toBe(expectedTextContent);
     });
 
-    it('should return true if selection contains one or two opening brackets', () => {
-        wrapper = createWrapper();
+    it('should return true if selection contains one or two opening brackets', async () => {
+        wrapper = await createWrapper();
 
         const containsOneBracket = wrapper.vm.containsStartBracket('{');
         expect(containsOneBracket).toBe(true);
@@ -344,15 +348,15 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(containsTwoBrackets).toBe(true);
     });
 
-    it('should return false if selection contains no opening brackets', () => {
-        wrapper = createWrapper();
+    it('should return false if selection contains no opening brackets', async () => {
+        wrapper = await createWrapper();
 
         const containsStartBracket = wrapper.vm.containsStartBracket('no start bracket');
         expect(containsStartBracket).toBe(false);
     });
 
-    it('should return true if selection contains one or two closing brackets', () => {
-        wrapper = createWrapper();
+    it('should return true if selection contains one or two closing brackets', async () => {
+        wrapper = await createWrapper();
 
         const containsOneBracket = wrapper.vm.containsEndBracket('}');
         expect(containsOneBracket).toBe(true);
@@ -361,15 +365,15 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(containsTwoBrackets).toBe(true);
     });
 
-    it('should return false if selection contains no closing brackets', () => {
-        wrapper = createWrapper();
+    it('should return false if selection contains no closing brackets', async () => {
+        wrapper = await createWrapper();
 
         const containsEndBracket = wrapper.vm.containsStartBracket('no start bracket');
         expect(containsEndBracket).toBe(false);
     });
 
     it('should return true if selection is inside inline mapping', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
 
@@ -381,7 +385,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should return true if selection is inside inline mapping with mapping around', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">Before {{ test }} {{ category.name }} {{ example }}</p>');
 
@@ -393,7 +397,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should return false if selection is not inside inline mapping with mapping around', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">Some text before {{ test }} category.name }} {{ example }}</p>');
 
@@ -405,7 +409,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should return false if selection is not inside inline mapping', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">not inside inline mapping</p>');
 
@@ -417,7 +421,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should return false if selection is not inside inline mapping with mappings around', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">{{ example }} not inside mapping {{ example }}</p>');
 
@@ -429,7 +433,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should expand selection to nearest closing bracket', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
 
@@ -443,7 +447,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should expand selection to nearest opening bracket', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
 
@@ -457,7 +461,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should set the selection correctly when using the setSelection method', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">random text</p>');
         const paragraph = document.getElementById('paragraph');
@@ -477,7 +481,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should expand selection one to the left if only one opening bracket is selected', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
         const paragraph = document.getElementById('paragraph');
@@ -491,7 +495,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should expand selection one to the right if only one closing bracket is selected', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
         const paragraph = document.getElementById('paragraph');
@@ -504,15 +508,15 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(newSelection).toBe('{{ category.name }}');
     });
 
-    it('should not show the inline mapping button when prop does not allow it to', () => {
-        wrapper = createWrapper(false);
+    it('should not show the inline mapping button when prop does not allow it to', async () => {
+        wrapper = await createWrapper(false);
         const inlineMappingButton = wrapper.find('.sw-text-editor-toolbar-button__type-data-mapping');
 
         expect(inlineMappingButton.exists()).toBe(false);
     });
 
     it('should show the link url when you select a text block with a link', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No Link</p>
@@ -547,7 +551,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should show the link url with newTab active when you select a text block with a link', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No Link</p>
@@ -582,7 +586,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should show no link url when you select a text block without a link', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No link</p>
@@ -616,7 +620,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should be able to switch from active link to non link text', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No link</p>
@@ -674,7 +678,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should be able to switch from one link to another link', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, `
             <a id="linkOne" href="http://shopware.com" target="_self">Shopware</a>
@@ -730,7 +734,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should remove link from text', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u>Shop<strike id="anchor">ware</strike></u></bold></a>');
 
@@ -749,14 +753,14 @@ describe('src/app/component/form/sw-text-editor', () => {
         // trigger the link removal
         const removeButton = await wrapper.get('.sw-text-editor-toolbar-button__link-menu-buttons-button-remove');
         removeButton.disabled = '';
-        removeButton.trigger('click');
+        await removeButton.trigger('click');
 
         // check that the link got removed
         expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
     });
 
     it('should let the toolbar disappear, when containing component unmounts', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u id="content">Shopware</u></bold></a>');
 
@@ -778,7 +782,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it("should leave the text alone, if there isn't link to be removed", async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
 
@@ -802,7 +806,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should copy html from the wysiwyg mode and ignore p elements', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<bold><p><u>Shop<strike id="anchor">ware</strike></u></p></bold>');
 
@@ -823,7 +827,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should paste html styled text if the shift key is not pressed', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
 
@@ -854,7 +858,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should paste text instead of html when the shift key is pressed', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
 
@@ -885,7 +889,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should fall back to pasting text into the wysiwyg editor if html isn\'t available', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
 

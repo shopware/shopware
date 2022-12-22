@@ -1,6 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 import utils from 'src/core/service/util.service';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -69,7 +68,7 @@ function getPropertyCollection() {
     );
 }
 
-const createEntityMultiSelect = (customOptions) => {
+const createEntityMultiSelect = async (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {});
@@ -77,19 +76,19 @@ const createEntityMultiSelect = (customOptions) => {
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-icon': Shopware.Component.build('sw-icon'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-label': true,
-            'sw-loader': Shopware.Component.build('sw-loader'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
             'icons-regular-checkmark-xs': {
                 template: '<div></div>'
             },
@@ -113,7 +112,7 @@ const createEntityMultiSelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-multi-select'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-multi-select'), {
         ...options,
         ...customOptions
     });
@@ -121,7 +120,7 @@ const createEntityMultiSelect = (customOptions) => {
 
 describe('components/sw-entity-multi-select', () => {
     it('should be a Vue.js component', async () => {
-        const swEntityMultiSelect = createEntityMultiSelect();
+        const swEntityMultiSelect = await createEntityMultiSelect();
 
         expect(swEntityMultiSelect.vm).toBeTruthy();
     });
@@ -155,15 +154,15 @@ describe('components/sw-entity-multi-select', () => {
         expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
-    it('should not display variations', () => {
-        const swEntityMultiSelect = createEntityMultiSelect();
+    it('should not display variations', async () => {
+        const swEntityMultiSelect = await createEntityMultiSelect();
         const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
 
         expect(productVariantInfo.exists()).toBeFalsy();
     });
 
-    it('should display variations', () => {
-        const swEntityMultiSelect = createEntityMultiSelect({
+    it('should display variations', async () => {
+        const swEntityMultiSelect = await createEntityMultiSelect({
             propsData: {
                 value: fixture[0].id,
                 entity: 'test',

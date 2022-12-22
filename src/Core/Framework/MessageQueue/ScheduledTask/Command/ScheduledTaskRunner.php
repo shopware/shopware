@@ -11,6 +11,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
+/**
+ * @package core
+ */
 class ScheduledTaskRunner extends Command
 {
     protected static $defaultName = 'scheduled-task:run';

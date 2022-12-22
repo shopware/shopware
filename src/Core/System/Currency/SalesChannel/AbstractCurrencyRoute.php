@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route can be used to load all currencies of the authenticated sales channel.
  * With this route it is also possible to send the standard API parameters such as: 'page', 'limit', 'filter', etc.
+ *
+ * @package inventory
  */
 abstract class AbstractCurrencyRoute
 {

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-action';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-grouped-single-select';
@@ -63,11 +63,11 @@ function getSequencesCollection(collection = []) {
     );
 }
 
-function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
+async function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-sequence-action'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-sequence-action'), {
         localVue,
         stubs: {
             'sw-icon': {
@@ -81,12 +81,12 @@ function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
                     </div>
                 `
             },
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-grouped-single-select': Shopware.Component.build('sw-grouped-single-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-grouped-single-select': await Shopware.Component.build('sw-grouped-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-popover': {
                 template: '<div class="sw-popover"><slot></slot></div>'
             },
@@ -167,8 +167,6 @@ function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     beforeAll(() => {
         Shopware.Service().register('flowBuilderService', () => {
@@ -215,7 +213,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should able to add an action', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
@@ -242,7 +240,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should show action list correctly', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0]
@@ -258,7 +256,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should show dynamic modal', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0]
@@ -280,7 +278,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should not able to add more actions if existing action is stop flow', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
                 actionName: ACTION.STOP_FLOW
@@ -294,7 +292,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should able to remove action container', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0]
@@ -319,7 +317,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should able to remove an action', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0]
@@ -345,7 +343,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should set error for single select if action name is empty', async () => {
         Shopware.State.commit('swFlowState/setInvalidSequences', ['2']);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             sequence: {
                 ...sequenceFixture
@@ -365,7 +363,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
         expect(invalidSequences).toEqual(['2']);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             sequence: {
                 ...sequenceFixture
@@ -391,7 +389,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should able to disable add buttons', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
                 actionName: ACTION.ADD_TAG
@@ -414,7 +412,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should able to show move an action', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0],
@@ -438,7 +436,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should not able to show move an action if has only action', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0]
@@ -453,7 +451,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should not able to show move an action if has stop flow action', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     id: '2',
@@ -474,7 +472,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should able to show move down an action', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0],
@@ -505,7 +503,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should reset position after deleting action', async () => {
         Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 2: {
                     ...sequencesFixture[0],
@@ -547,7 +545,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             }
         ]);
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 id: '2',
                 ruleId: null,
@@ -576,7 +574,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             }
         ];
 
-        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
+        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
         await wrapper.vm.$nextTick();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -602,7 +600,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             }
         ];
 
-        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
+        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
         await wrapper.vm.$nextTick();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -622,7 +620,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             }
         ];
 
-        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
+        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
         await wrapper.vm.$nextTick();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -636,7 +634,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     });
 
     it('should group flow builder actions', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
@@ -662,7 +660,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             }
         ];
 
-        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
+        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
         await wrapper.vm.$nextTick();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -694,7 +692,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             }
         ];
 
-        const wrapper = await createWrapper({
+        const wrapper = await await createWrapper({
             sequence: {
                 id: '2',
                 ruleId: null,

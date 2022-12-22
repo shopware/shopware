@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class ProductLineItemFactory implements LineItemFactoryInterface
 {
     /**

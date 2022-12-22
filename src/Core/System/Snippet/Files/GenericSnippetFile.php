@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+/**
+ * @package system-settings
+ */
 class GenericSnippetFile extends AbstractSnippetFile
 {
     private string $name;

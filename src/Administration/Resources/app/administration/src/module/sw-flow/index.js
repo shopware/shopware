@@ -31,7 +31,10 @@ import flowState from './state/flow.state';
 const { Module, State } = Shopware;
 State.registerModule('swFlowState', flowState);
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Module.register('sw-flow', {
     type: 'core',
     name: 'flow',

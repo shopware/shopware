@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<SnippetEntity>
  */
 class SnippetCollection extends EntityCollection

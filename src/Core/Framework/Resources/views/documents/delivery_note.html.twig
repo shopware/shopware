@@ -24,22 +24,29 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
 
 {% block document_recipient %}
-    {# @deprecated tag:v6.5.0 - Will be removed #}
-    {% block document_recipient_sender %}{% endblock %}
+    {% if feature('v6.5.0.0') %}
+        {% sw_include '@Framework/snippets/render.html.twig' with {
+            format: deliveryAddress.country.translated.addressFormat,
+            address: deliveryAddress
+        } %}<br/>
+    {% else %}
+        {# @deprecated tag:v6.5.0 - Block will be removed #}
+        {% block document_recipient_sender %}{% endblock %}
 
-    {% if deliveryAddress.company %}
-        {{ deliveryAddress.company }}<br>
+        {% if deliveryAddress.company %}
+            {{ deliveryAddress.company }}<br>
+        {% endif %}
+        {{ deliveryAddress.firstName }} {{ deliveryAddress.lastName }}<br>
+        {{ deliveryAddress.street }}<br>
+        {% if deliveryAddress.additionalAddressLine1 %}
+            {{ deliveryAddress.additionalAddressLine1 }}<br>
+        {% endif %}
+        {% if deliveryAddress.additionalAddressLine2 %}
+            {{ deliveryAddress.additionalAddressLine2 }}<br>
+        {% endif %}
+        {{ deliveryAddress.zipcode }} {{ deliveryAddress.city }}<br>
+        {{ deliveryAddress.country.name }}<br>
     {% endif %}
-    {{ deliveryAddress.firstName }} {{ deliveryAddress.lastName }}<br>
-    {{ deliveryAddress.street }}<br>
-    {% if deliveryAddress.additionalAddressLine1 %}
-        {{ deliveryAddress.additionalAddressLine1 }}<br>
-    {% endif %}
-    {% if deliveryAddress.additionalAddressLine2 %}
-        {{ deliveryAddress.additionalAddressLine2 }}<br>
-    {% endif %}
-    {{ deliveryAddress.zipcode }} {{ deliveryAddress.city }}<br>
-    {{ deliveryAddress.country.name }}<br>
 {% endblock %}
 
 {% block document_side_info_contents %}

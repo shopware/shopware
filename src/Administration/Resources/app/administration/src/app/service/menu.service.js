@@ -1,4 +1,8 @@
 /**
+ * @package admin
+ */
+
+/**
  * @module app/service/menu
  */
 const FlatTree = Shopware.Helper.FlatTreeHelper;

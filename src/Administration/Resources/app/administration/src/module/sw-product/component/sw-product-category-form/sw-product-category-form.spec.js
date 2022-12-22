@@ -1,4 +1,8 @@
-import { enableAutoDestroy, shallowMount } from '@vue/test-utils';
+/*
+ * @package inventory
+ */
+
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-category-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
@@ -10,12 +14,11 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { Utils } = Shopware;
 
-enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-category-form', () => {
     const defaultSalesChannelData = {};
 
-    function createWrapper(productEntityOverride, parentProductOverride) {
+    async function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity =
             {
                 metaTitle: 'Product1',
@@ -29,7 +32,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
             ...parentProductOverride
         };
 
-        return shallowMount(Shopware.Component.build('sw-product-category-form'), {
+        return shallowMount(await Shopware.Component.build('sw-product-category-form'), {
             mocks: {
                 $route: {
                     name: 'sw.product.detail.base',
@@ -74,13 +77,13 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 'sw-container': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-modal': true,
                 'sw-multi-tag-select': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
                 'sw-category-tree-field': true,
                 'sw-entity-tag-select': true,
                 'sw-product-visibility-select': true,
@@ -113,8 +116,8 @@ describe('module/sw-product/component/sw-product-category-form', () => {
 
     let wrapper;
 
-    it('should show Visibility Structure item fields when advanced mode is on', () => {
-        wrapper = createWrapper();
+    it('should show Visibility Structure item fields when advanced mode is on', async () => {
+        wrapper = await createWrapper();
 
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
@@ -127,7 +130,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
     });
 
     it('should hide Visibility Structure item fields when advanced mode is off', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {

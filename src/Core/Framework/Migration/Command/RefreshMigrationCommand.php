@@ -7,6 +7,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class RefreshMigrationCommand extends Command
 {
     protected static $defaultName = 'database:refresh-migration';

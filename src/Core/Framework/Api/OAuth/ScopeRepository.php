@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 
+/**
+ * @package core
+ */
 class ScopeRepository implements ScopeRepositoryInterface
 {
     /**

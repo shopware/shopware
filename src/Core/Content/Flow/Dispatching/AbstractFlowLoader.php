@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 /**
+ * @package business-ops
+ *
  * @internal not intended for decoration or replacement
  */
 abstract class AbstractFlowLoader

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package content
+ */
 interface SalesChannelCmsPageLoaderInterface
 {
     public function load(

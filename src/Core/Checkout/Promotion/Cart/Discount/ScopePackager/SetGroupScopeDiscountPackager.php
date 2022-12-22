@@ -15,6 +15,9 @@ use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class SetGroupScopeDiscountPackager extends DiscountPackager
 {
     /**

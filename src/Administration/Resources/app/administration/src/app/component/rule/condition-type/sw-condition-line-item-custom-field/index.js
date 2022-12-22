@@ -5,6 +5,9 @@ const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package business-ops
+ */
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
     template,
 

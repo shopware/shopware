@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<CmsPageEntity>
  */
 class CmsPageCollection extends EntityCollection

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 
+/**
+ * @package core
+ */
 class ManyToManyIdField extends ListField
 {
     /**

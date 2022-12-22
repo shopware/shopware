@@ -3,6 +3,10 @@ import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
@@ -154,6 +158,11 @@ Component.register('sw-customer-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-customer-detail__customer',
+                path: 'customer',
+                scope: this,
+            });
             this.isLoading = true;
 
             this.customerRepository.get(

@@ -4,6 +4,9 @@ import './acl';
 
 const { Module } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-review', {
     type: 'core',

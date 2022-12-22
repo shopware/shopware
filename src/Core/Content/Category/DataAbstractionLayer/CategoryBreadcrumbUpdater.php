@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @package content
+ */
 class CategoryBreadcrumbUpdater
 {
     private Connection $connection;

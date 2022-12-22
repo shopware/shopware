@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
+/**
+ * @package core
+ */
 class BucketResult extends AggregationResult
 {
     /**

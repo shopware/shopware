@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
@@ -5,7 +9,7 @@ import 'src/app/directive/tooltip.directive';
 
 jest.useFakeTimers();
 
-const createWrapper = (message) => {
+const createWrapper = async (message) => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', Shopware.Directive.getByName('tooltip'));
 
@@ -41,16 +45,16 @@ const createWrapper = (message) => {
 
 describe('directives/tooltip', () => {
     it('should show and hide tooltip', async () => {
-        const wrapper = createWrapper('a tooltip');
+        const wrapper = await createWrapper('a tooltip');
 
-        wrapper.trigger('mouseenter');
+        await wrapper.trigger('mouseenter');
         jest.runAllTimers();
 
         let tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
         expect(tooltips.length).toBe(1);
 
-        wrapper.trigger('mouseleave');
+        await wrapper.trigger('mouseleave');
         jest.runAllTimers();
 
         tooltips = document.body.getElementsByClassName('sw-tooltip');
@@ -67,9 +71,9 @@ describe('directives/tooltip', () => {
             template: '<div class="sw-test"/>'
         });
 
-        const wrapper = createWrapper('This is a <sw-test></sw-test>');
+        const wrapper = await createWrapper('This is a <sw-test></sw-test>');
 
-        wrapper.trigger('mouseenter');
+        await wrapper.trigger('mouseenter');
         jest.runAllTimers();
 
         const tooltips = document.body.getElementsByClassName('sw-tooltip');
@@ -89,11 +93,11 @@ describe('directives/tooltip', () => {
             template: '<div class="sw-test"/>'
         });
 
-        const wrapper = createWrapper('a tooltip');
+        const wrapper = await createWrapper('a tooltip');
         wrapper.vm.updateMessage('This is a <sw-test></sw-test>');
         await wrapper.vm.$nextTick();
 
-        wrapper.trigger('mouseenter');
+        await wrapper.trigger('mouseenter');
         jest.runAllTimers();
 
         const tooltips = document.body.getElementsByClassName('sw-tooltip');
@@ -107,10 +111,10 @@ describe('directives/tooltip', () => {
     });
 
     it('should not be created when target element gets deleted before creation of tooltip', async () => {
-        const wrapper = createWrapper('a tooltip');
+        const wrapper = await createWrapper('a tooltip');
         await wrapper.vm.$nextTick();
 
-        wrapper.trigger('mouseenter');
+        await wrapper.trigger('mouseenter');
 
         // delete wrapper
         wrapper.destroy();
@@ -122,16 +126,16 @@ describe('directives/tooltip', () => {
     });
 
     it('should not disappear if you hover the tooltip itself', async () => {
-        const wrapper = createWrapper('a tooltip');
+        const wrapper = await createWrapper('a tooltip');
 
-        wrapper.trigger('mouseenter');
+        await wrapper.trigger('mouseenter');
 
         jest.runAllTimers();
 
         const tooltip = document.body.getElementsByClassName('sw-tooltip').item(0);
         expect(tooltip).not.toBeNull();
 
-        wrapper.trigger('mouseleave');
+        await wrapper.trigger('mouseleave');
         tooltip.dispatchEvent(new Event('mouseenter'));
 
         jest.runAllTimers();

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
 import 'src/app/component/form/sw-field';
@@ -12,8 +15,8 @@ const set = {
     _isNew: false
 };
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-custom-field-set-detail-base'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-set-detail-base'), {
         propsData: {
             set: set
         },
@@ -57,12 +60,12 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base/sw-custom-field-detail-base', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a position field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const positionField = wrapper.findAll('.sw-field-stub[label=position]');
         expect(positionField.length).toBe(1);

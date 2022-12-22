@@ -4,6 +4,9 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 
+/**
+ * @package system-settings
+ */
 class MemoizedSystemConfigLoader extends AbstractSystemConfigLoader
 {
     private AbstractSystemConfigLoader $decorated;

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Feature;
 
 if (Feature::isActive('v6.5.0.0')) {
+    /**
+     * @package inventory
+     */
     abstract class AbstractProductVariationBuilder
     {
         abstract public function getDecorated(): AbstractProductVariationBuilder;
@@ -13,6 +16,9 @@ if (Feature::isActive('v6.5.0.0')) {
         abstract public function build(Entity $product): void;
     }
 } else {
+    /**
+     * @package inventory
+     */
     abstract class AbstractProductVariationBuilder
     {
         abstract public function getDecorated(): AbstractProductVariationBuilder;

@@ -8,6 +8,9 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-sidebar', {
     template,
@@ -17,6 +20,7 @@ Component.register('sw-cms-sidebar', {
         'cmsService',
         'repositoryFactory',
         'feature',
+        'cmsBlockFavorites',
     ],
 
     mixins: [
@@ -69,7 +73,13 @@ Component.register('sw-cms-sidebar', {
         },
 
         cmsBlocks() {
-            return this.cmsService.getCmsBlockRegistry();
+            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+
+            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
+                return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+            });
+
+            return Object.fromEntries(blocks);
         },
 
         mediaRepository() {
@@ -123,7 +133,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockTypes() {
-            return Object.keys(this.cmsBlocks);
+            return Object.keys(this.cmsService.getCmsBlockRegistry());
         },
 
         pageConfigErrors() {
@@ -150,12 +160,32 @@ Component.register('sw-cms-sidebar', {
             return false;
         },
 
+        cmsBlocksBySelectedBlockCategory() {
+            const result = Object.values(this.cmsBlocks).filter(b => b.hidden !== true);
+
+            if (this.currentBlockCategory === 'favorite') {
+                return result.filter(b => this.cmsBlockFavorites.isFavorite(b.name));
+            }
+
+            return result.filter(b => b.category === this.currentBlockCategory);
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        onPageTypeChange() {
-            this.$emit('page-type-change');
+        createdComponent() {
+            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
+                this.currentBlockCategory = 'favorite';
+            }
+        },
+
+        onPageTypeChange(pageType) {
+            this.$emit('page-type-change', pageType);
         },
 
         onDemoEntityChange(demoEntityId) {
@@ -175,7 +205,8 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockIsRemovable(block) {
-            return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
+            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
+            return (cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block) {
@@ -405,8 +436,9 @@ Component.register('sw-cms-sidebar', {
                 return;
             }
 
+            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
             const section = dropData.section;
-            const blockConfig = this.cmsBlocks[dragData.block.name];
+            const blockConfig = cmsBlocks[dragData.block.name];
             const newBlock = this.blockRepository.create();
 
             newBlock.type = dragData.block.name;
@@ -505,6 +537,10 @@ Component.register('sw-cms-sidebar', {
             section.backgroundMedia = mediaItem;
 
             this.pageUpdate();
+        },
+
+        onToggleBlockFavorite(blockName) {
+            this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
         },
 
         successfulUpload(media, section) {

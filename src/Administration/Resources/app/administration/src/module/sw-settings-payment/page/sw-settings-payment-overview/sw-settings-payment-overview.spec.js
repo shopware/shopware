@@ -1,9 +1,12 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
 import Vuex from 'vuex';
-import flushPromises from 'flush-promises';
 
-function createWrapper(methods = [], cards = [], privileges = []) {
+/**
+ * @package checkout
+ */
+
+async function createWrapper(methods = [], cards = [], privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -12,7 +15,7 @@ function createWrapper(methods = [], cards = [], privileges = []) {
         state: { cards },
     });
 
-    return shallowMount(Shopware.Component.build('sw-settings-payment-overview'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-payment-overview'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -57,14 +60,14 @@ function createWrapper(methods = [], cards = [], privileges = []) {
 
 describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new payment method', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-payment-overview__button-create');
@@ -73,7 +76,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     });
 
     it('should be able to create a new payment method', async () => {
-        const wrapper = createWrapper([], [], [
+        const wrapper = await createWrapper([], [], [
             'payment.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -84,7 +87,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     });
 
     it('should show default card if no custom card is defined', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             {
                 id: '1a2b3c4e',
                 name: 'Test settings-payment',
@@ -97,7 +100,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     });
 
     it('should add location if custom is defined', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             {
                 id: '1a2b3c4e',
                 name: 'Test settings-payment',
@@ -128,7 +131,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     });
 
     it('should add location and component if custom component is defined', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             {
                 id: '1a2b3c4e',
                 name: 'Test settings-payment',

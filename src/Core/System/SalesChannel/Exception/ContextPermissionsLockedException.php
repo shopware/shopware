@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SalesChannel\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class ContextPermissionsLockedException extends ShopwareHttpException
 {
     public function __construct()

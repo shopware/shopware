@@ -8,7 +8,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
-function createWrapper(isSelectable, tooltip) {
+async function createWrapper(isSelectable, tooltip) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {
         bind(el, binding) {
@@ -38,11 +38,11 @@ function createWrapper(isSelectable, tooltip) {
         limit: 25
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-advanced-selection-modal-grid'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-advanced-selection-modal-grid'), {
         localVue,
         stubs: {
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid-settings': Shopware.Component.build('sw-data-grid-settings'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
             'sw-button': true,
             'sw-context-button': true,
             'sw-icon': true,
@@ -50,10 +50,10 @@ function createWrapper(isSelectable, tooltip) {
             'sw-switch-field': true,
             'sw-context-menu-divider': true,
             'sw-pagination': true,
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-context-menu-item': true,
             'sw-field-error': true,
-            'sw-base-field': Shopware.Component.build('sw-base-field')
+            'sw-base-field': await Shopware.Component.build('sw-base-field')
         },
         provide: {},
         propsData: {
@@ -77,12 +77,12 @@ function createWrapper(isSelectable, tooltip) {
 
 describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable all checkboxes with enabled tooltip', async () => {
-        const wrapper = createWrapper(false, { message: 'test message', disabled: false });
+        const wrapper = await createWrapper(false, { message: 'test message', disabled: false });
         const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').find('.sw-field--checkbox');
 
         expect(firstRowCheckbox.classes().includes('is--disabled')).toBeTruthy();
@@ -91,7 +91,7 @@ describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () 
     });
 
     it('should enable all checkboxes', async () => {
-        const wrapper = createWrapper(true);
+        const wrapper = await createWrapper(true);
         const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').find('.sw-field--checkbox');
 
         expect(firstRowCheckbox.classes().includes('is--disabled')).toBeFalsy();
@@ -100,7 +100,7 @@ describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () 
     });
 
     it('should disable all checkboxes with disabled tooltip', async () => {
-        const wrapper = createWrapper(false, { message: 'test message', disabled: true });
+        const wrapper = await createWrapper(false, { message: 'test message', disabled: true });
         const firstRowCheckbox = wrapper.find('.sw-data-grid__row--1').find('.sw-field--checkbox');
 
         expect(firstRowCheckbox.classes().includes('is--disabled')).toBeTruthy();

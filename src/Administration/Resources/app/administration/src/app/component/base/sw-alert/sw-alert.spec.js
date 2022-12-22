@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-alert';
 
@@ -7,7 +11,7 @@ describe('components/base/sw-alert', () => {
     afterEach(() => { if (wrapper) wrapper.destroy(); });
 
     it('should be a Vue.js component', async () => {
-        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon']
         });
         expect(wrapper.vm).toBeTruthy();
@@ -17,7 +21,7 @@ describe('components/base/sw-alert', () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';
 
-        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
             propsData: {
                 title
@@ -31,7 +35,7 @@ describe('components/base/sw-alert', () => {
     });
 
     it('should use custom icon', async () => {
-        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
             propsData: {
                 icon: 'your-icon-here'
@@ -54,8 +58,8 @@ describe('components/base/sw-alert', () => {
         ['warning', 'system', false],
         ['error', 'system', false],
         ['success', 'system', false],
-    ])('applies variant class %s to %s is %s', (variant, appearance, applied) => {
-        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+    ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
             propsData: {
                 appearance: appearance,

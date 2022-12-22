@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Error;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<Error>
  */
 class ErrorCollection extends Collection

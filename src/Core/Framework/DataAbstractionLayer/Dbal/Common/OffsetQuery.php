@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 
+/**
+ * @package core
+ */
 class OffsetQuery implements IterableQuery
 {
     private QueryBuilder $query;

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
@@ -99,7 +103,7 @@ expect.extend({
 });
 
 describe('core/factory/async-component.factory.ts', () => {
-    it('test the component matrix', () => {
+    it('test the component matrix', async () => {
         const twoMatrix = createComponentMatrix({
             A: () => 1,
             B: () => 2,

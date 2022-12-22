@@ -7,6 +7,10 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 
+/**
+ * @package customer-order
+ */
+
 const orderFixture = {
     id: 'order1',
     documents: [
@@ -88,10 +92,10 @@ const orderFixture = {
     lineItems: []
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-document-settings-storno-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-document-settings-storno-modal'), {
         stubs: {
-            'sw-order-document-settings-modal': Shopware.Component.build('sw-order-document-settings-modal'),
+            'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
             'sw-modal': {
                 template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
             },
@@ -105,15 +109,15 @@ function createWrapper() {
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-group': Shopware.Component.build('sw-button-group'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-group': await Shopware.Component.build('sw-button-group'),
             'sw-context-menu-item': true,
             'sw-upload-listener': true,
             'sw-textarea-field': true,
             'sw-icon': true,
-            'sw-select-field': Shopware.Component.build('sw-select-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-loader': true,
         },
@@ -148,13 +152,13 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
     });
 
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
         await invoiceSelect.trigger('click');
@@ -166,8 +170,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         expect(invoiceOptions.at(2).text()).toEqual('1001');
     });
 
-    it('should disable create button if there is no selected invoice', () => {
-        const wrapper = createWrapper();
+    it('should disable create button if there is no selected invoice', async () => {
+        const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBe('disabled');
@@ -177,7 +181,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
         await invoiceSelect.trigger('click');
@@ -196,7 +200,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
     });
 
     it('should set deepLinkCode by version context if the selected invoice', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
         await invoiceSelect.trigger('click');

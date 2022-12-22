@@ -1,8 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-property/page/sw-property-detail';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-property-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-property-detail'), {
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -60,10 +64,12 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should not be able to save the property', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             isLoading: false
         });
@@ -72,6 +78,8 @@ describe('module/sw-property/page/sw-property-detail', () => {
 
         expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should be able to save the property', async () => {
@@ -89,5 +97,7 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapper.destroy();
     });
 });

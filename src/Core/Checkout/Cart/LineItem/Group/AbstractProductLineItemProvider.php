@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
+/**
+ * @package checkout
+ */
 abstract class AbstractProductLineItemProvider
 {
     abstract public function getDecorated(): AbstractProductLineItemProvider;

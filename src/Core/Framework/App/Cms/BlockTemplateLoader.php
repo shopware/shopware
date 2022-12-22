@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Symfony\Component\Finder\Finder;
 
 /**
+ * @package content
+ *
  * @internal
  */
 class BlockTemplateLoader extends AbstractBlockTemplateLoader

@@ -2,6 +2,10 @@ import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import swOrderDetailState from '../../state/order-detail.store';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
@@ -39,6 +43,7 @@ Component.register('sw-order-detail', {
             createdById: '',
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
+            hasNewVersionId: false,
         };
     },
 
@@ -125,6 +130,8 @@ Component.register('sw-order-detail', {
     },
 
     beforeDestroy() {
+        this.beforeDestroyComponent();
+
         State.unregisterModule('swOrderDetail');
     },
 
@@ -151,6 +158,17 @@ Component.register('sw-order-detail', {
             if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
                 State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
                 this.createNewVersionId();
+            }
+        },
+
+        async beforeDestroyComponent() {
+            if (Shopware.Feature.isActive('FEATURE_NEXT_7530') && this.hasNewVersionId) {
+                // clean up recently created version
+                await this.orderRepository.deleteVersion(
+                    this.orderId,
+                    this.versionContext.versionId,
+                    this.versionContext,
+                );
             }
         },
 
@@ -348,6 +366,8 @@ Component.register('sw-order-detail', {
 
         createNewVersionId() {
             return this.orderRepository.createVersion(this.orderId, this.versionContext).then((newContext) => {
+                this.hasNewVersionId = true;
+
                 State.commit('swOrderDetail/setVersionContext', newContext);
 
                 this.orderRepository.get(this.orderId, newContext, this.orderCriteria).then((response) => {

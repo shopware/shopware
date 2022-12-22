@@ -7,6 +7,7 @@ import type { MappedError } from '../../service/extension-error-handler.service'
 const { State, Mixin } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -2,6 +2,9 @@ import template from './sw-price-rule-modal.html.twig';
 
 const { Component } = Shopware;
 
+/**
+ * @package checkout
+ */
 Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
     template,
 

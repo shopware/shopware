@@ -1,8 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/view/sw-customer-detail-addresses';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-customer-detail-addresses'), {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-customer-detail-addresses'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -57,19 +61,19 @@ function createWrapper() {
 describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show text on last name column  when edit mode is off', () => {
+    it('should show text on last name column  when edit mode is off', async () => {
         const lastNameCell = wrapper.find('td');
 
         expect(lastNameCell.find('a').exists()).toBeFalsy();

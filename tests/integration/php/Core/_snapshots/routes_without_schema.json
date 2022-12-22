@@ -9,6 +9,8 @@
     "/_action/calculate-price",
     "/_action/calculate-prices",
     "/_action/clone/{entity}/{id}",
+    "/_action/custom-snippet",
+    "/_action/custom-snippet/render",
     "/_action/customer-group-registration/accept/{customerId}",
     "/_action/customer-group-registration/decline/{customerId}",
     "/_action/decrement/{pool}",

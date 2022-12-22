@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package content
+ */
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'landing_page_sales_channel';

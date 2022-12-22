@@ -5,20 +5,24 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-card';
 
+/**
+ * @package customer-order
+ */
+
 const { Classes: { ShopwareError } } = Shopware;
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-order-create-address-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-address-modal'), {
         localVue,
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-customer-address-form': true,
             'sw-customer-address-form-options': true,
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-extension-component-section': true,
             'sw-card-filter': true,
@@ -56,8 +60,8 @@ function createWrapper() {
 describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

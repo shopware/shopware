@@ -9,6 +9,8 @@ type CssClassesObject = { [key: string]: boolean };
 type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 
 /**
+ * @package admin
+ *
  * @description
  * The <u>sw-alert</u> component is used to convey important information to the user. It comes in 4 variations,
  * <strong>success</strong>, <strong>info</strong>, <strong>warning</strong> and <strong>error</strong>. These have

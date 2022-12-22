@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 
+/**
+ * @package core
+ */
 class VersionField extends FkField
 {
     public function __construct()

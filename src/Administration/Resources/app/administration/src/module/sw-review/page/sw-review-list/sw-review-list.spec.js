@@ -1,11 +1,14 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-review/page/sw-review-list';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-review-list'), {
+    return shallowMount(await Shopware.Component.build('sw-review-list'), {
         localVue,
         mocks: {
             $route: {
@@ -72,14 +75,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-review/page/sw-review-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
@@ -87,7 +90,7 @@ describe('module/sw-review/page/sw-review-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'review.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -97,7 +100,7 @@ describe('module/sw-review/page/sw-review-list', () => {
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
@@ -105,7 +108,7 @@ describe('module/sw-review/page/sw-review-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'review.editor'
         ]);
         await wrapper.vm.$nextTick();

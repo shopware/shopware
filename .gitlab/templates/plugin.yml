@@ -32,7 +32,7 @@ variables:
         value: ${CI_PROJECT_TITLE}
         description: 'Plugin name. Default is ${CI_PROJECT_TITLE}'
     PLATFORM_BRANCH:
-        value: trunk
+        value: "6.4"
         description: 'The shopware/platform branch that is used'
     DEV_IMAGE:
         value: shopware/development:7.4-composer-2
@@ -142,6 +142,10 @@ default:
         # run php as root to prevent permission issues
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/plugins/$PLUGIN_NAME
+        - composer dump-autoload
+        - mkdir -p vendor/shopware
+        - ln -s $PROJECT_ROOT/src/Core vendor/shopware/core
+        - ln -s $PROJECT_ROOT/src/Storefront vendor/shopware/storefront
 
 .build-js: &build-js
     - $CI_PROJECT_DIR/bin/console bundle:dump
@@ -149,14 +153,6 @@ default:
     - '(cd $CI_PROJECT_DIR/src/Administration/Resources/app/administration/ && npm ci && npm run build)'
     - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
     -  $CI_PROJECT_DIR/bin/console assets:install
-
-.install-dev-tools: &install-dev-tools
-    - >
-        composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
-    - composer config --global allow-plugins.composer/package-versions-deprecated true
-    - composer config --global allow-plugins.bamarni/composer-bin-plugin true
-    - composer config --global allow-plugins.phpstan/extension-installer true
-    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
 
 build zip:
     stage: build
@@ -212,10 +208,9 @@ phpunit:
         - exists:
               - phpunit.xml*
     script:
-        - *install-dev-tools
         - php
             -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|tests|node_modules)~'
-            vendor/bin/phpunit
+            ${PROJECT_ROOT}/vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit ${CI_PROJECT_DIR}/phpunit.junit.xml
             --colors=never
@@ -237,13 +232,13 @@ phpstan:
         - exists:
               - phpstan.neon*
     script:
-        - *install-dev-tools
+        - composer dump-autoload
         - >
           if [[ -r tests/TestBootstrap.php ]]; then
               php tests/TestBootstrap.php
           fi
-        - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
-        - vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
+        - php ${PROJECT_ROOT}/src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - ${PROJECT_ROOT}/vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
     artifacts:
         when: always
         reports:
@@ -256,8 +251,7 @@ ecs:
         - exists:
               - ecs.php
     script:
-        - *install-dev-tools
-        - vendor/bin/ecs
+        - ${PROJECT_ROOT}/vendor/bin/ecs
 
 validate snippets:
     stage: test

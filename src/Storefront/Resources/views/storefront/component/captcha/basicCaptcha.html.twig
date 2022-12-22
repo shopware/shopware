@@ -1,4 +1,5 @@
 {% block component_basic_captcha %}
+    {# @deprecated tag:v6.5.0 - Option basicCaptchaOptions.preCheckRoute.token will be removed. #}
     {% set basicCaptchaOptions = {
         router: path('frontend.captcha.basic-captcha.load'),
         validate: path('frontend.captcha.basic-captcha.validate'),

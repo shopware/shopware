@@ -10,6 +10,9 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package core
+ */
 class AuthMiddleware
 {
     public const APP_REQUEST_TYPE = 'request_type';

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\RateLimiter\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class RateLimitExceededException extends ShopwareHttpException
 {
     private int $retryAfter;

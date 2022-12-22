@@ -2,7 +2,10 @@ import DocumentApiService from 'src/core/service/api/document.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
-import flushPromises from 'flush-promises';
+
+/**
+ * @package customer-order
+ */
 
 function getDocumentApiService() {
     const client = createHTTPClient();
@@ -22,7 +25,7 @@ function expectCreateDocumentFailed({ action }) {
 }
 
 describe('documentService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { documentApiService } = getDocumentApiService();
         expect(documentApiService).toBeInstanceOf(DocumentApiService);
     });
@@ -422,7 +425,7 @@ describe('documentService', () => {
         }
     });
 
-    it('calls getDocumentPreview with correct endpoint', () => {
+    it('calls getDocumentPreview with correct endpoint', async () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 
         let didRequest = false;
@@ -447,7 +450,7 @@ describe('documentService', () => {
         expect(didRequest).toBeTruthy();
     });
 
-    it('calls getDocument with correct endpoint', () => {
+    it('calls getDocument with correct endpoint', async () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 
         let didRequest = false;

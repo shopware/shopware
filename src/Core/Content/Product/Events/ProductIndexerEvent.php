@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package inventory
+ */
 class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInterface
 {
     /**

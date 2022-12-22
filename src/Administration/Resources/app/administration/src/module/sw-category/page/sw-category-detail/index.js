@@ -7,6 +7,9 @@ const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-detail', {
     template,
@@ -329,6 +332,11 @@ Component.register('sw-category-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-category-detail__category',
+                path: 'category',
+                scope: this,
+            });
             this.isLoading = true;
             this.checkViewport();
             this.registerListener();

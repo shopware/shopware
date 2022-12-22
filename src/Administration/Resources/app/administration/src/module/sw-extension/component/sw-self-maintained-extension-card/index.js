@@ -3,6 +3,7 @@ import template from '../sw-extension-permissions-details-modal/sw-extension-per
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', {

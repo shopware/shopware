@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
+/**
+ * @package checkout
+ */
 trait ItemsRemoveTrait
 {
     private LineItemCollection $items;

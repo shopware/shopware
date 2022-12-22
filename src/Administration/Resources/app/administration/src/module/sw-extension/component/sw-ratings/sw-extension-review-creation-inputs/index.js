@@ -4,6 +4,7 @@ import './sw-extension-review-creation-inputs.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-review-creation-inputs', {

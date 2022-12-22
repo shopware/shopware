@@ -1,16 +1,16 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/cross-selling/config';
 
-function createWrapper(customCmsElementConfig) {
-    const localVue = createLocalVue();
-
+async function createWrapper(customCmsElementConfig) {
     const productMock = {
         name: 'Small Silk Heart Worms'
     };
 
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-cross-selling'), {
-        localVue,
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-cross-selling'), {
         propsData: {
             element: {
                 config: {
@@ -70,7 +70,7 @@ function createWrapper(customCmsElementConfig) {
 
 describe('module/sw-cms/elements/cross-selling/config', () => {
     it('should display a message if it is product page layout type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const productSelect = wrapper.find('sw-entity-single-select-stub');
 
@@ -78,7 +78,7 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
     });
 
     it('should display product select if it is not product page layout type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             cmsPageState: {
                 currentPage: {

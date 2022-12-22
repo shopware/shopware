@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
 import 'src/app/component/base/sw-button';
@@ -37,8 +40,8 @@ function setProductData(products) {
     };
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-single-products'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-single-products'), {
         stubs: {
             'sw-container': true,
             'sw-card': {
@@ -47,18 +50,18 @@ function createWrapper() {
             'sw-card-section': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-simple-search-field': Shopware.Component.build('sw-simple-search-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-modal': true,
@@ -93,7 +96,7 @@ function createWrapper() {
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products', () => {
     it('should display empty state when product data is empty', async () => {
         setProductData([]);
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
     });
@@ -106,7 +109,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             }
         ]);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
@@ -131,7 +134,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             }
         ]);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.find('.sw-data-grid__select-all .sw-field__checkbox input').trigger('click');
@@ -158,7 +161,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get products when searching', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.getProducts = jest.fn(() => {
             return Promise.resolve();
         });
@@ -179,7 +182,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get products when changing page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.getProducts = jest.fn();
         expect(wrapper.vm.productCriteria.sortings).toEqual([]);

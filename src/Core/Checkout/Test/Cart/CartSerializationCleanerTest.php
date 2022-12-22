@@ -27,6 +27,8 @@ use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class CartSerializationCleanerTest extends TestCase

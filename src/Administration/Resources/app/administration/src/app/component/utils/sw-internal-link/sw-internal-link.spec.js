@@ -1,14 +1,18 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, RouterLinkStub } from '@vue/test-utils';
 import 'src/app/component/utils/sw-internal-link';
 
 // initial component setup
-const setup = (propOverride) => {
+const setup = async (propOverride) => {
     const propsData = {
         routerLink: { name: 'sw.product.index' },
         ...propOverride
     };
 
-    return shallowMount(Shopware.Component.build('sw-internal-link'), {
+    return shallowMount(await Shopware.Component.build('sw-internal-link'), {
         stubs: {
             'sw-icon': true,
             RouterLink: RouterLinkStub
@@ -21,35 +25,35 @@ const setup = (propOverride) => {
 };
 
 describe('components/utils/sw-internal-link', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = setup();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await setup();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render correctly', () => {
-        const wrapper = setup();
+    it('should render correctly', async () => {
+        const wrapper = await setup();
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should render correctly when disabled', () => {
-        const wrapper = setup({ disabled: true });
+    it('should render correctly when disabled', async () => {
+        const wrapper = await setup({ disabled: true });
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should display a custom icon', () => {
-        const wrapper = setup({ icon: 'default-test-icon' });
+    it('should display a custom icon', async () => {
+        const wrapper = await setup({ icon: 'default-test-icon' });
 
         expect(wrapper.find('sw-icon-stub').attributes().name).toBe('default-test-icon');
     });
 
-    it('should add custom target to link', () => {
-        const wrapper = setup({ target: '_blank' });
+    it('should add custom target to link', async () => {
+        const wrapper = await setup({ target: '_blank' });
 
         expect(wrapper.findComponent(RouterLinkStub).props().to).toEqual({ name: 'sw.product.index' });
     });
 
-    it('should add inline class if it is an inline link', () => {
-        const wrapper = setup({ inline: true });
+    it('should add inline class if it is an inline link', async () => {
+        const wrapper = await setup({ inline: true });
 
         expect(wrapper.findComponent(RouterLinkStub).classes()).toContain('sw-internal-link--inline');
     });

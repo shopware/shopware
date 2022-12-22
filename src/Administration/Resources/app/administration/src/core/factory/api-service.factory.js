@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/api-service
  */
 import { warn } from 'src/core/service/utils/debug.utils';

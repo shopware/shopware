@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package inventory
+ */
 class VariantCombinationLoader
 {
     private Connection $connection;

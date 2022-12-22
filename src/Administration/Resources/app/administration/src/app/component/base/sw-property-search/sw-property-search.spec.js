@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-property-search';
 import 'src/app/component/form/sw-field';
@@ -11,30 +15,30 @@ import 'src/app/component/grid/sw-grid-row';
 import 'src/app/component/grid/sw-grid-column';
 import 'src/app/component/base/sw-button';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-property-search'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-property-search'), {
         propsData: {
             options: [
                 {}
             ]
         },
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
                 template: '<div></div>'
             },
             'sw-container': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
-            'sw-grid-row': Shopware.Component.build('sw-grid-row'),
-            'sw-grid-column': Shopware.Component.build('sw-grid-column'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-grid': await Shopware.Component.build('sw-grid'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
+            'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
+            'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
                 template: '<div></div>'
             },
@@ -137,14 +141,14 @@ function createWrapper() {
 }
 
 describe('components/base/sw-property-search', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pagination element inside group grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.onFocusSearch();
 
@@ -156,7 +160,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should have pagination with two buttons inside group grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -167,7 +171,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should change group page when paginating', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -181,7 +185,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should open options grid after clicking on property group', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -197,7 +201,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should have a pagination for the option grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -212,7 +216,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should have multiple pages for option grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -230,7 +234,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should change the option page when clicking pagination', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -250,7 +254,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should keep text when entering something into the search input', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -267,7 +271,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should change the group options when clicking pagination', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
@@ -295,7 +299,7 @@ describe('components/base/sw-property-search', () => {
     });
 
     it('should display translated property groups and property group options', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();

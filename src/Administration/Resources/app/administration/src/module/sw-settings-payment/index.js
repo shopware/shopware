@@ -11,6 +11,9 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-payment', {
     type: 'core',

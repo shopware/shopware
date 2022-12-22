@@ -2,9 +2,12 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary';
 import 'src/app/component/utils/sw-progress-bar';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-extension-ratings-summary'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-extension-ratings-summary'), {
             propsData: {
                 summary: {
                     ratingAssignment: [
@@ -21,18 +24,18 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
             },
             stubs: {
                 'sw-extension-rating-stars': true,
-                'sw-progress-bar': Shopware.Component.build('sw-progress-bar')
+                'sw-progress-bar': await Shopware.Component.build('sw-progress-bar')
             }
         });
     }
 
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display amount of ratings correctly', () => {
-        const wrapper = createWrapper();
+    it('should display amount of ratings correctly', async () => {
+        const wrapper = await createWrapper();
 
         const amounts = wrapper.findAll('.sw-extension-ratings-summary__progress-bars >:first-child span');
 
@@ -43,8 +46,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
         expect(amounts.at(4).text()).toBe('2');
     });
 
-    it('should display with of progress bars correctly', () => {
-        const wrapper = createWrapper();
+    it('should display with of progress bars correctly', async () => {
+        const wrapper = await createWrapper();
 
         const progressBarValues = wrapper.findAll('.sw-progress-bar__value');
 

@@ -2,12 +2,15 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins';
 import 'src/app/component/base/sw-label';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-first-run-wizard-plugins'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-first-run-wizard-plugins'), {
             provide: {
                 recommendationsService: {
                     getRecommendationRegions() {
@@ -67,18 +70,14 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () =
                 'sw-container': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-label': Shopware.Component.build('sw-label'),
+                'sw-label': await Shopware.Component.build('sw-label'),
                 'sw-plugin-card': true
             }
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 

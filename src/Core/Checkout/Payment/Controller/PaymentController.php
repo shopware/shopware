@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @package checkout
+ */
 class PaymentController extends AbstractController
 {
     private PaymentService $paymentService;

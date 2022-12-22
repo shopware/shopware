@@ -10,6 +10,8 @@ const { Criteria, EntityCollection } = Shopware.Data;
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
 
 /**
+ * @package admin
+ *
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

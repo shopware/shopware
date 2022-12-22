@@ -1,10 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-reviews';
 
 const { Component, State } = Shopware;
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -77,14 +81,14 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to edit a review', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
 
@@ -95,7 +99,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should not be able to edit a review', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({ dataSource, total: 2 });
 
@@ -104,7 +108,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should be able to delete a review', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
 
@@ -115,7 +119,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should not be able to delete a review', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({ dataSource, total: 2 });
 
@@ -124,7 +128,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should turn on the delete modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.onStartReviewDelete({ id: '101' });
 
@@ -137,7 +141,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should turn off the delete modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.onCancelReviewDelete();
 
@@ -149,7 +153,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should get reviews when component got created', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
         wrapper.vm.createdComponent();
@@ -159,7 +163,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should get reviews when product id got changed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
         await wrapper.setData({ product: { id: '101' } });
@@ -169,7 +173,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should get reviews after deleting a review', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
         await wrapper.vm.onConfirmReviewDelete();
@@ -180,7 +184,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should get reviews after changing page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
         await wrapper.vm.onChangePage({ page: 2, limit: 10 });

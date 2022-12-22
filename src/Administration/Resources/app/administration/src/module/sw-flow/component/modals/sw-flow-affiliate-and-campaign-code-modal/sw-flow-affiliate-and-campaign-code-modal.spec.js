@@ -23,11 +23,11 @@ const fieldClasses = [
     '.sw-flow-affiliate-and-campaign-code-modal__campaign-code',
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-affiliate-and-campaign-code-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-affiliate-and-campaign-code-modal'), {
         localVue,
         provide: {
             validationService: {},
@@ -45,12 +45,12 @@ function createWrapper() {
         },
 
         stubs: {
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -82,11 +82,11 @@ function createWrapper() {
             'sw-icon': true,
             'sw-field-error': true,
             'sw-highlight-text': true,
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-container': Shopware.Component.build('sw-container')
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-container': await Shopware.Component.build('sw-container')
         }
     });
 }
@@ -138,7 +138,7 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
     });
 
     it('should show these fields on modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         fieldClasses.forEach(elementClass => {
@@ -147,7 +147,7 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
     });
 
     it('should show error if do not select entity', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const removeEntity = wrapper.find('.sw-select__select-indicator-clear');
         await removeEntity.trigger('click');
         const buttonSave = wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__save-button');
@@ -157,7 +157,7 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
     });
 
     it('should emit process-finish when affiliate and campaign code are entered', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const entitySelect = wrapper.find('.sw-single-select__selection');
         await entitySelect.trigger('click');
@@ -195,7 +195,7 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
     });
 
     it('should show correctly the entity options', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.entityOptions).toHaveLength(2);
         wrapper.vm.entityOptions.forEach((option) => {

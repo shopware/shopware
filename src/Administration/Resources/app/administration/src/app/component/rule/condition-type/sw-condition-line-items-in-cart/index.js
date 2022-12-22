@@ -7,6 +7,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 /**
  * @major-deprecated (flag:FEATURE_NEXT_17016) This rule component will be removed. Use sw-condition-line-item instead.
  * @public
+ * @package business-ops
  * @description Condition for the LineItemsInCartRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

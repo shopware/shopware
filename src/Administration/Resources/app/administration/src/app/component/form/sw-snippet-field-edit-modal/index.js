@@ -4,6 +4,8 @@ import template from './sw-snippet-field-edit-modal.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @status ready
  * @description The modal component used to edit snippet values in `<sw-snippet-field>`.
  * @example-type code-only
@@ -22,7 +24,6 @@ Component.register('sw-snippet-field-edit-modal', {
     template,
 
     inject: [
-        // @Jonas no usage found, still relevant?
         'acl',
         'repositoryFactory',
     ],

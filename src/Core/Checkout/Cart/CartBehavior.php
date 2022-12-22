@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package checkout
+ */
 class CartBehavior extends Struct
 {
     /**

@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @package checkout
+ */
 class AdvancedPackageFilter extends PackageFilter
 {
     public const APPLIER_ALL = 'ALL';

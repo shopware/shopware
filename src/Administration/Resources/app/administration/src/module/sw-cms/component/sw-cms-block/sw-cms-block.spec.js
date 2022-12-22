@@ -1,12 +1,15 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-block';
+
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
+import swCmsBlock from 'src/module/sw-cms/component/sw-cms-block';
 import 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 
-function createWrapper() {
-    const localVue = createLocalVue();
+Shopware.Component.register('sw-cms-block', swCmsBlock);
 
-    return shallowMount(Shopware.Component.build('sw-cms-block'), {
-        localVue,
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-block'), {
         propsData: {
             block: {
                 visibility: {
@@ -21,10 +24,11 @@ function createWrapper() {
         },
         stubs: {
             'sw-icon': true,
-            'sw-cms-visibility-toggle': Shopware.Component.build('sw-cms-visibility-toggle'),
+            'sw-cms-visibility-toggle': await Shopware.Component.build('sw-cms-visibility-toggle'),
         }
     });
 }
+
 describe('module/sw-cms/component/sw-cms-block', () => {
     beforeAll(() => {
         Shopware.State.registerModule('cmsPageState', {
@@ -36,13 +40,13 @@ describe('module/sw-cms/component/sw-cms-block', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('the overlay should exist and be visible', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const overlay = wrapper.find('.sw-cms-block__config-overlay');
         expect(overlay.exists()).toBeTruthy();
@@ -50,7 +54,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
     });
 
     it('the overlay should not exist', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -60,7 +64,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
     });
 
     it('the visibility toggle wrapper should exist and be visible', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             block: {
@@ -76,7 +80,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
     });
 
     it('the visibility toggle wrapper should not exist', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeFalsy();
     });

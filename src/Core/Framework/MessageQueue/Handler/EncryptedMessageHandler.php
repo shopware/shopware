@@ -9,6 +9,11 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
+/**
+ * @package core
+ *
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - will be removed, as we remove queue encryption
+ */
 class EncryptedMessageHandler extends AbstractMessageHandler
 {
     /**

@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\TestBuilderTrait;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class OrderTransactionCaptureBuilder

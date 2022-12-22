@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Struct;
 
 /**
+ * @package core
  * @template TElement
  * @implements \IteratorAggregate<array-key, TElement>
  */

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @package business-ops
+ */
 class BillingCountryRule extends Rule
 {
     /**
@@ -73,6 +76,9 @@ class BillingCountryRule extends Rule
         return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

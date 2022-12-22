@@ -2,6 +2,8 @@ import template from './sw-iframe-renderer.html.twig';
 import type { Extension } from '../../../state/extensions.store';
 
 /**
+ * @package admin
+ *
  * @private
  * @description This component renders iFrame views for extensions
  * @status ready

@@ -16,13 +16,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 class OrderStateChangeEventListener implements EventSubscriberInterface
@@ -39,8 +40,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
     private BusinessEventCollector $businessEventCollector;
 
-    private SalesChannelContextRestorer $salesChannelContextRestorer;
-
     /**
      * @internal
      */
@@ -50,8 +49,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         EntityRepositoryInterface $deliveryRepository,
         EventDispatcherInterface $eventDispatcher,
         BusinessEventCollector $businessEventCollector,
-        EntityRepositoryInterface $stateRepository,
-        SalesChannelContextRestorer $salesChannelContextRestorer
+        EntityRepositoryInterface $stateRepository
     ) {
         $this->orderRepository = $orderRepository;
         $this->transactionRepository = $transactionRepository;
@@ -59,7 +57,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->stateRepository = $stateRepository;
         $this->businessEventCollector = $businessEventCollector;
-        $this->salesChannelContextRestorer = $salesChannelContextRestorer;
     }
 
     public static function getSubscribedEvents(): array
@@ -106,7 +103,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         }
 
         $context = $this->getContext($orderDelivery->getOrderId(), $event->getContext());
-
         $order = $this->getOrder($orderDelivery->getOrderId(), $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
@@ -154,7 +150,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         }
 
         $context = $this->getContext($orderTransaction->getOrderId(), $event->getContext());
-
         $order = $this->getOrder($orderTransaction->getOrderId(), $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
@@ -165,7 +160,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $orderId = $event->getTransition()->getEntityId();
 
         $context = $this->getContext($orderId, $event->getContext());
-
         $order = $this->getOrder($orderId, $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
@@ -225,13 +219,28 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
     private function getContext(string $orderId, Context $context): Context
     {
-        $context = clone $context;
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
 
-        $salesChannelContext = $this->salesChannelContextRestorer->restoreByOrder($orderId, $context);
+        if (!$order instanceof OrderEntity) {
+            throw new OrderNotFoundException($orderId);
+        }
 
-        $context->setRuleIds($salesChannelContext->getRuleIds());
+        $orderContext = new Context(
+            $context->getSource(),
+            $order->getRuleIds() ?? [],
+            $order->getCurrencyId(),
+            array_values(array_unique(array_merge([$order->getLanguageId()], $context->getLanguageIdChain()))),
+            $context->getVersionId(),
+            $order->getCurrencyFactor(),
+            true,
+            $order->getTaxStatus(),
+            $order->getItemRounding()
+        );
 
-        return $salesChannelContext->getContext();
+        $orderContext->addState(...$context->getStates());
+        $orderContext->addExtensions($context->getExtensions());
+
+        return $orderContext;
     }
 
     /**
@@ -268,6 +277,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('currency');
         $criteria->addAssociation('addresses.country');
         $criteria->addAssociation('addresses.countryState');
+        $criteria->addAssociation('tags');
 
         $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
         $this->eventDispatcher->dispatch($event);

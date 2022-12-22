@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-deactivation-modal';
 
-function createWrapper(propsData = {}) {
-    return shallowMount(Shopware.Component.build('sw-extension-deactivation-modal'), {
+async function createWrapper(propsData = {}) {
+    return shallowMount(await Shopware.Component.build('sw-extension-deactivation-modal'), {
         propsData: {
             extensionName: 'Sample extension',
             isLicensed: true,
@@ -26,6 +26,9 @@ function createWrapper(propsData = {}) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-deactivation-modal', () => {
     /** @type Wrapper */
     let wrapper;

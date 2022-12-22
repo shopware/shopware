@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Filter>
+ *
+ * @package inventory
  */
 class FilterCollection extends Collection
 {

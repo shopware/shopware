@@ -1,6 +1,9 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import flushPromises from 'flush-promises';
 import 'src/app/component/structure/sw-desktop';
 
 const routes = [{
@@ -72,7 +75,7 @@ const routes = [{
     }
 }];
 
-function createWrapper() {
+async function createWrapper() {
     delete config.mocks.$router;
     delete config.mocks.$route;
 
@@ -83,7 +86,7 @@ function createWrapper() {
         routes
     });
 
-    return shallowMount(Shopware.Component.build('sw-desktop'), {
+    return shallowMount(await Shopware.Component.build('sw-desktop'), {
         localVue,
         router,
         stubs: {
@@ -111,7 +114,7 @@ describe('src/app/component/structure/sw-desktop', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });

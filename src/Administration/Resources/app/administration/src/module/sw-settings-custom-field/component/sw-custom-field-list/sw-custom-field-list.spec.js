@@ -1,8 +1,10 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
-import flushPromises from 'flush-promises';
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',
@@ -64,10 +66,10 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     customFields = mockCustomFieldData();
 
-    return shallowMount(Shopware.Component.build('sw-custom-field-list'), {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-list'), {
         propsData: {
             set: set
         },
@@ -95,7 +97,7 @@ function createWrapper(privileges = []) {
                 template: '<div></div>'
             },
             'sw-container': true,
-            'sw-grid': Shopware.Component.build('sw-grid'),
+            'sw-grid': await Shopware.Component.build('sw-grid'),
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
@@ -114,7 +116,7 @@ function createWrapper(privileges = []) {
             'sw-field': {
                 template: '<div></div>'
             },
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
             'sw-icon': true,
             'sw-loader': true,
             'sw-modal': true
@@ -124,12 +126,12 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should always have a pagination', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const pagination = wrapper.find('.sw-pagination');
@@ -137,7 +139,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
     });
 
     it('should have one page initially', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const paginationButtons = wrapper.findAll('.sw-pagination__list-button');
@@ -145,7 +147,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
     });
 
     it('should create new custom field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const newCustomField = {
             id: 'id1337',
@@ -170,7 +172,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
     });
 
     it('should delete custom field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const deleteCustomField = {
             id: 'id0',
@@ -197,7 +199,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
     });
 
     it('should sort custom fields by position ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const customFieldPositionCells = wrapper.findAll('.sw-grid-column[data-index="position"]').wrappers;
@@ -210,7 +212,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
@@ -218,7 +220,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'custom_field.editor'
         ]);
         await flushPromises();

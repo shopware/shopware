@@ -1,10 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-tag-detail-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-tag-detail-modal'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -36,14 +36,14 @@ function createWrapper() {
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should set tag, to be added and to be deleted on create', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.tag).not.toEqual(null);
@@ -65,7 +65,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
     });
 
     it('should emit event on save', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
@@ -84,7 +84,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
     });
 
     it('should emit event on cancel', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onCancel();
@@ -94,7 +94,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
     });
 
     it('should increase and decrease counts from to be added and to be deleted', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
@@ -118,7 +118,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
     });
 
     it('should add and remove assignments', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({

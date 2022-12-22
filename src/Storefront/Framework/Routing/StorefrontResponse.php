@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package storefront
+ */
 class StorefrontResponse extends Response
 {
     /**

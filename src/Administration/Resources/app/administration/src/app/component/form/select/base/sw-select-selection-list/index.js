@@ -4,6 +4,8 @@ import './sw-select-selection-list.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @status ready
  * @description Base component for rendering selection lists.

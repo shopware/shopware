@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-profile/view/sw-profile-index-general';
 import 'src/app/component/form/select/base/sw-single-select';
@@ -7,10 +10,10 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/base/sw-highlight-text';
 
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-profile-index-general'), {
+    return shallowMount(await Shopware.Component.build('sw-profile-index-general'), {
         localVue,
         stubs: {
             'sw-card': true,
@@ -20,10 +23,10 @@ function createWrapper(privileges = []) {
             'sw-password-field': true,
             'sw-select-base': true,
             'sw-popover': true,
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
         },
         provide: {
             acl: {
@@ -57,15 +60,15 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-profile/view/sw-profile-index-general', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -89,7 +92,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         expect(spyNewPasswordConfirmChangeEmit).toBeCalledWith('new-password-confirm-change', 'Shopware');
     });
 
-    it('should be able to upload media', () => {
+    it('should be able to upload media', async () => {
         const spyMediaUploadEmit = jest.spyOn(wrapper.vm, '$emit');
 
         wrapper.vm.onUploadMedia({ targetId: 'targetId' });
@@ -97,7 +100,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         expect(spyMediaUploadEmit).toBeCalledWith('media-upload', { targetId: 'targetId' });
     });
 
-    it('should be able to drop media', () => {
+    it('should be able to drop media', async () => {
         const spyMediaUploadEmit = jest.spyOn(wrapper.vm, '$emit');
 
         wrapper.vm.onDropMedia({ id: 'targetId' });
@@ -105,7 +108,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         expect(spyMediaUploadEmit).toBeCalledWith('media-upload', { targetId: 'targetId' });
     });
 
-    it('should be able to remove media', () => {
+    it('should be able to remove media', async () => {
         const spyMediaRemoveEmit = jest.spyOn(wrapper.vm, '$emit');
 
         wrapper.vm.onRemoveMedia();
@@ -113,7 +116,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         expect(spyMediaRemoveEmit).toBeCalledWith('media-remove');
     });
 
-    it('should be able to open media', () => {
+    it('should be able to open media', async () => {
         const spyMediaOpenEmit = jest.spyOn(wrapper.vm, '$emit');
 
         wrapper.vm.onOpenMedia();

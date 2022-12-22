@@ -11,6 +11,7 @@
     "autoload": {
         "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "Framework/Adapter/Doctrine/Patch/QueryBuilder.php",
             "Framework/Adapter/Twig/functions.php"
         ],
         "exclude-from-classmap": [
@@ -151,7 +152,7 @@
         "phpunit/php-code-coverage": "~9.2.14",
         "smalot/pdfparser": "~0.14.0",
         "symfony/browser-kit": "~5.4.0",
-        "symfony/phpunit-bridge": "~5.4.0",
+        "symfony/phpunit-bridge": "~6.1.0",
         "symfony/var-dumper": "~5.4.0",
         "symfony/web-profiler-bundle": "~5.4.0",
         "symfony/dom-crawler": "~5.4.0",

@@ -10,6 +10,9 @@ use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 
+/**
+ * @package inventory
+ */
 class ProductEvents
 {
     /**

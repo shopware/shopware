@@ -2,11 +2,11 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero';
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero', () => {
-    function createWrapper(data = {}) {
+    async function createWrapper(data = {}) {
         const localVue = createLocalVue();
         localVue.filter('asset', key => key);
 
-        return shallowMount(Shopware.Component.build('sw-promotion-v2-empty-state-hero'), {
+        return shallowMount(await Shopware.Component.build('sw-promotion-v2-empty-state-hero'), {
             localVue,
             mocks: {
                 $route: { meta: { $module: { name: 'promotion-v2' } } }
@@ -22,27 +22,27 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     }
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render a title', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-promotion-v2-empty-state-hero__title').text())
             .toBe('Oh no, nothing was found.');
     });
 
     it('should render the module description', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-promotion-v2-empty-state-hero__description').text())
             .toBe('I am some text, which is kinda small, but also somewhat longer than other texts!');
     });
 
     it('should render no description, if `hideDescription` is active', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 hideDescription: true
             }
@@ -52,7 +52,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     });
 
     it('should render no description, if there is no description text', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 description: null
             }
@@ -62,13 +62,13 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     });
 
     it('should not render content of the actions slot, if not slotted', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-promotion-v2-empty-state-hero__actions').exists()).toBeFalsy();
     });
 
     it('should render content of the actions slot (unscoped)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             slots: {
                 actions: '<button class="sw-button">BUY NOW!!!</button>'
             }
@@ -78,7 +78,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
     });
 
     it('should render content of the actions slot (scoped)', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             scopedSlots: {
                 actions: '<button class="sw-button">BUY NOW!!!</button>'
             }

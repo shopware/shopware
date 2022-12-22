@@ -1,16 +1,20 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/modal/sw-search-preferences-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-search-preferences-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-search-preferences-modal'), {
         localVue,
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-loader': true,
             'sw-data-grid': true,
             'sw-icon': true
@@ -48,16 +52,16 @@ function createWrapper() {
 describe('src/app/component/modal/sw-search-preferences-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -72,15 +76,15 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
     });
 
     it('should be able to turn off modal', async () => {
-        wrapper.find('.sw-search-preferences-modal__button-cancel').trigger('click');
+        await wrapper.find('.sw-search-preferences-modal__button-cancel').trigger('click');
 
         expect(wrapper.emitted()['modal-close']).toBeTruthy();
     });
 
-    it('should call to user config service when saving changes', () => {
+    it('should call to user config service when saving changes', async () => {
         wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
 
-        wrapper.find('.sw-search-preferences-modal__button-save').trigger('click');
+        await wrapper.find('.sw-search-preferences-modal__button-save').trigger('click');
 
         expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalledTimes(1);
 

@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<TaxRule>
  */
 class TaxRuleCollection extends Collection

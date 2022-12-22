@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlMapping
 {
     /**

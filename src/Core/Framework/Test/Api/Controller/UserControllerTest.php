@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class UserControllerTest extends TestCase
 {

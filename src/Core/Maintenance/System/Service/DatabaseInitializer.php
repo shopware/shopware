@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - Will be removed use SetupDatabaseAdapter instead
  */
 class DatabaseInitializer

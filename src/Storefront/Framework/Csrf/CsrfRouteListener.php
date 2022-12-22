@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -18,7 +19,9 @@ use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package storefront
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be removed
  */
 class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 {
@@ -62,6 +65,10 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return [];
+        }
+
         return [
             KernelEvents::CONTROLLER => [
                 ['csrfCheck', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_CONTEXT_RESOLVE_PRE],
@@ -71,6 +78,15 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 
     public function csrfCheck(ControllerEvent $event): void
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         if (!$this->csrfEnabled || $this->csrfChecked === true) {
             return;
         }
@@ -105,6 +121,11 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
      */
     public function validateCsrfToken(Request $request): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $this->csrfChecked = true;
 
         $submittedCSRFToken = (string) $request->request->get('_csrf_token');

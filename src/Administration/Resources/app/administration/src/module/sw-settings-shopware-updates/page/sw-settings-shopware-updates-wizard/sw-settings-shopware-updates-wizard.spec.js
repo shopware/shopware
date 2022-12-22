@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard';
 import 'src/app/component/structure/sw-page';
@@ -13,8 +16,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-settings-shopware-updates-wizard'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-settings-shopware-updates-wizard'), {
             localVue,
             provide: {
                 updateService: {
@@ -170,7 +173,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 }
             },
             stubs: {
-                'sw-page': Shopware.Component.build('sw-page'),
+                'sw-page': await Shopware.Component.build('sw-page'),
                 'sw-search-bar': {
                     template: '<div></div>'
                 },
@@ -182,10 +185,10 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                     template: '<div></div>'
                 },
                 'sw-settings-shopware-updates-requirements':
-                    Shopware.Component.build('sw-settings-shopware-updates-requirements'),
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-card-view': Shopware.Component.build('sw-card-view'),
-                'sw-card': Shopware.Component.build('sw-card'),
+                    await Shopware.Component.build('sw-settings-shopware-updates-requirements'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+                'sw-card-view': await Shopware.Component.build('sw-card-view'),
+                'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-ignore-class': true,
                 'sw-settings-shopware-updates-info': {
                     template: '<div></div>'
@@ -202,8 +205,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 'router-link': {
                     template: '<a></a>'
                 },
-                'sw-button': Shopware.Component.build('sw-button'),
-                'sw-color-badge': Shopware.Component.build('sw-color-badge'),
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-color-badge': await Shopware.Component.build('sw-color-badge'),
                 'sw-app-actions': true,
                 'sw-extension-component-section': true,
                 'sw-error-summary': true,

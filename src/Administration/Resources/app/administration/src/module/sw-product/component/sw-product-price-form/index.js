@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 

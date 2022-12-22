@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 // eslint-disable-next-line max-len
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection';
@@ -10,8 +14,8 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-product-variants-configurator-selection'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-product-variants-configurator-selection'), {
         propsData: {
             options: [],
             product: {}
@@ -23,13 +27,13 @@ function createWrapper() {
             validationService: {}
         },
         stubs: {
-            'sw-simple-search-field': Shopware.Component.build('sw-simple-search-field'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': {
                 template: '<div></div>'
             }
@@ -40,8 +44,8 @@ function createWrapper() {
 describe('components/base/sw-product-variants-configurator-selection', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.JS component', async () => {

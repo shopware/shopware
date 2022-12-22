@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ */
 class Progress extends Struct
 {
     public const STATE_PROGRESS = 'progress';

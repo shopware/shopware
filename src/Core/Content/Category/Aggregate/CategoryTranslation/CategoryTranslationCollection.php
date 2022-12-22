@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<CategoryTranslationEntity>
  */
 class CategoryTranslationCollection extends EntityCollection

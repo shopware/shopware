@@ -1,3 +1,7 @@
+/**
+ * @package storefront
+ */
+
 /* eslint-disable no-console */
 const fs = require('fs');
 const puppeteer = require('puppeteer');

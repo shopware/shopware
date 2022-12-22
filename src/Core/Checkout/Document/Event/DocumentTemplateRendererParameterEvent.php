@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document\Event;
 use Shopware\Core\Framework\Struct\ExtendableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 class DocumentTemplateRendererParameterEvent extends Event
 {
     use ExtendableTrait;

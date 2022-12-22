@@ -7,6 +7,9 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @package core
+ */
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface

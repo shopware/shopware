@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-number-range/page/sw-settings-number-range-detail';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-number-range-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-number-range-detail'), {
         localVue,
         mocks: {
             $route: {
@@ -81,8 +84,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -107,7 +110,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
     });
 
     it('should be able to save the number range', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'number_ranges.editor'
         ]);
 

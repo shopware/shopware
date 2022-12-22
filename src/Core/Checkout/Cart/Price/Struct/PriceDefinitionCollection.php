@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<PriceDefinitionInterface>
  */
 class PriceDefinitionCollection extends Collection

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @package checkout
+ */
 class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface
 {
     public const TYPE = 'currency-price';

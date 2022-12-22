@@ -6,6 +6,9 @@ const defaultFormatterOptions = {
     year: 'numeric',
 };
 
+/**
+ * @package storefront
+ */
 describe('date.helper.js', () => {
     test('it returns an empty string for non numbers', () => {
         expect(DateHelper.format(null)).toStrictEqual('');

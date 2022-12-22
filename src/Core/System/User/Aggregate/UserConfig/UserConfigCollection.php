@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<UserConfigEntity>
+ *
+ * @package system-settings
  */
 class UserConfigCollection extends EntityCollection
 {

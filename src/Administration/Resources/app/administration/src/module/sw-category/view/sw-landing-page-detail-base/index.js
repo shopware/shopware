@@ -4,6 +4,9 @@ import './sw-landing-page-detail-base.scss';
 const { Component, Mixin } = Shopware;
 const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-landing-page-detail-base', {
     template,

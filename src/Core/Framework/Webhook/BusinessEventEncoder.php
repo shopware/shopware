@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package core
+ */
 class BusinessEventEncoder
 {
     private JsonEntityEncoder $entityEncoder;

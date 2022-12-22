@@ -1,13 +1,15 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-language/page/sw-settings-language-detail';
 import 'src/app/component/utils/sw-inherit-wrapper';
-import flushPromises from 'flush-promises';
 
-function createWrapper(privileges = [], languageId = null) {
+async function createWrapper(privileges = [], languageId = null) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-language-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-language-detail'), {
         localVue,
         mocks: {
             $tc(translationKey) {
@@ -91,7 +93,7 @@ function createWrapper(privileges = [], languageId = null) {
             'sw-field': true,
             'sw-entity-single-select': true,
             'sw-skeleton': true,
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-inheritance-switch': true,
         }
     });
@@ -99,14 +101,14 @@ function createWrapper(privileges = [], languageId = null) {
 
 describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should return metaInfo', () => {
-        const wrapper = createWrapper();
+    it('should return metaInfo', async () => {
+        const wrapper = await createWrapper();
         wrapper.vm.$options.$createTitle = () => 'Title';
 
         const metaInfo = wrapper.vm.$options.metaInfo();
@@ -114,8 +116,8 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(metaInfo.title).toBe('Title');
     });
 
-    it('should return identifier', () => {
-        const wrapper = createWrapper();
+    it('should return identifier', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.identifier).toBe('');
 
@@ -126,8 +128,8 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(wrapper.vm.identifier).toBe('English');
     });
 
-    it('should return identifier', () => {
-        const wrapper = createWrapper();
+    it('should return identifier', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.identifier).toBe('');
 
@@ -138,8 +140,8 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(wrapper.vm.identifier).toBe('English');
     });
 
-    it('should not be possible to inherit with no system language', () => {
-        const wrapper = createWrapper();
+    it('should not be possible to inherit with no system language', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm.inheritanceTooltipText).toBe('sw-settings-language.detail.tooltipLanguageNotChoosable');
 
         wrapper.vm.language = {
@@ -149,7 +151,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should load entity data', async () => {
-        const wrapper = createWrapper([], Shopware.Context.api.systemLanguageId);
+        const wrapper = await createWrapper([], Shopware.Context.api.systemLanguageId);
         expect(wrapper.vm.languageId).toBe(Shopware.Context.api.systemLanguageId);
         await flushPromises();
 
@@ -157,7 +159,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should be able to save the language', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'language.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -186,7 +188,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should not be able to save the language', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(

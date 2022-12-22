@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-change-type-field-renderer'), {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-change-type-field-renderer'), {
         localVue,
         stubs: {
             'sw-bulk-edit-change-type-field-renderer': true
@@ -41,8 +44,8 @@ function createWrapper() {
 describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -126,7 +129,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
         expect(configValue2).toBeFalsy();
     });
 
-    it('should be able to restore and remove inheritance', () => {
+    it('should be able to restore and remove inheritance', async () => {
         const item = { name: 'description', canInherit: true };
         wrapper.vm.$emit = jest.fn();
 

@@ -1,6 +1,9 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+/*
+ * @package inventory
+ */
+
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variant-modal';
-import flushPromises from 'flush-promises';
 
 function getOptions() {
     return [
@@ -131,8 +134,8 @@ function getVariants(returnCurrency = true) {
     };
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-product-variant-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-product-variant-modal'), {
         propsData: {
             productEntity: {
                 price: [
@@ -282,20 +285,19 @@ function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-variant-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should sort options by their position', () => {
+    it('should sort options by their position', async () => {
         const sortedOptions = wrapper.vm.sortOptions(getOptions());
 
         expect(sortedOptions).toEqual([
@@ -305,37 +307,37 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         ]);
     });
 
-    it('should build variants options', () => {
+    it('should build variants options', async () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants());
 
         expect(builtVariantOptions).toBe('(material: a, color: b, size: c)');
     });
 
-    it('should variant name', () => {
+    it('should variant name', async () => {
         const builtVariantName = wrapper.vm.buildVariantName(getVariants());
 
         expect(builtVariantName).toBe('random product (material: a, color: b, size: c)');
     });
 
-    it('should omit the parenthesis', () => {
+    it('should omit the parenthesis', async () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ', ', true);
 
         expect(builtVariantOptions).toBe('material: a, color: b, size: c');
     });
 
-    it('should use a custom separator', () => {
+    it('should use a custom separator', async () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ' - ');
 
         expect(builtVariantOptions).toBe('(material: a - color: b - size: c)');
     });
 
-    it('should omit the group name', () => {
+    it('should omit the group name', async () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ', ', false, true);
 
         expect(builtVariantOptions).toBe('(a, b, c)');
     });
 
-    it('should get variant price of variant', () => {
+    it('should get variant price of variant', async () => {
         const variantPriceObject = wrapper.vm.getVariantPrice(getVariants());
         const netPrice = variantPriceObject.net;
         const grossPrice = variantPriceObject.gross;
@@ -344,7 +346,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         expect(grossPrice).toBe(24);
     });
 
-    it('should get variant price of parent product', () => {
+    it('should get variant price of parent product', async () => {
         const variantPriceObject = wrapper.vm.getVariantPrice(getVariants(false));
         const netPrice = variantPriceObject.net;
         const grossPrice = variantPriceObject.gross;
@@ -353,7 +355,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         expect(grossPrice).toBe(12);
     });
 
-    it('should return the correct permissions tooltip', () => {
+    it('should return the correct permissions tooltip', async () => {
         const tooltipObject = wrapper.vm.getNoPermissionsTooltip('product.editor');
 
         expect(tooltipObject).toEqual({

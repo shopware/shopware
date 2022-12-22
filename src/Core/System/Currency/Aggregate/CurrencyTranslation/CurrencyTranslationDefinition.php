@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @package inventory
+ */
 class CurrencyTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'currency_translation';

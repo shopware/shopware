@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './component/sw-settings-item';
 import './component/sw-system-config';
 import './page/sw-settings-index';

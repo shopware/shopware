@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @package checkout
+ */
 class PromotionDiscountPriceDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'promotion_discount_prices';

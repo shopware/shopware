@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // this list contains all URLs which should be cached
 const allowUrlList = [
     '/search/user-config',

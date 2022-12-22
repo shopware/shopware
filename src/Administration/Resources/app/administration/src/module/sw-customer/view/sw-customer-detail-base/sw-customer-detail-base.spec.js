@@ -6,6 +6,10 @@ import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
+/**
+ * @package customer-order
+ */
+
 const customFields = [
     {
         customFields: [
@@ -50,8 +54,8 @@ const customFields = [
 ];
 
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-customer-detail-base'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-customer-detail-base'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -76,14 +80,14 @@ function createWrapper() {
             'sw-customer-card': {
                 template: '<div></div>'
             },
-            'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
+            'sw-custom-field-set-renderer': await Shopware.Component.build('sw-custom-field-set-renderer'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
             'sw-field': {
                 template: '<div></div>'
             },
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
         }
     });
 }
@@ -91,12 +95,12 @@ function createWrapper() {
 describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

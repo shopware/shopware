@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 class SalesChannelProductDefinition extends ProductDefinition implements SalesChannelDefinitionInterface
 {
     public function getEntityClass(): string

@@ -1,5 +1,8 @@
 import type { DiscountCampaign } from 'src/module/sw-extension/service/extension-store-action.service';
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareDiscountCampaignService {
     public isDiscountCampaignActive(discountCampaign: DiscountCampaign) {
@@ -39,5 +42,8 @@ export default class ShopwareDiscountCampaignService {
     }
 }
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ShopwareDiscountCampaignService };

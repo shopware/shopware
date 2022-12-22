@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package business-ops
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
  */
 class RulePayloadSubscriber implements EventSubscriberInterface

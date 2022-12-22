@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware
  */

@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-currency/component/sw-settings-currency-country-modal';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-currency-country-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-currency-country-modal'), {
         localVue,
         propsData: {
             currencyCountryRounding: {
@@ -31,15 +31,15 @@ function createWrapper() {
 }
 
 describe('module/sw-settings-currency/component/sw-settings-currency-country-modal', () => {
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable already assigned countries', () => {
-        const wrapper = createWrapper();
-        wrapper.setData({
+    it('should disable already assigned countries', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
             assignedCountryIds: ['countryId1']
         });
 
@@ -48,7 +48,7 @@ describe('module/sw-settings-currency/component/sw-settings-currency-country-mod
     });
 
     it('should not disable country if it is already assigned(edit)', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             currencyCountryRounding: {
                 currencyId: 'currencyId1',

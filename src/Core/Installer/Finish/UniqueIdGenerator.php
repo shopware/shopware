@@ -3,6 +3,8 @@
 namespace Shopware\Core\Installer\Finish;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class UniqueIdGenerator

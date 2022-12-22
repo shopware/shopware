@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @package merchant-services
+ *
  * @codeCoverageIgnore
  */
 class ExtensionStruct extends Struct

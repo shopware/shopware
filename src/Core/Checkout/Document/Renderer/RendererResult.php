@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package customer-order
+ */
 final class RendererResult extends Struct
 {
     /**

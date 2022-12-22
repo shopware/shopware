@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Theme;
 
+/**
+ * @package storefront
+ */
 abstract class AbstractThemePathBuilder
 {
     abstract public function getDecorated(): AbstractThemePathBuilder;

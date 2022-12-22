@@ -1,10 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product-stream/component/sw-product-stream-filter';
 import 'src/app/component/rule/sw-condition-base';
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const mockEntitySchema = {
         product: {
             entity: 'product',
@@ -17,7 +21,7 @@ function createWrapper(privileges = []) {
         Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
     });
 
-    return shallowMount(Shopware.Component.build('sw-product-stream-filter'), {
+    return shallowMount(await Shopware.Component.build('sw-product-stream-filter'), {
         stubs: {
             'sw-condition-type-select': true,
             'sw-text-field': true,
@@ -62,14 +66,14 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-product-stream/component/sw-product-stream-filter', () => {
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should return correct tooltip settings', () => {
-        const wrapper = createWrapper();
+    it('should return correct tooltip settings', async () => {
+        const wrapper = await createWrapper();
         const tooltipObject = wrapper.vm.getNoPermissionsTooltip();
 
         expect(tooltipObject).toEqual({
@@ -88,44 +92,44 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
         [undefined, 'sw-product-stream-value-stub', 'product_stream.viewer, product_stream.editor'],
         ['true', 'sw-product-stream-field-select-stub', 'product_stream.viewer'],
         [undefined, 'sw-product-stream-field-select-stub', 'product_stream.viewer, product_stream.editor']
-    ])('should have %p as disabled state on \'%s\' when having %s role', (state, element, role) => {
+    ])('should have %p as disabled state on \'%s\' when having %s role', async (state, element, role) => {
         const roles = role.split(', ');
 
-        const wrapper = createWrapper(roles);
+        const wrapper = await createWrapper(roles);
         const targetElement = wrapper.find(element);
 
         expect(targetElement.attributes('disabled')).toBe(state);
     });
 
     it('should return correct custom fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             condition: {
                 field: 'customFields.test'
             }
         });
-        wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.fields).toEqual(['customFields.test']);
     });
 
     it('should return true if input is custom field', async () => {
-        const wrapper = createWrapper();
-        wrapper.vm.$nextTick();
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.isCustomField('customFields.test')).toBe(true);
     });
 
     it('should return correct json field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             condition: {
                 field: 'json.test'
             }
         });
-        wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.fields).toEqual(['json.test']);
     });

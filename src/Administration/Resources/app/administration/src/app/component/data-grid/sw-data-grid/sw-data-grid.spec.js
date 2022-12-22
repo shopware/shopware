@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-settings';
@@ -11,22 +15,6 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/utils/sw-popover';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-const stubs = {
-    'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-    'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-    'sw-data-grid-settings': Shopware.Component.build('sw-data-grid-settings'),
-    'sw-icon': true,
-    'sw-context-button': Shopware.Component.build('sw-context-button'),
-    'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-    'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-    'sw-button': Shopware.Component.build('sw-button'),
-    'sw-popover': Shopware.Component.build('sw-popover'),
-    'sw-base-field': Shopware.Component.build('sw-base-field'),
-    'sw-field-error': true,
-    'sw-context-menu-divider': true,
-    'sw-button-group': true
-};
 
 const localVue = createLocalVue();
 localVue.directive('popover', {});
@@ -73,46 +61,67 @@ const defaultProps = {
     ]
 };
 
-function createWrapper(props, userConfig, overrideProps) {
-    if (!overrideProps) {
-        props = { ...defaultProps, ...props };
-    }
-
-    return shallowMount(Shopware.Component.build('sw-data-grid'), {
-        localVue,
-        stubs,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([userConfig ?? defaultUserConfig]);
-                    },
-                    save: () => {
-                        return Promise.resolve();
-                    },
-                    get: () => Promise.resolve({})
-                })
-            },
-            acl: { can: () => true }
-        },
-        propsData: props ?? defaultProps
-    });
-}
 
 describe('components/data-grid/sw-data-grid', () => {
+    let stubs;
+
+    async function createWrapper(props, userConfig, overrideProps) {
+        if (!overrideProps) {
+            props = { ...defaultProps, ...props };
+        }
+
+        return shallowMount(await Shopware.Component.build('sw-data-grid'), {
+            localVue,
+            stubs,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([userConfig ?? defaultUserConfig]);
+                        },
+                        save: () => {
+                            return Promise.resolve();
+                        },
+                        get: () => Promise.resolve({})
+                    })
+                },
+                acl: { can: () => true }
+            },
+            propsData: props ?? defaultProps
+        });
+    }
+
+    beforeAll(async () => {
+        stubs = {
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
+            'sw-icon': true,
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': true,
+            'sw-context-menu-divider': true,
+            'sw-button-group': true
+        };
+    });
+
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be in compact mode by default', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.classes()).toContain('is--compact');
     });
 
     it('should render grid header with correct columns', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const nameColumn = wrapper.find('.sw-data-grid__header .sw-data-grid__cell--0 .sw-data-grid__cell-content');
         const companyColumn = wrapper.find('.sw-data-grid__header .sw-data-grid__cell--1 .sw-data-grid__cell-content');
@@ -127,7 +136,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should hide selection column, action column and header based on prop', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             showSelection: false,
             showActions: false,
             showHeader: false
@@ -143,7 +152,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should render a row for each item in dataSource prop', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
@@ -151,7 +160,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should change appearance class based on prop', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             plainAppearance: true
         });
 
@@ -159,7 +168,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should load and apply user configuration', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             showSettings: true
         });
 
@@ -195,7 +204,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('remove property in client', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
@@ -257,7 +266,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('add property in client', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
@@ -314,7 +323,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('add property value in client', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
@@ -375,7 +384,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('remove property value in client', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
@@ -476,7 +485,8 @@ describe('components/data-grid/sw-data-grid', () => {
     Object.entries(cases).forEach(([key, testCase]) => {
         it(`should render columns with ${key}`, async () => {
             const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
-            const grid = createWrapper().vm;
+            const wrapper = await createWrapper();
+            const grid = wrapper.vm;
 
             const data = {
                 name: 'original',
@@ -518,7 +528,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         it(`should render different columns dynamically with ${key}`, async () => {
             const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
-            const wrapper = createWrapper();
+            const wrapper = await createWrapper();
             const grid = wrapper.vm;
 
             const data = {
@@ -580,7 +590,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should checked a item in grid if the grid state include that item', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
                 uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
@@ -595,7 +605,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should add a selection to grid state when selected an item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
@@ -629,7 +639,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should add all records to grid selection when clicking select all', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             identifier: 'sw-customer-list'
         });
@@ -650,7 +660,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should remove all records to grid state when deselected all items', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             identifier: 'sw-customer-list'
         });
@@ -675,7 +685,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should selectionCount equals to grid state count', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             identifier: 'sw-customer-list'
         });
@@ -741,7 +751,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should not show deselect all action', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
                 uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' }
@@ -754,7 +764,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should show deselect all action', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
                 uuid10: { id: 'uuid10', company: 'Quartz', name: 'Tinto' }
@@ -768,7 +778,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should show maximum selection exceed', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             maximumSelectItems: 3,
             identifier: 'sw-customer-list',
             preSelection: {
@@ -800,7 +810,7 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should disable checkboxes when maximum selection exceed', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             maximumSelectItems: 3,
             preSelection: {
                 uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },

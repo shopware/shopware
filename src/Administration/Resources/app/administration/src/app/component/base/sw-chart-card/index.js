@@ -4,6 +4,8 @@ import './sw-chart-card.scss';
 const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
 
 /**
+ * @package admin
+ *
  * @description
  * Layout-wrapper for sw-card and sw-chart.
  * This component provides specific props for the card configuration and range dropdown.

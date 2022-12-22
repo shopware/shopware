@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package storefront
+ */
 class CacheStore implements StoreInterface
 {
     public const TAG_HEADER = 'sw-cache-tags';

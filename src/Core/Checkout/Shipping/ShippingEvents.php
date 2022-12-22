@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
+/**
+ * @package checkout
+ */
 class ShippingEvents
 {
     /**

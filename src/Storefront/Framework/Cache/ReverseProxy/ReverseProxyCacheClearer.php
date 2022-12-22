@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 
+/**
+ * @package storefront
+ */
 class ReverseProxyCacheClearer implements CacheClearerInterface
 {
     protected AbstractReverseProxyGateway $gateway;

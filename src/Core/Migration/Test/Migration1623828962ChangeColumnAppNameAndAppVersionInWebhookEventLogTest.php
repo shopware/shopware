@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Migration\V6_4\Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLog;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest extends TestCase

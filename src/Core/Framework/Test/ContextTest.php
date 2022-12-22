@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ContextTest extends TestCase

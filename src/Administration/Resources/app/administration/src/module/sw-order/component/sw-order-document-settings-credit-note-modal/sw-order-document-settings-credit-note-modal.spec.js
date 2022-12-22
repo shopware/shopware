@@ -6,7 +6,10 @@ import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
-import flushPromises from 'flush-promises';
+
+/**
+ * @package customer-order
+ */
 
 const orderFixture = {
     id: 'order1',
@@ -112,10 +115,10 @@ const orderFixture = {
         }]
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-document-settings-credit-note-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-document-settings-credit-note-modal'), {
         stubs: {
-            'sw-order-document-settings-modal': Shopware.Component.build('sw-order-document-settings-modal'),
+            'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
             'sw-modal': {
                 template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
             },
@@ -129,15 +132,15 @@ function createWrapper() {
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-group': Shopware.Component.build('sw-button-group'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-group': await Shopware.Component.build('sw-button-group'),
             'sw-context-menu-item': true,
             'sw-upload-listener': true,
             'sw-textarea-field': true,
             'sw-icon': true,
-            'sw-select-field': Shopware.Component.build('sw-select-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-loader': true,
             'sw-description-list': {
@@ -177,7 +180,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
 
     beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
 
@@ -185,7 +188,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -396,7 +399,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(invoiceOptions.at(2).text()).toEqual('1001');
     });
 
-    it('should disable create button if there is no selected invoice', () => {
+    it('should disable create button if there is no selected invoice', async () => {
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBe('disabled');
 

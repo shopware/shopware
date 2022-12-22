@@ -38,6 +38,9 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
+/**
+ * @package inventory
+ */
 class ProductEntity extends Entity
 {
     use EntityIdTrait;

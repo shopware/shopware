@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
+/**
+ * @package inventory
+ */
 class CurrencyCountryRoundingEntity extends Entity
 {
     use EntityIdTrait;

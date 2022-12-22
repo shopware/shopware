@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
@@ -11,21 +15,21 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
 import getTreeItems from './fixtures/treeItems';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('droppable', {});
     localVue.directive('draggable', {});
 
-    return shallowMount(Shopware.Component.build('sw-tree'), {
+    return shallowMount(await Shopware.Component.build('sw-tree'), {
         localVue,
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
             'sw-field-error': true,
             'sw-tree-input-field': true,
             'sw-button': true,
@@ -38,9 +42,9 @@ function createWrapper() {
             'icons-multicolor-folder-tree-open': true,
             'icons-regular-search': true,
             'icons-regular-checkmark-xxs': true,
-            'sw-vnode-renderer': Shopware.Component.build('sw-vnode-renderer'),
-            'sw-icon': Shopware.Component.build('sw-icon'),
-            'sw-tree-item': Shopware.Component.build('sw-tree-item')
+            'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-tree-item': await Shopware.Component.build('sw-tree-item')
         },
         mocks: {
             $route: {
@@ -63,8 +67,8 @@ describe('src/app/component/tree/sw-tree', () => {
     /** @type Wrapper */
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

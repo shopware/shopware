@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
 
@@ -13,11 +16,11 @@ function getFieldTypes() {
     };
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-custom-field-set-detail-base'), {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-set-detail-base'), {
         localVue,
         mocks: {
             $i18n: {
@@ -57,12 +60,12 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('can edit fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'custom_field.editor'
         ]);
 
@@ -76,7 +79,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
     });
 
     it('cannot edit fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const technicalNameField = wrapper.find('.sw-settings-custom-field-set-detail-base__technical-name');
         const positionField = wrapper.find('.sw-settings-custom-field-set-detail-base__base-postion');

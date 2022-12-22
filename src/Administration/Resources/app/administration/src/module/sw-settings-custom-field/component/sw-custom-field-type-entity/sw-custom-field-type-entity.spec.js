@@ -1,13 +1,16 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-entity';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
 
-function createWrapper(privileges = [], isNew = true) {
+async function createWrapper(privileges = [], isNew = true) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-custom-field-type-entity'), {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-type-entity'), {
         localVue,
         mocks: {
             $tc: () => {
@@ -54,19 +57,19 @@ function createWrapper(privileges = [], isNew = true) {
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-entity', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should allow entity type selection on new custom field', () => {
-        const wrapper = createWrapper();
+    it('should allow entity type selection on new custom field', async () => {
+        const wrapper = await createWrapper();
         const entitySelect = wrapper.find('sw-single-select-stub');
 
         expect(entitySelect.attributes('disabled')).toBeFalsy();
     });
 
-    it('should not allow entity type selection on existing custom field', () => {
-        const wrapper = createWrapper([], false);
+    it('should not allow entity type selection on existing custom field', async () => {
+        const wrapper = await createWrapper([], false);
         wrapper.vm.currentCustomField._isNew = false;
 
         const entitySelect = wrapper.find('sw-single-select-stub');

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter } = Shopware;
 const { date } = Shopware.Utils.format;
 

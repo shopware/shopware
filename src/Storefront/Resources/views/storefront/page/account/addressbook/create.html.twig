@@ -21,6 +21,7 @@
                               data-form-csrf-handler="true"
                               data-form-validation="true">
 
+                            {# @deprecated tag:v6.5.0 - Block page_account_address_form_create_csrf will be removed. #}
                             {% block page_account_address_form_create_csrf %}
                                 {{ sw_csrf('frontend.account.address.create') }}
                             {% endblock %}

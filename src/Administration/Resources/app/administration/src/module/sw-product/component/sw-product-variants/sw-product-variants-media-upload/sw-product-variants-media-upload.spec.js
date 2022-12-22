@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';
@@ -8,15 +12,15 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     let wrapper;
     const listEntity = [];
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const localVue = createLocalVue();
         localVue.directive('droppable', {});
 
-        wrapper = shallowMount(Shopware.Component.build('sw-product-variants-media-upload'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-product-variants-media-upload'), {
             localVue,
             stubs: {
                 'sw-context-button': true,
-                'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
+                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
                 'sw-icon': true,
                 'sw-button': true,
                 'sw-media-url-form': true,
@@ -46,7 +50,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     }
                 },
                 configService: {},
-                mediaService: {}
+                mediaService: {
+                    removeByTag: () => null,
+                    removeListener: () => null,
+                }
             },
             propsData: {
                 uploadTag: 'upload-tag',
@@ -76,11 +83,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the default accept value', () => {
+    it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
         expect(fileInput.attributes().accept).toBe('image/*');

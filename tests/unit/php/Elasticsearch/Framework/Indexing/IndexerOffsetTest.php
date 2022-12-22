@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
@@ -25,17 +23,6 @@ class IndexerOffsetTest extends TestCase
 {
     public function testItConvertsDefinitionsToSerilizeableNamesAndCanDoAnDefinitionRoudTrip(): void
     {
-        $languageOne = new LanguageEntity();
-        $languageTwo = new LanguageEntity();
-
-        $languageOne->setId('foo');
-        $languageTwo->setId('bar');
-
-        $languageCollection = new LanguageCollection([
-            $languageOne,
-            $languageTwo,
-        ]);
-
         $definitions = [
             new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), [], new EventDispatcher(), $this->createMock(AbstractProductSearchQueryBuilder::class)),
             new MockElasticsearchDefinition(new EntityMapper()),
@@ -43,7 +30,7 @@ class IndexerOffsetTest extends TestCase
 
         $timestamp = (new \DateTime())->getTimestamp();
         $offset = new IndexerOffset(
-            $languageCollection,
+            ['foo', 'bar'],
             $definitions,
             $timestamp
         );
@@ -69,27 +56,16 @@ class IndexerOffsetTest extends TestCase
             $offset->getDefinitions()
         );
 
-        $offset->setLastId([]);
-        static::assertEquals([], $offset->getLastId());
+        $offset->setLastId(['offset' => 42]);
+        static::assertEquals(['offset' => 42], $offset->getLastId());
     }
 
     public function testItConvertsLanguagesToSerilizeableIdsAndCanDoAnLanguageRoudTrip(): void
     {
-        $languageOne = new LanguageEntity();
-        $languageTwo = new LanguageEntity();
-
-        $languageOne->setId('foo');
-        $languageTwo->setId('bar');
-
-        $languageCollection = new LanguageCollection([
-            $languageOne,
-            $languageTwo,
-        ]);
-
         $definitions = [];
 
         $offset = new IndexerOffset(
-            $languageCollection,
+            ['foo', 'bar'],
             $definitions,
             (new \DateTime())->getTimestamp()
         );

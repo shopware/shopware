@@ -1,4 +1,8 @@
 /**
+ * @package admin
+ */
+
+/**
  * This class wraps an upload and stores information about it. For use in core/data/UploadStore
  * @class
  */

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
@@ -10,6 +11,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - can be removed
  */
 class RequeueDeadMessagesHandlerTest extends TestCase
 {
@@ -17,6 +20,7 @@ class RequeueDeadMessagesHandlerTest extends TestCase
 
     public function testGetHandledMessages(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         /** @var array $handledMessages */
         $handledMessages = RequeueDeadMessagesHandler::getHandledMessages();
         static::assertCount(1, $handledMessages);
@@ -25,6 +29,7 @@ class RequeueDeadMessagesHandlerTest extends TestCase
 
     public function testRun(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $requeueService = $this->createMock(RequeueDeadMessagesService::class);
         $requeueService->expects(static::once())
             ->method('requeue');

@@ -5,6 +5,10 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 use Shopware\Core\Checkout\Cart\Cart;
 
 /**
+ * @package checkout
+ */
+
+/**
  * The StatesFacade allows access to the current cart states and functions.
  *
  * @script-service cart_manipulation

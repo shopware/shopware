@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Struct\ExtendableInterface;
 use Shopware\Core\Framework\Struct\ExtendableTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
+/**
+ * @package checkout
+ */
 class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInterface
 {
     use CloneTrait;

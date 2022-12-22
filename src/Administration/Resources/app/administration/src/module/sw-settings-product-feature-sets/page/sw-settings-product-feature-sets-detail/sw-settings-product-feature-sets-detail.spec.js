@@ -26,12 +26,12 @@ const text = {
     placeholderDescriptionField: 'sw-settings-product-feature-sets.detail.placeholderDescription'
 };
 
-const detailPage = (additionalOptions = {}, privileges = []) => {
+const detailPage = async (additionalOptions = {}, privileges = []) => {
     const localVue = createLocalVue();
 
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-product-feature-sets-detail'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -45,14 +45,14 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
             'sw-button-process': true,
             'sw-card-view': true,
             'sw-language-info': true,
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-textarea-field': Shopware.Component.build('sw-textarea-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-textarea-field': await Shopware.Component.build('sw-textarea-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-settings-product-feature-sets-values-card': true,
             'sw-extension-component-section': true,
@@ -93,8 +93,8 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = detailPage();
+    beforeEach(async () => {
+        wrapper = await detailPage();
     });
 
     afterEach(() => {
@@ -151,7 +151,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should have all fields enabled when user has acl rights', async () => {
-        wrapper = detailPage({}, [
+        wrapper = await detailPage({}, [
             'product_feature_sets.editor'
         ]);
 

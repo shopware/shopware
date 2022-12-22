@@ -16,6 +16,8 @@ use Symfony\Component\Messenger\Stamp\StampInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class MonitoringBusDecoratorTest extends TestCase
 {

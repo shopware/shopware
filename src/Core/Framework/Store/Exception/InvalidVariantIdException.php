@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package merchant-services
+ */
 class InvalidVariantIdException extends ShopwareHttpException
 {
     public function __construct(array $parameters = [], ?\Throwable $e = null)

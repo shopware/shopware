@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<CurrencyTranslationEntity>
+ *
+ * @package inventory
  */
 class CurrencyTranslationCollection extends EntityCollection
 {

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
+/**
+ * @package core
+ */
 class ElasticsearchIndexConfigEvent implements ShopwareEvent
 {
     private string $indexName;

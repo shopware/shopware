@@ -2,8 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
 use Shopware\Core\Content\Mail\Service\MailerTransportFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\ConfigService;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
@@ -28,16 +33,27 @@ class MailerTransportFactoryTest extends TestCase
             $this->getFactories(),
             new ConfigService([
                 'core.mailerSettings.emailAgent' => '',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(EntityRepository::class)
         );
 
         $transport = $factory->fromString('smtp://localhost:25');
 
-        static::assertInstanceOf(EsmtpTransport::class, $transport);
+        static::assertInstanceOf(MailerTransportDecorator::class, $transport);
+
+        $decorated = ReflectionHelper::getPropertyValue($transport, 'decorated');
+
+        static::assertInstanceOf(EsmtpTransport::class, $decorated);
 
         $transport = $factory->fromString('sendmail://default');
 
-        static::assertInstanceOf(SendmailTransport::class, $transport);
+        static::assertInstanceOf(MailerTransportDecorator::class, $transport);
+
+        $decorated = ReflectionHelper::getPropertyValue($transport, 'decorated');
+
+        static::assertInstanceOf(SendmailTransport::class, $decorated);
 
         // Create returns default Sendmail
         static::assertInstanceOf(SendmailTransport::class, $factory->create());
@@ -51,12 +67,19 @@ class MailerTransportFactoryTest extends TestCase
             $this->getFactories(),
             new ConfigService([
                 'core.mailerSettings.emailAgent' => null,
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(EntityRepository::class)
         );
 
         $mailer = $factory->fromString('smtp://example.com:1025');
 
-        static::assertEquals(\get_class($original), \get_class($mailer));
+        static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
+
+        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+
+        static::assertEquals(\get_class($original), \get_class($decorated));
     }
 
     public function testFactoryWithLocal(): void
@@ -68,12 +91,19 @@ class MailerTransportFactoryTest extends TestCase
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => null,
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(EntityRepository::class)
         );
 
         $mailer = $factory->fromString('null://null');
 
-        static::assertEquals(\get_class($original), \get_class($mailer));
+        static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
+
+        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+
+        static::assertEquals(\get_class($original), \get_class($decorated));
     }
 
     /**
@@ -93,13 +123,19 @@ class MailerTransportFactoryTest extends TestCase
                 'core.mailerSettings.password' => 'root',
                 'core.mailerSettings.encryption' => $encryption,
                 'core.mailerSettings.authenticationMethod' => 'cram-md5',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(EntityRepository::class)
         );
 
-        /** @var EsmtpTransport $mailer */
         $mailer = $factory->fromString('null://null');
 
-        static::assertEquals(\get_class($original), \get_class($mailer));
+        static::assertInstanceOf(MailerTransportDecorator::class, $mailer);
+
+        $decorated = ReflectionHelper::getPropertyValue($mailer, 'decorated');
+
+        static::assertEquals(\get_class($original), \get_class($decorated));
     }
 
     /**
@@ -119,7 +155,10 @@ class MailerTransportFactoryTest extends TestCase
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => '-t && echo bla',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(EntityRepository::class)
         );
 
         static::expectException(\RuntimeException::class);
@@ -134,7 +173,10 @@ class MailerTransportFactoryTest extends TestCase
             $this->getFactories(),
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'test',
-            ])
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(EntityRepository::class)
         );
 
         static::expectException(\RuntimeException::class);

@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-specifications';
@@ -15,7 +19,7 @@ const packagingItemClassName = [
     '.sw-product-packaging-form__reference-unit-field'
 ];
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -117,13 +121,13 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         await Shopware.State.commit('swProductDetail/setAttributeSet', []);
     });
 
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show item fields in Measures Packaging card ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         // expect the some item fields in Packaging is not hidden by css display none
         packagingItemClassName.forEach(item => {
@@ -138,7 +142,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide item fields in Measures Packaging card when advanced mode is off', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -164,7 +168,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide Measures Packaging card when measures_packaging mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
@@ -176,7 +180,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should show Properties card even advanced mode is off', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -193,7 +197,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide Properties card when properties mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
 
         await Shopware.State.commit('swProductDetail/setModeSettings', [
@@ -205,7 +209,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should show Essential Characteristics card when advanced mode is on', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -223,7 +227,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide Essential Characteristics card when advanced mode is off', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -241,7 +245,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide Essential Characteristics card when essential_characteristics mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
@@ -264,7 +268,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should show Custom Fields card advanced mode is on and custom fields set length is greater than 0', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await Shopware.State.commit('swProductDetail/setAttributeSet', [{
             customFields: [1, 2]
@@ -285,7 +289,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide Custom Fields card when advanced mode is off', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
@@ -303,7 +307,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should hide Custom Fields card when custom_fields mode is unchecked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
@@ -326,7 +330,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
     });
 
     it('should not show Custom Fields card when custom fields length is smaller than 1', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 

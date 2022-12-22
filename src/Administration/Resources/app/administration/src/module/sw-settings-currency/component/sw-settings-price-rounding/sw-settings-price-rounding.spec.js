@@ -2,8 +2,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-currency/component/sw-settings-price-rounding';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-settings-price-rounding'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-settings-price-rounding'), {
         stubs: {
             'sw-container': true,
             'sw-switch-field': true,
@@ -15,14 +15,14 @@ function createWrapper() {
 }
 
 describe('module/sw-settings-currency/component/sw-settings-price-rounding', () => {
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show info message when total rounding or item rounding interval is unequal to 0.01 or decimals are unequal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             totalRounding: {
@@ -39,7 +39,7 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
     });
 
     it('should not show info message when intervals are equal to 0.01 and decimals are equal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             totalRounding: {
@@ -56,7 +56,7 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
     });
 
     it('should show warning message when total and item rounding intervals are unequal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             totalRounding: {
@@ -71,7 +71,7 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
     });
 
     it('should not show warning message when total and item rounding intervals are equal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             totalRounding: {

@@ -26,6 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package content
  * @covers \Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute
  */
 class ContactFormRouteTest extends TestCase

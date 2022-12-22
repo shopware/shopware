@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
 import 'src/app/component/form/sw-select-field';
@@ -26,11 +29,11 @@ function getFieldTypes() {
     };
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-custom-field-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-custom-field-detail'), {
         localVue,
         mocks: {
             $i18n: {
@@ -71,13 +74,13 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-custom-field-type-checkbox': true,
             'sw-field': true,
-            'sw-select-field': Shopware.Component.build('sw-select-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-icon': true,
             'sw-help-text': true,
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-loader': true,
             'sw-alert': true,
             'sw-custom-field-type-select': true,
@@ -87,12 +90,12 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('can edit fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'custom_field.editor'
         ]);
 
@@ -110,7 +113,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
     });
 
     it('cannot edit fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
@@ -126,7 +129,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
     });
 
     it('should update config correctly', async () => {
-        const wrapper = createWrapper(['custom_field.editor']);
+        const wrapper = await createWrapper(['custom_field.editor']);
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         await modalTypeField.setValue('select');

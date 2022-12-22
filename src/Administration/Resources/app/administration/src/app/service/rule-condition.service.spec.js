@@ -12,7 +12,7 @@ responses.addResponse({
 });
 
 describe('src/app/service/rule-condition.service.js', () => {
-    it('should be a function', () => {
+    it('should be a function', async () => {
         expect(typeof createConditionService).toEqual('function');
     });
 
@@ -27,7 +27,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
-    it('should return empty array when the specified relation does not exist', () => {
+    it('should return empty array when the specified relation does not exist', async () => {
         const ruleConditionService = createConditionService();
 
         return ruleConditionService.getRestrictedRules('personaPromotions').then(result => {
@@ -35,7 +35,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
-    it('should return restricted conditions', () => {
+    it('should return restricted conditions', async () => {
         const ruleConditionService = createConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount'],
@@ -55,7 +55,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
-    it('should add config item', () => {
+    it('should add config item', async () => {
         const ruleConditionService = createConditionService();
 
         const configItemBefore = ruleConditionService.getAwarenessConfigurationByAssignmentName('personaPromotions');
@@ -73,7 +73,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
-    it('should get config item', () => {
+    it('should get config item', async () => {
         const ruleConditionService = createConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount']
@@ -86,14 +86,14 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
-    it('should return empty object when the rule is undefined', () => {
+    it('should return empty object when the rule is undefined', async () => {
         const ruleConditionService = createConditionService();
         const restricted = ruleConditionService.getRestrictedConditions();
 
         expect(restricted).toEqual({});
     });
 
-    it('should return empty config when assignmentName is not in the config', () => {
+    it('should return empty config when assignmentName is not in the config', async () => {
         const ruleConditionService = createConditionService();
         const restricted = ruleConditionService.getRestrictionsByAssociation([], 'assignmentName');
 
@@ -106,7 +106,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         });
     });
 
-    it('should return restriction config with restricted true by not equals restriction', () => {
+    it('should return restriction config with restricted true by not equals restriction', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
@@ -135,7 +135,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(restricted.equalsAnyNotMatched[0].type).toEqual('conditionType3');
     });
 
-    it('should return restriction config with restricted true by equals any restriction', () => {
+    it('should return restriction config with restricted true by equals any restriction', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
@@ -164,7 +164,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(restricted.equalsAnyNotMatched[1].type).toEqual('conditionType3');
     });
 
-    it('should return restriction config with restricted false', () => {
+    it('should return restriction config with restricted false', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
@@ -192,7 +192,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(restricted.equalsAnyNotMatched).toHaveLength(0);
     });
 
-    it('should return restricted associations', () => {
+    it('should return restricted associations', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addCondition('conditionType1', {});
@@ -223,7 +223,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(restricted.assignmentTwo.isRestricted).toBeTruthy();
     });
 
-    it('should return a translated list of violations', () => {
+    it('should return a translated list of violations', async () => {
         const ruleConditionService = createConditionService();
 
         let translatedViolations = ruleConditionService.getTranslatedConditionViolationList([
@@ -239,7 +239,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(translatedViolations).toEqual('"violation1"');
     });
 
-    it('should return a disabled restriction tooltip because of no violations', () => {
+    it('should return a disabled restriction tooltip because of no violations', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
@@ -259,7 +259,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(tooltipConfig.message).toBeFalsy();
     });
 
-    it('should return a disabled restriction tooltip because empty ruleAwareGroupKey', () => {
+    it('should return a disabled restriction tooltip because empty ruleAwareGroupKey', async () => {
         const ruleConditionService = createConditionService();
 
         const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig([], undefined);
@@ -267,7 +267,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(tooltipConfig.message).toBeFalsy();
     });
 
-    it('should return an enabled restriction tooltip by not equals violation', () => {
+    it('should return an enabled restriction tooltip by not equals violation', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
@@ -291,7 +291,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(tooltipConfig.message).toEqual('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip');
     });
 
-    it('should return an enabled restriction tooltip by equals any violation', () => {
+    it('should return an enabled restriction tooltip by equals any violation', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
@@ -314,7 +314,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(tooltipConfig.message).toEqual('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip');
     });
 
-    it('should be restricted', () => {
+    it('should be restricted', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
@@ -336,7 +336,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(result).toBeTruthy();
     });
 
-    it('should not be restricted', () => {
+    it('should not be restricted', async () => {
         const ruleConditionService = createConditionService();
 
         ruleConditionService.addAwarenessConfiguration('assignmentOne', {
@@ -358,10 +358,76 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(result).toBeFalsy();
     });
 
-    it('should not be restricted if group parameter is not set', () => {
+    it('should not be restricted if group parameter is not set', async () => {
         const ruleConditionService = createConditionService();
 
         const result = ruleConditionService.isRuleRestricted([], undefined);
         expect(result).toBeFalsy();
+    });
+
+    it('should have the correct operators for date', async () => {
+        const ruleConditionService = createConditionService();
+
+        const expected = [
+            {
+                identifier: '=',
+                label: 'global.sw-condition.operator.equals'
+            },
+            {
+                identifier: '>',
+                label: 'global.sw-condition.operator.greaterThan'
+            },
+            {
+                identifier: '>=',
+                label: 'global.sw-condition.operator.greaterThanEquals'
+            },
+            {
+                identifier: '<',
+                label: 'global.sw-condition.operator.lowerThan'
+            },
+            {
+                identifier: '<=',
+                label: 'global.sw-condition.operator.lowerThanEquals'
+            },
+            {
+                identifier: '!=',
+                label: 'global.sw-condition.operator.notEquals'
+            }
+        ];
+
+        const operators = ruleConditionService.getOperatorSet('date');
+
+        expect(operators).toEqual(expected);
+    });
+
+    it('should get the restrictedConditions', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('flowTrigger.someFlow', {
+            notEquals: ['cartCartAmount'],
+            snippet: 'someFlowSnippet'
+        });
+
+        const rule = {
+            id: 'random-id',
+            flowSequences: [
+                {
+                    flow: { eventName: 'someFlow', }
+                },
+                {
+                    flow: { eventName: 'anotherFlow', }
+                }
+            ]
+        };
+        const result = ruleConditionService.getRestrictedConditions(rule);
+
+        expect(result).toStrictEqual({
+            cartCartAmount: [
+                {
+                    associationName: 'flowTrigger.someFlow',
+                    snippet: 'someFlowSnippet'
+                }
+            ]
+        });
     });
 });

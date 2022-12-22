@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<UserRecoveryEntity>
+ *
+ * @package system-settings
  */
 class UserRecoveryCollection extends EntityCollection
 {

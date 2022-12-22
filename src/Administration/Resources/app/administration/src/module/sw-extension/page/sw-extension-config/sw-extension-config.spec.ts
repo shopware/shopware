@@ -4,60 +4,65 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/meteor/sw-meteor-page';
 import 'src/module/sw-extension/page/sw-extension-config';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
+import Vue from 'vue';
 
-const SwExtensionConfig = Shopware.Component.build('sw-extension-config');
-const SwMeteorPage = Shopware.Component.build('sw-meteor-page');
-
-function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(SwExtensionConfig, {
-        localVue,
-        propsData: {
-            namespace: 'MyExtension'
-        },
-        data() {
-            return { extension: null };
-        },
-        mocks: {
-            $route: {
-                meta: {
-                    $module: null
-                }
-            }
-        },
-        stubs: {
-            'sw-meteor-page': Shopware.Component.build('sw-meteor-page'),
-            'sw-search-bar': true,
-            'sw-notification-center': true,
-            'sw-help-center': true,
-            'sw-meteor-navigation': true,
-            'sw-external-link': true,
-            'sw-system-config': true,
-            'sw-button': Shopware.Component.build('sw-button')
-        },
-        provide: {
-            shopwareExtensionService: {
-                updateExtensionData: jest.fn()
-            },
-            systemConfigApiService: {
-                getValues: () => {
-                    return Promise.resolve({
-                        'core.store.apiUri': 'https://api.shopware.com',
-                        'core.store.licenseHost': 'sw6.test.shopware.in',
-                        'core.store.shopSecret': 'very.s3cret',
-                        'core.store.shopwareId': 'max@muster.com'
-                    });
-                }
-            }
-        }
-    });
-}
-
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
-    let wrapper: Wrapper<typeof SwExtensionConfig>;
+    let wrapper: Wrapper<Vue>;
+    let SwExtensionConfig;
+    let SwMeteorPage;
+
+    async function createWrapper() {
+        const localVue = createLocalVue();
+
+        return shallowMount(SwExtensionConfig, {
+            localVue,
+            propsData: {
+                namespace: 'MyExtension'
+            },
+            data() {
+                return { extension: null };
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: null
+                    }
+                }
+            },
+            stubs: {
+                'sw-meteor-page': await Shopware.Component.build('sw-meteor-page'),
+                'sw-search-bar': true,
+                'sw-notification-center': true,
+                'sw-help-center': true,
+                'sw-meteor-navigation': true,
+                'sw-external-link': true,
+                'sw-system-config': true,
+                'sw-button': await Shopware.Component.build('sw-button')
+            },
+            provide: {
+                shopwareExtensionService: {
+                    updateExtensionData: jest.fn()
+                },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.store.apiUri': 'https://api.shopware.com',
+                            'core.store.licenseHost': 'sw6.test.shopware.in',
+                            'core.store.shopSecret': 'very.s3cret',
+                            'core.store.shopwareId': 'max@muster.com'
+                        });
+                    }
+                }
+            }
+        });
+    }
 
     beforeAll(async () => {
+        SwExtensionConfig = await Shopware.Component.build('sw-extension-config');
+        SwMeteorPage = await Shopware.Component.build('sw-meteor-page');
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
     });
 

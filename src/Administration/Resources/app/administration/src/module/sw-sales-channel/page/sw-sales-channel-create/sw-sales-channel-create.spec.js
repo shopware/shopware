@@ -1,12 +1,15 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
 import 'src/module/sw-sales-channel/page/sw-sales-channel-create';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-sales-channel-create'), {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-create'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -60,14 +63,14 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
 
         wrapper.destroy();
     });
 
     it('should disable the save button when privilege does not exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
 
         await wrapper.setData({
@@ -79,7 +82,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
     });
 
     it('should enable the save button when privilege does exists', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.creator'
         ]);
 

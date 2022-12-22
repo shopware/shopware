@@ -1,4 +1,4 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence';
 
 const sequenceFixture = {
@@ -11,8 +11,8 @@ const sequenceFixture = {
     config: {}
 };
 
-function createWrapper(propsData = {}) {
-    return shallowMount(Shopware.Component.build('sw-flow-sequence'), {
+async function createWrapper(propsData = {}) {
+    return shallowMount(await Shopware.Component.build('sw-flow-sequence'), {
         stubs: {
             'sw-flow-sequence-selector': true,
             'sw-flow-sequence-action': true,
@@ -25,11 +25,9 @@ function createWrapper(propsData = {}) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     it('should show sequence selector type correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const selector = wrapper.find('sw-flow-sequence-selector-stub');
         const action = wrapper.find('sw-flow-sequence-action-stub');
         const condition = wrapper.find('sw-flow-sequence-condition-stub');
@@ -40,7 +38,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     });
 
     it('should show sequence condition type correctly', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
                 ruleId: '1111'
@@ -57,7 +55,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     });
 
     it('should show sequence action type correctly', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
                 actionName: 'sendEmail'
@@ -74,7 +72,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     });
 
     it('should show sequence action type correctly', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
                 actionName: 'sendEmail'
@@ -91,7 +89,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     });
 
     it('should show block children correctly', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
                 ruleId: '1111',

@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/page/sw-settings-country-list';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-list'), {
         localVue,
 
         mocks: {
@@ -121,14 +124,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to view a country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -140,7 +143,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should be able to create a new country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -151,7 +154,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should not be able to create a new country', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-country-list__button-create');
@@ -173,7 +176,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should not be able to edit a country', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-country-list__edit-action');
@@ -181,7 +184,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should be able to inline edit a country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -192,7 +195,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should not be able to inline edit a country', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-settings-country-list-grid');
@@ -201,7 +204,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should be able to delete a country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -211,7 +214,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should not be able to delete a country', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-country-list__delete-action');
@@ -219,7 +222,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     });
 
     it('should be able to delete mutilple country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.deleter'
         ]);
         await wrapper.vm.$nextTick();

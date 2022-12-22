@@ -1,14 +1,10 @@
+/**
+ * @package admin
+ */
+
 import AclService from 'src/app/service/acl.service';
 
 describe('src/app/service/acl.service.ts', () => {
-    beforeAll(() => {
-        Shopware.Service().register('feature', () => {
-            return {
-                isActive: () => true
-            };
-        });
-    });
-
     beforeEach(() => {
         Shopware.Application.view = {};
         Shopware.Application.view.root = {};

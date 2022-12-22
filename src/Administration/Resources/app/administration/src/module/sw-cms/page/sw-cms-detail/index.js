@@ -13,6 +13,7 @@ const debounceTimeout = 800;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-detail', {
     template,
@@ -295,7 +296,6 @@ Component.register('sw-cms-detail', {
             return this.cmsPageState.currentCmsDeviceView;
         },
 
-
         isProductPage() {
             return this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL;
         },
@@ -337,6 +337,11 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-cms-detail__page',
+                path: 'page',
+                scope: this,
+            });
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
@@ -419,6 +424,8 @@ Component.register('sw-cms-detail', {
             return this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
+
+                Shopware.State.commit('cmsPageState/setCurrentPageType', page.type);
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateSectionAndBlockPositions();
@@ -1077,7 +1084,13 @@ Component.register('sw-cms-detail', {
             return newSection;
         },
 
-        onPageTypeChange() {
+        onPageTypeChange(pageType) {
+            // if pageType wasn't passed along just assume the page was directly mutated
+            if (typeof pageType === 'string') {
+                Shopware.State.commit('cmsPageState/setCurrentPageType', pageType);
+                this.page.type = pageType;
+            }
+
             if (this.page.type === CMS.PAGE_TYPES.LISTING) {
                 this.processProductListingType();
             } else {

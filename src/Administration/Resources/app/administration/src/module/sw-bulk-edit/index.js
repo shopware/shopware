@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './page/sw-bulk-edit-product';
 import './page/sw-bulk-edit-order';
 import './page/sw-bulk-edit-customer';

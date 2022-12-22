@@ -6,6 +6,8 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
+ * @package checkout
+ *
  * @deprecated tag:v6.5.0 - will be removed, use `sw-settings-payment-overview` instead
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

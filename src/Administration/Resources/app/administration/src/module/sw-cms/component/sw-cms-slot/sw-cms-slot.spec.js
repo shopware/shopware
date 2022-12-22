@@ -1,13 +1,12 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-slot';
 
-function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(Shopware.Component.build('sw-cms-slot'), {
-        localVue,
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-slot'), {
         propsData: {
             element: {}
         },
@@ -17,26 +16,48 @@ function createWrapper() {
         },
         provide: {
             cmsService: {
+                getCmsElementRegistry: () => {
+                    return {
+                        product_list_block: null,
+                        landing_block: null
+                    };
+                },
                 getCmsElementConfigByName: () => ({
                     component: 'foo-bar',
                     disabledConfigInfoTextKey: 'lorem',
                     defaultConfig: {
                         text: 'lorem'
                     }
-                })
+                }),
+                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType)
+            },
+            cmsElementFavorites: {
+                isFavorite() {
+                    return false;
+                }
             }
         }
     });
 }
 describe('module/sw-cms/component/sw-cms-slot', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('cmsPageState', {
+            namespaced: true,
+            state: {
+                isSystemDefaultLanguage: true,
+                currentPageType: 'product_list'
+            }
+        });
+    });
+
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the slot name as class', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
                 slot: 'left'
@@ -47,7 +68,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('disable the custom component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -59,7 +80,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('enable the custom component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');
 
@@ -68,7 +89,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('disable the slot setting and show tooltip when element is locked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
                 locked: true
@@ -81,7 +102,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     it('test onSelectElement', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm.element).toEqual({});
 
         wrapper.vm.onSelectElement({
@@ -143,5 +164,11 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             },
             locked: false,
         });
+    });
+
+    it('should filter blocks based on pageType compatibility', async () => {
+        const wrapper = await createWrapper();
+
+        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
     });
 });

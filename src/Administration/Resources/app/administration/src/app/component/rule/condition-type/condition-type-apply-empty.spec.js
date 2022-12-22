@@ -93,17 +93,17 @@ function importAllConditionTypes() {
     }));
 }
 
-function createWrapperForComponent(componentName, props = {}) {
-    return shallowMount(Shopware.Component.build(componentName), {
+async function createWrapperForComponent(componentName, props = {}) {
+    return shallowMount(await Shopware.Component.build(componentName), {
         stubs: {
-            'sw-condition-type-select': Shopware.Component.build('sw-condition-type-select'),
-            'sw-condition-operator-select': Shopware.Component.build('sw-condition-operator-select'),
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-grouped-single-select': Shopware.Component.build('sw-grouped-single-select'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
+            'sw-condition-type-select': await Shopware.Component.build('sw-condition-type-select'),
+            'sw-condition-operator-select': await Shopware.Component.build('sw-condition-operator-select'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-grouped-single-select': await Shopware.Component.build('sw-grouped-single-select'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-entity-tag-select': true,
             'sw-entity-multi-select': true,
             'sw-condition-base': true,
@@ -148,7 +148,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     });
 
     it.each(conditionTypesApplyIsEmpty)('The component %s should be a mounted successfully', async (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType.filePath);
+        const wrapper = await createWrapperForComponent(conditionType.filePath);
         const operatorSelect = wrapper.get('.sw-condition-operator-select__select');
         await operatorSelect.trigger('click');
         await wrapper.vm.$nextTick();
@@ -160,7 +160,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     });
 
     it.each(conditionTypesApplyIsEmpty)('Should be delete value when operator is empty', async (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType.filePath);
+        const wrapper = await createWrapperForComponent(conditionType.filePath);
 
         const condition = { value: { operator: '=', [conditionType.value]: 'kyln' } };
         await wrapper.setProps({ condition: condition });

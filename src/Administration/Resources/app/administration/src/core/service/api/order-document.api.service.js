@@ -1,6 +1,7 @@
 import ApiService from '../api.service';
 
 /**
+ * @package customer-order
  * Gateway for the API end point "order/document"
  * @class
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal - Only to be used by the bulk edit order document

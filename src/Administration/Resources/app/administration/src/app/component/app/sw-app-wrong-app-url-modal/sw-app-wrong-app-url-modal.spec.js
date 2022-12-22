@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-wrong-app-url-modal';
 import 'src/app/component/base/sw-button';
@@ -10,8 +14,6 @@ const stubs = {
     'sw-modal': {
         template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
     },
-    'sw-button': Shopware.Component.build('sw-button'),
-    'sw-icon': Shopware.Component.build('sw-icon'),
     'icons-small-default-x-line-medium': {
         template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
     },
@@ -22,20 +24,26 @@ describe('sw-app-wrong-app-url-modal', () => {
     const notificationMock = jest.fn();
     const deleteNotificationMock = jest.fn();
 
-    function createWrapper() {
+    async function createWrapper() {
         const localVue = createLocalVue();
 
-        const modal = Shopware.Component.build('sw-app-wrong-app-url-modal');
+        const modal = await Shopware.Component.build('sw-app-wrong-app-url-modal');
 
         modal.methods.createSystemNotificationInfo = notificationMock;
 
         return mount(modal, {
             localVue,
-            stubs,
+            stubs: {
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-icon': await Shopware.Component.build('sw-icon'),
+                ...stubs,
+            },
             provide: {
                 shortcutService: {
-                    startEventListener() {},
-                    stopEventListener() {},
+                    startEventListener() {
+                    },
+                    stopEventListener() {
+                    },
                 },
             },
         });
@@ -73,7 +81,7 @@ describe('sw-app-wrong-app-url-modal', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -83,7 +91,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.get('context').app.config.settings.appsRequireAppUrl = true;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
@@ -96,7 +104,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.get('context').app.config.settings.appsRequireAppUrl = true;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
@@ -109,7 +117,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.get('context').app.config.settings.appsRequireAppUrl = false;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
@@ -122,7 +130,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.get('context').app.config.settings.appsRequireAppUrl = false;
         localStorage.setItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN, true);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
@@ -135,7 +143,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.get('context').app.config.settings.appsRequireAppUrl = true;
         localStorage.removeItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);

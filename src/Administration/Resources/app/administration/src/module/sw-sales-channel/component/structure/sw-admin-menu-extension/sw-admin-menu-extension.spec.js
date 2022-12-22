@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
@@ -11,8 +14,8 @@ global.allowedErrors = [missingGetListMethod];
 const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-admin-menu'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-admin-menu'), {
         stubs: {
             'sw-version': true,
             'sw-icon': true,
@@ -51,19 +54,19 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not show the sw-sales-channel-menu when privilege does not exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const swSalesChannelMenu = wrapper.find('sw-sales-channel-menu-stub');
 
         expect(swSalesChannelMenu.exists()).toBeFalsy();
     });
 
     it('should show the sw-sales-channel-menu when privilege exists', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.viewer'
         ]);
         const swSalesChannelMenu = wrapper.find('sw-sales-channel-menu-stub');

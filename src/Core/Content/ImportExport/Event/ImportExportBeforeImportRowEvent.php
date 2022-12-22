@@ -6,6 +6,9 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package system-settings
+ */
 class ImportExportBeforeImportRowEvent extends Event
 {
     /**

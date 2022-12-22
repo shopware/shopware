@@ -2,6 +2,9 @@ import template from './sw-landing-page-view.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-landing-page-view', {
     template,

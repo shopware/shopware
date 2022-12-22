@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
 

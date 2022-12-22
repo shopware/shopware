@@ -18,6 +18,9 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEnt
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     public const MAX_LIMIT = 10000;

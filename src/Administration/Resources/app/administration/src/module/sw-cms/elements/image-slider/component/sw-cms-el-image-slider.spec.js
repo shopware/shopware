@@ -38,10 +38,10 @@ const sliderItemsDataMock = [
     }
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-cms-el-image-slider'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-image-slider'), {
         localVue,
         sync: false,
         provide: {
@@ -90,7 +90,7 @@ function createWrapper() {
 
 describe('src/module/sw-cms/elements/image-slider/component', () => {
     it('setSliderArrowItem should work correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {
@@ -134,7 +134,7 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
     });
 
     it('should render number of navigation dots correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {
@@ -164,7 +164,7 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
     });
 
     it('should render active image correctly after clicking on dot button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {

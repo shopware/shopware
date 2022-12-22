@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package checkout
+ */
 class DiscountPackage
 {
     private LineItemQuantityCollection $metaItems;

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlRouteRegistry
 {
     /**

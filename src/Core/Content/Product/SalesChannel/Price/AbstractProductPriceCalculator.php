@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 abstract class AbstractProductPriceCalculator
 {
     abstract public function getDecorated(): AbstractProductPriceCalculator;

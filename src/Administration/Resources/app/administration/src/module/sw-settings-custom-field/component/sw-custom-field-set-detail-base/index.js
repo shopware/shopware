@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-custom-field-set-detail-base.html.twig';
 
 const { Component } = Shopware;

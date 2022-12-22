@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RawFlowEvent implements FlowEventAware

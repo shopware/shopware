@@ -3,6 +3,7 @@ import './sw-cms-el-sidebar-filter.scss';
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Shopware.Component.register('sw-cms-el-sidebar-filter', {
     template,

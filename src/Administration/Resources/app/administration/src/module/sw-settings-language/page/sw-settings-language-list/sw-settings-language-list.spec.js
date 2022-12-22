@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-language/page/sw-settings-language-list';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-language-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-language-list'), {
         localVue,
         mocks: {
             $route: {
@@ -101,14 +104,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new language', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'language.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -119,7 +122,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should not be able to create a new language', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-settings-language-list__button-create');
@@ -194,7 +197,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should not be able to inline edit a language', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-settings-language-list-grid');

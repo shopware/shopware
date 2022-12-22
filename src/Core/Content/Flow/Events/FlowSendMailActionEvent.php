@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
+/**
+ * @package business-ops
+ */
 class FlowSendMailActionEvent implements ShopwareEvent
 {
     private DataBag $dataBag;
@@ -24,7 +27,7 @@ class FlowSendMailActionEvent implements ShopwareEvent
     /**
      * @deprecated tag:v6.5.0 Will be StorableFlow type
      */
-    private ?StorableFlow $flow;
+    private ?StorableFlow $flow = null;
 
     /**
      * @param FlowEvent|StorableFlow $event
@@ -50,7 +53,7 @@ class FlowSendMailActionEvent implements ShopwareEvent
     public function getContext(): Context
     {
         if ($this->flow) {
-            return $this->getContext();
+            return $this->flow->getContext();
         }
 
         return $this->flowEvent->getContext();

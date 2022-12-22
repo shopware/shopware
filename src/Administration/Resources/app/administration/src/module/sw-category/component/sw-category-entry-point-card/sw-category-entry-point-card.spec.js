@@ -1,10 +1,13 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-entry-point-card';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-function createWrapper(privileges = [], category = {}) {
+async function createWrapper(privileges = [], category = {}) {
     const localVue = createLocalVue();
     const defaultCategory = {
         navigationSalesChannels: [],
@@ -17,7 +20,7 @@ function createWrapper(privileges = [], category = {}) {
     };
 
 
-    return shallowMount(Shopware.Component.build('sw-category-entry-point-card'), {
+    return shallowMount(await Shopware.Component.build('sw-category-entry-point-card'), {
         localVue,
         stubs: {
             'sw-card': true,
@@ -45,14 +48,14 @@ function createWrapper(privileges = [], category = {}) {
 
 describe('src/module/sw-category/component/sw-category-entry-point-card', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
 
     it('should have an disabled navigation selection', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const selection = wrapper.find('.sw-category-entry-point-card__entry-point-selection');
 
@@ -60,7 +63,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should have an enabled navigation selection', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -70,7 +73,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
     });
 
     it('should have no initial entry point', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -88,7 +91,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             navigationSalesChannels: salesChannels
@@ -108,7 +111,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             footerSalesChannels: salesChannels
@@ -128,7 +131,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             serviceSalesChannels: salesChannels
@@ -166,7 +169,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             navigationSalesChannels,
@@ -224,7 +227,7 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
             }
         ]);
 
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             navigationSalesChannels,

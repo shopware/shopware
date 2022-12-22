@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import './component/sw-seo-url-template-card';
 import './component/sw-seo-url';
 import './component/sw-seo-main-category';

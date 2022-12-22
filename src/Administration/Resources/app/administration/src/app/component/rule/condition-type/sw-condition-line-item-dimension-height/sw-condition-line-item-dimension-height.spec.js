@@ -14,14 +14,14 @@ import 'src/app/component/form/field-base/sw-base-field';
 describe('components/rule/condition-type/sw-condition-line-item-dimension-height', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-condition-line-item-dimension-height'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-condition-line-item-dimension-height'), {
             stubs: {
-                'sw-condition-operator-select': Shopware.Component.build('sw-condition-operator-select'),
-                'sw-number-field': Shopware.Component.build('sw-number-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-condition-operator-select': await Shopware.Component.build('sw-condition-operator-select'),
+                'sw-number-field': await Shopware.Component.build('sw-number-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-field-error': true,

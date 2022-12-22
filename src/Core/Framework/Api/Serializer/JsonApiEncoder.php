@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
+/**
+ * @package core
+ */
 class JsonApiEncoder
 {
     /**

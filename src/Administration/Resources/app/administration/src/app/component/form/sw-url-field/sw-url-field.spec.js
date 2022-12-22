@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-url-field';
 import 'src/app/component/form/sw-text-field';
@@ -8,19 +12,19 @@ import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/filter/unicode-uri';
 
-function createWrapper(additionalOptions = {}) {
+async function createWrapper(additionalOptions = {}) {
     const localVue = createLocalVue();
     localVue.filter('unicodeUri', Shopware.Filter.getByName('unicodeUri'));
 
-    return shallowMount(Shopware.Component.build('sw-url-field'), {
+    return shallowMount(await Shopware.Component.build('sw-url-field'), {
         localVue,
         stubs: {
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-icon': Shopware.Component.build('sw-icon'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-regular-lock': true,
             'icons-regular-lock-open': true,
             'icons-solid-exclamation-circle': true,
@@ -36,12 +40,12 @@ describe('components/form/sw-url-field', () => {
     /** @type Wrapper */
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -144,8 +148,8 @@ describe('components/form/sw-url-field', () => {
         await wrapper.setProps({ omitUrlSearch: false });
     });
 
-    it('should show the label from the property', () => {
-        wrapper = createWrapper({
+    it('should show the label from the property', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop'
             }
@@ -154,8 +158,8 @@ describe('components/form/sw-url-field', () => {
         expect(wrapper.find('label').text()).toEqual('Label from prop');
     });
 
-    it('should show the value from the label slot', () => {
-        wrapper = createWrapper({
+    it('should show the value from the label slot', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop'
             },
@@ -167,25 +171,25 @@ describe('components/form/sw-url-field', () => {
         expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 
-    it('properly detects SSL', () => {
+    it('properly detects SSL', async () => {
         const SSL_URL = 'https://shopware.com';
         const NON_SSL_URL = 'http://shopware.com';
         const URL_WITHOUT_PROTOCOL = 'shopware.com';
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.vm.getSSLMode(SSL_URL)).toBeTruthy();
         expect(wrapper.vm.getSSLMode(NON_SSL_URL)).toBeFalsy();
         expect(wrapper.vm.getSSLMode(URL_WITHOUT_PROTOCOL)).toBeFalsy();
     });
 
-    it('removes any protocol', () => {
+    it('removes any protocol', async () => {
         const HTTP_URL = 'http://shopware.com';
         const HTTPS_URL = 'https://shopware.com';
         const FILE_URL = 'file://shopware.com';
         const EXPECTED_URL = 'shopware.com';
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         wrapper.vm.checkInput(HTTP_URL);
         expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
@@ -202,7 +206,7 @@ describe('components/form/sw-url-field', () => {
         const URL_WITHOUT_PROTOCOL = 'shopware.com';
         const EXPECTED_URL = '';
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.find('.sw-url-input-field__input').setValue(INITIAL_URL);
         await wrapper.find('.sw-url-input-field__input').trigger('blur');

@@ -1,12 +1,15 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
 import type { Route } from 'vue-router';
 import 'src/app/component/meteor/sw-meteor-navigation';
+import Vue from 'vue';
 
-const SwMeteorNavigation = Shopware.Component.build('sw-meteor-navigation');
-
-function createWrapper(customRoute: Route, fromLink: Route|null = null) {
-    return shallowMount(SwMeteorNavigation, {
+async function createWrapper(customRoute: Route, fromLink: Route|null = null) {
+    return shallowMount(await Shopware.Component.build('sw-meteor-navigation'), {
         propsData: { fromLink },
         stubs: {
             'router-link': {
@@ -22,7 +25,7 @@ function createWrapper(customRoute: Route, fromLink: Route|null = null) {
 }
 
 describe('src/app/component/meteor/sw-meteor-navigation', () => {
-    let wrapper: Wrapper<typeof SwMeteorNavigation>;
+    let wrapper: Wrapper<Vue>;
 
     const testRoute: Route = {
         name: 'some.test.route',

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 
+/**
+ * @package core
+ */
 trait RemoveAppTrait
 {
     private function removeApp(OrderTransactionEntity $orderTransaction): OrderTransactionEntity

@@ -32,6 +32,7 @@
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-validation="true">
 
+                                    {# @deprecated tag:v6.5.0 - Block page_account_profile_personal_form_csrf will be removed. #}
                                     {% block page_account_profile_personal_form_csrf %}
                                         {{ sw_csrf('frontend.account.profile.save') }}
                                     {% endblock %}
@@ -132,6 +133,7 @@
                                               data-form-csrf-handler="true"
                                               data-form-validation="true">
 
+                                            {# @deprecated tag:v6.5.0 - Block page_account_profile_mail_form_csrf will be removed. #}
                                             {% block page_account_profile_mail_form_csrf %}
                                                 {{ sw_csrf('frontend.account.profile.email.save') }}
                                             {% endblock %}
@@ -274,6 +276,7 @@
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-validation="true">
 
+                                            {# @deprecated tag:v6.5.0 - Block page_account_profile_password_form_csrf will be removed. #}
                                             {% block page_account_profile_password_form_csrf %}
                                                 {{ sw_csrf('frontend.account.profile.password.save') }}
                                             {% endblock %}
@@ -468,6 +471,7 @@
                                                           action="{{ path('frontend.account.profile.delete') }}"
                                                           data-form-submit-loader="true">
 
+                                                        {# @deprecated tag:v6.5.0 - Block page_account_delete_account_confirm_form_csrf will be removed. #}
                                                         {% block page_account_delete_account_confirm_form_csrf %}
                                                             {{ sw_csrf('frontend.account.profile.delete') }}
                                                         {% endblock %}

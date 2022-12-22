@@ -14,6 +14,9 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class CartScopeDiscountPackager extends DiscountPackager
 {
     public function getDecorated(): DiscountPackager

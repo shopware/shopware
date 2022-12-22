@@ -3,7 +3,6 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
-import GenericConditionMixin from 'src/app/mixin/generic-condition.mixin';
 import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
@@ -20,8 +19,8 @@ function importAllConditionTypes() {
     }));
 }
 
-function createWrapperForComponent(componentName, props = {}) {
-    return shallowMount(Shopware.Component.build(componentName), {
+async function createWrapperForComponent(componentName, props = {}) {
+    return shallowMount(await Shopware.Component.build(componentName), {
         stubs: {
             'sw-field-error': {
                 template: '<div class="sw-field-error"></div>'
@@ -100,9 +99,6 @@ function createWrapperForComponent(componentName, props = {}) {
             condition: {},
             ...props
         },
-        mixins: ['sw-condition-generic', 'sw-condition-generic-line-item'].includes(componentName) ? [
-            Shopware.Mixin.getByName('generic-condition')
-        ] : []
     });
 }
 
@@ -133,21 +129,22 @@ function getAllFields(wrapper) {
 }
 
 describe('src/app/component/rule/condition-type/*.js', () => {
-    beforeAll(() => {
-        Shopware.Mixin.register('generic-condition', GenericConditionMixin);
-        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
-
-        return importAllConditionTypes();
+    beforeAll(async () => {
+        await importAllConditionTypes();
     });
 
-    it.each(conditionTypes)('The component "%s" should be a mounted successfully', (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType);
+    beforeEach(() => {
+        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+    });
+
+    it.each(conditionTypes)('The component "%s" should be a mounted successfully', async (conditionType) => {
+        const wrapper = await createWrapperForComponent(conditionType);
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.each(conditionTypes)('The component "%s" should have all fields enabled', (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType);
+    it.each(conditionTypes)('The component "%s" should have all fields enabled', async (conditionType) => {
+        const wrapper = await createWrapperForComponent(conditionType);
 
         eachField(getAllFields(wrapper), (field) => {
             // Handle edge case
@@ -159,8 +156,8 @@ describe('src/app/component/rule/condition-type/*.js', () => {
         });
     });
 
-    it.each(conditionTypes)('The component "%s" should have all fields disabled', (conditionType) => {
-        const wrapper = createWrapperForComponent(conditionType, {
+    it.each(conditionTypes)('The component "%s" should have all fields disabled', async (conditionType) => {
+        const wrapper = await createWrapperForComponent(conditionType, {
             disabled: true
         });
 

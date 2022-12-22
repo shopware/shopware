@@ -2,15 +2,15 @@ import 'src/app/component/filter/sw-date-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/filter/sw-range-filter';
 
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-date-filter'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-date-filter'), {
         stubs: {
-            'sw-base-filter': Shopware.Component.build('sw-base-filter'),
-            'sw-range-filter': Shopware.Component.build('sw-range-filter'),
+            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
+            'sw-range-filter': await Shopware.Component.build('sw-range-filter'),
             'sw-single-select': true,
             'sw-datepicker': {
                 props: ['value'],
@@ -39,8 +39,6 @@ function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('src/app/component/filter/sw-date-filter', () => {
     beforeAll(() => {
         jest.useFakeTimers('modern');
@@ -52,7 +50,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should emit `filter-update` event when `From` value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('.sw-date-filter__from').find('input');
 
         await input.setValue('2021-01-22');
@@ -66,7 +64,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should emit `filter-update` event when `To` value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('.sw-date-filter__to').find('input');
 
         await input.setValue('2021-01-25');
@@ -80,7 +78,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should emit `filter-update` event when `From` value `To` value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const fromInput = wrapper.find('.sw-date-filter__from').find('input');
 
@@ -106,7 +104,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when from value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             dateValue: {
@@ -117,14 +115,14 @@ describe('src/app/component/filter/sw-date-filter', () => {
         });
 
         // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
         expect(wrapper.vm.dateValue.from).toBeNull();
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when to value exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             dateValue: {
@@ -135,14 +133,14 @@ describe('src/app/component/filter/sw-date-filter', () => {
         });
 
         // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
         expect(wrapper.vm.dateValue.to).toBeNull();
     });
 
     it('should return default dateType of sw-datepicker', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -157,7 +155,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should render From field and To field on the same line', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -176,7 +174,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should render From field and To field in different line', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -197,7 +195,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     it('should render timeframe field', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -267,7 +265,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
             global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
 
-            const wrapper = createWrapper();
+            const wrapper = await createWrapper();
 
             await wrapper.setProps({
                 filter: {
@@ -291,7 +289,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     it('should console.error for invalid timeframe', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {

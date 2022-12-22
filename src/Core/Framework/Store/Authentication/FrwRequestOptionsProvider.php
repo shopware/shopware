@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider

@@ -20,7 +20,11 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @package customer-order
+ */
 class CustomerEntity extends Entity
 {
     use EntityIdTrait;
@@ -107,7 +111,7 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $vatIds;
 
@@ -162,7 +166,7 @@ class CustomerEntity extends Entity
     protected $lastLogin;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      *
      * @internal
      */
@@ -287,7 +291,7 @@ class CustomerEntity extends Entity
     protected $tags;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $tagIds;
 
@@ -335,6 +339,26 @@ class CustomerEntity extends Entity
      * @var CustomerWishlistCollection|null
      */
     protected $wishlists;
+
+    /**
+     * @var string|null
+     */
+    protected $createdById;
+
+    /**
+     * @var UserEntity|null
+     */
+    protected $createdBy;
+
+    /**
+     * @var string|null
+     */
+    protected $updatedById;
+
+    /**
+     * @var UserEntity|null
+     */
+    protected $updatedBy;
 
     public function __toString()
     {
@@ -499,6 +523,9 @@ class CustomerEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getVatIds(): ?array
     {
         return $this->vatIds;
@@ -594,6 +621,8 @@ class CustomerEntity extends Entity
 
     /**
      * @internal
+     *
+     * @return array<string>|null
      */
     public function getNewsletterSalesChannelIds(): ?array
     {
@@ -867,6 +896,9 @@ class CustomerEntity extends Entity
         $this->tags = $tags;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getTagIds(): ?array
     {
         return $this->tagIds;
@@ -996,5 +1028,45 @@ class CustomerEntity extends Entity
     public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
+    }
+
+    public function getCreatedById(): ?string
+    {
+        return $this->createdById;
+    }
+
+    public function setCreatedById(string $createdById): void
+    {
+        $this->createdById = $createdById;
+    }
+
+    public function getCreatedBy(): ?UserEntity
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(UserEntity $createdBy): void
+    {
+        $this->createdBy = $createdBy;
+    }
+
+    public function getUpdatedById(): ?string
+    {
+        return $this->updatedById;
+    }
+
+    public function setUpdatedById(string $updatedById): void
+    {
+        $this->updatedById = $updatedById;
+    }
+
+    public function getUpdatedBy(): ?UserEntity
+    {
+        return $this->updatedBy;
+    }
+
+    public function setUpdatedBy(UserEntity $updatedBy): void
+    {
+        $this->updatedBy = $updatedBy;
     }
 }

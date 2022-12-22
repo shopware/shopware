@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueI18n from 'vue-i18n';
 import 'src/app/component/campaign/sw-campaign-banner';
@@ -16,7 +19,7 @@ let i18n;
  * - marketing.store
  */
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(i18n);
 
@@ -37,10 +40,10 @@ function createWrapper() {
         `
     }, {
         stubs: {
-            'sw-campaign-property-mapping': Shopware.Component.build('sw-campaign-property-mapping'),
-            'sw-campaign-banner': Shopware.Component.build('sw-campaign-banner'),
-            'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
-            'sw-button': Shopware.Component.build('sw-button')
+            'sw-campaign-property-mapping': await Shopware.Component.build('sw-campaign-property-mapping'),
+            'sw-campaign-banner': await Shopware.Component.build('sw-campaign-banner'),
+            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card'),
+            'sw-button': await Shopware.Component.build('sw-button')
         }
     });
 }
@@ -202,7 +205,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     });
 
     it('should not be visible when no marketing campaign exists', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-campaign-banner').exists()).toBe(false);
     });
@@ -210,7 +213,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should be visible when marketing campaign exists', async () => {
         Shopware.State.commit('marketing/setCampaign', createExampleCampaign());
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-campaign-banner').exists()).toBe(true);
     });
@@ -222,7 +225,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         // check background image
         const bannerContainer = wrapper.find('.sw-campaign-banner__container');
@@ -239,7 +242,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         // check background color
         const bannerContainer = wrapper.find('.sw-campaign-banner__container');
@@ -258,7 +261,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         // check left image mapping
         const leftImageWrapper = wrapper.find('.sw-campaign-banner__image');
@@ -275,7 +278,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const label = wrapper.find('.sw-campaign-banner__label');
         expect(label.exists()).toBe(false);
@@ -291,7 +294,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const label = wrapper.find('.sw-campaign-banner__label');
         expect(label.text()).toContain('Awesome label');
@@ -308,7 +311,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const headline = wrapper.find('h3');
         expect(headline.text()).toContain('My awesome headline');
@@ -355,7 +358,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const description = wrapper.find('p');
         expect(description.attributes().style).toContain('color: rgb(255, 0, 0)');
@@ -429,7 +432,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const description = wrapper.find('p');
         const actionGoToShopwareHomepage = description.find('.sw-campaign-banner__description-action-goToShopwareHomePage');
@@ -481,7 +484,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const description = wrapper.find('p');
         const actionGoToExtensionStoreAndOpenCategory = description.find('.sw-campaign-banner__description-action-goToExtensionStoreAndOpenCategory');
@@ -539,7 +542,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const description = wrapper.find('p');
         const actionGoToExtensionStore = description.find('.sw-campaign-banner__description-action-goToExtensionStore');
@@ -568,7 +571,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const mainAction = wrapper.find('.sw-campaign-banner__action');
         expect(mainAction.text()).toEqual('Open campaign');
 
@@ -593,7 +596,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const mainAction = wrapper.find('.sw-campaign-banner__action');
         expect(mainAction.text()).toEqual('Open campaign');
 
@@ -625,7 +628,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const mainAction = wrapper.find('.sw-campaign-banner__action');
         expect(mainAction.text()).toEqual('Show booking options');
 
@@ -650,7 +653,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const mainAction = wrapper.find('.sw-campaign-banner__action');
         expect(mainAction.text()).toEqual('Select extension xy');
 
@@ -680,7 +683,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const mainAction = wrapper.find('.sw-campaign-banner__action');
         expect(mainAction.text()).toEqual('Select extension xy');
 
@@ -703,7 +706,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
         Shopware.State.commit('marketing/setCampaign', campaign);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const mainAction = wrapper.find('.sw-campaign-banner__action');
         expect(mainAction.text()).toEqual('Open campaign');
 
@@ -753,7 +756,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
             Shopware.State.commit('marketing/setCampaign', campaign);
 
-            wrapper = createWrapper();
+            wrapper = await createWrapper();
 
             const mainAction = wrapper.find('.sw-campaign-banner__action');
 

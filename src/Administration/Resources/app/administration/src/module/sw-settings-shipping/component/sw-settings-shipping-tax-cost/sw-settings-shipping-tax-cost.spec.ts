@@ -2,10 +2,14 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
+/**
+ * @package checkout
+ */
+
 Shopware.State.registerModule('swShippingDetail', state);
 
-const createWrapper = () => {
-    return shallowMount(Shopware.Component.build('sw-settings-shipping-tax-cost'), {
+const createWrapper = async () => {
+    return shallowMount(await Shopware.Component.build('sw-settings-shipping-tax-cost'), {
         stubs: {
             'sw-card': true,
             'sw-single-select': true,
@@ -24,14 +28,14 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-tax-cost', 
     });
 
     it('should put tax type to auto for new shipping methods', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.vm.taxType).toEqual('auto');
     });
 
     it('should use tax of shipping method if defined', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             taxType: 'fixed',

@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package content
+ */
 class MediaTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -4,6 +4,9 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package core
+ */
 class ElasticsearchIndexingMessage
 {
     private IndexingDto $data;

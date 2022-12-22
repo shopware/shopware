@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route can be used to load all states of a given country.
  * With this route it is also possible to send the standard API parameters such as: 'page', 'limit', 'filter', etc.
+ *
+ * @package system-settings
  */
 abstract class AbstractCountryStateRoute
 {

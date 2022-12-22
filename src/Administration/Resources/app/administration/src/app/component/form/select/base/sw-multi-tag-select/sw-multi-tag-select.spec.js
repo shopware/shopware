@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-multi-tag-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -15,15 +19,15 @@ const selector = {
     }
 };
 
-const createMultiDataSelect = (customOptions) => {
+const createMultiDataSelect = async (customOptions) => {
     const options = {
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-icon': {
                 template: '<div></div>'
             }
@@ -34,14 +38,14 @@ const createMultiDataSelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-multi-tag-select'), {
+    return shallowMount(await Shopware.Component.build('sw-multi-tag-select'), {
         ...options,
         ...customOptions
     });
 };
 
-const pressKey = (el, key) => {
-    el.trigger('keydown', {
+const pressKey = async (el, key) => {
+    await el.trigger('keydown', {
         key: key
     });
 };
@@ -51,11 +55,13 @@ const pressEspace = el => pressKey(el, 'Escape');
 
 describe('components/sw-multi-tag-select', () => {
     it('should be a Vue.js component', async () => {
-        expect(createMultiDataSelect().vm).toBeTruthy();
+        const wrapper = await createMultiDataSelect();
+
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open the options popover when the user click on .sw-select__selection', async () => {
-        const multiDataSelect = createMultiDataSelect();
+        const multiDataSelect = await createMultiDataSelect();
         await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 
         const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
@@ -66,7 +72,7 @@ describe('components/sw-multi-tag-select', () => {
         const messageAddData = 'global.sw-multi-tag-select.addData';
         const messageEnterValidData = 'global.sw-multi-tag-select.enterValidData';
 
-        const multiDataSelect = createMultiDataSelect();
+        const multiDataSelect = await createMultiDataSelect();
         await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 
         const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
@@ -82,7 +88,7 @@ describe('components/sw-multi-tag-select', () => {
         const changeSpy = jest.fn();
         const value = 'a16d4da0-4ba5-4c75-973b-515e23e6498a';
 
-        const multiDataSelect = createMultiDataSelect({
+        const multiDataSelect = await createMultiDataSelect({
             listeners: {
                 change: changeSpy
             }
@@ -103,7 +109,7 @@ describe('components/sw-multi-tag-select', () => {
         const changeSpy = jest.fn();
         const value = '5f8c8049-ee9f-4f10-b8b6-5daa9536e0c4';
 
-        const multiDataSelect = createMultiDataSelect({
+        const multiDataSelect = await createMultiDataSelect({
             listeners: {
                 change: changeSpy
             }
@@ -126,7 +132,7 @@ describe('components/sw-multi-tag-select', () => {
     it('should set inputIsValid to false, when there\'s no searchTerm given', async () => {
         const value = 'a676344c-c0dd-49e5-8fbb-5f570c27762c';
 
-        const multiDataSelect = createMultiDataSelect();
+        const multiDataSelect = await createMultiDataSelect();
         const input = multiDataSelect.find(selector.multiDataSelect.input);
 
         expect(multiDataSelect.vm.inputIsValid).toBeFalsy();
@@ -155,7 +161,7 @@ describe('components/sw-multi-tag-select', () => {
             }
         };
 
-        const multiDataSelect = createMultiDataSelect();
+        const multiDataSelect = await createMultiDataSelect();
 
         expect(multiDataSelect.vm.getKey(subject, 'lorem', null)).toBe(subject.lorem);
         expect(multiDataSelect.vm.getKey(subject, 'ipsum.dolor.sit.amet', null)).toBe(subject.ipsum.dolor.sit.amet);
@@ -166,7 +172,7 @@ describe('components/sw-multi-tag-select', () => {
         const changeSpy = jest.fn();
         const value = 'df8777d8-5969-475e-bbc2-f55a14d49ed7';
 
-        const multiDataSelect = createMultiDataSelect({
+        const multiDataSelect = await createMultiDataSelect({
             listeners: {
                 change: changeSpy
             }
@@ -185,7 +191,7 @@ describe('components/sw-multi-tag-select', () => {
     });
 
     it('should be disabled correctly', async () => {
-        const multiDataSelect = createMultiDataSelect();
+        const multiDataSelect = await createMultiDataSelect();
 
         await multiDataSelect.setProps({ disabled: true });
         expect(multiDataSelect.find('.sw-select').classes()).toContain('is--disabled');

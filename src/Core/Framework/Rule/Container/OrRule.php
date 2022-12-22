@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * @package business-ops
  * OrRule returns true, if at least one child rule is true
  */
 class OrRule extends Container

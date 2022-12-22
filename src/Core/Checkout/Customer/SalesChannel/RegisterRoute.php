@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -56,6 +57,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class RegisterRoute extends AbstractRegisterRoute
@@ -260,6 +263,11 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event;
     }
 
+    /**
+     * @param array<string, mixed> $customer
+     *
+     * @return array<string, mixed>
+     */
     private function setDoubleOptInData(array $customer, SalesChannelContext $context): array
     {
         $configKey = $customer['guest']
@@ -339,6 +347,9 @@ class RegisterRoute extends AbstractRegisterRoute
         throw new ConstraintViolationException($violations, $data->all());
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
         /** @var SalesChannelDomainCollection $salesChannelDomainCollection */
@@ -367,6 +378,9 @@ class RegisterRoute extends AbstractRegisterRoute
         ));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapBillingAddress(DataBag $billing, Context $context): array
     {
         $billingAddress = $this->mapAddressData($billing);
@@ -377,6 +391,9 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event->getOutput();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapShippingAddress(DataBag $shipping, Context $context): array
     {
         $shippingAddress = $this->mapAddressData($shipping);
@@ -387,6 +404,9 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event->getOutput();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapCustomerData(DataBag $data, bool $isGuest, SalesChannelContext $context): array
     {
         $customer = [
@@ -437,6 +457,8 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
+        $validation->set('zipcode', new CustomerZipCode(['countryId' => $data->get('billingAddress')->get('countryId')]));
+
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
@@ -469,6 +491,9 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function mapAddressData(DataBag $addressData): array
     {
         $mappedData = $addressData->only(

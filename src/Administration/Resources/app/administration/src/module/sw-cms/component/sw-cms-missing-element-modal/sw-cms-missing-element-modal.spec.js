@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/component/sw-cms-missing-element-modal';
 import 'src/app/component/base/sw-modal';
@@ -5,7 +8,7 @@ import 'src/app/component/base/sw-button';
 
 const { Component } = Shopware;
 
-function createWrapper() {
+async function createWrapper() {
     return shallowMount(Component.build('sw-cms-missing-element-modal'), {
         propsData: {
             missingElements: []
@@ -35,8 +38,8 @@ function createWrapper() {
 describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

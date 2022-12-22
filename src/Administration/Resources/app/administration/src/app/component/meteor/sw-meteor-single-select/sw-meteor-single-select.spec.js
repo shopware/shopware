@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -10,69 +14,71 @@ import 'src/app/component/meteor/sw-meteor-single-select';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/base/sw-simple-search-field';
 
-const swMeteorSingleSelect = Shopware.Component.build('sw-meteor-single-select');
-function createWrapper(customConfig = {}) {
-    return shallowMount(swMeteorSingleSelect, {
-        propsData: {
-            value: null,
-            options: [
-                {
-                    label: 'Any',
-                    value: null
-                },
-                {
-                    name: 'rating',
-                    value: '5',
-                    label: 'Min 5 stars'
-                },
-                {
-                    name: 'rating',
-                    value: '4',
-                    label: 'Min 4 stars'
-                },
-                {
-                    name: 'rating',
-                    value: '3',
-                    label: 'Min 3 stars'
-                },
-                {
-                    name: 'rating',
-                    value: '2',
-                    label: 'Min 2 stars'
-                },
-                {
-                    name: 'rating',
-                    value: '1',
-                    label: 'Min 1 star'
-                }],
-            label: 'Rating'
-        },
-        stubs: {
-            'sw-icon': true,
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': true,
-            'sw-simple-search-field': Shopware.Component.build('sw-simple-search-field'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text')
-        },
-        provide: {
-            validationService: {}
-        },
-        ...customConfig
-    });
-}
-
 describe('src/app/component/meteor/sw-meteor-single-select', () => {
     /** @type Wrapper */
     let wrapper;
+    let swMeteorSingleSelect;
+
+    async function createWrapper(customConfig = {}) {
+        return shallowMount(swMeteorSingleSelect, {
+            propsData: {
+                value: null,
+                options: [
+                    {
+                        label: 'Any',
+                        value: null
+                    },
+                    {
+                        name: 'rating',
+                        value: '5',
+                        label: 'Min 5 stars'
+                    },
+                    {
+                        name: 'rating',
+                        value: '4',
+                        label: 'Min 4 stars'
+                    },
+                    {
+                        name: 'rating',
+                        value: '3',
+                        label: 'Min 3 stars'
+                    },
+                    {
+                        name: 'rating',
+                        value: '2',
+                        label: 'Min 2 stars'
+                    },
+                    {
+                        name: 'rating',
+                        value: '1',
+                        label: 'Min 1 star'
+                    }],
+                label: 'Rating'
+            },
+            stubs: {
+                'sw-icon': true,
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-popover': true,
+                'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-field-error': true,
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
+                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
+            },
+            provide: {
+                validationService: {}
+            },
+            ...customConfig
+        });
+    }
 
     beforeAll(async () => {
+        swMeteorSingleSelect = await Shopware.Component.build('sw-meteor-single-select');
+
         Shopware.Utils.debounce = function debounce(fn) {
             return function execFunction(...args) {
                 fn.apply(this, args);

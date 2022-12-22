@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-media-form';
@@ -9,14 +13,14 @@ import 'src/app/component/utils/sw-popover';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
     localVue.directive('popover', {});
 
-    return shallowMount(Shopware.Component.build('sw-product-media-form'), {
+    return shallowMount(await Shopware.Component.build('sw-product-media-form'), {
         localVue,
         mocks: {
             $store: new Vuex.Store({
@@ -43,15 +47,15 @@ function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-upload-listener': true,
-            'sw-product-image': Shopware.Component.build('sw-product-image'),
+            'sw-product-image': await Shopware.Component.build('sw-product-image'),
             'sw-media-upload-v2': true,
             'sw-media-preview-v2': true,
-            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-icon': true,
             'sw-label': true,
-            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
         }
     });
 }
@@ -112,13 +116,13 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the sw-media-upload-v2 component', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
 
@@ -126,13 +130,13 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should not show the sw-media-upload-v2 component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeFalsy();
     });
 
     it('should only show 1 cover', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
 
@@ -146,8 +150,8 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(coverCount).toBe(1);
     });
 
-    it('should emit an event when onOpenMedia() function is called', () => {
-        const wrapper = createWrapper();
+    it('should emit an event when onOpenMedia() function is called', async () => {
+        const wrapper = await createWrapper();
 
         wrapper.vm.onOpenMedia();
 
@@ -156,14 +160,14 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should can show cover when `showCoverLabel` is true', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 
     it('should not show cover when `showCoverLabel` is false', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             showCoverLabel: false
@@ -181,7 +185,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should move media to first position when it is marked as cover', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         let productMediaItems = wrapper.findAll('.sw-product-image');
 

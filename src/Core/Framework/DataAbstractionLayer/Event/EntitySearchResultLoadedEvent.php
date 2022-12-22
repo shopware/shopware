@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @package core
+ */
 class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**

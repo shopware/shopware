@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -173,6 +176,19 @@ Component.register('sw-sales-channel-detail-base', {
         disabledShippingMethodVariant() {
             return this.disabledShippingMethods
                 .find(shippingMethod => shippingMethod.id === this.salesChannel.shippingMethodId) ? 'warning' : 'info';
+        },
+
+        unservedLanguages() {
+            return this.salesChannel.languages?.filter(
+                language => (this.salesChannel.domains?.filter(
+                    domain => domain.languageId === language.id,
+                ) || []).length === 0,
+            ) ?? [];
+        },
+
+        unservedLanguageVariant() {
+            return this.unservedLanguages
+                .find(language => language.id === this.salesChannel.languageId) ? 'warning' : 'info';
         },
 
         storefrontDomainsLoaded() {
@@ -421,6 +437,14 @@ Component.register('sw-sales-channel-detail-base', {
         salesChannelFavoritesService() {
             return Shopware.Service('salesChannelFavorites');
         },
+
+        currencyCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -661,6 +685,14 @@ Component.register('sw-sales-channel-detail-base', {
                 addition: collection.length > 2
                     ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
                     : collection.last().translated[property].replaceAll('|', '&vert;'),
+            };
+
+            return this.$tc(snippet, collection.length, data);
+        },
+
+        buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
+            const data = {
+                list: collection.map((item) => item[property]).join(', '),
             };
 
             return this.$tc(snippet, collection.length, data);

@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use GuzzleHttp\Client;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\System\User\UserEntity;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class StoreService
@@ -18,47 +20,49 @@ class StoreService
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
 
-    private Client $client;
-
     private EntityRepositoryInterface $userRepository;
 
-    private InstanceService $instanceService;
+    private TrackingEventClient $trackingEventClient;
 
     final public function __construct(
-        Client $client,
         EntityRepositoryInterface $userRepository,
-        InstanceService $instanceService
+        TrackingEventClient $trackingEventClient
     ) {
-        $this->client = $client;
         $this->userRepository = $userRepository;
-        $this->instanceService = $instanceService;
+        $this->trackingEventClient = $trackingEventClient;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Use Shopware\Core\Framework\Store\Services\TrackingEventClient::fireTrackingEvent() instead
+     *
+     * @param mixed[] $additionalData
+     *
+     * @return mixed[]|null
+     */
     public function fireTrackingEvent(string $eventName, array $additionalData = []): ?array
     {
-        if (!$this->instanceService->getInstanceId()) {
-            return null;
-        }
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', Feature::deprecatedMethodMessage(
+            __CLASS__,
+            __METHOD__,
+            'v6.5.0.0',
+            'TrackingEventClient::fireTrackingEvent()'
+        ));
 
-        $additionalData['shopwareVersion'] = $this->instanceService->getShopwareVersion();
-        $payload = [
-            'additionalData' => $additionalData,
-            'instanceId' => $this->instanceService->getInstanceId(),
-            'event' => $eventName,
-        ];
-
-        try {
-            $response = $this->client->post('/swplatform/tracking/events', ['json' => $payload]);
-
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (\Exception $e) {
-        }
-
-        return null;
+        return $this->trackingEventClient->fireTrackingEvent($eventName, $additionalData);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Use Shopware\Core\Framework\Store\Authentication\LocaleProvider::getLocaleFromContext() instead
+     */
     public function getLanguageByContext(Context $context): string
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', Feature::deprecatedMethodMessage(
+            __CLASS__,
+            __METHOD__,
+            'v6.5.0.0',
+            'LocaleProvider::getLocaleFromContext()'
+        ));
+
         if (!$context->getSource() instanceof AdminApiSource) {
             return 'en-GB';
         }

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Struct\Serializer;
 
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
+/**
+ * @package core
+ */
 class StructDecoder implements DecoderInterface
 {
     /**

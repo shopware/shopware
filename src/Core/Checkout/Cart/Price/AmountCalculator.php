@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package checkout
+ */
 class AmountCalculator
 {
     private CashRounding $rounding;

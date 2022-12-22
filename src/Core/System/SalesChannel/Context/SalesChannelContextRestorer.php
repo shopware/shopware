@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
@@ -22,6 +23,9 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCrit
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class SalesChannelContextRestorer
 {
     protected CartRestorer $cartRestorer;
@@ -60,6 +64,8 @@ class SalesChannelContextRestorer
     }
 
     /**
+     * @param array<string> $overrideOptions
+     *
      * @throws InconsistentCriteriaIdsException
      */
     public function restoreByOrder(string $orderId, Context $context, array $overrideOptions = []): SalesChannelContext
@@ -142,6 +148,11 @@ class SalesChannelContextRestorer
         return $salesChannelContext;
     }
 
+    /**
+     * @param array<string> $overrideOptions
+     *
+     * @throws Exception
+     */
     public function restoreByCustomer(string $customerId, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         $customer = $this->connection->createQueryBuilder()
@@ -156,7 +167,7 @@ class SalesChannelContextRestorer
             ->execute()
             ->fetch();
 
-        if ($customer === null) {
+        if (!$customer) {
             throw new CustomerNotFoundByIdException($customerId);
         }
 
@@ -212,8 +223,11 @@ class SalesChannelContextRestorer
 
         $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
 
-        return $this->orderRepository->search($criteria, $context)
+        /** @var OrderEntity|null $orderEntity */
+        $orderEntity = $this->orderRepository->search($criteria, $context)
             ->get($orderId);
+
+        return $orderEntity;
     }
 
     /**

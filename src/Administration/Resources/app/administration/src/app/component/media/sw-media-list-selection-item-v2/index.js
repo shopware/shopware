@@ -5,6 +5,7 @@ import './sw-media-list-selection-item-v2.scss';
  * @private
  * @description Component which renders an image.
  * @status ready
+ * @package content
  */
 Shopware.Component.register('sw-media-list-selection-item-v2', {
     template,

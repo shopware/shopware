@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import SalesChannelFavoritesService from 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -19,7 +22,10 @@ responses.addResponse({
 responses.addResponse({
     method: 'Post',
     url: '/user-config',
-    status: 200
+    status: 200,
+    response: {
+        data: []
+    }
 });
 
 describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.js', () => {
@@ -33,25 +39,21 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         service = new SalesChannelFavoritesService();
     });
 
-    afterEach(() => {
-        service = null;
-    });
-
-    it('getFavoriteIds > should return favorites from internal state', () => {
+    it('getFavoriteIds > should return favorites from internal state', async () => {
         const expected = ['foo', 'bar'];
         service.state.favorites = expected;
 
         expect(service.getFavoriteIds()).toEqual(expected);
     });
 
-    it('isFavorite > checks if given string is included in favorites', () => {
+    it('isFavorite > checks if given string is included in favorites', async () => {
         const expected = 'bar';
         service.state.favorites = ['foo', 'bar'];
 
         expect(service.isFavorite(expected)).toBeTruthy();
     });
 
-    it('update > pushes new item to favorites and calls "saveUserConfig"', () => {
+    it('update > pushes new item to favorites and calls "saveUserConfig"', async () => {
         const newItem = 'biz';
 
         service.saveUserConfig = jest.fn();
@@ -63,7 +65,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(service.saveUserConfig).toBeCalled();
     });
 
-    it('update > removes existing item from favorites and calls "saveUserConfig"', () => {
+    it('update > removes existing item from favorites and calls "saveUserConfig"', async () => {
         const removedItem = 'bar';
 
         service.saveUserConfig = jest.fn();
@@ -75,7 +77,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(service.saveUserConfig).toBeCalled();
     });
 
-    it('update > does not add or remove items with a wrong state', () => {
+    it('update > does not add or remove items with a wrong state', async () => {
         const existingItem = 'foo';
         const nonExistingItem = 'biz';
 
@@ -88,19 +90,19 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         expect(service.isFavorite(existingItem)).toBeTruthy();
     });
 
-    it('createUserConfigEntity > entity has specific values', () => {
+    it('createUserConfigEntity > entity has specific values', async () => {
         const expectedValues = {
             userId: Shopware.State.get('session').currentUser.id,
             key: SalesChannelFavoritesService.USER_CONFIG_KEY,
             value: []
         };
 
-        const entity = service.createUserConfigEntity();
+        const entity = service.createUserConfigEntity(SalesChannelFavoritesService.USER_CONFIG_KEY);
 
         expect(entity).toMatchObject(expectedValues);
     });
 
-    it('handleEmptyUserConfig > replaces the property "value" with an empty array', () => {
+    it('handleEmptyUserConfig > replaces the property "value" with an empty array', async () => {
         const userConfigMock = {
             value: {}
         };
@@ -111,13 +113,13 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
     });
 
     it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria();
+        const criteria = service.getCriteria(SalesChannelFavoritesService.USER_CONFIG_KEY);
 
         expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: SalesChannelFavoritesService.USER_CONFIG_KEY });
         expect(criteria.filters).toContainEqual({ type: 'equals', field: 'userId', value: '8fe88c269c214ea68badf7ebe678ab96' });
     });
 
-    it('getCurrentUserId > returns the userId of the current session user', () => {
+    it('getCurrentUserId > returns the userId of the current session user', async () => {
         expect(service.getCurrentUserId()).toEqual('8fe88c269c214ea68badf7ebe678ab96');
     });
 });

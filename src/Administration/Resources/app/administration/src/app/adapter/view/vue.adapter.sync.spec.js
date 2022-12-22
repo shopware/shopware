@@ -88,7 +88,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
     });
 
-    it('should resolve mixins by explicit Mixin get by name call', () => {
+    it('should resolve mixins by explicit Mixin get by name call', async () => {
         Shopware.Mixin.register('foo1', {
             methods: {
                 fooBar() {
@@ -140,7 +140,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.fooBar()).toBe('testComponentOverride');
     });
 
-    it('should resolve mixins by string', () => {
+    it('should resolve mixins by string', async () => {
         Shopware.Mixin.register('foo', {
             methods: {
                 fooBar() {
@@ -192,7 +192,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.fooBar()).toBe('testComponentOverride');
     });
 
-    it('should resolve mixins for component in combination with overrides', () => {
+    it('should resolve mixins for component in combination with overrides', async () => {
         Shopware.Mixin.register('foo-with-data', {
             data() {
                 return {
@@ -243,7 +243,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.fooBar()).toBe('date');
     });
 
-    it('should extend mixins', () => {
+    it('should extend mixins', async () => {
         Shopware.Mixin.register('swFoo', {
             methods: {
                 fooBar() {
@@ -307,7 +307,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.buz()).toBe('component');
     });
 
-    it('should allow multi-inheritance with multiple mixins and lifecycle hooks are only executed once', () => {
+    it('should allow multi-inheritance with multiple mixins and lifecycle hooks are only executed once', async () => {
         const lifecycleSpy = jest.fn();
         Shopware.Mixin.register('first-mixin', {
             created() {
@@ -347,7 +347,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(lifecycleSpy).toBeCalledTimes(1);
     });
 
-    it('should build & create a vue.js component', () => {
+    it('should build & create a vue.js component', async () => {
         const componentDefinition = {
             name: 'sw-foo',
 

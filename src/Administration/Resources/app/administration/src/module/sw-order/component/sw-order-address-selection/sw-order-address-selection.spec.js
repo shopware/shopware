@@ -13,28 +13,32 @@ import 'src/module/sw-customer/component/sw-customer-address-form';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/form/field-base/sw-base-field';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-function createWrapper(propsData) {
+async function createWrapper(propsData) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-order-address-selection'), {
+    return shallowMount(await Shopware.Component.build('sw-order-address-selection'), {
         localVue,
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-block-field': true,
             'sw-icon': true,
-            'sw-customer-address-form': Shopware.Component.build('sw-customer-address-form'),
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-customer-address-form': await Shopware.Component.build('sw-customer-address-form'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-container': true,
             'sw-text-field': true,
             'sw-entity-single-select': true,
@@ -109,15 +113,15 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         });
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -198,7 +202,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     });
 
     it('should be able to get the options with not props', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             address: null,
             addressId: null
         });

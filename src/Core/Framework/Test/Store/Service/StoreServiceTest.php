@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
+use Shopware\Core\Framework\Store\Services\TrackingEventClient;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -34,14 +36,14 @@ class StoreServiceTest extends TestCase
 
     public function testFireTrackingEventReturnsOnNonExistingInstanceId(): void
     {
-        $instanceService = new InstanceService(Kernel::SHOPWARE_FALLBACK_VERSION, null);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $storeService = new StoreService(
-            $this->getContainer()->get('shopware.store_client'),
             $this->getContainer()->get('user.repository'),
-            $instanceService,
-            $this->getContainer()->get(StoreRequestOptionsProvider::class),
-            $this->getContainer()->get('user_config.repository')
+            new TrackingEventClient(
+                $this->getContainer()->get('shopware.store_client'),
+                new InstanceService(Kernel::SHOPWARE_FALLBACK_VERSION, null)
+            ),
         );
 
         $this->getRequestHandler()->reset();
@@ -52,6 +54,8 @@ class StoreServiceTest extends TestCase
 
     public function testFireTrackingEventReturns(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $instanceService = $this->getContainer()->get(InstanceService::class);
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new Response(200));
@@ -60,6 +64,7 @@ class StoreServiceTest extends TestCase
             'someAdditionalData' => 'xy',
         ]);
 
+        /** @var RequestInterface $lastRequest */
         $lastRequest = $this->getRequestHandler()->getLastRequest();
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
@@ -77,12 +82,15 @@ class StoreServiceTest extends TestCase
 
     public function testFireTrackingEventReturnsOnThrownException(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $instanceService = $this->getContainer()->get(InstanceService::class);
 
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new \Exception());
         $this->storeService->fireTrackingEvent('Example event name');
 
+        /** @var RequestInterface $lastRequest */
         $lastRequest = $this->getRequestHandler()->getLastRequest();
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
@@ -97,8 +105,19 @@ class StoreServiceTest extends TestCase
         );
     }
 
+    public function testFireTrackingEventIsDeprecated(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
+        static::expectException(\Exception::class);
+        static::expectDeprecationMessage('Method "Shopware\Core\Framework\Store\Services\StoreService::Shopware\Core\Framework\Store\Services\StoreService::fireTrackingEvent()" is deprecated and will be removed in v6.5.0.0. Use "TrackingEventClient::fireTrackingEvent()" instead.');
+        $this->storeService->fireTrackingEvent('Example event name');
+    }
+
     public function testGetLanguageFromContextReturnsEnglishIfContextIsNotAdminApiContext(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $language = $this->storeService->getLanguageByContext(Context::createDefaultContext());
 
         static::assertEquals('en-GB', $language);
@@ -106,6 +125,8 @@ class StoreServiceTest extends TestCase
 
     public function testGetLanguageFromContextReturnsEnglishForIntegrations(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = new Context(new AdminApiSource(null, Uuid::randomHex()));
 
         $language = $this->storeService->getLanguageByContext($context);
@@ -115,16 +136,31 @@ class StoreServiceTest extends TestCase
 
     public function testGetLanguageFromContextReturnsLocaleFromUser(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $adminStoreContext = $this->createAdminStoreContext();
 
         $language = $this->storeService->getLanguageByContext($adminStoreContext);
 
-        $criteria = new Criteria([$adminStoreContext->getSource()->getUserId()]);
+        /** @var AdminApiSource $adminSource */
+        $adminSource = $adminStoreContext->getSource();
+        /** @var string $userId */
+        $userId = $adminSource->getUserId();
+        $criteria = new Criteria([$userId]);
         $criteria->addAssociation('locale');
 
         $storeUser = $this->getUserRepository()->search($criteria, $adminStoreContext)->first();
 
         static::assertEquals($storeUser->getLocale()->getCode(), $language);
+    }
+
+    public function testGetLanguageFromContextIsDeprecated(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
+        static::expectException(\Exception::class);
+        static::expectDeprecationMessage('Method "Shopware\Core\Framework\Store\Services\StoreService::Shopware\Core\Framework\Store\Services\StoreService::getLanguageByContext()" is deprecated and will be removed in v6.5.0.0. Use "LocaleProvider::getLocaleFromContext()" instead.');
+        $this->storeService->getLanguageByContext(Context::createDefaultContext());
     }
 
     public function testUpdateStoreToken(): void
@@ -140,7 +176,11 @@ class StoreServiceTest extends TestCase
             $accessTokenStruct
         );
 
-        $criteria = new Criteria([$adminStoreContext->getSource()->getUserId()]);
+        /** @var AdminApiSource $adminSource */
+        $adminSource = $adminStoreContext->getSource();
+        /** @var string $userId */
+        $userId = $adminSource->getUserId();
+        $criteria = new Criteria([$userId]);
 
         $updatedUser = $this->getUserRepository()->search($criteria, $adminStoreContext)->first();
 

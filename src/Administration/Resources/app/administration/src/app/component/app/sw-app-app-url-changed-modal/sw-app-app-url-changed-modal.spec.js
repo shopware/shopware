@@ -1,5 +1,8 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, mount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/app/component/app/sw-app-app-url-changed-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
@@ -21,53 +24,56 @@ const strategies = [
     }
 ];
 
-const stubs = {
-    'sw-modal': Shopware.Component.build('sw-modal'),
-    'sw-button': Shopware.Component.build('sw-button'),
-    'sw-loader': Shopware.Component.build('sw-loader'),
-    'sw-icon': Shopware.Component.build('sw-icon'),
-    'icons-default-basic-shape-circle-filled': {
-        template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>'
-    },
-    'icons-regular-circle': {
-        template: '<span class="sw-icon sw-icon--regular-circle"></span>'
-    },
-    'icons-regular-times-s': {
-        template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
-    }
-};
-
-function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return mount(Shopware.Component.build('sw-app-app-url-changed-modal'), {
-        localVue,
-        stubs,
-        propsData: {
-            urlDiff: {
-                oldUrl: 'https://old-url',
-                newUrl: 'https://new-url'
-            }
-        },
-        provide: {
-            appUrlChangeService: {
-                fetchResolverStrategies: () => Promise.resolve(strategies),
-                resolveUrlChange: jest.fn(() => Promise.resolve())
-            },
-            shortcutService: {
-                startEventListener() {},
-                stopEventListener() {}
-            }
-        }
-    });
-}
-
 describe('sw-app-app-url-changed-modal', () => {
     let wrapper = null;
+    let stubs;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    async function createWrapper() {
+        const localVue = createLocalVue();
+        localVue.directive('tooltip', {});
+
+        return mount(await Shopware.Component.build('sw-app-app-url-changed-modal'), {
+            localVue,
+            stubs,
+            propsData: {
+                urlDiff: {
+                    oldUrl: 'https://old-url',
+                    newUrl: 'https://new-url'
+                }
+            },
+            provide: {
+                appUrlChangeService: {
+                    fetchResolverStrategies: () => Promise.resolve(strategies),
+                    resolveUrlChange: jest.fn(() => Promise.resolve())
+                },
+                shortcutService: {
+                    startEventListener() {},
+                    stopEventListener() {}
+                }
+            }
+        });
+    }
+
+    beforeAll(async () => {
+        stubs = {
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'icons-default-basic-shape-circle-filled': {
+                template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>'
+            },
+            'icons-regular-circle': {
+                template: '<span class="sw-icon sw-icon--regular-circle"></span>'
+            },
+            'icons-regular-times-s': {
+                template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
+            }
+        };
+    });
+
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -90,7 +96,7 @@ describe('sw-app-app-url-changed-modal', () => {
             });
     });
 
-    it('emmits modal-close if modal is closed', () => {
+    it('emmits modal-close if modal is closed', async () => {
         const modal = wrapper.findComponent(stubs['sw-modal']);
 
         modal.vm.$emit('modal-close');

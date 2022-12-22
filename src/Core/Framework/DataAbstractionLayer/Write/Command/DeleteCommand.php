@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
+/**
+ * @package core
+ */
 class DeleteCommand extends WriteCommand implements ChangeSetAware
 {
     use ChangeSetAwareTrait;

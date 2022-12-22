@@ -13,6 +13,8 @@ use Shopware\Core\Migration\V6_4\Migration1628749113Migration1628749113AddDefaul
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest extends TestCase

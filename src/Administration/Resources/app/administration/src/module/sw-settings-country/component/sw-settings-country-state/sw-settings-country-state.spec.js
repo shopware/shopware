@@ -1,13 +1,16 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-state';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-state'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-state'), {
         localVue,
 
         mocks: {
@@ -25,7 +28,7 @@ function createWrapper(privileges = []) {
 
         propsData: {
             country: {
-                isNew: () => false,
+                isNew: () => true,
                 active: true,
                 apiAlias: null,
                 createdAt: '2020-08-12T02:49:39.974+00:00',
@@ -67,25 +70,22 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-            feature: {
-                isActive: () => true
-            }
         },
 
         stubs: {
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-button': true,
             'sw-icon': true,
             'sw-simple-search-field': true,
             'sw-context-menu-item': true,
             'sw-extension-component-section': true,
             'sw-one-to-many-grid': {
-                props: ['columns', 'allowDelete'],
+                props: ['allowDelete', 'collection'],
                 template: `
-                    <div>
-                        <template v-for="item in columns">
+                    <div class="sw-one-to-many-grid">
+                        <template v-for="item in collection">
                             <slot name="more-actions" v-bind="{ item }"></slot>
                             <slot name="delete-action" :item="item">
                                 <sw-context-menu-item
@@ -107,14 +107,19 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/component/sw-settings-country-state', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should show empty state', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+    });
+
     it('should be able to create a new country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -125,7 +130,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should not be able to create a new country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-country-state__add-country-state-button');
@@ -134,37 +139,101 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
     });
 
     it('should be able to edit a country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
-        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
 
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should not be able to edit a country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to delete a country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
 
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should not be able to delete a country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                states: [
+                    {
+                        id: '1234',
+                        shortCode: 'DE-BE',
+                        translated: {
+                            name: 'Berlin'
+                        }
+                    }
+                ]
+            }
+        });
+
+        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });

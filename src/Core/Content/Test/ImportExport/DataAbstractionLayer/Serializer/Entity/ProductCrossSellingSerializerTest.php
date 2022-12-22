@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class ProductCrossSellingSerializerTest extends TestCase
 {

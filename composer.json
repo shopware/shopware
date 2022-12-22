@@ -94,7 +94,7 @@
         "psr/http-factory": "1.0.1",
         "psr/http-message": "1.0.1",
         "psr/log": "1.1.2",
-        "scssphp/scssphp": "1.10.0",
+        "scssphp/scssphp": "v1.11.0",
         "sensio/framework-extra-bundle": "~6.2.1",
         "shopware/conflicts": "*",
         "sroze/messenger-enqueue-transport": "0.4.0",
@@ -287,7 +287,8 @@
             "@stylelint:admin src/**/*.scss",
             "@stylelint:storefront src/**/*.scss"
         ],
-        "eslint:admin": "@npm:admin:bin eslint --config .eslintrc.js --ext .js,.vue,.html.twig",
+        "eslint:admin": "@npm:admin run lint",
+        "eslint:admin:fix": "@npm:admin run lint:fix",
         "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
         "eslint": [
             "@eslint:admin",

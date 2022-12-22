@@ -11,6 +11,8 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
+ * @package core
+ *
  * @internal
  * @group slow
  */

@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class BeforeDeleteEvent extends Event implements ShopwareEvent
 {
     private WriteContext $writeContext;

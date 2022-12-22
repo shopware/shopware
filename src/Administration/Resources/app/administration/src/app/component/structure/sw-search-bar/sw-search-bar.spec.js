@@ -1,13 +1,15 @@
+/**
+ * @package admin
+ */
+
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/app/component/structure/sw-search-bar';
 import Criteria from 'src/core/data/criteria.data';
 
 const { Module } = Shopware;
 const register = Module.register;
 
-const swSearchBarComponent = Shopware.Component.build('sw-search-bar');
 const searchTypeServiceTypes = {
     product: {
         entityName: 'product',
@@ -41,35 +43,62 @@ const searchTypeServiceTypes = {
     }
 };
 
-const spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
-const spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
-const spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
+describe('src/app/component/structure/sw-search-bar', () => {
+    /** @type Wrapper */
+    let wrapper;
+    let swSearchBarComponent;
+    let spyLoadResults;
+    let spyLoadTypeSearchResults;
+    let spyLoadTypeSearchResultsByService;
 
-function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
-    const localVue = createLocalVue();
+    async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
+        const localVue = createLocalVue();
 
-    return shallowMount(swSearchBarComponent, {
-        localVue,
-        stubs: {
-            'sw-icon': true,
-            'sw-version': true,
-            'sw-loader': true,
-            'sw-search-more-results': true,
-            'sw-search-bar-item': true,
-            'sw-search-preferences-modal': true
-        },
-        mocks: {
-            $route: {
-                query: {
-                    term: ''
+        return shallowMount(swSearchBarComponent, {
+            localVue,
+            stubs: {
+                'sw-icon': true,
+                'sw-version': true,
+                'sw-loader': true,
+                'sw-search-more-results': true,
+                'sw-search-bar-item': true,
+                'sw-search-preferences-modal': true
+            },
+            mocks: {
+                $route: {
+                    query: {
+                        term: ''
+                    }
                 }
-            }
-        },
-        provide: {
-            searchService: {
-                search: () => {
-                    const result = {
+            },
+            provide: {
+                searchService: {
+                    search: () => {
+                        const result = {
+                            data: {
+                                foo: {
+                                    total: 1,
+                                    data: [
+                                        { name: 'Baz', id: '12345' }
+                                    ]
+                                }
+                            }
+                        };
+
+                        return Promise.resolve(result);
+                    },
+
+                    searchQuery: () => Promise.resolve({
                         data: {
+                            product: {
+                                data: {
+                                    dfe80a0ec016413e8e03fa2d85db3dea: {
+                                        id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                        name: 'Lightweight Iron Tossed Cookie Salad'
+                                    }
+                                }
+                            },
+
                             foo: {
                                 total: 1,
                                 data: [
@@ -77,50 +106,54 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                                 ]
                             }
                         }
-                    };
-
-                    return Promise.resolve(result);
+                    })
                 },
-
-                searchQuery: () => Promise.resolve({
-                    data: {
-                        product: {
-                            data: {
-                                dfe80a0ec016413e8e03fa2d85db3dea: {
-                                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                    name: 'Lightweight Iron Tossed Cookie Salad'
-                                }
+                repositoryFactory: {
+                    create: (entity) => ({
+                        search: (criteria) => {
+                            if (entity === 'sales_channel') {
+                                return Promise.resolve([{
+                                    id: '8a243080f92e4c719546314b577cf82b',
+                                    translated: { name: 'Storefront' },
+                                    type: { translated: { name: 'Storefront' } }
+                                }]);
                             }
-                        },
 
-                        foo: {
-                            total: 1,
-                            data: [
-                                { name: 'Baz', id: '12345' }
-                            ]
-                        }
-                    }
-                })
-            },
-            repositoryFactory: {
-                create: (entity) => ({
-                    search: (criteria) => {
-                        if (entity === 'sales_channel') {
-                            return Promise.resolve([{
-                                id: '8a243080f92e4c719546314b577cf82b',
-                                translated: { name: 'Storefront' },
-                                type: { translated: { name: 'Storefront' } }
-                            }]);
-                        }
+                            if (entity === 'sales_channel_type') {
+                                return Promise.resolve([{
+                                    id: 'xxxxxxx',
+                                    translated: { name: 'Storefront' }
+                                }]);
+                            }
 
-                        if (entity === 'sales_channel_type') {
-                            return Promise.resolve([{
-                                id: 'xxxxxxx',
-                                translated: { name: 'Storefront' }
-                            }]);
-                        }
+                            if (entity === 'category') {
+                                const result = [
+                                    {
+                                        name: 'Home',
+                                        id: '12345'
+                                    }, {
+                                        name: 'Electronics',
+                                        id: '55523'
+                                    }
+                                ];
+                                result.total = 2;
 
-                        if (entity === 'category') {
+                                return Promise.resolve(result);
+                            }
+
+                            criteria = criteria.parse();
+                            if (criteria.query && !criteria.term) {
+                                const result = [
+                                    {
+                                        name: 'Baz',
+                                        id: '12345'
+                                    }
+                                ];
+                                result.total = 1;
+
+                                return Promise.resolve(result);
+                            }
+
                             const result = [
                                 {
                                     name: 'Home',
@@ -134,121 +167,94 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
 
                             return Promise.resolve(result);
                         }
+                    })
+                },
+                searchTypeService: {
+                    getTypes: () => searchTypes
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                        criteria = criteria.parse();
-                        if (criteria.query && !criteria.term) {
-                            const result = [
-                                {
-                                    name: 'Baz',
-                                    id: '12345'
-                                }
-                            ];
-                            result.total = 1;
-
-                            return Promise.resolve(result);
+                        return privileges.includes(identifier);
+                    }
+                },
+                searchRankingService: {
+                    getUserSearchPreference: () => {
+                        return Promise.resolve({
+                            foo: { name: 500 }
+                        });
+                    },
+                    getSearchFieldsByEntity: (entity) => {
+                        const data = { foo: { name: 500 }, category: { name: 500 } };
+                        return Promise.resolve(data[entity]);
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        if (!searchFields) {
+                            return criteria;
                         }
 
-                        const result = [
+                        return criteria.addQuery(Criteria.equals('name', 'Baz'), 1).setTerm(null);
+                    },
+                    buildGlobalSearchQueries: (userSearchPreference, searchTerm) => {
+                        return {
+                            foo: {
+                                limit: 25,
+                                page: 1,
+                                query: [
+                                    {
+                                        score: 500,
+                                        query: {
+                                            type: 'equals',
+                                            field: 'product.name',
+                                            value: searchTerm
+                                        }
+                                    },
+                                    {
+                                        score: 375,
+                                        query: {
+                                            type: 'contains',
+                                            field: 'product.name',
+                                            value: searchTerm
+                                        }
+                                    }
+                                ],
+                                'total-count-mode': 1
+                            }
+                        };
+                    }
+                },
+                userActivityApiService: {
+                    getIncrement: () => Promise.resolve({
+                        'dashboard@sw.dashboard.index': {
+                            key: 'dashboard@sw.dashboard.index',
+                            count: '1'
+                        }
+                    })
+                },
+                recentlySearchService: {
+                    get: () => {
+                        return [
                             {
-                                name: 'Home',
-                                id: '12345'
-                            }, {
-                                name: 'Electronics',
-                                id: '55523'
+                                entity: 'product',
+                                id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                timestamp: 1633605899167
                             }
                         ];
-                        result.total = 2;
-
-                        return Promise.resolve(result);
                     }
-                })
-            },
-            searchTypeService: {
-                getTypes: () => searchTypes
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
                 }
             },
-            searchRankingService: {
-                getUserSearchPreference: () => {
-                    return Promise.resolve({
-                        foo: { name: 500 }
-                    });
-                },
-                getSearchFieldsByEntity: (entity) => {
-                    const data = { foo: { name: 500 }, category: { name: 500 } };
-                    return Promise.resolve(data[entity]);
-                },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    if (!searchFields) {
-                        return criteria;
-                    }
+            propsData: props,
+            attachTo: document.body,
+        });
+    }
 
-                    return criteria.addQuery(Criteria.equals('name', 'Baz'), 1).setTerm(null);
-                },
-                buildGlobalSearchQueries: (userSearchPreference, searchTerm) => {
-                    return {
-                        foo: {
-                            limit: 25,
-                            page: 1,
-                            query: [
-                                {
-                                    score: 500,
-                                    query: {
-                                        type: 'equals',
-                                        field: 'product.name',
-                                        value: searchTerm
-                                    }
-                                },
-                                {
-                                    score: 375,
-                                    query: {
-                                        type: 'contains',
-                                        field: 'product.name',
-                                        value: searchTerm
-                                    }
-                                }
-                            ],
-                            'total-count-mode': 1
-                        }
-                    };
-                }
-            },
-            userActivityApiService: {
-                getIncrement: () => Promise.resolve({
-                    'dashboard@sw.dashboard.index': {
-                        key: 'dashboard@sw.dashboard.index',
-                        count: '1'
-                    }
-                })
-            },
-            recentlySearchService: {
-                get: () => {
-                    return [
-                        {
-                            entity: 'product',
-                            id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                            timestamp: 1633605899167
-                        }
-                    ];
-                }
-            }
-        },
-        propsData: props,
-        attachTo: document.body,
-    });
-}
+    beforeAll(async () => {
+        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
+        spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
+        spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
 
-
-describe('src/app/component/structure/sw-search-bar', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    beforeAll(() => {
         const apiService = Shopware.Application.getContainer('factory').apiService;
         apiService.register('categoryService', {
             getList: () => {
@@ -267,12 +273,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
             id: 'id'
         };
         Module.getModuleRegistry().clear();
-    });
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-        }
     });
 
     it('should be a Vue.js component', async () => {
@@ -1201,7 +1201,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             }
         });
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1247,7 +1247,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should always show recently searches correctly', async () => {
-        wrapper = createWrapper(
+        wrapper = await createWrapper(
             {},
             searchTypeServiceTypes,
             ['product:read']

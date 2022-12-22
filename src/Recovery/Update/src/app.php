@@ -7,6 +7,9 @@ use Shopware\Recovery\Common\Service\RecoveryConfigManager;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
 
+/**
+ * @package system-settings
+ */
 date_default_timezone_set('Europe/Berlin');
 
 $config = require __DIR__ . '/../config/config.php';

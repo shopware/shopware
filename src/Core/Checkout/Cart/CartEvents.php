@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+/**
+ * @package checkout
+ */
 class CartEvents
 {
     /**

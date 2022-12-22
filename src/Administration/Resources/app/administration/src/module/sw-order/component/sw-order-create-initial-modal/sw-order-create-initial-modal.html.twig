@@ -40,18 +40,6 @@
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_create_modal_tabs_custom_item %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-custom-item"
-                    name="custom-item"
-                    :active-tab="active"
-                    :disabled="!customer"
-                >
-                    {{ $tc('sw-order.initialModal.tabCustomItem') }}
-                </sw-tabs-item>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_options %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-options"
@@ -60,18 +48,6 @@
                     :disabled="!customer"
                 >
                     {{ $tc('sw-order.initialModal.tabOptions') }}
-                </sw-tabs-item>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_order_create_modal_tabs_credit %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-credit"
-                    name="credit"
-                    :active-tab="active"
-                    :disabled="!customer"
-                >
-                    {{ $tc('sw-order.initialModal.tabCredit') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -92,23 +68,15 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_products %}
-                    <sw-order-product-grid
+                    <sw-order-line-items-grid-sales-channel
                         v-show="active === 'products'"
+                        :is-loading="isProductGridLoading"
                         :sales-channel-id="salesChannelId"
-                        :tax-status="taxStatus"
+                        :cart="cart"
                         :currency="currency"
-                        @selection-change="onProductChange"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_create_modal_tabs_content_custom_item %}
-                    <sw-order-custom-item
-                        v-if="active === 'custom-item'"
-                        :disabled="!customer"
-                        :tax-status="taxStatus"
-                        :currency="currency"
-                        :custom-item="customItem"
+                        :is-customer-active="isCustomerActive"
+                        @on-save-item="onSaveItem"
+                        @on-remove-items="onRemoveItems"
                     />
                     {% endblock %}
 
@@ -117,22 +85,12 @@
                     <sw-order-create-options
                         v-if="active === 'options'"
                         :disabled="!customer"
+                        :disabled-auto-promotion="disabledAutoPromotion"
                         :promotion-codes="promotionCodes"
-                        :disabled-auto-promotions="disabledAutoPromotions"
                         :context="context"
                         @promotions-change="updatePromotion"
-                        @auto-promotions-toggle="updateAutoPromotionsToggle"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_order_create_modal_tabs_content_credit %}
-                    <sw-order-credit-item
-                        v-if="active === 'credit'"
-                        :disabled="!customer"
-                        :tax-status="taxStatus"
-                        :currency="currency"
-                        :credit="creditItem"
+                        @auto-promotion-toggle="updateAutoPromotionToggle"
+                        @shipping-cost-change="updateShippingCost"
                     />
                     {% endblock %}
                 </div>
@@ -146,6 +104,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_footer_modal_footer_cancel %}
         <sw-button
+            class="sw-order-create-initial-modal__button-cancel"
             size="small"
             @click="onCloseModal"
         >
@@ -156,6 +115,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_footer_modal_footer_preview_order %}
         <sw-button
+            class="sw-order-create-initial-modal__button-preview"
             size="small"
             variant="primary"
             :disabled="!customer"

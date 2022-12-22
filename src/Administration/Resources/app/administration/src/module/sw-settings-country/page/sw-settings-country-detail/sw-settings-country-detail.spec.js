@@ -1,4 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package system-settings
+ */
+import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/page/sw-settings-country-detail';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/base/sw-card';
@@ -6,20 +9,45 @@ import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-function createWrapper(privileges = []) {
+import VueRouter from 'vue-router';
+
+const routes = [
+    {
+        name: 'sw.settings.country.detail',
+        path: '/sw/settings/country/detail/the-id',
+        children: [
+            {
+                name: 'sw.settings.country.detail.general',
+                path: '/sw/settings/country/detail/the-id/general'
+            }, {
+                name: 'sw.settings.country.detail.state',
+                path: '/sw/settings/country/detail/the-id/state'
+            },
+            {
+                name: 'sw.settings.country.detail.address-handling',
+                path: '/sw/settings/country/detail/the-id/address-handling'
+            }
+        ]
+    },
+];
+
+const router = new VueRouter({
+    routes
+});
+
+async function createWrapper(privileges = []) {
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
+    localVue.use(VueRouter);
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-detail'), {
         localVue,
-
+        router,
         mocks: {
             $tc: key => key,
-            $route: {
-                params: {
-                    id: 'id'
-                }
-            },
             $device: {
                 getSystemKey: () => {},
                 onResize: () => {}
@@ -104,9 +132,9 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-card-view': Shopware.Component.build('sw-card-view'),
-            'sw-card': Shopware.Component.build('sw-card'),
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-card-view': await Shopware.Component.build('sw-card-view'),
+            'sw-card': await Shopware.Component.build('sw-card'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-language-switch': true,
             'sw-language-info': true,
             'sw-button': true,
@@ -117,30 +145,13 @@ function createWrapper(privileges = []) {
             'sw-simple-search-field': true,
             'sw-context-menu-item': true,
             'sw-number-field': true,
-            'sw-one-to-many-grid': {
-                props: ['columns', 'allowDelete'],
-                template: `
-                    <div>
-                        <template v-for="item in columns">
-                            <slot name="more-actions" v-bind="{ item }"></slot>
-                            <slot name="delete-action" :item="item">
-                                <sw-context-menu-item
-                                    class="sw-one-to-many-grid__delete-action"
-                                    variant="danger"
-                                    :disabled="!allowDelete"
-                                    @click="deleteItem(item.id)">
-                                    {{ $tc('global.default.delete') }}
-                                </sw-context-menu-item>
-                            </slot>
-                        </template>
-                    </div>
-                `
-            },
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-one-to-many-grid': true,
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'router-link': true,
             'router-view': true,
             'sw-skeleton': true,
+            'sw-settings-country-sidebar': true,
             'sw-error-summary': true,
         }
     });
@@ -152,14 +163,14 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be render tab', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
 
@@ -172,7 +183,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should be able to save the country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -185,7 +196,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     });
 
     it('should not be able to save the country', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(

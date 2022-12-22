@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
+/**
+ * @package inventory
+ */
 class ProductCustomFieldSetDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'product_custom_field_set';

@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -30,9 +31,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater
  */
@@ -48,13 +52,30 @@ class RuleAreaUpdaterTest extends TestCase
      */
     private $definition;
 
+    /**
+     * @var MockObject|RuleConditionRegistry
+     */
+    private $conditionRegistry;
+
+    /**
+     * @var MockObject|CacheInvalidator
+     */
+    private $cacheInvalidator;
+
     private RuleAreaUpdater $areaUpdater;
 
     public function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->definition = $this->createMock(RuleDefinition::class);
-        $this->areaUpdater = new RuleAreaUpdater($this->connection, $this->definition);
+        $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
+        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $this->areaUpdater = new RuleAreaUpdater(
+            $this->connection,
+            $this->definition,
+            $this->conditionRegistry,
+            $this->cacheInvalidator
+        );
     }
 
     public function testUpdate(): void
@@ -77,9 +98,11 @@ class RuleAreaUpdaterTest extends TestCase
         $this->connection->method('executeQuery')->with(
             'SELECT LOWER(HEX(`rule`.`id`)) AS array_key, IF(`rule`.`one_to_one` IS NOT NULL, 1, 0) AS oneToOne, '
             . 'EXISTS(SELECT 1 FROM `one_to_many` WHERE `rule_id` = `rule`.`id`) AS oneToMany, IF(`rule`.`many_to_one` IS NOT NULL, 1, 0) AS manyToOne, '
-            . 'EXISTS(SELECT 1 FROM `mapping` WHERE `rule_id` = `rule`.`id`) AS manyToMany FROM rule WHERE `rule`.`id` IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList([$id])],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            . 'EXISTS(SELECT 1 FROM `mapping` WHERE `rule_id` = `rule`.`id`) AS manyToMany, '
+            . 'EXISTS(SELECT 1 FROM rule_condition WHERE (`rule_id` = `rule`.`id`) AND (`type` IN (:flowTypes))) AS flowCondition '
+            . 'FROM rule WHERE `rule`.`id` IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'flowTypes' => Connection::PARAM_STR_ARRAY]
         )->willReturn($resultStatement);
 
         $driverStatement = $this->createMock(\Doctrine\DBAL\Driver\Statement::class);
@@ -91,6 +114,8 @@ class RuleAreaUpdaterTest extends TestCase
             'id' => Uuid::fromHexToBytes($id),
         ]);
         $this->connection->method('prepare')->willReturn($statement);
+
+        $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
 
         $this->areaUpdater->update([$id]);
     }
@@ -156,12 +181,14 @@ class RuleAreaUpdaterTest extends TestCase
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
         $this->connection->method('executeQuery')
-            ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD]]))
+            ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD], 'flowTypes' => ['orderTags']]))
             ->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);
         $statement->method('getWrappedStatement')->willReturn($this->createMock(\Doctrine\DBAL\Driver\Statement::class));
         $this->connection->method('prepare')->willReturn($statement);
+
+        $this->conditionRegistry->method('getFlowRuleNames')->willReturn(['orderTags']);
 
         $this->areaUpdater->onEntityWritten($event);
     }

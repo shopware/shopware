@@ -8,6 +8,7 @@ use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
 
 /**
+ * @package core
  * Used to create new Redis connection based on a connection dsn.
  * Existing connections are reused if there are any.
  */

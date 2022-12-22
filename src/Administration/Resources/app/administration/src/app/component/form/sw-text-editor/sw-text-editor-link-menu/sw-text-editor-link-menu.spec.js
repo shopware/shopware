@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu';
 
@@ -50,10 +54,10 @@ const linkDataProvider = [{
 }];
 
 
-function createWrapper(buttonConfig) {
+async function createWrapper(buttonConfig) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-text-editor-link-menu'), {
+    return shallowMount(await Shopware.Component.build('sw-text-editor-link-menu'), {
         localVue,
         stubs: {
             'sw-select-field': {
@@ -130,14 +134,14 @@ responses.addResponse({
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     linkDataProvider.forEach(link => {
         it(`parses ${link.type} URL's correctly`, async () => {
-            const wrapper = createWrapper(link.buttonConfig);
+            const wrapper = await createWrapper(link.buttonConfig);
 
             await wrapper.vm.$nextTick();
             await wrapper.vm.$nextTick();
@@ -176,7 +180,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     it('parses category links and reacts to changes correctly', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             value: `${seoDomainPrefix}/navigation/aaaaaaa524604ccbad6042edce3ac799#`,
             type: 'link',
         });
@@ -250,7 +254,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     it('should clear the state if the link category is changed', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             value: 'http://www.domain.de/test',
             type: 'link',
         });
@@ -275,7 +279,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     it('should clear the linkTarget when the remove button is pressed', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             value: 'http://www.domain.de/test',
             type: 'link',
         });

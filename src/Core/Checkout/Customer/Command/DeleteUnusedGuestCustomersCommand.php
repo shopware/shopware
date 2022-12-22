@@ -9,6 +9,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package customer-order
+ */
 class DeleteUnusedGuestCustomersCommand extends Command
 {
     protected static $defaultName = 'customer:delete-unused-guests';

@@ -1,8 +1,11 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/components/sw-users-permissions-role-listing';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-users-permissions-role-listing'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-listing'), {
         provide: {
             repositoryFactory: {
                 create: () => ({
@@ -45,12 +48,12 @@ function createWrapper(privileges = []) {
 describe('module/sw-users-permissions/components/sw-users-permissions-role-listing', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -68,7 +71,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     });
 
     it('should enable the create button', async () => {
-        wrapper = createWrapper(['users_and_permissions.creator']);
+        wrapper = await createWrapper(['users_and_permissions.creator']);
 
         const createButton = wrapper.find('.sw-users-permissions-role-listing__add-role-button');
         expect(createButton.attributes().disabled).toBeUndefined();
@@ -90,7 +93,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     });
 
     it('should enable the edit context menu item', async () => {
-        wrapper = createWrapper(['users_and_permissions.editor']);
+        wrapper = await createWrapper(['users_and_permissions.editor']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             roles: [
@@ -107,7 +110,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     });
 
     it('should enable the delete context menu item', async () => {
-        wrapper = createWrapper(['users_and_permissions.deleter']);
+        wrapper = await createWrapper(['users_and_permissions.deleter']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             roles: [

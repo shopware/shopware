@@ -67,10 +67,10 @@
                         </template>
 
                         <template v-for="(delivery, index) in cartDeliveryDiscounts">
-                            <dt :key="`dt-${index}`">
+                            <dt :key="`dt-delivery-${index}`">
                                 {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                             </dt>
-                            <dd :key="`dd-${index}`">
+                            <dd :key="`dd-delivery-${index}`">
                                 {{ delivery.shippingCosts.totalPrice | currency(currency.shortName, currency.totalRounding.decimals) }}
                             </dd>
                         </template>

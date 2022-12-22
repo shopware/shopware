@@ -6,6 +6,9 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractMappingService
 {
     abstract public function getDecorated(): AbstractMappingService;

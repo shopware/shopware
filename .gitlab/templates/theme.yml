@@ -32,7 +32,7 @@ variables:
         value: ${CI_PROJECT_TITLE}
         description: 'Theme name. Default is ${CI_PROJECT_TITLE}'
     PLATFORM_BRANCH:
-        value: trunk
+        value: "6.4"
         description: 'The shopware/platform branch that is used'
     DEV_IMAGE:
         value: shopware/development:7.4-composer-2

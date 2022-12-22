@@ -21,8 +21,7 @@
             action="viewOrder"
             entity="order"
             view="detail"
-            url="https://swag-test.com/your-order"
-            openNewTab="true">
+            url="https://swag-test.com/your-order">
             <label>View Order</label>
             <label lang="de-DE">Zeige Bestellung</label>
         </action-button>

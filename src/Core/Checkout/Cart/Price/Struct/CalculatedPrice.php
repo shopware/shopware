@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @package checkout
+ */
 class CalculatedPrice extends Struct
 {
     /**

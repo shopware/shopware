@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Asset;
 
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
+/**
+ * @package core
+ */
 class PrefixVersionStrategy implements VersionStrategyInterface
 {
     private string $prefix;

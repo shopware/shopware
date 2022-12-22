@@ -23,6 +23,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package checkout
+ */
 class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;
@@ -187,7 +190,7 @@ class CartRuleLoader implements ResetInterface
             return $this->rules;
         }
 
-        return $this->rules = $this->ruleLoader->load($context);
+        return $this->rules = $this->ruleLoader->load($context)->filterForContext();
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

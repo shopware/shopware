@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class TextStruct extends Struct
 {
     /**

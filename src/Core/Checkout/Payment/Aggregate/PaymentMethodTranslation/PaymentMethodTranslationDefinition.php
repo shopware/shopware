@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package checkout
+ */
 class PaymentMethodTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'payment_method_translation';

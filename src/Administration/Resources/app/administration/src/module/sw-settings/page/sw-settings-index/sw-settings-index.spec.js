@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/page/sw-settings-index';
 import 'src/module/sw-settings/component/sw-settings-item';
@@ -6,7 +9,7 @@ import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
 
-function createWrapper(privileges = [
+async function createWrapper(privileges = [
     'store.viewer',
     'user.viewer',
     'foo.viewer',
@@ -108,7 +111,7 @@ function createWrapper(privileges = [
         Shopware.State.commit('settingsItems/addItem', settingsItem);
     });
 
-    return shallowMount(Shopware.Component.build('sw-settings-index'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-index'), {
         mocks: {
             $tc: (path) => {
                 if (typeof path !== 'string') {
@@ -124,12 +127,12 @@ function createWrapper(privileges = [
             'sw-card-view': {
                 template: '<div class="sw-card-view"><slot></slot></div>'
             },
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-card': {
                 template: '<div class="sw-card"><slot></slot></div>'
             },
-            'sw-settings-item': Shopware.Component.build('sw-settings-item'),
+            'sw-settings-item': await Shopware.Component.build('sw-settings-item'),
             'router-link': {
                 template: '<a><slot></slot></a>'
             },
@@ -156,17 +159,17 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain any settings items', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm.settingsGroups).not.toEqual({});
     });
 
     it('should return settings items alphabetically sorted', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
         settingsGroups.forEach(([, settingsItems]) => {
@@ -185,12 +188,12 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     });
 
     it('should render correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should render settings items in alphabetical order', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
         settingsGroups.forEach(([settingsGroup, settingsItems]) => {
@@ -219,7 +222,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
         settingsGroups.forEach(([settingsGroup, settingsItems]) => {
@@ -246,7 +249,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const settingsGroups = wrapper.vm.settingsGroups.shop;
         const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
@@ -267,7 +270,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
-        const wrapper = createWrapper('system.foo_bar');
+        const wrapper = await createWrapper('system.foo_bar');
 
         const settingsGroups = wrapper.vm.settingsGroups.shop;
         const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
@@ -288,7 +291,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const settingsGroups = wrapper.vm.settingsGroups.shop;
         const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
@@ -309,7 +312,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import 'src/module/sw-cms/service/cms.service';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image-slider';
@@ -7,17 +10,17 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
     const elementRegistry = cmsService.getCmsElementRegistry();
     const element = elementRegistry['image-slider'];
 
-    it('registers image-slider cms element', () => {
+    it('registers image-slider cms element', async () => {
         const elementConfig = cmsService.getCmsElementConfigByName('image-slider');
         expect(elementConfig.name).toEqual('image-slider');
     });
 
-    it('returns empty object because config values are set to null', () => {
+    it('returns empty object because config values are set to null', async () => {
         const result = element.enrich(element, {});
         expect(result).toEqual(undefined);
     });
 
-    it('adds multiple entity data when cms element defaultConfig properties have the same entity', () => {
+    it('adds multiple entity data when cms element defaultConfig properties have the same entity', async () => {
         element.defaultConfig.sliderItems.value = [{
             mediaId: '123',
             newTab: true,
@@ -89,7 +92,7 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
         });
     });
 
-    it('skips config property if enrich data has no fitting key', () => {
+    it('skips config property if enrich data has no fitting key', async () => {
         // cms element components call the initElementConfig() function from cms-service mixin
         // to add the defaultConfig properties to the config root level
         element.config = element.defaultConfig;

@@ -16,6 +16,8 @@ use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package checkout
+ *
  * @internal Only to be used by the Storefront
  */
 class BlockedShippingMethodSwitcher

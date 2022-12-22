@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package checkout
+ */
 class DeliveryInformation extends Struct
 {
     /**

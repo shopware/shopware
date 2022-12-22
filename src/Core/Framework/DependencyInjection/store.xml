@@ -64,12 +64,12 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService" lazy="true">
-            <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="user.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\TrackingEventClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\InstanceService">
@@ -123,7 +123,7 @@
             <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
@@ -228,6 +228,11 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\TrackingEventClient">
+            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
     </services>
 </container>

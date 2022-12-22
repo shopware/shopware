@@ -117,8 +117,8 @@ function getPropertyGroups() {
     ];
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-property-assignment'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-property-assignment'), {
         data() {
             return {
                 groups: getPropertyGroups()
@@ -131,25 +131,25 @@ function createWrapper() {
             ]
         },
         stubs: {
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-property-search': Shopware.Component.build('sw-property-search'),
-            'sw-empty-state': Shopware.Component.build('sw-empty-state'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-label': Shopware.Component.build('sw-label'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-property-search': await Shopware.Component.build('sw-property-search'),
+            'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-label': await Shopware.Component.build('sw-label'),
             'sw-field-error': {
                 template: '<div></div>'
             },
             'sw-container': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-pagination': Shopware.Component.build('sw-pagination'),
-            'sw-grid-row': Shopware.Component.build('sw-grid-row'),
-            'sw-grid-column': Shopware.Component.build('sw-grid-column'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-grid': await Shopware.Component.build('sw-grid'),
+            'sw-pagination': await Shopware.Component.build('sw-pagination'),
+            'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
+            'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
                 template: '<div></div>'
             },
@@ -184,14 +184,14 @@ function createWrapper() {
 }
 
 describe('components/base/sw-property-assignment', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should removing property item when clicking delete item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const spyDeleteOption = jest.spyOn(wrapper.vm, 'deleteOption');
         const spygroupProperties = jest.spyOn(wrapper.vm, 'groupProperties');

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import CategoryPageObject from '../../../../../support/pages/module/sw-category.page-object';

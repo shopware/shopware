@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-folder-item';
 
@@ -29,8 +32,8 @@ const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
 const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 
-function createWrapper(defaultFolderId, privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-media-folder-item'), {
+async function createWrapper(defaultFolderId, privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-media-folder-item'), {
         mocks: {
             $route: {
                 query: {
@@ -132,35 +135,35 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should provide correct folder color for product module', async () => {
-        const wrapper = createWrapper(ID_PRODUCTS_FOLDER);
+        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--green');
     });
 
     it('should provide correct folder color for mail template module', async () => {
-        const wrapper = createWrapper(ID_MAILTEMPLATE_FOLDER);
+        const wrapper = await createWrapper(ID_MAILTEMPLATE_FOLDER);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--grey');
     });
 
     it('should provide correct folder color for cms module', async () => {
-        const wrapper = createWrapper(ID_CONTENT_FOLDER);
+        const wrapper = await createWrapper(ID_CONTENT_FOLDER);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--pink');
     });
 
     it('should provide fallback folder color', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail');
     });
 
     it('should not be able to delete', async () => {
-        const aclWrapper = createWrapper();
+        const aclWrapper = await createWrapper();
         await aclWrapper.vm.$nextTick();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
@@ -168,7 +171,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should be able to delete', async () => {
-        const aclWrapper = createWrapper(null, [
+        const aclWrapper = await createWrapper(null, [
             'media.deleter'
         ]);
         await aclWrapper.vm.$nextTick();
@@ -178,7 +181,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should not be able to edit', async () => {
-        const aclWrapper = createWrapper();
+        const aclWrapper = await createWrapper();
         await aclWrapper.vm.$nextTick();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
@@ -186,7 +189,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should be able to edit', async () => {
-        const aclWrapper = createWrapper(null, [
+        const aclWrapper = await createWrapper(null, [
             'media.editor'
         ]);
         await aclWrapper.vm.$nextTick();

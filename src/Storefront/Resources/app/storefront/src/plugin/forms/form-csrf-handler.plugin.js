@@ -4,6 +4,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * This plugin is used to set a csrf token on native form elements
+ * @deprecated tag:v6.5.0 - FormCsrfHandler will be removed without replacement.
  */
 export default class FormCsrfHandler extends Plugin {
 

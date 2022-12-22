@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
+/**
+ * @package core
+ */
 class CopyBatchInput
 {
     /**

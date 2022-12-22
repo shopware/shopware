@@ -43,8 +43,8 @@ const mockMailTemplateData = [
     }
 ];
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-flow-create-mail-template-modal'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-flow-create-mail-template-modal'), {
         provide: { repositoryFactory: {
             create: (entity) => {
                 if (entity === 'mail_template_type') {
@@ -124,13 +124,13 @@ function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -143,7 +143,7 @@ function createWrapper(privileges = []) {
             'sw-button': {
                 template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
             },
-            'sw-code-editor': Shopware.Component.build('sw-code-editor'),
+            'sw-code-editor': await Shopware.Component.build('sw-code-editor'),
             'sw-textarea-field': true,
             'sw-container': true,
             'sw-icon': true,
@@ -173,7 +173,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
     it('should show element correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         fieldsClasses.forEach(elementClass => {
@@ -182,7 +182,7 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
     });
 
     it('should able to create a mail template', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.find(`${fieldsClasses[0]} .sw-entity-single-select__selection`).trigger('click');
@@ -213,7 +213,7 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
             mailTemplateTypeId: ''
         };
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.createNotificationError = jest.fn();

@@ -2,10 +2,13 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import flushPromises from 'flush-promises';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-settings-payment-list'), {
+/**
+ * @package checkout
+ */
+
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-settings-payment-list'), {
         mocks: {
             $route: {
                 query: {
@@ -78,14 +81,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new payment', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-payment-list__button-create');
@@ -94,7 +97,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should be able to create a new settings-payment', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'payment.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -105,7 +108,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should not be able to inline edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-payment-list-grid');
@@ -115,7 +118,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'payment.editor'
         ]);
         await flushPromises();
@@ -126,7 +129,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should not be able to delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-payment-list__delete-action');
@@ -134,7 +137,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'payment.deleter'
         ]);
         await flushPromises();
@@ -144,7 +147,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-settings-payment-list__edit-action');
@@ -152,7 +155,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'payment.editor'
         ]);
         await flushPromises();
@@ -162,7 +165,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -185,7 +188,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -205,7 +208,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -229,7 +232,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });

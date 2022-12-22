@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
+ * @package content
  * @covers \Shopware\Core\Content\Cms\CmsException
  */
 class CmsExceptionTest extends TestCase

@@ -1,10 +1,12 @@
+/**
+ * @package sales-channel
+ */
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal/';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -19,13 +21,13 @@ function createWrapper() {
 
     return {
         searchFunction,
-        wrapper: mount(Shopware.Component.build('sw-sales-channel-modal'), {
+        wrapper: mount(await Shopware.Component.build('sw-sales-channel-modal'), {
             localVue,
             stubs: {
                 'sw-modal': true,
                 'sw-icon': true,
                 'sw-button': true,
-                'sw-sales-channel-modal-grid': Shopware.Component.build('sw-sales-channel-modal-grid'),
+                'sw-sales-channel-modal-grid': await Shopware.Component.build('sw-sales-channel-modal-grid'),
                 'sw-sales-channel-modal-detail': true,
                 'sw-loader': true,
                 'sw-grid': true,
@@ -44,7 +46,7 @@ function createWrapper() {
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-modal/', () => {
     it('should be a Vue.js component', async () => {
-        const { wrapper } = createWrapper();
+        const { wrapper } = await createWrapper();
         await wrapper.setData({
             detailType: 'foo'
         });
@@ -58,7 +60,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-modal/', () => 
         // set the interface language
         Shopware.State.get('session').languageId = 'dutchLanguageId';
 
-        const { searchFunction, wrapper } = createWrapper();
+        const { searchFunction, wrapper } = await createWrapper();
         await wrapper.setData({
             detailType: 'foo'
         });

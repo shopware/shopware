@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package inventory
+ */
 class ProductTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'product_translation';

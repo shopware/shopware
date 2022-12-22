@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
 
@@ -28,8 +31,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
 
     let wrapper;
     let moduleMock;
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-media-quickinfo-usage'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-media-quickinfo-usage'), {
             stubs: {
                 'router-link': true,
                 'sw-icon': true,

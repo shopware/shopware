@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Util;
 use Shopware\Core\Kernel;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class VersionParser

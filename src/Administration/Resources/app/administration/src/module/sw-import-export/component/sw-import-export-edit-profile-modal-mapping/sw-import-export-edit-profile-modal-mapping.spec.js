@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping';
@@ -56,8 +59,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         };
     }
 
-    function createWrapper(profile) {
-        return shallowMount(Shopware.Component.build('sw-import-export-edit-profile-modal-mapping'), {
+    async function createWrapper(profile) {
+        return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal-mapping'), {
             propsData: {
                 profile
             },
@@ -65,18 +68,18 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 validationService: {}
             },
             stubs: {
-                'sw-simple-search-field': Shopware.Component.build('sw-simple-search-field'),
-                'sw-button': Shopware.Component.build('sw-button'),
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-import-export-entity-path-select': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'sw-field': Shopware.Component.build('sw-field'),
+                'sw-field': await Shopware.Component.build('sw-field'),
                 'sw-switch-field': true,
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-button-group': {
                     template: '<div class="sw-button-group"><slot></slot></div>'
                 },

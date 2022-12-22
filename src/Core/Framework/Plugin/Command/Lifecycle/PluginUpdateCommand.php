@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'update';

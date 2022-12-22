@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
 
@@ -198,7 +202,7 @@ Component.register('sw-tabs', {
             this.recalculateSlider();
 
             // check if tab bar contains items with url routes
-            if (this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
+            if (this.$scopedSlots.default && this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
                 this.hasRoutes = true;
             }
         },

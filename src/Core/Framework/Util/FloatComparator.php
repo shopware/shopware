@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Util;
 
+/**
+ * @package core
+ */
 class FloatComparator
 {
     private const EPSILON = 0.00000001;

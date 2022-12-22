@@ -6,6 +6,9 @@ use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package content
+ */
 class LandingPageTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

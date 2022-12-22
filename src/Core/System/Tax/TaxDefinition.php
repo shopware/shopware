@@ -21,6 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
+/**
+ * @package customer-order
+ */
 class TaxDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tax';

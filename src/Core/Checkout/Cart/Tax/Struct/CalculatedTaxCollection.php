@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<CalculatedTax>
  */
 class CalculatedTaxCollection extends Collection

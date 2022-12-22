@@ -20,6 +20,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class PluginService

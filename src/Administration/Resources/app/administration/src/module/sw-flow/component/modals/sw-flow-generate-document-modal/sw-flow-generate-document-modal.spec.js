@@ -36,11 +36,11 @@ const documentTypeMock = [
     }
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-generate-document-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-generate-document-modal'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -76,14 +76,14 @@ function createWrapper() {
             'sw-button': {
                 template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
             },
-            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-highlight-text': true,
             'sw-label': true,
             'sw-icon': true,
@@ -104,13 +104,13 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     });
 
     it('should show validation if document multiple type field is empty', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
 
         const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
         expect(documentTypeSelect.classes()).toContain('has--error');
-        wrapper.setData({
+        await wrapper.setData({
             documentTypesSelected: ['invoice']
         });
 
@@ -119,8 +119,8 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     });
 
     it('should emit process-finish when document multiple type is selected', async () => {
-        const wrapper = createWrapper();
-        wrapper.setData({
+        const wrapper = await createWrapper();
+        await wrapper.setData({
             documentTypesSelected: ['invoice', 'delivery_note']
         });
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-login';
@@ -5,8 +9,8 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-alert';
 
-function createWrapper() {
-    return mount(Shopware.Component.build('sw-login-login'), {
+async function createWrapper() {
+    return mount(await Shopware.Component.build('sw-login-login'), {
         mocks: {
             $tc: (...args) => JSON.stringify([...args])
         },
@@ -62,8 +66,8 @@ function createWrapper() {
                 template: '<div><input id="password" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>'
             },
             'router-link': true,
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-alert': Shopware.Component.build('sw-alert'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-alert': await Shopware.Component.build('sw-alert'),
             'sw-icon': true
         }
     });
@@ -72,15 +76,15 @@ function createWrapper() {
 describe('module/sw-login/login.spec.js', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -88,8 +92,8 @@ describe('module/sw-login/login.spec.js', () => {
         jest.useFakeTimers();
         jest.spyOn(global, 'setTimeout');
 
-        wrapper.get('#username').setValue('Username');
-        wrapper.get('#password').setValue('Password');
+        await wrapper.get('#username').setValue('Username');
+        await wrapper.get('#password').setValue('Password');
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
 

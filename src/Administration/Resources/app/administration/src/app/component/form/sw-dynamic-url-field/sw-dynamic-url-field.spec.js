@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-dynamic-url-field';
 
@@ -38,10 +42,10 @@ const linkDataProvider = [{
 }];
 
 
-function createWrapper(startingValue) {
+async function createWrapper(startingValue) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-dynamic-url-field'), {
+    return shallowMount(await Shopware.Component.build('sw-dynamic-url-field'), {
         localVue,
         stubs: {
             'sw-select-field': {
@@ -100,14 +104,14 @@ responses.addResponse({
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     linkDataProvider.forEach(link => {
         it(`parses ${link.type} URL's correctly`, async () => {
-            const wrapper = createWrapper(link.URL);
+            const wrapper = await createWrapper(link.URL);
 
             await wrapper.vm.$nextTick();
             await wrapper.vm.$nextTick();
@@ -135,7 +139,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     it('parses category links and reacts to changes correctly', async () => {
-        const wrapper = createWrapper(`${seoDomainPrefix}/navigation/aaaaaaa524604ccbad6042edce3ac799#`);
+        const wrapper = await createWrapper(`${seoDomainPrefix}/navigation/aaaaaaa524604ccbad6042edce3ac799#`);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -192,7 +196,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     it('should clear the state if the link category is changed', async () => {
-        const wrapper = createWrapper('http://www.domain.de/test');
+        const wrapper = await createWrapper('http://www.domain.de/test');
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -209,7 +213,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     it('should clear the linkTarget when the remove button is pressed', async () => {
-        const wrapper = createWrapper('http://www.domain.de/test');
+        const wrapper = await createWrapper('http://www.domain.de/test');
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

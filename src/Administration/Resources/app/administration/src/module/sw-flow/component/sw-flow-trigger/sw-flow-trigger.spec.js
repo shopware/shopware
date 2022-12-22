@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-trigger';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -63,31 +63,47 @@ const mockBusinessEvents = [
     }
 ];
 
+const mockTranslations = {
+    'sw-flow.triggers.before': 'Before',
+    'sw-flow.triggers.mail': 'Mail',
+    'sw-flow.triggers.send': 'Send',
+    'sw-flow.triggers.checkout': 'Checkout',
+    'sw-flow.triggers.customer': 'Customer',
+    'sw-flow.triggers.login': 'Login',
+    'sw-flow.triggers.changedPaymentMethod': 'Changed payment method',
+    'sw-flow.triggers.deleted': 'Deleted'
+};
+
 const div = document.createElement('div');
 div.id = 'root';
 document.body.appendChild(div);
 
-function createWrapper(propsData) {
+async function createWrapper(propsData) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-trigger'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-trigger'), {
         localVue,
+        mocks: {
+            $tc(translationKey) {
+                return mockTranslations[translationKey] ? mockTranslations[translationKey] : translationKey;
+            },
+        },
         stubs: {
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-container': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-tree': Shopware.Component.build('sw-tree'),
-            'sw-tree-item': Shopware.Component.build('sw-tree-item'),
+            'sw-tree': await Shopware.Component.build('sw-tree'),
+            'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
             'sw-loader': true,
             'sw-icon': {
                 template: '<div></div>'
             },
-            'sw-vnode-renderer': Shopware.Component.build('sw-vnode-renderer'),
+            'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
             'sw-highlight-text': true,
             'sw-flow-event-change-confirm-modal': {
                 template: '<div class="sw-flow-event-change-confirm-modal"></div>'
@@ -99,7 +115,7 @@ function createWrapper(propsData) {
                     return Promise.resolve(mockBusinessEvents);
                 })
             },
-            repositoryFactory: {}
+            repositoryFactory: {},
         },
         propsData: {
             eventName: '',
@@ -109,10 +125,14 @@ function createWrapper(propsData) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('src/module/sw-flow/component/sw-flow-trigger', () => {
     beforeAll(() => {
+        Shopware.Service().register('ruleConditionDataProviderService', () => {
+            return {
+                getRestrictedRules: () => Promise.resolve([])
+            };
+        });
+
         Shopware.State.registerModule('swFlowState', flowState);
     });
 
@@ -135,7 +155,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         });
 
         const searchField = wrapper.find('.sw-flow-trigger__input-field');
-        expect(searchField.element.value).toEqual('mail / before / send');
+        expect(searchField.element.value).toEqual('Mail / Before / Send');
     });
 
     it('should get event tree data correctly', async () => {
@@ -145,7 +165,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 1,
                 id: 'checkout',
-                name: 'checkout',
+                name: 'Checkout',
                 parentId: null,
                 disabled: false,
                 disabledToolTipText: null,
@@ -153,7 +173,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 3,
                 id: 'checkout.customer',
-                name: 'customer',
+                name: 'Customer',
                 parentId: 'checkout',
                 disabled: false,
                 disabledToolTipText: null,
@@ -161,7 +181,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 1,
                 id: 'checkout.customer.before',
-                name: 'before',
+                name: 'Before',
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
@@ -169,7 +189,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 0,
                 id: 'checkout.customer.before.login',
-                name: 'login',
+                name: 'Login',
                 parentId: 'checkout.customer.before',
                 disabled: false,
                 disabledToolTipText: null,
@@ -177,7 +197,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 0,
                 id: 'checkout.customer.changed-payment-method',
-                name: 'changed payment method',
+                name: 'Changed payment method',
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
@@ -185,7 +205,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
             {
                 childCount: 0,
                 id: 'checkout.customer.deleted',
-                name: 'deleted',
+                name: 'Deleted',
                 parentId: 'checkout.customer',
                 disabled: false,
                 disabledToolTipText: null,
@@ -333,7 +353,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         let treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(1);
         expect(treeItems.at(0).classes()).toContain('is--focus');
-        expect(treeItems.at(0).text()).toEqual('checkout');
+        expect(treeItems.at(0).text()).toEqual('Checkout');
 
         // Press arrow right to open checkout tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -343,7 +363,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await wrapper.vm.$nextTick();
         treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(2);
-        expect(treeItems.at(1).text()).toEqual('customer');
+        expect(treeItems.at(1).text()).toEqual('Customer');
 
         // Move down to customer item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -364,9 +384,9 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(5);
-        expect(treeItems.at(2).text()).toEqual('before');
-        expect(treeItems.at(3).text()).toEqual('changed payment method');
-        expect(treeItems.at(4).text()).toEqual('deleted');
+        expect(treeItems.at(2).text()).toEqual('Before');
+        expect(treeItems.at(3).text()).toEqual('Changed payment method');
+        expect(treeItems.at(4).text()).toEqual('Deleted');
 
         // close customer tree
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -443,9 +463,9 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         treeItems = wrapper.findAll('.sw-tree-item');
         expect(treeItems.length).toEqual(5);
-        expect(treeItems.at(2).text()).toEqual('before');
-        expect(treeItems.at(3).text()).toEqual('changed payment method');
-        expect(treeItems.at(4).text()).toEqual('deleted');
+        expect(treeItems.at(2).text()).toEqual('Before');
+        expect(treeItems.at(3).text()).toEqual('Changed payment method');
+        expect(treeItems.at(4).text()).toEqual('Deleted');
 
         // move down to changed payment method item
         window.document.dispatchEvent(new KeyboardEvent('keydown', {
@@ -570,7 +590,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         await treeItem.trigger('click');
 
         const treeItemLink = await wrapper.find('.sw-tree-item__content .tree-link');
-        treeItemLink.trigger('click');
+        await treeItemLink.trigger('click');
 
         const treeItemContent = await wrapper.find('.sw-tree-item__content');
         expect(treeItemContent.attributes()['tooltip-id']).toBeTruthy();

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundE
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @package core
+ */
 class FilesystemFactory
 {
     /**

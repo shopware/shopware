@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<MediaTranslationEntity>
  */
 class MediaTranslationCollection extends EntityCollection

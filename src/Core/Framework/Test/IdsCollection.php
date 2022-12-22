@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package core
+ *
  * @property Context $context
  *
  * @internal

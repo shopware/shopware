@@ -74,11 +74,11 @@ function mockMailTemplateData() {
     ];
 }
 
-function createWrapper(sequence = {}) {
+async function createWrapper(sequence = {}) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-mail-send-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-mail-send-modal'), {
         provide: { repositoryFactory: {
             create: () => {
                 return {
@@ -110,15 +110,16 @@ function createWrapper(sequence = {}) {
             },
             'sw-alert': true,
             'sw-entity-multi-id-select': true,
-            'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-help-text': true,
             'sw-icon': true,
             'sw-field-error': {
                 props: ['error'],
@@ -158,7 +159,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show and remove error on email template field if value is valid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const mailTemplate = wrapper.find('.sw-flow-mail-send-modal__mail-template-select');
 
@@ -177,7 +178,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show recipient emails grid if the recipient is custom', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
@@ -190,7 +191,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show error on fields on recipient emails grid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const recipientFieldsClasses = [
             '.sw-flow-mail-send-modal__recipient-email',
@@ -214,7 +215,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show and remove email valid message on recipient email field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
@@ -222,16 +223,16 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const customOption = wrapper.find('.sw-select-option--custom');
         await customOption.trigger('click');
 
-        wrapper.find(recipientEmailInputClass).setValue('invalid');
-        wrapper.find(recipientEmailInputClass).trigger('input');
+        await wrapper.find(recipientEmailInputClass).setValue('invalid');
+        await wrapper.find(recipientEmailInputClass).trigger('input');
 
         await wrapper.find('.sw-data-grid__inline-edit-save').trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.$data.recipients[0].errorMail._code).toBe('INVALID_MAIL');
 
-        wrapper.find(recipientEmailInputClass).setValue('test@gmail.com');
-        wrapper.find(recipientEmailInputClass).trigger('input');
+        await wrapper.find(recipientEmailInputClass).setValue('test@gmail.com');
+        await wrapper.find(recipientEmailInputClass).trigger('input');
 
         await wrapper.find('.sw-data-grid__inline-edit-save').trigger('click');
         await wrapper.vm.$nextTick();
@@ -240,7 +241,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show create mail template modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         let createMailTemplateModal = wrapper.find('sw-flow-create-mail-template-modal-stub');
         expect(createMailTemplateModal.exists()).toBeFalsy();
@@ -256,7 +257,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should add an empty row after adding a custom email', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
@@ -282,7 +283,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
 
     it('should show error in recipient grid when clicking on save action button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const recipientFieldsClasses = [
             '.sw-flow-mail-send-modal__recipient-grid',
@@ -308,7 +309,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should render correct recipient grid by sequence config', async () => {
-        const wrapper = createWrapper(sequenceFixture);
+        const wrapper = await createWrapper(sequenceFixture);
 
         const recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows.length).toEqual(3);
@@ -327,7 +328,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should able to remove custom recipient', async () => {
-        const wrapper = createWrapper(sequenceFixture);
+        const wrapper = await createWrapper(sequenceFixture);
 
         let recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows.length).toEqual(3);
@@ -362,7 +363,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             ]
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
 
@@ -389,7 +390,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             ]
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
 
@@ -418,7 +419,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             ]
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
 
@@ -428,5 +429,76 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(standardOption.exists()).toBeFalsy();
         const adminOption = wrapper.find('.sw-select-option--admin');
         expect(adminOption.exists()).toBeTruthy();
+    });
+
+    it('should validate reply to field', async () => {
+        const sequence = { ...sequenceFixture, ...{ config: { replyTo: 'test@example.com' } } };
+        const wrapper = await createWrapper(sequence);
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.showReplyToField).toBeTruthy();
+        expect(wrapper.vm.replyToError).toBeNull();
+        expect(wrapper.vm.replyToOptions).not.toContain(wrapper.vm.recipientContactFormMail[0]);
+
+        wrapper.vm.changeShowReplyToField('foobar');
+        await flushPromises();
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.replyToError._code).toBe('INVALID_MAIL');
+
+        wrapper.vm.changeShowReplyToField('default');
+        await flushPromises();
+
+        expect(wrapper.vm.showReplyToField).toBeFalsy();
+        expect(wrapper.vm.replyTo).toBeNull();
+        expect(wrapper.vm.replyToError).toBeNull();
+
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.replyToError).toBeNull();
+    });
+
+    it('should validate reply to field with contact form trigger', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            triggerEvent: { name: 'contact_form.send' }
+        });
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.showReplyToField).toBeFalsy();
+        expect(wrapper.vm.replyToError).toBeNull();
+        expect(wrapper.vm.replyToOptions).toContain(wrapper.vm.recipientContactFormMail[0]);
+
+        wrapper.vm.changeShowReplyToField('foobar');
+        await flushPromises();
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.showReplyToField).toBeTruthy();
+        expect(wrapper.vm.replyToError._code).toBe('INVALID_MAIL');
+
+        wrapper.vm.changeShowReplyToField('contactFormMail');
+        await flushPromises();
+
+        expect(wrapper.vm.showReplyToField).toBeFalsy();
+        expect(wrapper.vm.replyTo).toBeNull();
+        expect(wrapper.vm.replyToError).toBeNull();
+
+        wrapper.vm.onAddAction();
+
+        expect(wrapper.vm.replyToError).toBeNull();
+    });
+
+    it('should build help text for use different reply-to address switch', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.$tc = jest.fn();
+        wrapper.vm.$router = {
+            resolve: jest.fn(() => {
+                return { href: 'bar' };
+            })
+        };
+        wrapper.vm.buildReplyToTooltip('foo');
+
+        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, { settingsLink: 'bar' });
     });
 });

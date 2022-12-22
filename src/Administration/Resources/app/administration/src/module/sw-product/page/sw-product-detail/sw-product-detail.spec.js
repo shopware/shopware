@@ -1,9 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-product/page/sw-product-detail';
 import 'src/module/sw-product/component/sw-product-settings-mode';
-import flushPromises from 'flush-promises';
 
 const advancedModeSettings = {
     value: {
@@ -53,7 +56,7 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
-    function createWrapper(searchFunction = () => Promise.resolve({}), productId = '1234') {
+    async function createWrapper(searchFunction = () => Promise.resolve({}), productId = '1234') {
         const localVue = createLocalVue();
         localVue.use(Vuex);
         localVue.directive('tooltip', {
@@ -62,7 +65,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             }
         });
 
-        return shallowMount(Shopware.Component.build('sw-product-detail'), {
+        return shallowMount(await Shopware.Component.build('sw-product-detail'), {
             localVue,
             mocks: {
                 $route: {
@@ -136,7 +139,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'sw-switch-field': true,
                 'sw-context-menu-divider': true,
                 'sw-checkbox-field': true,
-                'sw-product-settings-mode': Shopware.Component.build('sw-product-settings-mode'),
+                'sw-product-settings-mode': await Shopware.Component.build('sw-product-settings-mode'),
                 'sw-loader': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
@@ -162,7 +165,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         console.error = jest.fn();
     });
 
@@ -172,16 +175,16 @@ describe('module/sw-product/page/sw-product-detail', () => {
         console.error = consoleError;
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show advanced mode settings', () => {
+    it('should show advanced mode settings', async () => {
         const contextButton = wrapper.find('.sw-product-settings-mode');
         expect(contextButton.exists()).toBe(true);
     });
 
-    it('should show item tabs ', () => {
+    it('should show item tabs ', async () => {
         const tabItemClassName = [
             '.sw-product-detail__tab-advanced-prices',
             '.sw-product-detail__tab-variants',
@@ -254,7 +257,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         const keys = ['general_information', 'prices', 'deliverability'];
         const mockKey = 'mock_key_without_result';
-        wrapper = createWrapper((criteria) => {
+        wrapper = await createWrapper((criteria) => {
             if (criteria.filters[0]?.value !== 'mode.setting.advancedModeSettings') {
                 return Promise.resolve([]);
             }

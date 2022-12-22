@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Store\Exception\LicenseNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Store\Exception\LicenseNotFoundException
  */

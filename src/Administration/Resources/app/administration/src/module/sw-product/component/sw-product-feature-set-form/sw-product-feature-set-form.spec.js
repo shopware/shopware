@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/module/sw-product/component/sw-product-feature-set-form';
@@ -59,7 +63,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         });
     };
 
-    function createWrapper() {
+    async function createWrapper() {
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;
@@ -68,21 +72,21 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
 
         localVue.use(VueRouter);
 
-        return shallowMount(Shopware.Component.build('sw-product-feature-set-form'), {
+        return shallowMount(await Shopware.Component.build('sw-product-feature-set-form'), {
             localVue,
             stubs: {
-                'sw-container': Shopware.Component.build('sw-container'),
-                'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch'),
+                'sw-container': await Shopware.Component.build('sw-container'),
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+                'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
                 'sw-icon': {
                     template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
                 },
                 'sw-icons-custom-inherited': true,
-                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
+                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
                 'sw-loader': true,
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
                 'sw-label': true,
                 i18n: true
@@ -106,13 +110,14 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
             computed: {
                 product: () => productMock({ featureSetId: featureSetMock.id }),
                 parentProduct: () => productMock({ featureSetId: featureSetMock.id, id: 'a12b3c' }),
-                loading: () => {}
+                loading: () => {
+                }
             }
         });
     }
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

@@ -1,8 +1,11 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-detail-analytics'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-analytics'), {
         stubs: {
             'sw-card': true,
             'sw-field': true,
@@ -28,15 +31,18 @@ function createWrapper(privileges = []) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have fields disabled when the user has no privileges', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const fields = wrapper.findAll('sw-field-stub');
 
@@ -46,7 +52,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', (
     });
 
     it('should have fields enabled when the user has privileges', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.editor'
         ]);
 

@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class ContainerCartProcessor implements CartProcessorInterface
 {
     private PercentagePriceCalculator $percentageCalculator;

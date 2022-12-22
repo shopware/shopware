@@ -9,6 +9,9 @@ use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @package storefront
+ */
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     private RequestStack $requestStack;

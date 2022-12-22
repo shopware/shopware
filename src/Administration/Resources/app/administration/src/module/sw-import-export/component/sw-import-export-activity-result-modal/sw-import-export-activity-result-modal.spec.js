@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
 
@@ -38,8 +41,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
     }
 
 
-    function createWrapper(logEntity = getLogEntityMock()) {
-        return shallowMount(Shopware.Component.build('sw-import-export-activity-result-modal'), {
+    async function createWrapper(logEntity = getLogEntityMock()) {
+        return shallowMount(await Shopware.Component.build('sw-import-export-activity-result-modal'), {
             propsData: {
                 logEntity
             },
@@ -67,8 +70,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
         }
     });
 
-    it('should be a vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -79,8 +82,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
         ['Date / time', '8 November 2021 at 14:50', 'date'],
         ['User', 'admin', 'user'],
         ['Type', 'sw-import-export.activity.detail.importLabel', 'type'],
-    ])('should display %s', (_, expectedValue, selector) => {
-        wrapper = createWrapper();
+    ])('should display %s', async (_, expectedValue, selector) => {
+        wrapper = await createWrapper();
         const element = wrapper.find(`.sw-import-export-activity-result-modal__log-info-${selector} dd`);
 
         expect(element.text()).toBe(expectedValue);

@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTableTest extends TestCase

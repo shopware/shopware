@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @package core
  * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
  * this validator implements a subset of the functionality and calls into the real validator if needed.
  */

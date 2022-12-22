@@ -3,6 +3,9 @@ import Emitter from 'src/helper/emitter.helper';
 
 const detector = new ViewportDetection();
 
+/**
+ * @package storefront
+ */
 describe('viewport-detection.helper', () => {
     function getContent() {
         if (window.innerWidth < 0) return 'undefined';

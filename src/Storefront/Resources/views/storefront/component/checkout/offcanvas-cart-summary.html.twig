@@ -46,6 +46,8 @@
                             name="confirmShippingForm"
                             data-form-csrf-handler="true"
                             method="post">
+
+                            {# @deprecated tag:v6.5.0 - Block page_checkout_confirm_shipping_form_csrf will be removed. #}
                             {% block page_checkout_confirm_shipping_form_csrf %}
                                 {{ sw_csrf('frontend.checkout.configure') }}
                             {% endblock %}

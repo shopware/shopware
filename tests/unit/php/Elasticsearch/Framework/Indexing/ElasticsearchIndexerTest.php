@@ -184,7 +184,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->expects(static::never())
             ->method('createIndex');
 
-        $offset = new IndexerOffset(new LanguageCollection(), [], null);
+        $offset = new IndexerOffset([], [], null);
 
         static::assertNull($indexer->iterate($offset));
     }
@@ -198,11 +198,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->expects(static::never())
             ->method('createIndex');
 
-        $invalidLanguage = new LanguageEntity();
-        $invalidLanguage->setId('invalid');
-        $invalidLanguage->setUniqueIdentifier('invalid');
-
-        $offset = new IndexerOffset(new LanguageCollection([$invalidLanguage]), [], null);
+        $offset = new IndexerOffset(['invalid'], [], null);
 
         static::assertNull($indexer->iterate($offset));
     }
@@ -236,7 +232,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $offset = new IndexerOffset(new LanguageCollection([$this->language1]), [$this->createDefinition('foo')], null);
+        $offset = new IndexerOffset([$this->language1->getId()], [$this->createDefinition('foo')], null);
 
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Definition foo not found');

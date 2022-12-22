@@ -11,6 +11,9 @@ use Twig\Node\Expression\NameExpression;
 use Twig\Node\ForNode;
 use Twig\Node\Node;
 
+/**
+ * @package core
+ */
 class TwigVariableParser
 {
     private Environment $twig;

@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package checkout
+ */
 class LineItemGroupUnitPriceGrossPackager implements LineItemGroupPackagerInterface
 {
     public function getKey(): string

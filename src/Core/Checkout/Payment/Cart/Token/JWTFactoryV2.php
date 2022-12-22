@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**
@@ -30,9 +33,18 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
     public function generateToken(TokenStruct $tokenStruct): string
     {
-        $expires = (new \DateTimeImmutable('@' . time()))->modify(
-            sprintf('+%d seconds', $tokenStruct->getExpires())
-        );
+        $expires = new \DateTimeImmutable('@' . time());
+
+        // @see https://github.com/php/php-src/issues/9950
+        if ($tokenStruct->getExpires() > 0) {
+            $expires = $expires->modify(
+                sprintf('+%d seconds', $tokenStruct->getExpires())
+            );
+        } else {
+            $expires = $expires->modify(
+                sprintf('-%d seconds', abs($tokenStruct->getExpires()))
+            );
+        }
 
         $jwtToken = $this->configuration->builder()
             ->identifiedBy(Uuid::randomHex())

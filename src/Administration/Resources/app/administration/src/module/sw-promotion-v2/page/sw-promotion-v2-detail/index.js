@@ -129,6 +129,11 @@ Component.register('sw-promotion-v2-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-promotion-detail__promotion',
+                path: 'promotion',
+                scope: this,
+            });
             this.isLoading = true;
 
             if (!this.promotionId) {

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-mailer/component/sw-settings-mailer-smtp';
 import 'src/app/component/form/sw-field';
@@ -8,18 +11,18 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
 describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () => {
-    const createWrapper = (mailerSettings = {}) => {
-        return shallowMount(Shopware.Component.build('sw-settings-mailer-smtp'), {
+    const createWrapper = async (mailerSettings = {}) => {
+        return shallowMount(await Shopware.Component.build('sw-settings-mailer-smtp'), {
             provide: {
                 validationService: {}
             },
             stubs: {
-                'sw-field': Shopware.Component.build('sw-field'),
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-number-field': Shopware.Component.build('sw-number-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-number-field': await Shopware.Component.build('sw-number-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
                 'sw-single-select': true,
                 'sw-switch-field': true,
@@ -38,13 +41,13 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
     };
 
     it('should be a vue js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should assign host value', () => {
-        const wrapper = createWrapper({
+    it('should assign host value', async () => {
+        const wrapper = await createWrapper({
             'core.mailerSettings.host': 'https://example.com',
         });
 
@@ -52,8 +55,8 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         expect(host).toBe('https://example.com');
     });
 
-    it('should assign port value', () => {
-        const wrapper = createWrapper({
+    it('should assign port value', async () => {
+        const wrapper = await createWrapper({
             'core.mailerSettings.port': 476,
         });
 

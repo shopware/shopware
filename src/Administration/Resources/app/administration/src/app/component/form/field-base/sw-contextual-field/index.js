@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-contextual-field.html.twig';
 import './sw-contextual-field.scss';
 

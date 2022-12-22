@@ -6,6 +6,9 @@ import Feature from 'src/helper/feature.helper';
  */
 const RESIZE_DEBOUNCE_TIME = 200;
 
+/**
+ * @package storefront
+ */
 export default class ViewportDetection {
 
     /**

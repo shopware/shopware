@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
@@ -17,7 +21,7 @@ import Vuex from 'vuex';
 describe('src/module/sw-product/view/sw-product-detail-properties', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
 
-    const createWrapper = () => {
+    const createWrapper = async () => {
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;
@@ -29,19 +33,19 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
         localVue.directive('tooltip', {});
         localVue.filter('asset', key => key);
 
-        return shallowMount(Shopware.Component.build('sw-product-detail-properties'), {
+        return shallowMount(await Shopware.Component.build('sw-product-detail-properties'), {
             localVue,
             stubs: {
-                'sw-container': Shopware.Component.build('sw-container'),
+                'sw-container': await Shopware.Component.build('sw-container'),
                 'sw-card': true,
                 'sw-icon': true,
                 'sw-loader': true,
                 'sw-empty-state': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-inheritance-switch': true,
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true
             },
             provide: {
@@ -67,7 +71,7 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
     };
 
     it('should be able to instantiate', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -81,7 +85,7 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
             id: 'parentProductId'
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const emptyStateElement = wrapper.get('.sw-product-detail-properties__empty-state-card');
@@ -102,7 +106,7 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
             id: 'parentProductId'
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.isChild).toBeFalsy();

@@ -1,12 +1,15 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-number-range/page/sw-settings-number-range-list';
 import 'src/app/component/base/sw-card';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-number-range-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-number-range-list'), {
         localVue,
         mocks: {
             $route: {
@@ -45,7 +48,7 @@ function createWrapper(privileges = []) {
                 `
             },
             'sw-card-view': true,
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-entity-listing': {
                 props: ['items'],
@@ -71,8 +74,8 @@ function createWrapper(privileges = []) {
 describe('module/sw-settings-number-range/page/sw-settings-number-range-list', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -90,7 +93,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('Should allow create with correct permission', async () => {
-        wrapper = createWrapper(['number_ranges.creator']);
+        wrapper = await createWrapper(['number_ranges.creator']);
         const addButton = wrapper.find('.sw-number-range-list__add-number-range');
 
         expect(addButton.attributes().disabled).toBeUndefined();
@@ -104,7 +107,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should allow edit with edit permission', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'number_ranges.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -122,7 +125,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should now allow delete without delete permission', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'number_ranges.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -140,7 +143,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should be able to delete if user has delete permission', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'number_ranges.deleter'
         ]);
         await wrapper.vm.$nextTick();

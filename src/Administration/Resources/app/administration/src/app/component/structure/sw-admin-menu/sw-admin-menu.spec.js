@@ -1,9 +1,12 @@
+/**
+ * @package admin
+ */
+
 import { config, shallowMount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/app/component/structure/sw-admin-menu-item';
 import createMenuService from 'src/app/service/menu.service';
-import flushPromises from 'flush-promises';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
 /** fixtures */
@@ -13,7 +16,7 @@ import testApps from '../../../service/_mocks/testApps.json';
 const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
-function createWrapper(options = {}) {
+async function createWrapper(options = {}) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -22,7 +25,7 @@ function createWrapper(options = {}) {
     localVue.directive('tooltip', {});
     localVue.use(VueRouter);
 
-    const adminMenuComponent = Shopware.Component.build('sw-admin-menu');
+    const adminMenuComponent = await Shopware.Component.build('sw-admin-menu');
 
     return shallowMount(adminMenuComponent, {
         localVue,
@@ -30,7 +33,7 @@ function createWrapper(options = {}) {
         stubs: {
             'sw-icon': true,
             'sw-version': true,
-            'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
+            'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
             'sw-loader': true,
             'sw-avatar': true,
             'sw-shortcut-overview': true
@@ -72,7 +75,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
 
         Shopware.State.commit('setCurrentUser', null);
@@ -86,7 +89,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         Shopware.State.commit('shopwareApps/setApps', []);
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -173,7 +176,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(element2.classList.contains('foo')).toBeTruthy();
     });
 
-    it('should be able to check if a mouse position is in a polygon', () => {
+    it('should be able to check if a mouse position is in a polygon', async () => {
         const polygon = [
             [0, 287],
             [0, 335],
@@ -194,7 +197,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBeFalsy();
     });
 
-    it('should get polygon from menu item', () => {
+    it('should get polygon from menu item', async () => {
         const element = document.createElement('div');
         const entry = {
             children: [{
@@ -206,7 +209,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             .toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
     });
 
-    it('should render correct admin menu entries', () => {
+    it('should render correct admin menu entries', async () => {
         const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
 
         // expect two top level entries visible because sw-my-apps and second-module have no children nor a path
@@ -233,14 +236,14 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         ]);
     });
 
-    it('should render third level menu correctly', () => {
+    it('should render third level menu correctly', async () => {
         const thirdLevelEntries = wrapper.findAll('.navigation-list-item__level-3');
 
         expect(thirdLevelEntries.length).toEqual(1);
         expect(thirdLevelEntries.at(0).text()).toContain('first child of third top level entry');
     });
 
-    it('should not render 4.level or higher menu item and throw error', () => {
+    it('should not render 4.level or higher menu item and throw error', async () => {
         const fourthLevelEntries = wrapper.findAll('.navigation-list-item__level-4');
         const fifthLevelEntries = wrapper.findAll('.navigation-list-item__level-5');
 
@@ -260,7 +263,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         );
     });
 
-    it('should check privileges for main menu entry children ', () => {
+    it('should check privileges for main menu entry children ', async () => {
         const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
 
         expect(topLevelEntries).toHaveLength(2);
@@ -375,7 +378,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         component.id = 'component';
         app.appendChild(component);
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             attachTo: '#component',
         });
 
@@ -384,7 +387,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
         app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
 
-        target.trigger('mouseenter');
+        await target.trigger('mouseenter');
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');

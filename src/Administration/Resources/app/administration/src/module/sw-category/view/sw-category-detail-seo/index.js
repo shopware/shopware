@@ -3,6 +3,9 @@ import './sw-category-detail-seo.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-detail-seo', {
     template,

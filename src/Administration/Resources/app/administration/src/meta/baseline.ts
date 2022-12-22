@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const missingTests = [
     'missing-tests-baseline.ts',
     'sw-vue-devtools.ts',
@@ -570,7 +574,6 @@ const missingTests = [
     'sw-order-leave-page-modal/index.js',
     'sw-order-nested-line-items-row/index.js',
     'sw-order-new-customer-modal/index.js',
-    'sw-order-promotion-field/index.js',
     'sw-order-promotion-tag-field/index.js',
     'sw-order-saveable-field/index.js',
     'sw-order-send-document-modal/index.js',

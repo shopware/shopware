@@ -8,8 +8,8 @@
     }
   },
   "sw-settings-seo-entity-detail": {
-    "labelMetaTitle": "Meta-Title",
-    "labelAdditionalText": "Meta-Description"
+    "labelMetaTitle": "Meta title",
+    "labelAdditionalText": "Meta description"
   },
   "sw-seo-url-template-card": {
     "general": {
@@ -23,8 +23,8 @@
       "placeholderSelectVariables": "Search and select...",
       "labelSalesChannelSelect": "Sales Channel",
       "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
-      "textUrlNoEntitiesForPreview": "There are/is no {entity} to generate a preview for. Please create one.",
-      "textUrlPreviewEmptyTemplate": "The template is empty, SEO-URLs won't be generated for routes of the {entity} entity.",
+      "textUrlNoEntitiesForPreview": "No {entity} available.",
+      "textUrlPreviewEmptyTemplate": "The template is empty, SEO URLs for {entity} won't be generated.",
       "headlineInfoMessageBoxEmptyProperties": "Info",
       "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity."
     },

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/app/component/structure/sw-language-switch';
@@ -7,13 +11,13 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
     beforeAll(() => {});
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const localVue = createLocalVue();
         localVue.use(Vuex);
 
         Shopware.State.commit('context/setApiLanguageId', '123456789');
 
-        wrapper = shallowMount(Shopware.Component.build('sw-language-switch'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-language-switch'), {
             localVue,
             stubs: {
                 'sw-entity-single-select': true,

@@ -1,5 +1,9 @@
 import template from './sw-order-detail-base.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Utils, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { get, format, array } = Utils;
@@ -306,6 +310,11 @@ Component.register('sw-order-detail-base', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-order-detail-base__order',
+                path: 'order',
+                scope: this,
+            });
             this.versionContext = Shopware.Context.api;
             this.reloadEntityData();
 

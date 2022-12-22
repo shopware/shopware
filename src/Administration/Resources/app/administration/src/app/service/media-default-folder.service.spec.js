@@ -1,17 +1,20 @@
+/**
+ * @package content
+ */
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 
 describe('app/service/media-default-folder.service.js', () => {
-    it('should be a function', () => {
+    it('should be a function', async () => {
         const type = typeof MediaDefaultFolderService;
         expect(type).toEqual('function');
     });
 
-    it('should return a getDefaultFolderId function', () => {
+    it('should return a getDefaultFolderId function', async () => {
         const mediaDefaultFolderService = MediaDefaultFolderService();
         expect(mediaDefaultFolderService.hasOwnProperty('getDefaultFolderId')).toBe(true);
     });
 
-    it('getDefaultFolderId should use criteria with a correct association and filter', () => {
+    it('getDefaultFolderId should use criteria with a correct association and filter', async () => {
         const factory = Shopware.Service('repositoryFactory');
         factory.create = () => {
             return {
@@ -50,7 +53,7 @@ describe('app/service/media-default-folder.service.js', () => {
         });
     });
 
-    it('getDefaultFolderId function should return a response faster when called with the same argument', () => {
+    it('getDefaultFolderId function should return a response faster when called with the same argument', async () => {
         const mediaDefaultFolderService = MediaDefaultFolderService();
 
         const startNotSaved = performance.now();

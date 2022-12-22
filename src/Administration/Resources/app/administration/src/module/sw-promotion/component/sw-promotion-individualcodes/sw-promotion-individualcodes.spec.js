@@ -12,23 +12,23 @@ import 'src/app/component/base/sw-button';
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-promotion-individualcodes'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-promotion-individualcodes'), {
         stubs: {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-number-field': {
                 template: '<div class="sw-number-field"><slot></slot></div>'
             },
             'sw-help-text': true,
             'sw-field-error': true,
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-progress-bar': {
                 template: '<div class="sw-progress-bar"><slot></slot></div>'
             },
@@ -107,8 +107,8 @@ function createWrapper() {
 describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -152,7 +152,7 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
 
     it('should not have disabled form fields', async () => {
         global.activeAclRoles = ['promotion.editor'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.vm.isEditingDisabled).toBe(false);
 
@@ -171,7 +171,7 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
 
     it('should be individualCodePattern can be generate', async () => {
         global.activeAclRoles = ['promotion.editor'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         wrapper.vm.createNotificationWarning = jest.fn();
         await wrapper.setProps({
             promotion: {
@@ -203,7 +203,7 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
 
     it('should throw an warning message when the individualCodePattern invalid couldn\'t be generate', async () => {
         global.activeAclRoles = ['promotion.editor'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
@@ -222,11 +222,11 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
 
     it('should throw an warning message not allow to generate number', async () => {
         global.activeAclRoles = ['promotion.editor'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        wrapper.setData({ generateCount: 11 });
+        await wrapper.setData({ generateCount: 11 });
 
         const individualCodePattern = wrapper.findAll('.sw-field').at(0).find('input');
         await individualCodePattern.setValue('code-%d');
@@ -243,11 +243,11 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
 
     it('should throw an warning message not allow to generate characters', async () => {
         global.activeAclRoles = ['promotion.editor'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        wrapper.setData({ generateCount: 27 });
+        await wrapper.setData({ generateCount: 27 });
 
         const individualCodePattern = wrapper.findAll('.sw-field').at(0).find('input');
         await individualCodePattern.setValue('code-%s');

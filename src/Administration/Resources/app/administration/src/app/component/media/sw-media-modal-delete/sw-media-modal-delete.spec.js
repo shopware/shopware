@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-modal-delete';
 
@@ -22,10 +25,10 @@ describe('components/media/sw-media-modal-delete', () => {
         };
     };
 
-    const CreateWrapper = (itemDeleteOptions = null) => {
+    const createWrapper = async (itemDeleteOptions = null) => {
         const itemsToDelete = itemDeleteOptions || [itemDeleteMock()];
 
-        return shallowMount(Shopware.Component.build('sw-media-modal-delete'), {
+        return shallowMount(await Shopware.Component.build('sw-media-modal-delete'), {
             stubs: {
                 'sw-modal': true,
                 'sw-button': true,
@@ -47,7 +50,7 @@ describe('components/media/sw-media-modal-delete', () => {
     };
 
     it('should be a Vue.js component', async () => {
-        const wrapper = CreateWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -61,7 +64,7 @@ describe('components/media/sw-media-modal-delete', () => {
             }
         };
 
-        const wrapper = CreateWrapper([
+        const wrapper = await createWrapper([
             itemDeleteMock({ productMedia: [productMediaMock] })
         ]);
 
@@ -85,7 +88,7 @@ describe('components/media/sw-media-modal-delete', () => {
         const cmsSection = { pageId: 'cmsSectionId', page: { translated: { name: 'cms section test' } } };
         const cmsPage = { id: 'cmsPageId', translated: { name: 'cms page test' } };
 
-        const wrapper = CreateWrapper([
+        const wrapper = await createWrapper([
             itemDeleteMock({
                 id: '2028dh992hd021jdj0202j',
                 avatarUser,
@@ -134,7 +137,7 @@ describe('components/media/sw-media-modal-delete', () => {
             itemDeleteMock({ id: 'ff32ff112d3t4gf2g44rd', productMedia: [productMediaMock] })
         ];
 
-        const wrapper = CreateWrapper(manyMediaItemMock);
+        const wrapper = await createWrapper(manyMediaItemMock);
         expect(wrapper.vm.mediaInUsages.length).toEqual(manyMediaItemMock.length);
         wrapper.vm.mediaInUsages.forEach((mediaInUsage) => {
             expect(mediaInUsage.fileName).toMatch(itemDeleteMock().fileName);
@@ -148,7 +151,7 @@ describe('components/media/sw-media-modal-delete', () => {
             name: 'folder test'
         };
 
-        const wrapper = CreateWrapper([folderDeleteMock]);
+        const wrapper = await createWrapper([folderDeleteMock]);
         expect(wrapper.vm.snippets.deleteMessage).toEqual('global.sw-media-modal-delete.deleteMessage.folder');
         expect(wrapper.vm.mediaQuickInfo).toEqual(null);
         expect(wrapper.vm.mediaInUsages.length).toEqual(0);

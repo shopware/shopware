@@ -1,5 +1,9 @@
 import template from './sw-order-create-details-footer.html.twig';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 

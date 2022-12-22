@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class TestSessionStorage implements SessionStorageInterface

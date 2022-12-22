@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class PluginExtractor

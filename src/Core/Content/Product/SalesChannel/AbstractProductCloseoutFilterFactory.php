@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 abstract class AbstractProductCloseoutFilterFactory
 {
     abstract public function getDecorated(): AbstractProductCloseoutFilterFactory;

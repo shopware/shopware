@@ -21,6 +21,8 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Elasticsearch extends Bundle

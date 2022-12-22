@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @package checkout
+ */
 class ListPrice extends Struct
 {
     /**

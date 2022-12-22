@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class FlowActionTestSubscriber extends FlowAction

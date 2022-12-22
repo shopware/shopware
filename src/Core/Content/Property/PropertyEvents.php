@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Property;
 
+/**
+ * @package inventory
+ */
 class PropertyEvents
 {
     /**

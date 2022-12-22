@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 
+/**
+ * @package core
+ */
 interface Hookable
 {
     public const HOOKABLE_EVENTS = [

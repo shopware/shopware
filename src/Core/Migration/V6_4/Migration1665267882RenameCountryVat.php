@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1665267882RenameCountryVat extends MigrationStep

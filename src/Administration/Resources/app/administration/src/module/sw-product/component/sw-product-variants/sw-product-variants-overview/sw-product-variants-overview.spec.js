@@ -1,12 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+/*
+ * @package inventory
+ */
+
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 
-function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    return shallowMount(Shopware.Component.build('sw-product-variants-overview'), {
-        localVue,
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-product-variants-overview'), {
         propsData: {
             selectedGroups: []
         },
@@ -17,12 +17,6 @@ function createWrapper(privileges = []) {
         },
         provide: {
             repositoryFactory: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-                    return privileges.includes(identifier);
-                }
-            },
             searchRankingService: {}
         },
         stubs: {
@@ -71,49 +65,59 @@ function createWrapper(privileges = []) {
         }
     });
 }
+
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-overview', () => {
-    const consoleError = console.error;
-    beforeAll(() => {
+    beforeEach(async () => {
+        global.activeAclRoles = [];
+
         const product = {
             media: []
         };
         product.getEntityName = () => 'T-Shirt';
+
+        if (Shopware.State.get('swProductDetail')) {
+            Shopware.State.unregisterModule('swProductDetail');
+        }
+
         Shopware.State.registerModule('swProductDetail', {
             namespaced: true,
-            state: () => ({
-                product: product,
-                currencies: [],
-                variants: [
-                    {
-                        id: 1,
-                        name: null,
-                        options: [
-                            {
-                                id: 1,
-                                name: '30',
-                                translated: {
+            state() {
+                return {
+                    product: product,
+                    currencies: [],
+                    variants: [
+                        {
+                            id: 1,
+                            name: null,
+                            options: [
+                                {
+                                    id: 1,
                                     name: '30',
+                                    translated: {
+                                        name: '30',
+                                    },
+                                    groupId: 'size-group-id',
                                 },
-                                groupId: 'size-group-id',
-                            },
-                        ],
-                    },
-                    {
-                        id: 2,
-                        name: null,
-                        options: [
-                            {
-                                id: 2,
-                                name: '32',
-                                translated: {
+                            ],
+                        },
+                        {
+                            id: 2,
+                            name: null,
+                            options: [
+                                {
+                                    id: 2,
                                     name: '32',
+                                    translated: {
+                                        name: '32',
+                                    },
+                                    groupId: 'size-group-id',
                                 },
-                                groupId: 'size-group-id',
-                            },
-                        ],
-                    },
-                ],
-            }),
+                            ],
+                        },
+                    ],
+                    taxes: [],
+                };
+            },
             getters: {
                 isLoading: () => false
             },
@@ -125,65 +129,53 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
     });
 
-    afterAll(() => {
-        Shopware.State.unregisterModule('swProductDetail');
-    });
-
-    beforeEach(() => {
-        console.error = jest.fn();
-    });
-
-    afterEach(() => {
-        console.error = consoleError;
-    });
-
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled generate variants button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
         expect(generateVariantsButton.attributes().disabled).toBeTruthy();
     });
 
     it('should have an enabled generate variants button', async () => {
-        const wrapper = createWrapper([
-            'product.creator'
-        ]);
+        global.activeAclRoles = ['product.creator'];
+
+        const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
         expect(generateVariantsButton.attributes().disabled).toBeFalsy();
     });
 
     it('should allow inline editing', async () => {
-        const wrapper = createWrapper([
-            'product.editor'
-        ]);
+        global.activeAclRoles = ['product.editor'];
+
+        const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
         expect(dataGrid.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should disallow inline editing', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
         expect(dataGrid.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should enable selection deleting of list variants', async () => {
-        const wrapper = createWrapper([
-            'product.deleter'
-        ]);
+        global.activeAclRoles = ['product.deleter'];
+
+        const wrapper = await createWrapper();
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
         expect(dataGrid.attributes()['show-selection']).toBeTruthy();
     });
 
     it('should be able to turn on delete confirmation modal', async () => {
-        const wrapper = createWrapper([
-            'product.deleter'
-        ]);
+        global.activeAclRoles = ['product.deleter'];
+
+        const wrapper = await createWrapper();
 
         const deleteContextButton = wrapper.find('.sw-context-menu-item[variant="danger"]');
         await deleteContextButton.trigger('click');
@@ -197,19 +189,19 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             .toBe('sw-product.variations.generatedListDeleteModalMessage');
     });
 
-    it('should not be able to turn on delete confirmation modal', () => {
-        const wrapper = createWrapper([
-            'product.editor',
-        ]);
+    it('should not be able to turn on delete confirmation modal', async () => {
+        global.activeAclRoles = ['product.editor'];
+
+        const wrapper = await createWrapper();
 
         const deleteContextButton = wrapper.find('.sw-context-menu-item[variant="danger"]');
         expect(deleteContextButton.attributes().disabled).toBe('disabled');
     });
 
     it('should be able to delete variants', async () => {
-        const wrapper = createWrapper([
-            'product.deleter'
-        ]);
+        global.activeAclRoles = ['product.deleter'];
+
+        const wrapper = await createWrapper();
 
         const selectAllInput = wrapper.find('.sw-data-grid__select-all');
         await selectAllInput.trigger('change');
@@ -227,9 +219,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should not be able to delete variants', async () => {
-        const wrapper = createWrapper([
-            'product.editor',
-        ]);
+        global.activeAclRoles = ['product.editor'];
+
+        const wrapper = await createWrapper();
 
         const deleteVariantsButton = wrapper.find('.sw-product-variants-overview__bulk-delete-action');
         expect(deleteVariantsButton.exists()).toBeFalsy();

@@ -7,6 +7,9 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Component\Mime\Email;
 
+/**
+ * @package business-ops
+ */
 class MessageStorer extends FlowStorer
 {
     /**

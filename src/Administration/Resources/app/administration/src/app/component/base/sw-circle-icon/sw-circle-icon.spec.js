@@ -1,9 +1,21 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-circle-icon';
 import 'src/app/component/base/sw-label';
 
 describe('components/base/sw-circle-icon', () => {
     let wrapper;
+    let stubs;
+
+    beforeAll(async () => {
+        stubs = {
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-icon': true
+        };
+    });
 
     afterEach(() => {
         if (wrapper) {
@@ -11,20 +23,15 @@ describe('components/base/sw-circle-icon', () => {
         }
     });
 
-    const stubs = {
-        'sw-label': Shopware.Component.build('sw-label'),
-        'sw-icon': true
-    };
-
-    function createWrapper(propsData) {
-        return mount(Shopware.Component.build('sw-circle-icon'), {
+    async function createWrapper(propsData) {
+        return mount(await Shopware.Component.build('sw-circle-icon'), {
             propsData,
             stubs
         });
     }
 
-    it('passes default values', () => {
-        wrapper = createWrapper({
+    it('passes default values', async () => {
+        wrapper = await createWrapper({
             iconName: 'default-basic-checkmark-line'
         });
 
@@ -44,7 +51,7 @@ describe('components/base/sw-circle-icon', () => {
     });
 
     it('it passes variant correctly', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             iconName: 'default-basic-checkmark-line',
             variant: 'danger'
         });
@@ -54,10 +61,10 @@ describe('components/base/sw-circle-icon', () => {
         expect(swLabel.props('variant')).toBe('danger');
     });
 
-    it('passes size correctly', () => {
+    it('passes size correctly', async () => {
         const size = 72;
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             iconName: 'default-basic-checkmark-line',
             size
         });

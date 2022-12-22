@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/buy-box/component';
@@ -14,11 +17,11 @@ const productMock = {
     ]
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('currency', key => key);
 
-    return shallowMount(Shopware.Component.build('sw-cms-el-buy-box'), {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-buy-box'), {
         localVue,
         sync: false,
         propsData: {
@@ -60,7 +63,7 @@ function createWrapper() {
 
 describe('module/sw-cms/elements/buy-box/component', () => {
     it('should show skeleton if page type is product page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             cmsPageState: {
@@ -73,15 +76,15 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         expect(wrapper.find('.sw-cms-el-buy-box__skeleton').exists()).toBeTruthy();
     });
 
-    it('should show dummy data initially if page type is not product page and no product config', () => {
-        const wrapper = createWrapper();
+    it('should show dummy data initially if page type is not product page and no product config', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('0');
     });
 
     it('should show product data if page type is not product page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {
@@ -97,7 +100,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     it('should show current demo data if mapping entity is product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             cmsPageState: {
@@ -114,7 +117,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     });
 
     it('should show dummy data initially if mapping entity is not product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             cmsPageState: {

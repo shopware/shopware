@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 class ArrayEntity extends Entity implements \ArrayAccess
 {
     /**

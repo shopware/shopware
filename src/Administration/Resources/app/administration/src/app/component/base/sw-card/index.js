@@ -4,6 +4,8 @@ import './sw-card.scss';
 const { Component, Feature } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description A card is a flexible and extensible content container.
  * @status ready

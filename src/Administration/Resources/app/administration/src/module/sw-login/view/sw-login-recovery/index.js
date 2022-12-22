@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { email } from 'src/core/service/validation.service';
 import template from './sw-login-recovery.html.twig';
 

@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-settings-seo/component/sw-seo-url';
@@ -6,11 +10,11 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-seo-url'), {
+    return shallowMount(await Shopware.Component.build('sw-seo-url'), {
         localVue,
         stubs: {
             'sw-card': {
@@ -52,8 +56,8 @@ function createWrapper() {
 describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
         Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', '');
     });
 

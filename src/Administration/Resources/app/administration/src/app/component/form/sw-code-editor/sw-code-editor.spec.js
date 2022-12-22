@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-code-editor';
 
@@ -18,8 +22,8 @@ const userInputSanitizeService = {
     }))
 };
 
-function createWrapper(options = {}) {
-    return shallowMount(Shopware.Component.build('sw-code-editor'), {
+async function createWrapper(options = {}) {
+    return shallowMount(await Shopware.Component.build('sw-code-editor'), {
         provide: { userInputSanitizeService },
         stubs: {
             'sw-circle-icon': { template: '<i/>' }
@@ -31,19 +35,19 @@ function createWrapper(options = {}) {
 describe('components/form/sw-code-editor', () => {
     Shopware.Service().register('userInputSanitizeService', () => userInputSanitizeService);
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be read only when enabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.aceConfig.readOnly).toBe(false);
     });
 
     it('should be read only when disabled', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 disabled: true
             }
@@ -53,9 +57,9 @@ describe('components/form/sw-code-editor', () => {
     });
 
     it('should not sanitize content without `sanitize-input` attribute and without FEATURE_NEXT_15172', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
 
         // set sanitizeInput attribute to true, but without Feature Flag still no purification
@@ -63,7 +67,7 @@ describe('components/form/sw-code-editor', () => {
             sanitizeInput: true
         });
 
-        wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
         await wrapper.vm.sanitizeEditorInput(vulnerableInput);
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
     });
@@ -71,19 +75,19 @@ describe('components/form/sw-code-editor', () => {
     it('should sanitize content when `sanitize-input` attibute is true and FEATURE_NEXT_15172 is set', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_15172'];
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 sanitizeInput: true
             }
         });
 
-        wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
         await wrapper.vm.sanitizeEditorInput(vulnerableInput);
         expect(wrapper.vm.editor.getValue()).toBe(sanitizedInput);
 
         // tell `userInputSanitizeService` to reject
         serviceShouldWork = false;
-        wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
         await wrapper.vm.sanitizeEditorInput(vulnerableInput);
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
 
@@ -92,7 +96,7 @@ describe('components/form/sw-code-editor', () => {
             sanitizeInput: false
         });
 
-        wrapper.vm.editor.setValue(vulnerableInput, 1);
+        await wrapper.vm.editor.setValue(vulnerableInput, 1);
         await wrapper.vm.sanitizeEditorInput(vulnerableInput);
         expect(wrapper.vm.editor.getValue()).toBe(vulnerableInput);
     });

@@ -1,4 +1,8 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+/*
+ * @package inventory
+ */
+
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-price-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
@@ -35,10 +39,9 @@ const parentProductData = {
     }]
 };
 
-enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-price-form', () => {
-    function createWrapper(productEntityOverride, parentProductOverride) {
+    async function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity =
             {
                 metaTitle: 'Product1',
@@ -54,7 +57,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
             ...parentProductOverride
         };
 
-        return shallowMount(Shopware.Component.build('sw-product-price-form'), {
+        return shallowMount(await Shopware.Component.build('sw-product-price-form'), {
             mocks: {
                 $route: {
                     name: 'sw.product.detail.base',
@@ -97,7 +100,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                                         isoCode: 'EUR'
                                     };
                                 },
-                                productTaxRate: () => {}
+                                productTaxRate: () => {
+                                }
                             }
                         }
                     }
@@ -108,21 +112,21 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 'sw-container': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-list-price-field': Shopware.Component.build('sw-list-price-field'),
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+                'sw-list-price-field': await Shopware.Component.build('sw-list-price-field'),
                 'sw-inheritance-switch': {
                     props: ['isInherited', 'disabled'],
                     template: `
-                    <div class="sw-inheritance-switch">
-                        <div v-if="isInherited"
-                            class="sw-inheritance-switch--is-inherited"
-                            @click="onClickRemoveInheritance">
-                        </div>
-                        <div v-else
-                             class="sw-inheritance-switch--is-not-inherited"
-                             @click="onClickRestoreInheritance">
-                        </div>
-                    </div>`,
+                      <div class="sw-inheritance-switch">
+                      <div v-if="isInherited"
+                           class="sw-inheritance-switch--is-inherited"
+                           @click="onClickRemoveInheritance">
+                      </div>
+                      <div v-else
+                           class="sw-inheritance-switch--is-not-inherited"
+                           @click="onClickRestoreInheritance">
+                      </div>
+                      </div>`,
                     methods: {
                         onClickRestoreInheritance() {
                             this.$emit('inheritance-restore');
@@ -154,8 +158,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', () => {
-        wrapper = createWrapper();
+    it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', async () => {
+        wrapper = await createWrapper();
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
@@ -171,7 +175,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     });
 
     it('should enable all price fields and toggle inheritance switch off if product variant price exists', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             price: [{
                 currencyId: '1',
                 linked: true,
@@ -203,7 +207,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
 
@@ -227,7 +231,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button (using empty purchasePrices)', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         // remove purchasePrices of parent
         wrapper.vm.parentProduct.purchasePrices = undefined;
@@ -254,7 +258,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on when user clicks on restore inheritance button', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             price: [{
                 currencyId: '1',
                 linked: true,
@@ -279,8 +283,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(wrapper.vm.prices).toEqual({ price: [], purchasePrices: [] });
     });
 
-    it('should show price item fields when advanced mode is on', () => {
-        wrapper = createWrapper();
+    it('should show price item fields when advanced mode is on', async () => {
+        wrapper = await createWrapper();
 
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
@@ -293,7 +297,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     });
 
     it('should hide price item fields when advanced mode is off', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {

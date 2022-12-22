@@ -10,6 +10,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
+/**
+ * @package storefront
+ */
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
     private FilesystemInterface $filesystem;

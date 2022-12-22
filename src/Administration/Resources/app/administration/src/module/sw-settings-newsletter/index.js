@@ -1,5 +1,9 @@
 import './page/sw-settings-newsletter';
 
+/**
+ * @package customer-order
+ */
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

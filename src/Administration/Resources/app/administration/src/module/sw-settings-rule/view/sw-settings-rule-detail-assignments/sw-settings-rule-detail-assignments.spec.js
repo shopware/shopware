@@ -9,17 +9,16 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/utils/sw-popover';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
 }
 
-function createWrapper(entitiesWithResults = [], customProps = {}) {
+async function createWrapper(entitiesWithResults = [], customProps = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-rule-detail-assignments'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-rule-detail-assignments'), {
         localVue,
         stubs: {
             'sw-card': {
@@ -27,11 +26,11 @@ function createWrapper(entitiesWithResults = [], customProps = {}) {
             },
             'sw-loader': true,
             'sw-empty-state': true,
-            'sw-settings-rule-assignment-listing': Shopware.Component.build('sw-settings-rule-assignment-listing'),
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-settings-rule-assignment-listing': await Shopware.Component.build('sw-settings-rule-assignment-listing'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-checkbox-field': true,
             'sw-context-menu-item': true,
             'sw-icon': true,
@@ -99,13 +98,13 @@ function createWrapper(entitiesWithResults = [], customProps = {}) {
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should prepare association entities list', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product',
             'shipping_method',
             'payment_method',
@@ -122,14 +121,14 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
                     repository: expect.any(Object),
                     gridColumns: expect.any(Array),
                     criteria: expect.any(Function),
-                    loadedData: null
+                    loadedData: expect.any(Array),
                 })
             ])
         );
     });
 
     it('should try to load and assign entity data for defined entities', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product',
             'shipping_method',
             'payment_method',
@@ -160,7 +159,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should render an entity-listing for each entity when all entities have results', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product',
             'shipping_method',
             'payment_method',
@@ -201,7 +200,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should render an entity-listing also if no assignment is found', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         await flushPromises();
 
         // Expect entity listings to not be present
@@ -235,7 +234,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should render an empty-state when none of the associated entities returns a result', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state').exists()).toBeTruthy();
@@ -243,7 +242,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should render names of product variants', async () => {
-        const wrapper = await createWrapper(['product']);
+        const wrapper = await await createWrapper(['product']);
         await flushPromises();
 
         // expect entity listing for products to be present
@@ -263,7 +262,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should have the right link inside the template', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'promotion'
         ]);
         await flushPromises();
@@ -280,17 +279,17 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(detailRouteAttribute).toBe('sw.promotion.v2.detail.conditions');
     });
 
-    it('should disable adding then rule is restricted', () => {
+    it('should disable adding then rule is restricted', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const disabled = wrapper.vm.disableAdd({});
 
         expect(disabled).toBeTruthy();
     });
 
-    it('should call rule condition service', () => {
+    it('should call rule condition service', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const config = wrapper.vm.getTooltipConfig({});
 
         expect(config.message).toEqual('tooltipConfig');
@@ -299,9 +298,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     /**
      * @feature-deprecated (flag:FEATURE_NEXT_18215) test can be removed
      */
-    it('should return disabled tooltip when feature is off', () => {
+    it('should return disabled tooltip when feature is off', async () => {
         global.activeFeatureFlags = [];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const config = wrapper.vm.getTooltipConfig({});
 
         expect(config.message).toEqual('');

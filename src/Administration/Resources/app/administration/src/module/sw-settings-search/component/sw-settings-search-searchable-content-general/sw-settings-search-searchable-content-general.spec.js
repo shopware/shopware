@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-general';
 import 'src/app/component/context-menu/sw-context-menu-item';
@@ -10,11 +13,10 @@ import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
 
 global.allowedErrors.push(missingGetListMethod);
 
-
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content-general'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-searchable-content-general'), {
         localVue,
 
         mocks: {
@@ -40,12 +42,12 @@ function createWrapper() {
 
         stubs: {
             'sw-empty-state': true,
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
-            'sw-data-grid-skeleton': Shopware.Component.build('sw-data-grid-skeleton'),
+            'sw-data-grid-skeleton': await Shopware.Component.build('sw-data-grid-skeleton'),
             'sw-context-button': true,
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item')
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item')
         },
 
         propsData: {
@@ -63,7 +65,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
@@ -72,7 +74,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('should render empty state when isEmpty variable is true', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             isEmpty: true
@@ -84,7 +86,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('should call to reset ranking function when click to reset ranking action', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onResetRanking = jest.fn();
 
@@ -121,7 +123,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('should emitted to save-config when call the reset ranking function', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         const searchConfigs = [
             {

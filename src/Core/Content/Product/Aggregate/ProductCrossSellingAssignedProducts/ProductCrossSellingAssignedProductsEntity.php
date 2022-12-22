@@ -7,6 +7,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package inventory
+ */
 class ProductCrossSellingAssignedProductsEntity extends Entity
 {
     use EntityIdTrait;

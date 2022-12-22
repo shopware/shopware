@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 class StoreLoader {
     /**
      * Allows to load all records of the provided store. The records are loaded inside a queue to prevent server overloads

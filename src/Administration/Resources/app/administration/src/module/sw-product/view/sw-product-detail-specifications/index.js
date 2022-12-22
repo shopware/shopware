@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-detail-specifications.html.twig';
 
 const { Component } = Shopware;

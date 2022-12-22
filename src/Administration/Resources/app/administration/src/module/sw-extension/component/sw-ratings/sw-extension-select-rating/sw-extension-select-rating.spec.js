@@ -6,19 +6,22 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-rating', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-extension-select-rating'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-extension-select-rating'), {
             provide: {
                 validationService: {}
             },
             stubs: {
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-extension-rating-stars': Shopware.Component.build('sw-extension-rating-stars'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
                 'sw-icon': true
             }
         });
@@ -28,8 +31,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-ratin
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -40,7 +43,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-select-ratin
         [3, 2],
         [4, 1]
     ])('should have %d yellow star(s)', async (starPosition, expectedValue) => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const buttons = wrapper.findAll('button.sw-extension-rating-stars__star');
         const toBeClickedButton = buttons.at(starPosition);

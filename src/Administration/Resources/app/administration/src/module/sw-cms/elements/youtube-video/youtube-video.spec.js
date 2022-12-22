@@ -1,8 +1,15 @@
+/**
+ * @package content
+ */
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/youtube-video/config';
 
 describe('modules/sw-cms/elements/youtube-video', () => {
-    const youtubeComponent = Shopware.Component.build('sw-cms-el-config-youtube-video');
+    let youtubeComponent;
+
+    beforeAll(async () => {
+        youtubeComponent = await Shopware.Component.build('sw-cms-el-config-youtube-video');
+    });
 
     it('should get the ID from the share link', async () => {
         const shortLink = youtubeComponent.methods.shortenLink('https://youtu.be/Bey4XXJAqS8');

@@ -16,6 +16,7 @@ const REMOVE_OFF_CANVAS_DELAY = 350;
  * This class will be adjusted to use Bootstraps OffCanvas JavaScript implementation.
  *
  * @see https://getbootstrap.com/docs/5.1/components/offcanvas
+ * @package storefront
  */
 class OffCanvasSingleton {
 

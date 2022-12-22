@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<ProductMediaEntity>
+ *
+ * @package inventory
  */
 class ProductMediaCollection extends EntityCollection
 {

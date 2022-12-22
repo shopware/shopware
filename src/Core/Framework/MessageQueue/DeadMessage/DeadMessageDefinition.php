@@ -19,6 +19,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 
+/***
+ * @package core
+ * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed, as we use the default symfony retry mechanism
+ */
 class DeadMessageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'dead_message';

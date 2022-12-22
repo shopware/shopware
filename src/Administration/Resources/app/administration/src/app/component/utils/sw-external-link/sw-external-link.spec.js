@@ -1,13 +1,17 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-external-link';
 
 // initial component setup
-const setup = (propOverride) => {
+const setup = async (propOverride) => {
     const propsData = {
         ...propOverride
     };
 
-    return shallowMount(Shopware.Component.build('sw-external-link'), {
+    return shallowMount(await Shopware.Component.build('sw-external-link'), {
         stubs: ['sw-icon'],
         slots: {
             default: 'test external link'
@@ -17,18 +21,18 @@ const setup = (propOverride) => {
 };
 
 describe('components/utils/sw-external-link', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = setup({ href: 'https://google.com' });
+    it('should be a Vue.js component', async () => {
+        const wrapper = await setup({ href: 'https://google.com' });
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render correctly', () => {
-        const wrapper = setup({ href: 'https://google.com' });
+    it('should render correctly', async () => {
+        const wrapper = await setup({ href: 'https://google.com' });
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should display a custom icon', () => {
-        const wrapper = setup({
+    it('should display a custom icon', async () => {
+        const wrapper = await setup({
             href: 'https://google.com',
             icon: 'default-test-icon'
         });
@@ -38,16 +42,16 @@ describe('components/utils/sw-external-link', () => {
     });
 
     it('should emit click event if no href is provided', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
 
-        wrapper.trigger('click');
+        await wrapper.trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted().click).toBeTruthy();
     });
 
     it('should render small', async () => {
-        const wrapper = setup({
+        const wrapper = await setup({
             href: 'https://google.com',
             small: true
         });

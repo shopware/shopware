@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 
+/**
+ * @package checkout
+ */
 class PriceDefinitionFactory
 {
     public function factory(Context $context, array $priceDefinition, string $lineItemType): PriceDefinitionInterface

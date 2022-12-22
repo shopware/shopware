@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+/**
+ * @package core
+ */
 class ParentAssociationField extends ManyToOneAssociationField
 {
     public function __construct(string $referenceClass, string $referenceField = 'id')

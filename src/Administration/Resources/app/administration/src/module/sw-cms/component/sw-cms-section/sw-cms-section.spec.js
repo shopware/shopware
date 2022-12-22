@@ -1,15 +1,26 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-section';
 import 'src/module/sw-cms/component/sw-cms-visibility-toggle';
-import Vuex from 'vuex';
 
-function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
+async function createWrapper() {
+    Shopware.State.registerModule('cmsPageState', {
+        namespaced: true,
+        state: {
+            selectedBlock: {
+                id: '1a2b',
+                sectionPosition: 'main',
+                type: 'foo-bar'
+            },
+            isSystemDefaultLanguage: true,
+            currentCmsDeviceView: 'desktop',
+        }
+    });
 
-    return shallowMount(Shopware.Component.build('sw-cms-section'), {
-        localVue,
+    return shallowMount(await Shopware.Component.build('sw-cms-section'), {
         propsData: {
             page: {},
             section: {
@@ -49,7 +60,7 @@ function createWrapper() {
             'sw-cms-block': true,
             'sw-cms-block-foo-bar': true,
             'sw-cms-stage-add-block': true,
-            'sw-cms-visibility-toggle': Shopware.Component.build('sw-cms-visibility-toggle'),
+            'sw-cms-visibility-toggle': await Shopware.Component.build('sw-cms-visibility-toggle'),
         },
         provide: {
             repositoryFactory: {},
@@ -63,30 +74,16 @@ function createWrapper() {
         }
     });
 }
-describe('module/sw-cms/component/sw-cms-section', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
-                selectedBlock: {
-                    id: '1a2b',
-                    sectionPosition: 'main',
-                    type: 'foo-bar'
-                },
-                isSystemDefaultLanguage: true,
-                currentCmsDeviceView: 'desktop',
-            }
-        });
-    });
 
+describe('module/sw-cms/component/sw-cms-section', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('the disable all sub components', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
         expect(cmsSectionActions.attributes().disabled).toBeFalsy();
@@ -103,7 +100,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     });
 
     it('the disable all sub components', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -123,7 +120,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     });
 
     it('the visibility toggle wrapper should exist and be visible', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             section: {
@@ -139,7 +136,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
     });
 
     it('the visibility toggle wrapper should not exist', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeFalsy();
     });

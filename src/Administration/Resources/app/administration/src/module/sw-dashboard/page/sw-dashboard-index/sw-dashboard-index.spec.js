@@ -3,7 +3,7 @@ import 'src/module/sw-dashboard/page/sw-dashboard-index';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
 import { currency } from 'src/core/service/utils/format.utils';
 
-function createWrapper(privileges = [], orderSumToday = null) {
+async function createWrapper(privileges = [], orderSumToday = null) {
     const localVue = createLocalVue();
     localVue.filter('asset', v => v);
     localVue.filter('date', v => v);
@@ -73,11 +73,14 @@ function createWrapper(privileges = [], orderSumToday = null) {
         options.computed.orderSumToday = () => orderSumToday;
     }
 
-    return shallowMount(Shopware.Component.build('sw-dashboard-index'), options);
+    return shallowMount(await Shopware.Component.build('sw-dashboard-index'), options);
 }
 
+/**
+ * @package merchant-services
+ */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
-    let wrapper = createWrapper();
+    let wrapper;
 
     beforeAll(() => {
         Shopware.State.registerModule('session', {

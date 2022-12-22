@@ -16,6 +16,9 @@ const devices = [{
 }];
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Checkout: Login as customer and run checkout in various viewports', () => {
 
     beforeEach(() => {

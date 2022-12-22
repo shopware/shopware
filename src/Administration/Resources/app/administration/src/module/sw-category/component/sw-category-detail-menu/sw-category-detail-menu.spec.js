@@ -1,8 +1,11 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-detail-menu';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-category-detail-menu'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-category-detail-menu'), {
         stubs: {
             'sw-card': true,
             'sw-switch-field': true,
@@ -38,13 +41,13 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should enable the visibility switch field when the acl privilege is missing', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -53,14 +56,14 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         expect(switchField.attributes().disabled).toBeUndefined();
     });
     it('should disable the visibility switch field when the acl privilege is missing', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const switchField = wrapper.find('sw-switch-field-stub');
 
         expect(switchField.attributes().disabled).toBe('true');
     });
     it('should enable the media upload', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -69,14 +72,14 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         expect(mediaUpload.attributes().disabled).toBeUndefined();
     });
     it('should disable the media upload', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
 
         expect(mediaUpload.attributes().disabled).toBe('true');
     });
     it('should enable the text editor for the description', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ]);
 
@@ -85,7 +88,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         expect(textEditor.attributes().disabled).toBeUndefined();
     });
     it('should disable the text editor for the description', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const textEditor = wrapper.find('sw-text-editor-stub');
 
@@ -93,7 +96,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     });
 
     it('should open media modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({ showMediaModal: true });
@@ -104,7 +107,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     });
 
     it('should turn off media modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({ showMediaModal: false });
@@ -115,7 +118,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     });
 
     it('should be able to change category media', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.mediaRepository.get = jest.fn(() => Promise.resolve({ id: 'id' }));
@@ -131,7 +134,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     });
 
     it('should not change category media when selected media is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.mediaRepository.get = jest.fn(() => Promise.resolve({}));

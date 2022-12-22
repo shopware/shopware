@@ -143,6 +143,13 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            cart_add_line_item:
+                enabled: true
+                policy: 'system_config'
+                reset: '1 hours'
+                limits:
+                    -   domain: 'core.cart.lineItemAddLimit'
+                        interval: '60 seconds'
 
     admin_worker:
         enable_admin_worker: true

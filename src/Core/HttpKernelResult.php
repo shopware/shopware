@@ -5,6 +5,9 @@ namespace Shopware\Core;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class HttpKernelResult
 {
     /**

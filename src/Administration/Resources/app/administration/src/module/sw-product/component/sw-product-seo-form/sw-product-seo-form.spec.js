@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-seo-form';
@@ -13,7 +17,7 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
-    function createWrapper(productEntityOverride, parentProductOverride) {
+    async function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity = productEntityOverride ||
             {
                 metaTitle: 'test'
@@ -37,7 +41,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         const localVue = createLocalVue();
         localVue.directive('tooltip', {});
 
-        return shallowMount(Shopware.Component.build('sw-product-seo-form'), {
+        return shallowMount(await Shopware.Component.build('sw-product-seo-form'), {
             localVue,
             provide: {
                 repositoryFactory: {
@@ -66,16 +70,16 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             },
             stubs: {
                 'sw-inherit-wrapper': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-single-select': Shopware.Component.build('sw-single-select'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                'sw-single-select': await Shopware.Component.build('sw-single-select'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
                 'sw-icon': true,
-                'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
+                'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': true
             }
         });
@@ -88,19 +92,19 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not be visible if there are not variants', () => {
+    it('should not be visible if there are not variants', async () => {
         const productEntity = {
             canonicalProductId: null,
             childCount: 0,
             metaTitle: 'title'
         };
 
-        wrapper = createWrapper(productEntity);
+        wrapper = await createWrapper(productEntity);
 
         const switchComponent = wrapper.find('.sw-field--switch');
         const singleSelectComponent = wrapper.find('.sw-single-select');
@@ -109,7 +113,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         expect(singleSelectComponent.exists()).toBe(false);
     });
 
-    it('should not be visible if there is a parent product', () => {
+    it('should not be visible if there is a parent product', async () => {
         const productEntity = {
             canonicalProductId: null,
             childCount: 2,
@@ -120,7 +124,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             id: 'parent-id'
         };
 
-        wrapper = createWrapper(productEntity, parentProduct);
+        wrapper = await createWrapper(productEntity, parentProduct);
 
         const switchComponent = wrapper.find('.sw-field--switch');
         const singleSelectComponent = wrapper.find('.sw-single-select');
@@ -136,7 +140,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             metaTitle: 'title'
         };
 
-        wrapper = createWrapper(productEntity);
+        wrapper = await createWrapper(productEntity);
 
         const switchComponent = wrapper.find('.sw-field--switch');
         const singleSelectComponent = wrapper.find('.sw-single-select');
@@ -156,7 +160,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             metaTitle: 'title'
         };
 
-        wrapper = createWrapper(productEntity);
+        wrapper = await createWrapper(productEntity);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

@@ -5,11 +5,11 @@ import 'src/module/sw-promotion/component/sw-promotion-cart-condition-form';
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-cart-condition-form'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-cart-condition-form'), {
         localVue,
         stubs: {
             'sw-container': {
@@ -88,8 +88,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion/component/sw-promotion-cart-condition-form', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -126,7 +126,7 @@ describe('src/module/sw-promotion/component/sw-promotion-cart-condition-form', (
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 

@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class RemoveOrderTagActionTest extends TestCase

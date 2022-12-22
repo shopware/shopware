@@ -240,7 +240,7 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate">
-            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -382,7 +382,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
-            <argument>%kernel.cache_dir%%</argument>
+            <argument>%kernel.cache_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator"
@@ -517,12 +517,18 @@ base-uri 'self';
             <argument type="service" id="cache.object"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="scheduled_task.repository"/>
-
-            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">
             <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument>%shopware.cache.invalidation.delay%</argument>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
@@ -535,6 +541,10 @@ base-uri 'self';
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="messenger.bus.shopware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -664,7 +674,6 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>
         </service>
-
         <service id="Shopware\Core\Framework\Routing\RouteParamsCleanupListener">
             <tag name="kernel.event_listener"/>
         </service>

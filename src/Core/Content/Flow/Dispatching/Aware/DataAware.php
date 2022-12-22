@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @package business-ops
+ */
 interface DataAware extends FlowEventAware
 {
     public const DATA = 'data';

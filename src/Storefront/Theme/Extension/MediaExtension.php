@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
+/**
+ * @package storefront
+ */
 class MediaExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

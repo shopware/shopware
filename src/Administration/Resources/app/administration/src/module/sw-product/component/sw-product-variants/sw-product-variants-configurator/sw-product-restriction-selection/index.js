@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-restriction-selection.html.twig';
 import './sw-product-restriction-selection.scss';
 

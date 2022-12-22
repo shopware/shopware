@@ -6,6 +6,9 @@ use Shopware\Administration\Administration;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @package system-settings
+ */
 class SnippetFileHandler
 {
     public function openJsonFile(string $path): array

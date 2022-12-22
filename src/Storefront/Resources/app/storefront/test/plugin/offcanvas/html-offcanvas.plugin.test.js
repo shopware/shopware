@@ -1,6 +1,9 @@
 import Feature from 'src/helper/feature.helper';
 import HtmlOffcanvas from 'src/plugin/offcanvas/html-offcanvas.plugin';
 
+/**
+ * @package storefront
+ */
 describe('HtmlOffcanvas tests', () => {
 
     afterEach(() => {

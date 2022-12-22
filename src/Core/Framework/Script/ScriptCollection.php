@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Script;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
+ *
  * @internal only for use by the app-system
  *
  * @extends EntityCollection<ScriptEntity>

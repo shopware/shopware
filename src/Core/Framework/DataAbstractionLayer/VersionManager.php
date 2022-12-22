@@ -50,6 +50,8 @@ use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class VersionManager

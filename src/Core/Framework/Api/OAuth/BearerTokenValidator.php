@@ -11,6 +11,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @package core
+ */
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
     private Connection $connection;

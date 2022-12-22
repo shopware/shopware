@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package content
+ */
 class FileExtensionNotSupportedException extends FileTypeNotSupportedException
 {
     public function __construct(string $mediaId, string $extension)

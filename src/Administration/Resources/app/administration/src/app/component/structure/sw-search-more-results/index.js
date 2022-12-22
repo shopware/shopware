@@ -4,6 +4,8 @@ import './sw-search-more-results.scss';
 const { Component, Application } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders the search result show more based on the item type.

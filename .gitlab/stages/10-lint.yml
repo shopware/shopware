@@ -101,13 +101,8 @@ PHP static analysis:
     extends: .base-no-setup
     variables:
         GIT_DEPTH: 0
-        FEATURE_ALL: "major" # execute all destructive migrations
     stage: lint
     image: shopware/development:7.4-composer-2
-    services:
-        -   name: mariadb:10.4
-            alias: database
-            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     rules:
         - if: '$CI_COMMIT_BRANCH == "trunk"'
           when: never
@@ -125,7 +120,6 @@ PHP static analysis:
         policy: pull
     before_script:
         - composer update --no-interaction
-        - composer run init:db
     script:
         - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
     artifacts:
@@ -155,7 +149,7 @@ PHP lint:
               - composer.json
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
-              - '**.php'
+              - '**/*.php'
     before_script:
         - composer update --no-interaction
     script:

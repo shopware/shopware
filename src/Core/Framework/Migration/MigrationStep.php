@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 abstract class MigrationStep
 {
     /**

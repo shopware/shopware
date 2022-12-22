@@ -1,8 +1,11 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-product-visibility'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-visibility'), {
         stubs: {
             'sw-inherit-wrapper': {
                 template: '<div class="sw-inherit-wrapper"><slot name="content"></slot></div>',
@@ -52,9 +55,9 @@ describe('sw-bulk-edit-product-visibility', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         console.error = jest.fn();
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -62,7 +65,7 @@ describe('sw-bulk-edit-product-visibility', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

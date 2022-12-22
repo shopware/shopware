@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package storefront
+ */
 class SalesChannelThemeLoader implements ResetInterface
 {
     /**

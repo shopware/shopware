@@ -11,6 +11,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
@@ -587,6 +588,7 @@ class SeoUrlIndexerTest extends TestCase
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        /** @var int $seoUrlCount */
         static::assertCount($seoUrlCount, $seoUrls);
     }
 
@@ -594,8 +596,10 @@ class SeoUrlIndexerTest extends TestCase
     {
         $templateRepository = $this->getContainer()->get('seo_url_template.repository');
 
+        /** @var string[] $ids */
         $ids = $templateRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
+        /** @var TemplateCollection $templates */
         $templates = $templateRepository->search(new Criteria($ids), Context::createDefaultContext())->getEntities();
 
         foreach ($templates as $template) {
@@ -629,6 +633,9 @@ class SeoUrlIndexerTest extends TestCase
         return $seoUrlCollection;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function upsertTemplate(array $data): void
     {
         $seoUrlTemplateDefaults = [
@@ -640,6 +647,9 @@ class SeoUrlIndexerTest extends TestCase
         $this->templateRepository->upsert([$seoUrlTemplate], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function upsertProduct(array $data, string $salesChannelId): void
     {
         $defaults = [

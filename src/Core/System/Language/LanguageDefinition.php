@@ -75,6 +75,9 @@ use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
+/**
+ * @package system-settings
+ */
 class LanguageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'language';

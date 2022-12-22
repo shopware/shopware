@@ -1,6 +1,9 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/*
+ * @package inventory
+ */
+
+import { shallowMount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
-import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-seo';
 import 'src/module/sw-settings-seo/component/sw-seo-url';
 import 'src/app/component/utils/sw-inherit-wrapper';
@@ -103,14 +106,8 @@ const repositoryMockFactory = (entity) => {
     return false;
 };
 
-function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('tooltip', {});
-    localVue.directive('popover', {});
-
+async function createWrapper(privileges = []) {
     return shallowMount(Component.build('sw-product-detail-seo'), {
-        localVue,
         provide: {
             acl: {
                 can: (identifier) => {
@@ -137,28 +134,28 @@ function createWrapper(privileges = []) {
                           '</div>'
             },
             'sw-product-seo-form': true,
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-seo-url': Component.build('sw-seo-url'),
             'sw-seo-main-category': true,
             'sw-sales-channel-switch': Component.build('sw-sales-channel-switch'),
-            'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
+            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
             'sw-inherit-wrapper': Component.build('sw-inherit-wrapper'),
             'sw-text-field': Component.build('sw-text-field'),
             'sw-contextual-field': Component.build('sw-contextual-field'),
             'sw-block-field': Component.build('sw-block-field'),
             'sw-base-field': Component.build('sw-base-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
             'sw-icon': {
                 template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
             },
             'sw-help-text': true,
             'sw-loader': true,
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-skeleton': true,
         }
     });
@@ -169,7 +166,11 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-product/view/sw-product-detail-seo', () => {
-    beforeAll(() => {
+    beforeEach(() => {
+        if (Shopware.State.get('swProductDetail')) {
+            Shopware.State.unregisterModule('swProductDetail');
+        }
+
         State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
@@ -182,14 +183,14 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should update product main categories correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             product: {
@@ -215,7 +216,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     });
 
     it('should update main category when restore inheritance of Seo Category from variant', async () => {
-        const wrapper = createWrapper(['product.editor']);
+        const wrapper = await createWrapper(['product.editor']);
         await wrapper.setData(productInheritedCategoryDataMock);
         await wrapper.vm.$nextTick();
 
@@ -249,7 +250,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     });
 
     it('should not exist inheritance symbol when variant\'s category did not inherit parent\s category', async () => {
-        const wrapper = createWrapper('product.editor');
+        const wrapper = await createWrapper('product.editor');
         await wrapper.setData(productNotInheritedCategoryDataMock);
 
         expect(wrapper.vm.product.categories.length).toEqual(1);
@@ -276,7 +277,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     });
 
     it('should exist inheritance symbol when variant\'s Seo Category does not have main category', async () => {
-        const wrapper = createWrapper('product.editor');
+        const wrapper = await createWrapper('product.editor');
 
         await wrapper.setData(productInheritedCategoryDataMock);
 
@@ -304,7 +305,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     });
 
     it('should exist non-inheritance symbol when variant\'s Seo Category have main category', async () => {
-        const wrapper = createWrapper(['product.editor']);
+        const wrapper = await createWrapper(['product.editor']);
 
         await wrapper.setData(productInheritedCategoryDataMock);
 

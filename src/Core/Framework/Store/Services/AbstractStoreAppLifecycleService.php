@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\Context;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 abstract class AbstractStoreAppLifecycleService

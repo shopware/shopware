@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @group store-api
  */

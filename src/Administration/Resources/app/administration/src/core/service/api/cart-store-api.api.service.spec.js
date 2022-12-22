@@ -12,13 +12,13 @@ function createCartStoreServiceService() {
 }
 
 describe('cartStoreService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { cartStoreService } = createCartStoreServiceService();
 
         expect(cartStoreService).toBeInstanceOf(CartStoreService);
     });
 
-    it('function getPayloadForItem should return correct data when adding new product', () => {
+    it('function getPayloadForItem should return correct data when adding new product', async () => {
         const itemId = '06d34e8f6e8d4045ad76d39827541e65';
         const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
         const isNewProductItem = true;
@@ -53,7 +53,7 @@ describe('cartStoreService', () => {
         expect(items.items[0].label).toEqual('Test product');
     });
 
-    it('function getPayloadForItem should return correct data when adding new product with new tax value', () => {
+    it('function getPayloadForItem should return correct data when adding new product with new tax value', async () => {
         const itemId = '06d34e8f6e8d4045ad76d39827541e65';
         const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
         const isNewProductItem = true;
@@ -88,7 +88,7 @@ describe('cartStoreService', () => {
         expect(items.items[0].label).toEqual('Test product');
     });
 
-    it('function getPayloadForItem should return correct data when adjusting price of existing product', () => {
+    it('function getPayloadForItem should return correct data when adjusting price of existing product', async () => {
         const itemId = '06d34e8f6e8d4045ad76d39827541e65';
         const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
         const isNewProductItem = false;
@@ -126,7 +126,7 @@ describe('cartStoreService', () => {
         expect(items.items[0].label).toEqual('Test product');
     });
 
-    it('function getPayloadForItem should return correct data when adding a custom product', () => {
+    it('function getPayloadForItem should return correct data when adding a custom product', async () => {
         const itemId = '06d34e8f6e8d4045ad76d39827541e65';
         const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
         const isNewProductItem = false;
@@ -164,7 +164,7 @@ describe('cartStoreService', () => {
         expect(items.items[0].label).toEqual('Test custom product');
     });
 
-    it('function getPayloadForItem should return correct data when adjusting a custom product', () => {
+    it('function getPayloadForItem should return correct data when adjusting a custom product', async () => {
         const itemId = '06d34e8f6e8d4045ad76d39827541e65';
         const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
         const isNewProductItem = false;

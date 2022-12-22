@@ -20,6 +20,7 @@ use function extension_loaded;
 use function ini_get;
 
 /**
+ * @package core
  * @deprecated tag:v6.5.0 - Remove compatibility bridge to make parameters case insensitive
  * @see https://github.com/doctrine/annotations/issues/421
  */

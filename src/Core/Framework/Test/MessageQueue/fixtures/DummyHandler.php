@@ -7,14 +7,11 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 /**
  * @internal
  */
-class DummyHandler extends AbstractMessageHandler
+final class DummyHandler extends AbstractMessageHandler
 {
-    private $lastMessage;
+    private object $lastMessage;
 
-    /**
-     * @var \Throwable|null
-     */
-    private $exceptionToThrow;
+    private ?\Throwable $exceptionToThrow = null;
 
     public function handle($message): void
     {

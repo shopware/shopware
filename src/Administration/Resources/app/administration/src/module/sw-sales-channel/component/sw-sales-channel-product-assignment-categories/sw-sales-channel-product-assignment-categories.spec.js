@@ -1,4 +1,7 @@
-import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
+/**
+ * @package sales-channel
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -79,8 +82,8 @@ const products = [
     }
 ];
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-product-assignment-categories'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-product-assignment-categories'), {
         stubs: {
             'sw-card': {
                 template: '<div><slot></slot></div>'
@@ -144,10 +147,10 @@ function createWrapper() {
                     }
                 }
             },
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
             'sw-highlight-text': true,
             'sw-empty-state': true
@@ -178,11 +181,10 @@ function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories', () => {
     it('should show category tree correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$forceUpdate();
         await wrapper.vm.$nextTick();
@@ -197,7 +199,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
     });
 
     it('should show search list when user type in search field', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const searchInput = wrapper.find('.sw-simple-search-field').find('input');
         await searchInput.setValue('Ho');
@@ -216,7 +218,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
     });
 
     it('should emit selection-change when toggling tree item checkbox', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$forceUpdate();
         await wrapper.vm.$nextTick();
@@ -235,7 +237,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
     });
 
     it('should emit selection-change when toggling search item checkbox', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const searchInput = wrapper.find('.sw-simple-search-field').find('input');
         await searchInput.setValue('Ho');

@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/http
  */
 import Axios from 'axios';

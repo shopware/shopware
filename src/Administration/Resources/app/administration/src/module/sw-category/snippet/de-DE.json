@@ -66,7 +66,7 @@
           "helpTextMainNavigation": "Der Einstiegspunkt für die Hauptnavigation ist ein Pflichtfeld für Verkaufskanäle. Wenn Sie diese Kategorie als Einstiegspunkt für die Hauptnavigation einem oder mehreren Verkaufskanälen zuordnen, können Sie diese Zuordnung nur am Verkaufskanal selbst ändern.",
           "labelFooterNavigation": "Footernavigation",
           "helpTextFooterNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Footernavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien auf der nächsten Ebene zu Spalten. So können Sie Ihre Footernavigation in mehrere Bereiche unterteilen.",
-          "labelServiceNavigation": "Servicenavigation",
+          "labelServiceNavigation": "Footer-Service-Navigation",
           "helpTextServiceNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Servicenavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien der nächsten Ebene als zweite Navigation im Fußbereich angezeigt."
         }
       },

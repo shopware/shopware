@@ -20,6 +20,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package sales-channel
+ *
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CachedSitemapRoute extends AbstractSitemapRoute

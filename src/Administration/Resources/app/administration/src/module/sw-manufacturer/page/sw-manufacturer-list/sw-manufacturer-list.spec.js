@@ -1,10 +1,14 @@
+/*
+ * @package inventory
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-manufacturer/page/sw-manufacturer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-function createWrapper(privileges = []) {
-    return mount(Shopware.Component.build('sw-manufacturer-list'), {
+async function createWrapper(privileges = []) {
+    return mount(await Shopware.Component.build('sw-manufacturer-list'), {
         stubs: {
             'sw-page': {
                 template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
@@ -49,26 +53,26 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an enabled create button', async () => {
-        const wrapper = createWrapper(['product_manufacturer.creator']);
+        const wrapper = await createWrapper(['product_manufacturer.creator']);
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
         expect(addButton.attributes().disabled).toBeUndefined();
     });
 
     it('should have an disabled create button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
 
         expect(addButton.attributes().disabled).toBe('true');
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_manufacturer.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -79,7 +83,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should not be able to inline edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
@@ -88,7 +92,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_manufacturer.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -99,7 +103,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should not be able to inline delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
@@ -108,7 +112,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -131,7 +135,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -151,7 +155,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -175,7 +179,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });

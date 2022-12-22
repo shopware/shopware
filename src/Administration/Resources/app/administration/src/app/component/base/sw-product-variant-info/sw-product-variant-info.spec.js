@@ -1,11 +1,15 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-product-variant-info';
 
 describe('components/base/sw-product-variant-info', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-product-variant-info'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-product-variant-info'), {
             propsData: {
                 variations: [{
                     group: 'Size',

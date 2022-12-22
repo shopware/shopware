@@ -1,6 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
-import flushPromises from 'flush-promises';
 
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -35,11 +34,11 @@ class MockRepositoryFactory {
     }
 }
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return mount(Shopware.Component.build('sw-newsletter-recipient-detail'), {
+    return mount(await Shopware.Component.build('sw-newsletter-recipient-detail'), {
         localVue,
         data() {
             return {
@@ -54,9 +53,9 @@ function createWrapper(privileges = []) {
             'sw-page': {
                 template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
             },
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-card-view': Shopware.Component.build('sw-card-view'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-card-view': await Shopware.Component.build('sw-card-view'),
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
             'sw-entity-single-select': {
                 template: '<div class="sw-field"></div>',
@@ -101,12 +100,14 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should disable all inputs and disallow saving', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         // check if the save-action-btn is disabled
@@ -117,11 +118,12 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         // check that they are all disabled
         expect(fields.wrappers.every(field => field.props().disabled)).toEqual(true);
+        wrapper.destroy();
     });
 
 
     it('should enable all inputs and allow saving', async () => {
-        const wrapper = createWrapper(['newsletter_recipient.editor']);
+        const wrapper = await createWrapper(['newsletter_recipient.editor']);
         await flushPromises();
 
         // check if the save-action-btn is enabled
@@ -135,5 +137,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         // now check that the salechannel is disabled
         expect(wrapper.get('[label="sw-newsletter-recipient.general.salesChannel"]').props().disabled).toBe(true);
+        wrapper.destroy();
     });
 });

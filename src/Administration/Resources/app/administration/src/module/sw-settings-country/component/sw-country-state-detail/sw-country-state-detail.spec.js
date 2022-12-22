@@ -1,8 +1,11 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-country-state-detail';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-country-state-detail'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-country-state-detail'), {
         propsData: {
             countryState: {
                 isNew: () => false
@@ -20,7 +23,9 @@ function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-modal': true,
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+            },
             'sw-container': true,
             'sw-field': true,
             'sw-button': true,
@@ -31,14 +36,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/component/sw-country-state-detail', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -49,7 +54,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
     });
 
     it('should not be able to create a new country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
@@ -58,7 +63,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
     });
 
     it('should be able to edit a country state', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -83,7 +88,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
     });
 
     it('should not be able to edit a country state', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(

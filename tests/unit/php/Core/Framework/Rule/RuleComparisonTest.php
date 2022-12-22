@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Rule\RuleComparison
  */

@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
 import 'src/app/component/form/sw-switch-field';
@@ -16,14 +19,14 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
         };
     }
 
-    function createWrapper(profile) {
-        return shallowMount(Shopware.Component.build('sw-import-export-edit-profile-import-settings'), {
+    async function createWrapper(profile) {
+        return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-import-settings'), {
             propsData: {
                 profile
             },
             stubs: {
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true
             }
         });
@@ -33,13 +36,13 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper(getProfileMock());
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper(getProfileMock());
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should always keep one switch activated', async () => {
-        wrapper = createWrapper(getProfileMock());
+        wrapper = await createWrapper(getProfileMock());
         const switches = wrapper.findAll('input[type="checkbox"]');
 
         expect(wrapper.vm.profile.config.createEntities).toBe(true);
@@ -56,11 +59,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
         expect(wrapper.vm.profile.config.updateEntities).toBe(false);
     });
 
-    it('should have disabled switch fields when profile is a system default', () => {
+    it('should have disabled switch fields when profile is a system default', async () => {
         const profile = getProfileMock();
         profile.systemDefault = true;
 
-        wrapper = createWrapper(profile);
+        wrapper = await createWrapper(profile);
         const switches = wrapper.findAll('input[type="checkbox"]');
 
         expect(switches.at(0).attributes('disabled')).toBe('disabled');

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Twig\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class StringTemplateRenderingException extends ShopwareHttpException
 {
     public function __construct(string $twigMessage)

@@ -20,6 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @package content
+ */
 class GenerateThumbnailsCommand extends Command
 {
     protected static $defaultName = 'media:generate-thumbnails';

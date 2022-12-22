@@ -24,8 +24,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
 
     localVue.directive('popover', {});
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-settings-listing-option-criteria-grid'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-criteria-grid'), {
             localVue,
             provide: {
                 repositoryFactory: {
@@ -52,20 +52,20 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"></div>'
                 },
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-icon': {
                     template: '<i></i>'
                 },
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-context-button': Shopware.Component.build('sw-context-button'),
-                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
-                'sw-popover': Shopware.Component.build('sw-popover'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                'sw-context-button': await Shopware.Component.build('sw-context-button'),
+                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
+                'sw-popover': await Shopware.Component.build('sw-popover'),
                 'sw-loader': true
             },
             propsData: {
@@ -98,8 +98,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
 
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.js Component', async () => {

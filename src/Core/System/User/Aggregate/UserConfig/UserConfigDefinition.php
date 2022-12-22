@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package system-settings
+ */
 class UserConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'user_config';

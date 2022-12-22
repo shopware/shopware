@@ -443,6 +443,8 @@ describe('Order: Read order', () => {
             'Remove from order'
         );
 
+        cy.get(`${page.elements.modal} ${page.elements.dangerButton}`).click();
+
         cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
 
         // click save

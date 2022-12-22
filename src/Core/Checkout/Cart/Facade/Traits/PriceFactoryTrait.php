@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
+/**
+ * @package checkout
+ */
 trait PriceFactoryTrait
 {
     private CartFacadeHelper $helper;

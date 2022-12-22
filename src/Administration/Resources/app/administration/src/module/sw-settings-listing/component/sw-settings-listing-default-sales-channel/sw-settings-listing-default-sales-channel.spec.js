@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
 import 'src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel';
 
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
@@ -18,8 +17,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
         return new Shopware.Data.EntityCollection('sales_channel', 'sales_channel', {}, null, entities);
     }
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-settings-listing-default-sales-channel'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-settings-listing-default-sales-channel'), {
             provide: {
                 repositoryFactory: {
                     create: () => ({
@@ -28,12 +27,12 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                                 {
                                     name: 'Storefront',
                                     translated: { name: 'Storefront' },
-                                    id: uuid.get('storefront')
+                                    id: 'STORE-FRONT-MOCK-ID'
                                 },
                                 {
                                     name: 'Headless',
                                     translated: { name: 'Headless' },
-                                    id: uuid.get('headless')
+                                    id: 'HEADLESS-MOCK-ID'
                                 }
                             ]));
                         }
@@ -46,8 +45,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
             stubs: {
                 'sw-base-field': true,
                 'sw-block-field': true,
-                'sw-entity-multi-id-select': Shopware.Component.build('sw-entity-multi-id-select'),
-                'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
+                'sw-entity-multi-id-select': await Shopware.Component.build('sw-entity-multi-id-select'),
+                'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
                 'sw-field-error': true,
                 'sw-highlight-text': true,
                 'sw-icon': true,
@@ -55,12 +54,12 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                 'sw-loader': true,
                 'sw-modal': true,
                 'sw-popover': true,
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
                 'sw-settings-listing-visibility-detail': true,
-                'sw-switch-field': Shopware.Component.build('sw-switch-field')
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field')
             }
         });
     }
@@ -75,8 +74,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
         resultListItems: '.sw-select-result-list__item-list'
     };
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -101,7 +100,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
             'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
         };
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const visibilityModalButton = wrapper.find(selectors.quickLink);
@@ -114,14 +113,14 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
     it('should display "Set visibility for selected Sales Channels" button when a sales channel is selected', async () => {
         const salesChannelCard = wrapper.find(selectors.componentScope);
 
-        salesChannelCard.find(selectors.selectSelection).trigger('click');
+        await salesChannelCard.find(selectors.selectSelection).trigger('click');
 
         await salesChannelCard.find('input').trigger('change');
         await wrapper.vm.$nextTick();
 
         const list = wrapper.find(selectors.resultListItems).findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(salesChannelCard.find(selectors.quickLink).exists()).toBeTruthy();
@@ -130,17 +129,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
     it('should display modal when clicking "Set visibility for selected Sales Channels" button', async () => {
         const salesChannelCard = wrapper.find(selectors.componentScope);
 
-        salesChannelCard.find(selectors.selectSelection).trigger('click');
+        await salesChannelCard.find(selectors.selectSelection).trigger('click');
 
         await salesChannelCard.find('input').trigger('change');
         await wrapper.vm.$nextTick();
 
         const list = wrapper.find(selectors.resultListItems).findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
         await wrapper.vm.$nextTick();
 
-        salesChannelCard.find(selectors.quickLink).trigger('click');
+        await salesChannelCard.find(selectors.quickLink).trigger('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find(selectors.visibilityModal).exists()).toBeTruthy();

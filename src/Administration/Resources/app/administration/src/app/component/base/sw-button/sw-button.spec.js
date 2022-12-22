@@ -1,15 +1,19 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 
 describe('components/base/sw-button', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'));
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'));
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render a plain button', async () => {
         const label = 'Button text';
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             slots: {
                 default: label
             }
@@ -20,7 +24,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render a plain button visible to screen readers', async () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             slots: { default: 'Screen reader button text' },
             propsData: { role: 'button' }
         });
@@ -33,7 +37,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render a download button with a custom file name', async () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
                 download: 'My filename.txt',
                 link: 'http://my.download.link'
@@ -46,7 +50,7 @@ describe('components/base/sw-button', () => {
     });
 
     it('should render a relative router-link button', async () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
                 routerLink: { path: 'some/relative/link' },
                 append: true
@@ -65,7 +69,7 @@ describe('components/base/sw-button', () => {
     it('should trigger an click event when the button is clicked', async () => {
         const click = jest.fn();
 
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             slots: { default: 'I am clickable' },
             listeners: {
                 click
@@ -79,7 +83,7 @@ describe('components/base/sw-button', () => {
     it('should not trigger an event when disabled', async () => {
         const click = jest.fn();
 
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
                 disabled: true
             },
@@ -96,7 +100,7 @@ describe('components/base/sw-button', () => {
     it('should not trigger an event if html5 disabled is removed', async () => {
         const click = jest.fn();
 
-        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+        const wrapper = shallowMount(await Shopware.Component.build('sw-button'), {
             propsData: {
                 disabled: true
             },

@@ -3,6 +3,8 @@ import './sw-highlight-text.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description This component highlights text based on the searchTerm using regex
  * @status ready

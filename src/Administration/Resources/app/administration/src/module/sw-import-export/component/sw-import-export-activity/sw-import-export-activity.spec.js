@@ -2,7 +2,6 @@ import ImportExportService from 'src/module/sw-import-export/service/importExpor
 import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import flushPromises from 'flush-promises';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/context-menu/sw-context-menu';
@@ -76,24 +75,24 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         ];
     }
 
-    const createWrapper = (options = {}) => {
+    const createWrapper = async (options = {}) => {
         const defaultOptions = {
             stubs: {
-                'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-                'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-                'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-                'sw-context-button': Shopware.Component.build('sw-context-button'),
-                'sw-import-export-activity-detail-modal': Shopware.Component.build('sw-import-export-activity-detail-modal'),
-                'sw-import-export-activity-result-modal': Shopware.Component.build('sw-import-export-activity-result-modal'),
+                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+                'sw-context-button': await Shopware.Component.build('sw-context-button'),
+                'sw-import-export-activity-detail-modal': await Shopware.Component.build('sw-import-export-activity-detail-modal'),
+                'sw-import-export-activity-result-modal': await Shopware.Component.build('sw-import-export-activity-result-modal'),
                 'sw-import-export-edit-profile-modal': {
                     template: '<div></div>'
                 },
-                'sw-import-export-activity-log-info-modal': Shopware.Component.build('sw-import-export-activity-log-info-modal'),
-                'sw-modal': Shopware.Component.build('sw-modal'),
-                'sw-grid': Shopware.Component.build('sw-grid'),
-                'sw-grid-row': Shopware.Component.build('sw-grid-row'),
-                'sw-grid-column': Shopware.Component.build('sw-grid-column'),
-                'sw-card': Shopware.Component.build('sw-card'),
+                'sw-import-export-activity-log-info-modal': await Shopware.Component.build('sw-import-export-activity-log-info-modal'),
+                'sw-modal': await Shopware.Component.build('sw-modal'),
+                'sw-grid': await Shopware.Component.build('sw-grid'),
+                'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
+                'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
+                'sw-card': await Shopware.Component.build('sw-card'),
                 'sw-ignore-class': true,
                 'sw-popover': {
                     template: '<div><slot></slot></div>'
@@ -167,7 +166,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         };
 
         const wrapper = shallowMount(
-            Shopware.Component.build('sw-import-export-activity'),
+            await Shopware.Component.build('sw-import-export-activity'),
             Object.assign(defaultOptions, options)
         );
 

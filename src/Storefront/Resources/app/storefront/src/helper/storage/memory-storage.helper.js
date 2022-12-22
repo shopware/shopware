@@ -1,6 +1,8 @@
 /**
  * this class is mainly a fallback
  * if the session, local or cookie storage fails.
+ *
+ * @package storefront
  */
 export default class MemoryStorage {
     constructor() {

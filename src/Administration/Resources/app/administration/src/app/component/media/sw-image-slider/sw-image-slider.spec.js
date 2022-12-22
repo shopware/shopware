@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-image-slider';
 
@@ -30,10 +33,10 @@ function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) 
         : expectedIndex * itemPerPage * itemWidth;
 }
 
-function createWrapper(propsData = {}, listeners = {}) {
+async function createWrapper(propsData = {}, listeners = {}) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-image-slider'), {
+    return shallowMount(await Shopware.Component.build('sw-image-slider'), {
         localVue,
         stubs: {
             'sw-icon': true
@@ -56,13 +59,13 @@ function createWrapper(propsData = {}, listeners = {}) {
 
 describe('src/app/component/media/sw-image-slider', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display every image, even in an object, independent if the link is external or not', () => {
-        const wrapper = createWrapper();
+    it('should display every image, even in an object, independent if the link is external or not', async () => {
+        const wrapper = await createWrapper();
         const containerScrollable = wrapper.find('.sw-image-slider__image-scrollable');
         const actualImages = wrapper.findAll(
             '.sw-image-slider__image-scrollable .sw-image-slider__element-image'
@@ -73,8 +76,8 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(actualImages.at(1).attributes().src).toBe(images[1]);
     });
 
-    it('should display descriptions, if enabled and existing', () => {
-        const wrapper = createWrapper();
+    it('should display descriptions, if enabled and existing', async () => {
+        const wrapper = await createWrapper();
         const expectedAmountOfDescriptions = images.filter((image) => {
             return typeof image === 'object' && image.description && image.description.length >= 1;
         }).length;
@@ -87,8 +90,8 @@ describe('src/app/component/media/sw-image-slider', () => {
         expect(actualDescriptions.at(0).text()).toContain(images[0].description);
     });
 
-    it('should not display descriptions, even if existing', () => {
-        const wrapper = createWrapper({ enableDescriptions: false });
+    it('should not display descriptions, even if existing', async () => {
+        const wrapper = await createWrapper({ enableDescriptions: false });
 
         const actualDescriptions = wrapper.findAll(
             '.sw-image-slider__image-scrollable .sw-image-slider__element-description'
@@ -98,7 +101,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should navigate using the arrows', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const data = wrapper.vm._data;
         const itemPerPage = wrapper.vm.itemPerPage;
         const imageLength = wrapper.vm.images.length;
@@ -138,7 +141,7 @@ describe('src/app/component/media/sw-image-slider', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         // Check if it doesnt exceed its range to the left
-        arrowLeft.trigger('click');
+        await arrowLeft.trigger('click');
         await arrowLeft.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
@@ -148,9 +151,9 @@ describe('src/app/component/media/sw-image-slider', () => {
 
         // Click a bit further to the right
         expectedIndex = 4;
-        arrowRight.trigger('click');
-        arrowRight.trigger('click');
-        arrowRight.trigger('click');
+        await arrowRight.trigger('click');
+        await arrowRight.trigger('click');
+        await arrowRight.trigger('click');
         await arrowRight.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
@@ -159,7 +162,7 @@ describe('src/app/component/media/sw-image-slider', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         // Check if it doesnt exceed its range to the right
-        arrowRight.trigger('click');
+        await arrowRight.trigger('click');
         await arrowRight.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
@@ -169,7 +172,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should navigate using the buttons', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const data = wrapper.vm._data;
         const itemPerPage = wrapper.vm.itemPerPage;
         const imageLength = wrapper.vm.images.length;
@@ -205,7 +208,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should navigate by arrows correctly when there are more than 1 item per page', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             itemPerPage: 2
         });
 
@@ -248,7 +251,7 @@ describe('src/app/component/media/sw-image-slider', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         // Check if it doesnt exceed its range to the left
-        arrowLeft.trigger('click');
+        await arrowLeft.trigger('click');
         await arrowLeft.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
@@ -258,7 +261,7 @@ describe('src/app/component/media/sw-image-slider', () => {
 
         // Click a bit further to the right
         expectedIndex = 2;
-        arrowRight.trigger('click');
+        await arrowRight.trigger('click');
         await arrowRight.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
@@ -267,7 +270,7 @@ describe('src/app/component/media/sw-image-slider', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         // Check if it doesnt exceed its range to the right
-        arrowRight.trigger('click');
+        await arrowRight.trigger('click');
         await arrowRight.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 
@@ -277,7 +280,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should navigate by buttons correctly when there are more than 1 item per page', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             itemPerPage: 2
         });
 
@@ -319,7 +322,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should mark aria-hidden correctly when navigating', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             itemPerPage: 2
         });
 
@@ -363,7 +366,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should show active border around item after clicking on it', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             itemPerPage: 5
         });
 
@@ -402,7 +405,7 @@ describe('src/app/component/media/sw-image-slider', () => {
     });
 
     it('should navigate back to first page by next arrow or last page by prev arrow when rewind is active', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             itemPerPage: 2,
             rewind: true
         });
@@ -421,7 +424,7 @@ describe('src/app/component/media/sw-image-slider', () => {
 
         // Click a bit further to the right and check if it go back to first page
         expectedIndex = 0;
-        arrowRight.trigger('click');
+        await arrowRight.trigger('click');
         await arrowRight.trigger('click');
         expect(data.currentPageNumber).toBe(expectedIndex);
 

@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package business-ops
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class RuleConfigController extends AbstractController

@@ -1,8 +1,12 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-product-modal-delivery'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-product-modal-delivery'), {
         propsData: {
             product: {},
             selectedGroups: []
@@ -29,13 +33,13 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled save button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
         expect(saveButton.exists()).toBeTruthy();
@@ -43,7 +47,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
     });
 
     it('should have an enabled save button', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');

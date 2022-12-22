@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/module/sw-product/page/sw-product-list';
@@ -215,7 +219,7 @@ function getCurrencyData() {
     ];
 }
 
-function createWrapper() {
+async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -228,7 +232,7 @@ function createWrapper() {
         routes: [{
             name: 'sw.product.list',
             path: '/sw/product/list',
-            component: Shopware.Component.build('sw-product-list'),
+            component: await Shopware.Component.build('sw-product-list'),
             meta: {
                 $module: {
                     entity: 'product'
@@ -240,7 +244,7 @@ function createWrapper() {
     router.push({ name: 'sw.product.list' });
 
     return {
-        wrapper: shallowMount(Shopware.Component.build('sw-product-list'), {
+        wrapper: shallowMount(await Shopware.Component.build('sw-product-list'), {
             localVue,
             router,
             provide: {
@@ -281,7 +285,7 @@ function createWrapper() {
                 'sw-page': {
                     template: '<div><slot name="content"></slot></div>'
                 },
-                'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
+                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
                 'sw-context-button': {
                     template: '<div></div>'
                 },
@@ -350,9 +354,10 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
     let router;
 
-    beforeEach(() => {
-        wrapper = createWrapper().wrapper;
-        router = createWrapper().router;
+    beforeEach(async () => {
+        const data = await createWrapper();
+        wrapper = data.wrapper;
+        router = data.router;
     });
 
     afterEach(() => {
@@ -535,14 +540,14 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(foundPriceData).toEqual(expectedPriceData);
     });
 
-    it('should return false if product has no variants', () => {
+    it('should return false if product has no variants', async () => {
         const [product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(false);
     });
 
-    it('should return true if product has variants', () => {
+    it('should return true if product has variants', async () => {
         const [, product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 

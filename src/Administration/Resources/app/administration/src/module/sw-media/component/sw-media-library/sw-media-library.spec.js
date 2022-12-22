@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-grid-listener.mixin';
 
@@ -41,8 +44,8 @@ class Repository {
 }
 
 
-function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folderAmount: [5] }) {
-    return shallowMount(Shopware.Component.build('sw-media-library'), {
+async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folderAmount: [5] }) {
+    return shallowMount(await Shopware.Component.build('sw-media-library'), {
         propsData: {
             selection: [],
             limit: 5
@@ -81,12 +84,12 @@ function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folde
 
 describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should allow loading of additional folders', async () => {
-        const wrapper = createWrapper({ folderAmount: [5, 5, 3], mediaAmount: [5, 3] });
+        const wrapper = await createWrapper({ folderAmount: [5, 5, 3], mediaAmount: [5, 3] });
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -143,7 +146,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should allow loading of additional media', async () => {
-        const wrapper = createWrapper({ folderAmount: [5, 3], mediaAmount: [5, 5, 3] });
+        const wrapper = await createWrapper({ folderAmount: [5, 3], mediaAmount: [5, 5, 3] });
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -199,13 +202,13 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(loadMoreButton.exists()).toBe(false);
     });
     it('should limit association loading to 25', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.nextMedia();
 
         const usedCriteria = wrapper.vm.mediaRepository.lastUsedCriteria;
 
-        expect(wrapper.vm.mediaRepository.invocation).toBe(1);
+        expect(wrapper.vm.mediaRepository.invocation).toBe(2);
 
         [
             'tags',
@@ -233,7 +236,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should show the load more button if the folder request fails', async () => {
-        const wrapper = createWrapper({ folderAmount: [null, 3], mediaAmount: [3, undefined] });
+        const wrapper = await createWrapper({ folderAmount: [null, 3], mediaAmount: [3, undefined] });
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -271,7 +274,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should show the load more button if the media request fails', async () => {
-        const wrapper = createWrapper({ folderAmount: [3, undefined], mediaAmount: [null, 3] });
+        const wrapper = await createWrapper({ folderAmount: [3, undefined], mediaAmount: [null, 3] });
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

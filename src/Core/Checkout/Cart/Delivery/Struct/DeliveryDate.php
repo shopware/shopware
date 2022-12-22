@@ -6,6 +6,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
+/**
+ * @package checkout
+ */
 class DeliveryDate extends Struct
 {
     /**

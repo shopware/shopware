@@ -202,6 +202,14 @@
         />
         {% endblock %}
 
+        <sw-alert
+            v-if="unservedLanguages.length > 0"
+            :variant="unservedLanguageVariant"
+            :title="$tc('global.default.' + unservedLanguageVariant)"
+        >
+            <span v-html="buildUnservedLanguagesAlert('sw-sales-channel.detail.warningUnservedLanguage', unservedLanguages)"></span>
+        </sw-alert>
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_languages %}
         <sw-sales-channel-defaults-select
@@ -290,6 +298,7 @@
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
             property-name-in-domain="currencyId"
+            :criteria="currencyCriteria"
         />
         {% endblock %}
 

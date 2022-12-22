@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<CmsSectionEntity>
  */
 class CmsSectionCollection extends EntityCollection

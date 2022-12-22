@@ -23,6 +23,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal in 6.5.0
+ *
+ * @package inventory
  */
 class ProductGenerator implements DemodataGeneratorInterface
 {

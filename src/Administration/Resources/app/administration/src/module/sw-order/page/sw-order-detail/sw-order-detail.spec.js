@@ -2,8 +2,12 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/page/sw-order-detail';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-order-detail'), {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-order-detail'), {
         mocks: {
             $route: {
                 meta: {
@@ -31,6 +35,7 @@ function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-label': true,
             'sw-skeleton': true,
+            'sw-button-process': true,
         },
         propsData: {
             orderId: Shopware.Utils.createId()
@@ -46,7 +51,10 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([]),
-                    hasChanges: () => Promise.resolve([])
+                    hasChanges: () => Promise.resolve([]),
+                    deleteVersion: () => Promise.resolve([]),
+                    createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
+                    get: () => Promise.resolve([]),
                 })
             },
             orderService: {}
@@ -57,8 +65,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         Shopware.State.unregisterModule('swOrderDetail');
         Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
@@ -82,7 +90,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should have an enabled edit button', async () => {
         wrapper.destroy();
-        wrapper = createWrapper(['order.editor']);
+        wrapper = await createWrapper(['order.editor']);
 
         Shopware.State.unregisterModule('swOrderDetail');
         Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
@@ -102,5 +110,25 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
+    });
+
+    it('should created a new version when component was created', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
+        const createNewVersionIdSpy = jest.spyOn(wrapper.vm, 'createNewVersionId');
+
+        await wrapper.vm.createdComponent();
+
+        expect(createNewVersionIdSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.hasNewVersionId).toBeTruthy();
+    });
+
+    it('should clean up unsaved version when component gets destroyed', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
+        await wrapper.vm.createNewVersionId();
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.beforeDestroyComponent();
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledTimes(1);
     });
 });

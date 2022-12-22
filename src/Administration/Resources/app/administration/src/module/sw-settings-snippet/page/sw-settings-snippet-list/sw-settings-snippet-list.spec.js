@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import 'src/module/sw-settings-snippet/page/sw-settings-snippet-list';
@@ -54,11 +57,11 @@ function getSnippetSets() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
-    function createWrapper(privileges = []) {
+    async function createWrapper(privileges = []) {
         const localVue = createLocalVue();
         localVue.directive('tooltip', {});
 
-        return shallowMount(Shopware.Component.build('sw-settings-snippet-list'), {
+        return shallowMount(await Shopware.Component.build('sw-settings-snippet-list'), {
             localVue,
             provide: {
                 repositoryFactory: {
@@ -94,6 +97,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 searchRankingService: {},
                 userConfigService: {
                     search: () => ({ data: [] }),
+                    upsert: () => null,
                 },
             },
             mocks: {
@@ -118,13 +122,13 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                         <slot name="content"></slot>
                     </div>`
                 },
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,
                 'sw-icon': true,
-                'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-                'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-                'sw-context-button': Shopware.Component.build('sw-context-button'),
+                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+                'sw-context-button': await Shopware.Component.build('sw-context-button'),
                 'sw-data-grid-settings': true,
                 'router-link': true,
                 'sw-popover': true,
@@ -133,8 +137,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         });
     }
 
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -146,12 +150,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         [false, 'snippet.viewer, snippet.editor, snippet.deleter']
     ])('should have a reset button with an disabled state of %p with the roles: %s', async (state, role) => {
         const roles = role.split(', ');
-        const wrapper = createWrapper(roles);
+        const wrapper = await createWrapper(roles);
 
         await wrapper.vm.$nextTick();
 
         const contextMenuButton = wrapper.find('.sw-data-grid__row--0 .sw-context-button__button');
-        contextMenuButton.trigger('click');
+        await contextMenuButton.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -174,8 +178,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
     ])('should have a disabled state of %p on the new snippet button when using role: %s', async (state, role) => {
         const roles = role.split(', ');
 
-        const wrapper = createWrapper(roles);
-        wrapper.setData({ isLoading: false });
+        const wrapper = await createWrapper(roles);
+        await wrapper.setData({ isLoading: false });
 
         await wrapper.vm.$nextTick();
 

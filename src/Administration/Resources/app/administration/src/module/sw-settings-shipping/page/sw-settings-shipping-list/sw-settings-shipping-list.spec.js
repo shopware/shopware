@@ -4,7 +4,11 @@ import 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-function createWrapper(privileges = []) {
+/**
+ * @package checkout
+ */
+
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.use(Vuex);
@@ -13,7 +17,7 @@ function createWrapper(privileges = []) {
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
 
-    return shallowMount(Shopware.Component.build('sw-settings-shipping-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-shipping-list'), {
         localVue,
         mocks: {
             $route: {
@@ -59,13 +63,13 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     it('should be a vue js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have all fields disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.find('sw-button-stub');
@@ -77,7 +81,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have edit fields enabled', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'shipping.editor'
         ]);
 
@@ -92,7 +96,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have delete fields enabled', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'shipping.editor',
             'shipping.deleter'
         ]);
@@ -107,7 +111,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have creator fields enabled', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'shipping.editor',
             'shipping.deleter',
             'shipping.creator'
@@ -123,7 +127,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -146,7 +150,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -166,7 +170,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -190,7 +194,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });

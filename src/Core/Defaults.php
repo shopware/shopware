@@ -3,6 +3,7 @@
 namespace Shopware\Core;
 
 /**
+ * @package core
  * @Internal
  * System wide defaults that are fixed for performance measures
  */

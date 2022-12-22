@@ -8,13 +8,18 @@ import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/utils/sw-popover';
 
-function createWrapper(privileges = []) {
+/**
+ * @param privileges
+ * @package system-settings
+ * @returns {Promise<Wrapper<Vue>>}
+ */
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
 
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-product-media-form'), {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-media-form'), {
         localVue,
         mocks: {
             $store: new Vuex.Store({
@@ -41,15 +46,15 @@ function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-upload-listener': true,
-            'sw-product-image': Shopware.Component.build('sw-product-image'),
+            'sw-product-image': await Shopware.Component.build('sw-product-image'),
             'sw-media-upload-v2': true,
             'sw-media-preview-v2': true,
             'sw-product-media-form': true,
             'sw-icon': true,
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-context-button': Shopware.Component.build('sw-context-button')
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button')
         }
     });
 }
@@ -96,13 +101,13 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
     });
 
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the sw-media-upload-v2 component', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product.editor'
         ]);
 
@@ -110,13 +115,13 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
     });
 
     it('should not show the sw-media-upload-v2 component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeFalsy();
     });
 
     it('should dont have button Use as cover', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 

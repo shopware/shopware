@@ -31,14 +31,19 @@ import 'src/app/component/media/sw-media-media-item';
 import 'src/app/component/media/sw-media-base-item';
 import 'src/app/component/media/sw-media-preview-v2';
 
+/**
+ * @package system-settings
+ * @param entities
+ * @returns {EntityCollection}
+ */
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-function createWrapper(customProps = {}) {
+async function createWrapper(customProps = {}) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-custom-fields'), {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-custom-fields'), {
         localVue,
         propsData: {
             sets: createEntityCollection([
@@ -70,38 +75,38 @@ function createWrapper(customProps = {}) {
             ...customProps
         },
         stubs: {
-            'sw-container': Shopware.Component.build('sw-container'),
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-label': Shopware.Component.build('sw-label'),
-            'sw-tabs': Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-number-field': Shopware.Component.build('sw-number-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-container': await Shopware.Component.build('sw-container'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-tabs': await Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-number-field': await Shopware.Component.build('sw-number-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-entity-multi-select': true,
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': true,
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-media-field': Shopware.Component.build('sw-media-field'),
-            'sw-media-media-item': Shopware.Component.build('sw-media-media-item'),
-            'sw-media-base-item': Shopware.Component.build('sw-media-base-item'),
-            'sw-media-preview-v2': Shopware.Component.build('sw-media-preview-v2'),
-            'sw-colorpicker': Shopware.Component.build('sw-text-field'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-media-field': await Shopware.Component.build('sw-media-field'),
+            'sw-media-media-item': await Shopware.Component.build('sw-media-media-item'),
+            'sw-media-base-item': await Shopware.Component.build('sw-media-base-item'),
+            'sw-media-preview-v2': await Shopware.Component.build('sw-media-preview-v2'),
+            'sw-colorpicker': await Shopware.Component.build('sw-text-field'),
             'sw-upload-listener': true,
             'sw-simple-search-field': true,
             'sw-loader': true,
@@ -133,7 +138,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             sets: [],
             selectedCustomFields: {}
         });
@@ -141,7 +146,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     });
 
     it('should be the same data with isChanged when get currentIsChanged', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             isChanged: true
         });
 
@@ -149,7 +154,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     });
 
     it('should be emit change event when user toggle to the change type field', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -163,7 +168,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     });
 
     it('should only emit selected custom fields when user toggle to the change type field', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -175,7 +180,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         expect(wrapper.emitted().change[0]).toBeTruthy();
         expect(Object.keys(wrapper.emitted().change[0][0]).length).toEqual(1);
 
-        changeToggle.find('.sw-field__checkbox input').trigger('click');
+        await changeToggle.find('.sw-field__checkbox input').trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -185,7 +190,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     });
 
     it('should be get data from target input field of the customField only if its checked', async () => {
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             entity: {
                 customFields: {
                     field1: ''

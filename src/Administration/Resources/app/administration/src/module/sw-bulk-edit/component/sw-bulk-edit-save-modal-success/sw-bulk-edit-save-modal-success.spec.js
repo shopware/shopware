@@ -1,9 +1,12 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-save-modal-success'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal-success'), {
         stubs: {
             'sw-label': true,
             'sw-icon': true,
@@ -37,19 +40,19 @@ describe('sw-bulk-edit-save-modal-success', () => {
         Shopware.State.commit('shopwareApps/setSelectedIds', ['orderId']);
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain a correct selectedIds computed property', () => {
+    it('should contain a correct selectedIds computed property', async () => {
         expect(wrapper.vm.selectedIds).toEqual(expect.arrayContaining(['orderId']));
     });
 
@@ -209,7 +212,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
         wrapper.vm.createNotificationError.mockRestore();
     });
 
-    it('should compute selectedDocumentTypes correctly', () => {
+    it('should compute selectedDocumentTypes correctly', async () => {
         Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
             type: 'download',
             isChanged: true,

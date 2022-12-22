@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 class ProductCloseoutFilterFactory extends AbstractProductCloseoutFilterFactory
 {
     public function getDecorated(): AbstractProductCloseoutFilterFactory

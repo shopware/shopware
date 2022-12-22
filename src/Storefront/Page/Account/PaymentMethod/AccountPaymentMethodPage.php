@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Account\PaymentMethod;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @package storefront
+ */
 class AccountPaymentMethodPage extends Page
 {
     /**

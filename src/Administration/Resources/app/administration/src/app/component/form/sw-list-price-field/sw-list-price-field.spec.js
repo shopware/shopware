@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-list-price-field';
 
@@ -45,7 +49,7 @@ const defaultPrice = {
 };
 
 // initial component setup
-const setup = (propOverride) => {
+const setup = async (propOverride) => {
     const propsData = {
         price: [dollarPrice, euroPrice],
         purchasePrices: [purchasePrices],
@@ -56,25 +60,25 @@ const setup = (propOverride) => {
         ...propOverride
     };
 
-    return shallowMount(Shopware.Component.build('sw-list-price-field'), {
+    return shallowMount(await Shopware.Component.build('sw-list-price-field'), {
         stubs: ['sw-price-field'],
         propsData
     });
 };
 
 describe('components/form/sw-list-price-field', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = setup();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await setup();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be rendered correctly', () => {
-        const wrapper = setup();
+    it('should be rendered correctly', async () => {
+        const wrapper = await setup();
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should set listPrice null when the gross value is NaN', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         const listPrice = {
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
             gross: parseFloat(''),
@@ -86,7 +90,7 @@ describe('components/form/sw-list-price-field', () => {
     });
 
     it('should set listPrice null when the net value is NaN', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         const listPrice = {
             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
             gross: 1,
@@ -98,14 +102,14 @@ describe('components/form/sw-list-price-field', () => {
     });
 
     it('should set purchasePrice to default value when the input purchasePrices is empty', async () => {
-        const wrapper = setup({ hidePurchasePrices: true });
+        const wrapper = await setup({ hidePurchasePrices: true });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-list-price-field__purchase-price').exists()).toBeFalsy();
     });
 
     it('should set the correct inherited state when inherited', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
         await wrapper.setProps({
             price: [euroPrice]
         });
@@ -114,7 +118,7 @@ describe('components/form/sw-list-price-field', () => {
     });
 
     it('should set the correct inherited state when not inherited', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
 
         await wrapper.setProps({
             price: [dollarPrice]
@@ -124,14 +128,14 @@ describe('components/form/sw-list-price-field', () => {
     });
 
     it('should not display gross help text when not in vertical mode', async () => {
-        const wrapper = setup();
+        const wrapper = await setup();
 
         expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
             .attributes()['gross-help-text']).toBeUndefined();
     });
 
     it('should display gross help text when in vertical mode', async () => {
-        const wrapper = setup({
+        const wrapper = await setup({
             vertical: true
         });
 
@@ -140,7 +144,7 @@ describe('components/form/sw-list-price-field', () => {
     });
 
     it('should not display gross help text when in compact mode', async () => {
-        const wrapper = setup({
+        const wrapper = await setup({
             vertical: true,
             compact: true
         });

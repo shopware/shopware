@@ -37,6 +37,7 @@
                                   {% endif %}
                             >
 
+                                {# @deprecated tag:v6.5.0 - Block component_line_item_quantity_csrf will be removed. #}
                                 {% block component_line_item_quantity_csrf %}
                                     {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
                                 {% endblock %}

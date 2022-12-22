@@ -3,7 +3,6 @@ import 'src/module/sw-extension/page/sw-extension-my-extensions-account';
 import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-button';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
-import flushPromises from 'flush-promises';
 
 const userInfo = {
     avatarUrl: 'https://avatar.url',
@@ -11,17 +10,17 @@ const userInfo = {
     name: 'Max Muster'
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('asset', key => key);
 
-    return shallowMount(Shopware.Component.build('sw-extension-my-extensions-account'), {
+    return shallowMount(await Shopware.Component.build('sw-extension-my-extensions-account'), {
         localVue,
         stubs: {
             'sw-avatar': true,
             'sw-loader': true,
-            'sw-meteor-card': Shopware.Component.build('sw-meteor-card'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-text-field': {
                 props: ['value'],
                 template: `
@@ -76,6 +75,9 @@ function createWrapper() {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     /** @type Wrapper */
     let wrapper;

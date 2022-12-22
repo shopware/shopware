@@ -11,6 +11,10 @@ import './component/sw-settings-tax-rule-type-zip-code-range-cell';
 
 import './acl';
 
+/**
+ * @package customer-order
+ */
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

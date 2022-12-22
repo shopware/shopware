@@ -23,6 +23,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class PromotionsInCartCountRuleTest extends TestCase

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  *
  * @decrecated tag:v6.5.0 - Will be removed. Use AbstractStoreRequestOptionsProvider instead

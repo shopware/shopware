@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
+/**
+ * @package checkout
+ */
 class LineItemGroupBuilderResult
 {
     /**

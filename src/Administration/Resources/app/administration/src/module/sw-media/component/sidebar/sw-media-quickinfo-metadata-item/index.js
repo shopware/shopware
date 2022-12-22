@@ -1,5 +1,8 @@
 import './sw-media-quickinfo-metadata-item.scss';
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-media-quickinfo-metadata-item', {
     functional: true,

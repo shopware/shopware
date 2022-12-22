@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/view/sw-import-export-view-profiles';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-import-export-view-profiles'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-import-export-view-profiles'), {
         stubs: {
             'sw-card': true,
             'sw-simple-search-field': true,
@@ -38,7 +41,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 });

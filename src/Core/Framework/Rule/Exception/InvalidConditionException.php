@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Rule\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package business-ops
+ */
 class InvalidConditionException extends ShopwareHttpException
 {
     public function __construct(string $conditionName)

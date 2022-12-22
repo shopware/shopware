@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-currency/page/sw-settings-currency-list';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-settings-currency-list'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-settings-currency-list'), {
         mocks: {
             $route: {
                 query: {
@@ -73,14 +73,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new currency', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-currency-list__button-create');
@@ -89,7 +89,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to create a new currency', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'currencies.creator'
         ]);
         await wrapper.vm.$nextTick();
@@ -100,7 +100,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should not be able to inline edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-settings-currency-list-grid');
@@ -109,7 +109,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'currencies.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -120,7 +120,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should not be able to delete', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-currency-list__delete-action');
@@ -128,7 +128,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'currencies.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -138,7 +138,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-currency-list__edit-action');
@@ -146,7 +146,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'currencies.editor'
         ]);
         await wrapper.vm.$nextTick();

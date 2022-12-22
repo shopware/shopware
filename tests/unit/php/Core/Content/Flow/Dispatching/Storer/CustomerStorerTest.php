@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer

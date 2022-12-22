@@ -1,5 +1,7 @@
 import './service/cms.service';
 import './service/cmsDataResolver.service';
+import './service/cms-block-favorites.service';
+import './service/cms-element-favorites.service';
 import './state/cms-page.state';
 import './mixin/sw-cms-element.mixin';
 import './mixin/sw-cms-state.mixin';
@@ -15,6 +17,9 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-cms', {
     type: 'core',

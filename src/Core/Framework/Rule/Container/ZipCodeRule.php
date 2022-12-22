@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @package business-ops
+ */
 abstract class ZipCodeRule extends Rule
 {
     protected string $operator;

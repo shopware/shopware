@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\Response;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * @package core
+ */
 class JsonApiResponse extends JsonResponse
 {
     /**

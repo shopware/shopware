@@ -1,9 +1,6 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
 import 'src/module/sw-order/component/sw-order-customer-address-select';
-
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -11,6 +8,10 @@ import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-result-list';
 
 import Vuex from 'vuex';
+
+/**
+ * @package customer-order
+ */
 
 const addresses = [
     {
@@ -63,11 +64,11 @@ const customerData = {
     ),
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-order-customer-address-select'), {
+    return shallowMount(await Shopware.Component.build('sw-order-customer-address-select'), {
         localVue,
         propsData: {
             customer: { ...customerData },
@@ -79,11 +80,11 @@ function createWrapper() {
             'sw-popover': {
                 template: '<div class="sw-popover"><slot></slot></div>'
             },
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-highlight-text': true,
             'sw-loader': true,
             'sw-icon': true,
@@ -123,14 +124,13 @@ function createWrapper() {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/component/sw-order-customer-address-select', () => {
     beforeAll(() => {
     });
 
     it('should show address option correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const billingAddressSelect = wrapper.find('.sw-select__selection');
@@ -141,24 +141,21 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         expect(wrapper.find('sw-highlight-text-stub').attributes().text).toEqual('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
     });
 
-    it('should able to set billing address same as shipping address', async () => {
-        const wrapper = createWrapper();
+    it('should able to show same address label', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
-        const billingAddressSelect = wrapper.find('.sw-select__selection');
-        // Click to open result list
-        await billingAddressSelect.trigger('click');
+        await wrapper.setProps({
+            sameAddressValue: '1',
+            sameAddressLabel: 'Same as billing address'
+        });
 
-        const sameShippingAddressOption = wrapper.find('.sw-select-result__option-same-address');
-        await sameShippingAddressOption.trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted('change')[0]).toEqual(['2']);
+        const selectionLabel = wrapper.find('.sw-single-select__selection-text');
+        expect(selectionLabel.text()).toEqual('Same as billing address');
     });
 
     it('should filter entries correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.vm.searchAddress('test');

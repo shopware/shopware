@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package storefront
+ *
  * @extends Collection<StorefrontPluginConfiguration>
  */
 class StorefrontPluginConfigurationCollection extends Collection

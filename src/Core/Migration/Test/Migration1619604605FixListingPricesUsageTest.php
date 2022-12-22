@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1619604605FixListingPricesUsage;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1619604605FixListingPricesUsageTest extends TestCase
@@ -47,6 +49,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
 
         $criteria = (new Criteria())->setLimit(1);
 
+        /** @var string $categoryId */
         $categoryId = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
 
         $repository->update([
@@ -89,6 +92,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
 
         $criteria = (new Criteria())->setLimit(1);
 
+        /** @var string $categoryId */
         $categoryId = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
 
         $repository->update([

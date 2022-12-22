@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 const selector = {
     footerLinkContact: '.footer-contact-form a[data-toggle="modal"]',
     formContact: 'form[action="/form/contact"]',

@@ -1,11 +1,15 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-avatar';
 
 describe('components/base/sw-avatar', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-avatar'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-avatar'), {
             provide: {},
             mocks: {},
             stubs: {}

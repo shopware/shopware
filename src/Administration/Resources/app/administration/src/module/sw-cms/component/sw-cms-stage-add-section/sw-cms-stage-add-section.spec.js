@@ -1,12 +1,12 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-stage-add-section';
 
-function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(Shopware.Component.build('sw-cms-stage-add-section'), {
-        localVue,
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-stage-add-section'), {
         propsData: {},
         stubs: {
             'sw-icon': true
@@ -19,13 +19,13 @@ function createWrapper() {
 
 describe('module/sw-cms/component/sw-cms-stage-add-section', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('set a is--disabled class to wrapper', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -34,7 +34,7 @@ describe('module/sw-cms/component/sw-cms-stage-add-section', () => {
     });
 
     it('do not set a is--disabled class to wrapper', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');
     });

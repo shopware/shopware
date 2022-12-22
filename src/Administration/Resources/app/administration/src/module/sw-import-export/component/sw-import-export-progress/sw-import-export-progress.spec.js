@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-progress';
 
 describe('module/sw-import-export/components/sw-import-export-progress', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-import-export-progress'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-progress'), {
             stubs: [
                 'sw-button'
             ]

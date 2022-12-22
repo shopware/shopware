@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-users-permissions-role-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -83,6 +86,16 @@ Component.register('sw-users-permissions-role-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-role-detail__detailedPrivileges',
+                path: 'detailedPrivileges',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-role-detail__role',
+                path: 'role',
+                scope: this,
+            });
             if (!this.roleId) {
                 this.createNewRole();
                 return;

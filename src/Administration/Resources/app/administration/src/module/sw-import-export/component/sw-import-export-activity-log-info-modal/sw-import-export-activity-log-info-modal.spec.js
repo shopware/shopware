@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
 
@@ -22,8 +25,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         };
     }
 
-    function createWrapper(logEntity = getLogEntityMock()) {
-        return shallowMount(Shopware.Component.build('sw-import-export-activity-log-info-modal'), {
+    async function createWrapper(logEntity = getLogEntityMock()) {
+        return shallowMount(await Shopware.Component.build('sw-import-export-activity-log-info-modal'), {
             provide: {
                 importExport: {}
             },
@@ -50,8 +53,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         }
     });
 
-    it('should be a vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -62,8 +65,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         ['file size', '.sw-import-export-activity-log-info-modal__item-size dd', '458.00B'],
         ['date', '.sw-import-export-activity-log-info-modal__item-date dd', '5 November 2021 at 09:08'],
         ['user', '.sw-import-export-activity-log-info-modal__item-user dd', 'admin'],
-    ])('should display the %s', (_, selector, expectedText) => {
-        wrapper = createWrapper();
+    ])('should display the %s', async (_, selector, expectedText) => {
+        wrapper = await createWrapper();
 
         const text = wrapper.find(selector).text();
         expect(text).toBe(expectedText);
@@ -83,23 +86,23 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         expect(colorBadge.attributes('variant')).toBe(expectedVariant);
     });
 
-    it('should disable the button when export has not been finished yet', () => {
+    it('should disable the button when export has not been finished yet', async () => {
         const logEntity = getLogEntityMock();
         logEntity.activity = 'export';
         logEntity.state = 'pending';
 
-        wrapper = createWrapper(logEntity);
+        wrapper = await createWrapper(logEntity);
 
         const downloadButton = wrapper.find('sw-button-stub');
         expect(downloadButton.attributes('disabled')).toBe('true');
     });
 
-    it('should enable the button when export has been finished', () => {
+    it('should enable the button when export has been finished', async () => {
         const logEntity = getLogEntityMock();
         logEntity.activity = 'export';
         logEntity.state = 'succeeded';
 
-        wrapper = createWrapper(logEntity);
+        wrapper = await createWrapper(logEntity);
 
         const downloadButton = wrapper.find('sw-button-stub');
         expect(downloadButton.attributes('disabled')).toBeUndefined();

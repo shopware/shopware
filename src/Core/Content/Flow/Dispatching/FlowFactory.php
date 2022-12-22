@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class FlowFactory

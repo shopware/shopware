@@ -3,58 +3,65 @@ import 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individua
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
 
-const stubs = {
-    'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
-    'sw-select-base': Shopware.Component.build('sw-select-base'),
-    'sw-block-field': true,
-    'sw-select-selection-list': true,
-    'sw-select-result-list': true,
-    'sw-highlight-text': true,
-    'sw-icon': true
-};
+/**
+ * @package customer-order
+ */
+describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
+    let stubs;
 
-function createWrapper(taxRule) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    async function createWrapper(taxRule) {
+        const localVue = createLocalVue();
+        localVue.directive('tooltip', {});
 
-    return mount(Shopware.Component.build('sw-settings-tax-rule-type-individual-states'), {
-        localVue,
-        stubs,
+        return mount(await Shopware.Component.build('sw-settings-tax-rule-type-individual-states'), {
+            localVue,
+            stubs,
 
-        propsData: {
-            taxRule
-        },
+            propsData: {
+                taxRule
+            },
 
-        provide: {
-            repositoryFactory: {
-                create: (entityName) => {
-                    if (entityName !== 'country_state') {
-                        throw new Error('expected entity name to be country_state');
-                    }
-
-                    return {
-                        entityName: 'country_state',
-                        route: '/country_state',
-                        search: (criteria) => {
-                            const states = criteria.ids.map((id) => {
-                                return {
-                                    id,
-                                    name: `state ${id}`
-                                };
-                            });
-
-                            return Promise.resolve(states);
+            provide: {
+                repositoryFactory: {
+                    create: (entityName) => {
+                        if (entityName !== 'country_state') {
+                            throw new Error('expected entity name to be country_state');
                         }
-                    };
+
+                        return {
+                            entityName: 'country_state',
+                            route: '/country_state',
+                            search: (criteria) => {
+                                const states = criteria.ids.map((id) => {
+                                    return {
+                                        id,
+                                        name: `state ${id}`
+                                    };
+                                });
+
+                                return Promise.resolve(states);
+                            }
+                        };
+                    }
                 }
             }
-        }
-    });
-}
+        });
+    }
 
-describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
+    beforeAll(async () => {
+        stubs = {
+            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': true,
+            'sw-select-selection-list': true,
+            'sw-select-result-list': true,
+            'sw-highlight-text': true,
+            'sw-icon': true
+        };
+    });
+
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             data: {
                 states: []
             }
@@ -64,7 +71,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     });
 
     it('creates an empty entity collection if taxRule.data.states is empty', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             data: {
                 states: []
             }
@@ -105,13 +112,13 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
         wrapper.destroy();
     });
 
-    it('only updates its states if multiselect emits a change', () => {
+    it('only updates its states if multiselect emits a change', async () => {
         const states = [
             { id: Shopware.Utils.createId() },
             { id: Shopware.Utils.createId() }
         ];
 
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             countryId: Shopware.Utils.createId(),
             data: {
                 states: []

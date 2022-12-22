@@ -1,10 +1,14 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-address-modal';
 
-function createWrapper() {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-order-address-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-order-address-modal'), {
         localVue,
         stubs: {
             'sw-modal': true,
@@ -38,19 +42,19 @@ function createWrapper() {
 describe('src/module/sw-order/component/sw-order-address-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should get customer information on creation', () => {
+    it('should get customer information on creation', async () => {
         wrapper.vm.getCustomerInfo = jest.fn();
 
         wrapper.vm.createdComponent();

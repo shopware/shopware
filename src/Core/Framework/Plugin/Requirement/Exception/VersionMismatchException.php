@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
+/**
+ * @package core
+ */
 class VersionMismatchException extends RequirementException
 {
     public function __construct(string $requirement, string $requiredVersion, string $actualVersion)

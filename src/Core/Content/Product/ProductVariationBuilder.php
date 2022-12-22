@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use function array_values;
 
+/**
+ * @package inventory
+ */
 class ProductVariationBuilder extends AbstractProductVariationBuilder
 {
     public function getDecorated(): AbstractProductVariationBuilder

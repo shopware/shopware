@@ -1,15 +1,15 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 import 'src/module/sw-order/view/sw-order-create-general';
-import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
-function createWrapper() {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper() {
     const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('tooltip', {});
-    localVue.filter('currency', v => v);
-    return shallowMount(Shopware.Component.build('sw-order-create-general'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-general'), {
         localVue,
         stubs: {
             'sw-card-view': true,
@@ -25,37 +25,21 @@ function createWrapper() {
             'sw-description-list': true,
             'sw-order-line-items-grid-sales-channel': true,
         },
-        provide: {
-
-        }
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-create-general', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swOrder', orderStore);
-        Shopware.Service().register('repositoryFactory', () => {
-            return {
-                create: () => {
-                    return {
-                        get: () => { }
-                    };
-                }
-            };
-        });
-    });
+    beforeEach(() => {
+        if (Shopware.State.get('swOrder')) {
+            Shopware.State.unregisterModule('swOrder');
+        }
 
-    afterEach(() => {
-        Shopware.State.commit('swOrder/setCart', {
-            token: null,
-            lineItems: []
-        });
+        Shopware.State.registerModule('swOrder', orderStore);
     });
 
     it('should be show successful notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
@@ -81,7 +65,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should be show error notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -107,7 +91,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should be show warning notification', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
@@ -133,7 +117,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should only display Total row when status is tax free', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swOrder/setCart', {
             token: null,
@@ -152,7 +136,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
     });
 
     it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swOrder/setCart', {
             token: null,

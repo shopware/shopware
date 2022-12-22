@@ -7,6 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
+ * @package content
  */
 Component.register('sw-media-modal-folder-settings', {
     template,

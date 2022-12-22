@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package sales-channel
+ */
 class SeoUrlTemplateDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'seo_url_template';

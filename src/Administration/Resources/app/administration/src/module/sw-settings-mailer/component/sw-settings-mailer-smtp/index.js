@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-mailer-smtp.html.twig';
 import './sw-settings-mailer-smtp.scss';
 

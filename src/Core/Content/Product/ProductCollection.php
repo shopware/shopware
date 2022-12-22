@@ -12,6 +12,8 @@ use Shopware\Core\System\Unit\UnitCollection;
 
 /**
  * @extends EntityCollection<ProductEntity>
+ *
+ * @package inventory
  */
 class ProductCollection extends EntityCollection
 {

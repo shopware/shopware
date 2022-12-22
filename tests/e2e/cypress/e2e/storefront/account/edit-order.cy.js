@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 describe('Account: Edit order', () => {
     beforeEach(() => {
         return cy.createProductFixture().then(() => {

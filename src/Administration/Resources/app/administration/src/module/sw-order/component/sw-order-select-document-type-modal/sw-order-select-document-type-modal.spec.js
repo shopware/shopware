@@ -4,7 +4,10 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
+
+/**
+ * @package customer-order
+ */
 
 const orderFixture = {
     id: '1234',
@@ -77,15 +80,15 @@ const documentTypeFixture = [
     },
 ];
 
-function createWrapper(customData = {}) {
-    return shallowMount(Shopware.Component.build('sw-order-select-document-type-modal'), {
+async function createWrapper(customData = {}) {
+    return shallowMount(await Shopware.Component.build('sw-order-select-document-type-modal'), {
         stubs: {
             'sw-modal': {
                 template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
             },
-            'sw-radio-field': Shopware.Component.build('sw-radio-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-field-error': true,
             'sw-help-text': true,
         },
@@ -112,8 +115,8 @@ function createWrapper(customData = {}) {
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 

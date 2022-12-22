@@ -6,9 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
@@ -42,6 +39,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class CreditNoteGeneratorTest extends TestCase
@@ -308,10 +307,7 @@ class CreditNoteGeneratorTest extends TestCase
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
-     * @throws \Exception
+     * @param array<float> $taxes
      */
     private function generateDemoCart(array $taxes): Cart
     {
@@ -359,6 +355,9 @@ class CreditNoteGeneratorTest extends TestCase
         return $cart;
     }
 
+    /**
+     * @param array<float> $creditPrices
+     */
     private function generateCreditItems(Cart $cart, array $creditPrices): Cart
     {
         foreach ($creditPrices as $price) {
@@ -380,6 +379,9 @@ class CreditNoteGeneratorTest extends TestCase
         return $orderId;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function createCustomer(array $options = []): string
     {
         $customerId = Uuid::randomHex();
@@ -470,6 +472,9 @@ class CreditNoteGeneratorTest extends TestCase
         return $shippingMethodId;
     }
 
+    /**
+     * @return array<string, int|string>
+     */
     private function createDeliveryTimeData(): array
     {
         return [
@@ -527,15 +532,15 @@ class CreditNoteGeneratorTest extends TestCase
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
+            ->addAssociation('addresses.country')
             ->addAssociation('currency')
             ->addAssociation('language.locale')
             ->addAssociation('transactions');
 
+        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)
             ->get($orderId);
-
-        static::assertNotNull($order);
 
         return $order;
     }

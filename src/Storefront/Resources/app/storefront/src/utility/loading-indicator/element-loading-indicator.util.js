@@ -9,6 +9,9 @@ const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
  */
 const VISUALLY_HIDDEN_CLASS = Feature.isActive('v6.5.0.0') ? 'visually-hidden' : 'sr-only';
 
+/**
+ * @package storefront
+ */
 export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
     /**

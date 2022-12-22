@@ -8,13 +8,13 @@ const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
 const userConfigSaveSpy = jest.fn(() => Promise.resolve({}));
 
-function createWrapper(userConfig = {}) {
-    return shallowMount(Shopware.Component.build('sw-extension-file-upload'), {
+async function createWrapper(userConfig = {}) {
+    return shallowMount(await Shopware.Component.build('sw-extension-file-upload'), {
         stubs: {
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': true,
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-modal': {
                 props: ['title'],
@@ -46,6 +46,9 @@ function createWrapper(userConfig = {}) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     /** @type Wrapper */
     let wrapper;
@@ -93,7 +96,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(fileInput.element.click).not.toHaveBeenCalled();
 
         const continueButton = warningModal.find('.sw-button--primary');
-        continueButton.trigger('click');
+        await continueButton.trigger('click');
 
         // expect that the input gets clicked
         expect(fileInput.element.click).toHaveBeenCalled();
@@ -147,7 +150,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(warningModal.isVisible()).toBe(true);
 
         const hideCheckbox = warningModal.find('input[type=\'checkbox\']');
-        hideCheckbox.setChecked();
+        await hideCheckbox.setChecked();
 
         await wrapper.vm.handleUpload([createFile()]);
 

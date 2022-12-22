@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package content
+ */
 class ImageStruct extends Struct
 {
     /**

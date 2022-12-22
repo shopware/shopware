@@ -1,14 +1,17 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/base/sw-button';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-country-currency-hamburger-menu'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-country-currency-hamburger-menu'), {
         localVue,
 
         propsData: {
@@ -30,9 +33,9 @@ function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
-            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-popover': true,
             'sw-icon': {
                 template: '<div></div>'
@@ -46,16 +49,16 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should able to show hamburger menu', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
+        await wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
         await wrapper.vm.$nextTick();
         const hamburgerButton = wrapper.find('.sw-settings-country-currency-hamburger-menu__wrapper');
         expect(hamburgerButton.isVisible()).toBeTruthy();
@@ -65,12 +68,12 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
     });
 
     it('should able to edit on hamburger menu', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
+        await wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
         await wrapper.vm.$nextTick();
         const hamburgerButton = wrapper.find('.sw-settings-country-currency-hamburger-menu__wrapper');
         expect(hamburgerButton.isVisible()).toBeTruthy();
@@ -81,12 +84,12 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-hamb
     });
 
     it('should not able to edit on hamburger menu', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.viewer'
         ]);
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
+        await wrapper.find('.sw-settings-country-currency-hamburger-menu__button').trigger('click');
         await wrapper.vm.$nextTick();
         const hamburgerButton = wrapper.find('.sw-settings-country-currency-hamburger-menu__wrapper');
         expect(hamburgerButton.isVisible()).toBeTruthy();

@@ -1,10 +1,10 @@
 import 'src/app/component/filter/sw-base-filter';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-base-filter'), {
+    return shallowMount(await Shopware.Component.build('sw-base-filter'), {
         localVue,
         propsData: {
             title: 'Example Filter',
@@ -16,25 +16,25 @@ function createWrapper() {
 
 describe('components/sw-base-filter', () => {
     it('should hide reset button by default', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-base-filter__reset').exists()).toBeFalsy();
     });
 
     it('should show reset button when showResetButton is true', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({ showResetButton: true });
 
         expect(wrapper.find('.sw-base-filter__reset').exists()).toBeTruthy();
 
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
     it('should show reset button when showResetButton is false', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({ showResetButton: false });
 
@@ -42,7 +42,7 @@ describe('components/sw-base-filter', () => {
     });
 
     it('should emit `filter-reset` when filter is not active', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({ active: false });
 
@@ -50,7 +50,7 @@ describe('components/sw-base-filter', () => {
     });
 
     it('should not emit `filter-reset` when filter is active', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({ active: true });
 

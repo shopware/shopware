@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
+/**
+ * @package core
+ */
 class AppFlowActionProvider
 {
     private Connection $connection;

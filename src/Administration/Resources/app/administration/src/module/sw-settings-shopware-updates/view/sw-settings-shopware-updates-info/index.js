@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import './sw-shopware-updates-info.scss';
 import template from './sw-shopware-updates-info.html.twig';
 

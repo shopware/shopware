@@ -5,69 +5,76 @@ import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/structure/sw-page';
 
-const stubs = {
-    'router-view': true,
-    'sw-icon': true,
-    'sw-loader': true,
-    'sw-app-actions': true,
-    'sw-notification-center': true,
-    'sw-help-center': true,
-    'sw-search-bar': true,
-    'sw-language-switch': true,
-    'sw-page': Shopware.Component.build('sw-page'),
-    'sw-button': Shopware.Component.build('sw-button'),
-    'sw-button-process': Shopware.Component.build('sw-button-process'),
-    'sw-modal': Shopware.Component.build('sw-modal')
-};
+/**
+ * @package customer-order
+ */
 
 const remindPaymentMock = jest.fn(() => {
     return Promise.resolve();
 });
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-create'), {
-        stubs,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    get: () => Promise.resolve(
-                        {
-                            translated: {
-                                distinguishableName: 'Cash on Delivery',
-                            },
-                        }
-                    )
-                })
+describe('src/module/sw-order/page/sw-order-create', () => {
+    let wrapper;
+    let stubs;
+
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-order-create'), {
+            stubs,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        get: () => Promise.resolve(
+                            {
+                                translated: {
+                                    distinguishableName: 'Cash on Delivery',
+                                },
+                            }
+                        )
+                    })
+                },
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {}
+                }
             },
-            shortcutService: {
-                startEventListener: () => {},
-                stopEventListener: () => {}
-            }
-        },
-        mocks: {
-            $route: {
-                meta: {
-                    $module: {
-                        routes: {
-                            detail: {
-                                children: {
-                                    base: {},
-                                    other: {}
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            routes: {
+                                detail: {
+                                    children: {
+                                        base: {},
+                                        other: {}
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
+        });
+    }
+
+    beforeAll(async () => {
+        stubs = {
+            'router-view': true,
+            'sw-icon': true,
+            'sw-loader': true,
+            'sw-app-actions': true,
+            'sw-notification-center': true,
+            'sw-help-center': true,
+            'sw-search-bar': true,
+            'sw-language-switch': true,
+            'sw-page': await Shopware.Component.build('sw-page'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
+            'sw-modal': await Shopware.Component.build('sw-modal')
+        };
     });
-}
 
-describe('src/module/sw-order/page/sw-order-create', () => {
-    let wrapper;
-
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         Shopware.State.unregisterModule('swOrder');
         Shopware.State.registerModule('swOrder', {

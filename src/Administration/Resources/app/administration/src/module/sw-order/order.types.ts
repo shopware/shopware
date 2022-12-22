@@ -1,6 +1,10 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
 
+/**
+ * @package customer-order
+ */
+
 interface PaymentMethod extends Entity {
     translated: {
         name: string,
@@ -17,6 +21,7 @@ interface ShippingMethod extends Entity {
 interface SalesChannel extends Entity {
     id: string,
     active: boolean,
+    currencyId: string,
 }
 
 interface Country extends Entity {
@@ -56,6 +61,7 @@ interface Customer extends Entity {
     activeShippingAddress: CustomerAddress | null,
     addresses: EntityCollection,
     salesChannel: SalesChannel | null,
+    customerNumber: string,
 }
 
 interface Currency extends Entity {
@@ -114,7 +120,11 @@ interface LineItem {
         taxRules: TaxRule[],
         quantity: number,
         type: PriceType,
-    }
+        isCalculated: boolean,
+    },
+    unitPrice: number,
+    totalPrice: number,
+    precision: number,
 }
 
 interface PromotionCodeTag {
@@ -146,6 +156,7 @@ interface Cart {
         rawTotal: number,
         totalPrice: number,
         calculatedTaxes: CalculatedTax[],
+        taxStatus: string
     }
 }
 

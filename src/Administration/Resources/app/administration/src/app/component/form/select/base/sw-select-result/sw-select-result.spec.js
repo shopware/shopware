@@ -1,22 +1,26 @@
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-result/';
-import flushPromises from 'flush-promises';
 
-const swSelectResult = Shopware.Component.build('sw-select-result');
-swSelectResult.methods.checkIfSelected = jest.fn();
+describe('src/app/component/form/select/base/sw-select-result/', () => {
+    let wrapper;
+    let swSelectResult;
 
-function createWrapper(innerTemplate = '') {
-    const Parent = {
-        components: {
-            swSelectResult
-        },
-        name: 'Parent',
-        data() {
-            return {
-                showSwSelectResult: true
-            };
-        },
-        template: `
+    async function createWrapper(innerTemplate = '') {
+        const Parent = {
+            components: {
+                swSelectResult
+            },
+            name: 'Parent',
+            data() {
+                return {
+                    showSwSelectResult: true
+                };
+            },
+            template: `
             <div class="parent">
             <sw-select-result
                 v-if="showSwSelectResult"
@@ -37,40 +41,42 @@ function createWrapper(innerTemplate = '') {
                     }"
             >${innerTemplate}</sw-select-result>
             </div>`
-    };
+        };
 
-    const grandParent = {
-        template: '<div><Parent></Parent></div>',
-        components: {
-            Parent
-        },
-        methods: {
-            emitSelectItemByKeyboard() {
-                this.$emit('item-select-by-keyboard', [0]);
-            }
-        }
-    };
-
-    return mount(grandParent, {
-        provide: {
-            repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve('bar') })
+        const grandParent = {
+            template: '<div><Parent></Parent></div>',
+            components: {
+                Parent
             },
-            setActiveItemIndex: () => {
+            methods: {
+                emitSelectItemByKeyboard() {
+                    this.$emit('item-select-by-keyboard', [0]);
+                }
             }
-        },
-        attachTo: document.body
+        };
+
+        return mount(grandParent, {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({ search: () => Promise.resolve('bar') })
+                },
+                setActiveItemIndex: () => {
+                }
+            },
+            attachTo: document.body
+        });
+    }
+
+    beforeAll(async () => {
+        swSelectResult = await Shopware.Component.build('sw-select-result');
+        swSelectResult.methods.checkIfSelected = jest.fn();
     });
-}
-
-
-describe('src/app/component/form/select/base/sw-select-result/', () => {
-    let wrapper;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
+
     afterEach(() => {
         wrapper.destroy();
     });
@@ -118,7 +124,7 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
     });
 
     it('should show description depending on slot', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-select-result__result-item-description').exists()).toBeFalsy();
 

@@ -6,13 +6,13 @@ const { Criteria } = Shopware.Data;
  */
 
 /**
- *
+ * @private
+ * @package business-ops
  * @memberOf module:core/service/rule-assignment-configuration
  * @constructor
  * @method createRuleAssignmentConfigService
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createRuleAssignmentConfigService(ruleId, associationLimit) {
     const configuration = {
         product: {

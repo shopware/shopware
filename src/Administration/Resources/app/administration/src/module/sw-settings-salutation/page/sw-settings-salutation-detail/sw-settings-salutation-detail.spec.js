@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-salutation/page/sw-settings-salutation-detail';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-salutation-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-salutation-detail'), {
         localVue,
 
         propsData: {
@@ -123,14 +123,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save a salutation if have a editor privilege', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'salutation.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -154,7 +154,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
     });
 
     it('should not be able to save a salutation if not have editor privilege', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
@@ -177,7 +177,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
     });
 
     it('should not be able to save a salutation if have privileges which do not contain editor privilege', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'salutation.creator',
             'salutation.deleter'
         ]);

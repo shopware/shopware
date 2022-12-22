@@ -3,7 +3,11 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 /**
+ * @package merchant-services
+ *
  * @codeCoverageIgnore
+ *
+ * @package inventory
  */
 class VariantStruct extends StoreStruct
 {

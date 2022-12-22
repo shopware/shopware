@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -14,7 +17,7 @@ const EntityDefinitionFactory = require('src/core/factory/entity-definition.fact
 describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const mockEntitySchema = {
             product: {
                 entity: 'product',
@@ -145,19 +148,19 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
         });
 
-        wrapper = shallowMount(Shopware.Component.build('sw-import-export-entity-path-select'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-entity-path-select'), {
             stubs: {
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-icon': {
                     template: '<div></div>'
                 },
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-popover': Shopware.Component.build('sw-popover'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
-                'sw-highlight-text': Shopware.Component.build('sw-highlight-text')
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-popover': await Shopware.Component.build('sw-popover'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
+                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
             },
             propsData: {
                 value: null,
@@ -633,7 +636,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         wrapper.vm.onSelectExpanded();
 
-        wrapper.vm.setValue({
+        await wrapper.vm.setValue({
             label: 'translations.DEFAULT.customFields',
             value: 'translations.DEFAULT.customFields',
             relation: true
@@ -655,7 +658,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         expect(actual).toEqual(expected);
 
-        wrapper.vm.setValue({
+        await wrapper.vm.setValue({
             label: 'manufacturer.translations.DEFAULT.customFields',
             value: 'manufacturer.translations.DEFAULT.customFields',
             relation: true

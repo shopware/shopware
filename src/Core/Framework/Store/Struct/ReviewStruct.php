@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Store\Exception\InvalidExtensionRatingValueException
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @package merchant-services
+ *
  * @codeCoverageIgnore
  */
 class ReviewStruct extends StoreStruct

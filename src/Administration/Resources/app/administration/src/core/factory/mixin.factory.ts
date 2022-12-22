@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/factory/mixin
  */
 import { warn } from 'src/core/service/utils/debug.utils';

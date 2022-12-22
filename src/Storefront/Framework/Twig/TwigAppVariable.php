@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
+ * @package core
+ *
  * To allow custom server parameters,
  */
 class TwigAppVariable extends AppVariable

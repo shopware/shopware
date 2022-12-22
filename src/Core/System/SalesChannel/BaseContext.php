@@ -13,6 +13,8 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
+ * @package core
+ *
  * @internal Use SalesChannelContext for extensions
  */
 class BaseContext

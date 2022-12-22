@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-cart-condition-form'), {
+    return shallowMount(await Shopware.Component.build('sw-promotion-v2-cart-condition-form'), {
         localVue,
         stubs: {
             'sw-container': {
@@ -94,8 +94,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -132,7 +132,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'promotion.editor'
         ]);
 
@@ -147,7 +147,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
 
     it('should add conditions association', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 
         expect(criteria.associations[0].association).toEqual('conditions');

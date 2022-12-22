@@ -3,7 +3,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-BRANCH_MATCHING_REGEX="${BRANCH_MATCHING_REGEX:-"^(trunk|6\\.[0-9]+\\.[0-9]+\\.0)\$"}"
+BRANCH_MATCHING_REGEX="${BRANCH_MATCHING_REGEX:-"^(trunk|6\\.4|6\\.[0-9]+\\.[0-9]+\\.0)\$"}"
 BRANCH_DENY_REGEX="${BRANCH_DENY_REGEX:-"^(next|ntr)-"}"
 
 if [[ -z "${1+''}" || -z "${2+''}" ]]; then

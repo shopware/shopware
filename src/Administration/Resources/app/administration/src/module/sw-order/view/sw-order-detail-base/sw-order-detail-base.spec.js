@@ -1,6 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/view/sw-order-detail-base';
 
+/**
+ * @package customer-order
+ */
+
 const orderMock = {
     shippingCosts: {
         calculatedTaxes: [],
@@ -53,7 +57,7 @@ const orderMock = {
     lineItems: []
 };
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.filter('currency', Shopware.Filter.getByName('currency'));
@@ -66,7 +70,7 @@ function createWrapper(privileges = []) {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-order-detail-base'), {
+    return shallowMount(await Shopware.Component.build('sw-order-detail-base'), {
         localVue,
         stubs: {
             'sw-card-view': true,

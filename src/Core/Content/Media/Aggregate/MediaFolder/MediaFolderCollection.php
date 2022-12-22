@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package content
  * @extends EntityCollection<MediaFolderEntity>
  */
 class MediaFolderCollection extends EntityCollection

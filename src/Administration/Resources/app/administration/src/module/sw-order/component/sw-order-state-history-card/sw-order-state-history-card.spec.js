@@ -2,7 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-state-history-card';
 import 'src/module/sw-order/component/sw-order-state-change-modal';
 
-function createWrapper(privileges = []) {
+/**
+ * @package customer-order
+ */
+async function createWrapper(privileges = []) {
     const orderProp = {
         transactions: [],
         deliveries: [
@@ -14,14 +17,14 @@ function createWrapper(privileges = []) {
     orderProp.transactions.getIds = () => ([]);
     orderProp.deliveries.getIds = () => ([]);
 
-    return shallowMount(Shopware.Component.build('sw-order-state-history-card'), {
+    return shallowMount(await Shopware.Component.build('sw-order-state-history-card'), {
         stubs: {
             'sw-card': {
                 template: '<div><slot></slot></div>'
             },
             'sw-container': true,
             'sw-order-state-card-entry': true,
-            'sw-order-state-change-modal': Shopware.Component.build('sw-order-state-change-modal'),
+            'sw-order-state-change-modal': await Shopware.Component.build('sw-order-state-change-modal'),
             'sw-modal': true,
             'sw-order-state-change-modal-attach-documents': true
         },
@@ -54,8 +57,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -73,7 +76,7 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     });
 
     it('should not have an disabled payment state', async () => {
-        wrapper = createWrapper(['order.editor']);
+        wrapper = await createWrapper(['order.editor']);
         const paymentState = wrapper.find('.sw-order-state-history-card__payment-state');
 
         expect(paymentState.attributes().disabled).toBeUndefined();
@@ -86,14 +89,14 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     });
 
     it('should not have an disabled delivery state', async () => {
-        wrapper = createWrapper(['order.editor']);
+        wrapper = await createWrapper(['order.editor']);
         const deliveryState = wrapper.find('.sw-order-state-history-card__delivery-state');
 
         expect(deliveryState.attributes().disabled).toBeUndefined();
     });
 
     it('should always render order change modal with document selection', async () => {
-        wrapper.setData({ showModal: true });
+        await wrapper.setData({ showModal: true });
 
         await wrapper.vm.$nextTick();
 

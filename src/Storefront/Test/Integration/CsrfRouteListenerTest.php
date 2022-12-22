@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Integration;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -21,6 +22,8 @@ class CsrfRouteListenerTest extends TestCase
 
     public function testPostRequestWithoutCsrfTokenShouldFail(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $client = $this->createSalesChannelBrowser($this->getKernel(), true);
         $client->request('POST', 'http://localhost/widgets/account/newsletter');
         $statusCode = $client->getResponse()->getStatusCode();
@@ -33,11 +36,13 @@ class CsrfRouteListenerTest extends TestCase
 
     public function testPostRequestWithValidCsrfToken(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $client = $this->createSalesChannelBrowser($this->getKernel(), true);
         $client->request('POST', 'http://localhost/widgets/account/newsletter', $this->tokenize('frontend.account.newsletter', []));
         $statusCode = $client->getResponse()->getStatusCode();
 
-        static::assertSame(Response::HTTP_FOUND, $statusCode);
+        static::assertSame(Response::HTTP_FOUND, $statusCode, (string) $client->getResponse()->getContent());
         $session = $this->getSession();
         static::assertInstanceOf(Session::class, $session);
         static::assertSame([], $session->getFlashBag()->all());

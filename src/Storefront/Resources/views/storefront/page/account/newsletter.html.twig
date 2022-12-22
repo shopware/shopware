@@ -40,6 +40,7 @@
               data-form-auto-submit="true"
               data-form-auto-submit-options='{{ formAutoSubmitOptions|json_encode }}'>
 
+            {# @deprecated tag:v6.5.0 - Block page_account_overview_newsletter_content_form_csrf will be removed. #}
             {% block page_account_overview_newsletter_content_form_csrf %}
                 {{ sw_csrf('frontend.account.newsletter') }}
             {% endblock %}

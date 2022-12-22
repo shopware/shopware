@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @package system-settings
+ */
 class CsvFileWriter extends AbstractFileWriter
 {
     /**

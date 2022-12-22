@@ -10,6 +10,10 @@ import type {
     SalesChannelContext,
 } from '../../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State, Mixin, Utils } = Shopware;
 const { get, format, array } = Utils;
 

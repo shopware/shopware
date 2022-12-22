@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-exporter';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
@@ -53,21 +56,21 @@ const repositoryMockFactory = () => {
 describe('components/sw-import-export-exporter', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-import-export-exporter'), {
+    beforeEach(async () => {
+        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-exporter'), {
             stubs: {
-                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-loader': true,
                 'sw-icon': true,
                 'sw-field': true,
                 'sw-field-error': true,
                 'sw-import-export-progress': true,
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
-                'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
+                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
                 'sw-popover': true,
                 'sw-alert': true,
                 'sw-modal': true,

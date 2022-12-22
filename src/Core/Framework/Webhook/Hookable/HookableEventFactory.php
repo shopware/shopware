@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+/**
+ * @package core
+ */
 class HookableEventFactory
 {
     /**

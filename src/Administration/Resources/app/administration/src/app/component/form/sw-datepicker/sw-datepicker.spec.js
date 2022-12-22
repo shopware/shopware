@@ -1,17 +1,20 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-datepicker';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
-import flushPromises from 'flush-promises';
 
-function createWrapper(customOptions = {}) {
-    return shallowMount(Shopware.Component.build('sw-datepicker'), {
+async function createWrapper(customOptions = {}) {
+    return shallowMount(await Shopware.Component.build('sw-datepicker'), {
         sync: false,
         stubs: {
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-icon': true,
             'sw-field-error': true
         },
@@ -36,12 +39,12 @@ describe('src/app/component/form/sw-datepicker', () => {
     });
 
     it('should be a Vue.JS component', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have enabled links', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const contextualField = wrapper.find('.sw-contextual-field');
         const flatpickrInput = wrapper.find('.flatpickr-input');
 
@@ -50,7 +53,7 @@ describe('src/app/component/form/sw-datepicker', () => {
     });
 
     it('should show the dateformat, when no placeholderText is provided', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         const flatpickrInput = wrapper.find('.flatpickr-input');
 
         expect(flatpickrInput.attributes().placeholder).toBe('Y-m-d');
@@ -58,7 +61,7 @@ describe('src/app/component/form/sw-datepicker', () => {
 
     it('should show the placeholderText, when provided', async () => {
         const placeholderText = 'Stop! Hammertime!';
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 placeholderText
             }
@@ -70,7 +73,7 @@ describe('src/app/component/form/sw-datepicker', () => {
 
     it('should use the admin locale', async () => {
         Shopware.State.get('session').currentLocale = 'de-DE';
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.vm.$data.flatpickrInstance.config.locale).toBe('de');
 
         Shopware.State.get('session').currentLocale = 'en-GB';
@@ -79,8 +82,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.vm.$data.flatpickrInstance.config.locale).toBe('en');
     });
 
-    it('should show the label from the property', () => {
-        wrapper = createWrapper({
+    it('should show the label from the property', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop'
             }
@@ -89,8 +92,8 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.find('label').text()).toEqual('Label from prop');
     });
 
-    it('should show the value from the label slot', () => {
-        wrapper = createWrapper({
+    it('should show the value from the label slot', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop'
             },
@@ -102,20 +105,20 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 
-    it('should not show the actual user timezone as a hint when it is not a datetime', () => {
+    it('should not show the actual user timezone as a hint when it is not a datetime', async () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'Europe/Berlin'
         };
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const hint = wrapper.find('.sw-field__hint');
 
         expect(hint.exists()).toBe(false);
     });
 
-    it('should show the UTC timezone as a hint when no timezone was selected and when datetime is datetime', () => {
-        wrapper = createWrapper({
+    it('should show the UTC timezone as a hint when no timezone was selected and when datetime is datetime', async () => {
+        wrapper = await createWrapper({
             propsData: {
                 dateType: 'datetime'
             }
@@ -128,12 +131,12 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(clockIcon.isVisible()).toBe(true);
     });
 
-    it('should show the actual user timezone as a hint when datetime is datetime', () => {
+    it('should show the actual user timezone as a hint when datetime is datetime', async () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'Europe/Berlin'
         };
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 dateType: 'datetime'
             }
@@ -146,12 +149,12 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(clockIcon.isVisible()).toBe(true);
     });
 
-    it('should not show the actual user timezone as a hint when the hideHint property is set to true', () => {
+    it('should not show the actual user timezone as a hint when the hideHint property is set to true', async () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'Europe/Berlin'
         };
 
-        wrapper = createWrapper({
+        wrapper = await createWrapper({
             propsData: {
                 dateType: 'datetime',
                 hideHint: true
@@ -163,12 +166,12 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(hint.exists()).toBe(false);
     });
 
-    it('should not show the actual user timezone as a hint when hideHint is false and dateType is not dateTime', () => {
+    it('should not show the actual user timezone as a hint when hideHint is false and dateType is not dateTime', async () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'Europe/Berlin'
         };
 
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         const hint = wrapper.find('.sw-field__hint');
 

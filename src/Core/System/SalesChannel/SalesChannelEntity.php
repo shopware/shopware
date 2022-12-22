@@ -43,6 +43,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
+/**
+ * @package sales-channel
+ */
 class SalesChannelEntity extends Entity
 {
     use EntityIdTrait;

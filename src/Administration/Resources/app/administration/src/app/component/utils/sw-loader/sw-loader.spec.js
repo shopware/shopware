@@ -1,8 +1,12 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 
-function createWrapper(options = {}) {
-    return shallowMount(Shopware.Component.build('sw-loader'), {
+async function createWrapper(options = {}) {
+    return shallowMount(await Shopware.Component.build('sw-loader'), {
         ...options,
     });
 }

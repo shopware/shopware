@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/sw-number-field';
@@ -5,12 +9,12 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
-const createWrapper = (additionalOptions = {}) => {
-    return shallowMount(Shopware.Component.build('sw-number-field'), {
+const createWrapper = async (additionalOptions = {}) => {
+    return shallowMount(await Shopware.Component.build('sw-number-field'), {
         stubs: {
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
                 template: '<div></div>'
             }
@@ -27,13 +31,13 @@ const createWrapper = (additionalOptions = {}) => {
 
 describe('app/component/form/sw-number-field', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should set value 0 when user deletes everything', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const input = wrapper.find('input');
 
@@ -55,7 +59,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should fill digits when appropriate', async () => {
-        const wrapper = createWrapper({ propsData: { fillDigits: true } });
+        const wrapper = await createWrapper({ propsData: { fillDigits: true } });
 
         const input = wrapper.find('input');
 
@@ -79,7 +83,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should not fill digits when not appropriate', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 fillDigits: true,
                 numberType: 'int'
@@ -93,7 +97,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should not fill digits when disabled (default)', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const input = wrapper.find('input');
         await input.setValue('5');
@@ -102,7 +106,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should clear input field when user deletes everything and emits null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         // set property allowEmpty to true
         await wrapper.setProps({
@@ -128,8 +132,8 @@ describe('app/component/form/sw-number-field', () => {
         expect(input.element.value).toBe('');
     });
 
-    it('should show the label from the property', () => {
-        const wrapper = createWrapper({
+    it('should show the label from the property', async () => {
+        const wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
                 value: null
@@ -139,8 +143,8 @@ describe('app/component/form/sw-number-field', () => {
         expect(wrapper.find('label').text()).toEqual('Label from prop');
     });
 
-    it('should show the value from the label slot', () => {
-        const wrapper = createWrapper({
+    it('should show the value from the label slot', async () => {
+        const wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
                 value: null
@@ -154,7 +158,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should work with positive numbers', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('input');
 
         await input.setValue('1');
@@ -175,7 +179,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should work with negative numbers', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('input');
 
         await input.setValue('-1');
@@ -196,7 +200,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should work with point and comma as decimal separator', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('input');
 
         await input.setValue('11.22');
@@ -209,7 +213,7 @@ describe('app/component/form/sw-number-field', () => {
     });
 
     it('should round decimal places', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const input = wrapper.find('input');
 
         await input.setValue('1.234');

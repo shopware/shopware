@@ -1,8 +1,11 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/components/sw-users-permissions-user-listing';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-users-permissions-user-listing'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-user-listing'), {
         provide: {
             acl: {
                 can: (identifier) => {
@@ -46,8 +49,8 @@ function createWrapper(privileges = []) {
 describe('module/sw-users-permissions/components/sw-users-permissions-user-listing', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -127,7 +130,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the add user button should be enabled', async () => {
-        wrapper = createWrapper(['users_and_permissions.creator']);
+        wrapper = await createWrapper(['users_and_permissions.creator']);
         await wrapper.vm.$nextTick();
 
         const addUser = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
@@ -135,7 +138,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the context menu should be disabled', async () => {
-        wrapper = createWrapper([]);
+        wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             user: [
@@ -151,7 +154,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the context menu edit should be enabled', async () => {
-        wrapper = createWrapper(['users_and_permissions.editor']);
+        wrapper = await createWrapper(['users_and_permissions.editor']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             user: [
@@ -167,7 +170,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the context menu delete should be enabled', async () => {
-        wrapper = createWrapper(['users_and_permissions.deleter']);
+        wrapper = await createWrapper(['users_and_permissions.deleter']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             user: [

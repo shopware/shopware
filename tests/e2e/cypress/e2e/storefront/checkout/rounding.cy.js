@@ -2,6 +2,9 @@ import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 
 let product = {};
 
+/**
+ * @package checkout
+ */
 describe('Checkout: Use rounding', () => {
 
     beforeEach(() => {

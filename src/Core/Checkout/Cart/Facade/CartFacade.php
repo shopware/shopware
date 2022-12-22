@@ -14,6 +14,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package checkout
+ */
+
+/**
  * The `cart` service allows you to manipulate the cart.
  * You can use the cart service to add line-items, change prices, add discounts, etc. to the cart.
  *

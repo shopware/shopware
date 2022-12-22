@@ -1,10 +1,14 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+/*
+ * @package inventory
+ */
+
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/view/sw-product-detail-layout';
 
 const { Component, State } = Shopware;
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -59,7 +63,6 @@ function createWrapper(privileges = []) {
     });
 }
 
-enableAutoDestroy(afterEach);
 
 describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     beforeAll(() => {
@@ -128,7 +131,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should turn on layout modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             showLayoutModal: true
@@ -140,7 +143,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should turn off layout modal', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             showLayoutModal: false
@@ -152,7 +155,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should redirect to cms creation page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.$store.commit('cmsPageState/setCurrentPage', null);
@@ -164,7 +167,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should redirect to cms detail page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.$store.commit('cmsPageState/setCurrentPage', { id: 'id' });
@@ -176,7 +179,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should be able to select a product page layout', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.$store.commit('swProductDetail/setProduct', { id: '1' });
 
         wrapper.vm.onSelectLayout('cmsPageId');
@@ -187,7 +190,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should be able to reset a product page layout', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.onResetLayout();
 
         expect(wrapper.vm.product.cmsPageId).toEqual(null);
@@ -207,7 +210,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
             }
         });
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.handleGetCmsPage();
 
         expect(wrapper.vm.currentPage.sections[0].blocks[0].slots[0].config).toEqual({
@@ -218,22 +221,22 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         });
     });
 
-    it('onOpenLayoutModal: should be able to open layout assignment', () => {
-        const wrapper = createWrapper(['product.editor']);
+    it('onOpenLayoutModal: should be able to open layout assignment', async () => {
+        const wrapper = await createWrapper(['product.editor']);
         wrapper.vm.onOpenLayoutModal();
 
         expect(wrapper.vm.showLayoutModal).toBeTruthy();
     });
 
-    it('onOpenLayoutModal: should not be able to open layout assignment', () => {
-        const wrapper = createWrapper(['product.viewer']);
+    it('onOpenLayoutModal: should not be able to open layout assignment', async () => {
+        const wrapper = await createWrapper(['product.viewer']);
         wrapper.vm.onOpenLayoutModal();
 
         expect(wrapper.vm.showLayoutModal).toBeFalsy();
     });
 
-    it('should not be able to view layout config', () => {
-        const wrapper = createWrapper(['product.viewer']);
+    it('should not be able to view layout config', async () => {
+        const wrapper = await createWrapper(['product.viewer']);
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');
 
@@ -241,8 +244,8 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(infoNoConfig.exists()).toBeFalsy();
     });
 
-    it('should be able to view layout config', () => {
-        const wrapper = createWrapper(['product.editor']);
+    it('should be able to view layout config', async () => {
+        const wrapper = await createWrapper(['product.editor']);
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');
 
@@ -250,10 +253,10 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(infoNoConfig.exists()).toBeFalsy();
     });
 
-    it('should not be able to view layout config if cms page is locked', () => {
+    it('should not be able to view layout config if cms page is locked', async () => {
         Shopware.State.commit('cmsPageState/setCurrentPage', { id: 'id', locked: true });
 
-        const wrapper = createWrapper(['product.editor']);
+        const wrapper = await createWrapper(['product.editor']);
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');
 

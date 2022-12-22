@@ -4,6 +4,9 @@ import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import Storage from 'src/helper/storage/storage.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
+/**
+ * @package checkout
+ */
 describe('WishlistLocalStoragePlugin tests', () => {
     let wishlistStoragePlugin = undefined;
     let spyInitializePlugins = jest.fn();

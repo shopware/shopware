@@ -1,3 +1,7 @@
+/**
+ * @package content
+ */
+
 import '../sw-category/page/sw-category-detail';
 import defaultSearchConfiguration from './default-search-configuration';
 

@@ -14,6 +14,8 @@ use Shopware\Core\Migration\V6_4\Migration1620820321AddDefaultDomainForHeadlessS
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends TestCase

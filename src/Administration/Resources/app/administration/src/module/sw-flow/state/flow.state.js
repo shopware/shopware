@@ -4,7 +4,10 @@ const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     namespaced: true,
 
@@ -23,6 +26,7 @@ export default {
         customFieldSets: [],
         customFields: [],
         customerGroups: [],
+        restrictedRules: [],
     },
 
     mutations: {
@@ -236,6 +240,15 @@ export default {
             commit('removeCurrentFlow');
             commit('removeInvalidSequences');
             commit('removeTriggerEvent');
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        setRestrictedRules({ commit }, id) {
+            Shopware.Service('ruleConditionDataProviderService')
+                .getRestrictedRules(`flowTrigger.${id}`)
+                .then((result) => {
+                    commit('setRestrictedRules', result);
+                });
         },
     },
 };

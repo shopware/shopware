@@ -1,6 +1,8 @@
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @private
  * @description sw-field as alias for all input fields
  * @example-type dynamic

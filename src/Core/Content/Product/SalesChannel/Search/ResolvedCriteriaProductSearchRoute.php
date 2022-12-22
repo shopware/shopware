@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package system-settings
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute

@@ -19,6 +19,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package customer-order
+ */
 class NewsletterRecipientDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'newsletter_recipient';

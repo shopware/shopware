@@ -6,6 +6,8 @@ use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Type\BucketingTrait;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class ElasticsearchDateHistogramAggregation extends AbstractAggregation

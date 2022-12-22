@@ -9,6 +9,10 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package customer-order
+ */
+
 const orderFixture = {
     id: '1234',
     documents: [],
@@ -19,8 +23,8 @@ const orderFixture = {
     lineItems: []
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-document-settings-modal'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-document-settings-modal'), {
         stubs: {
             'sw-modal': {
                 template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
@@ -31,15 +35,15 @@ function createWrapper() {
             'sw-text-field': true,
             'sw-datepicker': true,
             'sw-checkbox-field': true,
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-file-input': Shopware.Component.build('sw-file-input'),
-            'sw-media-upload-v2': Shopware.Component.build('sw-media-upload-v2'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-file-input': await Shopware.Component.build('sw-file-input'),
+            'sw-media-upload-v2': await Shopware.Component.build('sw-media-upload-v2'),
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-group': Shopware.Component.build('sw-button-group'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-group': await Shopware.Component.build('sw-button-group'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
@@ -57,6 +61,8 @@ function createWrapper() {
             },
             mediaService: {
                 addListener: () => {},
+                removeByTag: () => {},
+                removeListener: () => {}
             },
             repositoryFactory: {
                 create: () => ({
@@ -100,8 +106,8 @@ function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-modal', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -116,7 +122,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
     it('should show file or hide custom document file when toggling Upload custom document', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const inputUploadCustomDoc = wrapper.find('input[name="sw-field--uploadDocument"]');
 
         await inputUploadCustomDoc.setChecked(true);
@@ -127,7 +133,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
     it('should emit `create` event when click on Create button', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         await createButton.trigger('click');
@@ -137,7 +143,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
     it('should emit `document-create` event when click on Create and send button', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const createAndSendButton = wrapper.find('.sw-order-document-settings-modal__send-button');
         await createAndSendButton.trigger('click');
@@ -148,7 +154,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
     it('should emit `document-create` event when click on Create and download button', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const createAndSendButton = wrapper.find('.sw-order-document-settings-modal__download-button');
         await createAndSendButton.trigger('click');
@@ -158,7 +164,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should able to add file from media modal if media is suitable', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const customDocumentToggle = wrapper.find('input[name="sw-field--uploadDocument"]');
         await customDocumentToggle.setChecked(true);
@@ -175,7 +181,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     });
 
     it('should able to add file uploaded from url if media is suitable', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const customDocumentToggle = wrapper.find('input[name="sw-field--uploadDocument"]');
         await customDocumentToggle.setChecked(true);
@@ -191,7 +197,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
 
     it('should able to show modal title responding to document type', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             currentDocumentType: {

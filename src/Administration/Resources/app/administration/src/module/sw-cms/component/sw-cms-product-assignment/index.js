@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card', {
     template,

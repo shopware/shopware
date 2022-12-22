@@ -11,6 +11,9 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package core
+ */
 class AppLocaleProvider
 {
     private EntityRepositoryInterface $userRepository;

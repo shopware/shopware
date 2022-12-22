@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/page/sw-flow-list';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-flow-list'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-flow-list'), {
         mocks: {
             $route: {
                 query: {
@@ -74,7 +74,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-flow/page/sw-flow-list', () => {
     it('should be able to create a flow ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.creator'
         ]);
 
@@ -84,14 +84,14 @@ describe('module/sw-flow/page/sw-flow-list', () => {
     });
 
     it('should be not able to create a flow ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const createButton = wrapper.find('.sw-flow-list__create');
 
         expect(createButton.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit a flow ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -102,7 +102,7 @@ describe('module/sw-flow/page/sw-flow-list', () => {
     });
 
     it('should be not able to edit a flow ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -114,7 +114,7 @@ describe('module/sw-flow/page/sw-flow-list', () => {
     });
 
     it('should be able to delete a flow ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -125,7 +125,7 @@ describe('module/sw-flow/page/sw-flow-list', () => {
     });
 
     it('should be not able to delete a flow ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.viewer'
         ]);
 
@@ -137,7 +137,7 @@ describe('module/sw-flow/page/sw-flow-list', () => {
     });
 
     it('should show trigger column correctly', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.viewer'
         ]);
 

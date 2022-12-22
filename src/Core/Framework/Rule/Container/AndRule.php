@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * @package business-ops
  * AndRule returns true, if all child-rules are true
  */
 class AndRule extends Container

@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Transaction\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @package checkout
+ *
  * @extends Collection<Transaction>
  */
 class TransactionCollection extends Collection

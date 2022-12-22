@@ -37,7 +37,7 @@ trait AggregationTestBehaviour
     }
 
     /**
-     * @return array<string>
+     * @return string[]
      */
     public function setupGroupByFixtures(Context $context): array
     {

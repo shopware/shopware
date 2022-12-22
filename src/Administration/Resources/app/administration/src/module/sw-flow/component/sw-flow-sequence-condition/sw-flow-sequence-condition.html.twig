@@ -324,6 +324,11 @@
                         :error="fieldError"
                         advanced-selection-component="sw-advanced-selection-rule"
                         :advanced-selection-parameters="advanceSelectionParameters"
+                        :selection-disabling-method="isRuleDisabled"
+                        :disabled-selection-tooltip="{
+                            message: $t('sw-restricted-rules.restrictedAssignment.general', {
+                                relation: $t('sw-restricted-rules.restrictedAssignment.flowSequences'),
+                            }), }"
                         @change="(id, rule) => onRuleChange(rule)"
                     >
                         <template #before-item-list>

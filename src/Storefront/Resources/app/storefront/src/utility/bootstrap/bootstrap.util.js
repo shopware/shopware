@@ -10,6 +10,9 @@ const BS_TOGGLE_ATTR = Feature.isActive('v6.5.0.0') ? 'data-bs-toggle' : 'data-t
 const TOOLTIP_SELECTOR = `[${BS_TOGGLE_ATTR}="tooltip"]`;
 const POPOVER_SELECTOR = `[${BS_TOGGLE_ATTR}="popover"]`;
 
+/**
+ * @package storefront
+ */
 export default class BootstrapUtil {
 
     /**

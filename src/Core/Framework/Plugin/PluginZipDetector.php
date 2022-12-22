@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Plugin;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class PluginZipDetector

@@ -69,11 +69,6 @@ parameters:
             paths:
                 - src/**/*Test.php
 
-        # Method gets always an EntityCollection
-        -
-            message: '#^Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable<Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity> given\.$#'
-            path: src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php
-
         # @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455)
         -
             message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
@@ -272,6 +267,11 @@ services:
             - phpstan.rules.rule
 
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
+        tags:
+            - phpstan.rules.rule
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
         tags:
             - phpstan.rules.rule
@@ -300,3 +300,13 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
+        tags:
+            - phpstan.rules.rule

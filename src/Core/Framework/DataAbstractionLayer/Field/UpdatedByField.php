@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedByFieldSerializer;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package core
+ */
 class UpdatedByField extends FkField
 {
     /**

@@ -1,12 +1,16 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 
-function createWrapper(customOptions = {}) {
-    return shallowMount(Shopware.Component.build('sw-context-button'), {
+async function createWrapper(customOptions = {}) {
+    return shallowMount(await Shopware.Component.build('sw-context-button'), {
         stubs: {
             'sw-icon': true,
-            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-popover': true
         },
         slots: {
@@ -20,13 +24,13 @@ function createWrapper(customOptions = {}) {
 
 describe('src/app/component/context-menu/sw-context-button', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open the context menu on click', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
 
@@ -37,7 +41,7 @@ describe('src/app/component/context-menu/sw-context-button', () => {
     });
 
     it('should not open the context menu on click', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 disabled: true
             }

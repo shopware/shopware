@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-seo/page/sw-settings-seo';
 import 'src/app/component/structure/sw-page';
@@ -13,19 +17,19 @@ const classes = {
     settingsCard: 'sw-card'
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-settings-seo'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-settings-seo'), {
         stubs: {
-            'sw-page': Shopware.Component.build('sw-page'),
+            'sw-page': await Shopware.Component.build('sw-page'),
             'sw-icon': true,
             'sw-button': true,
-            'sw-card-view': Shopware.Component.build('sw-card-view'),
+            'sw-card-view': await Shopware.Component.build('sw-card-view'),
             'sw-seo-url-template-card': true,
-            'sw-system-config': Shopware.Component.build('sw-system-config'),
+            'sw-system-config': await Shopware.Component.build('sw-system-config'),
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-help-center': true,
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-loader': true,
             'sw-app-actions': true,
@@ -56,15 +60,15 @@ function createWrapper() {
 describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

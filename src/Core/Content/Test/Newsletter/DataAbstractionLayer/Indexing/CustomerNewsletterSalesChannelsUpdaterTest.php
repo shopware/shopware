@@ -21,6 +21,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
+ * @package customer-order
+ *
  * @internal
  */
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase

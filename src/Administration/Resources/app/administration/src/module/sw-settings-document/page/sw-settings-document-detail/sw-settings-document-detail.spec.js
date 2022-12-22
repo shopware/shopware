@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-document/page/sw-settings-document-detail';
-import flushPromises from 'flush-promises';
+
+/**
+ * @package customer-order
+ */
 
 const documentBaseConfigRepositoryMock = {
     create: () => {
@@ -81,7 +84,7 @@ const repositoryMockFactory = (entity) => {
     return false;
 };
 
-const createWrapper = (customOptions, privileges = []) => {
+const createWrapper = async (customOptions, privileges = []) => {
     const options = {
         stubs: {
             'sw-page': true,
@@ -128,7 +131,7 @@ const createWrapper = (customOptions, privileges = []) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-settings-document-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-document-detail'), {
         ...options,
         ...customOptions
     });
@@ -140,13 +143,13 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: { documentConfigId: 'documentConfigWithSalesChannels' }
         });
 
@@ -156,7 +159,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should create an entity collection with document config sales channels associations', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: { documentConfigId: 'documentConfigWithDocumentType' }
         });
 
@@ -180,7 +183,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should create an entity collection with document config sales channels associations with ' +
         'actual sales channels associations inside', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' }
         });
 
@@ -200,7 +203,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should recreate sales channel options collection when type changes', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels'
             }
@@ -228,7 +231,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should be able to edit', async () => {
-        const wrapper = createWrapper(
+        const wrapper = await createWrapper(
             { propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
             ['document.editor']
         );
@@ -244,7 +247,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should not be able to edit', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' }
         });
 
@@ -259,7 +262,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should create an invoice document with countries note delivery', async () => {
-        const wrapper = createWrapper({}, ['document.editor']);
+        const wrapper = await createWrapper({}, ['document.editor']);
 
         await wrapper.vm.$nextTick();
         await wrapper.setData({
@@ -288,7 +291,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
-        const wrapper = createWrapper({}, ['document.editor']);
+        const wrapper = await createWrapper({}, ['document.editor']);
 
         await wrapper.vm.$nextTick();
         await wrapper.setData({
@@ -305,7 +308,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     // eslint-disable-next-line max-len
     it('should not exist "display divergent delivery address" in general form field and company form field', async () => {
-        const wrapper = createWrapper({}, ['document.editor']);
+        const wrapper = await createWrapper({}, ['document.editor']);
 
         await wrapper.vm.$nextTick();
 
@@ -323,7 +326,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should be have config company phone number', async () => {
-        const wrapper = createWrapper({}, ['document.editor']);
+        const wrapper = await createWrapper({}, ['document.editor']);
 
         await wrapper.vm.$nextTick();
 
@@ -351,7 +354,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     // eslint-disable-next-line max-len
     it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
-        const wrapper = createWrapper({}, ['document.editor']);
+        const wrapper = await createWrapper({}, ['document.editor']);
 
         await wrapper.vm.$nextTick();
         await wrapper.setData({
@@ -370,14 +373,14 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             '.sw-settings-document-detail__field_additional_note_delivery input'
         );
 
-        displayAdditionalNoteDeliveryCheckbox.setChecked();
+        await displayAdditionalNoteDeliveryCheckbox.setChecked();
 
         expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
         expect(wrapper.vm.documentConfig.config.deliveryCountries.length).toEqual(2);
     });
 
     it('should have assignment card at the top of the page', async () => {
-        const wrapper = createWrapper(
+        const wrapper = await createWrapper(
             { propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
             ['document.editor']
         );

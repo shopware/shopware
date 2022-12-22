@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Unit;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @extends EntityCollection<UnitEntity>
  */
 class UnitCollection extends EntityCollection

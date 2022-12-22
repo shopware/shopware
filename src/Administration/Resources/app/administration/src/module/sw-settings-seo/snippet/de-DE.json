@@ -2,45 +2,45 @@
   "sw-settings-seo": {
     "general": {
       "mainMenuItemGeneral": "SEO",
-      "descriptionTextModule": "Verwaltung von SEO Einstellungen.",
+      "descriptionTextModule": "Verwaltung von SEO-Einstellungen.",
       "textHeadline": "SEO",
       "buttonSave": "Speichern"
     }
   },
   "sw-settings-seo-entity-detail": {
-    "labelMetaTitle": "Meta-Title",
+    "labelMetaTitle": "Meta-Titel",
     "labelAdditionalText": "Meta-Beschreibung"
   },
   "sw-seo-url-template-card": {
     "general": {
-      "titleCard": "SEO URL Templates",
+      "titleCard": "SEO-URL-Templates",
       "labelPossibleValues": "Mögliche Variablen",
-      "tooltipValidTemplate": "Das Template ist gültig",
-      "tooltipInvalidTemplate": "Das Template ist nicht gültig",
-      "messageSaveError": "Nicht alle SEO URL Templates sind gültig.",
-      "messageSaveSuccess": "Die SEO URL Templates wurden erfolgreich gespeichert.",
+      "tooltipValidTemplate": "Das Template ist gültig.",
+      "tooltipInvalidTemplate": "Das Template ist ungültig.",
+      "messageSaveError": "Nicht alle SEO-URL-Templates sind gültig.",
+      "messageSaveSuccess": "SEO-URL-Templates wurden gespeichert.",
       "preview": "Vorschau:",
       "placeholderSelectVariables": "Auswählen ...",
       "labelSalesChannelSelect": "Verkaufskanal",
-      "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich.",
-      "textUrlNoEntitiesForPreview": "Es ist kein(e) {entity} vorhanden, um eine Vorschau zu generieren. Bitte lege eine(s) an.",
-      "textUrlPreviewEmptyTemplate": "Das Template ist leer, es werden keine SEO-URLs für Routen der {entity}-Entität erstellt.",
+      "textUrlPreviewNotPossible": "Für dieses Template kann keine Vorschau erstellt werden.",
+      "textUrlNoEntitiesForPreview": "Keine {entity} vorhanden.",
+      "textUrlPreviewEmptyTemplate": "Das Template ist leer, es werden keine SEO-URLs für {entity} erstellt.",
       "headlineInfoMessageBoxEmptyProperties": "Info",
       "textInfoMessageBoxEmptyProperties": "Achte bei der Verwendung von Variablen darauf, dass in den entsprechenden Feldern der Entitäten (Produkte, Landingpages oder Kategorien) auch Daten hinterlegt sind. Wenn Variablen auf leere Felder verweisen, wird für die zugehörigen Entitäten keine SEO-URL erstellt."
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",
       "frontend-navigation-page": "Kategorieseite",
-      "frontend-landing-page": "Landing Page"
+      "frontend-landing-page": "Landingpage"
     }
   },
   "sw-seo-url": {
-    "titleCard": "SEO URLs",
+    "titleCard": "SEO-URLs",
     "labelSalesChannelSelect": "Verkaufskanal",
-    "labelSeoPathInfo": "SEO Pfad",
-    "textEmptySeoUrls": "Es sind noch keine SEO URLs vorhanden.",
-    "textSeoUrlsDisallowedForHeadless": "Für headless Sales Channel ist die Angabe von SEO URLs nicht möglich.",
+    "labelSeoPathInfo": "SEO-Pfad",
+    "textEmptySeoUrls": "Es sind noch keine SEO-URLs vorhanden.",
+    "textSeoUrlsDisallowedForHeadless": "Für Headless-Verkaufskanäle ist die Angabe von SEO-URLs nicht möglich.",
     "labelMainCategory": "Hauptkategorie",
-    "placeholderMainCategory": "Hauptkategorie wählen..."
+    "placeholderMainCategory": "Hauptkategorie wählen ..."
   }
 }

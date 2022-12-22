@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class CmsSlotTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'cms_slot_translation';

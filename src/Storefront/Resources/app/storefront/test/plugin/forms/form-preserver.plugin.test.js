@@ -3,6 +3,9 @@ import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import Storage from 'src/helper/storage/storage.helper';
 import template from './form-preserver.plugin.template.html';
 
+/**
+ * @package content
+ */
 describe('Form Preserver tests', () => {
     let formPreserverPlugin = undefined;
     const testValuesNormal = {

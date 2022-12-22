@@ -1,6 +1,10 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { array } = Shopware.Utils;
@@ -260,17 +264,14 @@ Component.register('sw-order-detail-details', {
         },
 
         validateTrackingCode(searchTerm) {
-            if (searchTerm.length < 0) {
+            const trackingCode = searchTerm.trim();
+
+            if (trackingCode.length <= 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === searchTerm);
-
-            if (isExist) {
-                return false;
-            }
-
-            return searchTerm;
+            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            return !isExist;
         },
 
         onChangeOrderAddress(value) {

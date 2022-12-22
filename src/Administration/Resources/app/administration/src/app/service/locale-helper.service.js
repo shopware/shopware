@@ -1,4 +1,5 @@
 /**
+ * @package admin
  *
  * @memberOf module:core/service/locale
  * @constructor

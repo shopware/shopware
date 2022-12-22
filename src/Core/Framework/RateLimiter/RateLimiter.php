@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\RateLimiter;
 
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 
+/**
+ * @package core
+ */
 class RateLimiter
 {
     public const LOGIN_ROUTE = 'login';
@@ -19,6 +22,8 @@ class RateLimiter
     public const CONTACT_FORM = 'contact_form';
 
     public const NEWSLETTER_FORM = 'newsletter_form';
+
+    public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
 
     /**
      * @var array<string, RateLimiterFactory>

@@ -1,11 +1,13 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
 import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create';
 import 'src/app/mixin/notification.mixin';
-import flushPromises from 'flush-promises';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-settings-custom-field-set-create'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-settings-custom-field-set-create'), {
         mocks: {
             $tc() {
                 return 'translation';
@@ -50,15 +52,15 @@ function createWrapper() {
 describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should handle route enter', () => {
+    it('should handle route enter', async () => {
         const next = jest.fn();
         const params = {};
         wrapper.vm.$options.beforeRouteEnter(
@@ -74,7 +76,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(params.hasOwnProperty('id')).toBeTruthy();
     });
 
-    it('should finish save', () => {
+    it('should finish save', async () => {
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.saveFinish();
 
@@ -97,7 +99,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(wrapper.vm.technicalNameError.detail).toBe('translation');
     });
 
-    it('should create name not unique notification', () => {
+    it('should create name not unique notification', async () => {
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.createNameNotUniqueNotification();
 

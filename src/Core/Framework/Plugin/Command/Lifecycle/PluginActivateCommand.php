@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package core
+ */
 class PluginActivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'activate';

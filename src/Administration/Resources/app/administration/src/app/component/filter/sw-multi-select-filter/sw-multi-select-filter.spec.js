@@ -30,7 +30,7 @@ function getCollection() {
         null
     );
 }
-function createWrapper(customOptions) {
+async function createWrapper(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {});
@@ -38,18 +38,18 @@ function createWrapper(customOptions) {
     const options = {
         localVue,
         stubs: {
-            'sw-base-filter': Shopware.Component.build('sw-base-filter'),
-            'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
-            'sw-multi-select': Shopware.Component.build('sw-multi-select'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-            'sw-loader': Shopware.Component.build('sw-loader'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
+            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
+            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-icon': true,
             'sw-label': true,
             'sw-field-error': {
@@ -83,7 +83,7 @@ function createWrapper(customOptions) {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-multi-select-filter'), {
+    return shallowMount(await Shopware.Component.build('sw-multi-select-filter'), {
         ...options,
         ...customOptions
     });
@@ -91,32 +91,32 @@ function createWrapper(customOptions) {
 
 describe('src/app/component/filter/sw-multi-select-filter', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('Should display title and placeholder', () => {
-        const wrapper = createWrapper();
+    it('Should display title and placeholder', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-base-filter .sw-base-filter__title').text()).toBe('Test');
         expect(wrapper.find('.sw-select-selection-list__input').attributes().placeholder).toBe('placeholder');
     });
 
     it('should emit `filter-update` event when user choose entity', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
         await wrapper.vm.$nextTick();
 
         const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
 
         const [name, criteria, value] = wrapper.emitted()['filter-update'][0];
 
@@ -128,7 +128,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should emit `filter-reset` event when click Reset button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const entityCollection = new EntityCollection(null, null, null, new Criteria(1, 25), [
             { id: 'id1', name: 'item1' },
@@ -138,15 +138,15 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: entityCollection } });
 
         // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
+        await wrapper.find('.sw-base-filter__reset').trigger('click');
         expect(wrapper.emitted()['filter-update']).toBeFalsy();
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
     it('should reset the filter value when `active` is false', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
 
@@ -154,7 +154,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
 
         await wrapper.setProps({ active: false });
 
@@ -164,9 +164,9 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should not reset the filter value when `active` is true', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
 
@@ -174,7 +174,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
 
         await wrapper.setProps({ active: true });
 
@@ -182,7 +182,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should display slot "selection-label-property" correct', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             slots: {
                 'selection-label-property': '<div class="selected-label">Selected label</div>'
             }
@@ -208,13 +208,13 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should display slot "result-item" correct', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             slots: {
                 'result-item': 'List item'
             }
         });
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
         await wrapper.vm.$nextTick();
@@ -223,7 +223,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should display sw-multi-select if filter has options', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -242,7 +242,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             }
         });
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
 
@@ -256,7 +256,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should emit filter-update with correct value when filter is sw-multi-select', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -275,7 +275,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             }
         });
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
 
@@ -283,7 +283,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'category-filter',
@@ -293,7 +293,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     });
 
     it('should emit filter-update with correct value when filter has existing type', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             filter: {
@@ -313,7 +313,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             }
         });
 
-        wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         await wrapper.find('input').trigger('change');
 
@@ -321,7 +321,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
 
-        list.at(0).trigger('click');
+        await list.at(0).trigger('click');
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'category-filter',

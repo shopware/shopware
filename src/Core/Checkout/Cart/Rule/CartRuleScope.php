@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package business-ops
+ */
 class CartRuleScope extends CheckoutRuleScope
 {
     protected Cart $cart;

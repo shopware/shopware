@@ -1,5 +1,9 @@
 import type { Cart, Currency, Customer, PromotionCodeTag } from '../order.types';
 
+/**
+ * @package customer-order
+ */
+
 const { Mixin, State } = Shopware;
 
 /**

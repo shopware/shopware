@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package core
+ */
 class PreWriteValidationEvent extends Event implements ShopwareEvent
 {
     /**

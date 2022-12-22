@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 Shopware.Directive.register('autofocus', {
     inserted: (el: HTMLElement) => {
         const inputs = el.getElementsByTagName('input');

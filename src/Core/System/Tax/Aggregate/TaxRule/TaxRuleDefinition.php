@@ -18,6 +18,9 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @package customer-order
+ */
 class TaxRuleDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'tax_rule';

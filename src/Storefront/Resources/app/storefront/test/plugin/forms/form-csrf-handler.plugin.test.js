@@ -3,6 +3,9 @@ import Storage from 'src/helper/storage/storage.helper';
 import FormCsrfHandler from "../../../src/plugin/forms/form-csrf-handler.plugin";
 import template from "./form-csrf-handler.plugin.template.html";
 
+/**
+ * @package content
+ */
 function setUpFormLoader(formSelector) {
     window.csrf = {
         enabled: true,

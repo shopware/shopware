@@ -8,12 +8,15 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper(headlineError, ratingError) {
-        return shallowMount(Shopware.Component.build('sw-extension-review-creation-inputs'), {
+    async function createWrapper(headlineError, ratingError) {
+        return shallowMount(await Shopware.Component.build('sw-extension-review-creation-inputs'), {
             propsData: {
                 errors: {
                     headlineError: headlineError || null,
@@ -24,13 +27,13 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                 validationService: {}
             },
             stubs: {
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-extension-select-rating': Shopware.Component.build('sw-extension-select-rating'),
-                'sw-extension-rating-stars': Shopware.Component.build('sw-extension-rating-stars'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                'sw-extension-select-rating': await Shopware.Component.build('sw-extension-select-rating'),
+                'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
                 'sw-icon': true,
                 'sw-textarea-field': {
                     template: '<textarea></textarea>'
@@ -43,20 +46,20 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('headline input field should be required', () => {
-        wrapper = createWrapper();
+    it('headline input field should be required', async () => {
+        wrapper = await createWrapper();
         const headlineLabel = wrapper.find('label[for="sw-field--headline"]');
 
         expect(headlineLabel.attributes('class')).toBe('is--required');
     });
 
-    it('rating input field should be required', () => {
-        wrapper = createWrapper();
+    it('rating input field should be required', async () => {
+        wrapper = await createWrapper();
         const headlineLabel = wrapper.find('.sw-field__label label');
 
         expect(headlineLabel.attributes('class')).toBe('is--required');
@@ -71,13 +74,13 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
             _detail: ''
         };
 
-        wrapper = createWrapper(headlineError);
+        wrapper = await createWrapper(headlineError);
         const headlineInput = wrapper.find('.sw-field');
 
         expect(headlineInput.attributes('class').includes('has--error')).toBe(true);
     });
 
-    it('should display errors on rating field', () => {
+    it('should display errors on rating field', async () => {
         const ratingError = {
             _id: '5b7032a84ab34938adbdcb9cf5e24e19',
             _code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -86,7 +89,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
             _detail: ''
         };
 
-        wrapper = createWrapper(null, ratingError);
+        wrapper = await createWrapper(null, ratingError);
         const headlineInput = wrapper.find('.sw-extension-review-creation-inputs__rating .sw-field');
 
         expect(headlineInput.attributes('class').includes('has--error')).toBe(true);

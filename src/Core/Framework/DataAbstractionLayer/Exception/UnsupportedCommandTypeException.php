@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package core
+ */
 class UnsupportedCommandTypeException extends ShopwareHttpException
 {
     public function __construct(WriteCommand $command)

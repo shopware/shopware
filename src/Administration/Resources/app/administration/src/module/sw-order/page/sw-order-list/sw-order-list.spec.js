@@ -5,6 +5,10 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
+/**
+ * @package customer-order
+ */
+
 const mockItem = {
     orderNumber: '1',
     orderCustomer: {
@@ -48,13 +52,13 @@ const mockItem = {
     }
 };
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.filter('currency', key => key);
     localVue.filter('date', key => key);
 
-    return shallowMount(Shopware.Component.build('sw-order-list'), {
+    return shallowMount(await Shopware.Component.build('sw-order-list'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -67,7 +71,7 @@ function createWrapper(privileges = []) {
             },
             'sw-button': true,
             'sw-label': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-context-button': true,
             'sw-context-menu-item': true,
             'sw-pagination': true,
@@ -123,12 +127,12 @@ Shopware.Service().register('filterService', () => {
 
 describe('src/module/sw-order/page/sw-order-list', () => {
     let wrapper;
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -142,7 +146,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should have an disabled add button', async () => {
-        wrapper = createWrapper(['order.creator']);
+        wrapper = await createWrapper(['order.creator']);
         const addButton = wrapper.find('.sw-order-list__add-order');
 
         expect(addButton.attributes().disabled).toBeUndefined();

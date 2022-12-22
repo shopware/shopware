@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document\FileGenerator;
 
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 
+/**
+ * @package customer-order
+ */
 interface FileGeneratorInterface
 {
     public function supports(): string;

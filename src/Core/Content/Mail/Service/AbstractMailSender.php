@@ -6,6 +6,9 @@ use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mime\Email;
 
+/**
+ * @package system-settings
+ */
 abstract class AbstractMailSender
 {
     abstract public function getDecorated(): AbstractMailSender;

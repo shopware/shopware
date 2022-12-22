@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package customer-order
+ */
 final class DocumentGenerationResult extends Struct
 {
     private DocumentIdCollection $success;

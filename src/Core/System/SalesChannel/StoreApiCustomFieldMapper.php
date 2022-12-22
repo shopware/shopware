@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package core
+ */
 class StoreApiCustomFieldMapper implements ResetInterface
 {
     private Connection $connection;

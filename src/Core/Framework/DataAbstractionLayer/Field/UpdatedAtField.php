@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer;
 
+/**
+ * @package core
+ */
 class UpdatedAtField extends DateTimeField
 {
     public function __construct()

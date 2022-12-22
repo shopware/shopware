@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package system-settings
+ */
 class ImportExportFileDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'import_export_file';

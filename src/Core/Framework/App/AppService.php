@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\Context;
 
 /**
+ * @package core
+ *
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
 class AppService

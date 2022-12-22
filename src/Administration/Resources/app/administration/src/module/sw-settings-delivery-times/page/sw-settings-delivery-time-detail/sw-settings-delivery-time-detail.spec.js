@@ -1,11 +1,15 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail';
 
-function createWrapper(privileges = []) {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-delivery-time-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-delivery-time-detail'), {
         localVue,
         mocks: {
             $route: {
@@ -90,7 +94,7 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail', () => {
     it('should not be able to save the delivery time', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -115,7 +119,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     });
 
     it('should be able to save the delivery time', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'delivery_times.editor'
         ]);
 
@@ -141,7 +145,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
     });
 
     it('should be able to create new delivery time', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'delivery_times.creator',
             'delivery_times.editor'
         ]);

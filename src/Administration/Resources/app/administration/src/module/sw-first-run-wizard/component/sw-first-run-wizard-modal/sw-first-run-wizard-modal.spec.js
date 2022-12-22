@@ -3,12 +3,15 @@ import 'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-container';
 
+/**
+ * @package merchant-services
+ */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
-    const CreateFirstRunWizardModal = function CreateFirstRunWizardModal() {
-        return shallowMount(Shopware.Component.build('sw-first-run-wizard-modal'), {
+    const CreateFirstRunWizardModal = async function CreateFirstRunWizardModal() {
+        return shallowMount(await Shopware.Component.build('sw-first-run-wizard-modal'), {
             stubs: {
-                'sw-modal': Shopware.Component.build('sw-modal'),
-                'sw-container': Shopware.Component.build('sw-container'),
+                'sw-modal': await Shopware.Component.build('sw-modal'),
+                'sw-container': await Shopware.Component.build('sw-container'),
                 'sw-icon': {
                     template: '<div />'
                 },
@@ -24,26 +27,29 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             },
             provide: {
                 firstRunWizardService: { setFRWStart: () => {} },
-                shortcutService: { stopEventListener: () => {} }
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {}
+                }
             },
             props: {}
         });
     };
 
     it('should be a vue js component', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
 
         expect(firstRunWizardModal.vm).toBeTruthy();
     });
 
     it('the default button config should be empty', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
 
         expect(firstRunWizardModal.vm.$data.buttonConfig).toStrictEqual([]);
     });
 
     it('the footer should not contain buttons', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
 
         const footerLeft = firstRunWizardModal.get('.footer-left');
         const footerRight = firstRunWizardModal.get('.footer-right');
@@ -53,7 +59,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('the button config should have the same config which are emitted by an event', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
         expect(firstRunWizardModal.vm.$data.buttonConfig).toStrictEqual([]);
@@ -91,7 +97,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('the footer should have the button config which are emitted by an event', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
         let footerLeft = firstRunWizardModal.find('.footer-left');
@@ -137,7 +143,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('the buttonConfig should push a button in the left footer', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
         const newButtonConfig = [
@@ -161,7 +167,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('the buttonConfig should push a button in the right footer', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
         const newButtonConfig = [
@@ -185,7 +191,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('the buttonConfig should overwrite the previous one', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
         let footerLeft;
         let footerRight;
@@ -230,13 +236,13 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('the title should show an warning when not defined', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
 
         expect(firstRunWizardModal.vm.$data.title).toBe('No title defined');
     });
 
     it('the title should be updated when the router view emits an event', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
         const newTitle = 'fooBar';
@@ -247,7 +253,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('onButtonClick: should call the redirect function when string', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const spy = jest.spyOn(firstRunWizardModal.vm, 'redirect');
 
         expect(spy).not.toHaveBeenCalled();
@@ -258,7 +264,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
     });
 
     it('onButtonClick: should call the callback function', async () => {
-        const firstRunWizardModal = new CreateFirstRunWizardModal();
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
         const callbackFunction = jest.fn();
 
         expect(callbackFunction).not.toHaveBeenCalled();

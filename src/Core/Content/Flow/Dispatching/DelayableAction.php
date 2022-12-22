@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+/**
+ * @package business-ops
+ */
 interface DelayableAction
 {
 }

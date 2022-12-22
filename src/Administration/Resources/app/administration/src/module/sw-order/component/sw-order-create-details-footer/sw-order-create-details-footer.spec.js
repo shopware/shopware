@@ -2,10 +2,14 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-order/component/sw-order-create-details-footer';
 
-function createWrapper() {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-order-create-details-footer'), {
+    return shallowMount(await Shopware.Component.build('sw-order-create-details-footer'), {
         localVue,
         stubs: {
             'sw-container': true,
@@ -27,19 +31,19 @@ function createWrapper() {
 describe('src/module/sw-order/component/sw-order-create-details-footer', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('paymentMethodCriteria should filter for afterOrderEnabled payment methods', () => {
+    it('paymentMethodCriteria should filter for afterOrderEnabled payment methods', async () => {
         const paymentMethodCriteria = wrapper.vm.paymentMethodCriteria;
         expect(paymentMethodCriteria).toBeInstanceOf(Criteria);
         expect(paymentMethodCriteria.filters).toBeInstanceOf(Array);

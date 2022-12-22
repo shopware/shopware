@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  * Contains all registered entity extensions in the system
  */

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
+/**
+ * @package content
+ */
 class LandingPageEntity extends Entity
 {
     use EntityIdTrait;

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
+/**
+ * @package checkout
+ */
 interface TokenFactoryInterfaceV2
 {
     public function generateToken(TokenStruct $tokenStruct): string;

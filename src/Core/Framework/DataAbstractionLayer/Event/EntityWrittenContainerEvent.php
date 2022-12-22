@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
+/**
+ * @package core
+ */
 class EntityWrittenContainerEvent extends NestedEvent
 {
     /**

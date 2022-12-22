@@ -1,12 +1,15 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
 
 const defaultHighlightClass = '.sw-settings-search-live-search-keyword__highlight';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-live-search-keyword'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-live-search-keyword'), {
         localVue,
 
         propsData: {
@@ -20,8 +23,8 @@ function createWrapper() {
 describe('src/module/sw-settings-search/component/sw-settings-search-live-search', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {

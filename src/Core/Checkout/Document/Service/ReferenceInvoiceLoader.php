@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package customer-order
+ *
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
 final class ReferenceInvoiceLoader

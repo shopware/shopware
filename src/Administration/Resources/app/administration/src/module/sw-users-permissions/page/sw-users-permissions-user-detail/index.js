@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
@@ -192,6 +195,11 @@ Component.register('sw-users-permissions-user-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-user-detail__currentUser',
+                path: 'currentUser',
+                scope: this,
+            });
             this.isLoading = true;
 
             if (!this.languageId) {

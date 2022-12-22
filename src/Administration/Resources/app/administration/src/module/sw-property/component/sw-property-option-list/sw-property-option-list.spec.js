@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-property/component/sw-property-option-list';
 import 'src/app/component/base/sw-card';
@@ -70,8 +74,8 @@ function getOptionRepository() {
     };
 }
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-property-option-list'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-property-option-list'), {
         propsData: {
             propertyGroup: propertyGroup,
             optionRepository: getOptionRepository()
@@ -90,16 +94,16 @@ function createWrapper() {
             }
         },
         stubs: {
-            'sw-card': Shopware.Component.build('sw-card'),
+            'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
-            'sw-container': Shopware.Component.build('sw-container'),
+            'sw-container': await Shopware.Component.build('sw-container'),
             'sw-button': {
                 template: '<div></div>'
             },
             'sw-simple-search-field': {
                 template: '<div></div>'
             },
-            'sw-one-to-many-grid': Shopware.Component.build('sw-one-to-many-grid'),
+            'sw-one-to-many-grid': await Shopware.Component.build('sw-one-to-many-grid'),
             'sw-pagination': {
                 template: '<div></div>'
             },
@@ -112,7 +116,7 @@ function createWrapper() {
             'sw-icon': {
                 template: '<div></div>'
             },
-            'sw-property-option-detail': Shopware.Component.build('sw-property-option-detail'),
+            'sw-property-option-detail': await Shopware.Component.build('sw-property-option-detail'),
             'sw-modal': {
                 template: `
                         <div class="sw-modal">
@@ -124,7 +128,7 @@ function createWrapper() {
                         </div>
                 `
             },
-            'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
+            'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
             'sw-upload-listener': {
                 template: '<div></div>'
             },
@@ -148,8 +152,8 @@ function createWrapper() {
 describe('module/sw-property/component/sw-property-option-list', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     it('should be a Vue.js component', async () => {

@@ -3,6 +3,9 @@ import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccessHelper from 'src/helper/dom-access.helper';
 
+/**
+ * @package checkout
+ */
 export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
         super.init();
@@ -21,6 +24,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
 
     add(productId, router) {
         this.httpClient.post(router.path, JSON.stringify({
+            /** @deprecated tag:v6.5.0 - Property _csrf_token will be removed. */
             _csrf_token: router.token,
         }), response => {
             const res = JSON.parse(response);
@@ -37,6 +41,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
 
     remove(productId, router) {
         this.httpClient.post(router.path, JSON.stringify({
+            /** @deprecated tag:v6.5.0 - Property _csrf_token will be removed. */
             _csrf_token: router.token,
         }), response => {
             const res = JSON.parse(response);
@@ -66,6 +71,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
 
         if (products) {
             this.httpClient.post(this.options.mergePath, JSON.stringify({
+                /** @deprecated tag:v6.5.0 - Property _csrf_token will be removed. */
                 _csrf_token: this.options.tokenMergePath,
                 'productIds' : Object.keys(products),
             }), response => {
@@ -92,6 +98,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
      */
     _pagelet() {
         this.httpClient.post(this.options.pageletPath, JSON.stringify({
+            /** @deprecated tag:v6.5.0 - Property _csrf_token will be removed. */
             _csrf_token: this.options.tokenPageletPath,
         }), response => {
             if (!response) {

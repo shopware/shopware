@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @package content
  */
 class LandingPageLoaderTest extends TestCase
 {

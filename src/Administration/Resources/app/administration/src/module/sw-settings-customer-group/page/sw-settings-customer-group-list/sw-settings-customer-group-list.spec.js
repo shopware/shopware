@@ -2,14 +2,16 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import flushPromises from 'flush-promises';
 import 'src/app/component/base/sw-empty-state';
 
-function createWrapper(privileges = []) {
+/**
+ * @package customer-order
+ */
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-customer-group-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-customer-group-list'), {
         localVue,
         mocks: {
             $route: {
@@ -111,27 +113,27 @@ function createDeletableCustomerGroup() {
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-list', () => {
     it('should be a vue js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should return false if customer group has a customer and/or SalesChannel assigned to it', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const customerGroup = createCustomerGroupWithCustomer();
 
         expect(wrapper.vm.customerGroupCanBeDeleted(customerGroup)).toBe(false);
     });
 
     it('should return true if customer group has no customer and no SalesChannel assigned to id', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const customerGroup = createDeletableCustomerGroup();
 
         expect(wrapper.vm.customerGroupCanBeDeleted(customerGroup)).toBe(true);
     });
 
     it('should not be able to create without create permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
@@ -140,7 +142,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should be able to create with create permission', async () => {
-        const wrapper = createWrapper(['customer_groups.creator']);
+        const wrapper = await createWrapper(['customer_groups.creator']);
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-customer-group-list__create');
@@ -149,7 +151,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should not be able to edit without edit permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -157,7 +159,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should be able to edit with edit permission', async () => {
-        const wrapper = createWrapper(['customer_groups.editor']);
+        const wrapper = await createWrapper(['customer_groups.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -165,7 +167,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should not be able to inline edit', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
@@ -175,7 +177,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = createWrapper(['customer_groups.editor']);
+        const wrapper = await createWrapper(['customer_groups.editor']);
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
@@ -185,7 +187,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should not be able to delete without delete permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-customer-group-list-grid__delete-action');
@@ -193,7 +195,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should be able to delete with delete permission', async () => {
-        const wrapper = createWrapper(['customer_groups.deleter']);
+        const wrapper = await createWrapper(['customer_groups.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-customer-group-list-grid__delete-action');
@@ -201,7 +203,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should hide item selection if user does not have delete permission', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
@@ -211,7 +213,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should show item selection if user has delete permission', async () => {
-        const wrapper = createWrapper(['customer_groups.deleter']);
+        const wrapper = await createWrapper(['customer_groups.deleter']);
         await wrapper.vm.$nextTick();
 
         const entityList = wrapper.find('.sw-settings-customer-group-list-grid');
@@ -221,7 +223,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should add query score to the criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -244,7 +246,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -264,7 +266,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });
@@ -288,7 +290,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'
         });

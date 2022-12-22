@@ -17,6 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class DatabaseConfigurationController extends InstallerController

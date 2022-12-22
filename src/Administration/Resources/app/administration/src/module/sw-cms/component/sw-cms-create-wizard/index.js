@@ -3,6 +3,9 @@ import './sw-cms-create-wizard.scss';
 
 const { Component, Filter } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-create-wizard', {
     template,
@@ -101,6 +104,7 @@ Component.register('sw-cms-create-wizard', {
         },
 
         onPageTypeSelect(type) {
+            Shopware.State.commit('cmsPageState/setCurrentPageType', type);
             this.page.type = type;
 
             this.goToStep('sectionType');

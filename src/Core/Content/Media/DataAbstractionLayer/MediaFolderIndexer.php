@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package content
+ */
 class MediaFolderIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'media_folder.child-count';

@@ -11,6 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package system-settings
  */
 class AclTestController extends AbstractController
 {

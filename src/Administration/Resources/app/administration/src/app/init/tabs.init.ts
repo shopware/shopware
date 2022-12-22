@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable-next-line import/no-named-default
 import type { Route, RouteConfig, default as Router } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';

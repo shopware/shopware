@@ -11,6 +11,9 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 
+/**
+ * @package inventory
+ */
 class SalesChannelProductEntity extends ProductEntity
 {
     /**

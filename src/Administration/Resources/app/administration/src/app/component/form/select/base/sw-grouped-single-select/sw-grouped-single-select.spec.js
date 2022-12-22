@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-grouped-single-select';
 import 'src/app/component/form/select/base/sw-single-select';
@@ -10,24 +14,24 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 
-const createSelect = (customOptions) => {
+const createSelect = async (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
     const options = {
         localVue,
         stubs: {
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
                 template: '<div @click="$emit(\'click\', $event)"></div>'
             },
-            'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text')
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
         },
         propsData: {
             value: null,
@@ -61,7 +65,7 @@ const createSelect = (customOptions) => {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-grouped-single-select'), {
+    return shallowMount(await Shopware.Component.build('sw-grouped-single-select'), {
         ...options,
         ...customOptions
     });
@@ -69,13 +73,13 @@ const createSelect = (customOptions) => {
 
 describe('components/sw-grouped-single-select', () => {
     it('should be a Vue.js component', async () => {
-        const swGroupedSingleSelect = createSelect();
+        const swGroupedSingleSelect = await createSelect();
 
         expect(swGroupedSingleSelect.vm).toBeTruthy();
     });
 
     it('should open the result list on click on .sw-select__selection', async () => {
-        const swGroupedSingleSelect = createSelect();
+        const swGroupedSingleSelect = await createSelect();
         await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
 
         const resultList = swGroupedSingleSelect.find('.sw-select-result-list__content');
@@ -83,7 +87,7 @@ describe('components/sw-grouped-single-select', () => {
     });
 
     it('should show the results items and groups', async () => {
-        const swGroupedSingleSelect = createSelect();
+        const swGroupedSingleSelect = await createSelect();
         await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
 
         const listElements = swGroupedSingleSelect.findAll('.sw-select-result-list__item-list li');
@@ -96,7 +100,7 @@ describe('components/sw-grouped-single-select', () => {
     });
 
     it('should close the result list after clicking an item', async () => {
-        const swGroupedSingleSelect = createSelect();
+        const swGroupedSingleSelect = await createSelect();
 
         await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
         await swGroupedSingleSelect.find('.sw-select-option--0').trigger('click');
@@ -106,7 +110,7 @@ describe('components/sw-grouped-single-select', () => {
     });
 
     it('should not close the result list after clicking a group', async () => {
-        const swGroupedSingleSelect = createSelect();
+        const swGroupedSingleSelect = await createSelect();
 
         await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
         await swGroupedSingleSelect.find('.sw-grouped-single-select__group-separator').trigger('click');

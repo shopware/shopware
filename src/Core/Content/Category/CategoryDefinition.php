@@ -42,6 +42,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @package content
+ */
 class CategoryDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'category';

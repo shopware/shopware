@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 /// <reference types="Cypress" />
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import CheckoutPageObject from '../../support/pages/checkout.page-object';

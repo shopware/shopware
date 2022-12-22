@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
@@ -405,7 +409,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(lifecycleSpy).toBeCalledTimes(1);
     });
 
-    it('should build & create a vue.js component', () => {
+    it('should build & create a vue.js component', async () => {
         const componentDefinition = {
             name: 'sw-foo',
 

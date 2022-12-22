@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class FieldVisibility

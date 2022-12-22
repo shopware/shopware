@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Filesystem;
 
 use League\Flysystem\FilesystemInterface;
 
+/**
+ * @package core
+ */
 class PrefixFilesystem extends AbstractFilesystem
 {
     /**

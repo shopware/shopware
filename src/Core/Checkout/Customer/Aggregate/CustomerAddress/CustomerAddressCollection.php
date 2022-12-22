@@ -8,6 +8,8 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryCollection;
 
 /**
+ * @package customer-order
+ *
  * @extends EntityCollection<CustomerAddressEntity>
  */
 class CustomerAddressCollection extends EntityCollection

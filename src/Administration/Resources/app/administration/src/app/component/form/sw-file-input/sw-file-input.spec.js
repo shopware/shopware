@@ -1,17 +1,21 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-file-input';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
-function createWrapper(customOptions = {}) {
+async function createWrapper(customOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('droppable', {});
 
-    return shallowMount(Shopware.Component.build('sw-file-input'), {
+    return shallowMount(await Shopware.Component.build('sw-file-input'), {
         localVue,
         stubs: {
             'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
         },
         ...customOptions
     });
@@ -26,8 +30,8 @@ let fileInputValueSet;
 describe('src/app/component/form/sw-file-input', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         fileInput = wrapper.find('.sw-file-input__file-input');
 

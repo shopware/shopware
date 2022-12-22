@@ -7,6 +7,8 @@ use Twig\Environment;
 use Twig\Node\Node;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class TwigEnvironment extends Environment

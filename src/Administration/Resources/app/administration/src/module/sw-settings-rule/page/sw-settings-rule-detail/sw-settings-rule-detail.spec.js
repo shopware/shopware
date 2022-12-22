@@ -1,7 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
-import flushPromises from 'flush-promises';
 
 const { EntityCollection } = Shopware.Data;
 
@@ -28,8 +27,8 @@ function getCollection(repository) {
     );
 }
 
-function createWrapper(privileges = [], isNewRule = false, computed = {}) {
-    return shallowMount(Shopware.Component.build('sw-settings-rule-detail'), {
+async function createWrapper(privileges = [], isNewRule = false, computed = {}) {
+    return shallowMount(await Shopware.Component.build('sw-settings-rule-detail'), {
         stubs: {
             'sw-page': {
                 template: `
@@ -110,13 +109,13 @@ function createWrapper(privileges = [], isNewRule = false, computed = {}) {
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await flushPromises();
 
@@ -126,7 +125,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should have enabled fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ]);
 
@@ -138,7 +137,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should render tabs in existing rule', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ]);
 
@@ -148,7 +147,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should not render tabs in new rule', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ], true);
 
@@ -158,7 +157,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should set user changes when condition tree changed', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ], false);
 
@@ -172,13 +171,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should open changes modal when leaving the route', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ], false);
 
         await flushPromises();
 
-        wrapper.setData({
+        await wrapper.setData({
             conditionsTreeContainsUserChanges: true
         });
 
@@ -192,13 +191,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should reset condition tree state when navigating back to the base tab', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ], false);
 
         await flushPromises();
 
-        wrapper.setData({
+        await wrapper.setData({
             conditionsTreeContainsUserChanges: true
         });
 
@@ -213,13 +212,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should not open changes modal when there are no changes', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'rule.editor'
         ], false);
 
         await flushPromises();
 
-        wrapper.setData({
+        await wrapper.setData({
             conditionsTreeContainsUserChanges: false
         });
 
@@ -233,7 +232,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should return tab has no error for assignment tab', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await flushPromises();
 
@@ -245,7 +244,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should return tab has error for assignment tab', async () => {
-        const wrapper = createWrapper(
+        const wrapper = await createWrapper(
             [],
             false,
             {

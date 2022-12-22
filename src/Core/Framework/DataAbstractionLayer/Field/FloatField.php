@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSerializer;
 
+/**
+ * @package core
+ */
 class FloatField extends Field implements StorageAware
 {
     /**

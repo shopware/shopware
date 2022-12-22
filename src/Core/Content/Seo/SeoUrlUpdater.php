@@ -15,6 +15,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
+ *
+ * @package sales-channel
  */
 class SeoUrlUpdater
 {

@@ -1,14 +1,16 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-settings-search/component/sw-settings-search-search-index';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/mixin/notification.mixin';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-search-index'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-search-index'), {
         localVue,
 
         provide: {
@@ -83,8 +85,8 @@ function createWrapper(privileges = []) {
 
         stubs: {
             'sw-card': true,
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-progress-bar': {
                 template: '<div class="sw-progress-bar"><slot></slot></div>'
             },
@@ -98,14 +100,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-search/component/sw-settings-search-search-index', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not able to rebuild the search index', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -117,7 +119,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {
         let response = {};
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.editor'
         ]);
         await wrapper.vm.$nextTick();

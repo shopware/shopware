@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const {
     Application
 } = Shopware;

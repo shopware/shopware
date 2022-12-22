@@ -25,6 +25,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package customer-order
+ *
  * @internal
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute
  */

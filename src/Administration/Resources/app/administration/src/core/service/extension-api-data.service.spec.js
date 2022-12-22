@@ -1,4 +1,7 @@
-import flushPromises from 'flush-promises';
+/**
+ * @package admin
+ */
+
 import { mount } from '@vue/test-utils';
 import { handleFactory, send } from '@shopware-ag/admin-extension-sdk/es/channel';
 import SerializerFactory from '@shopware-ag/admin-extension-sdk/es/_internals/serializer';

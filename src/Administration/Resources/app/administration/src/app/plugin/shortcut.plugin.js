@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const util = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 

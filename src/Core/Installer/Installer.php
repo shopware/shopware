@@ -12,6 +12,8 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Installer extends Bundle

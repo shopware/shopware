@@ -2,11 +2,11 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-event-action/component/sw-event-action-detail-recipients';
 import 'src/app/component/data-grid/sw-data-grid';
 
-function createWrapper(configRecipients = null, privileges = []) {
+async function createWrapper(configRecipients = null, privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-event-action-detail-recipients'), {
+    return shallowMount(await Shopware.Component.build('sw-event-action-detail-recipients'), {
         localVue,
         stubs: {
             'sw-button': {
@@ -15,7 +15,7 @@ function createWrapper(configRecipients = null, privileges = []) {
             'sw-card': {
                 template: '<div class="sw-card"><slot name="toolbar"></slot><slot></slot><slot name="grid"></slot></div>'
             },
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-empty-state': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
@@ -44,18 +44,18 @@ function createWrapper(configRecipients = null, privileges = []) {
 }
 
 describe('src/module/sw-event-action/component/sw-event-action-detail-recipients', () => {
-    it('should be instantiated', () => {
-        const wrapper = createWrapper();
+    it('should be instantiated', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render empty state when no recipients are given', () => {
-        const wrapper = createWrapper();
+    it('should render empty state when no recipients are given', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
     });
 
     it('should convert recipients object to array when recipients are given', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info'
         });
@@ -79,7 +79,7 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
     });
 
     it('should render given recipients inside data-grid', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info'
         });
@@ -101,7 +101,7 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
     });
 
     it('should enable inline edit with empty item when adding recipient', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info'
         });
@@ -129,7 +129,7 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
     });
 
     it('should delete recipient', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info',
             'info@delete-me.net': 'Delete me'
@@ -158,7 +158,7 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
     });
 
     it('should add recipient', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info'
         });
@@ -174,8 +174,8 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
         const nameInput = item0.find('.sw-data-grid__cell--name .sw-text-field');
 
         // Enter inline-edit data
-        emailInput.setValue('new@mail.com');
-        nameInput.setValue('New mail');
+        await emailInput.setValue('new@mail.com');
+        await nameInput.setValue('New mail');
 
         // Verify data has been set
         const updatedRecipient = wrapper.vm.recipients[0];
@@ -190,7 +190,7 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
     });
 
     it('should edit recipient', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info',
             'edit@me.me': 'Edit this'
@@ -208,7 +208,7 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
     });
 
     it('should disable edit actions with viewer privileges', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             'test@example.com': 'Test example name',
             'info@shopware.com': 'Info'
         }, [

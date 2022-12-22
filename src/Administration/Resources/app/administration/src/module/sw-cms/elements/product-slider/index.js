@@ -8,6 +8,7 @@ criteria.addAssociation('cover');
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-slider',

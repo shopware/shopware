@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Script;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
+ * @package core
  * This class is intended for auto completion in twig templates. So the developer can
  * set a doc block to get auto completion for all services.
  *

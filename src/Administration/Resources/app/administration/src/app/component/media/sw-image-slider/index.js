@@ -6,6 +6,7 @@ const { Component, Filter } = Shopware;
 /**
  * @description Renders an image slider with possible image descriptions
  * @status ready
+ * @package content
  * @example-type static
  * @component-example
  * <sw-image-slider

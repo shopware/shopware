@@ -8,6 +8,9 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @package customer-order
+ */
 class TaxRuleEntity extends Entity
 {
     use EntityIdTrait;

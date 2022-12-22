@@ -12,6 +12,7 @@
             {% if context.customer and not context.customer.guest %}
                 {% sw_include '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig' with { searchResult: searchResult } %}
             {% else %}
+                {# @deprecated tag:v6.5.0 - Option guestWishlistPageOptions.pageletRouter.token will be removed. #}
                 {% set guestWishlistPageOptions = {
                     pageletRouter: {
                         path: path('frontend.wishlist.guestPage.pagelet'),

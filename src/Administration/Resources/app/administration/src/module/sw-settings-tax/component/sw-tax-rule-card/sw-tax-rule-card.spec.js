@@ -1,8 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/component/sw-tax-rule-card';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-tax-rule-card'), {
+/**
+ * @package customer-order
+ */
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-tax-rule-card'), {
         propsData: {
             tax: {
                 id: 'id',
@@ -86,10 +89,10 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
     const init = async (privileges, taxRules) => {
-        const wrapper = createWrapper(privileges);
+        const wrapper = await createWrapper(privileges);
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({ taxRules });
+        await wrapper.setData({ taxRules });
         await wrapper.vm.$nextTick();
 
         return { wrapper };
@@ -106,23 +109,23 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper.destroy();
         });
 
-        it('should be a Vue.JS component', () => {
+        it('should be a Vue.JS component', async () => {
             expect(wrapper.vm).toBeTruthy();
         });
 
-        it('should be able to add a new country from data grid', () => {
+        it('should be able to add a new country from data grid', async () => {
             const addButton = wrapper.find('.sw-tax-rule-grid-button');
 
             expect(addButton.attributes().disabled).toBeFalsy();
         });
 
-        it('should be able to edit a country from data grid', () => {
+        it('should be able to edit a country from data grid', async () => {
             const editMenuItem = wrapper.find('.sw-tax-list__edit-action');
 
             expect(editMenuItem.attributes().disabled).toBeFalsy();
         });
 
-        it('should be able to delete a country from data grid', () => {
+        it('should be able to delete a country from data grid', async () => {
             const deleteMenuItem = wrapper.find('.sw-tax-list__delete-action');
 
             expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -140,23 +143,23 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper.destroy();
         });
 
-        it('should be a Vue.JS component', () => {
+        it('should be a Vue.JS component', async () => {
             expect(wrapper.vm).toBeTruthy();
         });
 
-        it('should not be able to add a new country from data grid', () => {
+        it('should not be able to add a new country from data grid', async () => {
             const addButton = wrapper.find('.sw-tax-rule-grid-button');
 
             expect(addButton.attributes().disabled).toBeTruthy();
         });
 
-        it('should not be able to edit a country from data grid', () => {
+        it('should not be able to edit a country from data grid', async () => {
             const editMenuItem = wrapper.find('.sw-tax-list__edit-action');
 
             expect(editMenuItem.attributes().disabled).toBeTruthy();
         });
 
-        it('should not be able to delete a country from data grid', () => {
+        it('should not be able to delete a country from data grid', async () => {
             const deleteMenuItem = wrapper.find('.sw-tax-list__delete-action');
 
             expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -174,11 +177,11 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper.destroy();
         });
 
-        it('should be a Vue.JS component', () => {
+        it('should be a Vue.JS component', async () => {
             expect(wrapper.vm).toBeTruthy();
         });
 
-        it('should be able to add a new country from empty card', () => {
+        it('should be able to add a new country from empty card', async () => {
             const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
 
             expect(addButton.attributes().disabled).toBeFalsy();
@@ -196,11 +199,11 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper.destroy();
         });
 
-        it('should be a Vue.JS component', () => {
+        it('should be a Vue.JS component', async () => {
             expect(wrapper.vm).toBeTruthy();
         });
 
-        it('should not be able to add a new country from empty card', () => {
+        it('should not be able to add a new country from empty card', async () => {
             const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
 
             expect(addButton.attributes().disabled).toBeTruthy();

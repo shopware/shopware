@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Customer\Rule\IsCompanyRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class IsCompanyCustomerRuleTest extends TestCase

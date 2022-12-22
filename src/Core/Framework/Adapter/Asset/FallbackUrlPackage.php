@@ -7,6 +7,9 @@ use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package core
+ */
 class FallbackUrlPackage extends UrlPackage
 {
     /**

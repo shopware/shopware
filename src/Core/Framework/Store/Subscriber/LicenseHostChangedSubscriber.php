@@ -9,6 +9,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class LicenseHostChangedSubscriber implements EventSubscriberInterface

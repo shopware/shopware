@@ -77,6 +77,7 @@
                               class="cart-add-product"
                               method="post">
 
+                            {# @deprecated tag:v6.5.0 - Block page_checkout_cart_add_product_csrf will be removed. #}
                             {% block page_checkout_cart_add_product_csrf %}
                                 {{ sw_csrf('frontend.checkout.product.add-by-number') }}
                             {% endblock %}
@@ -137,6 +138,7 @@
                               action="{{ path('frontend.checkout.configure') }}"
                               data-form-auto-submit="true">
 
+                            {# @deprecated tag:v6.5.0 - Block page_checkout_cart_shipping_costs_csrf will be removed. #}
                             {% block page_checkout_cart_shipping_costs_csrf %}
                                 {{ sw_csrf('frontend.checkout.configure') }}
                             {% endblock %}
@@ -233,6 +235,7 @@
                   data-form-csrf-handler="true"
                   method="post">
 
+                {# @deprecated tag:v6.5.0 - Block page_checkout_cart_add_promotion_csrf will be removed. #}
                 {% block page_checkout_cart_add_promotion_csrf %}
                     {{ sw_csrf('frontend.checkout.promotion.add') }}
                 {% endblock %}

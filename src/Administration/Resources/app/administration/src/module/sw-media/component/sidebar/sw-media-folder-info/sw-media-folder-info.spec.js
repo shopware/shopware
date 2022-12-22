@@ -1,12 +1,14 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import 'src/module/sw-media/component/sidebar/sw-media-folder-info';
-import flushPromises from 'flush-promises';
 
 const { Mixin } = Shopware;
 
-function createWrapper(privileges = [], options = {}) {
-    return shallowMount(Shopware.Component.build('sw-media-folder-info'), {
+async function createWrapper(privileges = [], options = {}) {
+    return shallowMount(await Shopware.Component.build('sw-media-folder-info'), {
         provide: {
             mediaService: {},
             acl: {
@@ -39,26 +41,22 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not have error class by default', () => {
+    it('should not have error class by default', async () => {
         expect(wrapper.vm.nameItemClasses).toStrictEqual({
             'has--error': false,
         });
     });
 
     it('should have error class while having folder name error', async () => {
-        const component = createWrapper([], {
+        const component = await createWrapper([], {
             computed: {
                 mediaFolderNameError: () => 'Error',
             }
@@ -67,7 +65,5 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
         expect(component.vm.nameItemClasses).toStrictEqual({
             'has--error': true,
         });
-
-        component.destroy();
     });
 });

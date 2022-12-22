@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
+/**
+ * @package core
+ */
 class ShopApiSource extends SalesChannelApiSource
 {
 }

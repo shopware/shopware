@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Framework\Rule\SalesChannelRule
  */

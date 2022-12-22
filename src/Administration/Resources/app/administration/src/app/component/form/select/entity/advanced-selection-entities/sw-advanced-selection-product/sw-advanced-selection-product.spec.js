@@ -217,12 +217,12 @@ function getCurrencyData() {
     ];
 }
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.filter('currency', (currency) => currency);
 
     return {
-        wrapper: shallowMount(Shopware.Component.build('sw-advanced-selection-product'), {
+        wrapper: shallowMount(await Shopware.Component.build('sw-advanced-selection-product'), {
             localVue,
             provide: {
                 acl: {
@@ -269,11 +269,11 @@ function createWrapper() {
                 },
             },
             stubs: {
-                'sw-entity-advanced-selection-modal': Shopware.Component.build('sw-entity-advanced-selection-modal'),
-                'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-                'sw-modal': Shopware.Component.build('sw-modal'),
-                'sw-card': Shopware.Component.build('sw-card'),
-                'sw-card-filter': Shopware.Component.build('sw-card-filter'),
+                'sw-entity-advanced-selection-modal': await Shopware.Component.build('sw-entity-advanced-selection-modal'),
+                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+                'sw-modal': await Shopware.Component.build('sw-modal'),
+                'sw-card': await Shopware.Component.build('sw-card'),
+                'sw-card-filter': await Shopware.Component.build('sw-card-filter'),
                 'sw-simple-search-field': {
                     template: '<div></div>'
                 },
@@ -344,8 +344,9 @@ describe('components/sw-advanced-selection-product', () => {
     let wrapper;
     let selectionModal;
 
-    beforeEach(() => {
-        wrapper = createWrapper().wrapper;
+    beforeEach(async () => {
+        const data = await createWrapper();
+        wrapper = data.wrapper;
         selectionModal = wrapper.findComponent({ name: 'sw-entity-advanced-selection-modal' });
     });
 
@@ -389,14 +390,14 @@ describe('components/sw-advanced-selection-product', () => {
         expect(foundPriceData).toEqual(expectedPriceData);
     });
 
-    it('should return false if product has no variants', () => {
+    it('should return false if product has no variants', async () => {
         const [product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(false);
     });
 
-    it('should return true if product has variants', () => {
+    it('should return true if product has variants', async () => {
         const [, product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 

@@ -1,7 +1,10 @@
+/**
+ * @package admin
+ */
+
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import flushPromises from 'flush-promises';
 import { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';
@@ -13,80 +16,83 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/utils/sw-popover';
 
-const stubs = {
-    'sw-app-action-button': Shopware.Component.build('sw-app-action-button'),
-    'sw-icon': Shopware.Component.build('sw-icon'),
-    'sw-context-button': Shopware.Component.build('sw-context-button'),
-    'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-    'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-    'sw-button': Shopware.Component.build('sw-button'),
-    'icons-solid-ellipsis-h-s': {
-        template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>'
-    },
-    'sw-popover': Shopware.Component.build('sw-popover'),
-    'sw-modal': true,
-    'icons-regular-times-s': {
-        template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
-    }
-};
-
-function createWrapper(router, resultData = actionResultData) {
-    // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
-
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-    localVue.use(VueRouter);
-    localVue.use(Vuex);
-
-    return mount(Shopware.Component.build('sw-app-actions'), {
-        localVue,
-        stubs,
-
-        router,
-        provide: {
-            appActionButtonService: {
-                runAction: jest.fn((actionButtonId) => {
-                    if (actionButtonId) {
-                        return Promise.resolve(resultData);
-                    }
-
-                    return Promise.resolve([]);
-                }),
-                getActionButtonsPerView(entity, view) {
-                    if (!entity || !view) {
-                        throw new InvalidActionButtonParameterError('error');
-                    }
-
-                    if (entity === 'product' && view === 'detail') {
-                        return Promise.resolve(actionButtonData);
-                    }
-
-                    if (entity === 'product' && view === 'list') {
-                        return Promise.resolve([]);
-                    }
-
-                    return Promise.reject(new Error('error occured'));
-                }
-            },
-
-            extensionSdkService: {},
-
-            repositoryFactory: {
-                create: () => ({
-                    search: jest.fn(() => {
-                        return Promise.resolve([]);
-                    }),
-                    create: () => ({})
-                })
-            }
-        }
-    });
-}
-
 describe('sw-app-actions', () => {
     let wrapper = null;
+    let stubs;
+
+    async function createWrapper(router, resultData = actionResultData) {
+        // delete global $router and $routes mocks
+        delete config.mocks.$router;
+        delete config.mocks.$route;
+
+        const localVue = createLocalVue();
+        localVue.directive('popover', {});
+        localVue.use(VueRouter);
+        localVue.use(Vuex);
+
+        return mount(await Shopware.Component.build('sw-app-actions'), {
+            localVue,
+            stubs,
+
+            router,
+            provide: {
+                appActionButtonService: {
+                    runAction: jest.fn((actionButtonId) => {
+                        if (actionButtonId) {
+                            return Promise.resolve(resultData);
+                        }
+
+                        return Promise.resolve([]);
+                    }),
+                    getActionButtonsPerView(entity, view) {
+                        if (!entity || !view) {
+                            throw new InvalidActionButtonParameterError('error');
+                        }
+
+                        if (entity === 'product' && view === 'detail') {
+                            return Promise.resolve(actionButtonData);
+                        }
+
+                        if (entity === 'product' && view === 'list') {
+                            return Promise.resolve([]);
+                        }
+
+                        return Promise.reject(new Error('error occured'));
+                    }
+                },
+
+                extensionSdkService: {},
+
+                repositoryFactory: {
+                    create: () => ({
+                        search: jest.fn(() => {
+                            return Promise.resolve([]);
+                        }),
+                        create: () => ({})
+                    })
+                }
+            }
+        });
+    }
+
+    beforeAll(async () => {
+        stubs = {
+            'sw-app-action-button': await Shopware.Component.build('sw-app-action-button'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'icons-solid-ellipsis-h-s': {
+                template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>'
+            },
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-modal': true,
+            'icons-regular-times-s': {
+                template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
+            },
+        };
+    });
 
     beforeEach(() => {
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
@@ -102,7 +108,7 @@ describe('sw-app-actions', () => {
 
     it('should be a Vue.js component', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -116,7 +122,7 @@ describe('sw-app-actions', () => {
 
     it('creates an sw-app-action-button per action', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -134,7 +140,7 @@ describe('sw-app-actions', () => {
 
     it('is not rendered if action buttons is empty', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.list' });
         await flushPromises();
@@ -144,7 +150,7 @@ describe('sw-app-actions', () => {
 
     it('it throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 
         router.push({ name: 'sw.order.detail' });
@@ -161,7 +167,7 @@ describe('sw-app-actions', () => {
 
     it('ignores pages where entity and view are not set', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 
         router.push({ name: 'sw.settings.index' });
@@ -175,7 +181,7 @@ describe('sw-app-actions', () => {
 
     it('it calls appActionButtonService.runAction if triggered by context menu button', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();
@@ -212,7 +218,7 @@ describe('sw-app-actions', () => {
 
     it('it calls appActionButtonService.runAction with correct response', async () => {
         const router = createRouter();
-        wrapper = createWrapper(router);
+        wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
         router.push({ name: 'sw.product.detail' });
@@ -245,7 +251,7 @@ describe('sw-app-actions', () => {
                 size: 'medium'
             }
         };
-        wrapper = createWrapper(router, openModalResponseData);
+        wrapper = await createWrapper(router, openModalResponseData);
 
         router.push({ name: 'sw.product.detail' });
         await flushPromises();

@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -54,11 +57,11 @@ const repositoryMockFactory = (entity) => {
 };
 
 
-function createWrapper(activeTab = 'sorting') {
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-product-listing'), {
+async function createWrapper(activeTab = 'sorting') {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing'), {
         stubs: {
             'sw-cms-el-config-product-listing-config-sorting-grid': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-entity-single-select': true,
             'sw-simple-search-field': true,
             'sw-entity-multi-select': true,
@@ -124,21 +127,21 @@ function createWrapper(activeTab = 'sorting') {
 }
 
 describe('src/module/sw-cms/elements/product-listing/config', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain tab items content, sorting and filter', () => {
-        const wrapper = createWrapper();
+    it('should contain tab items content, sorting and filter', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-tabs-item-stub[name="content"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="sorting"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="filter"]').exists()).toBeTruthy();
     });
 
-    it('should contain content for sorting when defaultSorting is deactivated', () => {
-        const wrapper = createWrapper();
+    it('should contain content for sorting when defaultSorting is deactivated', async () => {
+        const wrapper = await createWrapper();
 
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
@@ -157,7 +160,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should contain only some content for sorting when defaultSorting is activated', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.element.config.useCustomSorting.value = false;
 
         await wrapper.vm.$nextTick();
@@ -179,7 +182,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should update the config when product sortings changes', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
 
@@ -203,7 +206,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should update the productSortings priority with the values from the config', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             element: {
@@ -237,7 +240,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should transform the product sortings correctly', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const before = [
             {
@@ -262,8 +265,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
     });
 
-    it('should contain content for filter setting', () => {
-        const wrapper = createWrapper('filter');
+    it('should contain content for filter setting', async () => {
+        const wrapper = await createWrapper('filter');
 
         const showFilterManufacturerSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]');
@@ -282,7 +285,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should show use-filter-properties-option when properties available', async () => {
-        const wrapper = createWrapper('filter');
+        const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // calculate showPropertySelection
 
@@ -303,7 +306,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should sort properties by status', async () => {
-        const wrapper = createWrapper('filter');
+        const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
@@ -330,7 +333,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should filter properties by term', async () => {
-        const wrapper = createWrapper('filter');
+        const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
@@ -354,7 +357,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should show an empty-state when filtered properties have no result', async () => {
-        const wrapper = createWrapper('filter');
+        const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
@@ -377,7 +380,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     });
 
     it('should toggle property filters', async () => {
-        const wrapper = createWrapper('filter');
+        const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 

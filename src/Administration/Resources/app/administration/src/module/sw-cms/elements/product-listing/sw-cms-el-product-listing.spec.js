@@ -1,5 +1,7 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/state/cms-page.state';
@@ -27,12 +29,8 @@ const defaultConfig = {
     data: null,
 };
 
-function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(Shopware.Component.build('sw-cms-el-product-listing'), {
-        localVue,
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-product-listing'), {
         data() {
             return {
                 cmsPageState: {
@@ -79,13 +77,13 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should use demo products', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('cmsPageState/setCurrentDemoProducts', currentDemoProducts);
 

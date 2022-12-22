@@ -1,3 +1,6 @@
+/**
+ * @package sales-channel
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
@@ -5,8 +8,19 @@ import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-sales-channel-detail-base'), {
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/user-config',
+    status: 200,
+    response: {
+        data: []
+    }
+});
+
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-base'), {
         stubs: {
             'sw-card': true,
             'sw-field': true,
@@ -44,13 +58,6 @@ function createWrapper(privileges = []) {
                     }
                 })
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
         },
         propsData: {
             salesChannel: {},
@@ -64,16 +71,17 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     beforeEach(() => {
         Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
         global.repositoryFactoryMock.showError = false;
+        global.activeAclRoles = [];
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have the select template field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
@@ -88,9 +96,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select template field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -106,7 +114,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the name field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
@@ -121,9 +129,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the name field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -139,7 +147,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the navigation category id field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__select-navigation-category-id'
@@ -149,9 +157,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the navigation category id field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__select-navigation-category-id'
@@ -161,7 +169,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the navigation category depth field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]'
@@ -171,9 +179,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the navigation category depth field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]'
@@ -183,7 +191,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the service category id field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__select-service-category-id'
@@ -193,9 +201,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the service category id field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__select-service-category-id'
@@ -205,7 +213,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the customer group id field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__select-service-category-id'
@@ -215,9 +223,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the customer group id field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__select-service-category-id'
@@ -227,7 +235,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for countries field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="countries"]'
@@ -237,9 +245,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for countries field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="countries"]'
@@ -249,7 +257,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for languages field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="languages"]'
@@ -259,9 +267,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for languages field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="languages"]'
@@ -271,7 +279,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for paymentMethods field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="paymentMethods"]'
@@ -281,9 +289,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for paymentMethods field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="paymentMethods"]'
@@ -293,7 +301,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for shippingMethods field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="shippingMethods"]'
@@ -303,9 +311,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for shippingMethods field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="shippingMethods"]'
@@ -315,7 +323,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for currencies field disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="currencies"]'
@@ -325,9 +333,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales channel defaults select for currencies field enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-sales-channel-defaults-select-stub[property-name="currencies"]'
@@ -337,7 +345,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the radio select field for taxCalculationType disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__tax-calculation'
@@ -347,9 +355,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the radio select field for taxCalculationType enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail__tax-calculation'
@@ -359,7 +367,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales-channel-detail-hreflang component disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -375,9 +383,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales-channel-detail-hreflang component enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -393,7 +401,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales-channel-detail-domains component disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -409,9 +417,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the sales-channel-detail-domains component enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -427,7 +435,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export storefront sales channel id disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -443,9 +451,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export storefront sales channel id enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -461,7 +469,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export sales channel domain id disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -481,9 +489,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export sales channel domain id enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -503,7 +511,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export currency id disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -522,9 +530,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export currency id enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -543,7 +551,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export sales channel domain language id disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -562,9 +570,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export sales channel domain language id disabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -583,7 +591,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export sales channel customer group id disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -602,9 +610,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export sales channel customer group id disabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -623,7 +631,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for product export file name disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -639,9 +647,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for product export file name enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -657,7 +665,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export encoding disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -673,10 +681,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export encoding enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
 
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
@@ -691,7 +698,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export file format disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -707,9 +714,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select field for product export file format enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -725,7 +732,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for product export includeVariants disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -741,9 +748,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for product export includeVariants enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -759,7 +766,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select number field for product export interval disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -775,9 +782,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the select number field for product export interval enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -793,7 +800,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the switch field for product export generateByCronjob disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -809,9 +816,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the switch field for product export generateByCronjob enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -827,7 +834,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the entity single field for product export productStreamId disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -843,9 +850,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the entity single field for product export productStreamId enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -861,7 +868,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for salesChannel accessKey disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {}
@@ -875,9 +882,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for salesChannel accessKey disabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {}
@@ -891,7 +898,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the button for generate keys disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {}
@@ -905,9 +912,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the button for generate keys enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {}
@@ -921,7 +928,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for productExport accesKey disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -937,9 +944,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for productExport accesKey disabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -955,7 +962,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for productExport accesUrl disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -974,9 +981,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field for productExport accesUrl disabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             salesChannel: {
@@ -995,7 +1002,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the button for generating the keys disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail-base__button-generate-keys'
@@ -1005,9 +1012,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the button for generating the keys enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             '.sw-sales-channel-detail-base__button-generate-keys'
@@ -1017,7 +1024,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the switch field for salesChannel active disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-field-stub[label="sw-sales-channel.detail.labelInputActive"]'
@@ -1027,9 +1034,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the switch field for salesChannel active enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-field-stub[label="sw-sales-channel.detail.labelInputActive"]'
@@ -1039,7 +1046,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the switch field for salesChannel maintenance disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-field-stub[label="sw-sales-channel.detail.labelMaintenanceActive"]'
@@ -1049,9 +1056,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the switch field for salesChannel maintenance enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-field-stub[label="sw-sales-channel.detail.labelMaintenanceActive"]'
@@ -1061,7 +1068,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field multi tag ip select for maintenanceIpWhitelist disabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]'
@@ -1071,14 +1078,26 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it('should have the field multi tag ip select for maintenanceIpWhitelist enabled', async () => {
-        const wrapper = createWrapper([
-            'sales_channel.editor'
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
+
+        const wrapper = await createWrapper();
 
         const field = wrapper.get(
             'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]'
         );
 
         expect(field.attributes().disabled).toBeUndefined();
+    });
+
+    it('should have currency criteria with sort', async () => {
+        const wrapper = await createWrapper();
+
+        const criteria = wrapper.vm.currencyCriteria;
+
+        expect(criteria.parse()).toEqual(expect.objectContaining({
+            sort: expect.arrayContaining([
+                { field: 'name', order: 'ASC', naturalSorting: false }
+            ])
+        }));
     });
 });

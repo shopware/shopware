@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-general';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-users-permissions-role-view-general'), {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-view-general'), {
         localVue,
         stubs: {
             'sw-card': true,
@@ -29,12 +32,12 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-general', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable the button and fields when no aclPrivileges exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper
@@ -49,7 +52,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     });
 
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
-        const wrapper = createWrapper(['users_and_permissions.editor']);
+        const wrapper = await createWrapper(['users_and_permissions.editor']);
 
         const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper

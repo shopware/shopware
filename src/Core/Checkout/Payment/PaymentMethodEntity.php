@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @package checkout
+ */
 class PaymentMethodEntity extends Entity
 {
     use EntityIdTrait;

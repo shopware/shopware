@@ -27,6 +27,7 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package core
  * @final tag:v6.5.0
  */
 class EntityRepository implements EntityRepositoryInterface

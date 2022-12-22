@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-search-behaviour';
 import 'src/app/component/form/sw-radio-field';
@@ -7,11 +10,11 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-search-behaviour'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-search-behaviour'), {
         localVue,
 
         propsData: {
@@ -46,13 +49,13 @@ function createWrapper(privileges = []) {
 
         stubs: {
             'sw-card': true,
-            'sw-radio-field': Shopware.Component.build('sw-radio-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
-            'sw-number-field': Shopware.Component.build('sw-number-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field')
+            'sw-number-field': await Shopware.Component.build('sw-number-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field')
         },
 
         attachTo: document.body,
@@ -61,14 +64,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-search/component/sw-settings-search-search-behaviour', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to change the behaviour search which includes and, or', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -88,7 +91,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
     });
 
     it('should be able to change the behaviour search which includes and, or', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -107,7 +110,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
     });
 
     it('should be able to change minimal search term length between limit value', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.editor'
         ]);
         await wrapper.vm.$nextTick();

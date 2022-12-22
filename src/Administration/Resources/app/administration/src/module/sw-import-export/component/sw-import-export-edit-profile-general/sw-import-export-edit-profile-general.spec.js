@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-edit-profile-general';
 import 'src/app/component/form/sw-field';
@@ -33,8 +36,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         };
     }
 
-    function createWrapper(profile) {
-        return shallowMount(Shopware.Component.build('sw-import-export-edit-profile-general'), {
+    async function createWrapper(profile) {
+        return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-general'), {
             propsData: {
                 profile
             },
@@ -42,20 +45,20 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
                 'sw-container': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-field': Shopware.Component.build('sw-field'),
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field': await Shopware.Component.build('sw-field'),
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
-                'sw-single-select': Shopware.Component.build('sw-single-select'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
+                'sw-single-select': await Shopware.Component.build('sw-single-select'),
+                'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+                'sw-select-base': await Shopware.Component.build('sw-select-base'),
+                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
                 'sw-icon': true
             },
             provide: {
@@ -68,8 +71,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper(getProfileMock());
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper(getProfileMock());
         expect(wrapper.vm).toBeTruthy();
     });
 

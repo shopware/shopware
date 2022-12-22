@@ -3,8 +3,8 @@ import 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-c
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Vue from 'vue';
 
-function createWrapper(productSortings = []) {
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
+async function createWrapper(productSortings = []) {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
         provide: {
             validationService: {}
         },
@@ -44,8 +44,8 @@ function createWrapper(productSortings = []) {
 
 // eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -56,7 +56,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             { id: '7a8b9c', locked: false }
         ]);
 
-        const wrapper = createWrapper(productSortings);
+        const wrapper = await createWrapper(productSortings);
 
         const itemFoo = wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_foo');
 
@@ -74,13 +74,13 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             { id: 'bar', locked: false }
         ]);
 
-        const wrapper = createWrapper(productSortings);
+        const wrapper = await createWrapper(productSortings);
 
         const itemBar = wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_bar');
 
         expect(itemBar.exists()).toBeTruthy();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             productSortings: new EntityCollection('', '', {}, {}, [
                 { id: '1a2b3c', locked: false },
                 { id: 'foo', locked: false },
@@ -101,12 +101,12 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             { id: 'bar', locked: false, priority: 3 }
         ]);
 
-        const wrapper = createWrapper(productSortings);
+        const wrapper = await createWrapper(productSortings);
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(3);
 
         const itemBar = wrapper.find('.column-priority_bar');
-        itemBar.find('input').setValue(7);
+        await itemBar.find('input').setValue(7);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$forceUpdate();

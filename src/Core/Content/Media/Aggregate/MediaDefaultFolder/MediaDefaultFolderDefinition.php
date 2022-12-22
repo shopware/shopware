@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @package content
+ */
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'media_default_folder';

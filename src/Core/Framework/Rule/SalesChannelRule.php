@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package business-ops
+ */
 class SalesChannelRule extends Rule
 {
     /**

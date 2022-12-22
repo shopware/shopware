@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
+/**
+ * @package checkout
+ */
 abstract class Error extends \Exception implements \JsonSerializable
 {
     //allows json_encode and to decode object via json serializer

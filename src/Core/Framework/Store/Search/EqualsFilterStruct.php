@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Store\Search;
 
 /**
+ * @package merchant-services
+ *
  * @internal
  */
 class EqualsFilterStruct extends FilterStruct

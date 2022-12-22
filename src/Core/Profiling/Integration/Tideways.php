@@ -3,6 +3,8 @@
 namespace Shopware\Core\Profiling\Integration;
 
 /**
+ * @package core
+ *
  * @internal experimental atm
  */
 class Tideways implements ProfilerInterface

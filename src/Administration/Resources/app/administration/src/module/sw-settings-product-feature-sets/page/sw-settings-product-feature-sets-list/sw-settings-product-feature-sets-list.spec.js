@@ -19,23 +19,23 @@ const text = {
     featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58'
 };
 
-function createWrapper(additionalOptions = {}, privileges = []) {
+async function createWrapper(additionalOptions = {}, privileges = []) {
     const localVue = createLocalVue();
 
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-list'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-product-feature-sets-list'), {
         localVue,
         stubs: {
-            'sw-page': Shopware.Component.build('sw-page'),
+            'sw-page': await Shopware.Component.build('sw-page'),
             'sw-notification-center': true,
             'sw-help-center': true,
             'sw-language-switch': true,
             'sw-search-bar': true,
             'sw-icon': true,
             'sw-button': true,
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-checkbox-field': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
@@ -117,20 +117,20 @@ function createWrapper(additionalOptions = {}, privileges = []) {
 }
 
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list', () => {
-    it('should be able to instantiate', () => {
-        const wrapper = createWrapper();
+    it('should be able to instantiate', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
-        const wrapper = createWrapper();
+    it('has the correct class', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.classes()).toContain('sw-settings-product-feature-sets-list');
     });
 
-    it('should show a list of featuresets', () => {
-        const wrapper = createWrapper();
+    it('should show a list of featuresets', async () => {
+        const wrapper = await createWrapper();
 
         const root = wrapper.get('.sw-settings-product-feature-sets-list');
         const list = root.get('.sw-settings-product-feature-sets-list-grid');
@@ -167,8 +167,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         ]);
     });
 
-    it('should disable all fields when acl privileges are missing', () => {
-        const wrapper = createWrapper();
+    it('should disable all fields when acl privileges are missing', async () => {
+        const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
@@ -187,8 +187,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
 
-    it('should enable some fields when user has view and edit acl privileges', () => {
-        const wrapper = createWrapper({}, [
+    it('should enable some fields when user has view and edit acl privileges', async () => {
+        const wrapper = await createWrapper({}, [
             'product_feature_sets.viewer',
             'product_feature_sets.editor'
         ]);
@@ -209,8 +209,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
 
-    it('should enable some fields when user has create acl privileges', () => {
-        const wrapper = createWrapper({}, [
+    it('should enable some fields when user has create acl privileges', async () => {
+        const wrapper = await createWrapper({}, [
             'product_feature_sets.creator'
         ]);
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
@@ -230,8 +230,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
 
-    it('should enable some fields when user has delete acl privileges', () => {
-        const wrapper = createWrapper({}, [
+    it('should enable some fields when user has delete acl privileges', async () => {
+        const wrapper = await createWrapper({}, [
             'product_feature_sets.deleter'
         ]);
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
@@ -252,7 +252,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should throw an success notification after saving in inline editing', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
         const successNotificationSpy = jest.spyOn(wrapper.vm, 'createNotificationSuccess');
@@ -269,7 +269,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should throw an error notification after saving in inline editing', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
         const errorNotificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
@@ -289,8 +289,8 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         });
     });
 
-    it('should load listing if there are templates with empty features', () => {
-        const wrapper = createWrapper({
+    it('should load listing if there are templates with empty features', async () => {
+        const wrapper = await createWrapper({
             data() {
                 return {
                     productFeatureSets: new EntityCollection(

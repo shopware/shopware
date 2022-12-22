@@ -7,6 +7,8 @@ use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
 class Migration1633347511ChangeProductExportInterval extends MigrationStep

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\Converter;
 
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @package core
+ */
 class ConverterRegistry
 {
     /**

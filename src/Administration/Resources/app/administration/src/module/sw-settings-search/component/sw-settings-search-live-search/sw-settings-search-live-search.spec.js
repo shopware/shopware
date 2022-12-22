@@ -1,5 +1,7 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import flushPromises from 'flush-promises';
 import 'src/module/sw-settings-search/component/sw-settings-search-live-search';
 import 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
 import 'src/app/component/base/sw-simple-search-field';
@@ -84,12 +86,12 @@ const mockResults = {
     }
 };
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-live-search'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-live-search'), {
         localVue,
 
         stubs: {
@@ -98,21 +100,21 @@ function createWrapper() {
             'sw-button': true,
             'sw-icon': true,
             'sw-field-error': true,
-            'sw-simple-search-field': Shopware.Component.build('sw-simple-search-field'),
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-select-base': Shopware.Component.build('sw-select-base'),
-            'sw-single-select': Shopware.Component.build('sw-single-select'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info'),
-            'sw-settings-search-live-search-keyword': Shopware.Component.build('sw-settings-search-live-search-keyword')
+            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-single-select': await Shopware.Component.build('sw-single-select'),
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
+            'sw-select-result': await Shopware.Component.build('sw-select-result'),
+            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
+            'sw-settings-search-live-search-keyword': await Shopware.Component.build('sw-settings-search-live-search-keyword')
         },
 
         propsData: {
@@ -154,15 +156,15 @@ function createWrapper() {
 describe('src/module/sw-settings-search/component/sw-settings-search-live-search', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -194,7 +196,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.nothing.terms);
 
-        searchBox.trigger('keypress', { key: 'Enter' });
+        await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
         await wrapper.setData({
@@ -213,7 +215,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.oneResult.terms);
 
-        searchBox.trigger('keypress', { key: 'Enter' });
+        await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
         await wrapper.setData({
@@ -240,7 +242,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await searchBox.setValue(mockResults.oneResult.terms);
 
         const searchIcon = wrapper.find('.sw-settings-search-live-search__search-icon');
-        searchIcon.trigger('click');
+        await searchIcon.trigger('click');
         await flushPromises();
 
         await wrapper.setData({
@@ -260,7 +262,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.multipleResults.terms);
 
-        searchBox.trigger('keypress', { key: 'Enter' });
+        await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
         await wrapper.setData({

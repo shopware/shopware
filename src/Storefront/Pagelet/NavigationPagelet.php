@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Pagelet;
 
 use Shopware\Core\Content\Category\Tree\Tree;
 
+/**
+ * @package storefront
+ */
 abstract class NavigationPagelet extends Pagelet
 {
     /**

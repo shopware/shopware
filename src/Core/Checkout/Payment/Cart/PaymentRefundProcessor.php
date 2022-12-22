@@ -14,6 +14,9 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package checkout
+ */
 class PaymentRefundProcessor
 {
     private const TABLE_ALIAS = 'refund';

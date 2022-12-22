@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package core
+ */
 class JsonApiType extends JsonFactoryBase
 {
     /**

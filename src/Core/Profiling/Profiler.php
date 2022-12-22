@@ -5,6 +5,8 @@ namespace Shopware\Core\Profiling;
 use Shopware\Core\Profiling\Integration\ProfilerInterface;
 
 /**
+ * @package core
+ *
  * @internal experimental atm
  */
 class Profiler

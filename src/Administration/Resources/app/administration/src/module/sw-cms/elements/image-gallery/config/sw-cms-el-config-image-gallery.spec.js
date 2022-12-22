@@ -1,4 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package content
+ */
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image-gallery/config';
 import 'src/module/sw-cms/component/sw-cms-mapping-field';
@@ -18,12 +21,8 @@ const mediaDataMock = [
     }
 ];
 
-function createWrapper(activeTab = 'content') {
-    const localVue = createLocalVue();
-
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-image-gallery'), {
-        localVue,
-        sync: false,
+async function createWrapper(activeTab = 'content') {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-image-gallery'), {
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {
@@ -61,7 +60,7 @@ function createWrapper(activeTab = 'content') {
             },
             'sw-text-field': true,
             'sw-alert': true,
-            'sw-cms-mapping-field': Shopware.Component.build('sw-cms-mapping-field')
+            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field')
         },
         propsData: {
             element: {
@@ -144,7 +143,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     });
 
     it('should media selection if sliderItems config source is static', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const mediaList = wrapper.find('sw-media-list-selection-v2-stub');
         const mappingValue = wrapper.find('.sw-cms-mapping-field__mapping-value');
@@ -156,7 +155,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     });
 
     it('should mapping value and preview mapping if sliderItems config source is mapped', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             element: {
@@ -179,15 +178,15 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(mappingPreview.exists()).toBeTruthy();
     });
 
-    it('should keep minHeight value when changing display mode', () => {
-        const wrapper = createWrapper('settings');
+    it('should keep minHeight value when changing display mode', async () => {
+        const wrapper = await createWrapper('settings');
         const displayModeSelect = wrapper.find('.sw-cms-el-config-image-gallery__setting-display-mode');
 
-        displayModeSelect.setValue('cover');
+        await displayModeSelect.setValue('cover');
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
-        displayModeSelect.setValue('standard');
+        await displayModeSelect.setValue('standard');
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');

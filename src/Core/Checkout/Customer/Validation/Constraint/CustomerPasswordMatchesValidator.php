@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
+/**
+ * @package customer-order
+ */
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {
     /**

@@ -18,6 +18,8 @@ use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * @deprecated tag:v6.5.0

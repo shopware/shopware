@@ -26,6 +26,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
+ * @package core
  * @psalm-import-type Params from DriverManager
  */
 class HttpKernel

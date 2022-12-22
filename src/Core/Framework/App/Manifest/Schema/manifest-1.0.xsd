@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- @deprecated tag:v6.5.0 - will be removed -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:element name="manifest">
         <xs:complexType>
@@ -205,6 +206,7 @@
         <xs:attribute type="entity" name="entity" use="required"/>
         <xs:attribute type="view" name="view" use="required"/>
         <xs:attribute type="xs:anyURI" name="url" use="required"/>
+        <!-- @deprecated manifest:v2.0 - will be removed without replacement. See FEATURE_NEXT_14360 -->
         <xs:attribute type="xs:boolean" name="openNewTab" default="false"/>
     </xs:complexType>
     <xs:complexType name="module">
@@ -213,7 +215,7 @@
         </xs:sequence>
         <xs:attribute type="xs:anyURI" name="source" default="null"/>
         <xs:attribute type="xs:string" name="name" use="required"/>
-        <!-- @deprecated manifest:v1.1 will be required in future versions-->
+        <!-- @deprecated manifest:v2.0 - will be required in future versions-->
         <xs:attribute type="xs:string" name="parent" default="null"/>
         <xs:attribute type="xs:integer" name="position" default="0"/>
     </xs:complexType>

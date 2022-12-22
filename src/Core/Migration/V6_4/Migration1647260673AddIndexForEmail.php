@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use function array_column;
 
 /**
+ * @package core
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Migrations will be internal in v6.5.0
  */
 class Migration1647260673AddIndexForEmail extends MigrationStep

@@ -1,7 +1,10 @@
+/**
+ * @package content
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-link-settings';
 
-function createWrapper(privileges = [], category = {}) {
+async function createWrapper(privileges = [], category = {}) {
     const localVue = createLocalVue();
 
     const responses = global.repositoryFactoryMock.responses;
@@ -23,7 +26,7 @@ function createWrapper(privileges = [], category = {}) {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-category-link-settings'), {
+    return shallowMount(await Shopware.Component.build('sw-category-link-settings'), {
         localVue,
         stubs: {
             'sw-card': true,
@@ -52,13 +55,13 @@ function createWrapper(privileges = [], category = {}) {
 
 describe('src/module/sw-category/component/sw-category-link-settings', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an enabled text field for old configuration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: null,
@@ -78,7 +81,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have an enabled text field for external link', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'external'
@@ -97,7 +100,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have enabled select fields for internal link', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'product'
@@ -125,7 +128,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have correct select fields on entity switch', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'product',
@@ -138,7 +141,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should clean up on switch to internal', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'external',
@@ -154,7 +157,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should clean up on switch to external', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'internal',
@@ -169,7 +172,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have disabled fields with no rights', async () => {
-        const wrapper = createWrapper([], {
+        const wrapper = await createWrapper([], {
             linkType: 'external'
         });
 
@@ -184,7 +187,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should show only categories with type page', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'category',
@@ -199,7 +202,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
     });
 
     it('should have correct internal link', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'category.editor'
         ], {
             linkType: 'category',

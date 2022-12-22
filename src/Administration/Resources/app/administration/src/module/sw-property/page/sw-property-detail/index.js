@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-property-detail.html.twig';
 import './sw-property-detail.scss';
 
@@ -120,6 +124,11 @@ Component.register('sw-property-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-property-group-detail__propertyGroup',
+                path: 'propertyGroup',
+                scope: this,
+            });
             this.loadEntityData();
             this.loadCustomFieldSets();
         },

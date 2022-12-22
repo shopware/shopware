@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter } = Shopware;
 const { types } = Shopware.Utils;
 const { currency } = Shopware.Utils.format;

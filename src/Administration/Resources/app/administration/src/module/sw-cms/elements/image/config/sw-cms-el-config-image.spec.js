@@ -1,12 +1,14 @@
-/* eslint-disable max-len */
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image/config';
 import 'src/module/sw-cms/component/sw-cms-mapping-field';
 import 'src/app/component/form/sw-dynamic-url-field';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-cms-el-config-image'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-image'), {
         provide: {
             cmsService: {
                 getCmsBlockRegistry: () => {
@@ -31,7 +33,7 @@ function createWrapper() {
                 props: ['value', 'options']
             },
             'sw-text-field': true,
-            'sw-cms-mapping-field': Shopware.Component.build('sw-cms-mapping-field'),
+            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
             'sw-media-upload-v2': true,
             'sw-upload-listener': true,
             'sw-dynamic-url-field': true,
@@ -100,21 +102,21 @@ describe('src/module/sw-cms/elements/image/config', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should keep minHeight value when changing display mode', () => {
-        const wrapper = createWrapper('settings');
+    it('should keep minHeight value when changing display mode', async () => {
+        const wrapper = await createWrapper('settings');
         const displayModeSelect = wrapper.find('.sw-cms-el-config-image__display-mode');
 
-        displayModeSelect.setValue('cover');
+        await displayModeSelect.setValue('cover');
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
-        displayModeSelect.setValue('standard');
+        await displayModeSelect.setValue('standard');
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');

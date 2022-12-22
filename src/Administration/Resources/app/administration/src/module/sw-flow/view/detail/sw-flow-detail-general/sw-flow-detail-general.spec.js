@@ -1,14 +1,14 @@
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/view/detail/sw-flow-detail-general';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-detail-general'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-detail-general'), {
         localVue,
         provide: { repositoryFactory: {
             create: () => ({
@@ -39,15 +39,13 @@ function createWrapper(privileges = []) {
     });
 }
 
-enableAutoDestroy(afterEach);
-
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
     beforeAll(() => {
         Shopware.State.registerModule('swFlowState', flowState);
     });
 
     it('should enabled element when have privilege', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
@@ -65,7 +63,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
     });
 
     it('should disabled element when have not privilege', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'flow.viewer'
         ]);
         await wrapper.vm.$nextTick();

@@ -1,11 +1,14 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content';
 import 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-searchable-content'), {
         localVue,
 
         propsData: {
@@ -38,7 +41,7 @@ function createWrapper(privileges = []) {
             },
             'sw-icon': true,
             'sw-tabs': true,
-            'sw-settings-search-example-modal': Shopware.Component.build('sw-settings-search-example-modal'),
+            'sw-settings-search-example-modal': await Shopware.Component.build('sw-settings-search-example-modal'),
             'sw-modal': true,
             'router-link': true
         }
@@ -47,14 +50,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('Should be show example modal when the link was clicked ', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -70,7 +73,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should not able to reset to default without editor privilege', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.viewer'
         ]);
         await wrapper.vm.$nextTick();
@@ -80,7 +83,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should able to reset to default if having editor privilege', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'product_search_config.editor'
         ]);
         await wrapper.vm.$nextTick();

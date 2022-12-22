@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Sitemap\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package sales-channel
+ */
 class InvalidSitemapKey extends ShopwareHttpException
 {
     public function __construct(string $sitemapKey)

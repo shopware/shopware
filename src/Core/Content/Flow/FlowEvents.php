@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Flow;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 
+/**
+ * @package business-ops
+ */
 class FlowEvents
 {
     /**

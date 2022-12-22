@@ -1,3 +1,7 @@
+/*
+ * @package inventory
+ */
+
 import './component/sw-product-basic-form';
 import './component/sw-product-deliverability-form';
 import './component/sw-product-feature-set-form';

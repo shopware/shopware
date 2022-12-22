@@ -6,8 +6,12 @@ import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-button-process';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-customer-detail'), {
+/**
+ * @package customer-order
+ */
+
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-customer-detail'), {
         mocks: {
             $route: {
                 query: {
@@ -60,8 +64,8 @@ function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`
             },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-language-switch': true,
             'sw-card-view': {
                 template: '<div><slot></slot></div>'
@@ -83,9 +87,9 @@ function createWrapper(privileges = []) {
             'sw-customer-card': {
                 template: '<div></div>'
             },
-            'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
-            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-custom-field-set-renderer': await Shopware.Component.build('sw-custom-field-set-renderer'),
+            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
+            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
             'sw-skeleton': true,
         }
     });
@@ -98,8 +102,12 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         global.console.warn = jest.fn();
     });
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
+    });
+
+    afterEach(() => {
+        wrapper.destroy();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -107,7 +115,9 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should not be able to edit the customer', async () => {
-        const wrapperWithPrivileges = createWrapper();
+        await wrapper.destroy();
+
+        const wrapperWithPrivileges = await createWrapper();
         await wrapperWithPrivileges.setData({
             isLoading: false
         });
@@ -118,10 +128,14 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapperWithPrivileges.destroy();
     });
 
     it('should be able to edit the customer', async () => {
-        const wrapperWithPrivileges = createWrapper([
+        await wrapper.destroy();
+
+        const wrapperWithPrivileges = await createWrapper([
             'customer.editor'
         ]);
         await wrapperWithPrivileges.setData({
@@ -132,6 +146,8 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapperWithPrivileges.destroy();
     });
 
     it('should accept customer registration button called', async () => {
@@ -155,7 +171,9 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should have company validation when customer type is commercial', async () => {
-        const wrapperWithPrivileges = createWrapper([
+        await wrapper.destroy();
+
+        const wrapperWithPrivileges = await createWrapper([
             'customer.editor'
         ]);
 

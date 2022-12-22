@@ -1,5 +1,12 @@
+/**
+ * @package admin
+ */
+
 const { hasOwnProperty } = Shopware.Utils.object;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,

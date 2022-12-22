@@ -1,5 +1,10 @@
-// For a detailed explanation regarding each configuration property, visit:
-// https://jestjs.io/docs/en/configuration.html
+/**
+ * For a detailed explanation regarding each configuration property, visit:
+ * https://jestjs.io/docs/en/configuration.html
+ *
+ * @package storefront
+ */
+
 const path = require('path');
 const { join } = require('path');
 

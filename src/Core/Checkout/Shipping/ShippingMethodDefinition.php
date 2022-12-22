@@ -26,12 +26,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'shipping_method';
@@ -53,10 +57,16 @@ class ShippingMethodDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
+        $defaults = [
             'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
             'position' => ShippingMethodEntity::POSITION_DEFAULT,
         ];
+
+        if (Feature::isActive('v6.5.0.0')) {
+            $defaults['active'] = ShippingMethodEntity::ACTIVE_DEFAULT;
+        }
+
+        return $defaults;
     }
 
     public function since(): ?string

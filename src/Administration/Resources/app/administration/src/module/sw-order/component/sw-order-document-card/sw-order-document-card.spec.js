@@ -6,7 +6,10 @@ import 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
+
+/**
+ * @package customer-order
+ */
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -82,8 +85,8 @@ const documentTypeFixture = [
     },
 ];
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-order-document-card'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-order-document-card'), {
         stubs: {
             'sw-card': {
                 template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>'
@@ -105,12 +108,12 @@ function createWrapper(privileges = []) {
             },
             'sw-text-field': true,
             'sw-context-button': true,
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-order-select-document-type-modal': Shopware.Component.build('sw-order-select-document-type-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-order-select-document-type-modal': await Shopware.Component.build('sw-order-select-document-type-modal'),
             'sw-order-send-document-modal': true,
-            'sw-order-document-settings-modal': Shopware.Component.build('sw-order-document-settings-modal'),
+            'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
             'sw-order-document-settings-delivery-note-modal': true,
-            'sw-order-document-settings-invoice-modal': Shopware.Component.build('sw-order-document-settings-invoice-modal'),
+            'sw-order-document-settings-invoice-modal': await Shopware.Component.build('sw-order-document-settings-invoice-modal'),
             'sw-order-document-settings-credit-note-modal': true,
             'sw-order-document-settings-storno-modal': true,
             'sw-data-grid': {
@@ -154,7 +157,7 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-textarea-field': true,
             'sw-switch-field': true,
-            'sw-button-group': Shopware.Component.build('sw-button-group'),
+            'sw-button-group': await Shopware.Component.build('sw-button-group'),
         },
         provide: {
             acl: {
@@ -443,7 +446,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show attach column when attachView is true', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -465,7 +468,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show card filter when order has document', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         expect(wrapper.find('.sw-card-filter').exists()).toBeFalsy();
 
         await wrapper.setProps({
@@ -487,7 +490,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should change sent status when click on "Mark as unsent" context menu', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -511,7 +514,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [

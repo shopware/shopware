@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * @package business-ops
  * XorRule returns true, if exactly one child rule is true
  */
 class XorRule extends Container

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Csrf;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,6 +50,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     public function testCsrfReplacement(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
         $this->getContainer()->get('request_stack')->push($request);
@@ -81,13 +83,14 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
         $response = $csrfPlaceholderHandler->replaceCsrfToken($response, $request);
 
-        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token1#', $response->getContent());
-        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token2#', $response->getContent());
-        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token3#', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token1#', $response->getContent() ?: '');
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token2#', $response->getContent() ?: '');
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token3#', $response->getContent() ?: '');
     }
 
     public function testCsrfReplacement404(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
         $this->getContainer()->get('request_stack')->push($request);
@@ -104,13 +107,14 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
         $response = $csrfPlaceholderHandler->replaceCsrfToken($response, $request);
 
-        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token1#', $response->getContent());
-        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token2#', $response->getContent());
-        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token3#', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token1#', $response->getContent() ?: '');
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token2#', $response->getContent() ?: '');
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token3#', $response->getContent() ?: '');
     }
 
     public function testReplaceWithCsrfDisabledShouldNotReplace(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(false);
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
         $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
@@ -119,6 +123,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     public function testReplaceWithAjaxModeShouldNotReplace(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(true, 'ajax');
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
         $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
@@ -127,6 +132,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     public function testReplaceWithWrongContentTypeShouldNotReplace(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/javascript']);
         $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
@@ -135,6 +141,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     public function testReplaceWithOtherStatusCodeShouldNotReplace(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 404, ['Content-Type' => 'text/html']);
         $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
@@ -143,6 +150,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
     public function testReplaceStreamedResponseShouldNotCrash(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new StreamedResponse(function (): void {
         }, 200, ['Content-Type' => 'text/csv']);
@@ -161,7 +169,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
         bool $csrfEnabled = true,
         string $csrfMode = 'twig',
         ?CsrfTokenManagerInterface $tokenManager = null
-    ) {
+    ): CsrfPlaceholderHandler {
         return new CsrfPlaceholderHandler(
             $tokenManager ?? $this->getContainer()->get('security.csrf.token_manager'),
             $csrfEnabled,
@@ -171,7 +179,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
         );
     }
 
-    private function generateToken(string $intent)
+    private function generateToken(string $intent): string
     {
         $tokenManager = $this->getContainer()->get('security.csrf.token_manager');
 

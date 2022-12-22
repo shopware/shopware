@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Kernel;
 
 /**
+ * @package merchant-services
+ *
  * @deprecated tag:v6.5.0 - reason:becomes-internal
  */
 class InstanceService

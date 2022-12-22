@@ -65,6 +65,9 @@ if (class_exists(HttpException::class)) {
     }
 }
 
+/**
+ * @package core
+ */
 class UnknownMigrationSourceException extends UnknownMigrationSourceExceptionBase
 {
 }

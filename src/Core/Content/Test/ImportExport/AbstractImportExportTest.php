@@ -42,6 +42,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 abstract class AbstractImportExportTest extends TestCase
 {

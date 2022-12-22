@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar';
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-snippet-sidebar'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-snippet-sidebar'), {
         localVue,
         stubs: {
             'sw-sidebar': {
@@ -26,15 +29,15 @@ function createWrapper() {
 describe('sw-settings-snippet-sidebar', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 

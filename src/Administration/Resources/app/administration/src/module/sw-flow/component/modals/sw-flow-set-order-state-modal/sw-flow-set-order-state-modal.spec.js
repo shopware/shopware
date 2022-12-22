@@ -30,11 +30,11 @@ const stateMachineStateMock = [
     }
 ];
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-set-order-state-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-flow-set-order-state-modal'), {
         localVue,
         provide: {
             repositoryFactory: {
@@ -83,8 +83,8 @@ function createWrapper() {
                     </select>`,
                 props: ['value', 'options']
             },
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-help-text': true,
             'sw-field-error': true,
         }
@@ -97,7 +97,7 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
     });
 
     it('should show error notification if no field is selected', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
         const saveButton = wrapper.find('.sw-flow-set-order-state-modal__save-button');
@@ -107,7 +107,7 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
     });
 
     it('should emit process-finish when selecting at least 1 status', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const paymentSelect = wrapper.find('.sw-flow-set-order-state-modal__payment-status');
         await paymentSelect.setValue('paid');

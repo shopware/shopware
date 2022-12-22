@@ -3,11 +3,15 @@ import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-save-modal'), {
+/**
+ * @package system-settings
+ * @returns {Promise<Wrapper<Vue>>}
+ */
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal'), {
         stubs: {
-            'sw-modal': Shopware.Component.build('sw-modal'),
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
                 template: '<div />'
             },
@@ -39,12 +43,12 @@ function createWrapper() {
 describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
     it('the default button config should be empty', async () => {
@@ -269,7 +273,7 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
         expect(wrapper.emitted()['bulk-save']).toBeTruthy();
     });
 
-    it('should add event listeners after component created', () => {
+    it('should add event listeners after component created', async () => {
         wrapper.vm.addEventListeners = jest.fn();
         wrapper.vm.createdComponent();
 
@@ -277,7 +281,7 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
         wrapper.vm.addEventListeners.mockRestore();
     });
 
-    it('should remove event listeners before component destroyed', () => {
+    it('should remove event listeners before component destroyed', async () => {
         wrapper.vm.removeEventListeners = jest.fn();
         wrapper.vm.beforeDestroyComponent();
 

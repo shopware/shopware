@@ -1,8 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/component/sw-payment-card';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-payment-card'), {
+/**
+ * @package checkout
+ */
+
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-payment-card'), {
         propsData: {
             paymentMethod: {
                 id: '5e6f7g8h',
@@ -34,14 +38,14 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-payment/component/sw-payment-card', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to edit a payment method', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editLink = wrapper.find('sw-internal-link-stub');
@@ -52,7 +56,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
     });
 
     it('should be able to edit a payment method', async () => {
-        const wrapper = createWrapper(['payment.editor']);
+        const wrapper = await createWrapper(['payment.editor']);
         await wrapper.vm.$nextTick();
 
         const editLink = wrapper.find('sw-internal-link-stub');

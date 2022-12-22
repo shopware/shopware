@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/page/sw-cms-list';
 import 'src/module/sw-cms/component/sw-cms-list-item';
@@ -7,14 +10,13 @@ import 'src/app/component/data-grid/sw-data-grid';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
-import flushPromises from 'flush-promises';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
 
-function createWrapper(privileges = ['user_config:read', 'user_config:create', 'user_config:update', 'cms.editor', 'cms.creator', 'cms.deleter', 'system_config:read']) {
-    return shallowMount(Shopware.Component.build('sw-cms-list'), {
+async function createWrapper(privileges = ['user_config:read', 'user_config:create', 'user_config:update', 'cms.editor', 'cms.creator', 'cms.deleter', 'system_config:read']) {
+    return shallowMount(await Shopware.Component.build('sw-cms-list'), {
         stubs: {
             'sw-page': {
                 template: `
@@ -36,7 +38,7 @@ function createWrapper(privileges = ['user_config:read', 'user_config:create', '
             'sw-pagination': {
                 template: '<div></div>'
             },
-            'sw-cms-list-item': Shopware.Component.build('sw-cms-list-item'),
+            'sw-cms-list-item': await Shopware.Component.build('sw-cms-list-item'),
             'sw-context-button': {
                 template: '<div class="sw-context-button"><slot></slot></div>'
             },
@@ -46,7 +48,7 @@ function createWrapper(privileges = ['user_config:read', 'user_config:create', '
             'sw-context-menu': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-media-modal-v2': {
                 template: '<div class="sw-media-modal-v2-mock"></div>'
             },
@@ -54,7 +56,7 @@ function createWrapper(privileges = ['user_config:read', 'user_config:create', '
             'sw-card': {
                 template: '<div><slot name="grid"></slot></div>'
             },
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-settings': true,
             'router-link': true,
             'sw-data-grid-skeleton': true,
@@ -155,14 +157,14 @@ function createWrapper(privileges = ['user_config:read', 'user_config:create', '
 
 describe('module/sw-cms/page/sw-cms-list', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open the media modal when user clicks on edit preview image', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -192,7 +194,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show a disabled create new button', async () => {
-        const wrapper = createWrapper(['user_config:read']);
+        const wrapper = await createWrapper(['user_config:read']);
         await flushPromises();
 
         await wrapper.setData({
@@ -213,7 +215,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show an enabled create new button', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -234,7 +236,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in data grid view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode')
@@ -270,7 +272,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled edit context fields in data grid view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'cms.editor']);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'cms.editor']);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode')
@@ -306,7 +308,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled duplicate context fields in data grid view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'cms.creator']);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'cms.creator']);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode')
@@ -342,7 +344,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled delete context fields in data grid view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'cms.deleter']);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'cms.deleter']);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode')
@@ -380,7 +382,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in normal view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
         await flushPromises();
 
         await wrapper.setData({
@@ -408,7 +410,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled preview context field in normal view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'cms.editor']);
+        const wrapper = await createWrapper(['user_config:read', 'cms.editor']);
         await flushPromises();
 
         await wrapper.setData({
@@ -436,7 +438,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled duplicate context field in normal view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'cms.creator']);
+        const wrapper = await createWrapper(['user_config:read', 'cms.creator']);
         await flushPromises();
 
         await wrapper.setData({
@@ -464,7 +466,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled delete context field in normal view', async () => {
-        const wrapper = createWrapper(['user_config:read', 'cms.deleter']);
+        const wrapper = await createWrapper(['user_config:read', 'cms.deleter']);
         await flushPromises();
 
         await wrapper.setData({
@@ -492,7 +494,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should disable the delete menu item when the layout got assigned to at least one product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const pages = [{
@@ -527,7 +529,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should enable the delete menu item when the layout do not belong to any product', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -551,7 +553,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should apply the necessary criteria when aggregating layouts already linked to pages', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm.isLinkedCriteria).toBeDefined();
@@ -569,7 +571,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should indicate layouts already assigned to pages', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const testData = {
@@ -622,7 +624,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -648,7 +650,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.vm.$nextTick();
@@ -670,7 +672,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -696,7 +698,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({
@@ -720,7 +722,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should duplicate and change the name of the duplicated layout', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode')
@@ -747,7 +749,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await wrapper.find('.sw-data-grid__actions-menu')
             .trigger('click');
 
-        wrapper.find('.sw-cms-list__context-menu-item-duplicate').trigger('click');
+        await wrapper.find('.sw-cms-list__context-menu-item-duplicate').trigger('click');
 
         expect(wrapper.vm.pageRepository.clone).toHaveBeenCalledTimes(1);
 
@@ -763,7 +765,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should limit the product association loading to 25', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const listCriteria = wrapper.vm.listCriteria;
@@ -771,7 +773,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should indicate which layout is set as default', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const testData = {
@@ -826,7 +828,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const someCategoryID = 'someCategoryID';
         const someProductID = 'someOtherID';
 
-        const wrapper = createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'system_config:read']);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update', 'system_config:read']);
         await flushPromises();
 
         const saveValuesSpy = jest.fn();
@@ -946,7 +948,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const layoutSetAsDefaultConfig = { id: someOtherID, type: 'someOtherType' };
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const saveValuesSpy = jest.fn();
@@ -1028,7 +1030,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should rename the layout', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');

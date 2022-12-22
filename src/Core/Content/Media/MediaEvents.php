@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\Event\MediaFolderConfigurationIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 
+/**
+ * @package content
+ */
 class MediaEvents
 {
     /**

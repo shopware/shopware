@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @package business-ops
+ *
  * @internal
  */
 class TestFlowBusinessEvent extends Event implements FlowEventAware

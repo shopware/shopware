@@ -13,6 +13,8 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
+ * @package core
+ *
  * @internal
  *
  * @implements Rule<StaticCall>

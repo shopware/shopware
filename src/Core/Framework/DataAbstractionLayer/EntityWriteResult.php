@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
+ * @package core
  * Contains the result of the entity write process
  */
 class EntityWriteResult

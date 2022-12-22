@@ -9,6 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @package inventory
  */
 class ProductListingResolvePreviewEventTest extends TestCase
 {

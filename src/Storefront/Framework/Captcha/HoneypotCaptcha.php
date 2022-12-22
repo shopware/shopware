@@ -8,6 +8,9 @@ use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @package storefront
+ */
 class HoneypotCaptcha extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'honeypot';

@@ -1,11 +1,14 @@
+/**
+ * @package sales-channel
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-sales-channel-detail'), {
+    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail'), {
         localVue,
         stubs: {
             'sw-page': {
@@ -68,13 +71,13 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
         wrapper.destroy();
     });
 
     it('should disable the save button when privilege does not exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
 
         await wrapper.setData({
@@ -86,7 +89,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it('should enable the save button when privilege does exists', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.editor'
         ]);
 
@@ -101,7 +104,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it('should remove analytics association on save when analyticsId is empty', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.editor'
         ]);
 
@@ -121,7 +124,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it('should not remove analytics association on save when analyticsId is not empty', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'sales_channel.editor'
         ]);
 
@@ -136,5 +139,21 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.salesChannel.analytics.id).toEqual(wrapper.vm.salesChannel.analyticsId);
 
         wrapper.destroy();
+    });
+
+    it('should have currency criteria with sort', async () => {
+        const wrapper = await createWrapper();
+
+        const criteria = wrapper.vm.getLoadSalesChannelCriteria();
+
+        expect(criteria.parse()).toEqual(expect.objectContaining({
+            associations: expect.objectContaining({
+                currencies: expect.objectContaining({
+                    sort: expect.arrayContaining([
+                        { field: 'name', order: 'ASC', naturalSorting: false }
+                    ])
+                }),
+            })
+        }));
     });
 });

@@ -41,6 +41,8 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class Framework extends Bundle

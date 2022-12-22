@@ -27,6 +27,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
+ * @package content
  */
 class CategoryBreadcrumbBuilderTest extends TestCase
 {

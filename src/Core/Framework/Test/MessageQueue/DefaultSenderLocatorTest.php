@@ -10,6 +10,8 @@ use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
 
 /**
  * @internal
+ *
+ * @package system-settings
  */
 class DefaultSenderLocatorTest extends TestCase
 {

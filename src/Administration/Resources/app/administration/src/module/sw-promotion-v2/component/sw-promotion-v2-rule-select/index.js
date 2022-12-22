@@ -3,7 +3,10 @@ import './sw-promotion-v2-rule-select.scss';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 Component.register('sw-promotion-v2-rule-select', {
     template,
 
@@ -97,6 +100,10 @@ Component.register('sw-promotion-v2-rule-select', {
 
         /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted(rule) {
+            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
+                return true;
+            }
+
             if (!this.feature.isActive('FEATURE_NEXT_18215')) {
                 return false;
             }

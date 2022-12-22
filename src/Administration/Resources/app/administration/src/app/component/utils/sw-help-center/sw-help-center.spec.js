@@ -1,18 +1,22 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-help-center';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/utils/sw-popover';
 
-function createWrapper() {
+async function createWrapper() {
     return shallowMount(
-        Shopware.Component.build('sw-help-center'), {
+        await Shopware.Component.build('sw-help-center'), {
             localVue: createLocalVue(),
             stubs: {
-                'sw-context-button': Shopware.Component.build('sw-context-button'),
-                'sw-context-menu': Shopware.Component.build('sw-context-menu'),
+                'sw-context-button': await Shopware.Component.build('sw-context-button'),
+                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
                 'sw-icon': true,
-                'sw-popover': Shopware.Component.build('sw-popover'),
+                'sw-popover': await Shopware.Component.build('sw-popover'),
                 'sw-external-link': true,
             }
         }

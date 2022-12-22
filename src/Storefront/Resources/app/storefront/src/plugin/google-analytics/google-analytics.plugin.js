@@ -19,6 +19,9 @@ import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Feature from 'src/helper/feature.helper';
 
+/**
+ * @package merchant-services
+ */
 export default class GoogleAnalyticsPlugin extends Plugin
 {
     init() {

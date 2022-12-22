@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Media\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package content
+ */
 class MediaFileExtensionWhitelistEvent extends Event
 {
     /**

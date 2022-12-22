@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+/**
+ * @package core
+ */
 class TreeUpdaterBag
 {
     private array $entities = [];

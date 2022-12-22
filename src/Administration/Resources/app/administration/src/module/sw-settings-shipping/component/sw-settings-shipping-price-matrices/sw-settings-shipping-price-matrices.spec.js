@@ -12,73 +12,81 @@ import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-inheritance-switch';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
+/**
+ * @package checkout
+ */
+
 Shopware.State.registerModule('swShippingDetail', state);
 
-const swSettingsShippingPriceMatrix = Shopware.Component.build('sw-settings-shipping-price-matrix');
+describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrices', () => {
+    let swSettingsShippingPriceMatrix;
 
-const createWrapper = () => {
-    return shallowMount(Shopware.Component.build('sw-settings-shipping-price-matrices'), {
-        store: Shopware.State._store,
-        stubs: {
-            'sw-settings-shipping-price-matrix': swSettingsShippingPriceMatrix,
-            'sw-card': true,
-            'sw-alert': true,
-            'sw-container': true,
-            'sw-select-rule-create': true,
-            'sw-single-select': true,
-            'sw-icon': true,
-            'sw-popover': true,
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-            'sw-number-field': {
-                template: '<input type="number" v-model="value" />',
-                props: {
-                    value: 0
-                }
+    const createWrapper = async () => {
+        return shallowMount(await Shopware.Component.build('sw-settings-shipping-price-matrices'), {
+            store: Shopware.State._store,
+            stubs: {
+                'sw-settings-shipping-price-matrix': swSettingsShippingPriceMatrix,
+                'sw-card': true,
+                'sw-alert': true,
+                'sw-container': true,
+                'sw-select-rule-create': true,
+                'sw-single-select': true,
+                'sw-icon': true,
+                'sw-popover': true,
+                'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-context-button': await Shopware.Component.build('sw-context-button'),
+                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+                'sw-number-field': {
+                    template: '<input type="number" v-model="value" />',
+                    props: {
+                        value: 0
+                    }
+                },
+                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+                'sw-checkbox-field': true,
+                'sw-data-grid-settings': true,
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+                'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch')
             },
-            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-checkbox-field': true,
-            'sw-data-grid-settings': true,
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch')
-        },
-        mocks: {
-            $te: () => false
-        },
-        provide: {
-            ruleConditionDataProviderService: {
-                getRestrictedRules: () => Promise.resolve([])
+            mocks: {
+                $te: () => false
             },
-            repositoryFactory: {
-                create: (name) => {
-                    if (name === 'rule') {
-                        return {
-                            search: () => Promise.resolve([]),
-                            get: () => Promise.resolve({})
-                        };
-                    }
+            provide: {
+                ruleConditionDataProviderService: {
+                    getRestrictedRules: () => Promise.resolve([])
+                },
+                repositoryFactory: {
+                    create: (name) => {
+                        if (name === 'rule') {
+                            return {
+                                search: () => Promise.resolve([]),
+                                get: () => Promise.resolve({})
+                            };
+                        }
 
-                    if (name === 'shipping_method') {
-                        return {};
-                    }
+                        if (name === 'shipping_method') {
+                            return {};
+                        }
 
-                    if (name === 'shipping_method_price') {
-                        return {
-                            create: () => Promise.resolve([])
-                        };
-                    }
+                        if (name === 'shipping_method_price') {
+                            return {
+                                create: () => Promise.resolve([])
+                            };
+                        }
 
-                    return null;
+                        return null;
+                    }
                 }
             }
-        }
-    });
-};
+        });
+    };
 
-describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrices', () => {
+    beforeAll(async () => {
+        swSettingsShippingPriceMatrix = await Shopware.Component.build('sw-settings-shipping-price-matrix');
+    });
+
     beforeEach(() => {
         Shopware.State.commit('swShippingDetail/setCurrencies', [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
@@ -134,13 +142,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render one shipping price matrix', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
@@ -155,7 +163,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should render two shipping price matrices', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
@@ -170,7 +178,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should render five shipping price matrices', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
 
         await Shopware.State.commit('swShippingDetail/setShippingMethod', {
@@ -189,7 +197,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should enable the button when there are available rules', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
@@ -203,7 +211,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should duplicate the price matrix', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: 7,
@@ -260,7 +268,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should delete the shipping price group', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: 7,
@@ -280,7 +288,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should add the shipping price group', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: 7,
@@ -304,7 +312,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should show all rules with matching prices', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         const rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -399,7 +407,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             shippingMethod.prices = shippingMethod.prices.filter(price => price.id !== id);
         };
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         const rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -421,7 +429,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('all rules should have the right min and max values', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         const rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -442,7 +450,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should add a new pricing rule and change the values', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const addNewPriceRuleButton = wrapper.find('.sw-settings-shipping-price-matrix__top-container .sw-button__content');
         expect(addNewPriceRuleButton.text()).toEqual('sw-settings-shipping.priceMatrix.addNewShippingPrice');
@@ -471,7 +479,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should delete the last pricing rule and change the values', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         let rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         let rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -575,7 +583,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             shippingMethod.prices = shippingMethod.prices.filter(price => price.id !== id);
         };
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         let rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         let rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -625,7 +633,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should have all fields disabled when property disabled is true', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             disabled: true
@@ -668,7 +676,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should have all fields enabled when property disabled is not set', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const addMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions-add-matrix');
         const ruleSelect = wrapper.find('.sw-settings-shipping-price-matrix__top-container-rule-select');

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+/**
+ * @package checkout
+ */
 class PaymentEvents
 {
     /**

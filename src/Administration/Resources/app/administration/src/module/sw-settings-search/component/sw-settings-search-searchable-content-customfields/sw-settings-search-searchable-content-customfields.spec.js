@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields';
 import 'src/app/component/entity/sw-entity-listing';
@@ -38,10 +41,10 @@ responses.addResponse({
     }
 });
 
-function createWrapper() {
+async function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content-customfields'), {
+    return shallowMount(await Shopware.Component.build('sw-settings-search-searchable-content-customfields'), {
         localVue,
 
         mocks: {
@@ -55,12 +58,12 @@ function createWrapper() {
 
         stubs: {
             'sw-empty-state': true,
-            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
-            'sw-data-grid-skeleton': Shopware.Component.build('sw-data-grid-skeleton'),
+            'sw-data-grid-skeleton': await Shopware.Component.build('sw-data-grid-skeleton'),
             'sw-context-button': true,
-            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item')
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item')
         },
 
         propsData: {
@@ -81,7 +84,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('should be a Vue.JS component', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
@@ -90,7 +93,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('should render empty state when isEmpty variable is true', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             isEmpty: true
@@ -102,7 +105,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('Should not able to remove item without editor privilege', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onRemove = jest.fn();
         const searchConfigs = [
@@ -139,7 +142,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('Should able to remove item when click to remove action if having deleter privilege', async () => {
         global.activeAclRoles = ['product_search_config.deleter'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onRemove = jest.fn();
 
@@ -177,7 +180,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('Should emitted to delete-config when call the remove function if having deleter privilege', async () => {
         global.activeAclRoles = ['product_search_config.deleter'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const searchConfigs = [
@@ -210,7 +213,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('Should call to reset ranking function when click to reset ranking action if having editor privilege', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.onResetRanking = jest.fn();
         const searchConfigs = [
@@ -246,7 +249,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     it('Should emitted to save-config when call the reset ranking function if having the editor privilege', async () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const searchConfigs = [

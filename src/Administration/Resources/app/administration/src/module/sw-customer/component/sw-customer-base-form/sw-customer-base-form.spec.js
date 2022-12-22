@@ -1,6 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-base-form';
 
+/**
+ * @package customer-order
+ */
+
 const customer = {
     id: '1',
     email: null,
@@ -10,8 +14,8 @@ const customer = {
     ]
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-customer-base-form'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-customer-base-form'), {
         propsData: {
             customer
         },
@@ -30,7 +34,7 @@ function createWrapper() {
 
 describe('module/sw-customer/page/sw-customer-base-form', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
         const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
 
@@ -38,7 +42,7 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
     });
 
     it('should display the account type switcher', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const accountTypeSelect = wrapper.find('.sw-customer-base-form__account-type-select');
         expect(accountTypeSelect.exists()).toBeTruthy();
     });

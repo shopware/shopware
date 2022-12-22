@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -5,7 +9,7 @@ import 'src/app/component/entity/sw-entity-listing';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
-function createWrapper(propsData = {}) {
+async function createWrapper(propsData = {}) {
     // mock entity functions
     const items = [
         { name: 'Apple' },
@@ -19,9 +23,9 @@ function createWrapper(propsData = {}) {
         limit: 25
     };
 
-    return shallowMount(Shopware.Component.build('sw-entity-listing'), {
+    return shallowMount(await Shopware.Component.build('sw-entity-listing'), {
         stubs: {
-            'sw-data-grid-settings': Shopware.Component.build('sw-data-grid-settings'),
+            'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
             'sw-button': true,
             'sw-context-button': true,
             'sw-icon': true,
@@ -52,12 +56,12 @@ function createWrapper(propsData = {}) {
 
 describe('src/app/component/entity/sw-entity-listing', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should enable the context menu edit item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');
@@ -68,7 +72,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should disable the context menu edit item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             allowEdit: false
@@ -83,7 +87,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should enable the context menu delete item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');
@@ -94,7 +98,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should disable the context menu delete item', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             allowDelete: false
@@ -109,7 +113,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should have context menu with edit entry', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             allowEdit: true,
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
@@ -126,7 +130,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should have context menu with view entry', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             allowEdit: false,
             allowView: true,
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
@@ -144,7 +148,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should have context menu with disabled edit entry', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             allowEdit: false,
             allowView: false,
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [

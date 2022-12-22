@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 

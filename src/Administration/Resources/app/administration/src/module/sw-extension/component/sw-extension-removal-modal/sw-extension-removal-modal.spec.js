@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-extension-removal-modal';
 
-function createWrapper(propsData = {}) {
-    return shallowMount(Shopware.Component.build('sw-extension-removal-modal'), {
+async function createWrapper(propsData = {}) {
+    return shallowMount(await Shopware.Component.build('sw-extension-removal-modal'), {
         propsData: {
             extensionName: 'Awesome extension',
             isLicensed: true,
@@ -22,6 +22,9 @@ function createWrapper(propsData = {}) {
     });
 }
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     /** @type Wrapper */
     let wrapper;

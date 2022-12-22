@@ -4,6 +4,7 @@ import './sw-extension-ratings-summary.scss';
 const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
 Component.register('sw-extension-ratings-summary', {

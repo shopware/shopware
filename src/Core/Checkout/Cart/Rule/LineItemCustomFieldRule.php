@@ -13,6 +13,9 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @package business-ops
+ */
 class LineItemCustomFieldRule extends Rule
 {
     protected string $operator;

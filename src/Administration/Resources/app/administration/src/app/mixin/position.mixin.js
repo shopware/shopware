@@ -2,6 +2,8 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @package admin
+ *
  * Mixin which contains helpers to work with position integers.
  */
 Mixin.register('position', {

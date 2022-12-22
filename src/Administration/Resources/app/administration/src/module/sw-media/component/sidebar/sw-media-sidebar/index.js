@@ -3,6 +3,9 @@ import './sw-media-sidebar.scss';
 
 const { Component, Filter, Context } = Shopware;
 
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-sidebar', {
     template,

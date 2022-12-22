@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Api\Sync;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class SyncOperationResult extends Struct
 {
     /**

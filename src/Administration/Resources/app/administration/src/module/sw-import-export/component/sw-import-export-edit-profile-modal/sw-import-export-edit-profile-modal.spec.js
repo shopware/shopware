@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal';
 
@@ -46,10 +49,10 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         }
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         localVue = createLocalVue();
 
-        wrapper = shallowMount(Shopware.Component.build('sw-import-export-edit-profile-modal'), {
+        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal'), {
             localVue,
             stubs: {
                 'sw-select-base': true,
@@ -84,7 +87,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     }
                 },
                 importExportUpdateByMapping: {
-                    removeUnusedMappings: () => {}
+                    removeUnusedMappings: () => {
+                    }
                 }
             }
         });
@@ -162,7 +166,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.vm.missingRequiredFields.length).toBe(1);
     });
 
-    it('should be empty array for missing required fields when run resetViolations', () => {
+    it('should be empty array for missing required fields when run resetViolations', async () => {
         wrapper.vm.resetViolations();
         expect(wrapper.vm.missingRequiredFields).toEqual([]);
     });
@@ -175,8 +179,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(wrapper.vm.mappingLength).toEqual(4);
     });
 
-    it('should be mapping length data is 0 when run mappingLength', () => {
-        wrapper.setProps({ profile: {} });
+    it('should be mapping length data is 0 when run mappingLength', async () => {
+        await wrapper.setProps({ profile: {} });
 
         expect(wrapper.vm.mappingLength).toEqual(0);
     });
@@ -259,7 +263,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             }
         ]
     )('should enable disable correct types and entities ', async (data) => {
-        wrapper.setProps({ profile: mockProfile });
+        await wrapper.setProps({ profile: mockProfile });
         wrapper.vm.profile.sourceEntity = data.sourceEntity;
         wrapper.vm.profile.type = data.profileType;
 

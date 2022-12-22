@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
+ * @package core
+ *
  * @internal
  */
 class MigrationExecuteQueryTest extends TestCase

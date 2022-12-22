@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
+/**
+ * @package checkout
+ */
 class ShippingMethodPriceEntity extends Entity
 {
     use EntityIdTrait;

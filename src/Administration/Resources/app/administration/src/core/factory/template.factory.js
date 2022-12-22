@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // eslint-disable
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';

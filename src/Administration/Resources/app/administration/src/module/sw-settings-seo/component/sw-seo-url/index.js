@@ -1,3 +1,7 @@
+/**
+ * @package sales-channel
+ */
+
 import swSeoUrlState from './state';
 import template from './sw-seo-url.html.twig';
 
@@ -47,6 +51,12 @@ Component.register('sw-seo-url', {
             required: false,
             default: false,
         },
+
+        resultLimit: {
+            type: Number,
+            required: false,
+            default: 25,
+        },
     },
 
     data() {
@@ -95,7 +105,7 @@ Component.register('sw-seo-url', {
             });
 
             // from Defaults.php
-            return this.currentSalesChannelId !== null && salesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+            return this.currentSalesChannelId !== null && salesChannel?.typeId === 'f183ee5650cf4bdb8a774337575067a6';
         },
 
         seoUrlHelptext() {
@@ -145,7 +155,7 @@ Component.register('sw-seo-url', {
         },
 
         initSalesChannelCollection() {
-            const salesChannelCriteria = new Criteria(1, 25);
+            const salesChannelCriteria = new Criteria(1, this.resultLimit);
             salesChannelCriteria.addAssociation('type');
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
@@ -159,7 +169,7 @@ Component.register('sw-seo-url', {
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria(1, 25),
+                new Criteria(1, this.resultLimit),
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {

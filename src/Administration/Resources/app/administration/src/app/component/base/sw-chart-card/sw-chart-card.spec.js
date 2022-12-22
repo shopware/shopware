@@ -1,10 +1,14 @@
+/**
+ * @package admin
+ */
+
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-chart-card';
 
-function createWrapper(additionalOptions = {}) {
+async function createWrapper(additionalOptions = {}) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-chart-card'), {
+    return shallowMount(await Shopware.Component.build('sw-chart-card'), {
         localVue,
         stubs: {
             'sw-card': true,
@@ -16,8 +20,8 @@ function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-chart-card', () => {
-    it('validates the provided availableRanges prop', () => {
-        const wrapper = createWrapper();
+    it('validates the provided availableRanges prop', async () => {
+        const wrapper = await createWrapper();
         const validator = wrapper.vm.$options.props.availableRanges.validator;
 
         const exactMatch = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
@@ -29,8 +33,8 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(validator(validSubset)).toBeTruthy();
     });
 
-    it('properly checks for slot usage', () => {
-        const wrapper = createWrapper();
+    it('properly checks for slot usage', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.hasHeaderLink).toBeFalsy();
         wrapper.vm.$slots['header-link'] = 'foo';
@@ -38,11 +42,11 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(wrapper.vm.hasHeaderLink).toBeFalsy();
     });
 
-    it('should emit "sw-chart-card-range-update" with current value of selectedRange property', () => {
+    it('should emit "sw-chart-card-range-update" with current value of selectedRange property', async () => {
         const expectedEvent = 'sw-chart-card-range-update';
         const expectedValue = '7Days';
-        const wrapper = createWrapper();
-        wrapper.setData({ selectedRange: expectedValue });
+        const wrapper = await createWrapper();
+        await wrapper.setData({ selectedRange: expectedValue });
 
         wrapper.vm.$emit = jest.fn();
         wrapper.vm.dispatchRangeUpdate();

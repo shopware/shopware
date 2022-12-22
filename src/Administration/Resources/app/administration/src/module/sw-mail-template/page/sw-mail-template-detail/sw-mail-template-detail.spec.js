@@ -6,7 +6,6 @@ import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
 import 'src/app/component/tree/sw-tree-input-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flushPromises from 'flush-promises';
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
@@ -69,117 +68,125 @@ const repositoryMockFactory = () => {
     };
 };
 
-const component = Shopware.Component.build('sw-mail-template-detail');
-const spyOnCopyVariable = jest.spyOn(component.methods, 'onCopyVariable');
-const spyIsToManyAssociationVariable = jest.spyOn(component.methods, 'isToManyAssociationVariable');
-const spyMailPreviewContent = jest.spyOn(component.methods, 'mailPreviewContent');
+describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
+    let wrapper;
+    let component;
+    let spyOnCopyVariable;
+    let spyIsToManyAssociationVariable;
+    let spyMailPreviewContent;
 
-const createWrapper = (privileges = []) => {
-    return shallowMount(component, {
-        provide: {
-            repositoryFactory: {
-                create: () => repositoryMockFactory()
-            },
-            mailService: {
-                testMailTemplate: jest.fn(() => Promise.resolve())
-            },
-            entityMappingService: {
-                getEntityMapping: () => []
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+    const createWrapper = async (privileges = []) => {
+        return shallowMount(component, {
+            provide: {
+                repositoryFactory: {
+                    create: () => repositoryMockFactory()
+                },
+                mailService: {
+                    testMailTemplate: jest.fn(() => Promise.resolve())
+                },
+                entityMappingService: {
+                    getEntityMapping: () => []
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    }
                 }
-            }
-        },
-        mocks: {
-            $route: { params: { id: Shopware.Utils.createId() } }
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            },
+            mocks: {
+                $route: { params: { id: Shopware.Utils.createId() } }
+            },
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>`
-            },
-            'sw-card-view': {
-                template: '<div><slot></slot></div>'
-            },
-            'sw-card': {
-                template: '<div><slot></slot></div>'
-            },
-            'sw-container': {
-                template: '<div><slot></slot></div>'
-            },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': true,
-            'sw-language-info': true,
-            'sw-entity-single-select': true,
-            'sw-entity-multi-select': true,
-            'sw-field': true,
-            'sw-text-field': true,
-            'sw-context-menu-item': true,
-            'sw-code-editor': true,
-            'sw-upload-listener': true,
-            'sw-media-upload-v2': true,
-            'sw-icon': Shopware.Component.build('sw-icon'),
-            'icons-regular-products-s': {
-                template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>'
-            },
-            'sw-tree': Shopware.Component.build('sw-tree'),
-            'sw-tree-item': Shopware.Component.build('sw-tree-item'),
-            'sw-tree-input-field': Shopware.Component.build('sw-tree-input-field'),
-            'sw-confirm-field': true,
-            'icons-regular-chevron-right-xxs': true,
-            'sw-loader': true,
-            'icons-multicolor-folder-tree': true,
-            'sw-vnode-renderer': true,
-            'icons-regular-chevron-down-xxs': true,
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+                },
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-container': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-button-process': true,
+                'sw-language-info': true,
+                'sw-entity-single-select': true,
+                'sw-entity-multi-select': true,
+                'sw-field': true,
+                'sw-text-field': true,
+                'sw-context-menu-item': true,
+                'sw-code-editor': true,
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
+                'sw-icon': await Shopware.Component.build('sw-icon'),
+                'icons-regular-products-s': {
+                    template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>'
+                },
+                'sw-tree': await Shopware.Component.build('sw-tree'),
+                'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
+                'sw-tree-input-field': await Shopware.Component.build('sw-tree-input-field'),
+                'sw-confirm-field': true,
+                'icons-regular-chevron-right-xxs': true,
+                'sw-loader': true,
+                'icons-multicolor-folder-tree': true,
+                'sw-vnode-renderer': true,
+                'icons-regular-chevron-down-xxs': true,
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
                     <div>
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>`
+                },
+                'sw-sidebar': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-sidebar-item': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-sidebar-media-item': {
+                    template: '<div><slot name="context-menu-items"></slot></div>'
+                },
+                'sw-skeleton': true,
             },
-            'sw-sidebar': {
-                template: '<div><slot></slot></div>'
-            },
-            'sw-sidebar-item': {
-                template: '<div><slot></slot></div>'
-            },
-            'sw-sidebar-media-item': {
-                template: '<div><slot name="context-menu-items"></slot></div>'
-            },
-            'sw-skeleton': true,
-        },
-        attachTo: document.body,
-    });
-};
+            attachTo: document.body,
+        });
+    };
 
-describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
-    let wrapper;
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeAll(async () => {
+        component = await Shopware.Component.build('sw-mail-template-detail');
+        spyOnCopyVariable = jest.spyOn(component.methods, 'onCopyVariable');
+        spyIsToManyAssociationVariable = jest.spyOn(component.methods, 'isToManyAssociationVariable');
+        spyMailPreviewContent = jest.spyOn(component.methods, 'mailPreviewContent');
     });
 
     afterEach(() => {
-        wrapper.destroy();
+        if (wrapper) {
+            wrapper.destroy();
+        }
+
         jest.clearAllMocks();
     });
 
     it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to add an item to the attachment', async () => {
+        wrapper = await createWrapper();
         await wrapper.setData({ mailTemplateMedia: [] });
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -187,6 +194,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be unable to add an item to the attachment exist this item', async () => {
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -198,10 +207,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be success to get media columns', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm.getMediaColumns().length).toBe(1);
     });
 
     it('should be success to upload an attachment', async () => {
+        wrapper = await createWrapper();
         await wrapper.setData({
             mailTemplate: {
                 media: new EntityCollection(
@@ -221,6 +232,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be return if the user upload duplicated the attachment', async () => {
+        wrapper = await createWrapper();
         await wrapper.setData({ mailTemplate: mailTemplateMock });
         const mediaLengthBeforeTest = wrapper.vm.mailTemplate.media.length;
 
@@ -229,8 +241,21 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to delete media', async () => {
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
         await wrapper.setData({
-            mailTemplateMedia: [mailTemplateMediaMock]
+            mailTemplateMedia: [mailTemplateMediaMock],
+            mailTemplate: {
+                media: new EntityCollection(
+                    '/media',
+                    'media',
+                    null,
+                    { isShopwareContext: true },
+                    mediaMock,
+                    mediaMock.length,
+                    null
+                )
+            }
         });
 
         wrapper.vm.successfulUpload({ targetId: 'mailTemplateMediaTestId' });
@@ -252,7 +277,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('all fields should be disabled without edit permission', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({
             isLoading: false,
@@ -290,12 +315,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('all fields should be enabled with edit permission', async () => {
-        wrapper = createWrapper(['mail_templates.editor']);
-        await flushPromises();
+        wrapper = await createWrapper(['mail_templates.editor']);
         await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock],
             isLoading: false,
         });
+        await flushPromises();
 
         [
             { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: undefined },
@@ -327,9 +352,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should not be able to show preview if html content is empty', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
 
-        wrapper.setData({ mailTemplate: mailTemplateTypeMock });
+        await wrapper.setData({ mailTemplate: mailTemplateTypeMock });
 
         const sidebarItem = wrapper.find('[icon=regular-eye]');
 
@@ -455,7 +480,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         await wrapper.vm.$nextTick();
 
         const icon = await wrapper.find('.sw-mail-template-detail__copy_icon');
-        icon.trigger('click');
+        await icon.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -489,7 +514,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         await wrapper.vm.$nextTick();
         const icon = await wrapper.find('.icon--regular-chevron-right-xxs');
-        icon.trigger('click');
+        await icon.trigger('click');
 
         expect(spyIsToManyAssociationVariable).toHaveBeenCalled();
     });

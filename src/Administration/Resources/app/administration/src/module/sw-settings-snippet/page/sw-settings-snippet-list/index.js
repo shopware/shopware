@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 import './sw-settings-snippet-list.scss';

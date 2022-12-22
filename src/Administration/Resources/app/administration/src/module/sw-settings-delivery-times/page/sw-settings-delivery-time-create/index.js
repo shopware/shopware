@@ -1,5 +1,9 @@
 const { Component } = Shopware;
 
+/**
+ * @package customer-order
+ */
+
 Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-detail', {
     methods: {
         saveFinish() {

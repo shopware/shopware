@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-create-general-info';
-import flushPromises from 'flush-promises';
+
+/**
+ * @package customer-order
+ */
 
 const cart = {
     price: {
@@ -34,8 +37,8 @@ const context = {
     },
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-order-create-general-info'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-create-general-info'), {
         propsData: {
             context,
             cart,
@@ -54,7 +57,7 @@ describe('src/module/sw-order/component/sw-order-create-general-info', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
         await flushPromises();
     });
 
@@ -62,11 +65,11 @@ describe('src/module/sw-order/component/sw-order-create-general-info', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show correct summary header', () => {
+    it('should show correct summary header', async () => {
         const customerInfo = wrapper.find('.sw-order-create-general-info__summary-main-header');
         expect(customerInfo.exists()).toBeTruthy();
         expect(customerInfo.text()).toEqual('John Doe (john@doe.dev)');

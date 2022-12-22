@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class ChangeSet extends Struct
 {
     /**

@@ -1,3 +1,7 @@
+/**
+ * @package storefront
+ */
+
 const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const babelrc = require('./.babelrc');
 const path = require('path');

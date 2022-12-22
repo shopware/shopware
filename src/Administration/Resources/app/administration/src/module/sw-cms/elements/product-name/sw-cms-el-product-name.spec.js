@@ -1,10 +1,13 @@
+/**
+ * @package content
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/text/component';
 import 'src/module/sw-cms/elements/product-name/component';
 
-function createWrapper(propsOverride) {
-    return shallowMount(Shopware.Component.build('sw-cms-el-product-name'), {
+async function createWrapper(propsOverride) {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-product-name'), {
         propsData: {
             element: {
                 config: {
@@ -47,21 +50,21 @@ function createWrapper(propsOverride) {
 describe('module/sw-cms/elements/product-name/component', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should map to a product name if the component is in a product page', () => {
+    it('should map to a product name if the component is in a product page', async () => {
         expect(wrapper.vm.element.config.content.source).toBe('mapped');
         expect(wrapper.vm.element.config.content.value).toBe('product.name');
     });
 
-    it('should not initially map to a product name if element translated config exists', () => {
-        wrapper = createWrapper({
+    it('should not initially map to a product name if element translated config exists', async () => {
+        wrapper = await createWrapper({
             element: {
                 config: {
                     content: {

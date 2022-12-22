@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
+ * @package checkout
+ *
  * @internal
  */
 class RuleLoader extends AbstractRuleLoader

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @package storefront
+ *
  * @deprecated tag:v6.5.0 - Use @see \Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent instead
  */
 class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent

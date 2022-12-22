@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import { shallowMount, config } from '@vue/test-utils';
 import AppCmsService from 'src/app/service/app-cms.service';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
@@ -35,7 +38,7 @@ describe('src/app/service/app-cms.service', () => {
         service = null;
     });
 
-    it('should be able to override the default block configuration', () => {
+    it('should be able to override the default block configuration', async () => {
         let defaultConfig = service.defaultBlockConfig;
 
         Shopware.Locale.register('de-DE', {});
@@ -58,17 +61,17 @@ describe('src/app/service/app-cms.service', () => {
         expect(defaultConfig.previewComponentSuffix).toBe('-bar');
     });
 
-    it('should iterate the received blocks', () => {
+    it('should iterate the received blocks', async () => {
         expect(service.iterateCmsBlocks(fixtures.blocks)).toBeTruthy();
     });
 
-    it('should validate the category of a block', () => {
+    it('should validate the category of a block', async () => {
         expect(service.validateBlockCategory('commerce')).toBeTruthy();
         expect(service.validateBlockCategory('text')).toBeTruthy();
         expect(service.validateBlockCategory('foobar')).toBeFalsy();
     });
 
-    it('should register the block label to the global locale factory', () => {
+    it('should register the block label to the global locale factory', async () => {
         service.registerBlockSnippets('fooBar', {
             'en-GB': 'MyFooBarBlock',
             'pt-PT': 'MyFooBarBlock'
@@ -89,7 +92,7 @@ describe('src/app/service/app-cms.service', () => {
         );
     });
 
-    it('should register a block to the application', () => {
+    it('should register a block to the application', async () => {
         service.registerCmsBlock({
             category: 'foobar',
             label: {
@@ -103,7 +106,7 @@ describe('src/app/service/app-cms.service', () => {
         );
     });
 
-    it('should collect & inject styles for custom cms blocks', () => {
+    it('should collect & inject styles for custom cms blocks', async () => {
         const cssFixtures = '#foo { color: #f00 }';
 
         service.registerStyles({
@@ -113,7 +116,7 @@ describe('src/app/service/app-cms.service', () => {
         expect(service.injectStyleTag()).toBeTruthy();
     });
 
-    it('should create a vue.js component for the block component', () => {
+    it('should create a vue.js component for the block component', async () => {
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;

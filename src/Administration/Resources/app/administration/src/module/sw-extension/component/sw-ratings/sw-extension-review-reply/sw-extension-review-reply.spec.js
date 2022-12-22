@@ -1,12 +1,15 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-reply';
 
+/**
+ * @package merchant-services
+ */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply', () => {
     /** @type Wrapper */
     let wrapper;
 
-    function createWrapper() {
-        return shallowMount(Shopware.Component.build('sw-extension-review-reply'), {
+    async function createWrapper() {
+        return shallowMount(await Shopware.Component.build('sw-extension-review-reply'), {
             propsData: {
                 producerName: 'Howard Wolowitz',
                 reply: {
@@ -25,22 +28,22 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply
         if (wrapper) wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        wrapper = createWrapper();
+    it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the extension creator name', () => {
-        wrapper = createWrapper();
-        const creatorName = wrapper.find('.sw-extension-review-reply__producer-name').text();
+    it('should display the extension creator name', async () => {
+        wrapper = await createWrapper();
+        const creatorName = await wrapper.find('.sw-extension-review-reply__producer-name');
 
-        expect(creatorName).toBe('Howard Wolowitz');
+        expect(creatorName.text()).toBe('Howard Wolowitz');
     });
 
-    it('should display the actual content of the reply', () => {
-        wrapper = createWrapper();
-        const replyContent = wrapper.find('.sw-extension-review-reply__text').text();
+    it('should display the actual content of the reply', async () => {
+        wrapper = await createWrapper();
+        const replyContent = await wrapper.find('.sw-extension-review-reply__text');
 
-        expect(replyContent).toBe('Lorem ipsum dolor sit amet.');
+        expect(replyContent.text()).toBe('Lorem ipsum dolor sit amet.');
     });
 });

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Context;
 use Symfony\Component\Mime\Email;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer

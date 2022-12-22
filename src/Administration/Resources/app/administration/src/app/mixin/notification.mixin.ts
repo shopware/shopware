@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

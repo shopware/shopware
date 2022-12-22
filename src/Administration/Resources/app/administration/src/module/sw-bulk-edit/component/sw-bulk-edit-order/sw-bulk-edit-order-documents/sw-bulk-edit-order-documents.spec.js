@@ -1,8 +1,11 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-order-documents'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-bulk-edit-order-documents'), {
         stubs: {
             'sw-container': true,
             'sw-checkbox-field': true,
@@ -32,19 +35,19 @@ function createWrapper() {
 describe('sw-bulk-edit-order-documents', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should search for document types when component created', () => {
+    it('should search for document types when component created', async () => {
         wrapper.vm.documentTypeRepository.search = jest.fn().mockReturnValue(Promise.resolve([]));
 
         wrapper.vm.createdComponent();

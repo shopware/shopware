@@ -24,6 +24,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
+/**
+ * @package system-settings
+ */
 class SnippetService
 {
     private Connection $connection;

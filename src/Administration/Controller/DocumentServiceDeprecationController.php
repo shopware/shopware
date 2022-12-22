@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package customer-order
+ *
  * @internal Only to be used by the bulk-edit-feature.
  *
  * @deprecated tag:v6.5.0 - Will be removed

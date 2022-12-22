@@ -91,6 +91,7 @@
               data-form-preserver="true"
               method="post">
 
+            {# @deprecated tag:v6.5.0 - Block page_checkout_aside_actions_csrf will be removed. #}
             {% block page_checkout_aside_actions_csrf %}
                 {{ sw_csrf('frontend.account.edit-order.update-order') }}
             {% endblock %}

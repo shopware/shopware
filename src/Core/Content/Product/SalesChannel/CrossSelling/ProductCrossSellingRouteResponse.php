@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @package inventory
+ */
 class ProductCrossSellingRouteResponse extends StoreApiResponse
 {
     /**

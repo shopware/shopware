@@ -3,6 +3,10 @@ import template from './sw-settings-payment-create.html.twig';
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 
+/**
+ * @package checkout
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
     template,
 

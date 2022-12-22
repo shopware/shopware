@@ -6,6 +6,7 @@ const { Component, Mixin, Filter } = Shopware;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.register('sw-cms-el-image', {
     template,

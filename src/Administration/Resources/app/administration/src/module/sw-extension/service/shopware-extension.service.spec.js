@@ -25,6 +25,9 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return { isDiscountCampaignActive: jest.fn(() => true) };
 });
 
+/**
+ * @package merchant-services
+ */
 describe('shopware-extension.service', () => {
     let shopwareExtensionService;
 
@@ -152,7 +155,7 @@ describe('shopware-extension.service', () => {
     });
 
     describe('isVariantDiscounted', () => {
-        it('returns true if price is discounted and campaign is active', () => {
+        it('returns true if price is discounted and campaign is active', async () => {
             const variant = {
                 netPrice: 100,
                 discountCampaign: {
@@ -163,7 +166,7 @@ describe('shopware-extension.service', () => {
             expect(shopwareExtensionService.isVariantDiscounted(variant)).toBe(true);
         });
 
-        it('returns false if price is discounted but campaign is not active', () => {
+        it('returns false if price is discounted but campaign is not active', async () => {
             const variant = {
                 netPrice: 100,
                 discountCampaign: {
@@ -178,15 +181,15 @@ describe('shopware-extension.service', () => {
             expect(shopwareExtensionService.isVariantDiscounted(variant)).toBe(false);
         });
 
-        it('returns false if variant is falsy', () => {
+        it('returns false if variant is falsy', async () => {
             expect(shopwareExtensionService.isVariantDiscounted(null)).toBe(false);
         });
 
-        it('returns false if variant has no discountCampaign', () => {
+        it('returns false if variant has no discountCampaign', async () => {
             expect(shopwareExtensionService.isVariantDiscounted({})).toBe(false);
         });
 
-        it('returns false if discounted price is net price', () => {
+        it('returns false if discounted price is net price', async () => {
             expect(shopwareExtensionService.isVariantDiscounted({
                 netPrice: 100,
                 discountCampaign: {
@@ -197,7 +200,7 @@ describe('shopware-extension.service', () => {
     });
 
     describe('orderVariantsByRecommendation', () => {
-        it('orders variants by recommendation and discounting', () => {
+        it('orders variants by recommendation and discounting', async () => {
             const variants = [
                 { netPrice: 100, discountCampaign: { netPrice: 100 }, type: 'rent' },
                 { netPrice: 100, discountCampaign: { netPrice: 80 }, type: 'test' },
@@ -240,7 +243,7 @@ describe('shopware-extension.service', () => {
     });
 
     describe('getPriceFromVariant', () => {
-        it('returns discounted price if variant is discounted', () => {
+        it('returns discounted price if variant is discounted', async () => {
             expect(shopwareExtensionService.getPriceFromVariant({
                 netPrice: 100,
                 discountCampaign: {
@@ -249,7 +252,7 @@ describe('shopware-extension.service', () => {
             })).toEqual(80);
         });
 
-        it('returns net price if variant is not discounted', () => {
+        it('returns net price if variant is not discounted', async () => {
             Shopware.Service('shopwareDiscountCampaignService').isDiscountCampaignActive
                 .mockImplementationOnce(() => false);
 

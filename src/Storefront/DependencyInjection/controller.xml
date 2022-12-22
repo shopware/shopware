@@ -340,6 +340,7 @@
             <call method="setTwig">
                 <argument type="service" id="twig"/>
             </call>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">

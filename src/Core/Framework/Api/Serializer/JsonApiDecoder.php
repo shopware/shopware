@@ -7,6 +7,9 @@ use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
+/**
+ * @package core
+ */
 class JsonApiDecoder implements DecoderInterface
 {
     public const FORMAT = 'jsonapi';

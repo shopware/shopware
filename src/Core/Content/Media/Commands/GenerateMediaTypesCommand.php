@@ -15,6 +15,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @package content
+ */
 class GenerateMediaTypesCommand extends Command
 {
     protected static $defaultName = 'media:generate-media-types';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import AppActionButtonService, { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
@@ -13,14 +17,14 @@ function createAppActionButtonService() {
 
 
 describe('appActionButtonService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         // const appActionButtonService = Shopware.Service('appActionButton');
         const { appActionButtonService } = createAppActionButtonService();
 
         expect(appActionButtonService).toBeInstanceOf(AppActionButtonService);
     });
 
-    it('throws an exception if entity is not set for getActionButtonsPerView', () => {
+    it('throws an exception if entity is not set for getActionButtonsPerView', async () => {
         // const appActionButtonService = Shopware.Service('appActionButton');
         const { appActionButtonService } = createAppActionButtonService();
 
@@ -31,7 +35,7 @@ describe('appActionButtonService', () => {
         );
     });
 
-    it('throws an exception if view is not set for getActionButtonsPerView', () => {
+    it('throws an exception if view is not set for getActionButtonsPerView', async () => {
         // const appActionButtonService = Shopware.Service('appActionButton');
         const { appActionButtonService } = createAppActionButtonService();
 

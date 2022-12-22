@@ -4,6 +4,8 @@ import './sw-color-badge.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
  * @public
  * @description
  * Renders a colored badge for example as indicator if an item is available.

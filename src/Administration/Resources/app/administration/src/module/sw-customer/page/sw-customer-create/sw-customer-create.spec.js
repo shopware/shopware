@@ -3,11 +3,15 @@ import 'src/module/sw-customer/page/sw-customer-create';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
+/**
+ * @package customer-order
+ */
+
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-customer-create'), {
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-customer-create'), {
         stubs: {
             'sw-page': true,
             'sw-card': true,
@@ -15,8 +19,8 @@ function createWrapper() {
             'sw-customer-address-form': true,
             'sw-customer-base-form': true,
             'sw-card-view': true,
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-icon': true
         },
         provide: {
@@ -49,10 +53,10 @@ function createWrapper() {
 
 describe('module/sw-customer/page/sw-customer-create', () => {
     it('should have valid email validation response when no email is given', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             customer: {
                 id: '1',
                 email: null,
@@ -66,7 +70,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should have company validation when customer type is commercial', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
         const notificationMock = wrapper.vm.createNotificationError;
@@ -95,7 +99,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should show an error notification when entered password is invalid', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
         const notificationMock = wrapper.vm.createNotificationError;
 

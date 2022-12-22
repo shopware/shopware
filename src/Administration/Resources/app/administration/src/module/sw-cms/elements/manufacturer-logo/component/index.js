@@ -4,6 +4,7 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @private since v6.5.0
+ * @package content
  */
 Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
     template,

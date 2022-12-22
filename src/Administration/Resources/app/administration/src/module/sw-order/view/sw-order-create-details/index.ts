@@ -14,6 +14,10 @@ import { LineItemType } from '../../order.types';
 import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 
+/**
+ * @package customer-order
+ */
+
 const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -176,13 +180,6 @@ Component.register('sw-order-create-details', {
             },
         },
 
-        salesChannelContext: {
-            immediate: true,
-            handler(): void {
-                void State.dispatch('swOrder/updateContextParameters', this.context);
-            },
-        },
-
         cart: {
             deep: true,
             immediate: true,
@@ -205,6 +202,16 @@ Component.register('sw-order-create-details', {
                     this.$router.push({ name: 'sw.order.create.initial' });
                 });
             }
+
+            this.context = {
+                ...this.context,
+                currencyId: this.salesChannelContext.context.currencyId,
+                languageId: this.salesChannelContext.context.languageIdChain[0],
+                shippingMethodId: this.salesChannelContext.shippingMethod.id,
+                paymentMethodId: this.salesChannelContext.paymentMethod.id,
+                billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
+                shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',
+            };
         },
 
         updateContext(): Promise<void> {

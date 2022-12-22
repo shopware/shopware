@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
 import 'src/app/component/form/sw-field';
@@ -9,8 +12,8 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 
-function createWrapper(privileges = []) {
-    return shallowMount(Shopware.Component.build('sw-integration-list'), {
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-integration-list'), {
         mocks: {
             $route: {
                 query: {
@@ -35,7 +38,8 @@ function createWrapper(privileges = []) {
         integrationService: {},
         validationService: {},
         shortcutService: {
-            stopEventListener: () => { }
+            stopEventListener: () => { },
+            startEventListener: () => { }
         },
 
         acl: {
@@ -78,23 +82,23 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-modal': Shopware.Component.build('sw-modal'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-language-switch': true,
             'sw-search-bar': true,
             'sw-context-menu-item': {
                 template: '<div class="sw-context-menu-item"><div class="sw-context-menu-item__text"></div></div>'
             },
             'sw-icon': true,
-            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button': await Shopware.Component.build('sw-button'),
             'sw-container': {
                 template: '<div><slot></slot></div>'
             },
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
             'sw-field-copyable': true,
             'sw-switch-field': true,
@@ -119,7 +123,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-settings-country/page/sw-settings-country-list', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
@@ -128,7 +132,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
 describe('when has privilege', () => {
     it('should be able to create a integration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'integration.creator'
         ]);
 
@@ -139,7 +143,7 @@ describe('when has privilege', () => {
     });
 
     it('should be able to edit a integration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'integration.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -158,7 +162,7 @@ describe('when has privilege', () => {
     });
 
     it('should be able to delete a integration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'integration.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -170,7 +174,7 @@ describe('when has privilege', () => {
 
 describe('when has not privilege', () => {
     it('should not be able to create a integration', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
         const createButton = wrapper.find('.sw-integration-list__add-integration-action');
@@ -179,7 +183,7 @@ describe('when has not privilege', () => {
     });
 
     it('should not be able to create a integration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'integration.editor',
             'integration.deleter'
         ]);
@@ -228,7 +232,7 @@ describe('when has not privilege', () => {
     });
 
     it('should not be able to delete a integration', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
@@ -236,7 +240,7 @@ describe('when has not privilege', () => {
     });
 
     it('should not be able to delete a integration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'integration.viewer',
             'integration.editor'
         ]);

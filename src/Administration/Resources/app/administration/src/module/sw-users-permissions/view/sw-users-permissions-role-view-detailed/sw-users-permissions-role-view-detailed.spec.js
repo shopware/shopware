@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-users-permissions-role-view-detailed'), {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-view-detailed'), {
         localVue,
         stubs: {
             'sw-alert': true,
@@ -29,12 +32,12 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detailed', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable the detailed permission grid when no aclPrivileges exists', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const detailedPermissionGrid = wrapper.find('sw-users-permissions-detailed-permissions-grid-stub');
 
@@ -42,7 +45,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detail
     });
 
     it('should enable the detailed permission grid when edit aclPrivileges exists', async () => {
-        const wrapper = createWrapper(['users_and_permissions.editor']);
+        const wrapper = await createWrapper(['users_and_permissions.editor']);
 
         const detailedPermissionGrid = wrapper.find('sw-users-permissions-detailed-permissions-grid-stub');
 
@@ -50,7 +53,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detail
     });
 
     it('should show an alert which contains the help text', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         const alert = wrapper.find('sw-alert-stub');
         expect(alert.text()).toBe('sw-users-permissions.roles.view.detailed.alertText');

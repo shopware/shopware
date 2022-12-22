@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Framework\Cache;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package storefront
+ */
 class CacheStateValidator implements CacheStateValidatorInterface
 {
     private array $states;

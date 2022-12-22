@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line
 import fs from 'fs';
 // eslint-disable-next-line
@@ -8,7 +11,7 @@ import 'src/module/sw-users-permissions/components/sw-users-permissions-detailed
 import 'src/app/component/form/sw-checkbox-field';
 import PrivilegesService from 'src/app/service/privileges.service';
 
-function createWrapper(
+async function createWrapper(
     {
         privilegesMappings = [],
         rolePrivileges = [],
@@ -23,7 +26,7 @@ function createWrapper(
         privilegesService.addPrivilegeMappingEntry(mapping);
     });
 
-    return shallowMount(Shopware.Component.build('sw-users-permissions-detailed-permissions-grid'), {
+    return shallowMount(await Shopware.Component.build('sw-users-permissions-detailed-permissions-grid'), {
         localVue,
         stubs: {
             'sw-card': true
@@ -55,12 +58,12 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the header titles', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         // eslint-disable-next-line max-len
         const headerEntries = wrapper.findAll('.sw-users-permissions-detailed-permissions-grid__entry-header .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper');
@@ -72,7 +75,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should render a row for each entity with all checkboxes enabled', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         Object.keys(entitySchema).forEach(entityName => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
@@ -109,7 +112,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should render a row for each entity with all checkboxes disabled when prop disabled is true', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             disabled: true
         });
@@ -131,7 +134,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should render a row for each entity with all checkboxes enabled and product and category read checked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             rolePrivileges: ['product.viewer'],
             privilegesMappings: [
                 {
@@ -214,7 +217,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should render a row for each entity with all checkboxes enabled and product and category read checked', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             rolePrivileges: ['product.viewer', 'product.editor'],
             privilegesMappings: [
                 {
@@ -297,7 +300,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should be able to check the checkboxes', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             rolePrivileges: ['product.viewer', 'product.editor'],
             privilegesMappings: [
                 {
@@ -342,7 +345,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     });
 
     it('should be able to uncheck the checkboxes', async () => {
-        const wrapper = createWrapper({
+        const wrapper = await createWrapper({
             rolePrivileges: ['product.viewer', 'product.editor'],
             detailedPrivileges: ['order:update', 'order:create'],
             privilegesMappings: [

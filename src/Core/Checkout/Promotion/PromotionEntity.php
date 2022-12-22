@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
+/**
+ * @package checkout
+ */
 class PromotionEntity extends Entity
 {
     use EntityIdTrait;

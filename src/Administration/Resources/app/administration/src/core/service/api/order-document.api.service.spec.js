@@ -20,13 +20,13 @@ function createOrderDocumentApiService() {
 }
 
 describe('orderDocumentApiService', () => {
-    it('is registered correctly', () => {
+    it('is registered correctly', async () => {
         const { orderDocumentApiService } = createOrderDocumentApiService();
 
         expect(orderDocumentApiService).toBeInstanceOf(OrderDocumentApiService);
     });
 
-    it('has the correct name', () => {
+    it('has the correct name', async () => {
         const { orderDocumentApiService } = createOrderDocumentApiService();
 
         expect(orderDocumentApiService.name).toBe('orderDocumentApiService');
@@ -36,13 +36,13 @@ describe('orderDocumentApiService', () => {
      * @deprecated tag:v6.5.0 - Will be removed
      */
     describe('create', () => {
-        it('is defined', () => {
+        it('is defined', async () => {
             const { orderDocumentApiService } = createOrderDocumentApiService();
 
             expect(orderDocumentApiService.create).toBeDefined();
         });
 
-        it('calls the correct endpoint', () => {
+        it('calls the correct endpoint', async () => {
             const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
 
             const payload = {};
@@ -55,13 +55,13 @@ describe('orderDocumentApiService', () => {
     });
 
     describe('generate', () => {
-        it('is defined', () => {
+        it('is defined', async () => {
             const { orderDocumentApiService } = createOrderDocumentApiService();
 
             expect(orderDocumentApiService.generate).toBeDefined();
         });
 
-        it('calls the correct endpoint', () => {
+        it('calls the correct endpoint', async () => {
             const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
 
             const documentType = 'invoice';
@@ -76,13 +76,13 @@ describe('orderDocumentApiService', () => {
 
 
     describe('download', () => {
-        it('is defined', () => {
+        it('is defined', async () => {
             const { orderDocumentApiService } = createOrderDocumentApiService();
 
             expect(orderDocumentApiService.download).toBeDefined();
         });
 
-        it('calls the correct endpoint', () => {
+        it('calls the correct endpoint', async () => {
             const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
 
             const documentIds = [1, 2, 3];
@@ -98,13 +98,13 @@ describe('orderDocumentApiService', () => {
      * @deprecated tag:v6.5.0 - Will be removed
      */
     describe('extendingDeprecatedService', () => {
-        it('is defined', () => {
+        it('is defined', async () => {
             const { orderDocumentApiService } = createOrderDocumentApiService();
 
             expect(orderDocumentApiService.extendingDeprecatedService).toBeDefined();
         });
 
-        it('calls the correct endpoint', () => {
+        it('calls the correct endpoint', async () => {
             const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
 
             orderDocumentApiService.extendingDeprecatedService();

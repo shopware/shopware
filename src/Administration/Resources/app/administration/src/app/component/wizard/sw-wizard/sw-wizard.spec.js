@@ -1,12 +1,17 @@
+/**
+ * @package admin
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard';
 import 'src/app/component/wizard/sw-wizard-page';
 
-function createWrapper(options = {}) {
+async function createWrapper(options = {}) {
     const pages = [];
 
     for (let i = 0; i < 5; i += 1) {
-        const page = Shopware.Component.build('sw-wizard-page');
+        // eslint-disable-next-line no-await-in-loop
+        const page = await Shopware.Component.build('sw-wizard-page');
         page.props = {
             position: i
         };
@@ -35,24 +40,24 @@ function createWrapper(options = {}) {
         }
     };
 
-    return shallowMount(Shopware.Component.build('sw-wizard'), { ...defaults, ...options });
+    return shallowMount(await Shopware.Component.build('sw-wizard'), { ...defaults, ...options });
 }
 describe('src/app/component/wizard/sw-wizard', () => {
     it('should be a Vue.js component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pages count of 5', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.pagesCount).toBe(5);
     });
 
     it('should fire the necessary events', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -67,9 +72,9 @@ describe('src/app/component/wizard/sw-wizard', () => {
     });
 
     it('should be able to add a new page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
 
-        const page = Shopware.Component.build('sw-wizard-page');
+        const page = await Shopware.Component.build('sw-wizard-page');
         page.props = {
             position: 5
         };
@@ -85,7 +90,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
     });
 
     it('should be able to remove an existing page', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         const pageToRemove = wrapper.vm.pages[wrapper.vm.pages.length - 1];
 
         wrapper.vm.removePage(pageToRemove);
@@ -99,8 +104,8 @@ describe('src/app/component/wizard/sw-wizard', () => {
         expect(emitted['pages-updated'][emitted['pages-updated'].length - 1][2]).toBe('remove');
     });
 
-    it('should be possible to navigate the wizard', () => {
-        const wrapper = createWrapper();
+    it('should be possible to navigate the wizard', async () => {
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.currentlyActivePage).toBe(3);
         wrapper.vm.nextPage();

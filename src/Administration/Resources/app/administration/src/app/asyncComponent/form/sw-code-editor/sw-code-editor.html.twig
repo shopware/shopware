@@ -27,7 +27,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_sanitize_info %}
     <div
-        v-if="feature.isActive('FEATURE_NEXT_15172') && sanitizeInput"
+        v-if="sanitizeInput"
         class="sw-code-editor__sanitize-bar"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

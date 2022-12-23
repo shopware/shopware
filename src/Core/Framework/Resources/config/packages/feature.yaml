@@ -35,11 +35,6 @@ shopware:
         major: true
         description: "App System 4.0 - Build action button messaging system"
         # issue: NEXT-14360
-      - name: FEATURE_NEXT_15172
-        default: false
-        major: true
-        description: "Sanitize html of fields with AllowHtml flag"
-        # issue: NEXT-15172
       - name: FEATURE_NEXT_16200
         default: false
         major: false

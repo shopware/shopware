@@ -2,61 +2,30 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-use Shopware\Core\Framework\Feature;
-
-/*
+/**
  * In case a column is allowed to contain HTML-esque data. Beware of injection possibilities
+ *
+ * @package core
  */
-if (Feature::isActive('FEATURE_NEXT_15172')) {
+class AllowHtml extends Flag
+{
     /**
-     * @package core
+     * @var bool
      */
-    class AllowHtml extends Flag
+    protected $sanitized;
+
+    public function __construct(bool $sanitized = true)
     {
-        /**
-         * @var bool
-         */
-        protected $sanitized;
-
-        public function __construct(bool $sanitized = true)
-        {
-            $this->sanitized = $sanitized;
-        }
-
-        public function parse(): \Generator
-        {
-            yield 'allow_html' => true;
-        }
-
-        public function isSanitized(): bool
-        {
-            return $this->sanitized;
-        }
+        $this->sanitized = $sanitized;
     }
-} else {
-    /**
-     * @package core
-     */
-    class AllowHtml extends Flag
+
+    public function parse(): \Generator
     {
-        /**
-         * @var bool
-         */
-        protected $sanitized;
+        yield 'allow_html' => true;
+    }
 
-        public function __construct(bool $sanitized = false)
-        {
-            $this->sanitized = $sanitized;
-        }
-
-        public function parse(): \Generator
-        {
-            yield 'allow_html' => true;
-        }
-
-        public function isSanitized(): bool
-        {
-            return $this->sanitized;
-        }
+    public function isSanitized(): bool
+    {
+        return $this->sanitized;
     }
 }

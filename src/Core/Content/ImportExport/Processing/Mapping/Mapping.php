@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -10,55 +9,31 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class Mapping extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $key;
+    protected string $key;
 
-    /**
-     * @var string
-     */
-    protected $mappedKey;
+    protected string $mappedKey;
 
-    /**
-     * @var mixed|null
-     */
-    protected $default;
+    protected mixed $default;
 
-    /**
-     * @var mixed|null
-     */
-    protected $mappedDefault;
+    protected mixed $mappedDefault;
 
-    /**
-     * @var bool
-     */
-    protected $requiredByUser;
+    protected bool $requiredByUser;
 
-    /**
-     * @var bool
-     */
-    protected $useDefaultValue;
+    protected bool $useDefaultValue;
 
-    /**
-     * @var mixed|null
-     */
-    protected $defaultValue;
+    protected mixed $defaultValue;
 
     protected int $position;
 
-    /**
-     * @param mixed|null $defaultValue
-     */
     public function __construct(
         string $key,
         ?string $mappedKey = null,
         int $position = 0,
-        $default = null,
-        $mappedDefault = null,
+        mixed $default = null,
+        mixed $mappedDefault = null,
         bool $requiredByUser = false,
         bool $useDefaultValue = false,
-        $defaultValue = null
+        mixed $defaultValue = null
     ) {
         $this->key = $key;
         $this->mappedKey = $mappedKey ?? $key;
@@ -80,32 +55,6 @@ class Mapping extends Struct
         return $this->mappedKey;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
-     */
-    public function getDefault()
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
-        );
-
-        return $this->default;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
-     */
-    public function getMappedDefault()
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
-        );
-
-        return $this->mappedDefault;
-    }
-
     public function isRequiredByUser(): bool
     {
         return $this->requiredByUser;
@@ -116,10 +65,7 @@ class Mapping extends Struct
         return $this->useDefaultValue;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getDefaultValue()
+    public function getDefaultValue(): mixed
     {
         return $this->defaultValue;
     }
@@ -134,6 +80,9 @@ class Mapping extends Struct
         $this->position = $position;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         if (!isset($data['key'])) {

@@ -19,21 +19,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @package business-ops
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class RulePayloadUpdater implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    private RuleConditionRegistry $ruleConditionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, RuleConditionRegistry $ruleConditionRegistry)
+    public function __construct(private Connection $connection, private RuleConditionRegistry $ruleConditionRegistry)
     {
-        $this->connection = $connection;
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
     public static function getSubscribedEvents(): array

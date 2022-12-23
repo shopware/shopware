@@ -16,32 +16,14 @@ class FileFetcher
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
 
     /**
-     * @var bool
-     *
-     * @deprecated tag:v6.5.0 - Property will become private
-     */
-    public $enableUrlUploadFeature;
-
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.5.0 - Property will become private
-     */
-    public $enableUrlValidation;
-
-    private FileUrlValidatorInterface $fileUrlValidator;
-
-    private int $maxFileSize;
-
-    /**
      * @internal
      */
-    public function __construct(FileUrlValidatorInterface $fileUrlValidator, bool $enableUrlUploadFeature = true, bool $enableUrlValidation = true, int $maxFileSize = 0)
-    {
-        $this->fileUrlValidator = $fileUrlValidator;
-        $this->enableUrlUploadFeature = $enableUrlUploadFeature;
-        $this->enableUrlValidation = $enableUrlValidation;
-        $this->maxFileSize = $maxFileSize;
+    public function __construct(
+        private FileUrlValidatorInterface $fileUrlValidator,
+        private bool $enableUrlUploadFeature = true,
+        private bool $enableUrlValidation = true,
+        private int $maxFileSize = 0
+    ) {
     }
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile

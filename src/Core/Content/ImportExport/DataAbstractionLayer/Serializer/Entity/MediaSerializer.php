@@ -23,20 +23,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
- *
  * @package core
+ *
+ * @internal
  */
 class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
 {
-    private FileSaver $fileSaver;
-
-    private MediaService $mediaService;
-
-    private EntityRepository $mediaFolderRepository;
-
-    private EntityRepository $mediaRepository;
-
     /**
      * @var array<string, array{media: MediaFile, destination: string}>
      */
@@ -46,15 +38,11 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      * @internal
      */
     public function __construct(
-        MediaService $mediaService,
-        FileSaver $fileSaver,
-        EntityRepository $mediaFolderRepository,
-        EntityRepository $mediaRepository
+        private MediaService $mediaService,
+        private FileSaver $fileSaver,
+        private EntityRepository $mediaFolderRepository,
+        private EntityRepository $mediaRepository
     ) {
-        $this->mediaService = $mediaService;
-        $this->fileSaver = $fileSaver;
-        $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->mediaRepository = $mediaRepository;
     }
 
     /**

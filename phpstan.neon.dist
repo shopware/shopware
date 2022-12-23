@@ -95,9 +95,6 @@ parameters:
 
         # can be removed with feature flag FEATURE_NEXT_12455
         -
-            message: '#Constructor of class Shopware\\Core\\Content\\Newsletter\\Exception\\LanguageOfNewsletterDeleteException has an unused parameter \$language\.#'
-            path: src/Core/Content/Newsletter/Exception/LanguageOfNewsletterDeleteException.php
-        -
             message: '#Constructor of class Shopware\\Core\\System\\Language\\Exception\\LanguageForeignKeyDeleteException has an unused parameter \$language\.#'
             path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
         -
@@ -128,9 +125,6 @@ parameters:
             message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
-
-        # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
-        - '#Trait .* is used zero times and is not analysed.#'
 
         - # MockRepo extends final EntityRepository class, with is ok for tests
             message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"

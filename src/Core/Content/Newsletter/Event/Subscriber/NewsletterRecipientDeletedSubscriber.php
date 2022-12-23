@@ -11,18 +11,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @package customer-order
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
 {
-    private MessageBusInterface $messageBus;
-
     /**
      * @internal
      */
-    public function __construct(MessageBusInterface $messageBus)
+    public function __construct(private MessageBusInterface $messageBus)
     {
-        $this->messageBus = $messageBus;
     }
 
     /**

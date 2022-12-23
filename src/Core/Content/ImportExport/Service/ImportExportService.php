@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -30,24 +29,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class ImportExportService
 {
-    private EntityRepository $logRepository;
-
-    private EntityRepository $userRepository;
-
-    private EntityRepository $profileRepository;
-
-    private AbstractFileService $fileService;
-
     public function __construct(
-        EntityRepository $logRepository,
-        EntityRepository $userRepository,
-        EntityRepository $profileRepository,
-        AbstractFileService $fileService
+        private EntityRepository $logRepository,
+        private EntityRepository $userRepository,
+        private EntityRepository $profileRepository,
+        private AbstractFileService $fileService
     ) {
-        $this->logRepository = $logRepository;
-        $this->userRepository = $userRepository;
-        $this->profileRepository = $profileRepository;
-        $this->fileService = $fileService;
     }
 
     /**
@@ -171,21 +158,6 @@ class ImportExportService
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logData): void {
             $this->logRepository->update([$logData], $context);
         });
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed. Use Shopware\Core\Content\ImportExport\Service\FileService->updateFile(...) instead.
-     *
-     * @param array<string, mixed> $data
-     */
-    public function updateFile(Context $context, string $fileId, array $data): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', FileService::class . '::updateFile(...)'),
-        );
-
-        $this->fileService->updateFile($context, $fileId, $data);
     }
 
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
  * @package content
+ *
+ * @implements \IteratorAggregate<string, array<string, Criteria>>
  */
 class CriteriaCollection implements \IteratorAggregate
 {
@@ -30,16 +32,15 @@ class CriteriaCollection implements \IteratorAggregate
         $this->keys[$key] = true;
     }
 
+    /**
+     * @return array<string, array<string, Criteria>>
+     */
     public function all(): array
     {
         return $this->elements;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Return type will be changed to \Traversable
-     */
-    #[\ReturnTypeWillChange]
-    public function getIterator()/* :\Traversable */
+    public function getIterator(): \Traversable
     {
         yield from $this->elements;
     }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Mime\Email;
@@ -61,15 +60,13 @@ class MailFactory extends AbstractMailFactory
             }
         }
 
-        $attach = Feature::isActive('v6.5.0.0') ? 'attach' : 'embed';
-
         foreach ($attachments as $url) {
             $mail->addAttachmentUrl($url);
         }
 
         if (isset($binAttachments)) {
             foreach ($binAttachments as $binAttachment) {
-                $mail->$attach(
+                $mail->attach(
                     $binAttachment['content'],
                     $binAttachment['fileName'],
                     $binAttachment['mimeType']

@@ -18,7 +18,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 /**
  * @package content
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @internal
  */
 class EntryPointValidator implements EventSubscriberInterface
 {
@@ -29,14 +29,11 @@ class EntryPointValidator implements EventSubscriberInterface
         CategoryDefinition::TYPE_FOLDER,
     ];
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array

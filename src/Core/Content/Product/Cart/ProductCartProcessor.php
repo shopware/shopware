@@ -23,7 +23,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -310,9 +309,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         $weight = $product->getWeight();
-        if (!Feature::isActive('v6.5.0.0')) {
-            $weight = (float) $weight;
-        }
 
         $lineItem->setDeliveryInformation(
             new DeliveryInformation(

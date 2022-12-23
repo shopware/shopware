@@ -94,6 +94,11 @@ Component.register('sw-form-field-renderer', {
         value: {
             required: true,
         },
+        error: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {

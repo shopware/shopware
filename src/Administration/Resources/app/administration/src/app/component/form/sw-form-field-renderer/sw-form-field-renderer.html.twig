@@ -6,6 +6,7 @@
     ref="component"
     v-model="currentValue"
     class="sw-form-field-renderer"
+    :error="error"
     @change="emitChange"
     @input="emitUpdate"
 >

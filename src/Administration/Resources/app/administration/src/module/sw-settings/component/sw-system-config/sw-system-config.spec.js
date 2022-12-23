@@ -3,6 +3,7 @@
  */
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 import { kebabCase } from 'lodash';
 import uuid from 'src/../test/_helper_/uuid';
 import 'src/app/component/form/sw-custom-field-set-renderer';
@@ -237,6 +238,7 @@ function createConfig() {
                     name: 'ConfigRenderer.config.textField',
                     type: 'text',
                     config: {
+                        required: true,
                         label: {
                             'en-GB': 'text field'
                         },
@@ -738,6 +740,25 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('Headless');
+    });
+
+    it('should return ShopwareError when has error', async () => {
+        await Shopware.State.dispatch('error/addApiError', {
+            expression: 'SYSTEM_CONFIG.null.dummyKey',
+            error: new ShopwareError({ code: 'dummyCode' }),
+        });
+
+        wrapper = await createWrapper({
+            SYSTEM_CONFIG: {
+                null: {
+                    dummyKey: 'Default value'
+                }
+            }
+        });
+
+        const error = wrapper.vm.getFieldError('dummyKey');
+
+        expect(error).toBeInstanceOf(ShopwareError);
     });
 
     createConfig()[0].elements.forEach(({

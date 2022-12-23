@@ -63,6 +63,7 @@
                                 :key="props.isInheritField + props.isInherited"
                                 :disabled="props.isInherited"
                                 :value="props.currentValue"
+                                :error="getFieldError(element.name)"
                                 @input="props.updateCurrentValue"
                                 @change="props.updateCurrentValue"
                             />

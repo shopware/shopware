@@ -27,6 +27,11 @@ export function mapPropertyErrors(entityName, properties = []) {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function mapSystemConfigErrors(entityName, saleChannelId, key = '') {
+    return Shopware.State.getters['error/getSystemConfigApiError'](entityName, saleChannelId, key);
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapCollectionPropertyErrors(entityCollectionName, properties = []) {
     const computedValues = {};
 

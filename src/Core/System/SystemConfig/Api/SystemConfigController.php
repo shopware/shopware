@@ -3,10 +3,12 @@
 namespace Shopware\Core\System\SystemConfig\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,8 +22,11 @@ class SystemConfigController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly ConfigurationService $configurationService, private readonly SystemConfigService $systemConfig)
-    {
+    public function __construct(
+        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigService $systemConfig,
+        private readonly SystemConfigValidator $systemConfigValidator
+    ) {
     }
 
     #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', methods: ['GET'], defaults: ['_acl' => ['system_config:read']])]
@@ -85,12 +90,26 @@ class SystemConfigController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * @deprecated tag:v6.6.0 $context param will be required
+     */
     #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', methods: ['POST'], defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']])]
-    public function batchSaveConfiguration(Request $request): JsonResponse
+    public function batchSaveConfiguration(Request $request, ?Context $context = null): JsonResponse
     {
+        if (!$context) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                'Second parameter `$context` will be required in method `batchSaveConfiguration()` in `SystemConfigController` in v6.6.0.0'
+            );
+
+            $context = Context::createDefaultContext();
+        }
+
+        $this->systemConfigValidator->validate($request->request->all(), $context);
+
         /**
          * @var string $salesChannelId
-         * @var array  $kvs
+         * @var array<string, mixed> $kvs
          */
         foreach ($request->request->all() as $salesChannelId => $kvs) {
             if ($salesChannelId === 'null') {
@@ -102,6 +121,9 @@ class SystemConfigController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * @param array<string, mixed> $kvs
+     */
     private function saveKeyValues(?string $salesChannelId, array $kvs): void
     {
         foreach ($kvs as $key => $value) {

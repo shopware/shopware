@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
+/**
+ * @package inventory
+ */
 class ProductExportPartialGeneration implements AsyncMessageInterface
 {
     private int $offset;

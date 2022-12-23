@@ -18,6 +18,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @phpstan-import-type Offset from IterableQuery
+ *
+ * @package core
  */
 class ThemeIndexer extends EntityIndexer
 {

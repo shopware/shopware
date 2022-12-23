@@ -22,6 +22,8 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class MediaGenerator implements DemodataGeneratorInterface
 {

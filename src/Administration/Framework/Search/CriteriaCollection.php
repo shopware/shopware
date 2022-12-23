@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Criteria>
+ *
+ * @package administration
  */
 class CriteriaCollection extends Collection
 {

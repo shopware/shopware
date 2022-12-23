@@ -7,6 +7,8 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
+ * @package core
+ *
  * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string}
  */
 class Feature

@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @final
+ *
+ * @package storefront
  */
 #[AsCommand(
     name: 'sales-channel:create:storefront',

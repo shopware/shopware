@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerial
  *
  *      // single type values
  *      [12,55,192,22]
+ *
+ * @package core
  */
 class ListField extends JsonField
 {

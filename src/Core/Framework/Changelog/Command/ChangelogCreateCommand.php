@@ -15,6 +15,8 @@ use Symfony\Component\Process\Process;
 
 /**
  * @internal
+ *
+ * @package core
  */
 #[AsCommand(
     name: 'changelog:create',

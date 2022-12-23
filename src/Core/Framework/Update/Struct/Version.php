@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package system-settings
+ */
 class Version extends Struct
 {
     /**

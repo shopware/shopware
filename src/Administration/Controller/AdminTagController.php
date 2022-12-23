@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
+ *
+ * @package administration
  */
 class AdminTagController extends AbstractController
 {

@@ -20,6 +20,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class StringFieldSerializer extends AbstractFieldSerializer
 {

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class CheapestPrice extends Struct
 {
     /**

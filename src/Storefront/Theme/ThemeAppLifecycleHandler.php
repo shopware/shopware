@@ -11,6 +11,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class ThemeAppLifecycleHandler implements EventSubscriberInterface
 {

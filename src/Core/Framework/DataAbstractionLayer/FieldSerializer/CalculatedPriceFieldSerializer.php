@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 {

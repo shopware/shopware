@@ -6,6 +6,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
+/**
+ * @package sales-channel
+ */
 class MailTemplateTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

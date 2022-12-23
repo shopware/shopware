@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 
+/**
+ * @package inventory
+ */
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
     private const MAXIMUM_KEYWORD_LENGTH = 500;

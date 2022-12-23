@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * Cookies are returned within groups, groups require the "group" attribute
  * A group is structured as described above the "getCookieGroup"-method
+ * @package storefront
  *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *

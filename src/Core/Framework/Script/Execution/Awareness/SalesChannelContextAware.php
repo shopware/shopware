@@ -9,6 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The services can inject the context beforehand and provide a narrow API to the developer.
  *
  * @internal
+ *
+ * @package core
  */
 interface SalesChannelContextAware
 {

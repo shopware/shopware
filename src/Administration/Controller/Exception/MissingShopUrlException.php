@@ -4,6 +4,9 @@ namespace Shopware\Administration\Controller\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @package administration
+ */
 class MissingShopUrlException extends ShopwareHttpException
 {
     public function __construct()

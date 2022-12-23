@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CmsBlockPersister
 {

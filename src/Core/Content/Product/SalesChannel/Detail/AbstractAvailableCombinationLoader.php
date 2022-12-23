@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package inventory
+ */
 abstract class AbstractAvailableCombinationLoader
 {
     abstract public function getDecorated(): AbstractAvailableCombinationLoader;

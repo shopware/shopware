@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
+/**
+ * @package checkout
+ */
 class StateMachineTransitionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'state_machine_transition';

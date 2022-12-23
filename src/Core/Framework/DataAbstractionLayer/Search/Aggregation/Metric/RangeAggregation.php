@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
  * Bound are computed as in the elasticsearch range aggregation :
  *    the "from" will be compared with greater than or equal
  *    the "to" will be compared with lower than
+ *
+ * @package core
  */
 final class RangeAggregation extends Aggregation
 {

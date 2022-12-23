@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package inventory
+ */
 interface ProductSearchKeywordAnalyzerInterface
 {
     /**

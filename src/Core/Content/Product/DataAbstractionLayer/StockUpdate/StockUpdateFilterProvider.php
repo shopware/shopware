@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal In order to manipulate the filter process, provide your own tagged AbstractStockUpdateFilter
+ *
+ * @package core
  */
 final class StockUpdateFilterProvider
 {

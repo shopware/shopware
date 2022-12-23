@@ -17,10 +17,16 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @package core
+ */
 #[AsCommand(
     name: 'docs:app-system-events',
     description: 'Dump the app events',
 )]
+/**
+ * @package core
+ */
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';

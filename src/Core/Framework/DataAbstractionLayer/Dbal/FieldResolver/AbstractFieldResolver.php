@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 /**
  * @internal
+ *
+ * @package core
  */
 abstract class AbstractFieldResolver
 {

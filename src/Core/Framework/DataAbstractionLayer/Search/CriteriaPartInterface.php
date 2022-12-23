@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 /**
  * @internal
+ *
+ * @package core
  */
 interface CriteriaPartInterface
 {

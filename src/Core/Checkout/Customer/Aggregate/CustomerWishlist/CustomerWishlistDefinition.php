@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @package customer-order
+ */
 class CustomerWishlistDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer_wishlist';

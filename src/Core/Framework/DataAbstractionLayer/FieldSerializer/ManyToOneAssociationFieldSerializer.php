@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 {

@@ -5,6 +5,9 @@ namespace Shopware\Administration\Controller\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package administration
+ */
 class AppByNameNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $appName)

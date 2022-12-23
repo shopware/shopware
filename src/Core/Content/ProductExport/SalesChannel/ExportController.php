@@ -28,6 +28,8 @@ use function class_exists;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @package inventory
  */
 class ExportController
 {

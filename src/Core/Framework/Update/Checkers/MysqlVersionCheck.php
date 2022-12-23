@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Update\Checkers;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
+/**
+ * @package system-settings
+ */
 class MysqlVersionCheck implements CheckerInterface
 {
     /**

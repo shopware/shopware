@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Struct;
 if (class_exists('Shopware\Storefront\Page\Product\Review\RatingMatrix')) {
     /**
      * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - will only extend from `Struct` in the future
+     *
+     * @package inventory
      */
     class RatingMatrix extends \Shopware\Storefront\Page\Product\Review\RatingMatrix
     {
@@ -94,6 +96,9 @@ if (class_exists('Shopware\Storefront\Page\Product\Review\RatingMatrix')) {
         }
     }
 } else {
+    /**
+     * @package inventory
+     */
     class RatingMatrix extends Struct
     {
         private const MAX_POINTS = 5;

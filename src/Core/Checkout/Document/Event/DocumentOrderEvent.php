@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @package customer-order
+ */
 abstract class DocumentOrderEvent extends Event
 {
     private OrderCollection $orders;

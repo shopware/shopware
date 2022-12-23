@@ -23,7 +23,7 @@ parameters:
 
     excludePaths:
         - src/Recovery/*
-
+        - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
         - src/Core/Framework/Compatibility/AnnotationReader.php
         - src/Core/Framework/Compatibility/DocParser.php

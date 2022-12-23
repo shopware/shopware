@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
  * @internal use entity repository to write data
+ *
+ * @package core
  */
 interface EntityWriterInterface
 {

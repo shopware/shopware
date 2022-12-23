@@ -10,6 +10,9 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @package business-ops
+ */
 #[AsCommand(
     name: 'debug:business-events',
     description: 'Dumps all business events',

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 
 /**
  * @final
+ *
+ * @package core
  */
 class ScoreQuery extends Filter
 {

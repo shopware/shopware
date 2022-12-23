@@ -18,6 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class LongTextFieldSerializer extends AbstractFieldSerializer
 {

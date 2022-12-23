@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App\Manifest\Exception;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class ManifestNotFoundException extends \RuntimeException
 {

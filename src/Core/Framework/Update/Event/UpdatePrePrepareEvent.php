@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Update\Event;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @package system-settings
+ */
 class UpdatePrePrepareEvent extends UpdateEvent
 {
     /**

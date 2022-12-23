@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
+ *
+ * @package checkout
  */
 class StorefrontCartSubscriber implements EventSubscriberInterface
 {

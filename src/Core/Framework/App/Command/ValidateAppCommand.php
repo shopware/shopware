@@ -18,6 +18,8 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 #[AsCommand(
     name: 'app:validate',

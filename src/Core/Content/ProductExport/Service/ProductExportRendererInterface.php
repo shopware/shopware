@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 interface ProductExportRendererInterface
 {
     public function renderHeader(

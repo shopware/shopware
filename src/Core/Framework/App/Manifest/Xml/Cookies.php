@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @package core
  */
 class Cookies extends XmlElement
 {

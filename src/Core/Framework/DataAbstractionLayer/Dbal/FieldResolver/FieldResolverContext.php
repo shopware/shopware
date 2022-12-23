@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class FieldResolverContext extends Struct
 {

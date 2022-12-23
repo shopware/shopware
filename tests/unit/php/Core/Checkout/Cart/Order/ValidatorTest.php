@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  *
+ * @package checkout
+ *
  * @covers \Shopware\Core\Checkout\Cart\Validator
  */
 class ValidatorTest extends TestCase

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @package administration
+ */
 class SnippetFinder implements SnippetFinderInterface
 {
     private Kernel $kernel;

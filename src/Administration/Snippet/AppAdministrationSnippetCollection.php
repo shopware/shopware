@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @method AppAdministrationSnippetEntity|null get(string $key)
  * @method AppAdministrationSnippetEntity|null first()
  * @method AppAdministrationSnippetEntity|null last()
+ *
+ * @package administration
  */
 class AppAdministrationSnippetCollection extends EntityCollection
 {

@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package core
  *
  * @internal
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @internal

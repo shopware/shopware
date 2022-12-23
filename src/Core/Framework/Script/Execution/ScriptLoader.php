@@ -13,6 +13,8 @@ use Twig\Cache\FilesystemCache;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class ScriptLoader implements EventSubscriberInterface
 {

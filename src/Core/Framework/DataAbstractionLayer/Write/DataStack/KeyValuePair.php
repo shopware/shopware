@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class KeyValuePair
 {

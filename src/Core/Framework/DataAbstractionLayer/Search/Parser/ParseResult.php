@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ParseResult
 {

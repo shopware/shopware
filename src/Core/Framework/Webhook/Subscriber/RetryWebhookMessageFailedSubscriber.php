@@ -13,6 +13,8 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {

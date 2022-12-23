@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class Context extends Struct
 {
     use StateAwareTrait;

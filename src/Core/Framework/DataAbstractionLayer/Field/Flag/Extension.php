@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
  * Defines that the data of this field is stored in an Entity::$extension and are not part of the struct itself.
+ *
+ * @package core
  */
 class Extension extends Flag
 {

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
+ *
+ * @package core
  */
 class Bucket extends Struct
 {

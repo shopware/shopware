@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Decoratable()
+ *
+ * @package administration
  */
 class KnownIpsCollector implements KnownIpsCollectorInterface
 {

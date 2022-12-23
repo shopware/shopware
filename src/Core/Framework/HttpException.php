@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework;
 
+/**
+ * @package core
+ */
 abstract class HttpException extends ShopwareHttpException
 {
     protected string $errorCode;

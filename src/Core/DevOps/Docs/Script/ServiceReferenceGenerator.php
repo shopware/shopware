@@ -20,6 +20,8 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ServiceReferenceGenerator implements ScriptReferenceGenerator
 {
@@ -144,7 +146,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $scriptServices = [];
 
         $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../../..')
-            ->exclude('*/Test/*', '*/vendor/*')
+            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/StaticAnalyze*')
             ->findClassNames();
 
         foreach ($shopwareClasses as $class) {

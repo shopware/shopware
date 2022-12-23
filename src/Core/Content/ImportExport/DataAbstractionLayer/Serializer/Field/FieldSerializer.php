@@ -24,6 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @package core
+ */
 class FieldSerializer extends AbstractFieldSerializer
 {
     public function serialize(Config $config, Field $field, $value): iterable

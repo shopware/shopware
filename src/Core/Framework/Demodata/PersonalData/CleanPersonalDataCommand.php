@@ -18,6 +18,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 #[AsCommand(
     name: 'database:clean-personal-data',

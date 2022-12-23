@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class VariantListingConfig extends Struct
 {
     protected ?bool $displayParent;

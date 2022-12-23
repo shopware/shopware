@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1668677456AddAppReadPrivilegeForIntegrationRoles extends MigrationStep
 {

@@ -34,6 +34,8 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  * Handles all write operations in the system.
  * Builds first a command queue over the WriteCommandExtractor and let execute this queue
  * over the EntityWriteGateway (sql implementation in default).
+ *
+ * @package core
  */
 class EntityWriter implements EntityWriterInterface
 {

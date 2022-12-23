@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
  * @internal
+ *
+ * @package core
  */
 abstract class SingleFieldFilter extends Filter
 {

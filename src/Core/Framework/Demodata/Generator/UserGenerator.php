@@ -16,6 +16,8 @@ use Shopware\Core\System\User\UserDefinition;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class UserGenerator implements DemodataGeneratorInterface
 {

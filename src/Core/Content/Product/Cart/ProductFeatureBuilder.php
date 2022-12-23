@@ -15,6 +15,9 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 class ProductFeatureBuilder
 {
     private EntityRepository $customFieldRepository;

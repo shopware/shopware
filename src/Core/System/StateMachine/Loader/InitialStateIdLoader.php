@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @package checkout
+ */
 class InitialStateIdLoader implements ResetInterface
 {
     public const CACHE_KEY = 'state-machine-initial-state-ids';

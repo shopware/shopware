@@ -14,6 +14,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal
+ *
+ * @package core
  */
 class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 {

@@ -7,6 +7,8 @@ use OpenSearchDSL\Aggregation\Type\BucketingTrait;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ElasticsearchRangeAggregation extends AbstractAggregation
 {

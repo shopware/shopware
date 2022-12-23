@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @package system-settings
+ *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
  * @internal

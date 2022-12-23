@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Maintenance\System\Exception;
 
+/**
+ * @package core
+ */
 class ShopConfigurationException extends \RuntimeException
 {
 }

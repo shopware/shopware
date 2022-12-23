@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+/**
+ * @package core
+ */
 abstract class Struct implements \JsonSerializable, ExtendableInterface
 {
     //allows to clone full struct with all references

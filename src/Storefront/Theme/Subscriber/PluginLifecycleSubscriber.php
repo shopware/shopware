@@ -23,6 +23,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {

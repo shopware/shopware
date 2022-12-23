@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @package core
+ */
 class ToOneSerializer extends FieldSerializer
 {
     private PrimaryKeyResolver $primaryKeyResolver;

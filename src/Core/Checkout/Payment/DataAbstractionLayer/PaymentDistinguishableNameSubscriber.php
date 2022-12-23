@@ -9,6 +9,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class PaymentDistinguishableNameSubscriber implements EventSubscriberInterface
 {

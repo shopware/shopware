@@ -39,6 +39,8 @@ use function array_filter;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class EntityReader implements EntityReaderInterface
 {

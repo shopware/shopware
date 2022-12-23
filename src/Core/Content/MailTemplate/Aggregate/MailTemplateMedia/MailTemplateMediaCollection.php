@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @extends EntityCollection<MailTemplateMediaEntity>
+ *
+ * @package sales-channel
  */
 class MailTemplateMediaCollection extends EntityCollection
 {

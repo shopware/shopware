@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class FirstRunWizardSubscriber implements EventSubscriberInterface
 {

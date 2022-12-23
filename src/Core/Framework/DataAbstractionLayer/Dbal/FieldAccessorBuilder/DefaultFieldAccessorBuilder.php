@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class DefaultFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

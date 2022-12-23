@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class AffiliateTrackingListener implements EventSubscriberInterface
 {

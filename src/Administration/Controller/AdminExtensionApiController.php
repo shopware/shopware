@@ -27,6 +27,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal Only to be used by the admin-extension-sdk.
  *
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @package administration
  */
 class AdminExtensionApiController extends AbstractController
 {

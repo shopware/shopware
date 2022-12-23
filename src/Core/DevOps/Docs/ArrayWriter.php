@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\Docs;
 
+/**
+ * @package core
+ */
 class ArrayWriter
 {
     /**

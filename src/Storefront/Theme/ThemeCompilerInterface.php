@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @package storefront
+ */
 interface ThemeCompilerInterface
 {
     public function compileTheme(

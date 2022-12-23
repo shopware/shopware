@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ProductReviewGenerator implements DemodataGeneratorInterface
 {

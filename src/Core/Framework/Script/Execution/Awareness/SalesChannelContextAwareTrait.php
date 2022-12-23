@@ -6,6 +6,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @package core
  */
 trait SalesChannelContextAwareTrait
 {

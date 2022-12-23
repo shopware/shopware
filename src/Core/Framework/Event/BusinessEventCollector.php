@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package business-ops
+ */
 class BusinessEventCollector
 {
     /**

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting;
 
 /**
  * @final
+ *
+ * @package core
  */
 class CountSorting extends FieldSorting
 {

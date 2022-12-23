@@ -21,6 +21,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ApiAuthenticationListener implements EventSubscriberInterface
 {

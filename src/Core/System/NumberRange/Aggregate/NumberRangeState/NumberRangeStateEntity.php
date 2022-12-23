@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
+/**
+ * @package checkout
+ */
 class NumberRangeStateEntity extends Entity
 {
     use EntityIdTrait;

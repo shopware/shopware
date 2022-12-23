@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package sales-channel
+ */
 class MailTemplateEntity extends Entity
 {
     use EntityIdTrait;

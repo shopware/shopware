@@ -4,6 +4,8 @@ namespace Shopware\Core\Migration\Traits;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class StateMachineMigration
 {

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
+/**
+ * @package system-settings
+ */
 class LocaleTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'locale_translation';

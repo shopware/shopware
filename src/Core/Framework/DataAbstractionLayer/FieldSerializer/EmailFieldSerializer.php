@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class EmailFieldSerializer extends AbstractFieldSerializer
 {

@@ -11,6 +11,9 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCross
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package inventory
+ */
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private AbstractProductCrossSellingRoute $crossSellingLoader;

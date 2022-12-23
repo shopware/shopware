@@ -31,6 +31,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class FlowGenerator implements DemodataGeneratorInterface
 {

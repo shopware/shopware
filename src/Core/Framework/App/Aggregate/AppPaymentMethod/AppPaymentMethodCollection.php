@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  * @internal only for use by the app-system
  *
  * @extends EntityCollection<AppPaymentMethodEntity>
+ *
+ * @package core
  */
 class AppPaymentMethodCollection extends EntityCollection
 {

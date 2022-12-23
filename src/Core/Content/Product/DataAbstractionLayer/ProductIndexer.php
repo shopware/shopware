@@ -23,6 +23,9 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @package core
+ */
 class ProductIndexer extends EntityIndexer
 {
     public const INHERITANCE_UPDATER = 'product.inheritance';

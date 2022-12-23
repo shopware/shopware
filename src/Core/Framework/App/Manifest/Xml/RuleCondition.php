@@ -7,6 +7,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFac
 
 /**
  * @internal only for use by the app-system
+ *
+ * @package core
  */
 class RuleCondition extends XmlElement
 {

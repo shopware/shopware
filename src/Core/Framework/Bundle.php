@@ -21,6 +21,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @package core
+ */
 abstract class Bundle extends SymfonyBundle
 {
     public function build(ContainerBuilder $container): void

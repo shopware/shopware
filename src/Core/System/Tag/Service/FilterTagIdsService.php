@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @package business-ops
  */
 class FilterTagIdsService
 {

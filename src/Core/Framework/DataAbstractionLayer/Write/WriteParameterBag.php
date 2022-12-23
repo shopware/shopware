@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @inernal
+ *
+ * @package core
  */
 class WriteParameterBag
 {

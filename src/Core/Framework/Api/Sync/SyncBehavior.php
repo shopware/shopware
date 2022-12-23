@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+/**
+ * @package core
+ */
 class SyncBehavior
 {
     protected ?string $indexingBehavior;

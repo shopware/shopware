@@ -5,6 +5,9 @@ namespace Shopware\Core\System\CustomEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @package core
+ */
 class CustomEntityEntity extends Entity
 {
     use EntityIdTrait;

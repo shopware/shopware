@@ -7,16 +7,95 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @implements Rule<InClassNode>
  *
  * @internal
+ *
+ * @package core
  */
 class PackageAnnotationRule implements Rule
 {
-    private const PRODUCT_AREA_MAPPING = [
-        'business-ops' => '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
+    /**
+     * @internal
+     */
+    public const PRODUCT_AREA_MAPPING = [
+        'core' => [
+            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',
+            '/Shopware\\\\Core\\\\DevOps\\\\/',
+            '/Shopware\\\\Core\\\\Installer\\\\/',
+            '/Shopware\\\\Core\\\\Maintenance\\\\/',
+            '/Shopware\\\\Core\\\\Migration\\\\/',
+            '/Shopware\\\\Core\\\\Profiling\\\\/',
+            '/Shopware\\\\Elasticsearch\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Annotation|CustomEntity|DependencyInjection|SystemConfig)\\\\/',
+            '/Shopware\\\\.*\\\\(DataAbstractionLayer)\\\\/',
+        ],
+        'business-ops' => [
+            '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Tag)\\\\/',
+        ],
+        'inventory' => [
+            '/Shopware\\\\Core\\\\Content\\\\(Product|ProductExport|Property)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Currency|Unit)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Product\\\\/',
+        ],
+        'content' => [
+            '/Shopware\\\\Core\\\\Content\\\\(Media|Category|Cms|ContactForm|LandingPage)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Cms\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\LandingPage\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Contact\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Navigation\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Menu\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Footer\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\/',
+        ],
+        'system-settings' => [
+            '/Shopware\\\\Core\\\\Content\\\\(ImportExport|Mail)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Update)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Country|CustomField|Integration|Language|Locale|Snippet|User)\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Country\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Suggest\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Search\\\\/',
+        ],
+        'sales-channel' => [
+            '/Shopware\\\\Core\\\\Content\\\\(MailTemplate|Seo|Sitemap)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(SalesChannel)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Captcha\\\\/',
+        ],
+        'customer-order' => [
+            '/Shopware\\\\Core\\\\Content\\\\(Newsletter)\\\\/',
+            '/Shopware\\\\Core\\\\Checkout\\\\(Customer|Document|Order)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|Salutation|Tax)\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Maintenance\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Address\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Account\\\\/',
+        ],
+        'checkout' => [
+            '/Shopware\\\\Core\\\\Checkout\\\\(Cart|Payment|Promotion|Shipping)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|NumberRange|StateMachine)\\\\/',
+            '/Shopware\\\\Storefront\\\\Checkout\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\/',
+        ],
+        'merchant-services' => [
+            '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
+        ],
+        'storefront' => [
+            '/Shopware\\\\Storefront\\\\Theme\\\\/',
+            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Theme|Test)\\\\/',
+        ],
+        'administration' => [
+            '/Shopware\\\\Administration\\\\/',
+        ],
     ];
 
     public function getNodeType(): string
@@ -31,31 +110,36 @@ class PackageAnnotationRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$area = $this->getProductArea($node)) {
+        if ($this->isTestClass($node)) {
             return [];
         }
 
-        if ($this->hasPackageAnnotation($node, $area)) {
+        if ($this->hasPackageAnnotation($node)) {
             return [];
         }
 
-        return [sprintf('This class is missing the "@package %s" annotation', $area)];
+        return [];
+
+        // will be activated in a separate MR
+//        return [sprintf('This class is missing the "@package" annotation (recommendation: %s)', $this->getProductArea($node) ?? 'unknown')];
     }
 
-    private function getProductArea(InClassNode $node): ?string
-    {
-        $namespace = $node->getClassReflection()->getName();
+//    private function getProductArea(InClassNode $node): ?string
+//    {
+//        $namespace = $node->getClassReflection()->getName();
+//
+//        foreach (self::PRODUCT_AREA_MAPPING as $area => $regexes) {
+//            foreach ($regexes as $regex) {
+//                if (preg_match($regex, $namespace)) {
+//                    return $area;
+//                }
+//            }
+//        }
+//
+//        return null;
+//    }
 
-        foreach (self::PRODUCT_AREA_MAPPING as $area => $regex) {
-            if (preg_match($regex, $namespace)) {
-                return $area;
-            }
-        }
-
-        return null;
-    }
-
-    private function hasPackageAnnotation(InClassNode $class, string $area): bool
+    private function hasPackageAnnotation(InClassNode $class): bool
     {
         $doc = $class->getDocComment();
 
@@ -63,6 +147,26 @@ class PackageAnnotationRule implements Rule
             return false;
         }
 
-        return \str_contains($doc->getText(), sprintf('@package %s', $area));
+        return \str_contains($doc->getText(), '@package');
+    }
+
+    private function isTestClass(InClassNode $node): bool
+    {
+        $namespace = $node->getClassReflection()->getName();
+
+        if (\str_contains($namespace, '\\Tests\\') || \str_contains($namespace, '\\Test\\')) {
+            return true;
+        }
+
+        $file = (string) $node->getClassReflection()->getFileName();
+        if (\str_contains($file, '/tests/') || \str_contains($file, '/Tests/') || \str_contains($file, '/Test/')) {
+            return true;
+        }
+
+        if ($node->getClassReflection()->getParentClass() === null) {
+            return false;
+        }
+
+        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 }

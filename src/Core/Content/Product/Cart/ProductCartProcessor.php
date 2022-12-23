@@ -28,6 +28,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @package inventory
+ */
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
     public const CUSTOM_PRICE = 'customPrice';

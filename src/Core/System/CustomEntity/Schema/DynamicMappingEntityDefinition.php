@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal Used for custom entities
+ *
+ * @package core
  */
 class DynamicMappingEntityDefinition extends MappingEntityDefinition
 {

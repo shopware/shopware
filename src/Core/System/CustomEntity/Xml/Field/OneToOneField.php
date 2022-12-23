@@ -4,6 +4,9 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 
+/**
+ * @package core
+ */
 class OneToOneField extends AssociationField
 {
     use RequiredTrait;

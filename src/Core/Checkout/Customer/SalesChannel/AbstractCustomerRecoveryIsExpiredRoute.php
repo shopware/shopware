@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * This route is used get the CustomerRecoveryIsExpiredResponse entry for a given hash
  * The required parameter is: "hash"
+ *
+ * @package customer-order
  */
 abstract class AbstractCustomerRecoveryIsExpiredRoute
 {

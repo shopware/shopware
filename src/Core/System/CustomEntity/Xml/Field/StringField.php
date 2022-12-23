@@ -5,6 +5,9 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 
+/**
+ * @package core
+ */
 class StringField extends Field
 {
     use TranslatableTrait;

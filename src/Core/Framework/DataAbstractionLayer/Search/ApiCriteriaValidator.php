@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 
 /**
  * @final
+ *
+ * @package core
  */
 class ApiCriteriaValidator
 {

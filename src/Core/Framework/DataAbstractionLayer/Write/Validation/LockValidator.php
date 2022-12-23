@@ -13,6 +13,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class LockValidator implements EventSubscriberInterface
 {

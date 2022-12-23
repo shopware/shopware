@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Migration1669298267AddIconCacheDefaultValue extends MigrationStep
 {

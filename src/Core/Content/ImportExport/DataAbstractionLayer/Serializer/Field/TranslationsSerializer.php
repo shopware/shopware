@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @package core
+ */
 class TranslationsSerializer extends FieldSerializer
 {
     /**

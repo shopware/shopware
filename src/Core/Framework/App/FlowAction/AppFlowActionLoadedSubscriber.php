@@ -8,6 +8,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class AppFlowActionLoadedSubscriber implements EventSubscriberInterface
 {

@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @package inventory
+ */
 class DuplicateProductSearchConfigFieldException extends ShopwareHttpException
 {
     public function __construct(string $fieldName, \Throwable $e)

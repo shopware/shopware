@@ -16,6 +16,8 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  * @internal
  *
  * @phpstan-import-type TimeBackoffLimit from TimeBackoff
+ *
+ * @package core
  */
 class TimeBackoffLimiter implements LimiterInterface
 {

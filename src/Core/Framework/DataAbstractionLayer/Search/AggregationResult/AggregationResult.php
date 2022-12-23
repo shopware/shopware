@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
+ *
+ * @package core
  */
 abstract class AggregationResult extends Struct
 {

@@ -8,6 +8,9 @@ use Symfony\Component\Cache\CacheItem;
 use Symfony\Contracts\Cache\CacheTrait;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
+/**
+ * @package core
+ */
 class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
 {
     use CacheTrait;

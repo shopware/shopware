@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
 {

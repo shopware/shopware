@@ -50,6 +50,8 @@ use Doctrine\Common\Annotations\Annotation;
  *      The decorator before you will always call your decorator with the deprecated Interface, therefore you still have to implement it
  * 2. The decorator after your decorator has not adapted yet
  *      If you call the inner service decorator with the new interface, which it does not implement yet it will lead to errors, therefore you have to also to the instanceof check in your decorators.
+ *
+ * @package core
  */
 class ReplaceDecoratedInterface
 {

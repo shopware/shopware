@@ -20,6 +20,8 @@ use function Symfony\Component\String\u;
 /**
  * @interal
  * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable}>
+ *
+ * @package core
  */
 #[AsCommand(name: 'app:create')]
 class CreateAppCommand extends Command

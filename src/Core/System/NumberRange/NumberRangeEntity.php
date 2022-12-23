@@ -10,6 +10,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeState
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
+/**
+ * @package checkout
+ */
 class NumberRangeEntity extends Entity
 {
     use EntityIdTrait;

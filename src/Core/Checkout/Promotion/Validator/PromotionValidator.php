@@ -20,6 +20,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @package checkout
  */
 class PromotionValidator implements EventSubscriberInterface
 {

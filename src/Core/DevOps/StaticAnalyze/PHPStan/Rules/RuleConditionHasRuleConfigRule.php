@@ -40,6 +40,8 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
  * @implements Rule<InClassNode>
  *
  * @internal
+ *
+ * @package core
  */
 class RuleConditionHasRuleConfigRule implements Rule
 {

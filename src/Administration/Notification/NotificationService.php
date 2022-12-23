@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
  * @internal
+ *
+ * @package administration
  */
 class NotificationService
 {

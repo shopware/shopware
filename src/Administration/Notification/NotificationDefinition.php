@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @package administration
+ */
 class NotificationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'notification';

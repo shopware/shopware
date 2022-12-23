@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @package customer-order
+ */
 class CustomerWishlistProductListingResultEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';

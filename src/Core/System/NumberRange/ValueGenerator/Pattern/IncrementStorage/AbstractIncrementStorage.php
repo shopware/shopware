@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
+/**
+ * @package checkout
+ */
 abstract class AbstractIncrementStorage
 {
     /**

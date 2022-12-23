@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Locale;
 
+/**
+ * @package system-settings
+ */
 class LocaleEvents
 {
     /**

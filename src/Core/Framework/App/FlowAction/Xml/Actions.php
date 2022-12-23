@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class Actions extends XmlElement
 {

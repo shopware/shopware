@@ -10,6 +10,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class CreditOrderLineItemListener implements EventSubscriberInterface
 {

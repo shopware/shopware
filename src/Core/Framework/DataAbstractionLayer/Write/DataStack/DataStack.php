@@ -28,6 +28,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
  *      }
  *
  *      $resultSet = $stack->getResultAsArray();
+ *
+ * @package core
  */
 class DataStack
 {

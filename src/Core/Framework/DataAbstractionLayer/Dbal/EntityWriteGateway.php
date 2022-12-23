@@ -46,6 +46,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {

@@ -9,6 +9,8 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  * @internal
  *
  * @phpstan-type TimeBackoffLimit array{limit: int, interval: string}
+ *
+ * @package core
  */
 class TimeBackoff implements LimiterStateInterface
 {

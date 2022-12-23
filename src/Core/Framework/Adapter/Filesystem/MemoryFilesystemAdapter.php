@@ -20,6 +20,8 @@ use League\MimeTypeDetection\MimeTypeDetector;
  * @internal
  *
  * @see https://github.com/thephpleague/flysystem/issues/1477
+ *
+ * @package core
  */
 class MemoryFilesystemAdapter implements FilesystemAdapter
 {

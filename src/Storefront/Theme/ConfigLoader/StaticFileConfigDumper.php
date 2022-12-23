@@ -15,6 +15,8 @@ use const JSON_THROW_ON_ERROR;
 
 /**
  * @internal
+ *
+ * @package storefront
  */
 class StaticFileConfigDumper implements EventSubscriberInterface
 {

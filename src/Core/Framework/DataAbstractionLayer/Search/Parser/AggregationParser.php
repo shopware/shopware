@@ -23,6 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class AggregationParser
 {

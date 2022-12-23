@@ -28,6 +28,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class RuleGenerator implements DemodataGeneratorInterface
 {

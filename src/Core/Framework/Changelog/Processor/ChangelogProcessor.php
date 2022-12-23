@@ -19,6 +19,8 @@ use function sprintf;
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
+ *
+ * @package core
  */
 class ChangelogProcessor
 {

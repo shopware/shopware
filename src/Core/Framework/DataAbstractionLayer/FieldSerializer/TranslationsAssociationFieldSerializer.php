@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @package core
  */
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {

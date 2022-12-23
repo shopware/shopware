@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
  * @internal
+ *
+ * @package core
  */
 interface EntityReaderInterface
 {

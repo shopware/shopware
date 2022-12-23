@@ -57,12 +57,11 @@ class ProductListingLoader
 
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
+        $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria = clone $origin;
 
         $this->addGrouping($criteria);
         $this->handleAvailableStock($criteria, $context);
-
-        $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $ids = $this->repository->searchIds($criteria, $context);
         /** @var list<string> $keys */

@@ -26,15 +26,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class SystemInstallCommand extends Command
 {
-    private string $projectDir;
-
-    private SetupDatabaseAdapter $setupDatabaseAdapter;
-
-    public function __construct(string $projectDir, SetupDatabaseAdapter $setupDatabaseAdapter)
-    {
+    public function __construct(
+        private string $projectDir,
+        private SetupDatabaseAdapter $setupDatabaseAdapter,
+        private DatabaseConnectionFactory $databaseConnectionFactory
+    ) {
         parent::__construct();
-        $this->projectDir = $projectDir;
-        $this->setupDatabaseAdapter = $setupDatabaseAdapter;
     }
 
     protected function configure(): void
@@ -49,6 +46,7 @@ class SystemInstallCommand extends Command
             ->addOption('shop-locale', null, InputOption::VALUE_REQUIRED, 'Default language locale of the shop')
             ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
             ->addOption('skip-jwt-keys-generation', null, InputOption::VALUE_NONE, 'Skips generation of jwt private and public key')
+            ->addOption('skip-assets-install', null, InputOption::VALUE_NONE, 'Skips installing of assets')
         ;
     }
 
@@ -152,9 +150,12 @@ class SystemInstallCommand extends Command
             }
         }
 
-        $commands[] = [
-            'command' => 'assets:install',
-        ];
+        if (!$input->getOption('skip-assets-install')) {
+            $commands[] = [
+                'command' => 'assets:install',
+            ];
+        }
+
         $commands[] = [
             'command' => 'cache:clear',
         ];
@@ -211,7 +212,7 @@ class SystemInstallCommand extends Command
     {
         $databaseConnectionInformation = DatabaseConnectionInformation::fromEnv();
 
-        $connection = DatabaseConnectionFactory::createConnection($databaseConnectionInformation, true);
+        $connection = $this->databaseConnectionFactory->getConnection($databaseConnectionInformation, true);
 
         $output->writeln('Prepare installation');
         $output->writeln('');

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
-use phpDocumentor\Reflection\PseudoTypes\False_;
-use phpDocumentor\Reflection\PseudoTypes\True_;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -32,24 +30,15 @@ class ErrorCollection extends Collection
         return false;
     }
 
-    /**
-     * Tries to collect all errors that have the optional blockResubmit attribute.
-     * Only if atleast one error has the attribute, and all occurences equal to false, return false.
-     * Else, return true by default.
-     */
     public function blockResubmit(): bool
     {
-        $blockResubmitGiven = $blockResubmitResult = false;
         foreach ($this->getIterator() as $error) {
-            if (method_exists($error, 'blockResubmit')) {
-                $blockResubmitGiven = true;
-                $blockResubmitResult = !($blockResubmitResult === false and $error->blockResubmit() === false);
+            if ($error->blockResubmit()) {
+                return true;
             }
         }
-        if($blockResubmitGiven) {
-            return $blockResubmitResult;
-        }
-        return true;
+
+        return false;
     }
 
     public function getErrors(): array

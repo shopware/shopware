@@ -212,10 +212,8 @@
                     <button id="confirmFormSubmit"
                             class="btn btn-primary btn-lg"
                             form="confirmOrderForm"
-                        {% if page.cart.errors.blockOrder %}
-                            {% if page.cart.errors.elements | first.blockResubmit is defined and page.cart.errors.elements | first.blockResubmit or page.cart.errors.elements | first.blockResubmit is not defined %}
-                                disabled
-                            {% endif %}
+                        {% if page.cart.errors.blockResubmit %}
+                            disabled
                         {% endif %}
                             type="submit">
                         {{ "checkout.confirmSubmit"|trans|sw_sanitize }}

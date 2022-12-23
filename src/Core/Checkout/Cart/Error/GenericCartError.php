@@ -15,17 +15,20 @@ class GenericCartError extends Error
 
     protected bool $blockOrder;
 
+    protected bool $blockResubmit;
+
     protected bool $persistent;
 
     protected array $parameters;
 
-    public function __construct(string $id, string $messageKey, array $parameters, int $level, bool $blockOrder, bool $persistent)
+    public function __construct(string $id, string $messageKey, array $parameters, int $level, bool $blockOrder, bool $blockResubmit, bool $persistent)
     {
         parent::__construct();
         $this->id = $id;
         $this->messageKey = $messageKey;
         $this->level = $level;
         $this->blockOrder = $blockOrder;
+        $this->blockResubmit = $blockResubmit;
         $this->persistent = $persistent;
         $this->parameters = $parameters;
     }
@@ -48,6 +51,11 @@ class GenericCartError extends Error
     public function blockOrder(): bool
     {
         return $this->blockOrder;
+    }
+
+    public function blockResubmit(): bool
+    {
+        return $this->blockResubmit;
     }
 
     public function getParameters(): array

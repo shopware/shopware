@@ -143,6 +143,7 @@ Component.register('sw-flow-list-flow-templates', {
         },
 
         createFlowFromTemplate(item: FlowTemplateEntity): void {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises,@typescript-eslint/no-unsafe-assignment
             this.$router.push({ name: 'sw.flow.create', params: { flowTemplateId: item.id } });
         },
 
@@ -151,14 +152,12 @@ Component.register('sw-flow-list-flow-templates', {
                 return;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.$router.push({
                 name: 'sw.flow.detail',
-                params: {
-                    id: item.id,
-                },
-                query: {
-                    type: 'template',
-                },
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                params: { id: item.id },
+                query: { type: 'template' },
             });
         },
     },

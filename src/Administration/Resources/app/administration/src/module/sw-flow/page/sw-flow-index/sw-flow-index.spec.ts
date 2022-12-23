@@ -77,19 +77,19 @@ describe('module/sw-flow/page/sw-flow-index', () => {
 
         const createButton = wrapper.find('.sw-flow-list__create');
 
-        expect(createButton.attributes().disabled).toBeFalsy();
+        expect(createButton.attributes().disabled).toBe(undefined);
     });
 
     it('should be not able to create a flow ', async () => {
         const wrapper = await createWrapper();
         const createButton = wrapper.find('.sw-flow-list__create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes().disabled).toBe('true');
     });
 
     it('should be show a number of flows ', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');
     });

@@ -66,7 +66,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const elementClasses = [
             '.sw-flow-detail-general__general-name',
             '.sw-flow-detail-general__general-description',
@@ -84,12 +84,12 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setProps({
             isTemplate: true,
         });
 
         const alertElement = wrapper.findAll('.sw-flow-detail-general__template');
-        expect(alertElement.exists()).toBeTruthy();
+        expect(alertElement.exists()).toBe(true);
     });
 });

@@ -54,7 +54,10 @@ Component.register('sw-flow-index', {
         },
 
         async getTotal(): Promise<void> {
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
             const { total } = await this.flowRepository.searchIds(this.flowCriteria);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             this.total = total;
         },
 

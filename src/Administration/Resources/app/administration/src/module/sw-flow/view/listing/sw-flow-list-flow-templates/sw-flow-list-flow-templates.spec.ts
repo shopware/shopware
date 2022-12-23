@@ -90,11 +90,11 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         const wrapper = await createWrapper([
             'flow.creator'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
-        expect(createFlowLink.exists()).toBeTruthy();
-        expect(createFlowLink.attributes().disabled).toBeFalsy();
+        expect(createFlowLink.exists()).toBe(true);
+        expect(createFlowLink.attributes().disabled).toBe(undefined);
 
         await createFlowLink.trigger('click');
 
@@ -105,16 +105,16 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         }]);
     });
 
-    it('should not be able to create a flow from template ', async () => {
+    it('should not be able to create a flow from template', async () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
-        expect(createFlowLink.exists()).toBeTruthy();
+        expect(createFlowLink.exists()).toBe(true);
 
-        expect(createFlowLink.attributes().disabled).toBeTruthy();
+        expect(createFlowLink.attributes().disabled).toBe('disabled');
     });
 
     it('should be able to edit a flow template', async () => {
@@ -137,5 +137,45 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
             params: { id: '44de136acf314e7184401d36406c1e90' },
             query: { type: 'template' }
         }]);
+    });
+
+    it('should be able to redirect to create flow page from flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.creator'
+        ]);
+        await flushPromises();
+        await wrapper.find('.sw-flow-list-my-flows__content__create-flow-link').trigger('click');
+
+        const routerPush = wrapper.vm.$router.push;
+
+        expect(routerPush).toHaveBeenLastCalledWith({
+            name: 'sw.flow.create',
+            params: { flowTemplateId: '44de136acf314e7184401d36406c1e90' }
+        });
+    });
+
+    it('should be able to view detail flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.creator'
+        ]);
+
+        await flushPromises();
+        await wrapper.find('.sw-flow-list-my-flows__content__update-flow-template-link').trigger('click');
+
+        const routerPush = wrapper.vm.$router.push;
+
+        expect(routerPush).toHaveBeenLastCalledWith({
+            name: 'sw.flow.detail',
+            params: { id: '44de136acf314e7184401d36406c1e90' },
+            query: {
+                type: 'template'
+            }
+        });
+
+        wrapper.vm.$router.push = jest.fn();
+        wrapper.vm.onEditFlow({});
+        await flushPromises();
+
+        expect(wrapper.vm.$router.push).toBeCalledTimes(0);
     });
 });

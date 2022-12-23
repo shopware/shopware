@@ -61,7 +61,7 @@ async function createWrapper(
     query = {},
     config = {},
     flowId = null,
-    promise = Promise.resolve(),
+    saveSuccess = true,
     param = {}
 ) {
     const localVue = createLocalVue();
@@ -75,7 +75,7 @@ async function createWrapper(
                     return {};
                 },
                 save: () => {
-                    return promise;
+                    return saveSuccess ? Promise.resolve() : Promise.reject();
                 },
                 get: (id) => {
                     if (id === ID_FLOW) {
@@ -214,26 +214,25 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         ], {}, {
             eventName: 'checkout.customer',
             sequences: [1, 2]
-        }, null, Promise.reject());
+        }, null, false);
 
-        Shopware.State.commit('swFlowState/setFlow',
-            {
-                name: 'Flow 1',
-                config: {
-                    eventName: 'checkout.customer',
-                    sequences: getSequencesCollection(sequencesFixture)
-                }
-            });
+        Shopware.State.commit('swFlowState/setFlow', {
+            name: 'Flow 1',
+            config: {
+                eventName: 'checkout.customer',
+                sequences: getSequencesCollection(sequencesFixture)
+            }
+        });
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(4);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.createNotificationError = jest.fn();
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         await saveButton.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toBeCalled();
     });
@@ -277,22 +276,22 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                 id: 'sequence-id',
                 config: {}
             }]
-        }, null, Promise.resolve(), {
+        }, null, true, {
             flowTemplateId: ID_FLOW_TEMPLATE
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(1);
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
-        expect(saveButton.attributes().disabled).toBeFalsy();
+        expect(saveButton.attributes().disabled).toBe(undefined);
     });
 
     it('should be able to rearrange sequences', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const sequences = [
             { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
@@ -319,7 +318,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
     it('should be able to build sequence collection from config of flow template', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const sequences = [
             { id: '900a915617054a5b8acbfda1a35831fa', parentId: 'd2b3a82c22284566b6a56fb47d577bfd' },
@@ -344,11 +343,11 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             'flow.editor'
         ], {
             type: 'template'
-        }, {}, null, Promise.resolve(), {
+        }, {}, null, true, {
             flowTemplateId: ID_FLOW_TEMPLATE
         });
 
         const alertElement = wrapper.findAll('.sw-flow-detail__template');
-        expect(alertElement.exists()).toBeTruthy();
+        expect(alertElement.exists()).toBe(true);
     });
 });

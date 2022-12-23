@@ -44,7 +44,6 @@ class Migration1664512574AddConfigShowHideSectionBlockTest extends TestCase
 
     /**
      * @return iterable<array<string>>
-     * @dataProvider
      */
     public function tableProvider(): iterable
     {

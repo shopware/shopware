@@ -5,6 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
 class Migration1664512574AddConfigShowHideSectionBlock extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -319,7 +319,7 @@
       "cancelled": "Abgebrochen",
       "completed": "Abgeschlossen",
       "inProgress": "In Bearbeitung",
-      "open": "Open",
+      "open": "Offen",
       "returned": "Zurückgeschickt",
       "returnedPartially": "Teilweise zurückgeschickt",
       "shipped": "Versendet",
@@ -334,7 +334,8 @@
       "reminded": "Erinnert",
       "unconfirmed": "Unbestätigt",
       "pending": "Ausstehend",
-      "changed": "Geändert"
+      "changed": "Geändert",
+      "update": "Aktualisierung"
     }
   },
   "sw-privileges": {

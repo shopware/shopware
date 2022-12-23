@@ -1,7 +1,6 @@
 {% block cms_form_newsletter %}
     <form action="{{ path(action) }}"
           method="post"
-          data-form-csrf-handler="true"
           data-form-validation="true">
 
         <div class="form-content">
@@ -100,11 +99,6 @@
 
         {% block cms_form_newsletter_hidden_fields %}
             <div class="form-hidden-fields">
-                {# @deprecated tag:v6.5.0 - Block cms_form_newsletter_csrf will be removed. #}
-                {% block cms_form_newsletter_csrf %}
-                    {{ sw_csrf(action) }}
-                {% endblock %}
-
                 <input type="submit" class="submit--hidden d-none" />
             </div>
         {% endblock %}

@@ -87,10 +87,6 @@
             {% endif %}
         {% endblock %}
 
-        {% block layout_head_android %}
-            {# @deprecated tag:v6.5.0 - Use the block above, "layout_head_apple", instead #}
-        {% endblock %}
-
         {% block layout_head_canonical %}
             {% if page.metaInformation.canonical %}
                 <link rel="canonical" href="{{ page.metaInformation.canonical }}" />
@@ -154,8 +150,6 @@
                     'frontend.cms.page': '{{ path('frontend.cms.page') }}',
                     'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
                     'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
-                    {# @deprecated tag:v6.5.0 - Route frontend.csrf.generateToken will be removed. #}
-                    'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
                     'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
                     };
                 window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
@@ -174,16 +168,6 @@
                 } %}
 
                 window.breakpoints = {{ breakpoint|json_encode()|raw }};
-            </script>
-        {% endblock %}
-
-        {# @deprecated tag:v6.5.0 - Block layout_head_javascript_csrf will be removed. #}
-        {% block layout_head_javascript_csrf %}
-            <script>
-                window.csrf = {
-                    'enabled': '{{ shopware.csrfEnabled }}',
-                    'mode': '{{ shopware.csrfMode }}'
-                }
             </script>
         {% endblock %}
 

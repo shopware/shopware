@@ -600,7 +600,6 @@
     "groupRequired": "Technisch erforderlich",
     "groupRequiredDescription": "Für die Funktion des Shops erforderliche Cookies:",
     "groupRequiredSession": "Sitzung",
-    "groupRequiredCsrf": "CSRF-Schutz",
     "groupRequiredTimezone": "Zeitzone",
     "groupRequiredCaptcha": "CAPTCHA-Integration",
     "groupStatistical": "Statistiken",

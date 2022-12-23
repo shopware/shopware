@@ -21,26 +21,12 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private $requestStack;
 
     /**
-     * @var bool
-     */
-    private $csrfEnabled;
-
-    /**
-     * @var string
-     */
-    private $csrfMode;
-
-    /**
      * @internal
      */
     public function __construct(
-        RequestStack $requestStack,
-        bool $csrfEnabled,
-        string $csrfMode
+        RequestStack $requestStack
     ) {
         $this->requestStack = $requestStack;
-        $this->csrfEnabled = $csrfEnabled;
-        $this->csrfMode = $csrfMode;
     }
 
     /**
@@ -68,8 +54,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         return [
             'shopware' => [
                 'dateFormat' => \DATE_ATOM,
-                'csrfEnabled' => $this->csrfEnabled,
-                'csrfMode' => $this->csrfMode,
             ],
             'themeId' => $themeId,
             'controllerName' => (string) $controllerInfo->getName(),

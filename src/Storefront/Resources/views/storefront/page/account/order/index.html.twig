@@ -86,16 +86,9 @@
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
-              data-form-csrf-handler="true"
               data-form-submit-loader="true"
               data-form-preserver="true"
               method="post">
-
-            {# @deprecated tag:v6.5.0 - Block page_checkout_aside_actions_csrf will be removed. #}
-            {% block page_checkout_aside_actions_csrf %}
-                {{ sw_csrf('frontend.account.edit-order.update-order') }}
-            {% endblock %}
-
             {% block page_checkout_aside_actions_payment_method_id %}
                 <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
             {% endblock %}

@@ -8,7 +8,6 @@ use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -84,17 +83,6 @@ class ProductController extends StorefrontController
         $this->hook(new ProductPageLoadedHook($page, $context));
 
         $ratingSuccess = $request->get('success');
-
-        /**
-         * @deprecated tag:v6.5.0 - remove complete if statement, cms page id is always set
-         *
-         * Fallback layout for non-assigned product layout
-         */
-        if (!$page->getCmsPage()) {
-            Feature::throwException('v6.5.0.0', 'Fallback will be removed because cms page is always set in subscriber.');
-
-            return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
-        }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }

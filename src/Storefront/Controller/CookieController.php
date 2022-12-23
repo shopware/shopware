@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class CookieController extends StorefrontController
 {
@@ -82,6 +82,11 @@ class CookieController extends StorefrontController
         return $response;
     }
 
+    /**
+     * @param array<string|int, mixed> $cookieGroups
+     *
+     * @return array<string|int, mixed>
+     */
     private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
     {
         if ($context->getSalesChannel()->getAnalytics() && $context->getSalesChannel()->getAnalytics()->isActive()) {
@@ -108,6 +113,11 @@ class CookieController extends StorefrontController
         return $filteredGroups;
     }
 
+    /**
+     * @param array<string|int, mixed> $cookieGroups
+     *
+     * @return array<string|int, mixed>
+     */
     private function filterComfortFeaturesCookie(string $salesChannelId, array $cookieGroups): array
     {
         foreach ($cookieGroups as $groupIndex => $cookieGroup) {
@@ -133,6 +143,11 @@ class CookieController extends StorefrontController
         return $cookieGroups;
     }
 
+    /**
+     * @param array<string|int, mixed> $cookieGroups
+     *
+     * @return array<string|int, mixed>
+     */
     private function filterGoogleReCaptchaCookie(string $salesChannelId, array $cookieGroups): array
     {
         foreach ($cookieGroups as $groupIndex => $cookieGroup) {

@@ -44,8 +44,9 @@ class VarnishReverseProxyGatewayTest extends TestCase
     public function testTagggingMissingResponse(): void
     {
         $gateway = new VarnishReverseProxyGateway([], 0, $this->client);
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Parameter $response is required for VarnishReverseProxyGateway');
+        static::expectException(\ArgumentCountError::class);
+        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway::tag()');
+        /** @phpstan-ignore-next-line  */
         $gateway->tag([], 'https://example.com');
     }
 

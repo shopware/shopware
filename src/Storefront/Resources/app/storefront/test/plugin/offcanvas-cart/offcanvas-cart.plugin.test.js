@@ -60,10 +60,6 @@ describe('OffCanvasCartPlugin tests', () => {
 
     beforeEach(() => {
 
-        window.csrf = {
-            enabled: false,
-        };
-
         window.router = {
             'frontend.cart.offcanvas': '/checkout/offcanvas',
         };

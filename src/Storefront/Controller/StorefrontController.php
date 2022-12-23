@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -55,14 +54,8 @@ abstract class StorefrontController extends AbstractController
 
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        /* @feature-deprecated $view will be original template in StorefrontRenderEvent from 6.5.0.0 */
-        if (Feature::isActive('FEATURE_NEXT_17275')) {
-            $event = new StorefrontRenderEvent($view, $parameters, $request, $salesChannelContext);
-        } else {
-            $inheritedView = $this->getTemplateFinder()->find($view);
+        $event = new StorefrontRenderEvent($view, $parameters, $request, $salesChannelContext);
 
-            $event = new StorefrontRenderEvent($inheritedView, $parameters, $request, $salesChannelContext);
-        }
         $this->container->get('event_dispatcher')->dispatch($event);
 
         $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache') ?? true;
@@ -250,12 +243,9 @@ abstract class StorefrontController extends AbstractController
             return $this->twig->render($view, $parameters);
         }
 
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
+        throw new \Exception(
             sprintf('Class %s does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', static::class)
         );
-
-        return parent::renderView($view, $parameters);
     }
 
     protected function getTemplateFinder(): TemplateFinder

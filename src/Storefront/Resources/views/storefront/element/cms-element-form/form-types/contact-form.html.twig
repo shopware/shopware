@@ -1,7 +1,6 @@
 {% block cms_form_contact %}
     <form action="{{ path(action) }}"
           method="post"
-          data-form-csrf-handler="true"
           data-form-validation="true">
 
         <div class="form-content">
@@ -120,11 +119,6 @@
 
         {% block cms_form_contact_hidden_fields %}
             <div class="form-hidden-fields">
-                {# @deprecated tag:v6.5.0 - Block cms_form_contact_csrf will be removed. #}
-                {% block cms_form_contact_csrf %}
-                    {{ sw_csrf(action) }}
-                {% endblock %}
-
                 {% if page.navigationId and page.entityName %}
                     <input type="hidden" name="navigationId" value="{{ page.navigationId }}"/>
                     <input type="hidden" name="entityName" value="{{ page.entityName }}"/>

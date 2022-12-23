@@ -28,15 +28,8 @@
                             {% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
-                                      data-form-csrf-handler="true"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-validation="true">
-
-                                    {# @deprecated tag:v6.5.0 - Block page_account_profile_personal_form_csrf will be removed. #}
-                                    {% block page_account_profile_personal_form_csrf %}
-                                        {{ sw_csrf('frontend.account.profile.save') }}
-                                    {% endblock %}
-
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
@@ -130,14 +123,7 @@
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
-                                              data-form-csrf-handler="true"
                                               data-form-validation="true">
-
-                                            {# @deprecated tag:v6.5.0 - Block page_account_profile_mail_form_csrf will be removed. #}
-                                            {% block page_account_profile_mail_form_csrf %}
-                                                {{ sw_csrf('frontend.account.profile.email.save') }}
-                                            {% endblock %}
-
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ "account.profileMailTitle"|trans|sw_sanitize }}
@@ -272,15 +258,8 @@
                                         <form id="profilePasswordForm"
                                               class="card-body"
                                               method="post"
-                                              data-form-csrf-handler="true"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-validation="true">
-
-                                            {# @deprecated tag:v6.5.0 - Block page_account_profile_password_form_csrf will be removed. #}
-                                            {% block page_account_profile_password_form_csrf %}
-                                                {{ sw_csrf('frontend.account.profile.password.save') }}
-                                            {% endblock %}
-
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ "account.profilePasswordTitle"|trans|sw_sanitize }}
@@ -461,15 +440,8 @@
 
                                                 {% block page_account_delete_account_confirm_modal_form %}
                                                     <form method="post"
-                                                          data-form-csrf-handler="true"
                                                           action="{{ path('frontend.account.profile.delete') }}"
                                                           data-form-submit-loader="true">
-
-                                                        {# @deprecated tag:v6.5.0 - Block page_account_delete_account_confirm_form_csrf will be removed. #}
-                                                        {% block page_account_delete_account_confirm_form_csrf %}
-                                                            {{ sw_csrf('frontend.account.profile.delete') }}
-                                                        {% endblock %}
-
                                                         {% block page_account_delete_account_confirm_alert %}
                                                             {{ "account.profileDeleteAlert"|trans|sw_sanitize }}
                                                         {% endblock %}

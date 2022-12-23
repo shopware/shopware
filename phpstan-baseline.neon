@@ -19738,51 +19738,6 @@ parameters:
 			path: src/Storefront/Controller/Api/CaptchaController.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\\:\\:isValid\\(\\) invoked with 2 parameters, 1 required\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CaptchaController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterComfortFeaturesCookie\\(\\) has parameter \\$cookieGroups with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterComfortFeaturesCookie\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterGoogleAnalyticsCookie\\(\\) has parameter \\$cookieGroups with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterGoogleAnalyticsCookie\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterGoogleReCaptchaCookie\\(\\) has parameter \\$cookieGroups with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\CookieController\\:\\:filterGoogleReCaptchaCookie\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CookieController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\FormController\\:\\:handleSubscribe\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/FormController.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\FormController\\:\\:handleUnsubscribe\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/FormController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\DependencyInjection\\\\StorefrontExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/DependencyInjection/StorefrontExtension.php
@@ -19811,21 +19766,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Event/StorefrontRenderEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:__construct\\(\\) has parameter \\$variables with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Event/ThemeCompilerEnrichScssVariablesEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:getVariables\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Event/ThemeCompilerEnrichScssVariablesEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Event\\\\ThemeCompilerEnrichScssVariablesEvent\\:\\:\\$variables type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Event/ThemeCompilerEnrichScssVariablesEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Annotation\\\\HttpCache\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -19921,36 +19861,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Event\\\\HttpCacheItemWrittenEvent\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/Event/HttpCacheItemWrittenEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/AbstractCaptcha.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cookie\\\\AppCookieProvider\\:\\:getCookieGroups\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cookie/AppCookieProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cookie\\\\AppCookieProvider\\:\\:mergeCookies\\(\\) has parameter \\$cookies with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cookie/AppCookieProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cookie\\\\AppCookieProvider\\:\\:mergeCookies\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cookie/AppCookieProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cookie\\\\CookieProvider\\:\\:getCookieGroups\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cookie/CookieProvider.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cookie\\\\CookieProviderInterface\\:\\:getCookieGroups\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cookie/CookieProviderInterface.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
@@ -20198,11 +20108,6 @@ parameters:
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\\:\\:getMatrix\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/RatingMatrix.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:getSitemaps\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Sitemap/SitemapPage.php
@@ -20236,16 +20141,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$expectedJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/Api/CaptchaControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$actualJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/Api/CaptchaControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:createRequest\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
@@ -20398,21 +20293,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Cache/ReverseProxy/RedisReverseProxyGatewayTest.php
 
 		-
-			message: "#^Cannot call method getMethod\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/ReverseProxyCacheClearerTest.php
-
-		-
-			message: "#^Cannot call method getRequestTarget\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/ReverseProxyCacheClearerTest.php
-
-		-
-			message: "#^Cannot call method hasHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/ReverseProxyCacheClearerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\BasicCaptchaTest\\:\\:getRequest\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/BasicCaptchaTest.php
@@ -20421,36 +20301,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\BasicCaptchaTest\\:\\:requestDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/BasicCaptchaTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:controllerEventProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:getCaptchas\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:getControllerEventMock\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Parameter \\#7 \\$content of class Symfony\\\\Component\\\\HttpFoundation\\\\Request constructor expects resource\\|string\\|null, array given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
 
 		-
 			message: "#^Cannot access offset string on array\\|bool\\|float\\|int\\|string\\|null\\.$#"
@@ -20856,26 +20706,6 @@ parameters:
 			message: "#^Cannot call method getVars\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/NavigationPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Review\\\\RatingMatrixTest\\:\\:getDatabaseMatrixAggregationArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Review/RatingMatrixTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Review\\\\RatingMatrixTest\\:\\:getDatabaseMatrixAggregationArrayWithFloats\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Review/RatingMatrixTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Review\\\\RatingMatrixTest\\:\\:getRatings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Review/RatingMatrixTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Review\\\\RatingMatrixTest\\:\\:testMatrixCalculation\\(\\) has parameter \\$aggregation with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/Review/RatingMatrixTest.php
 
 		-
 			message: "#^Cannot call method getMetaTitle\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"

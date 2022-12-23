@@ -34,6 +34,9 @@ class AppCookieProvider implements CookieProviderInterface
         $this->appRepository = $appRepository;
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getCookieGroups(): array
     {
         $criteria = new Criteria();
@@ -64,6 +67,10 @@ class AppCookieProvider implements CookieProviderInterface
     /**
      * merges cookie groups by the snippet name of the group
      * and only iterates once over every cookie
+     *
+     * @param array<string|int, mixed> $cookies
+     *
+     * @return array<string|int, mixed>
      */
     private function mergeCookies(array $cookies, EntitySearchResult $apps): array
     {

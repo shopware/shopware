@@ -12,12 +12,6 @@ process.on('unhandledRejection', (reason) => {
 
 global.bootstrap = bootstrap;
 
-// Global mocks for common window properties
-/** @deprecated tag:v6.5.0 - window property csrf will be removed */
-global.csrf = {
-    enabled: false,
-};
-
 global.router = {};
 
 /**

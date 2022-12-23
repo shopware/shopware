@@ -107,12 +107,6 @@
                                                       method="post"
                                                       class="order-table-header-context-menu-content-form"
                                                       data-add-to-cart="true">
-
-                                                    {# @deprecated tag:v6.5.0 - Block page_account_order_item_context_menu_reorder_form_csrf will be removed. #}
-                                                    {% block page_account_order_item_context_menu_reorder_form_csrf %}
-                                                        {{ sw_csrf('frontend.checkout.line-item.add') }}
-                                                    {% endblock %}
-
                                                     {% block page_account_order_item_context_menu_reorder_form_redirect %}
                                                         <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
                                                     {% endblock %}

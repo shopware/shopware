@@ -16,8 +16,6 @@ import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 import ViewItemListEvent from 'src/plugin/google-analytics/events/view-item-list.event';
 import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-search-results';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
-import DomAccess from 'src/helper/dom-access.helper';
-import Feature from 'src/helper/feature.helper';
 
 /**
  * @package merchant-services
@@ -45,15 +43,6 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         gtag('js', new Date());
         gtag('config', window.gtagTrackingId, window.gtagConfig);
-
-        /** @deprecated tag:v6.5.0 - The complete logic of the setup, including gtagCallback will be removed */
-        if (!Feature.isActive('v6.5.0.0')) {
-            const gtmSetupScript = document.createElement('script');
-            const gtmScriptTemplate = DomAccess.querySelector(document.head, '#sw-google-tag-manager-init').text;
-            gtmSetupScript.text = gtmScriptTemplate;
-            document.head.append(gtmSetupScript);
-            window.gtagCallback();
-        }
 
         this.controllerName = window.controllerName;
         this.actionName = window.actionName;

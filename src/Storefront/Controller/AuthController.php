@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -28,7 +27,6 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
-use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedHook;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,7 +39,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class AuthController extends StorefrontController
 {
@@ -281,12 +279,6 @@ class AuthController extends StorefrontController
      */
     public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
     {
-        /** @deprecated tag:v6.5.0 - call to loginPageLoader and $loginPage will be removed */
-        $loginPage = null;
-        if (!Feature::isActive('v6.5.0.0')) {
-            $loginPage = $this->loginPageLoader->load($request, $context);
-        }
-
         /** @var ?string $hash */
         $hash = $request->get('hash');
 
@@ -312,17 +304,8 @@ class AuthController extends StorefrontController
             return $this->redirectToRoute('frontend.account.recover.request');
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
-                'page' => $page,
-                'formViolations' => $request->get('formViolations'),
-            ]);
-        }
-
-        /** @deprecated tag:v6.5.0 - page will be instance of AccountRecoverPasswordPage and $hash will be moved to $page.getHash() */
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
-            'page' => $loginPage,
-            'hash' => $hash,
+            'page' => $page,
             'formViolations' => $request->get('formViolations'),
         ]);
     }

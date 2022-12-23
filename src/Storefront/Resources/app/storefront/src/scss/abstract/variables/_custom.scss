@@ -13,7 +13,7 @@ $zoom-modal-action-zindex: 1051 !default;
 $magnifier-overlay-zindex: 1100 !default;
 
 $icon-base-size: 22px !default;
-$icon-base-color: #878787 !default; // @deprecated tag:v6.5.0 - Color will be #798490
+$icon-base-color: #798490 !default;
 $icon-review-color: #fedc70 !default;
 
 $progress-bar-review: $icon-review-color !default;
@@ -28,6 +28,4 @@ $spacer-xl: ( $spacer * 3 ) !default;
 $sw-asset-theme-url: '' !default;
 $sw-features: () !default;
 
-/// @deprecated tag:v6.5.0 Use `app-css-relative-asset-path` instead
-$asset-path: '#{$sw-asset-theme-url}/bundles/storefront/assets' !default;
 $app-css-relative-asset-path: '../assets' !default;

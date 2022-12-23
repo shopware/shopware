@@ -37,11 +37,9 @@
 
                             {% block page_checkout_confirm_address_billing_actions %}
                                 <div class="card-actions">
-                                    {# @deprecated tag:v6.5.0 - Option addressEditorOptions.csrfToken will be removed. #}
                                     {% set addressEditorOptions = {
                                         changeBilling: true,
                                         addressId: billingAddress.id,
-                                        csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
                                     } %}
 
                                     {% block  page_checkout_confirm_address_billing_actions_link %}
@@ -91,11 +89,9 @@
 
                             {% block page_checkout_confirm_address_shipping_actions %}
                                 <div class="card-actions">
-                                    {# @deprecated tag:v6.5.0 - Option addressEditorOptions.csrfToken will be removed. #}
                                     {% set addressEditorOptions = {
                                         changeShipping: true,
                                         addressId: shippingAddress.id,
-                                        csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
                                     } %}
 
                                     {% block  page_checkout_confirm_address_shipping_actions_link %}

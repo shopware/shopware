@@ -26,14 +26,7 @@
 
                         {% block page_account_payment_form %}
                             <form action="{{ path('frontend.account.payment.save') }}"
-                                  method="post"
-                                  data-form-csrf-handler="true">
-
-                                {# @deprecated tag:v6.5.0 - Block page_account_payment_form_csrf will be removed. #}
-                                {% block page_account_payment_form_csrf %}
-                                    {{ sw_csrf('frontend.account.payment.save') }}
-                                {% endblock %}
-
+                                  method="post">
                                 <input type="hidden" name="redirectTo" value="frontend.account.payment.page">
                                 {% block page_account_payment_fields %}
                                     {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {

@@ -145,10 +145,6 @@ export default class FormValidation extends Plugin {
 
         this.el.classList.add(this.options.styleCls);
 
-        /**
-         * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
-         */
-        this.$emitter.publish('onFormSubmit', { validity });
         this.$emitter.publish('beforeSubmit', { validity });
     }
 

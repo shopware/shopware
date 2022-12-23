@@ -16,9 +16,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package storefront
+ * @internal
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @package storefront
  */
 class ErrorController extends StorefrontController
 {

@@ -25,7 +25,6 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
-use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent as ThemeCompilerEnrichScssVariablesEventDep;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
@@ -322,13 +321,8 @@ PHP_EOL;
             'sw-border-color' => '#bcc1c7',
         ];
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $event = new ThemeCompilerEnrichScssVariablesEvent($variables, $this->mockSalesChannelId, Context::createDefaultContext());
-            $subscriber->onAddVariables($event);
-        } else {
-            $event = new ThemeCompilerEnrichScssVariablesEventDep($variables, $this->mockSalesChannelId);
-            $subscriber->onAddVariablesDep($event);
-        }
+        $event = new ThemeCompilerEnrichScssVariablesEvent($variables, $this->mockSalesChannelId, Context::createDefaultContext());
+        $subscriber->onAddVariables($event);
 
         $actual = $event->getVariables();
 

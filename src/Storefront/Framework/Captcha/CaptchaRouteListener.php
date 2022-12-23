@@ -7,16 +7,15 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
-use Shopware\Storefront\Framework\Captcha\Annotation\Captcha as CaptchaAnnotation;
 use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package storefront
+ * @internal
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ * @package storefront
  */
 class CaptchaRouteListener implements EventSubscriberInterface
 {
@@ -58,7 +57,7 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
     public function validateCaptcha(ControllerEvent $event): void
     {
-        /** @var CaptchaAnnotation|bool $captchaAnnotation */
+        /** @var bool $captchaAnnotation */
         $captchaAnnotation = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA, false);
 
         if ($captchaAnnotation === false) {

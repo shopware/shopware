@@ -21,8 +21,6 @@ export default class AddressEditorPlugin extends Plugin {
         changeBilling: false,
         editorModalClass: 'address-editor-modal',
         closeEditorClass: 'js-close-address-editor',
-        /** @deprecated tag:v6.5.0 - Option csrfToken will be removed. */
-        csrfToken: '',
     };
 
     init() {
@@ -80,11 +78,6 @@ export default class AddressEditorPlugin extends Plugin {
                 changeBilling: this.options.changeBilling,
             },
         };
-
-        /** @deprecated tag:v6.5.0 - CSRF implementation will be removed. */
-        if (window.csrf.enabled && window.csrf.mode === 'twig') {
-            data['_csrf_token'] = this.options.csrfToken;
-        }
 
         return data;
     }

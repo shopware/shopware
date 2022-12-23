@@ -69,8 +69,6 @@ https://sass-guidelin.es/#the-7-1-pattern
 
 @import 'page/checkout/aside';
 @import 'page/checkout/cart';
-// @deprecated tag:v6.5.0 - `scss/skin/page/checkout/_cart-item.scss` is deprecated. Use `scss/component/_line-item.scss` instead.
-@import 'page/checkout/cart-item';
 
 @import 'page/contact/contact';
 @import 'page/newsletter/newsletter';

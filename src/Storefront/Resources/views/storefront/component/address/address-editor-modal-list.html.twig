@@ -50,11 +50,6 @@
                                                                                               data-form-ajax-submit="true"
                                                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
-                                                                                            {# @deprecated tag:v6.5.0 - Block component_address_address_editor_modal_list_address_action_billing_form_csrf will be removed. #}
-                                                                                            {% block component_address_address_editor_modal_list_address_action_billing_form_csrf %}
-                                                                                                {{ sw_csrf('frontend.account.addressbook') }}
-                                                                                            {% endblock %}
-
                                                                                             {% block component_address_address_editor_modal_list_address_action_billing_form_hidden_inputs %}
                                                                                                 <input type="hidden"
                                                                                                        name="changeableAddresses[changeBilling]"
@@ -98,11 +93,6 @@
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"
                                                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-
-                                                                                            {# @deprecated tag:v6.5.0 - Block component_address_address_editor_modal_list_address_action_shipping_form_csrf will be removed. #}
-                                                                                            {% block component_address_address_editor_modal_list_address_action_shipping_form_csrf %}
-                                                                                                {{ sw_csrf('frontend.account.addressbook') }}
-                                                                                            {% endblock %}
 
                                                                                             {% block component_address_address_editor_modal_list_address_action_shipping_form_hidden_inputs %}
                                                                                                 <input type="hidden"

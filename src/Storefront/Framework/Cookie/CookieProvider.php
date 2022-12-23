@@ -17,10 +17,6 @@ class CookieProvider implements CookieProviderInterface
                 'cookie' => 'session-',
             ],
             [
-                'snippet_name' => 'cookie.groupRequiredCsrf',
-                'cookie' => 'csrf[',
-            ],
-            [
                 'snippet_name' => 'cookie.groupRequiredTimezone',
                 'cookie' => 'timezone',
             ],
@@ -88,6 +84,8 @@ class CookieProvider implements CookieProviderInterface
      *          ]
      *      ]
      * ]
+     *
+     * @return array<string|int, mixed>
      */
     public function getCookieGroups(): array
     {

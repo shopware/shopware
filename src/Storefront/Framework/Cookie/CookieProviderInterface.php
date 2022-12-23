@@ -7,5 +7,8 @@ namespace Shopware\Storefront\Framework\Cookie;
  */
 interface CookieProviderInterface
 {
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getCookieGroups(): array;
 }

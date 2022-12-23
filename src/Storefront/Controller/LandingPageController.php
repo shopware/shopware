@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package content
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class LandingPageController extends StorefrontController
 {

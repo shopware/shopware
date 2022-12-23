@@ -101,20 +101,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
             return;
         }
 
-        /** @deprecated tag:v6.5.0 - CSRF implementation will be removed. Remove if-condition and keep else-condition content. */
-        if (window.csrf.enabled && window.csrf.mode === 'ajax') {
-            // A new csrf token needs to be appended to the form if ajax csrf mode is used
-            this._client.fetchCsrfToken((token) => {
-                const csrfInput = document.createElement('input');
-                csrfInput.name = '_csrf_token';
-                csrfInput.value = token;
-                csrfInput.type = 'hidden';
-                this._form.appendChild(csrfInput);
-                this._submitNativeForm();
-            });
-        } else {
-            this._submitNativeForm();
-        }
+        this._submitNativeForm();
+
     }
 
     /**

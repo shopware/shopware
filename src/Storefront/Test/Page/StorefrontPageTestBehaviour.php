@@ -13,7 +13,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -68,25 +67,6 @@ trait StorefrontPageTestBehaviour
     }
 
     abstract protected function getPageLoader();
-
-    /**
-     * @deprecated tag:v6.5.0 This assertion is useless. All loaders that require a customer take a non-null customer parameter
-     *
-     * @param array<mixed> $queryParams
-     */
-    protected function assertLoginRequirement(array $queryParams = []): void
-    {
-        @trigger_deprecation(
-            'shopware/platform',
-            '6.5.0',
-            'Loader that require a customer no only accept non-null customers. So this assertion is useless. Login requirements should be validated on route level. For example with the `LoginRequired` annotation.'
-        );
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-    }
 
     protected function expectParamMissingException(string $paramName): void
     {

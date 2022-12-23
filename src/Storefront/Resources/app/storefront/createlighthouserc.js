@@ -42,10 +42,11 @@ async function getDetail(browser) {
     await page.setViewport({ width: 1920, height: 1080 });
 
     await page.goto(`${APP_URL}`);
-    const detailButton = await page.$('.product-action a.btn');
-    await detailButton.click();
 
-    await page.waitForNavigation();
+    const detailHref = await page.$eval('.product-action a.btn', el => el.href)
+
+    await page.goto(detailHref);
+
     await page.waitForSelector('meta[itemprop="productID"]');
     await page.$('.buy-widget-container .btn-buy');
 

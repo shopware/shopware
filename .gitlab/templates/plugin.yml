@@ -81,13 +81,16 @@ workflow:
               PLATFORM_BRANCH: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
         -   when: always
 
-.install_dependencies: &install_dependencies
+.install_composer_dependencies: &install_composer_dependencies
   - apt-get update && apt-get install -y jq
   - |
     echo "${COMPOSER_DEPENDENCIES}"
     for package in $(echo "${COMPOSER_DEPENDENCIES}" | jq -r '.[]'); do
         composer require "${package}"
     done
+
+.install_dependencies: &install_dependencies
+  - apt-get update && apt-get install -y jq
   - |
     echo "${PLUGIN_DEPENDENCIES}"
     for plugin64 in $(echo "${PLUGIN_DEPENDENCIES}" | jq -r '.[] | @base64'); do
@@ -130,6 +133,7 @@ default:
         - mkdir -p custom/plugins || true
         - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME
         - composer install --no-interaction
+        - *install_composer_dependencies
         - mkdir -p config/jwt || true
         - bin/console system:generate-jwt || true
         - bin/console system:install --drop-database --basic-setup --force >/dev/null

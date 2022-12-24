@@ -48,6 +48,11 @@ class PaymentMethodChangedError extends Error
         return false;
     }
 
+    public function blockResubmit(): bool
+    {
+        return false;
+    }
+
     public function getId(): string
     {
         return sprintf('%s-%s-%s', self::KEY, $this->oldPaymentMethodName, $this->newPaymentMethodName);

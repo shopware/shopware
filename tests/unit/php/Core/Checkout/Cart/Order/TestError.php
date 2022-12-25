@@ -14,29 +14,31 @@ class TestError extends Error
 
     private int $level;
 
-    private function __construct(int $level)
+    private function __construct(int $level, bool $blockOrder = true, bool $blockResubmit = true)
     {
         $this->level = $level;
+        $this->blockOrderVal = $blockOrder;
+        $this->blockResubmitVal = $blockResubmit;
     }
 
-    public static function error(): self
+    public static function error(bool $blockOrder = true, bool $blockResubmit = true): self
     {
-        return new self(self::LEVEL_ERROR);
+        return new self(self::LEVEL_ERROR, $blockOrder, $blockResubmit);
     }
 
-    public static function warn(): self
+    public static function warn(bool $blockOrder = true, bool $blockResubmit = true): self
     {
-        return new self(self::LEVEL_WARNING);
+        return new self(self::LEVEL_WARNING, $blockOrder, $blockResubmit);
     }
 
-    public static function notice(): self
+    public static function notice(bool $blockOrder = true, bool $blockResubmit = true): self
     {
-        return new self(self::LEVEL_NOTICE);
+        return new self(self::LEVEL_NOTICE, $blockOrder, $blockResubmit);
     }
 
-    public static function unknown(): self
+    public static function unknown(bool $blockOrder = true, bool $blockResubmit = true): self
     {
-        return new self(self::LEVEL_UNKNOWN);
+        return new self(self::LEVEL_UNKNOWN, $blockOrder, $blockResubmit);
     }
 
     public function getId(): string
@@ -56,7 +58,12 @@ class TestError extends Error
 
     public function blockOrder(): bool
     {
-        return true;
+        return $this->blockOrderVal;
+    }
+
+    public function blockResubmit(): bool
+    {
+        return $this->blockResubmitVal;
     }
 
     public function getParameters(): array

@@ -75,14 +75,14 @@ class ErrorsFacade implements \IteratorAggregate
     }
 
     /**
-     * The `retryable()` method adds a new error of type `error` to the cart.
+     * The `resubmittable()` method adds a new error of type `error` to the cart.
      * The notice will be displayed to the user, the order will be blocked, but the user can submit the order again.
      *
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
      * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
      */
-    public function retryable(string $key, ?string $id = null, array $parameters = []): void
+    public function resubmittable(string $key, ?string $id = null, array $parameters = []): void
     {
         $this->createError($key, false, false, $parameters, Error::LEVEL_NOTICE, $id);
     }

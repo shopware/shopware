@@ -40,7 +40,6 @@ export default {
             return !!this.documentConfig.custom.invoiceNumber;
         },
 
-        /** @deprecated tag:v6.5.0 - Use invoices defined at extended component `sw-order-document-settings-modal */
         invoices() {
             return this.order.documents.filter((document) => {
                 return document.documentType.technicalName === 'invoice';
@@ -97,23 +96,6 @@ export default {
             this.$emit('loading-preview');
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
-        },
-
-        onSelectInvoice(invoiceId) {
-            const invoice = this.invoices.find(item => item.id === invoiceId);
-
-            if (!invoice) {
-                this.$set(this.documentConfig.custom, 'invoiceNumber', '');
-
-                this.deepLinkCode = null;
-                return;
-            }
-
-            this.$set(this.documentConfig.custom, 'invoiceNumber', invoice.config.custom.invoiceNumber);
-
-            this.updateDeepLinkCodeByVersionContext(
-                { ...Shopware.Context.api, versionId: invoice.orderVersionId },
-            );
         },
     },
 };

@@ -591,29 +591,4 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.downloadDocument).toHaveBeenCalled();
         wrapper.vm.downloadDocument.mockRestore();
     });
-
-    it('should call getDocumentPreview service with deepLinkCode', async () => {
-        wrapper = await createWrapper();
-
-        wrapper.vm.documentService.getDocumentPreview = jest.fn((params, deepLinkCode) => Promise.resolve(deepLinkCode));
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '1',
-                name: 'Invoice',
-                technicalName: 'invoice',
-                translated: {
-                    name: 'Invoice',
-                }
-            },
-        });
-
-        expect(wrapper.vm.order.deepLinkCode).toEqual('abcdef');
-
-        let deepLinkCode = await wrapper.vm.onPreview({});
-        expect(deepLinkCode).toEqual('abcdef');
-
-        deepLinkCode = await wrapper.vm.onPreview({}, 'abcde');
-        expect(deepLinkCode).toEqual('abcde');
-    });
 });

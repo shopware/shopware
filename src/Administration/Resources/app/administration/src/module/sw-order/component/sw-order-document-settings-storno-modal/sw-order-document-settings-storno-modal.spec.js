@@ -18,7 +18,6 @@ const orderFixture = {
     id: 'order1',
     documents: [
         {
-            id: '1',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -35,7 +34,6 @@ const orderFixture = {
             }
         },
         {
-            id: '2',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -52,23 +50,6 @@ const orderFixture = {
             }
         },
         {
-            orderId: 'order1',
-            sent: true,
-            documentMediaFileId: null,
-            documentType: {
-                id: '1',
-                name: 'Invoice',
-                technicalName: 'invoice',
-            },
-            config: {
-                documentNumber: 1001,
-                custom: {
-                    invoiceNumber: 1001,
-                }
-            }
-        },
-        {
-            id: '3',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -129,16 +110,6 @@ async function createWrapper() {
                 reserve: () => Promise.resolve({})
             },
             mediaService: {},
-
-            repositoryFactory: {
-                create: () => ({
-                    get: () => Promise.resolve({
-                        id: '1',
-                        deepLinkCode: 'b829671a-20a3-4f81-be1d-b5df2c6dcd12',
-                        lineItems: []
-                    }),
-                })
-            }
         },
         propsData: {
             order: orderFixture,
@@ -196,27 +167,5 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
 
         const createContextMenu = wrapper.find('.sw-context-button');
         expect(createContextMenu.attributes().disabled).toBeUndefined();
-    });
-
-    it('should set deepLinkCode by version context if the selected invoice', async () => {
-        const wrapper = await createWrapper();
-
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
-        await invoiceSelect.trigger('click');
-
-        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
-            .findAll('option');
-
-        await invoiceOptions.at(3).setSelected();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.documentConfig.custom.invoiceNumber).toEqual('');
-        expect(wrapper.vm.deepLinkCode).toBeNull();
-
-        await invoiceOptions.at(1).setSelected();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.documentConfig.custom.invoiceNumber).toEqual(1000);
-        expect(wrapper.vm.deepLinkCode).toEqual('b829671a-20a3-4f81-be1d-b5df2c6dcd12');
     });
 });

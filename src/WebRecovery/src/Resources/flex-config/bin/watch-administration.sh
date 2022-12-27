@@ -8,7 +8,14 @@ export ENV_FILE=${ENV_FILE:-"${PROJECT_ROOT}/.env"}
 # shellcheck source=functions.sh
 source "${PROJECT_ROOT}/bin/functions.sh"
 
+curenv=$(declare -p -x)
+
 load_dotenv "$ENV_FILE"
+
+# Restore environment variables set globally
+set -o allexport
+eval "$curenv"
+set +o allexport
 
 export HOST=${HOST:-"localhost"}
 export ESLINT_DISABLE

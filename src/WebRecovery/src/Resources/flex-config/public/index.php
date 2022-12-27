@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 use Shopware\Core\HttpKernel;
 use Shopware\Core\Installer\InstallerKernel;
@@ -73,7 +71,7 @@ return function (array $context) {
             $this->httpKernel = $httpKernel;
         }
 
-        public function handle(Request $request, int $type = self::MASTER_REQUEST, bool $catch = true)
+        public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
         {
             return $this->httpKernel->handle($request, $type, $catch)->getResponse();
         }
@@ -84,3 +82,4 @@ return function (array $context) {
         }
     };
 };
+

@@ -65,7 +65,7 @@
             "repo": "github.com/shopware/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "802bbe5aec3e9401d9c3c508b7686590a0d143b9"
+            "ref": "a87d28f289a30d199ed7a628d921b358e44d3d7e"
         },
         "files": [
             "bin/build-administration.sh",
@@ -78,7 +78,7 @@
             "repo": "github.com/shopware/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "6e7a2deae63e9769066774d620009c118c7abb39"
+            "ref": "2db43b08ea4671b3e4730153f52ae9a5cf2a3815"
         },
         "files": [
             "bin/.htaccess",
@@ -119,7 +119,7 @@
             "repo": "github.com/shopware/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "e53246693e38b2376f0e6f34ec8b98e74854c971"
+            "ref": "b8a632942b29c17149abe792dee2637aeda4c634"
         },
         "files": [
             "bin/build-storefront.sh",
@@ -186,7 +186,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "5.2",
-            "ref": "a1c8800e40ae735206bb14586fdd6c4630a51b8d"
+            "ref": "8e937ff2b4735d110af1770f242c1107fdab4c8e"
         },
         "files": [
             "config/packages/lock.yaml"

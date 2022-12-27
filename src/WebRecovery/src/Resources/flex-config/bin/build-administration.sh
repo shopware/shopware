@@ -4,6 +4,8 @@ CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
 set -euo pipefail
 
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export DISABLE_ADMIN_COMPILATION_TYPECHECK=true
 export PROJECT_ROOT="${PROJECT_ROOT:-"$(dirname "$CWD")"}"
 ADMIN_ROOT="${ADMIN_ROOT:-"${PROJECT_ROOT}/vendor/shopware/administration"}"
 

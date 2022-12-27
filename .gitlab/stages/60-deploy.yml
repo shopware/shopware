@@ -55,7 +55,7 @@ Repository Split:
 github sync:
     extends: .long-running-no-setup
     stage: deploy
-    image: debian:buster-slim
+    image: ubuntu:rolling
     needs: []
     rules:
       # only sync on protected branches

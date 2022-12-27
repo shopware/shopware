@@ -120,7 +120,20 @@ class MailService extends AbstractMailService
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $data['senderMail'] ?? $this->getSender($data, $salesChannelId, $context);
+        $senderEmail = $data['senderMail'] ?? $this->getSender($data, $salesChannelId);
+
+        if ($senderEmail === null) {
+            $event = new MailErrorEvent(
+                $context,
+                Logger::ERROR,
+                null,
+                'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
+                null,
+                $templateData
+            );
+
+            $this->eventDispatcher->dispatch($event);
+        }
 
         $contents = $this->buildContents($data, $salesChannel);
         if ($this->isTestMode($data)) {
@@ -129,7 +142,6 @@ class MailService extends AbstractMailService
                 $templateData['order']['deepLinkCode'] = 'home';
             }
         }
-
         $template = $data['subject'];
 
         try {
@@ -143,14 +155,10 @@ class MailService extends AbstractMailService
             $event = new MailErrorEvent(
                 $context,
                 Logger::ERROR,
-                null,
-                "Could not render Mail-Template with error message:\n"
-                . $e->getMessage() . "\n"
-                . 'Error Code:' . $e->getCode() . "\n"
-                . 'Template source:'
-                . $template . "\n"
-                . "Template data: \n"
-                . json_encode($templateData) . "\n"
+                $e,
+                'Could not render Mail-Template with error message: ' . $e->getMessage(),
+                $template,
+                $templateData
             );
             $this->eventDispatcher->dispatch($event);
 
@@ -179,18 +187,17 @@ class MailService extends AbstractMailService
                 $context,
                 Logger::ERROR,
                 null,
-                "message is null:\n"
-                . 'Data:'
-                . json_encode($data) . "\n"
-                . "Template data: \n"
-                . json_encode($templateData) . "\n"
+                'message is null',
+                null,
+                $templateData
             );
+
             $this->eventDispatcher->dispatch($event);
 
             return null;
         }
 
-        $event = new MailBeforeSentEvent($data, $mail, $context);
+        $event = new MailBeforeSentEvent($data, $mail, $context, $templateData['eventName'] ?? null);
         $this->eventDispatcher->dispatch($event);
 
         if ($event->isPropagationStopped()) {
@@ -199,7 +206,7 @@ class MailService extends AbstractMailService
 
         $this->mailSender->send($mail);
 
-        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context);
+        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context, $templateData['eventName'] ?? null);
         $this->eventDispatcher->dispatch($event);
 
         return $mail;
@@ -208,7 +215,7 @@ class MailService extends AbstractMailService
     /**
      * @param mixed[] $data
      */
-    private function getSender(array $data, ?string $salesChannelId, Context $context): ?string
+    private function getSender(array $data, ?string $salesChannelId): ?string
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
@@ -221,14 +228,6 @@ class MailService extends AbstractMailService
         }
 
         if ($senderEmail === null || trim($senderEmail) === '') {
-            $event = new MailErrorEvent(
-                $context,
-                Logger::ERROR,
-                null,
-                'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\''
-            );
-            $this->eventDispatcher->dispatch($event);
-
             return null;
         }
 

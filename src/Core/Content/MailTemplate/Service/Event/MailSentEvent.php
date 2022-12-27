@@ -21,35 +21,16 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
     public const EVENT_NAME = 'mail.sent';
 
     /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $subject;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $contents;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $recipients;
-
-    /**
      * @param array<string, mixed> $recipients
      * @param array<string, mixed> $contents
      */
-    public function __construct(string $subject, array $recipients, array $contents, Context $context)
-    {
-        $this->subject = $subject;
-        $this->recipients = $recipients;
-        $this->contents = $contents;
-        $this->context = $context;
+    public function __construct(
+        private string $subject,
+        private array $recipients,
+        private array $contents,
+        private Context $context,
+        private ?string $eventName = null
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -97,6 +78,7 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
     public function getLogData(): array
     {
         return [
+            'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
             'contents' => $this->contents,

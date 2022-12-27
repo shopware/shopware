@@ -20,29 +20,11 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
     public const EVENT_NAME = 'mail.before.send';
 
     /**
-     * @var array<string, mixed>
-     */
-    private $data;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $templateData;
-
-    /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(array $data, Context $context, array $templateData = [])
+    public function __construct(private array $data, private Context $context, private array $templateData = [])
     {
-        $this->data = $data;
-        $this->context = $context;
-        $this->templateData = $templateData;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -120,6 +102,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
 
         return [
             'data' => $data,
+            'eventName' => $this->templateData['eventName'] ?? null,
             'templateData' => $this->templateData,
         ];
     }

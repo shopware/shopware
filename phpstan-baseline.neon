@@ -12476,16 +12476,6 @@ parameters:
 			path: src/Core/Framework/Log/LogAware.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Log\\\\Monolog\\\\ExcludeExceptionHandler\\:\\:__construct\\(\\) has parameter \\$excludeExceptionList with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Log/Monolog/ExcludeExceptionHandler.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Log\\\\Monolog\\\\ExcludeExceptionHandler\\:\\:\\$excludeExceptionList type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Log/Monolog/ExcludeExceptionHandler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php
@@ -15986,26 +15976,6 @@ parameters:
 			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Log\\\\Monolog\\\\ExcludeExceptionHandlerTest\\:\\:cases\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Log/Monolog/ExcludeExceptionHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Log\\\\Monolog\\\\ExcludeExceptionHandlerTest\\:\\:testHandler\\(\\) has parameter \\$excludeList with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Log/Monolog/ExcludeExceptionHandlerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Log\\\\Monolog\\\\ExcludeExceptionHandlerTest\\:\\:testHandler\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Log/Monolog/ExcludeExceptionHandlerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$record of method Shopware\\\\Core\\\\Framework\\\\Log\\\\Monolog\\\\ExcludeExceptionHandler\\:\\:handle\\(\\) expects array\\{message\\: string, context\\: array, level\\: 100\\|200\\|250\\|300\\|400\\|500\\|550\\|600, level_name\\: 'ALERT'\\|'CRITICAL'\\|'DEBUG'\\|'EMERGENCY'\\|'ERROR'\\|'INFO'\\|'NOTICE'\\|'WARNING', channel\\: string, datetime\\: DateTimeImmutable, extra\\: array\\}, array given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Log/Monolog/ExcludeExceptionHandlerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Logging\\\\Event\\\\LogAwareTestFlowEvent\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Logging/Event/LogAwareTestFlowEvent.php
@@ -19354,11 +19324,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getCategoryPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
-
-		-
-			message: "#^Unsafe access to private constant Shopware\\\\Core\\\\System\\\\Test\\\\User\\\\Api\\\\UserRecoveryControllerTest\\:\\:VALID_EMAIL through static\\:\\:\\.$#"
-			count: 2
-			path: src/Core/System/Test/User/Api/UserRecoveryControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\User\\\\Recovery\\\\UserRecoveryServiceTest\\:\\:dataProviderTestCheckHash\\(\\) return type has no value type specified in iterable type array\\.$#"

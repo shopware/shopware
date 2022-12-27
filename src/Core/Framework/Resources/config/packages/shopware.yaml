@@ -228,6 +228,9 @@ shopware:
         file_rotation_count: 14
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
+        exclude_events:
+            - user.recovery.request
+            - customer.recovery.request
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

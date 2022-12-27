@@ -11,7 +11,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-language-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -138,7 +142,14 @@ Component.register('sw-settings-language-list', {
             return this.parentLanguages.get(item.parentId).name;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         onChangeLanguage() {
+            if (this.feature.isActive('v6.6.0.0')) {
+                return;
+            }
+
             this.getList();
         },
 

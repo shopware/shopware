@@ -12,7 +12,12 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-language-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -256,7 +261,14 @@ Component.register('sw-settings-language-detail', {
             this.$router.push({ name: 'sw.settings.language.index' });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         onChangeLanguage() {
+            if (this.feature.isActive('v6.6.0.0')) {
+                return;
+            }
+
             this.loadEntityData();
         },
     },

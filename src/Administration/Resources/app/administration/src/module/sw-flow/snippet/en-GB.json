@@ -220,7 +220,7 @@
         "labelCustomer": "Customer",
         "labelAdmin": "Admin",
         "labelCustom": "Custom recipient",
-        "labelContactFormMail": "Contact form confirmation",
+        "labelContactFormMail": "Inquirer",
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient...",
         "useDifferentReplyToLabel": "Use different reply-to address",

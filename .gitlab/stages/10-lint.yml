@@ -89,9 +89,8 @@ Danger:
         - danger ci
 
 ESLint (Administration):
-    extends: .base-no-setup
+    extends: .base
     stage: lint
-    image: node:lts-alpine
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -102,8 +101,12 @@ ESLint (Administration):
         policy: pull
       - <<: *administration-eslint-cache
         policy: pull
+    before_script:
+      - composer install --no-scripts --quiet
+      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+      - composer run admin:generate-entity-schema-types
+      - !reference [ .scripts, install-node, script ]
     script:
-        - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
         - cd src/Administration/Resources/app/administration
         - npm run lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
         - npm run lint:types

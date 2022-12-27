@@ -1,3 +1,4 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type { PropType } from 'vue';
 import type CriteriaType from 'src/core/data/criteria.data';
 
@@ -6,8 +7,6 @@ import './sw-order-create-options.scss';
 
 import type {
     ContextSwitchParameters,
-    Customer,
-    Currency,
     Cart,
     CartDelivery,
 } from '../../order.types';
@@ -90,11 +89,11 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        customer(): Customer | null {
+        customer(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
-        currency(): Currency {
+        currency(): Entity<'currency'> {
             return State.get('swOrder').context.currency;
         },
 

@@ -1,9 +1,8 @@
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import template from './sw-order-create-details.html.twig';
 // eslint-disable-next-line max-len
 import type {
     Cart,
-    Currency,
-    Customer,
     LineItem,
     SalesChannelContext,
     PromotionCodeTag,
@@ -61,7 +60,7 @@ export default Component.wrapComponentConfig({
             return this.salesChannelContext?.salesChannel.id || '';
         },
 
-        customer(): Customer | null {
+        customer(): Entity<'customer'> | null {
             return State.get('swOrder').customer;
         },
 
@@ -69,7 +68,7 @@ export default Component.wrapComponentConfig({
             return State.get('swOrder').cart;
         },
 
-        currency(): Currency {
+        currency(): Entity<'currency'> {
             return State.get('swOrder').context.currency;
         },
 
@@ -131,7 +130,7 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        currencyRepository(): Repository {
+        currencyRepository(): Repository<'currency'> {
             return this.repositoryFactory.create('currency');
         },
 
@@ -209,7 +208,13 @@ export default Component.wrapComponentConfig({
                 languageId: this.salesChannelContext.context.languageIdChain[0],
                 shippingMethodId: this.salesChannelContext.shippingMethod.id,
                 paymentMethodId: this.salesChannelContext.paymentMethod.id,
+                // @ts-expect-error - activeBillingAddress is not defined in the type
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
+                // @ts-expect-error - activeShippingAddress is not defined in the type
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',
             };
         },

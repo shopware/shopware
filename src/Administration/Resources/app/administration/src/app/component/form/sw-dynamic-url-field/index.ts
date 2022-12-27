@@ -35,7 +35,7 @@ Component.register('sw-dynamic-url-field', {
         isHTTPs: boolean,
         displayAsButton: boolean,
         linkCategory: LinkCategories,
-        categoryCollection?: EntityCollectionType,
+        categoryCollection?: EntityCollectionType<'category'>,
         } {
         return {
             lastEmittedLink: '',
@@ -70,7 +70,7 @@ Component.register('sw-dynamic-url-field', {
             return criteria;
         },
 
-        categoryRepository(): RepositoryType {
+        categoryRepository(): RepositoryType<'category'> {
             return this.repositoryFactory.create('category');
         },
     },
@@ -112,7 +112,7 @@ Component.register('sw-dynamic-url-field', {
             this.categoryCollection = this.getEmptyCategoryCollection();
         },
 
-        getEmptyCategoryCollection(): EntityCollectionType {
+        getEmptyCategoryCollection(): EntityCollectionType<'category'> {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,
@@ -120,7 +120,7 @@ Component.register('sw-dynamic-url-field', {
             );
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType> {
+        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
             const categoryCriteria = (new Criteria(1, 25)).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },

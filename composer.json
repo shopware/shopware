@@ -256,6 +256,7 @@
         ],
         "build:js:admin": [
             "@php bin/console bundle:dump",
+            "@admin:generate-entity-schema-types",
             "@npm:admin run build",
             "@php bin/console assets:install"
         ],
@@ -277,6 +278,7 @@
             "Composer\\Config::disableProcessTimeout",
             "@php bin/console feature:dump",
             "@php bin/console bundle:dump",
+            "@admin:generate-entity-schema-types",
             "@npm:admin run dev"
         ],
         "watch:storefront": [
@@ -291,7 +293,7 @@
             "@stylelint:admin src/**/*.scss",
             "@stylelint:storefront src/**/*.scss"
         ],
-        "eslint:admin": "@npm:admin run lint",
+        "eslint:admin": "@npm:admin run lint:all",
         "eslint:admin:fix": "@npm:admin run lint:fix",
         "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
         "eslint": [
@@ -399,7 +401,7 @@
             "Composer\\Config::disableProcessTimeout",
             "@e2e:recovery:cypress open"
         ],
-        "framework:schema:dump": "@php bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
+        "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
@@ -411,6 +413,10 @@
             "@npm:admin run unit-watch"
         ],
         "admin:create:test": "@npm:admin run create-test",
+        "admin:generate-entity-schema-types": [
+            "@framework:schema:dump",
+            "@npm:admin run convert-entity-schema"
+        ],
         "storefront:unit": [
             "@npm:storefront run unit"
         ],

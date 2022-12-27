@@ -61,10 +61,10 @@ type ErrorResponse = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default class Repository {
+export default class Repository<EntityName extends keyof EntitySchema.Entities> {
     route: string;
 
-    entityName: string;
+    entityName: EntityName;
 
     httpClient: AxiosInstance;
 
@@ -80,7 +80,7 @@ export default class Repository {
 
     constructor(
         route: string,
-        entityName: string,
+        entityName: EntityName,
         httpClient: AxiosInstance,
         hydrator: EntityHydrator,
         changesetGenerator: ChangesetGenerator,
@@ -120,7 +120,7 @@ export default class Repository {
     /**
      * Sends a search request for the repository entity.
      */
-    search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection> {
+    search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection<EntityName>> {
         const headers = this.buildHeaders(context);
 
         const url = `/search${this.route}`;
@@ -136,7 +136,7 @@ export default class Repository {
     /**
      * Short hand to fetch a single entity from the server
      */
-    get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity | null> {
+    get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity<EntityName> | null> {
         criteria = criteria || new Criteria(1, 1);
         criteria.setIds([id]);
 
@@ -150,7 +150,7 @@ export default class Repository {
      * If the entity is marked as new, the repository will send a POST create. Updates will be send as PATCH request.
      * Deleted associations will be send as additional request
      */
-    save(entity: Entity, context = Shopware.Context.api): Promise<void | AxiosResponse> {
+    save(entity: Entity<EntityName>, context = Shopware.Context.api): Promise<void | AxiosResponse> {
         if (this.options.useSync === true) {
             return this.saveWithSync(entity, context);
         }
@@ -161,7 +161,7 @@ export default class Repository {
     /**
      * @private
      */
-    async saveWithRest(entity: Entity, context: apiContext): Promise<void | AxiosResponse> {
+    async saveWithRest(entity: Entity<EntityName>, context: apiContext): Promise<void | AxiosResponse> {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (!this.options.keepApiErrors) {
@@ -175,7 +175,7 @@ export default class Repository {
     /**
      * @private
      */
-    async saveWithSync(entity: Entity, context: apiContext): Promise<void | AxiosResponse> {
+    async saveWithSync(entity: Entity<EntityName>, context: apiContext): Promise<void | AxiosResponse> {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (entity.isNew()) {
@@ -249,7 +249,7 @@ export default class Repository {
     /**
      * Detects if the entity or the relations has remaining changes which are not synchronized with the server
      */
-    hasChanges(entity: Entity): boolean {
+    hasChanges(entity: Entity<EntityName>): boolean {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         return changes !== null || deletionQueue.length > 0;
@@ -258,7 +258,7 @@ export default class Repository {
     /**
      * Detects changes of all provided entities and send the changes to the server
      */
-    saveAll(entities: EntityCollection, context = Shopware.Context.api): Promise<unknown> {
+    saveAll(entities: EntityCollection<EntityName>, context = Shopware.Context.api): Promise<unknown> {
         const promises: Promise<unknown>[] = [];
 
         entities.forEach((entity) => {
@@ -271,7 +271,11 @@ export default class Repository {
     /**
      * Detects changes of all provided entities and send the changes to the server
      */
-    async sync(entities: EntityCollection, context = Shopware.Context.api, failOnError = true): Promise<unknown> {
+    async sync(
+        entities: EntityCollection<EntityName>,
+        context = Shopware.Context.api,
+        failOnError = true,
+    ): Promise<unknown> {
         const { changeset, deletions } = this.getSyncChangeset(entities);
 
         if (!this.options.keepApiErrors) {
@@ -285,7 +289,7 @@ export default class Repository {
     /**
      * Detects changes of the provided entity and resets its first-level attributes to its origin state
      */
-    discard(entity: Entity): void {
+    discard(entity: Entity<EntityName>): void {
         if (!entity) {
             return;
         }
@@ -370,7 +374,9 @@ export default class Repository {
     /**
      * @private
      */
-    getSyncChangeset(entities: EntityCollection): { changeset: $TSDangerUnknownObject[], deletions: DeletionQueue } {
+    getSyncChangeset(
+        entities: EntityCollection<EntityName>,
+    ): { changeset: $TSDangerUnknownObject[], deletions: DeletionQueue } {
         return entities.reduce((acc, entity) => {
             const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
@@ -502,8 +508,8 @@ export default class Repository {
      * Creates a new entity for the local schema.
      * To Many association are initialed with a collection with the corresponding remote api route
      */
-    create(context = Shopware.Context.api, id: string | null = null): Entity | null {
-        return this.entityFactory.create(this.entityName, id, context) as unknown as Entity;
+    create(context = Shopware.Context.api, id: string | null = null): Entity<EntityName> {
+        return this.entityFactory.create(this.entityName, id, context) as unknown as Entity<EntityName>;
     }
 
     /**
@@ -564,7 +570,11 @@ export default class Repository {
     /**
      * @private
      */
-    sendChanges(entity: Entity, changes: Changeset, context = Shopware.Context.api): Promise<AxiosResponse | void> {
+    sendChanges(
+        entity: Entity<EntityName>,
+        changes: Changeset,
+        context = Shopware.Context.api,
+    ): Promise<AxiosResponse | void> {
         const headers = this.buildHeaders(context);
 
         if (entity.isNew()) {

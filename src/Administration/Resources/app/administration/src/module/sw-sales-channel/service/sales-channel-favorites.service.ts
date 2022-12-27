@@ -15,8 +15,9 @@ class SalesChannelFavoritesService extends UserConfigClass {
     private async initService(): Promise<void> {
         this.userConfig = await this.getUserConfig();
 
-        if (this.userConfig.value?.length) {
-            this.state.favorites = this.userConfig.value;
+        // @ts-expect-error - this object contains value
+        if (this.userConfig?.value?.length) {
+            this.state.favorites = this.userConfig.value as string[];
         }
     }
 
@@ -47,6 +48,7 @@ class SalesChannelFavoritesService extends UserConfigClass {
     protected async readUserConfig(): Promise<void> {
         this.userConfig = await this.getUserConfig();
         if (Array.isArray(this.userConfig?.value)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             this.state.favorites = this.userConfig.value;
         }
     }

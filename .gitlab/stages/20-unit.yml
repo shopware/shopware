@@ -44,9 +44,9 @@ Jest (Administration):
         - when: always
     before_script:
       - composer install --no-scripts --quiet
-      - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json 2>/dev/null
-      - !reference [ .scripts, install-node, script ]
       - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+      - composer run admin:generate-entity-schema-types
+      - !reference [ .scripts, install-node, script ]
     script:
         - npm --prefix $ADMIN_PATH run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

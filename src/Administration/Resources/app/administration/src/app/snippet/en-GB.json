@@ -12,7 +12,14 @@
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
-      "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided."
+      "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
+      "PROMOTION_VALID_UNTIL_VIOLATION": "Expiration Date of Promotion must be after Start of Promotion.",
+      "PROMOTION_EMPTY_CODE_VIOLATION": "Please provide a valid code.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "Code may not have any leading or ending whitespaces.",
+      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "Code Pattern already exists in other promotion. Please provide a different pattern.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "Code already exists in other promotion. Please provide a different code.",
+      "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "Value must not be less than {value}.",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "Absolute value must not greater than {value}."
     },
     "default": {
       "add": "Add",

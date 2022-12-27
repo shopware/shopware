@@ -243,7 +243,7 @@ class PromotionValidator implements EventSubscriberInterface
             $dateUntil = new \DateTime($validUntil);
             if ($dateUntil < $dateFrom) {
                 $violationList->add($this->buildViolation(
-                    'Expiration Date of Promotion must be after Start of Promotion',
+                    'Expiration Date of Promotion must be after Start of Promotion.',
                     $payload['valid_until'],
                     'validUntil',
                     'PROMOTION_VALID_UNTIL_VIOLATION',
@@ -269,7 +269,7 @@ class PromotionValidator implements EventSubscriberInterface
             // this means we have leading or trailing whitespaces
             if (mb_strlen($code) > mb_strlen($trimmedCode)) {
                 $violationList->add($this->buildViolation(
-                    'Code may not have any leading or ending whitespaces',
+                    'Code may not have any leading or ending whitespaces.',
                     $code,
                     'code',
                     'PROMOTION_CODE_WHITESPACE_VIOLATION',
@@ -322,7 +322,7 @@ class PromotionValidator implements EventSubscriberInterface
 
         if ($value < self::DISCOUNT_MIN_VALUE) {
             $violationList->add($this->buildViolation(
-                'Value must not be less than ' . self::DISCOUNT_MIN_VALUE,
+                'Value must not be less than ' . self::DISCOUNT_MIN_VALUE . '.',
                 $value,
                 'value',
                 'PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION',
@@ -334,7 +334,7 @@ class PromotionValidator implements EventSubscriberInterface
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 if ($value > self::DISCOUNT_PERCENTAGE_MAX_VALUE) {
                     $violationList->add($this->buildViolation(
-                        'Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE,
+                        'Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE . '.',
                         $value,
                         'value',
                         'PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION',

@@ -12,7 +12,15 @@
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
-      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an."
+      "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
+      "PROMOTION_VALID_UNTIL_VIOLATION": "Das Enddatum der Aktion muss nach dem Startdatum liegen.",
+      "PROMOTION_EMPTY_CODE_VIOLATION": "Bitte füge einen validen Aktionscode hinzu.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "Der Aktionscode sollte weder mit einem Leerzeichen enden noch anfangen.",
+      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "Dieses Aktionscode-Muster wird bereits in einer anderen Aktion verwendet. Bitte benutze ein anderes Muster.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "Dieser Aktionscode wird bereits in einer anderen Aktion verwendet. Bitte benutze ein anderen Aktionscode.",
+      "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "Wert darf nicht kleiner sein als {value}",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "Wert darf nicht größer sein als {value}",
+      "PROMOTION_NO_SALES_CHANNEL_VIOLATION": "Aktive Aktionen brauchen einen zugewiesenen Verkaufskanal. Bitte füge einen Verkaufskanal hinzu."
     },
     "default": {
       "add": "Hinzufügen",

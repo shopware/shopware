@@ -8,45 +8,17 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('system-settings')]
 class Version extends Struct
 {
-    /**
-     * @var string
-     */
-    public $version;
+    public string $version = '';
 
-    /**
-     * @var bool
-     */
-    public $isNewer;
+    public bool $isNewer = false;
 
-    /**
-     * @var array
-     */
-    public $changelog;
+    public string $changelog = '';
 
-    /**
-     * @var non-empty-string
-     */
-    public $uri;
+    public string $url = '';
 
-    /**
-     * @var string
-     */
-    public $size;
+    public \DateTimeImmutable $createdAt;
 
-    /**
-     * @var string
-     */
-    public $sha1;
-
-    /**
-     * @var string
-     */
-    public $sha256;
-
-    /**
-     * @var array
-     */
-    public $checks;
+    public string $name = '';
 
     public function getApiAlias(): string
     {

@@ -15,6 +15,7 @@ class StreamedCommandResponseGenerator
     public function run(array $params, callable $finish): StreamedResponse
     {
         $process = new Process($params);
+        $process->setEnv(['COMPOSER_HOME' => sys_get_temp_dir() . '/composer']);
 
         $process->start();
 

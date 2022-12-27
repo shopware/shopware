@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,9 +17,18 @@ class FinishController extends AbstractController
         if ($request->getMethod() === Request::METHOD_POST) {
             $self = $_SERVER['SCRIPT_FILENAME'];
             \assert(\is_string($self));
+
+            $redirectUrl = $request->getBasePath() . '/admin';
+
+            // Below this line call only php native functions as we deleted our own files already
             unlink($self);
 
-            return new RedirectResponse($request->getBasePath() . '/admin');
+            if (\function_exists('opcache_reset')) {
+                opcache_reset();
+            }
+
+            header('Location: ' . $redirectUrl);
+            exit;
         }
         // @codeCoverageIgnoreEnd
 

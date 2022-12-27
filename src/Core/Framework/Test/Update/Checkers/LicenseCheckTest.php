@@ -19,7 +19,7 @@ class LicenseCheckTest extends TestCase
 
         $licenseCheck = new LicenseCheck($systemConfig, $this->createMock(StoreClient::class));
 
-        $validationResult = $licenseCheck->check(null)->jsonSerialize();
+        $validationResult = $licenseCheck->check()->jsonSerialize();
 
         static::assertTrue($validationResult['result']);
     }
@@ -33,7 +33,7 @@ class LicenseCheckTest extends TestCase
         $storeClient->method('isShopUpgradeable')->willReturn(true);
 
         $licenseCheck = new LicenseCheck($systemConfig, $storeClient);
-        $validationResult = $licenseCheck->check(null)->jsonSerialize();
+        $validationResult = $licenseCheck->check()->jsonSerialize();
 
         static::assertTrue($validationResult['result']);
     }
@@ -47,19 +47,8 @@ class LicenseCheckTest extends TestCase
         $storeClient->method('isShopUpgradeable')->willReturn(false);
 
         $licenseCheck = new LicenseCheck($systemConfig, $storeClient);
-        $validationResult = $licenseCheck->check(null)->jsonSerialize();
+        $validationResult = $licenseCheck->check()->jsonSerialize();
 
         static::assertFalse($validationResult['result']);
-    }
-
-    public function testSupports(): void
-    {
-        $licenseCheck = new LicenseCheck($this->createMock(SystemConfigService::class), $this->createMock(StoreClient::class));
-
-        static::assertTrue($licenseCheck->supports('licensecheck'));
-        static::assertFalse($licenseCheck->supports('phpversion'));
-        static::assertFalse($licenseCheck->supports('mysqlversion'));
-        static::assertFalse($licenseCheck->supports('writable'));
-        static::assertFalse($licenseCheck->supports(''));
     }
 }

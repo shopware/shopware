@@ -8,12 +8,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
@@ -35,28 +33,16 @@ class DeactivateExtensionsStepTest extends TestCase
 
     private PluginCompatibility $pluginCompatibility;
 
-    private EntityRepository $appRepository;
-
-    private EntityRepository $pluginRepository;
-
-    private EntityRepository $salesChannelRepository;
-
-    private ApiClient $apiClient;
-
     private Context $context;
 
     public function setUp(): void
     {
         $this->pluginCompatibility = $this->getContainer()->get(PluginCompatibility::class);
-        $this->apiClient = $this->getContainer()->get(ApiClient::class);
 
         $requestStack = $this->getContainer()->get('request_stack');
         $requestStack->push(new Request());
 
         $this->lifecycleService = $this->getContainer()->get(ExtensionLifecycleService::class);
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->pluginRepository = $this->getContainer()->get('plugin.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $userId = Uuid::randomHex();
         $storeToken = Uuid::randomHex();
 
@@ -98,7 +84,7 @@ class DeactivateExtensionsStepTest extends TestCase
             'version' => '6.6.0.0',
         ]);
 
-        $extensionResponse = file_get_contents(__DIR__ . './../_fixtures/responses/extension-yellow.json');
+        $extensionResponse = (string) file_get_contents(__DIR__ . './../_fixtures/responses/extension-yellow.json');
         $this->getRequestHandler()->append(new Response(
             200,
             [],

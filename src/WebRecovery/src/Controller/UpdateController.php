@@ -7,6 +7,7 @@ use App\Services\FlexMigrator;
 use App\Services\RecoveryManager;
 use App\Services\ReleaseInfoProvider;
 use App\Services\StreamedCommandResponseGenerator;
+use Composer\Util\Platform;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -80,6 +81,10 @@ class UpdateController extends AbstractController
     #[Route('/update/_reset_config', name: 'update_reset_config', methods: ['POST'])]
     public function resetConfig(Request $request): Response
     {
+        if (\function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
         return $this->streamedCommandResponseGenerator->runJSON([
@@ -177,8 +182,9 @@ class UpdateController extends AbstractController
             // Lock the composer version to that major version
             $version = '~' . substr($latestVersion, 0, 3) . '.0';
 
-            if (isset($_SERVER['SW_RECOVERY_NEXT_VERSION']) && \is_string($_SERVER['SW_RECOVERY_NEXT_VERSION'])) {
-                $version = 'dev-trunk as ' . $_SERVER['SW_RECOVERY_NEXT_VERSION'];
+            $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
+            if (\is_string($nextVersion)) {
+                $version = 'dev-trunk as ' . $nextVersion;
             }
 
             $composerJson['require'][$shopwarePackage] = $version;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Composer\Util\Platform;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -20,10 +21,11 @@ class ReleaseInfoProvider
      */
     public function fetchLatestRelease(): array
     {
-        if (isset($_SERVER['SW_RECOVERY_NEXT_VERSION']) && \is_string($_SERVER['SW_RECOVERY_NEXT_VERSION'])) {
+        $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
+        if (\is_string($nextVersion)) {
             return [
                 '6.4' => '6.4.17.2',
-                '6.5' => $_SERVER['SW_RECOVERY_NEXT_VERSION'],
+                '6.5' => $nextVersion,
             ];
         }
 

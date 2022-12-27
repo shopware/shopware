@@ -347,19 +347,22 @@
             "Composer\\Config::disableProcessTimeout",
             "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
             "@putenv CYPRESS_SKIP_INIT=1",
-            "@putenv CYPRESS_baseUrl=http://localhost:8050",
-            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.9.9",
+            "symfony local:server:stop --dir=shop",
             "symfony local:server:start --dir=shop --port=8050 -d",
-            "@e2e:recovery:cypress open"
+            "export CYPRESS_baseUrl=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}}; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
         ],
         "e2e:recovery:setup": [
             "rm -rf shop",
+            "wget -q -O install.zip https://releases.shopware.com/sw6/install_v6.4.17.2_4d2c85fb448571fa4f30edce635f33a67dda1d76.zip",
             "unzip -q -o -d shop install.zip",
-            "cd shop; bin/console system:setup --database-url $DATABASE_URL --app-url http://localhost:8050 -f -n",
-            "cd shop; APP_URL=http://localhost:8050 bin/console system:install --basic-setup --create-database --drop-database --force -n",
+            "rm install.zip",
+            "cd shop; bin/console system:setup --database-url mysql://${CYPRESS_dbUser-root}:${CYPRESS_dbPassword-root}@${CYPRESS_dbHost-localhost}/${CYPRESS_dbName-shopware} --app-url ${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} -f -n",
+            "echo PROJECT_ROOT=$PWD/shop >> shop/.env",
+            "cd shop; APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} bin/console system:install --basic-setup --create-database --drop-database --force -n",
             "cd shop; bin/console system:config:set core.frw.completedAt '2019-10-07T10:46:23+00:00'",
             "cd shop; composer config repositories.0 '{\"type\": \"path\", \"url\": \"../src/*\"}'",
-            "composer -d src/WebRecovery/ build-phar",
+            "cd src/WebRecovery; composer install",
+            "cd src/WebRecovery; composer build-phar",
             "mv src/WebRecovery/shopware-recovery.phar shop/public/shopware-recovery.phar.php"
         ],
         "ecs": "ecs check src tests",

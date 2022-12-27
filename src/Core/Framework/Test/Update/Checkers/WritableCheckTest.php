@@ -20,8 +20,7 @@ class WritableCheckTest extends TestCase
         $writableCheck = new WriteableCheck($filesystem, '/tmp');
 
         $checkFiles = [
-            'foo',
-            'foo/bar',
+            '/',
         ];
 
         $filesystem->expects(static::exactly(\count($checkFiles)))
@@ -32,7 +31,7 @@ class WritableCheckTest extends TestCase
             )
             ->willReturn([]);
 
-        $actual = $writableCheck->check($checkFiles)->jsonSerialize();
+        $actual = $writableCheck->check()->jsonSerialize();
         static::assertTrue($actual['result']);
     }
 
@@ -56,19 +55,8 @@ class WritableCheckTest extends TestCase
             )
             ->willReturnOnConsecutiveCalls([], ['/tmp/not-writable'], ['/tmp/also-not-writable']);
 
-        $actual = $writableCheck->check($checkFiles)->jsonSerialize();
+        $actual = $writableCheck->check()->jsonSerialize();
         static::assertFalse($actual['result']);
         static::assertSame('/tmp/not-writable<br>/tmp/also-not-writable', $actual['vars']['failedDirectories']);
-    }
-
-    public function testSupports(): void
-    {
-        $writableCheck = new WriteableCheck($this->createMock(Filesystem::class), '/tmp');
-
-        static::assertTrue($writableCheck->supports('writable'));
-        static::assertFalse($writableCheck->supports('licensecheck'));
-        static::assertFalse($writableCheck->supports('phpversion'));
-        static::assertFalse($writableCheck->supports('mysqlversion'));
-        static::assertFalse($writableCheck->supports(''));
     }
 }

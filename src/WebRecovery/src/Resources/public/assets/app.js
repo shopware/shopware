@@ -72,7 +72,7 @@ if (updateButton) {
 
             const migrate = await fetch(`${baseUrl}/update/_migrate-template`, {method: 'POST'})
 
-            if (migrate.status !== 204) {
+            if (migrate.status !== 204 && migrate.status !== 200) {
                 updateLogOutput.innerHTML += 'Failed to update to Flex Project' + "\n"
                 updateLogCard.innerHTML += await migrate.text();
                 return;

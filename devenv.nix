@@ -99,7 +99,16 @@
 
   env.APP_URL = lib.mkDefault "http://localhost:8000";
   env.APP_SECRET = lib.mkDefault "devsecret";
-  env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
+
+  # General cypress
+  env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
+
+  # Installer testing
+  env.INSTALL_URL = lib.mkDefault "http://localhost:8050";
+  env.CYPRESS_dbHost = lib.mkDefault "localhost";
+  env.CYPRESS_dbUser = lib.mkDefault "shopware";
+  env.CYPRESS_dbPassword = lib.mkDefault "shopware";
+  env.CYPRESS_dbName = lib.mkDefault "shopware";
 }

@@ -2,94 +2,55 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
-use GuzzleHttp\Client;
-use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
-use Shopware\Core\Framework\Update\Exception\UpdateApiSignatureValidationException;
 use Shopware\Core\Framework\Update\Struct\Version;
-use Shopware\Core\Framework\Update\VersionFactory;
-use Shopware\Core\Kernel;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Package('system-settings')]
 final class ApiClient
 {
-    private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';
-
     /**
      * @internal
      */
     public function __construct(
-        private readonly string $shopwareVersion,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly OpenSSLVerifier $openSSLVerifier,
-        private readonly Client $client,
+        private HttpClientInterface $client,
         private readonly bool $shopwareUpdateEnabled
     ) {
     }
 
-    public function checkForUpdates(bool $testMode = false): Version
+    public function checkForUpdates(): Version
     {
         if (!$this->shopwareUpdateEnabled) {
             return new Version();
         }
 
-        if ($testMode === true) {
-            return VersionFactory::createTestVersion();
-        }
-        $response = $this->client->get('/v1/release/update?' . http_build_query($this->getUpdateOptions()));
+        /** @var array{tag_name: string, name: string, created_at: string, body: string} $gitHub */
+        $gitHub = $this->client->request('GET', 'https://api.github.com/repos/shopware/platform/releases/tags/v' . $this->determineLatestShopwareVersion());
 
-        $this->verifyResponseSignature($response);
+        $version = new Version();
+        $version->version = $gitHub['tag_name'];
+        $version->name = $gitHub['name'];
+        $version->createdAt = new \DateTimeImmutable($gitHub['created_at']);
+        $version->changelog = $gitHub['body'];
 
-        $data = json_decode((string) $response->getBody(), true, 512, \JSON_THROW_ON_ERROR);
-
-        return VersionFactory::create($data);
+        return $version;
     }
 
-    private function getShopwareVersion(): string
+    private function determineLatestShopwareVersion(): string
     {
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
-            return '___VERSION___';
+        /** @var array{packages: array{"shopware/core": array{version: string}[]}} $response */
+        $response = $this->client->request('GET', 'https://repo.packagist.org/p2/shopware/core.json')->toArray();
+
+        $versions = array_column($response['packages']['shopware/core'], 'version');
+
+        foreach ($versions as $version) {
+            if (str_contains($version, 'dev-') || str_contains($version, 'alpha') || str_contains($version, 'beta') || str_contains($version, 'rc')) {
+                continue;
+            }
+
+            return $version;
         }
 
-        return $this->shopwareVersion;
-    }
-
-    private function getUpdateOptions(): array
-    {
-        return [
-            'shopware_version' => $this->getShopwareVersion(),
-            'channel' => $this->systemConfigService->get('core.update.channel'),
-            'major' => 6,
-            'code' => $this->systemConfigService->get('core.update.code'),
-        ];
-    }
-
-    private function verifyResponseSignature(ResponseInterface $response): void
-    {
-        $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
-        $header = $response->getHeader($signatureHeaderName);
-        if (!isset($header[0])) {
-            throw new UpdateApiSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        $signature = $header[0];
-
-        if (empty($signature)) {
-            throw new UpdateApiSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        if (!$this->openSSLVerifier->isSystemSupported()) {
-            return;
-        }
-
-        if ($this->openSSLVerifier->isValid($response->getBody()->getContents(), $signature)) {
-            $response->getBody()->rewind();
-
-            return;
-        }
-
-        throw new UpdateApiSignatureValidationException('Signature not valid');
+        throw new \RuntimeException('Could not determine latest Shopware version');
     }
 }

@@ -616,6 +616,12 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "exclude_events": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "title": "Logger"

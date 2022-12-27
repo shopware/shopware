@@ -20,28 +20,10 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
     public const EVENT_NAME = 'mail.after.create.message';
 
     /**
-     * @var array<string, mixed>
-     */
-    private $data;
-
-    /**
-     * @var Email
-     */
-    private $message;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
      * @param array<string, mixed> $data
      */
-    public function __construct(array $data, Email $message, Context $context)
+    public function __construct(private array $data, private Email $message, private Context $context, private ?string $eventName = null)
     {
-        $this->data = $data;
-        $this->message = $message;
-        $this->context = $context;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -81,6 +63,7 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
 
         return [
             'data' => $data,
+            'eventName' => $this->eventName,
             'message' => $this->message,
         ];
     }

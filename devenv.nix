@@ -1,6 +1,10 @@
 { pkgs, config, ... }:
 
 {
+  packages = [
+    pkgs.gnupatch
+  ];
+
   languages.javascript.enable = true;
   languages.javascript.package = pkgs.nodejs-18_x;
 
@@ -60,6 +64,7 @@
 
   services.redis.enable = true;
   services.adminer.enable = true;
+  services.adminer.listen = "127.0.0.1:9080";
   services.mailhog.enable = true;
 
   # services.elasticsearch.enable = true;

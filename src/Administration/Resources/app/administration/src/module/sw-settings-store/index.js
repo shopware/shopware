@@ -5,9 +5,8 @@ const { Module } = Shopware;
 
 /**
  * @package merchant-services
- * @deprecated tag:v6.5.0 - Will be private in future versions
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-store', {
     type: 'core',
     name: 'settings-store',

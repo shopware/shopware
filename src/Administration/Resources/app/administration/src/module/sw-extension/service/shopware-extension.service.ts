@@ -24,27 +24,19 @@ interface LabeledLocation extends Location {
 
 /**
  * @package merchant-services
- * @deprecated tag:v6.5.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareExtensionService {
     public readonly EXTENSION_VARIANT_TYPES: Readonly<EXTENSION_VARIANT_TYPES>;
 
     private readonly EXTENSION_TYPES: Readonly<EXTENSION_TYPES>;
 
-    private readonly storeApiService: StoreApiService;
-
-    /**
-     * @deprecated tag:v6.5.0 - Parameter storeApiService will be required in future versions
-     */
     constructor(
         private readonly appModulesService: AppModulesService,
         private readonly extensionStoreActionService: ExtensionStoreActionService,
         private readonly discountCampaignService: ShopwareDiscountCampaignService,
-        storeApiService?: StoreApiService,
+        private readonly storeApiService: StoreApiService,
     ) {
-        this.storeApiService = storeApiService ?? Shopware.Service('storeService');
-
         this.EXTENSION_VARIANT_TYPES = Object.freeze({
             RENT: 'rent',
             BUY: 'buy',
@@ -115,16 +107,10 @@ export default class ShopwareExtensionService {
     }
 
     public async checkLogin(): Promise<void> {
-        if (Shopware.State.get('shopwareExtensions').userInfo === null) {
-            Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
-        }
-
         try {
             const { userInfo } = await this.storeApiService.checkLogin();
-            Shopware.State.commit('shopwareExtensions/setLoginStatus', !!userInfo);
             Shopware.State.commit('shopwareExtensions/setUserInfo', userInfo);
         } catch {
-            Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
             Shopware.State.commit('shopwareExtensions/setUserInfo', null);
         }
     }
@@ -134,8 +120,8 @@ export default class ShopwareExtensionService {
         const notDiscounted = variants.filter((variant) => !this.isVariantDiscounted(variant));
 
         return [
-            ...this._orderByType(discounted),
-            ...this._orderByType(notDiscounted),
+            ...this.orderByType(discounted),
+            ...this.orderByType(notDiscounted),
         ];
     }
 
@@ -173,22 +159,13 @@ export default class ShopwareExtensionService {
         }
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed without replacement. Use the return value of getOpenLink instead
-     */
-    public async canBeOpened(extension: Extension) {
-        const openLink = await this.getOpenLink(extension);
-
-        return !!openLink;
-    }
-
     public async getOpenLink(extension: Extension): Promise<null|RawLocation> {
         if (extension.isTheme) {
-            return this._getLinkToTheme(extension);
+            return this.getLinkToTheme(extension);
         }
 
         if (extension.type === this.EXTENSION_TYPES.APP) {
-            return this._getLinkToApp(extension);
+            return this.getLinkToApp(extension);
         }
 
         // Only show open link when extension is active. The route is maybe not available
@@ -210,20 +187,10 @@ export default class ShopwareExtensionService {
         return null;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will be private in future versions
-     */
-    public async updateModules() {
+    private async updateModules() {
         const modules = await this.appModulesService.fetchAppModules();
 
         Shopware.State.commit('shopwareApps/setApps', modules);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. Use private function getLinkToTheme instead
-     */
-    public async _getLinkToTheme(extension: Extension) {
-        return this.getLinkToTheme(extension);
     }
 
     private async getLinkToTheme(extension: Extension) {
@@ -247,32 +214,18 @@ export default class ShopwareExtensionService {
         };
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. Use private function getLinkToApp instead
-     */
-    public _getLinkToApp(extension: Extension) {
-        return this.getLinkToApp(extension);
-    }
-
     private getLinkToApp(extension: Extension) {
-        const app = this._getAppFromStore(extension.name);
+        const app = this.getAppFromStore(extension.name);
 
         if (!app) {
             return null;
         }
 
-        if (this._appHasMainModule(app)) {
-            return this._createLinkToModule(app.name);
+        if (this.appHasMainModule(app)) {
+            return this.createLinkToModule(app.name);
         }
 
         return null;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. Use private function getAppFromStore instead
-     */
-    public _getAppFromStore(extensionName: string) {
-        return this.getAppFromStore(extensionName);
     }
 
     private getAppFromStore(extensionName: string) {
@@ -281,22 +234,8 @@ export default class ShopwareExtensionService {
         });
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. Use private function appHasMainModule instead
-     */
-    public _appHasMainModule(app: AppModuleDefinition) {
-        return this.appHasMainModule(app);
-    }
-
     private appHasMainModule(app: AppModuleDefinition) {
         return !!app.mainModule?.source;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. Use private function createLinkToModule instead
-     */
-    public _createLinkToModule(appName: string) {
-        return this.createLinkToModule(appName);
     }
 
     private createLinkToModule(appName: string) {
@@ -306,13 +245,6 @@ export default class ShopwareExtensionService {
                 appName,
             },
         };
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. use private function orderByType instead.
-     */
-    public _orderByType(variants: ExtensionVariant[]) {
-        return this.orderByType(variants);
     }
 
     private orderByType(variants: ExtensionVariant[]) {

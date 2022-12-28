@@ -21,7 +21,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @package merchant-services
@@ -209,51 +208,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         static::assertEquals('sw-version', $queries['shopwareVersion']);
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testGetDefaultQueryParametersReturnsSameLanguageThatIsPassed(): void
-    {
-        $localeProvider = static::createMock(LocaleProvider::class);
-        $localeProvider->expects(static::never())
-            ->method('getLocaleFromContext');
-
-        $provider = new StoreRequestOptionsProvider(
-            $this->setUpUserRepositorySearch(new UserCollection(), static::never()),
-            static::createMock(SystemConfigService::class),
-            new InstanceService('sw-version', 'instance-id'),
-            $localeProvider
-        );
-
-        $queries = $provider->getDefaultQueryParameters(Context::createDefaultContext(), 'language-that-was-passed');
-
-        static::assertArrayHasKey('language', $queries);
-        static::assertEquals('language-that-was-passed', $queries['language']);
-    }
-
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
-    public function testGetDefaultQueryParametersReturnsEnGbIfLanguageAndContextAreNotSet(): void
-    {
-        $localeProvider = static::createMock(LocaleProvider::class);
-        $localeProvider->expects(static::never())
-            ->method('getLocaleFromContext');
-
-        $provider = new StoreRequestOptionsProvider(
-            $this->setUpUserRepositorySearch(new UserCollection(), static::never()),
-            static::createMock(SystemConfigService::class),
-            new InstanceService('sw-version', 'instance-id'),
-            $localeProvider
-        );
-
-        $queries = $provider->getDefaultQueryParameters(null, null);
-
-        static::assertArrayHasKey('language', $queries);
-        static::assertEquals('en-GB', $queries['language']);
-    }
-
-    public function testGetDefaultQueryParametersDelegatesToLocaleProviderIfContextIsSet(): void
+    public function testGetDefaultQueryParametersDelegatesToLocaleProvider(): void
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
@@ -274,46 +229,6 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         static::assertArrayHasKey('language', $queries);
         static::assertEquals('locale-from-provider', $queries['language']);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testDefaultQueryParametersThrowsIfLanguageIsPassedIn65(): void
-    {
-        $localeProvider = static::createMock(LocaleProvider::class);
-        $localeProvider->expects(static::never())
-            ->method('getLocaleFromContext');
-
-        $provider = new StoreRequestOptionsProvider(
-            $this->setUpUserRepositorySearch(new UserCollection(), static::never()),
-            static::createMock(SystemConfigService::class),
-            new InstanceService('sw-version', 'instance-id'),
-            $localeProvider
-        );
-
-        static::expectException(\RuntimeException::class);
-        $provider->getDefaultQueryParameters(Context::createDefaultContext(), 'language-that-was-passed');
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testDefaultQueryParametersThrowsIfContextIsNullIn65(): void
-    {
-        $localeProvider = static::createMock(LocaleProvider::class);
-        $localeProvider->expects(static::never())
-            ->method('getLocaleFromContext');
-
-        $provider = new StoreRequestOptionsProvider(
-            $this->setUpUserRepositorySearch(new UserCollection(), static::never()),
-            static::createMock(SystemConfigService::class),
-            new InstanceService('sw-version', 'instance-id'),
-            $localeProvider
-        );
-
-        static::expectException(\RuntimeException::class);
-        $provider->getDefaultQueryParameters(null);
     }
 
     /**

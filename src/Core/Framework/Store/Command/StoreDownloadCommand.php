@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 #[AsCommand(
     name: 'store:download',
@@ -33,47 +33,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class StoreDownloadCommand extends Command
 {
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
-     * @var EntityRepository
-     */
-    private $pluginRepo;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
-
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    /**
-     * @var EntityRepository
-     */
-    private $userRepository;
-
-    /**
-     * @internal
-     */
     public function __construct(
-        StoreClient $storeClient,
-        EntityRepository $pluginRepo,
-        PluginManagementService $pluginManagementService,
-        PluginLifecycleService $pluginLifecycleService,
-        EntityRepository $userRepository
+        private readonly StoreClient $storeClient,
+        private readonly EntityRepository $pluginRepo,
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginLifecycleService $pluginLifecycleService,
+        private readonly EntityRepository $userRepository,
     ) {
-        $this->storeClient = $storeClient;
-        $this->pluginRepo = $pluginRepo;
-        $this->pluginManagementService = $pluginManagementService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
-        $this->userRepository = $userRepository;
-
         parent::__construct();
     }
 

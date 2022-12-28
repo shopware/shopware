@@ -11,15 +11,13 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 class StoreClientFactory
 {
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
 
     /**
-     * @internal
-     *
      * @param MiddlewareInterface[] $middlewares
      */
     public function __construct(

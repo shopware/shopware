@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 abstract class AbstractExtensionStoreLicensesService
 {

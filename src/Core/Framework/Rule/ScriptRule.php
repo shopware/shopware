@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
 use Shopware\Core\Framework\Script\Debugging\Debug;
@@ -90,6 +91,8 @@ class ScriptRule extends Rule
         if ($this->debug) {
             $twig->addExtension(new DebugExtension());
         }
+
+        $twig->addExtension(new SecurityExtension([]));
 
         $hook = new AppScriptConditionHook($scope->getContext());
 

@@ -86,6 +86,9 @@
                 },
                 "profiler": {
                   "$ref": "#/definitions/profiler"
+                },
+                "twig": {
+                    "$ref": "#/definitions/twig"
                 }
             },
             "title": "Shopware"
@@ -111,6 +114,19 @@
                 }
             },
             "title": "Enabled profiler, available since 6.4.11.0"
+        },
+        "twig": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_php_functions": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         },
         "mail": {
             "type": "object",

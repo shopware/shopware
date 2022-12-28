@@ -36,6 +36,7 @@
                 "general": {
                     "cardTitle": "General settings",
                     "nameLabel": "Name",
+                    "namePlaceholder": "Enter name...",
                     "priorityLabel": "Priority",
                     "validFromLabel": "Valid from",
                     "validFromPlaceholder": "Select start date...",

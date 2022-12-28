@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swExtensionStoreLandingPage from 'src/module/sw-extension/page/sw-extension-store-landing-page';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/utils/sw-loader';
 
 let successfulActivation = true;
 
@@ -17,6 +18,7 @@ async function createWrapper() {
                 template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
             },
             'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
             'sw-icon': true,
             'sw-label': true
         },

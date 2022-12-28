@@ -36,7 +36,7 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     public function blockResubmit(): bool
     {
-        return true;
+        return $this->blockOrder();
     }
 
     /**

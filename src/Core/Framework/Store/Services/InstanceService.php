@@ -7,7 +7,7 @@ use Shopware\Core\Kernel;
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 class InstanceService
 {
@@ -15,9 +15,6 @@ class InstanceService
 
     private ?string $instanceId;
 
-    /**
-     * @internal
-     */
     public function __construct(string $shopwareVersion, ?string $instanceId)
     {
         $this->shopwareVersion = $shopwareVersion;

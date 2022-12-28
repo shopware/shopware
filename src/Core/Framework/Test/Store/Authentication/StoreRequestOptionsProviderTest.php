@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -64,15 +63,6 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         static::expectException(InvalidContextSourceUserException::class);
         $this->storeRequestOptionsProvider->getAuthenticationHeader($context);
-    }
-
-    public function testGetDefaultQueriesReturnsLanguageIfGiven(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-        $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters(null, 'de-CH');
-
-        static::assertArrayHasKey('language', $queries);
-        static::assertEquals('de-CH', $queries['language']);
     }
 
     public function testGetDefaultQueriesReturnsLanguageFromContext(): void

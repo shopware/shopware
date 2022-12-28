@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\ShopwareHttpException;
+
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - Will only extend from Shopware\Core\Framework\ShopwareHttpException
- *
  * @internal
  */
-class ExtensionUpdateRequiresConsentAffirmationException extends ExtensionRequiresNewPrivilegesException
+class ExtensionUpdateRequiresConsentAffirmationException extends ShopwareHttpException
 {
     /**
      * @param array<string, array<string, mixed>> $deltas

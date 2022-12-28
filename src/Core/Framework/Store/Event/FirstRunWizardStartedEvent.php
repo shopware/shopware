@@ -9,19 +9,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 class FirstRunWizardStartedEvent extends Event
 {
-    /**
-     * @var FrwState
-     */
-    private $state;
+    private FrwState $state;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public function __construct(FrwState $state, Context $context)
     {

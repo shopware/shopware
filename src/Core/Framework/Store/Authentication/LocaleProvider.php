@@ -13,15 +13,12 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 class LocaleProvider
 {
     private EntityRepository $userRepository;
 
-    /**
-     * @internal
-     */
     public function __construct(EntityRepository $userRepository)
     {
         $this->userRepository = $userRepository;

@@ -8,9 +8,6 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
@@ -24,9 +21,6 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StoreActionStruct;
-use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
-use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
-use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
@@ -46,26 +40,12 @@ class StoreClient
         /** @var array<string, string> */
         protected readonly array $endpoints,
         private readonly StoreService $storeService,
-        private readonly EntityRepository $pluginRepo,
         private readonly SystemConfigService $configService,
         private readonly AbstractStoreRequestOptionsProvider $optionsProvider,
         private readonly ExtensionLoader $extensionLoader,
         protected readonly ClientInterface $client,
-        private readonly InstanceService $instanceService
+        private readonly InstanceService $instanceService,
     ) {
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed without replacement
-     */
-    public function ping(): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            'StoreClient::ping() will be removed without replacement.'
-        );
-
-        $this->client->request(Request::METHOD_GET, $this->endpoints['ping']);
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, Context $context): void
@@ -121,63 +101,6 @@ class StoreClient
         );
 
         return \json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @return StoreLicenseStruct[]
-     */
-    public function getLicenseList(Context $context): array
-    {
-        $response = $this->client->request(
-            Request::METHOD_GET,
-            $this->endpoints['my_plugin_licenses'],
-            [
-                'query' => $this->getQueries($context),
-                'headers' => $this->getHeaders($context),
-            ]
-        );
-
-        $data = \json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
-
-        $licenseList = [];
-        $installedPlugins = [];
-
-        /** @var PluginCollection $pluginCollection */
-        $pluginCollection = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-
-        foreach ($pluginCollection as $plugin) {
-            $installedPlugins[$plugin->getName()] = $plugin->getVersion();
-        }
-
-        foreach ($data['data'] as $license) {
-            $licenseStruct = new StoreLicenseStruct();
-            $licenseStruct->assign($license);
-
-            $licenseStruct->setInstalled(\array_key_exists($licenseStruct->getTechnicalPluginName(), $installedPlugins));
-            if (isset($license['availableVersion'])) {
-                if ($licenseStruct->getInstalled()) {
-                    $installedVersion = $installedPlugins[$licenseStruct->getTechnicalPluginName()];
-
-                    $licenseStruct->setUpdateAvailable(version_compare($installedVersion, $licenseStruct->getAvailableVersion()) === -1);
-                } else {
-                    $licenseStruct->setUpdateAvailable(false);
-                }
-            }
-            if (isset($license['type']['name'])) {
-                $type = new StoreLicenseTypeStruct();
-                $type->assign($license['type']);
-                $licenseStruct->setType($type);
-            }
-            if (isset($license['subscription']['expirationDate'])) {
-                $subscription = new StoreLicenseSubscriptionStruct();
-                $subscription->assign($license['subscription']);
-                $licenseStruct->setSubscription($subscription);
-            }
-
-            $licenseList[] = $licenseStruct;
-        }
-
-        return $licenseList;
     }
 
     /**
@@ -449,39 +372,6 @@ class StoreClient
         } catch (ClientException $e) {
             throw new StoreApiException($e);
         }
-    }
-
-    /**
-     * @return array<string, mixed>
-     *
-     * @deprecated tag:v6.5.0 Unused method will be removed
-     */
-    public function getLicenses(Context $context): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__METHOD__, __CLASS__, 'v6.5.0.0')
-        );
-
-        try {
-            $response = $this->client->request(
-                Request::METHOD_GET,
-                $this->endpoints['my_licenses'],
-                [
-                    'query' => $this->getHeaders($context),
-                    'headers' => $this->getHeaders($context),
-                ]
-            );
-        } catch (ClientException $e) {
-            throw new StoreApiException($e);
-        }
-
-        $body = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
-
-        return [
-            'headers' => $response->getHeaders(),
-            'data' => $body,
-        ];
     }
 
     /**

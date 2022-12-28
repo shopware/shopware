@@ -8,25 +8,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
  * @package merchant-services
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal
+ * @internal
  */
 class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     private const SHOPWARE_TOKEN_HEADER = 'X-Shopware-Token';
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly AbstractStoreRequestOptionsProvider $optionsProvider,
-        private readonly EntityRepository $userConfigRepository
+        private readonly EntityRepository $userConfigRepository,
     ) {
     }
 
@@ -35,29 +31,8 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         return array_filter([self::SHOPWARE_TOKEN_HEADER => $this->getFrwUserToken($context)]);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
-     */
-    public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
+    public function getDefaultQueryParameters(Context $context): array
     {
-        if ($context === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'First parameter `$context` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" will be required in v6.5.0.0.'
-            );
-        }
-
-        if (\func_num_args() > 1) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Second parameter `$language` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" is deprecated and will be removed in v6.5.0.0.'
-            );
-        }
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            return $this->optionsProvider->getDefaultQueryParameters($context, $language);
-        }
-
         return $this->optionsProvider->getDefaultQueryParameters($context);
     }
 

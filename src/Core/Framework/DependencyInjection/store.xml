@@ -7,9 +7,7 @@
         <parameter key="env(INSTANCE_ID)"/>
         <parameter key="instance_id">%env(INSTANCE_ID)%</parameter>
         <parameter key="shopware.store_endpoints" type="collection">
-            <parameter key="ping">/ping</parameter>
             <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
-            <parameter key="my_plugin_licenses">/swplatform/pluginlicenses</parameter>
             <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
             <parameter key="environment_information">/swplatform/environmentinformation</parameter>
             <parameter key="updater_extension_compatibility">/swplatform/autoupdate</parameter>
@@ -25,8 +23,6 @@
     <services>
         <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
-            <argument type="service" id="plugin.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="user.repository" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" />
             <call method="setContainer">
@@ -56,7 +52,6 @@
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument>%shopware.store_endpoints%</argument>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
-            <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider" />
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" />
@@ -116,10 +111,6 @@
         <service id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider">
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
             <argument type="service" id="user_config.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" class="Shopware\Core\Framework\Store\Authentication\AuthenticationProvider">
-            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">

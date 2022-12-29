@@ -4,7 +4,7 @@
 
 import type Vue from 'vue';
 import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
-import { get } from 'lodash';
+import { get, debounce } from 'lodash';
 
 type publishOptions = {
     id: string,
@@ -166,7 +166,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
-    const unwatch = scope.$watch(path, (value: Vue) => {
+    const unwatch = scope.$watch(path, debounce((value: Vue) => {
         // const preparedValue = prepareValue(value);
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -184,7 +184,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
             data: value,
             scope: (scope as vueWithUid)._uid,
         });
-    }, {
+    }, 750), {
         deep: true,
         immediate: true,
     });

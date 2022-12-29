@@ -1,7 +1,6 @@
 ---
 title: Moved admin dashboard statistics into separate component
 issue: NEXT-18187
-flag: FEATURE_NEXT_18187
 author: Eric Heinzl
 author_email: e.heinzl@shopware.com  
 ---

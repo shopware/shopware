@@ -50,8 +50,3 @@ shopware:
         major: true
         description: "Fix media resolution in theme"
         # issue: NEXT-19048
-      - name: FEATURE_NEXT_18187
-        default: false
-        major: true
-        description: "Move admin dashboard statistics into separate component"
-        # issue: NEXT-18187

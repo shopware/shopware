@@ -42,7 +42,7 @@ final class AdminSearchController
     }
 
     /**
-     * @Since("6.4.12.0")
+     * @Since("6.4.19.0")
      * @Route("/api/_admin/es-search", name="api.admin.es-search", methods={"POST"}, defaults={"_routeScope"={"administration"}})
      */
     public function elastic(Request $request, Context $context): Response
@@ -58,7 +58,9 @@ final class AdminSearchController
             throw new \RuntimeException('Search term is empty');
         }
 
-        $results = $this->searcher->search($term, $entities, $context);
+        $limit = $request->get('limit', 10);
+
+        $results = $this->searcher->search($term, $entities, $context, $limit);
 
         foreach ($results as $entityName => $result) {
             $definition = $this->definitionRegistry->getByEntityName($entityName);

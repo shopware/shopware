@@ -91,12 +91,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     elastic: () => {
                         const result = {
                             data: {
-                                foo: {
+                                esFoo: {
                                     total: 1,
-                                    index: 'admin-foo-listing',
-                                    indexer: 'foo-listing',
+                                    index: 'admin-es-foo-listing',
+                                    indexer: 'es-foo-listing',
                                     data: [
-                                        { name: 'Baz', id: '12345' }
+                                        { name: 'ES Baz', id: 'es-12345' }
                                     ]
                                 }
                             }
@@ -1316,12 +1316,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.currentSearchType).toBe(null);
     });
 
-    it('should search with ES', async () => {
+    it('should search global with ES when adminEsEnable is true', async () => {
         Shopware.Context.app.adminEsEnable = true;
-
         wrapper = await createWrapper({
             initialSearchType: '',
-            typeSearchAlwaysInContainer: false
         }, {
             all: {
                 entityName: '',
@@ -1346,44 +1344,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.setValue('shorts');
         await flushPromises();
 
-        const debouncedDoGlobalSearch = swSearchBarComponent.methods.doGlobalSearchWithElasticSearch;
-        await debouncedDoGlobalSearch.flush();
-
-        await flushPromises();
-
-        expect(spyLoadResults).toHaveBeenCalled();
-    });
-
-    it('should search with ES when adminEsEnable is true', async () => {
-        Shopware.Context.app.adminEsEnable = true;
-        wrapper = await createWrapper({
-            initialSearchType: '',
-            typeSearchAlwaysInContainer: false
-        }, {
-            all: {
-                entityName: '',
-                placeholderSnippet: '',
-                listingRoute: ''
-            },
-            foo: {
-                entityName: 'foo',
-                placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index'
-            }
-        });
-
-        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
-
-        expect(moduleFilterSelect.text()).toBe('global.entities.all');
-
-        const searchInput = wrapper.find('.sw-search-bar__input');
-        await searchInput.trigger('focus');
-
-        // type search value
-        await searchInput.setValue('shorts');
-        await flushPromises();
-
-        const debouncedDoGlobalSearch = swSearchBarComponent.methods.doGlobalSearchWithElasticSearch;
+        const debouncedDoGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
         await debouncedDoGlobalSearch.flush();
 
         await flushPromises();
@@ -1394,15 +1355,79 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     total: 1,
-                    index: 'admin-foo-listing',
-                    indexer: 'foo-listing',
+                    index: 'admin-es-foo-listing',
+                    indexer: 'es-foo-listing',
                     entities: expect.arrayContaining([
                         expect.objectContaining({
-                            name: 'Baz',
-                            id: '12345'
+                            name: 'ES Baz',
+                            id: 'es-12345'
                         })
                     ]),
-                    entity: 'foo'
+                    entity: 'esFoo'
+                })
+            ])
+        );
+    });
+
+    it('should search type with ES when adminEsEnable is true', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        wrapper = await createWrapper({
+            initialSearchType: '',
+        }, {
+            all: {
+                entityName: '',
+                placeholderSnippet: '',
+                listingRoute: ''
+            },
+            esFoo: {
+                entityName: 'esFoo',
+                placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                listingRoute: 'sw.foo.index'
+            }
+        });
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+
+        // open search
+        await searchInput.trigger('focus');
+        await searchInput.setValue('#');
+
+        // check if search results are hidden and types container are visible
+        const searchResults = wrapper.find('.sw-search-bar__results');
+        const typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
+
+        expect(searchResults.exists()).toBe(false);
+        expect(typesContainer.exists()).toBe(true);
+
+        // set foo as active type
+        const typeItems = wrapper.findAll('.sw-search-bar__types_container--v2 .sw-search-bar__type-item');
+        const secondTypeItem = typeItems.at(1);
+        await secondTypeItem.trigger('click');
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.esFoo');
+
+        // type search value
+        await searchInput.setValue('shirt');
+        await flushPromises();
+
+        const debouncedDoListSearchWithContainer = swSearchBarComponent.methods.doListSearchWithContainer;
+        await debouncedDoListSearchWithContainer.flush();
+        expect(spyLoadTypeSearchResults).toHaveBeenCalledTimes(1);
+        expect(spyLoadTypeSearchResultsByService).toHaveBeenCalledTimes(0);
+
+        expect(wrapper.vm.results).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    total: 1,
+                    entities: expect.arrayContaining([
+                        expect.objectContaining({
+                            name: 'ES Baz',
+                            id: 'es-12345'
+                        })
+                    ]),
+                    entity: 'esFoo'
                 })
             ])
         );

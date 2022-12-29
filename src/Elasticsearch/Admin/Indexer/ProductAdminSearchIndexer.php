@@ -70,10 +70,12 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     public function globalData(array $result, Context $context): array
     {
         $ids = array_column($result['hits'], 'id');
+        $criteria = new Criteria($ids);
+        $criteria->addAssociations(['options.group']);
 
         return [
             'total' => (int) $result['total'],
-            'data' => $this->repository->search(new Criteria($ids), $context)->getEntities(),
+            'data' => $this->repository->search($criteria, $context)->getEntities(),
         ];
     }
 

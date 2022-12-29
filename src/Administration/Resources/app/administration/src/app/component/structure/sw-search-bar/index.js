@@ -43,7 +43,8 @@ Component.register('sw-search-bar', {
         typeSearchAlwaysInContainer: {
             type: Boolean,
             required: false,
-            default: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: Context.app.adminEsEnable ?? false,
         },
         placeholder: {
             type: String,
@@ -165,12 +166,16 @@ Component.register('sw-search-bar', {
         },
 
         showSearchTipForEsSearch() {
-            if (!Context.app.adminEsEnable) {
+            if (!this.adminEsEnable) {
                 return false;
             }
 
             // This Regex matches the first word and space in the search term
             return this.searchTerm.match(/^[\w]+\s/);
+        },
+
+        adminEsEnable() {
+            return Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -228,8 +233,7 @@ Component.register('sw-search-bar', {
             }
 
             this.searchTypes = this.searchTypeService.getTypes();
-            this.typeSelectResults = Object.values(this.searchTypes);
-
+            this.typeSelectResults = Object.values(this.searchTypes).filter(searchType => !searchType.hideOnGlobalSearchBar);
             this.registerListener();
 
             this.userSearchPreference = await this.searchRankingService.getUserSearchPreference();
@@ -351,7 +355,7 @@ Component.register('sw-search-bar', {
             this.showTypeSelectContainer = false;
             this.showResultsSearchTrends = false;
 
-            if (this.typeSearchAlwaysInContainer && this.currentSearchType) {
+            if (this.typeSearchAlwaysInContainer && this.currentSearchType && this.searchTypes[this.currentSearchType]) {
                 this.doListSearchWithContainer();
                 return;
             }
@@ -368,12 +372,6 @@ Component.register('sw-search-bar', {
 
             if (this.currentSearchType) {
                 this.doListSearch();
-                return;
-            }
-
-            if (Context.app.adminEsEnable) {
-                this.doGlobalSearchWithElasticSearch();
-
                 return;
             }
 
@@ -436,12 +434,13 @@ Component.register('sw-search-bar', {
 
         doListSearchWithContainer: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
+
             if (searchTerm && searchTerm.length > 0) {
                 this.loadTypeSearchResults(searchTerm);
             } else {
                 this.showResultsContainer = false;
             }
-        }, 750),
+        }, Context.app.adminEsEnable ? 30 : 750),
 
         doGlobalSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
@@ -451,17 +450,7 @@ Component.register('sw-search-bar', {
                 this.showResultsContainer = false;
                 this.showResultsSearchTrends = false;
             }
-        }, 30),
-
-        doGlobalSearchWithElasticSearch: utils.debounce(function debouncedSearch() {
-            const searchTerm = this.searchTerm.trim();
-            if (searchTerm?.length > 0) {
-                this.loadResults(searchTerm);
-            } else {
-                this.showResultsContainer = false;
-                this.showResultsSearchTrends = false;
-            }
-        }, 30),
+        }, Context.app.adminEsEnable ? 30 : 750),
 
         async loadResults(searchTerm) {
             this.isLoading = true;
@@ -489,7 +478,7 @@ Component.register('sw-search-bar', {
             }
 
             let response;
-            if (Context.app.adminEsEnable) {
+            if (this.adminEsEnable) {
                 const names = [];
                 Object.keys(this.userSearchPreference).forEach((key) => {
                     if (this._isEmptyObject(this.userSearchPreference[key])) {
@@ -498,7 +487,12 @@ Component.register('sw-search-bar', {
                     names.push(key);
                 });
 
-                response = await this.searchService.elastic(searchTerm, names, { 'sw-inheritance': true });
+                response = await this.searchService.elastic(
+                    searchTerm,
+                    names,
+                    this.searchLimit + 1,
+                    { 'sw-inheritance': true },
+                );
             } else {
                 // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
                 const queries = this.searchRankingService.buildGlobalSearchQueries(
@@ -544,54 +538,79 @@ Component.register('sw-search-bar', {
 
         async loadTypeSearchResults(searchTerm) {
             // If searchType has an "entityService" load by service, otherwise load by entity
-            if (this.searchTypes[this.currentSearchType].entityService) {
+            if (this.searchTypes[this.currentSearchType]?.entityService) {
                 this.loadTypeSearchResultsByService(searchTerm);
                 return;
             }
 
             this.isLoading = true;
             this.results = [];
-            const entityResults = {};
+            const entityResults = {
+                entity: this.currentSearchType,
+                total: 0,
+            };
 
             const entityName = this.searchTypes[this.currentSearchType].entityName;
-            const repository = this.repositoryFactory.create(entityName);
+            if (this.adminEsEnable) {
+                const response = await this.searchService.elastic(
+                    searchTerm,
+                    [entityName],
+                    this.searchLimit + 1,
+                    { 'sw-inheritance': true },
+                );
 
-            let criteria = this.criteriaCollection.hasOwnProperty(entityName)
-                ? this.criteriaCollection[entityName]
-                : new Criteria(1, this.searchLimit + 1);
+                const data = response?.data[this.currentSearchType] ?? { total: 0, data: {} };
 
-            criteria.setTerm(searchTerm);
-            // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
-            criteria.setLimit(this.searchLimit + 1);
-            criteria.setTotalCountMode(0);
-            const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
-            if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
-                entityResults.total = 0;
-                entityResults.entity = this.currentSearchType;
+                entityResults.total = data.total;
+                entityResults.entities = Object.values(data.data).slice(0, this.searchLimit);
+            } else {
+                const repository = this.repositoryFactory.create(entityName);
 
-                this.results.push(entityResults);
-                this.isLoading = false;
-                if (!this.showTypeSelectContainer) {
-                    this.showResultsContainer = true;
+                let criteria = this.criteriaCollection.hasOwnProperty(entityName)
+                    ? this.criteriaCollection[entityName]
+                    : new Criteria(1, this.searchLimit + 1);
+
+                criteria.setTerm(searchTerm);
+                // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
+                criteria.setLimit(this.searchLimit + 1);
+                criteria.setTotalCountMode(0);
+                const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
+                if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                    entityResults.total = 0;
+
+                    this.results.push(entityResults);
+                    this.isLoading = false;
+                    if (!this.showTypeSelectContainer) {
+                        this.showResultsContainer = true;
+                    }
+
+                    return;
                 }
 
-                return;
+                criteria = this.searchRankingService.buildSearchQueriesForEntity(
+                    searchRankingFields,
+                    searchTerm,
+                    criteria,
+                );
+
+                const response = await repository.search(criteria, { ...Shopware.Context.api, inheritance: true });
+
+                entityResults.total = response.total;
+                entityResults.entities = response.slice(0, this.searchLimit);
             }
 
-            criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                searchRankingFields,
-                searchTerm,
-                criteria,
-            );
 
-            repository.search(criteria, { ...Shopware.Context.api, inheritance: true }).then((response) => {
-                entityResults.total = response.total;
-                entityResults.entity = this.currentSearchType;
-                entityResults.entities = response.slice(0, this.searchLimit);
+            if (entityResults.total > 0) {
+                this.results = this.results.filter(result => this.currentSearchType !== result.entity);
 
-                this.results.push(entityResults);
-                this.isLoading = false;
-            });
+                this.results = [
+                    ...this.results,
+                    entityResults,
+                ];
+            }
+
+            this.isLoading = false;
+
             if (!this.showTypeSelectContainer) {
                 this.showResultsContainer = true;
             }

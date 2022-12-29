@@ -6,7 +6,7 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-detail-general', swFlowDetailGeneral);
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], query = {}) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -18,6 +18,10 @@ async function createWrapper(privileges = []) {
                     return Promise.resolve({});
                 }
             })
+        },
+
+        mocks: {
+            $route: { params: {}, query: query },
         },
 
         acl: {
@@ -68,7 +72,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
         const wrapper = await createWrapper([
             'flow.viewer'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const elementClasses = [
             '.sw-flow-detail-general__general-name',
             '.sw-flow-detail-general__general-description',
@@ -80,5 +84,18 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
             const inputElement = wrapper.find(`${element}`);
             expect(inputElement.attributes().disabled).toBeTruthy();
         });
+    });
+
+    it('should not able to edit flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer'
+        ]);
+        await flushPromises();
+        await wrapper.setProps({
+            isTemplate: true,
+        });
+
+        const alertElement = wrapper.findAll('.sw-flow-detail-general__template');
+        expect(alertElement.exists()).toBe(true);
     });
 });

@@ -5,6 +5,7 @@
     {% block sw_flow_detail_flow_content %}
     <div
         class="sw-flow-detail-flow__content"
+        :class="{'sw-flow-detail-flow-template': isTemplate }"
         :style="flowContainerStyle"
     >
         <sw-alert

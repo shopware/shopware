@@ -24,6 +24,11 @@ export default {
             required: false,
             default: false,
         },
+        isTemplate: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -56,6 +61,10 @@ export default {
                     sortable: false,
                 },
             ];
+        },
+
+        isFlowTemplate() {
+            return this.$route.query?.type === 'template';
         },
 
         ...mapState('swFlowState', ['flow']),

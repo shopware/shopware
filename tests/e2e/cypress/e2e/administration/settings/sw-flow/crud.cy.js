@@ -32,8 +32,8 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.get('.sw-flow-detail__tab-flow').click();
         cy.get('.sw-flow-trigger__input-field').type('order placed');
-        cy.get('.sw-flow-trigger__search-result').should('be.visible');
-        cy.get('.sw-flow-trigger__search-result').eq(0).click();
+        cy.get('.sw-flow-trigger__search-results').should('be.visible');
+        cy.get('.sw-flow-trigger__search-results').eq(0).click();
 
         // Save
         cy.get('.sw-flow-detail__save').click();
@@ -160,6 +160,43 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v2');
+    });
+
+    it('@settings: Duplicate a flow', { tags: ['pa-business-ops'] }, () => {
+        const page = new SettingsPageObject();
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/clone/flow/*`,
+            method: 'POST'
+        }).as('duplicateData');
+
+        cy.get('.sw-flow-list').should('be.visible');
+
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
+            .contains('Order placed');
+
+        cy.clickContextMenuItem(
+            '.sw-flow-list__item-duplicate',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`,
+            'Duplicate',
+            true
+        );
+
+        cy.wait('@duplicateData').its('response.statusCode').should('equal', 200);
+
+        // Verify correct detail page
+        cy.contains('.smart-bar__header h2', 'Order placed - Copy');
+
+        // Verify duplicated element
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed - Copy');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
+            .contains('Order placed - Copy');
     });
 
     it('@settings: Delete flow', { tags: ['pa-business-ops'] }, () => {

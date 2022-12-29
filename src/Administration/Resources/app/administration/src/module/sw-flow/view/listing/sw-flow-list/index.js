@@ -1,4 +1,5 @@
 import template from './sw-flow-list.html.twig';
+import './sw-flow-list.scss';
 
 const { Mixin, Data: { Criteria } } = Shopware;
 
@@ -16,13 +17,22 @@ export default {
         Mixin.getByName('listing'),
     ],
 
+    props: {
+        searchTerm: {
+            type: String,
+            required: false,
+            default: '',
+        },
+    },
+
     data() {
         return {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             total: 0,
-            isDeleting: false,
             isLoading: false,
+            isDeleting: false,
+            isDownloading: false,
             flows: null,
             currentFlow: {},
             selectedItems: [],
@@ -42,7 +52,11 @@ export default {
 
         flowCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-            criteria.setTerm(this.term);
+
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            }
+
             criteria
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
                 .addSorting(Criteria.sort('updatedAt', 'DESC'));
@@ -91,6 +105,12 @@ export default {
         },
     },
 
+    watch: {
+        searchTerm(value) {
+            this.onSearch(value);
+        },
+    },
+
     created() {
         this.createComponent();
     },
@@ -113,6 +133,30 @@ export default {
                 });
         },
 
+        onDuplicateFlow(item) {
+            const behavior = {
+                overwrites: {
+                    name: `${item.name} - ${this.$tc('global.default.copy')}`,
+                },
+            };
+
+            this.flowRepository.clone(item.id, Shopware.Context.api, behavior)
+                .then((response) => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-flow.flowNotification.messageDuplicateSuccess'),
+                    });
+
+                    if (response?.id) {
+                        this.$router.push({ name: 'sw.flow.detail', params: { id: response.id } });
+                    }
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-flow.flowNotification.messageDuplicateError'),
+                    });
+                });
+        },
+
         onEditFlow(item) {
             if (item?.id) {
                 this.$router.push({
@@ -125,15 +169,17 @@ export default {
         },
 
         onDeleteFlow(item) {
-            this.currentFlow = item;
             this.isDeleting = true;
+            this.currentFlow = item;
         },
 
         onCloseDeleteModal() {
+            this.isDownload = false;
             this.currentFlow = {};
         },
 
         onConfirmDelete(item) {
+            this.isDeleting = false;
             this.currentFlow = {};
 
             return this.flowRepository.delete(item.id)
@@ -141,7 +187,6 @@ export default {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-flow.flowNotification.messageDeleteSuccess'),
                     });
-                    this.isDeleting = false;
                     this.getList();
                 })
                 .catch(() => {
@@ -154,6 +199,8 @@ export default {
         updateRecords(result) {
             this.flows = result;
             this.total = result.total;
+
+            this.$emit('on-update-total', this.total);
         },
 
         getTranslatedEventName(value) {

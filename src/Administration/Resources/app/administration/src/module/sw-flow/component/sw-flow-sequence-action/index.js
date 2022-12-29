@@ -357,8 +357,12 @@ export default {
             State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
         },
 
-        onEditAction(sequence) {
-            if (!sequence?.actionName) {
+        onEditAction(sequence, target, key) {
+            if (!sequence?.actionName || !target) {
+                return;
+            }
+
+            if (this.$refs.contextButton[key].$el.contains(target)) {
                 return;
             }
 

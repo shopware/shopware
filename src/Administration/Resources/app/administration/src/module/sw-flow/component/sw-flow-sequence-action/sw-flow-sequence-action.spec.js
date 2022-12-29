@@ -69,7 +69,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(await Shopware.Component.build('sw-flow-sequence-action'), {
+    const wrapper = shallowMount(await Shopware.Component.build('sw-flow-sequence-action'), {
         localVue,
         stubs: {
             'sw-icon': {
@@ -164,9 +164,25 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
                 },
 
                 mapActionType: () => {}
-            }
+            },
         }
     });
+    wrapper.vm.$refs = {
+        contextButton: [
+            {
+                $el: {
+                    contains: () => true,
+                }
+            },
+            {
+                $el: {
+                    contains: () => true,
+                }
+            }
+        ]
+    };
+
+    return wrapper;
 }
 
 describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
@@ -332,7 +348,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(3);
-
 
         const deleteActions = wrapper.findAll('.sw-flow-sequence-action__delete-action');
         await deleteActions.at(0).trigger('click');

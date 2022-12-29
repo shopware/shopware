@@ -3,8 +3,8 @@ import './sw-flow-detail.scss';
 
 import { ACTION } from '../../constant/flow.constant';
 
-const { Component, Mixin, Context, State } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Mixin, Context, State, Utils } = Shopware;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
 
@@ -58,6 +58,14 @@ Component.register('sw-flow-detail', {
             return this.repositoryFactory.create('flow');
         },
 
+        flowTemplateRepository() {
+            return this.repositoryFactory.create('flow_template');
+        },
+
+        flowSequenceRepository() {
+            return this.repositoryFactory.create('flow_sequence');
+        },
+
         isNewFlow() {
             return !this.flowId;
         },
@@ -73,6 +81,10 @@ Component.register('sw-flow-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
+        },
+
+        flowTemplateCriteria() {
+            return new Criteria(1, 25);
         },
 
         documentTypeRepository() {
@@ -144,6 +156,10 @@ Component.register('sw-flow-detail', {
             return criteria;
         },
 
+        isTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapGetters('swFlowState', [
             'sequences',
@@ -157,7 +173,9 @@ Component.register('sw-flow-detail', {
 
     watch: {
         flowId() {
-            this.getDetailFlow();
+            if (!this.$route.params.flowTemplateId) {
+                this.getDetailFlow();
+            }
         },
     },
 
@@ -190,6 +208,12 @@ Component.register('sw-flow-detail', {
                 path: 'flow',
                 scope: this,
             });
+
+            if (this.$route.query?.type === 'template') {
+                this.getDetailFlowTemplate();
+                return;
+            }
+
             if (this.flowId) {
                 this.getDetailFlow();
                 return;
@@ -213,16 +237,41 @@ Component.register('sw-flow-detail', {
         },
 
         createNewFlow() {
+            if (this.$route.params.flowTemplateId) {
+                return this.createFromFlowTemplate();
+            }
+
             const flow = this.flowRepository.create();
+            flow.id = Utils.createId();
             flow.priority = 0;
             flow.eventName = '';
 
-            State.commit('swFlowState/setFlow', flow);
+            return State.commit('swFlowState/setFlow', flow);
         },
 
         getDetailFlow() {
             this.isLoading = true;
+
             return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
+                .then((data) => {
+                    State.commit('swFlowState/setFlow', data);
+                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
+                    this.getDataForActionDescription();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        getDetailFlowTemplate() {
+            this.isLoading = true;
+
+            return this.flowTemplateRepository.get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
@@ -256,9 +305,23 @@ Component.register('sw-flow-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
+            if (this.$route.query?.type === 'template') {
+                this.createNotificationError({
+                    message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
+                });
+
+                this.isLoading = false;
+
+                return null;
+            }
+
             return this.flowRepository.save(this.flow)
                 .then(() => {
-                    if (typeof this.flow.isNew === 'function' && this.flow.isNew()) {
+                    if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
+                        this.createNotificationSuccess({
+                            message: this.$tc('sw-flow.flowNotification.messageCreateSuccess'),
+                        });
+
                         this.$router.push({
                             name: 'sw.flow.detail',
                             params: { id: this.flow.id },
@@ -419,6 +482,95 @@ Component.register('sw-flow-detail', {
             }
 
             return Promise.all(promises);
+        },
+
+        createFromFlowTemplate() {
+            const flow = this.flowRepository.create();
+            flow.id = Utils.createId();
+            flow.priority = 0;
+
+            return this.flowTemplateRepository.get(this.$route.params.flowTemplateId, Context.api, this.flowTemplateCriteria)
+                .then((data) => {
+                    flow.name = data.name;
+                    flow.eventName = data.config?.eventName;
+                    flow.description = data.config?.description;
+                    flow.sequences = this.buildSequencesFromConfig(data.config?.sequences ?? []);
+
+                    State.commit('swFlowState/setFlow', flow);
+                    State.commit('swFlowState/setOriginFlow', cloneDeep(flow));
+                    this.getDataForActionDescription();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        createSequenceEntity(flowSequence) {
+            const entity = this.flowSequenceRepository.create();
+            Object.keys(flowSequence).forEach((key) => {
+                if (key === 'trueCase') {
+                    entity[key] = Boolean(flowSequence[key]);
+
+                    return;
+                }
+
+                if (key === 'config') {
+                    entity[key] = { ...flowSequence[key] };
+
+                    return;
+                }
+
+                entity[key] = flowSequence[key];
+            });
+
+            return entity;
+        },
+
+        buildSequencesFromConfig(sequences) {
+            const parentIds = {};
+
+            sequences = sequences.map(sequence => {
+                sequence = this.createSequenceEntity(sequence);
+
+                parentIds[sequence.id] = Utils.createId();
+                sequence.id = parentIds[sequence.id];
+
+                return sequence;
+            });
+
+            // update parentId of sequence
+            for (let i = 0; i < sequences.length; i += 1) {
+                if (sequences[i].parentId !== null) {
+                    sequences[i].parentId = parentIds[sequences[i].parentId];
+                }
+            }
+
+            sequences = this.rearrangeSequences(sequences);
+
+            return new EntityCollection(
+                this.flowSequenceRepository.source,
+                this.flowSequenceRepository.entityName,
+                Context.api,
+                null,
+                sequences,
+            );
+        },
+
+        rearrangeSequences(sequences) {
+            return sequences.reduce((accumulator, currentSequence) => {
+                const parent = accumulator.find(x => x.id === currentSequence.parentId);
+                let index = accumulator.indexOf(parent);
+
+                index = index !== -1 ? index + 1 : 0;
+                accumulator.splice(index, 0, currentSequence);
+
+                return accumulator;
+            }, []);
         },
     },
 });

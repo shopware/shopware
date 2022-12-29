@@ -75,6 +75,7 @@
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
+      "messageWarningSave": "Flow-Vorlagen können nicht bearbeitet werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle vor dem Speichern ein Auslöser-Ereignis aus.",
       "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
@@ -83,6 +84,7 @@
       "messageDownloadSuccess": "Flow heruntergeladen.",
       "messageDownloadError": "Flow konnte nicht heruntergeladen werden.",
       "messageCreateSuccess": "Flow erstellt.",
+      "messageUpdateTemplateSuccess": "Flow template updated.",
       "messageCreateError": "Flow konnte nicht erstellt werden."
     },
     "actions": {

@@ -24,6 +24,11 @@ Component.register('sw-flow-detail-general', {
             required: false,
             default: false,
         },
+        isTemplate: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -56,6 +61,10 @@ Component.register('sw-flow-detail-general', {
                     sortable: false,
                 },
             ];
+        },
+
+        isFlowTemplate() {
+            return this.$route.query?.type === 'template';
         },
 
         ...mapState('swFlowState', ['flow']),

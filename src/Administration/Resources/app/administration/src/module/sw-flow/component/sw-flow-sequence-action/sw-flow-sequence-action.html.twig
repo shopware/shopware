@@ -81,8 +81,9 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_sequence_action_actions_item %}
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <li
-                            v-for="item in sequenceData"
+                            v-for="(item, key) in sequenceData"
                             :key="item.id"
                             v-tooltip="{
                                 message: $tc('sw-flow.actions.tooltipActionDisabled'),
@@ -90,6 +91,7 @@
                             }"
                             class="sw-flow-sequence-action__action-item"
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
+                            @click="(event) => onEditAction(item, event.target, key)"
                         >
                             <sw-flow-sequence-action-error
                                 v-if="!isValidAction(item)"
@@ -144,6 +146,7 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_flow_sequence_action_actions_item_context_button %}
                                     <sw-context-button
+                                        ref="contextButton"
                                         class="sw-flow-sequence-action__context-button"
                                         :disabled="disabled || item.disabled"
                                     >
@@ -152,7 +155,7 @@
                                         <sw-context-menu-item
                                             v-if="isNotStopFlow(item)"
                                             class="sw-flow-sequence-action__edit-action"
-                                            @click="onEditAction(item)"
+                                            @click="(event) => onEditAction(item, event.target, key)"
                                         >
                                             {{ $tc('sw-flow.actions.contextButton.editAction') }}
                                         </sw-context-menu-item>

@@ -1,7 +1,20 @@
 import { shallowMount } from '@vue/test-utils';
 import swFlowListFlowTemplates from 'src/module/sw-flow/view/listing/sw-flow-list-flow-templates';
 
+const { Context } = Shopware;
+const { EntityCollection } = Shopware.Data;
+
 Shopware.Component.register('sw-flow-list-flow-templates', swFlowListFlowTemplates);
+
+const mockData = [
+    {
+        id: '44de136acf314e7184401d36406c1e90',
+        name: 'test flow template',
+        config: {
+            eventName: 'checkout.order.placed'
+        }
+    }
+];
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-flow-list-flow-templates'), {
@@ -18,15 +31,7 @@ async function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '44de136acf314e7184401d36406c1e90',
-                                name: 'test flow template',
-                                config: {
-                                    eventName: 'checkout.order.placed'
-                                }
-                            }
-                        ]);
+                        return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData, 1));
                     }
                 })
             },

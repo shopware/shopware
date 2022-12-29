@@ -389,8 +389,7 @@ class EntityHydrator
 
             $values = [];
             foreach ($chain as $accessor) {
-                $key = $accessor . '.' . $propertyName;
-                $values[] = $row[$key] ?? null;
+                $values[] = self::value($row, $accessor, $propertyName);
             }
 
             if (empty($values)) {
@@ -406,11 +405,19 @@ class EntityHydrator
             $entity->addTranslated($propertyName, $decoded);
 
             if ($inherited) {
-                $key = $chain[0] . '.' . $propertyName;
-                $parentKey = $chain[1] . '.' . $propertyName;
+                /*
+                 * The translations chains array has the structure: [
+                 *      main language,
+                 *      parent with main language,
+                 *      fallback language,
+                 *      parent with fallback language,
+                 * ]
+                 *
+                 * We need to join the first two to get the inherited field value of the main translation
+                 */
                 $values = [
-                    $row[$key] ?? null,
-                    $row[$parentKey] ?? null,
+                    self::value($row, $chain[0], $propertyName),
+                    self::value($row, $chain[1], $propertyName),
                 ];
 
                 $merged = $this->mergeJson(array_reverse($values, false));

@@ -1,43 +1,18 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
+import 'src/app/component/utils/sw-external-link';
 import swDashboardIndex from 'src/module/sw-dashboard/page/sw-dashboard-index';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
-import { currency } from 'src/core/service/utils/format.utils';
 
 Shopware.Component.register('sw-dashboard-index', swDashboardIndex);
 
-async function createWrapper(privileges = [], orderSumToday = null) {
-    const localVue = createLocalVue();
-    localVue.filter('asset', v => v);
-    localVue.filter('date', v => v);
-    localVue.filter('currency', currency);
-
-    const responseMock = [{}, {}];
-    responseMock.aggregations = {
-        order_count_bucket: {
-            buckets: []
-        },
-        order_sum_bucket: {
-            buckets: []
-        }
-    };
-
-    const options = {
-        localVue,
+async function createWrapper(privileges = []) {
+    return shallowMount(await Shopware.Component.build('sw-dashboard-index'), {
         stubs: {
             'sw-page': true,
-            'sw-card': true,
             'sw-card-view': true,
-            'sw-dashboard-external-link': true,
             'sw-external-link': true,
-            'sw-container': true,
-            'sw-button': true,
-            'sw-entity-listing': true,
-            'sw-chart': true,
             'sw-icon': true,
-            'sw-campaign-property-mapping': true,
-            'sw-select-field': true,
             'sw-dashboard-statistics': true,
-            'sw-skeleton': true,
             'sw-help-text': true,
         },
         mocks: {
@@ -50,12 +25,6 @@ async function createWrapper(privileges = [], orderSumToday = null) {
             }
         },
         provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve(responseMock)
-                })
-            },
-            stateStyleDataProviderService: {},
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
@@ -64,18 +33,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
                 }
             }
         },
-        computed: {
-            systemCurrencyISOCode() {
-                return 'EUR';
-            }
-        }
-    };
-
-    if (orderSumToday !== null) {
-        options.computed.orderSumToday = () => orderSumToday;
-    }
-
-    return shallowMount(await Shopware.Component.build('sw-dashboard-index'), options);
+    });
 }
 
 /**
@@ -115,29 +73,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     });
 
     it('should not show the stats', async () => {
-        const orderToday = wrapper.find('.sw-dashboard-index__intro-stats-today');
-        const statisticsCount = wrapper.find('.sw-dashboard-index__statistics-count');
-        const statisticsSum = wrapper.find('.sw-dashboard-index__statistics-sum');
-
-        expect(orderToday.exists()).toBeFalsy();
-        expect(statisticsCount.exists()).toBeFalsy();
-        expect(statisticsSum.exists()).toBeFalsy();
-    });
-
-    it('should show the stats', async () => {
-        // destroy wrapper from before each hook
-        wrapper.destroy();
-
-        wrapper = await createWrapper(['order.viewer']);
-        await wrapper.vm.$nextTick();
-
-        const orderToday = wrapper.find('.sw-dashboard-index__intro-stats-today');
-        const statisticsCount = wrapper.find('.sw-dashboard-index__statistics-count');
-        const statisticsSum = wrapper.find('.sw-dashboard-index__statistics-sum');
-
-        expect(orderToday.exists()).toBeTruthy();
-        expect(statisticsCount.exists()).toBeTruthy();
-        expect(statisticsSum.exists()).toBeTruthy();
+        wrapper.get('sw-dashboard-statistics-stub');
     });
 
     it('should return `null` as greetingName', async () => {
@@ -263,30 +199,5 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
                     .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
             }
         );
-    });
-
-    it('should not exceed decimal places of two if FEATURE_NEXT_18187 is inactive', async () => {
-        // destroy wrapper from beforeEach hook
-        wrapper.destroy();
-
-        // deactivate FEATURE_NEXT_18187
-        global.activeFeatureFlags = [];
-
-        wrapper = await createWrapper(['order.viewer'], 43383.13234554);
-        await wrapper.vm.$nextTick();
-
-        const todaysTotalSum =
-            wrapper.find('.sw-dashboard-index__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();
-        expect(todaysTotalSum).toBe('€43,383.13');
-    });
-
-    it('should display sw-dashboard-statistics if FEATURE_NEXT_18187 is active', async () => {
-        // destroy wrapper from before each hook
-        wrapper.destroy();
-
-        global.activeFeatureFlags = ['FEATURE_NEXT_18187'];
-        wrapper = await createWrapper(['order.viewer']);
-
-        wrapper.get('sw-dashboard-statistics-stub');
     });
 });

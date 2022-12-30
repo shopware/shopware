@@ -29,8 +29,6 @@ const { Component } = Shopware;
 Component.register('sw-address', {
     template,
 
-    inject: ['feature'],
-
     props: {
         address: {
             type: Object as PropType<Address>,

@@ -57,8 +57,6 @@ describe('module/sw-order/component/sw-order-delivery-metadata', () => {
     });
 
     it('should render formatting address for delivery address', async () => {
-        global.activeFeatureFlags = ['v6.5.0.0'];
-
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 

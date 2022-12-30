@@ -31,16 +31,6 @@ export default {
             filterLoading: false,
             availableAffiliateCodes: [],
             availableCampaignCodes: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            affiliateCodeFilter: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            campaignCodeFilter: [],
-
-            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
-            showOnlyCustomerGroupRequests: false,
-
             filterCriteria: [],
             defaultFilters: [
                 'affiliate-code-filter',
@@ -365,24 +355,6 @@ export default {
                 }).catch(() => {
                     this.filterLoading = false;
                 });
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeAffiliateCodeFilter(value) {
-            this.affiliateCodeFilter = value;
-            this.getList();
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeCampaignCodeFilter(value) {
-            this.campaignCodeFilter = value;
-            this.getList();
-        },
-
-        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
-        onChangeRequestedGroupFilter(value) {
-            this.showOnlyCustomerGroupRequests = value;
-            this.getList();
         },
 
         updateCriteria(criteria) {

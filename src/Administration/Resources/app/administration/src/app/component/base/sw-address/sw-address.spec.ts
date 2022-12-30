@@ -64,14 +64,14 @@ describe('src/app/component/base/sw-address/index.ts', () => {
     });
 
     it('should render an address', async () => {
-        expect(wrapper.get('.sw-address__company').text()).toBe('Shopware AG');
-        expect(wrapper.get('.sw-address__full-name').text()).toBe('Dr. John Doe');
-        expect(wrapper.get('.sw-address__street').text()).toBe('Main Street');
-        expect(wrapper.get('.sw-address__additional-line-1').text()).toBe('Floor 23');
-        expect(wrapper.get('.sw-address__additional-line-2').text()).toBe('Secret room 1337');
-        expect(wrapper.findAll('.sw-address__location span').at(0).text()).toBe('555 Nase');
-        expect(wrapper.findAll('.sw-address__location span').at(1).text()).toBe('Miami');
-        expect(wrapper.get('.sw-address__country').text()).toBe('USA');
+        await wrapper.setProps({
+            formattingAddress: 'Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br>',
+        });
+
+        const formattingAddress = wrapper.find('.sw-address__formatting');
+
+        expect(formattingAddress).toBeTruthy();
+        expect(formattingAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
     });
 
     it('should render address with headline', async () => {

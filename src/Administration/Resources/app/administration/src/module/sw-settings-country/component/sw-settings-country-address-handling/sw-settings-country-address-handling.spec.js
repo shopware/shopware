@@ -156,10 +156,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         Shopware.State.get('session').currentUser = {};
     });
 
-    beforeEach(async () => {
-        global.activeFeatureFlags = ['v6.5.0.0'];
-    });
-
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
 

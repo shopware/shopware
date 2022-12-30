@@ -46,8 +46,6 @@ describe('module/sw-customer-default-addresses', () => {
     });
 
     it('should render formatting address for billing address and shipping address', async () => {
-        global.activeFeatureFlags = ['v6.5.0.0'];
-
         const shippingAddress = {
             id: 'address1',
             country: {

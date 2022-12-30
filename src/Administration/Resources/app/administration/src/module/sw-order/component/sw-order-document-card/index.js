@@ -401,12 +401,12 @@ Component.register('sw-order-document-card', {
             }
         },
 
-        onPreview(params, deepLinkCode = null) {
+        onPreview(params) {
             this.isLoadingPreview = true;
 
             return this.documentService.getDocumentPreview(
                 this.order.id,
-                deepLinkCode ?? this.order.deepLinkCode,
+                this.order.deepLinkCode,
                 this.currentDocumentType.technicalName,
                 params,
             ).then((response) => {

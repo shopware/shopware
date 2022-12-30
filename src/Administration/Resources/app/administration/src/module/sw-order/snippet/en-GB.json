@@ -398,7 +398,7 @@
       "labelPreview": "Preview",
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
-      "labelNoItems": "No credit items are available with the selected invoice number",
+      "labelNoItems": "No credit shown",
       "fileInputLabel": "Upload custom document"
     },
     "documentSendModal": {

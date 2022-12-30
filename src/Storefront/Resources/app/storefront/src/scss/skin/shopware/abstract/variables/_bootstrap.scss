@@ -130,3 +130,9 @@ $table-striped-bg: #f9f9f9 !default;
 
 // Switch
 $custom-switch-indicator-border-radius: 0.5rem;
+
+// OffCanvas
+$offcanvas-padding-y: $grid-gutter-width / 2 !default;
+$offcanvas-padding-x: $grid-gutter-width / 2 !default;
+$offcanvas-border-width: 0 !default;
+$offcanvas-border-color: transparent !default;

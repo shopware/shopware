@@ -8,7 +8,6 @@ import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import Iterator from 'src/helper/iterator.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
-import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
 /**
@@ -43,8 +42,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @param {function|null} callback
      */
     openOffCanvas(url, data, callback) {
-        const isFullwidth = ViewportDetection.isXS();
-        AjaxOffCanvas.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition, true, undefined, isFullwidth);
+        AjaxOffCanvas.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition, true);
         AjaxOffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
     }
 

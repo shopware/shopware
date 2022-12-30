@@ -47,11 +47,13 @@
 
 
         {% block layout_cookie_configuration_button %}
-            <button
-                type="submit"
-                class="btn btn-primary btn-block js-offcanvas-cookie-submit">
-                {{ "cookie.save"|trans|sw_sanitize }}
-            </button>
+            <div class="d-grid">
+                <button
+                    type="submit"
+                    class="btn btn-primary js-offcanvas-cookie-submit">
+                    {{ "cookie.save"|trans|sw_sanitize }}
+                </button>
+            </div>
         {% endblock %}
 
     </div>

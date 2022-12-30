@@ -59,8 +59,7 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         this._dropdown.classList.add(this.options.hiddenClass);
 
-        const isFullwidth = ViewportDetection.isXS();
-        OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY(), isFullwidth);
+        OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
         OffCanvas.setAdditionalClassName(this.options.additionalClass);
 
         this.$emitter.publish('onClickAccountMenuTrigger');
@@ -73,8 +72,8 @@ export default class OffCanvasAccountMenu extends Plugin {
      */
     _onViewportHasChanged() {
         if (
-            this._isInAllowedViewports() === false 
-            && OffCanvas.exists() 
+            this._isInAllowedViewports() === false
+            && OffCanvas.exists()
             && OffCanvas.getOffCanvas()[0].classList.contains(this.options.additionalClass)
         ) {
             OffCanvas.close();

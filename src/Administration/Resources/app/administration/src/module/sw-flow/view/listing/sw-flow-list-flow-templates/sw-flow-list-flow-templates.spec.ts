@@ -3,6 +3,19 @@ import 'src/module/sw-flow/view/listing/sw-flow-list-flow-templates';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 
+const { Context } = Shopware;
+const { EntityCollection } = Shopware.Data;
+
+const mockData = [
+    {
+        id: '44de136acf314e7184401d36406c1e90',
+        name: 'test flow template',
+        config: {
+            eventName: 'checkout.order.placed'
+        }
+    }
+];
+
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-flow-list-flow-templates'), {
         mocks: {
@@ -18,15 +31,7 @@ async function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '44de136acf314e7184401d36406c1e90',
-                                name: 'test flow template',
-                                config: {
-                                    eventName: 'checkout.order.placed'
-                                }
-                            }
-                        ]);
+                        return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData, 1));
                     }
                 })
             },

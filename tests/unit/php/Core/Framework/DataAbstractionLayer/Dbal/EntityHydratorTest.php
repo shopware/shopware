@@ -159,7 +159,7 @@ class EntityHydratorTest extends TestCase
         static::assertCount(1, $structs);
 
         $first = $structs->first();
-        $customFields = $first->get('customTranslated');
+        $customFields = $first->getTranslation('customTranslated');
         static::assertSame('PARENT ENGLISH', $customFields['custom_test_text']);
         static::assertSame('1', $customFields['custom_test_check']);
 
@@ -178,7 +178,7 @@ class EntityHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         $first = $structs->first();
 
-        $customFields = $first->get('customTranslated');
+        $customFields = $first->getTranslation('customTranslated');
         static::assertSame('PARENT ENGLISH', $customFields['custom_test_text']);
         static::assertSame('1', $customFields['custom_test_check']);
 
@@ -197,9 +197,36 @@ class EntityHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         $first = $structs->first();
 
-        $customFields = $first->get('customTranslated');
+        $customFields = $first->getTranslation('customTranslated');
         static::assertSame('PARENT ENGLISH', $customFields['custom_test_text']);
         static::assertSame('0', $customFields['custom_test_check']);
+
+        $context = $this->createContext(true, [Uuid::randomHex()]);
+        $rows = [
+            [
+                'test.id' => $id,
+                'test.name' => 'example',
+                'test.customTranslated' => '{}',
+                'test.translation.customTranslated' => '{"custom_test_inheritance": "CHILD ENGLISH"}',
+                'test.translation.fallback_1.customTranslated' => '{"custom_test_inheritance": "CHILD GERMAN"}',
+                'test.translation.fallback_2.customTranslated' => '{"custom_test_inheritance": "CHILD SWISS"}',
+                'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_inheritance": "PARENT ENGLISH"}',
+                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_check": "0", "custom_test_inheritance": "PARENT GERMAN"}',
+                'test.parent.translation.fallback_2.customTranslated' => '{"custom_test_inheritance": "PARENT SWISS"}',
+            ],
+        ];
+
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $first = $structs->first();
+
+        $customFields = $first->get('customTranslated');
+        $translated = $first->getTranslation('customTranslated');
+        static::assertArrayNotHasKey('custom_test_text', $customFields);
+        static::assertSame('PARENT ENGLISH', $translated['custom_test_text']);
+        static::assertSame('CHILD SWISS', $customFields['custom_test_inheritance']);
+        static::assertSame('CHILD SWISS', $translated['custom_test_inheritance']);
+        static::assertArrayNotHasKey('custom_test_check', $customFields);
+        static::assertSame('0', $translated['custom_test_check']);
     }
 
     public function testCustomFieldHydrationWithTranslationWithoutInheritance(): void
@@ -345,13 +372,16 @@ class EntityHydratorTest extends TestCase
         static::assertNull($structsWithoutToManyHydration->first()->all()['toMany']);
     }
 
-    private function createContext(bool $inheritance = true): Context
+    /**
+     * @param string[] $additionalLanguages
+     */
+    private function createContext(bool $inheritance = true, array $additionalLanguages = []): Context
     {
         return new Context(
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM],
+            [Uuid::randomHex(), ...$additionalLanguages, Defaults::LANGUAGE_SYSTEM],
             Defaults::LIVE_VERSION,
             1.0,
             $inheritance

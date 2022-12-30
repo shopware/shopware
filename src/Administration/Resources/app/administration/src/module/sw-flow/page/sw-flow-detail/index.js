@@ -209,7 +209,7 @@ Component.register('sw-flow-detail', {
                 scope: this,
             });
 
-            if (this.$route.query?.type === 'template') {
+            if (this.isTemplate) {
                 this.getDetailFlowTemplate();
                 return;
             }
@@ -227,13 +227,17 @@ Component.register('sw-flow-detail', {
         },
 
         routeDetailTab(tabName) {
-            if (!tabName) return '';
+            if (!tabName) return {};
 
             if (this.isNewFlow) {
-                return `sw.flow.create.${tabName}`;
+                return { name: `sw.flow.create.${tabName}` };
             }
 
-            return `sw.flow.detail.${tabName}`;
+            if (this.isTemplate) {
+                return { name: `sw.flow.detail.${tabName}`, query: { type: 'template' } };
+            }
+
+            return { name: `sw.flow.detail.${tabName}` };
         },
 
         createNewFlow() {
@@ -305,7 +309,7 @@ Component.register('sw-flow-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (this.$route.query?.type === 'template') {
+            if (this.isTemplate) {
                 this.createNotificationError({
                     message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
                 });

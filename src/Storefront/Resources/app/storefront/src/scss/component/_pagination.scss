@@ -4,33 +4,10 @@ Pagination
 Custom styling for bootstrap pagination component.
 
 https://getbootstrap.com/docs/5.2/components/pagination
-
-@deprecated tag:v6.5.0 - Appearance of the pagination will be changed. Borders around pagination items will be removed.
 */
 
 .pagination {
     margin-bottom: 0;
-
-    .page-item {
-        &.disabled {
-            .page-link {
-                cursor: default;
-                opacity: 1;
-                background: $gray-200;
-                color: $gray-300;
-            }
-
-            a {
-                color: $gray-300;
-            }
-        }
-
-        &.active {
-            a {
-                color: $white;
-            }
-        }
-    }
 
     .page-link {
         cursor: pointer;

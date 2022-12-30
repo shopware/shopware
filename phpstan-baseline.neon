@@ -20648,51 +20648,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeTest\\:\\:createBundleTheme\\(\\) has parameter \\$saleschannels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeTest\\:\\:createTheme\\(\\) has parameter \\$customConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeTest\\:\\:createTheme\\(\\) has parameter \\$saleschannels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeTest\\:\\:getCustomConfigMultiSelect\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\fixtures\\\\ThemeFixtures\\:\\:getThemeConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/fixtures/ThemeFixtures.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\fixtures\\\\ThemeFixtures\\:\\:getThemeFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/fixtures/ThemeFixtures.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\fixtures\\\\ThemeFixtures\\:\\:getThemeInheritedBlankConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/fixtures/ThemeFixtures.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\fixtures\\\\ThemeFixtures\\:\\:getThemeInheritedConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/fixtures/ThemeFixtures.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\fixtures\\\\ThemeFixtures\\:\\:getThemeStructuredFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/fixtures/ThemeFixtures.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php

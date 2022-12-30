@@ -16,11 +16,11 @@ https://getbootstrap.com/docs/5.2/components/buttons
 // custom add to cart button, used e.g. in product-box and product detail buybox
 .btn-buy {
     @extend .btn-lg;
-    @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
+    @include button-variant($buy-btn-bg, $buy-btn-bg);
 }
 
 .btn-primary {
-    @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
+    @include button-variant($buy-btn-bg, $buy-btn-bg);
 }
 
 .btn,

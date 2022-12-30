@@ -42,8 +42,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
- *
- * @internal
  */
 class SendMailAction extends FlowAction implements DelayableAction
 {
@@ -327,10 +325,9 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $templateData = [
+        $templateData = array_merge([
             'eventName' => $flow->getName(),
-            ...$flow->data(),
-        ];
+        ], $flow->data());
 
         $this->send($data, $flow->getContext(), $templateData, $attachments, $extension, $injectedTranslator);
     }

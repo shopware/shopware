@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -31,30 +32,15 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class MailService extends AbstractMailService
 {
-    /**
-     * @var DataValidator
-     */
-    private $dataValidator;
+    private DataValidator $dataValidator;
 
-    /**
-     * @var StringTemplateRenderer
-     */
-    private $templateRenderer;
+    private StringTemplateRenderer $templateRenderer;
 
-    /**
-     * @var AbstractMailFactory
-     */
-    private $mailFactory;
+    private AbstractMailFactory $mailFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
-    /**
-     * @var SalesChannelDefinition
-     */
-    private $salesChannelDefinition;
+    private SalesChannelDefinition $salesChannelDefinition;
 
     /**
      * @var EntityRepositoryInterface
@@ -66,20 +52,13 @@ class MailService extends AbstractMailService
      */
     private $systemConfigService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @var AbstractMailSender
-     */
-    private $mailSender;
+    private AbstractMailSender $mailSender;
+
+    private LoggerInterface $logger;
 
     /**
      * @internal
@@ -94,7 +73,8 @@ class MailService extends AbstractMailService
         EntityRepositoryInterface $salesChannelRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        LoggerInterface $logger
     ) {
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
@@ -106,6 +86,7 @@ class MailService extends AbstractMailService
         $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
         $this->urlGenerator = $urlGenerator;
+        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractMailService
@@ -163,6 +144,10 @@ class MailService extends AbstractMailService
             );
 
             $this->eventDispatcher->dispatch($event);
+            $this->logger->error(
+                'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
+                $templateData
+            );
         }
 
         $contents = $this->buildContents($data, $salesChannel);
@@ -192,6 +177,13 @@ class MailService extends AbstractMailService
                 $templateData
             );
             $this->eventDispatcher->dispatch($event);
+            $this->logger->error(
+                'Could not render Mail-Template with error message: ' . $e->getMessage(),
+                array_merge([
+                    'template' => $template,
+                    'exception' => (string) $e,
+                ], $templateData)
+            );
 
             return null;
         }
@@ -218,12 +210,16 @@ class MailService extends AbstractMailService
                 $context,
                 Logger::ERROR,
                 null,
-                'message is null',
+                'mail body is null',
                 null,
                 $templateData
             );
 
             $this->eventDispatcher->dispatch($event);
+            $this->logger->error(
+                'mail body is null',
+                $templateData
+            );
 
             return null;
         }

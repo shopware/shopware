@@ -20,10 +20,25 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
     public const EVENT_NAME = 'mail.after.create.message';
 
     /**
+     * @var array<string, mixed>
+     */
+    private array $data;
+
+    private Email $message;
+
+    private Context $context;
+
+    private ?string $eventName;
+
+    /**
      * @param array<string, mixed> $data
      */
-    public function __construct(private array $data, private Email $message, private Context $context, private ?string $eventName = null)
+    public function __construct(array $data, Email $message, Context $context, ?string $eventName = null)
     {
+        $this->data = $data;
+        $this->message = $message;
+        $this->context = $context;
+        $this->eventName = $eventName;
     }
 
     public static function getAvailableData(): EventDataCollection

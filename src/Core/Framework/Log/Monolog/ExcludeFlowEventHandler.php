@@ -10,14 +10,23 @@ use Monolog\Handler\HandlerInterface;
  */
 class ExcludeFlowEventHandler extends AbstractHandler
 {
+    private HandlerInterface $handler;
+
+    /**
+     * @var array<int, string>
+     */
+    private array $excludeEvents;
+
     /**
      * @internal
      *
      * @param array<int, string> $excludeEvents
      */
-    public function __construct(private HandlerInterface $handler, private array $excludeEvents = [])
+    public function __construct(HandlerInterface $handler, array $excludeEvents)
     {
         parent::__construct();
+        $this->excludeEvents = $excludeEvents;
+        $this->handler = $handler;
     }
 
     /**

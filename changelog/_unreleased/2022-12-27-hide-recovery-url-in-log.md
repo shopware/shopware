@@ -14,3 +14,4 @@ issue: NEXT-24679
 * Changed method `\Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent::getLogData` to add the `eventName` in log data
 * Changed method `\Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent::getLogData` to add the `eventName` in log data
 * Added a new migration in `\Shopware\Core\Migration\V6_4\Migration1672164687FixTypoInUserRecoveryPasswordResetMail` to fix a typo in user recovery request mail template
+* Changed `Shopware\Core\Content\Mail\Service\MailService` to inject `logger` into the service to log errors when they're thrown

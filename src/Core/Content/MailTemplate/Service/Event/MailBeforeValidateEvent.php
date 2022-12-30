@@ -18,11 +18,26 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
     public const EVENT_NAME = 'mail.before.send';
 
     /**
+     * @var array<string, mixed>
+     */
+    private array $data;
+
+    private Context $context;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private array $templateData;
+
+    /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(private array $data, private Context $context, private array $templateData = [])
+    public function __construct(array $data, Context $context, array $templateData = [])
     {
+        $this->templateData = $templateData;
+        $this->context = $context;
+        $this->data = $data;
     }
 
     public static function getAvailableData(): EventDataCollection

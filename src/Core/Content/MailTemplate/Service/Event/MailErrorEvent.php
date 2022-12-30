@@ -16,18 +16,42 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, Business
 {
     public const NAME = 'mail.sent.error';
 
+    private Context $context;
+
+    /**
+     * @var 100|200|250|300|400|500|550|600
+     */
+    private int $logLevel;
+
+    private ?\Throwable $throwable;
+
+    private ?string $message;
+
+    private ?string $template;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private ?array $templateData;
+
     /**
      * @param 100|200|250|300|400|500|550|600|null $logLevel
      * @param array<string, mixed> $templateData
      */
     public function __construct(
-        private Context $context,
-        private ?int $logLevel = Logger::DEBUG,
-        private ?\Throwable $throwable = null,
-        private ?string $message = null,
-        private ?string $template = null,
-        private ?array $templateData = []
+        Context $context,
+        ?int $logLevel,
+        ?\Throwable $throwable = null,
+        ?string $message = null,
+        ?string $template = null,
+        ?array $templateData = []
     ) {
+        $this->templateData = $templateData;
+        $this->template = $template;
+        $this->message = $message;
+        $this->throwable = $throwable;
+        $this->logLevel = $logLevel ?? Logger::DEBUG;
+        $this->context = $context;
     }
 
     public function getThrowable(): ?\Throwable
@@ -50,7 +74,7 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, Business
      */
     public function getLogLevel(): int
     {
-        return $this->logLevel ?? Logger::DEBUG;
+        return $this->logLevel;
     }
 
     /**

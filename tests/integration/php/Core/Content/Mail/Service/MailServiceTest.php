@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Mail\Service;
+namespace Shopware\Tests\Integration\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
@@ -33,7 +34,7 @@ class MailServiceTest extends TestCase
 
     public function testPluginsCanExtendMailData(): void
     {
-        $renderer = $this->getContainer()->get(StringTemplateRenderer::class);
+        $renderer = clone $this->getContainer()->get(StringTemplateRenderer::class);
         $property = ReflectionHelper::getProperty(StringTemplateRenderer::class, 'twig');
         $environment = new TestEnvironment($property->getValue($renderer)->getLoader());
         $property->setValue($renderer, $environment);
@@ -48,7 +49,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
         $data = [
             'senderName' => 'Foo & Bar',
@@ -77,6 +79,9 @@ class MailServiceTest extends TestCase
         static::assertArrayHasKey('plugin-value', $first['data']);
     }
 
+    /**
+     * @return array<int, mixed[]>
+     */
     public function senderEmailDataProvider(): array
     {
         return [
@@ -117,7 +122,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $systemConfig,
             $this->createMock(EventDispatcher::class),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -131,7 +137,7 @@ class MailServiceTest extends TestCase
             'subject' => 'Test subject & content',
         ];
         if ($dataSenderEmail !== null) {
-            $data['senderEmail'] = $dataSenderEmail;
+            $data['senderMail'] = $dataSenderEmail;
         }
 
         $mailSender->expects(static::once())
@@ -141,7 +147,7 @@ class MailServiceTest extends TestCase
                 $this->assertSame($data['senderName'], $from[0]->getName());
                 $this->assertSame($data['subject'], $mail->getSubject());
                 $this->assertCount(1, $from);
-                $this->assertSame($expected, $from[0]->getAddress());
+                $this->assertSame($data['senderMail'] ?? $expected, $from[0]->getAddress());
 
                 return true;
             }));
@@ -168,7 +174,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $eventDispatcher,
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -208,7 +215,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -254,7 +262,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -285,8 +294,14 @@ class MailServiceTest extends TestCase
  */
 class TestEnvironment extends Environment
 {
+    /**
+     * @var array<int, mixed[]>
+     */
     private array $calls = [];
 
+    /**
+     * @param mixed[] $context
+     */
     public function render($name, array $context = []): string
     {
         $this->calls[] = ['source' => $name, 'data' => $context];
@@ -294,6 +309,9 @@ class TestEnvironment extends Environment
         return parent::render($name, $context);
     }
 
+    /**
+     * @return array<int, mixed[]>
+     */
     public function getCalls(): array
     {
         return $this->calls;

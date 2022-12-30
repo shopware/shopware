@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use Monolog\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailService;
@@ -16,7 +17,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -54,28 +55,35 @@ class MailServiceTest extends TestCase
     private MailService $mailService;
 
     /**
-     * @var MockObject&EntityRepository
+     * @var MockObject&EntityRepositoryInterface
      */
-    private EntityRepository $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
+
+    /**
+     * @var MockObject&LoggerInterface
+     */
+    private LoggerInterface $logger;
 
     protected function setUp(): void
     {
         $this->mailFactory = $this->createMock(AbstractMailFactory::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $this->salesChannelRepository = $this->createMock(EntityRepository::class);
+        $this->salesChannelRepository = $this->createMock(EntityRepositoryInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->mailService = new MailService(
             $this->createMock(DataValidator::class),
             $this->templateRenderer,
             $this->mailFactory,
             $this->createMock(AbstractMailSender::class),
-            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepositoryInterface::class),
             $this->createMock(SalesChannelDefinition::class),
             $this->salesChannelRepository,
             $this->createMock(SystemConfigService::class),
             $this->eventDispatcher,
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->logger,
         );
     }
 
@@ -179,6 +187,7 @@ class MailServiceTest extends TestCase
         $beforeValidateEvent = null;
         $mailErrorEvent = null;
 
+        $this->logger->expects(static::once())->method('error');
         $this->eventDispatcher->expects(static::exactly(2))
             ->method('dispatch')
             ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
@@ -240,6 +249,7 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
+        $this->logger->expects(static::once())->method('error');
         $this->eventDispatcher->expects(static::exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
             static::isInstanceOf(MailErrorEvent::class),

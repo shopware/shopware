@@ -13,6 +13,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestTask;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
@@ -33,7 +34,8 @@ class TaskRegistryTest extends TestCase
             [
                 new TestTask(),
             ],
-            $this->scheduledTaskRepo
+            $this->scheduledTaskRepo,
+            new ParameterBag()
         );
     }
 
@@ -96,7 +98,8 @@ class TaskRegistryTest extends TestCase
             [
                 new FooMessage(),
             ],
-            $this->scheduledTaskRepo
+            $this->scheduledTaskRepo,
+            new ParameterBag()
         );
 
         $registry->registerTasks();
@@ -116,7 +119,7 @@ class TaskRegistryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $registry = new TaskRegistry([], $this->scheduledTaskRepo);
+        $registry = new TaskRegistry([], $this->scheduledTaskRepo, new ParameterBag());
         $registry->registerTasks();
 
         $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();

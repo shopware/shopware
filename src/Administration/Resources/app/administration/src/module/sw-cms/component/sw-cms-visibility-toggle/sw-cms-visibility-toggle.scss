@@ -1,0 +1,61 @@
+@import "~scss/variables";
+
+.sw-cms-visibility-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-grow: 1;
+    padding: 20px;
+    background-color: $color-gray-100;
+
+    &-wrapper {
+        display: flex;
+        padding: 24px;
+        justify-content: center;
+        color: $color-darkgray-200;
+
+        &.is--expanded {
+            padding-bottom: 0;
+            padding-top: 0;
+
+            .sw-cms-visibility-toggle {
+                padding: 24px 0 0;
+                background-color: transparent;
+            }
+        }
+    }
+
+    .sw-icon {
+        color: $color-gray-900;
+    }
+
+    &__text {
+        line-height: 25px;
+    }
+
+    &__button {
+        color: $color-shopware-brand-500;
+        background-color: transparent;
+        border: none;
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 25px;
+        font-family: $font-family-default;
+
+        .sw-icon {
+            color: inherit;
+        }
+    }
+}
+
+.sw-cms-section__wrapper {
+    > .sw-cms-visibility-toggle-wrapper.is--expanded {
+        .sw-cms-visibility-toggle {
+            padding-bottom: 16px;
+        }
+    }
+}

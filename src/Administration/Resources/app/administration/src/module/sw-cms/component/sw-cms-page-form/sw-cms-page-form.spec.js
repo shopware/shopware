@@ -103,4 +103,13 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
         expect(blockNameText).toBe('BLOCK NAME');
     });
+
+    it('display the device active in viewport', async () => {
+        const wrapper = await createWrapper();
+        const formDeviceActions = wrapper.find('.sw-cms-page-form__device-actions');
+        const blockFormDeviceActions = wrapper.find('.sw-cms-page-form__block-device-actions');
+
+        expect(formDeviceActions.exists()).toBeTruthy();
+        expect(blockFormDeviceActions.exists()).toBeTruthy();
+    });
 });

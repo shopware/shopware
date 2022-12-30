@@ -104,7 +104,8 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-cms-sidebar-nav-element': true,
             'sw-entity-single-select': true,
             'sw-modal': true,
-            'sw-checkbox-field': true
+            'sw-checkbox-field': true,
+            'sw-cms-visibility-config': true
         },
         provide: {
             repositoryFactory: {
@@ -169,7 +170,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             namespaced: true,
             state: {
                 isSystemDefaultLanguage: true,
-                currentPageType: 'product_list'
+                currentPageType: 'product_list',
+                selectedBlock: {},
+                selectedSection: {}
             }
         });
     });

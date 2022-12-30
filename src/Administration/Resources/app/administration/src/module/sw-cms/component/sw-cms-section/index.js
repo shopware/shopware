@@ -44,6 +44,12 @@ Component.register('sw-cms-section', {
         },
     },
 
+    data() {
+        return {
+            isCollapsed: true,
+        };
+    },
+
     computed: {
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
@@ -90,6 +96,7 @@ Component.register('sw-cms-section', {
             return {
                 'is--empty': this.sideBarEmpty,
                 'is--hidden': this.sectionMobileAndHidden,
+                'is--expanded': this.expandedClass,
             };
         },
 
@@ -134,6 +141,31 @@ Component.register('sw-cms-section', {
             return Object.keys(this.cmsService.getCmsBlockRegistry());
         },
 
+        isVisible() {
+            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
+
+            return (view === 'desktop' && !this.section.visibility.desktop) ||
+                (view === 'tablet-landscape' && !this.section.visibility.tablet) ||
+                (view === 'mobile' && !this.section.visibility.mobile);
+        },
+
+        toggleButtonText() {
+            return this.$tc('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', !this.isCollapsed);
+        },
+
+        expandedClass() {
+            return {
+                'is--expanded': this.isVisible && !this.isCollapsed,
+            };
+        },
+
+        sectionContentClasses() {
+            return {
+                'is--empty': this.mainContentEmpty,
+                'is--expanded': this.isVisible && !this.isCollapsed,
+            };
+        },
+
         ...mapPropertyErrors('page', [
             'slots',
             'slotConfig',
@@ -142,6 +174,14 @@ Component.register('sw-cms-section', {
 
     created() {
         this.createdComponent();
+
+        if (!this.section.visibility) {
+            this.section.visibility = {
+                mobile: true,
+                tablet: true,
+                desktop: true,
+            };
+        }
     },
 
     methods: {
@@ -221,6 +261,10 @@ Component.register('sw-cms-section', {
             }
 
             return errorElements.some(missingConfig => missingConfig.blockId === block.id);
+        },
+
+        toggleVisibility() {
+            this.isCollapsed = !this.isCollapsed;
         },
     },
 });

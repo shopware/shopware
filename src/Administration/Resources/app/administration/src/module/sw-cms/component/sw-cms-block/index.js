@@ -5,7 +5,7 @@ import './sw-cms-block.scss';
  * @package content
  */
 
-const { Component, Filter } = Shopware;
+const { Component, Filter, State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-block', {
@@ -50,6 +50,7 @@ Component.register('sw-cms-block', {
     data() {
         return {
             backgroundUrl: null,
+            isCollapsed: true,
         };
     },
 
@@ -113,6 +114,24 @@ Component.register('sw-cms-block', {
         assetFilter() {
             return Filter.getByName('asset');
         },
+
+        isVisible() {
+            const view = State.get('cmsPageState').currentCmsDeviceView;
+
+            return (view === 'desktop' && !this.block.visibility.desktop) ||
+                (view === 'tablet-landscape' && !this.block.visibility.tablet) ||
+                (view === 'mobile' && !this.block.visibility.mobile);
+        },
+
+        toggleButtonText() {
+            return this.$tc('sw-cms.sidebar.contentMenu.visibilityBlockTextButton', !this.isCollapsed);
+        },
+
+        expandedClass() {
+            return {
+                'is--expanded': this.isVisible && !this.isCollapsed,
+            };
+        },
     },
 
     created() {
@@ -124,12 +143,24 @@ Component.register('sw-cms-block', {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
             }
+
+            if (!this.block.visibility) {
+                this.block.visibility = {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                };
+            }
         },
 
         onBlockOverlayClick() {
             if (!this.block.locked) {
                 this.$emit('block-overlay-click');
             }
+        },
+
+        toggleVisibility() {
+            this.isCollapsed = !this.isCollapsed;
         },
     },
 });

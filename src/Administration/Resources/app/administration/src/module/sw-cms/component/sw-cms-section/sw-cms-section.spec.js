@@ -4,6 +4,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-section';
+import 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 
 async function createWrapper() {
     Shopware.State.registerModule('cmsPageState', {
@@ -14,7 +15,8 @@ async function createWrapper() {
                 sectionPosition: 'main',
                 type: 'foo-bar'
             },
-            isSystemDefaultLanguage: true
+            isSystemDefaultLanguage: true,
+            currentCmsDeviceView: 'desktop',
         }
     });
 
@@ -44,7 +46,12 @@ async function createWrapper() {
                         sectionPosition: 'main',
                         type: 'foo-bar-removed'
                     }
-                ]
+                ],
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                }
             }
         },
         stubs: {
@@ -52,7 +59,8 @@ async function createWrapper() {
             'sw-cms-section-actions': true,
             'sw-cms-block': true,
             'sw-cms-block-foo-bar': true,
-            'sw-cms-stage-add-block': true
+            'sw-cms-stage-add-block': true,
+            'sw-cms-visibility-toggle': await Shopware.Component.build('sw-cms-visibility-toggle'),
         },
         provide: {
             repositoryFactory: {},
@@ -68,20 +76,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-section', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
-                selectedBlock: {
-                    id: '1a2b',
-                    sectionPosition: 'main',
-                    type: 'foo-bar'
-                },
-                isSystemDefaultLanguage: true
-            }
-        });
-    });
-
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -123,5 +117,27 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeFalsy();
         });
+    });
+
+    it('the visibility toggle wrapper should exist and be visible', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            section: {
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: false,
+                }
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
+    });
+
+    it('the visibility toggle wrapper should not exist', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeFalsy();
     });
 });

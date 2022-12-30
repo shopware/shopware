@@ -92,6 +92,8 @@ class InvoiceRendererTest extends TestCase
         );
 
         static::assertInstanceOf(InvoiceOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertSame($operationInvoice, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);

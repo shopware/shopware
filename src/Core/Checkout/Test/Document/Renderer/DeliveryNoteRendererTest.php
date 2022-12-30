@@ -87,6 +87,8 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         static::assertInstanceOf(DeliveryNoteOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         static::assertInstanceOf(RendererResult::class, $processedTemplate);
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());

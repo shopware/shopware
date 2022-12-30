@@ -5,6 +5,11 @@ Styling for image slider component.
 Displays images in a reusable slider component.
 based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyuan/tiny-slider)
 */
+.image-slider {
+    &.has-nav-outside .image-slider-item-container {
+        padding: 0 25px;
+    }
+}
 
 .image-slider-container {
     position: relative;
@@ -54,7 +59,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 
     &.is-nav-prev-outside {
-        left: -15px;
+        left: 0;
     }
 }
 
@@ -64,7 +69,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 
     &.is-nav-next-outside {
-        right: -15px;
+        right: 0;
     }
 }
 

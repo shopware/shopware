@@ -569,6 +569,28 @@ class DocumentServiceTest extends TestCase
         static::assertStringContainsString('Cancellation 10000 for Invoice 9999', $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
+
+        $stornoConfiguration->assign([
+            'custom' => [
+                'stornoNumber' => '1001',
+                'invoiceNumber' => '1000',
+            ],
+        ]);
+
+        $stornoStruct = $documentService->preview(
+            $orderId,
+            (string) $order->getDeepLinkCode(),
+            StornoGenerator::STORNO,
+            PdfGenerator::FILE_EXTENSION,
+            $stornoConfiguration,
+            $this->context
+        );
+
+        static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
+        static::assertStringContainsString('Cancellation 1001 for Invoice 1000', $stornoStruct->getHtml());
+
+        // Customer change because it refers to the live version of the order
+        static::assertStringContainsString('Customer no. CHANGED NUMBER', $stornoStruct->getHtml());
     }
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity

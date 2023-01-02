@@ -267,7 +267,7 @@ class DocumentService
 
         if (!empty($config->jsonSerialize()['custom']['invoiceNumber'])) {
             $invoiceNumber = (string) $config->jsonSerialize()['custom']['invoiceNumber'];
-            $orderVersionId = $this->getInvoiceOrderVersionId($orderId, $invoiceNumber);
+            $orderVersionId = $this->getInvoiceOrderVersionId($orderId, $invoiceNumber, $deepLinkCode);
         }
 
         $order = $this->getOrderById($orderId, $orderVersionId, $context, $deepLinkCode);
@@ -602,20 +602,34 @@ class DocumentService
         );
     }
 
-    private function getInvoiceOrderVersionId(string $orderId, string $invoiceNumber): string
+    private function getInvoiceOrderVersionId(string $orderId, string $invoiceNumber, ?string $deepLinkCode): string
     {
-        $orderVersionId = $this->connection->fetchOne('
-            SELECT LOWER(HEX(order_version_id))
-            FROM document INNER JOIN document_type
-                ON document.document_type_id = document_type.id
-            WHERE document_type.technical_name = :technicalName
-            AND JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) = :invoiceNumber
-            AND document.order_id = :orderId
-        ', [
+        $whereDocument = '';
+
+        $types = [
             'technicalName' => InvoiceGenerator::INVOICE,
             'invoiceNumber' => $invoiceNumber,
             'orderId' => Uuid::fromHexToBytes($orderId),
-        ]);
+        ];
+
+        if ($deepLinkCode !== '') {
+            $whereDocument = 'AND `order`.deep_link_code = :deepLinkCode';
+            $types['deepLinkCode'] = $deepLinkCode;
+        }
+
+        $orderVersionId = $this->connection->fetchOne('
+            SELECT LOWER(HEX(order_version_id))
+            FROM `document`
+            INNER JOIN `document_type`
+                ON `document`.document_type_id = `document_type`.id
+            INNER JOIN `order`
+                ON `document`.order_id = `order`.id
+            WHERE `document_type`.technical_name = :technicalName
+            AND JSON_UNQUOTE(JSON_EXTRACT(`document`.config, "$.documentNumber")) = :invoiceNumber
+            AND `document`.order_id = :orderId
+            AND `order`.version_id = `document`.order_version_id
+            ' . $whereDocument . '
+        ', $types);
 
         return $orderVersionId ?: Defaults::LIVE_VERSION;
     }

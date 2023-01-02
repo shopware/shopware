@@ -10,6 +10,7 @@ import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsDetail from 'src/module/sw-cms/page/sw-cms-detail';
 import swCmsToolbar from 'src/module/sw-cms/component/sw-cms-toolbar';
+import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
 Shopware.Component.register('sw-cms-detail', swCmsDetail);
 Shopware.Component.register('sw-cms-toolbar', swCmsToolbar);
@@ -52,6 +53,8 @@ const mediaRepository = {
 
 
 async function createWrapper() {
+    const cmsPageTypeService = new CmsPageTypeService();
+
     return shallowMount(await Shopware.Component.build('sw-cms-detail'), {
         stubs: {
             'sw-page': true,
@@ -105,6 +108,7 @@ async function createWrapper() {
                     }
                 }
             },
+            cmsPageTypeService,
             entityFactory: {},
             entityHydrator: {},
             loginService: {},

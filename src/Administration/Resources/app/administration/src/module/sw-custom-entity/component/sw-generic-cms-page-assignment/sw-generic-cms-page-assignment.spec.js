@@ -53,6 +53,13 @@ async function createWrapper() {
         },
 
         provide: {
+            cmsPageTypeService: {
+                getType(type) {
+                    return {
+                        title: `sw-cms.detail.label.pageType.${Shopware.Utils.string.camelCase(type)}`,
+                    };
+                }
+            },
             repositoryFactory: {
                 create: (name) => {
                     switch (name) {
@@ -131,10 +138,10 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.setProps({
             cmsPageId: pageMock.id
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMock.name);
-        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageTypeCategory');
+        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageType.productList');
         expect(wrapper.get('.sw-cms-list-item').props('page')).toEqual(pageMock);
         expect(wrapper.get('.sw-cms-page-form').props('page')).toEqual(pageMock);
     });
@@ -233,7 +240,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         };
 
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMockWithOverrides.name);
-        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageTypeCategory');
+        expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageType.productList');
         expect(wrapper.get('.sw-cms-list-item').props('page')).toStrictEqual(pageMockWithOverrides);
         expect(wrapper.get('.sw-cms-page-form').props('page')).toStrictEqual(pageMockWithOverrides);
     });

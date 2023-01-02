@@ -27,7 +27,7 @@
       "general": "Allgemein",
       "cms": "Layout",
       "products": "Produkte",
-      "customEntity": "Custom Entities",
+      "customEntity": "Individuelle Entitäten",
       "seo": "SEO",
       "columnInfoHeader": "Fußzeilen-Element",
       "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als Spaltenüberschrift angezeigt. Alle Kategorien der direkt untergeordneten Ebene werden als Zeilen unterhalb der Spaltenüberschrift dargestellt."
@@ -44,7 +44,7 @@
           "title": "Kategorietyp",
           "page": "Seite / Liste",
           "folder": "Strukturelement / Einstiegspunkt",
-          "customEntity": "Custom Entity",
+          "customEntity": "Individuelle Entitäten",
           "link": "Link",
           "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",

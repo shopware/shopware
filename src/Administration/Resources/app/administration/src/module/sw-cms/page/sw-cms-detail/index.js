@@ -28,6 +28,7 @@ export default {
         'acl',
         'appCmsService',
         'systemConfigApiService',
+        'cmsPageTypeService',
     ],
 
     mixins: [
@@ -165,15 +166,6 @@ export default {
             ];
         },
 
-        cmsPageTypes() {
-            return {
-                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
-            };
-        },
-
         cmsPageTypeSettings() {
             const mappingEntity = CMS.TYPE_MAPPING_ENTITIES;
 
@@ -287,6 +279,10 @@ export default {
 
         hasPageErrors() {
             return this.pageErrors.length > 0;
+        },
+
+        pageType() {
+            this.cmsPageTypeService.getType(this.page.type);
         },
 
         ...mapPropertyErrors('page', [

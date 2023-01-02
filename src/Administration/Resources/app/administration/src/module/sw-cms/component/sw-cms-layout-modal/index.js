@@ -11,7 +11,12 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+        'acl',
+        'cmsPageTypeService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -97,15 +102,6 @@ export default {
             }];
         },
 
-        pageTypes() {
-            return {
-                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
-                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
-            };
-        },
-
         gridPreSelection() {
             if (!this.selectedPageObject?.id) {
                 return {};
@@ -189,7 +185,6 @@ export default {
             ];
         },
 
-
         closeModal() {
             this.selectedPageObject = null;
             this.term = null;
@@ -199,7 +194,8 @@ export default {
         getPageType(page) {
             const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
-            return isDefault ? `${defaultText} - ${this.pageTypes[page.type]}` : this.pageTypes[page.type];
+            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+            return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
         async getDefaultLayouts() {

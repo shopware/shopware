@@ -8,7 +8,10 @@ import './sw-category-layout-card.scss';
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'cmsPageTypeService',
+    ],
 
     props: {
         category: {
@@ -50,13 +53,14 @@ export default {
     },
 
     computed: {
-        cmsPageTypes() {
-            return {
-                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
-            };
+        pageTypeTitle() {
+            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
+            if (!this.cmsPage) {
+                return fallback;
+            }
+
+            const pageType = this.cmsPageTypeService.getType(this.cmsPage.type);
+            return pageType ? this.$tc(this.cmsPageTypeService.getType(this.cmsPage.type).title) : fallback;
         },
     },
 

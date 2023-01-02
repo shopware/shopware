@@ -39,6 +39,7 @@ import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
+import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
 import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
@@ -115,6 +116,7 @@ declare global {
         menuService: $TSFixMe,
         privileges: $TSFixMe,
         customEntityDefinitionService: CustomEntityDefinitionService,
+        cmsPageTypeService: CmsPageTypeService,
         acl: AclService,
         jsonApiParserService: $TSFixMe,
         validationService: $TSFixMe,

@@ -28,6 +28,15 @@ async function createWrapper() {
                 params: {}
             }
         },
+        provide: {
+            cmsPageTypeService: {
+                getType(type) {
+                    return {
+                        title: type,
+                    };
+                }
+            }
+        },
         propsData: {
             category: {
                 id: categoryId,
@@ -108,9 +117,12 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPage: {}
+            cmsPage: {
+                type: 'landingpage',
+            },
         });
 
+        await flushPromises();
         const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
 
         expect(resetLayoutButton.props('disabled')).toBe(false);
@@ -120,15 +132,18 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPage: {}
+            cmsPage: {
+                type: 'landingpage',
+            }
         });
 
+        await flushPromises();
         const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
 
         expect(resetLayoutButton.props('disabled')).toBe(true);
     });
 
-    it('should pass the category id to the sw.cms.create route', async () => {
+    it('should pass the category id and type to the sw.cms.create route', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.find('.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
@@ -139,7 +154,8 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(routerPush).toHaveBeenLastCalledWith({
             name: 'sw.cms.create',
             params: {
-                id: categoryId, type: 'category'
+                id: categoryId,
+                type: 'category'
             }
         });
     });
@@ -147,7 +163,12 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     it('should pass the category id to the sw.cms.create route', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setProps({ cmsPage: { id: cmsPageId } });
+        await wrapper.setProps({
+            cmsPage: {
+                id: cmsPageId,
+                type: 'landingpage',
+            },
+        });
 
         await wrapper.find('.sw-category-detail-layout__open-in-pagebuilder').trigger('click');
 

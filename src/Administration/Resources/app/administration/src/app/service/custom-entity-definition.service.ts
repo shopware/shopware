@@ -59,6 +59,13 @@ export type AdminUiDefinition = {
 /**
  * @private
  */
+export type CmsAwareDefinition = {
+    name: string,
+}
+
+/**
+ * @private
+ */
 export type CustomEntityProperties = {
     [key: string]: {
         flags: Array<unknown>,
@@ -74,6 +81,7 @@ export type CustomEntityDefinition = {
     properties: CustomEntityProperties,
     flags: {
         'admin-ui': AdminUiDefinition,
+        'cms-aware': CmsAwareDefinition,
     },
 }
 
@@ -94,8 +102,8 @@ export default class CustomEntityDefinitionService {
         customEntityDefinitions: [] as CustomEntityDefinition[],
     });
 
-    addDefinition(adminUiDefinition: CustomEntityDefinition) {
-        this.#state.customEntityDefinitions.push(adminUiDefinition);
+    addDefinition(customEntityDefinition: CustomEntityDefinition) {
+        this.#state.customEntityDefinitions.push(customEntityDefinition);
     }
 
     getDefinitionByName(name: string): Readonly<CustomEntityDefinition | undefined> {
@@ -107,9 +115,19 @@ export default class CustomEntityDefinitionService {
     }
 
     hasDefinitionWithAdminUi(name: string) {
-        return this.#state.customEntityDefinitions.some(entityDefinition => {
-            return entityDefinition.entity === name && entityDefinition.flags['admin-ui'];
+        return this.#state.customEntityDefinitions.some((entityDefinition) => {
+            return entityDefinition.entity === name && entityDefinition.flags?.['admin-ui'];
         });
+    }
+
+    hasDefinitionWithCmsAware(name: string) {
+        return this.#state.customEntityDefinitions.some((entityDefinition) => {
+            return entityDefinition.entity === name && entityDefinition.flags?.['cms-aware']?.name;
+        });
+    }
+
+    getCmsAwareDefinitions(): Readonly<CustomEntityDefinition[]> {
+        return this.#state.customEntityDefinitions.filter(entityDefinition => !!entityDefinition.flags?.['cms-aware']?.name);
     }
 
     getMenuEntries(): Readonly<NavigationMenuEntry[]> {

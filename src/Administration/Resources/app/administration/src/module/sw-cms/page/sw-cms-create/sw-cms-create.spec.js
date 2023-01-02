@@ -7,6 +7,7 @@ import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsDetail from 'src/module/sw-cms/page/sw-cms-detail';
 import swCmsCreate from 'src/module/sw-cms/page/sw-cms-create';
+import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 
 Shopware.Component.register('sw-cms-detail', swCmsDetail);
 Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', swCmsCreate);
@@ -42,6 +43,7 @@ const customEntityRepository = {
 async function createWrapper(routeParams = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
+    const cmsPageTypeService = new CmsPageTypeService();
 
     return shallowMount(await Shopware.Component.build('sw-cms-create'), {
         localVue,
@@ -76,6 +78,7 @@ async function createWrapper(routeParams = {}) {
                     }
                 }
             },
+            cmsPageTypeService,
             entityFactory: {},
             entityHydrator: {},
             loginService: {},

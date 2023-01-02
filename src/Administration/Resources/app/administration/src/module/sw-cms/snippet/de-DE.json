@@ -19,11 +19,7 @@
       "labelSortByCreatedDsc": "Erstelldatum, absteigend",
       "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
       "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend",
-      "labelSortByAllPages": "Alle Typen",
-      "labelSortByShopPages": "Shopseiten",
-      "labelSortByLandingPages": "Landingpages",
-      "labelSortByProductPages": "Produktseiten",
-      "labelSortByCategoryPages": "Kategorieseiten"
+      "labelSortByAllPages": "Alle Typen"
     },
     "list": {
       "gridHeaderName": "Name",
@@ -95,12 +91,19 @@
       "label": {
         "buttonSave": "Speichern",
         "pageName": "Layout-Name",
+        "pageNamePlaceholder": "Layout-Namen eingeben ...",
+        "pageEntity": "Individuelle Entität",
+        "pageEntityPlaceholder": "Individuelle Entität auswählen ...",
         "pageCssClass": "CSS-Klassen",
-        "pageType": "Layout-Typ",
-        "pageTypeLandingpage": "Landingpage",
-        "pageTypeShopPage": "Shopseite",
-        "pageTypeCategory": "Kategorieseite",
-        "pageTypeProduct": "Produktseite",
+        "pageTypeSelection": "Layout-Typ",
+        "pageType": {
+          "landingpage": "Landingpage",
+          "page": "Shopseite",
+          "productList": "Kategorieseite",
+          "productDetail": "Produktseite",
+          "customEntityDetail": "Content-Detailseite",
+          "customEntityList": "Content-Liste"
+        },
         "demoEntity": "Vorschau-Datensatz",
         "blockCategorySelection": "Block-Kategorie",
         "blockCategoryFavorite": "Favoriten",
@@ -143,7 +146,7 @@
         "labelNavigation": "Navigation",
         "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
-        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
+        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag-&-Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit Deinem individuellen Inhalt.",
         "defaultLayout": "Standardlayout",
         "blockFavoriteEmptyState": "Klicke auf das Herz in einem Block, um ihn als Favorit zu markieren und finde ihn hier wieder.",
         "visibilityParagraph": "Auf ausgewählten Geräten unsichtbar"

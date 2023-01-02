@@ -80,7 +80,7 @@
       "emptyText": "Möchtest Du die Preismatrix auf vorgegebenen Warenkorbeigenschaften oder individuell erstellten Regeln basieren lassen? Bitte auswählen:",
       "chooseCustomRule": "Wähle eine individuelle Regel",
       "calculationLineItemCount": "Anzahl Produkte",
-      "calculationPrice": "Warenkorb Wert",
+      "calculationPrice": "Warenkorb-Wert",
       "calculationWeight": "Gewicht",
       "calculationVolume": "Volumen",
       "columnQuantityStart": "Anzahl von ...",

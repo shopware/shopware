@@ -19,11 +19,7 @@
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByUpdatedAsc": "Modification date, ascending",
       "labelSortByUpdatedDsc": "Modification date, descending",
-      "labelSortByAllPages": "All types",
-      "labelSortByShopPages": "Shop pages",
-      "labelSortByLandingPages": "Landing pages",
-      "labelSortByProductPages": "Product pages",
-      "labelSortByCategoryPages": "Listing pages"
+      "labelSortByAllPages": "All types"
     },
     "list": {
       "gridHeaderName": "Name",
@@ -95,12 +91,19 @@
       "label": {
         "buttonSave": "Save",
         "pageName": "Layout name",
+        "pageNamePlaceholder": "Enter layout name...",
+        "pageEntity": "Custom Entity",
+        "pageEntityPlaceholder": "Select Custom Entity...",
         "pageCssClass": "CSS classes",
-        "pageType": "Layout type",
-        "pageTypeLandingpage": "Landing page",
-        "pageTypeShopPage": "Shop page",
-        "pageTypeCategory": "Listing page",
-        "pageTypeProduct": "Product page",
+        "pageTypeSelection": "Layout type",
+        "pageType": {
+          "landingpage": "Landing page",
+          "page": "Shop page",
+          "productList": "Listing page",
+          "productDetail": "Product page",
+          "customEntityDetail": "Content layout",
+          "customEntityList": "Content listing page"
+        },
         "demoEntity": "Preview entity",
         "blockCategorySelection": "Block category",
         "blockCategoryFavorite": "Favourites",

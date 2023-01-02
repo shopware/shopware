@@ -22,6 +22,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
+        'cmsPageTypeService',
     ],
 
     props: {
@@ -57,16 +58,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        // eslint-disable-next-line camelcase
-        cmsPageTypes(): { page: string, landingpage: string, product_list: string, product_detail: string } {
-            return {
-                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
-            };
-        },
-
         cmsPageRepository(): Repository<'cms_page'> {
             return this.repositoryFactory.create('cms_page');
         },
@@ -87,6 +78,17 @@ export default Shopware.Component.wrapComponentConfig({
                 .addAssociation('slots');
 
             return criteria;
+        },
+
+        pageTypeTitle(name?: string): string {
+            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
+
+            if (!name) {
+                return fallback;
+            }
+
+            const pageType = this.cmsPageTypeService.getType(this.cmsPage?.type);
+            return pageType ? this.$tc(pageType.title) : fallback;
         },
     },
 

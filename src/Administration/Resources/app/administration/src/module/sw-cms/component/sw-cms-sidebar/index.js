@@ -21,6 +21,7 @@ export default {
         'repositoryFactory',
         'feature',
         'cmsBlockFavorites',
+        'cmsPageTypeService',
     ],
 
     mixins: [
@@ -64,6 +65,10 @@ export default {
     },
 
     computed: {
+        pageTypes() {
+            return this.cmsPageTypeService.getTypes();
+        },
+
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -195,6 +200,18 @@ export default {
         onCloseBlockConfig() {
             Shopware.State.commit('cmsPageState/removeSelectedBlock');
             Shopware.State.commit('cmsPageState/removeSelectedSection');
+        },
+
+        isDisabledPageType(pageType) {
+            if (this.page.type === 'product_detail') {
+                return true;
+            }
+
+            if (this.page.type.includes('custom_entity_')) {
+                return !pageType.name.includes('custom_entity_');
+            }
+
+            return pageType.name === 'product_detail' || pageType.name.includes('custom_entity_');
         },
 
         openSectionSettings(sectionIndex) {
